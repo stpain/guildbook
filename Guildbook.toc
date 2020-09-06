@@ -1,0 +1,32 @@
+## Interface: 11302
+## Author: Copperbolts
+## Version: 0.0.10
+## Title: |cff0070DEGuildbook|r
+## Notes: Guildbook adds additional information to the standard guild interface.
+## SavedVariables: GUILDBOOK_GLOBAL, GUILDBOOK_GAMEOBJECTS
+## SavedVariablesPerCharacter: GUILDBOOK_CHARACTER
+
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
+Libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
+Libs\LibDbIcon-1.0\LibDbIcon-1.0.lua
+Libs\HereBeDragons\HereBeDragons-2.0.lua
+Libs\HereBeDragons\HereBeDragons-Pins-2.0.lua
+
+
+Guildbook_Locales.lua
+Guildbook_SDK.lua
+Guildbook_Data.lua
+
+Guildbook_GuildMemberDetailFrame.lua
+
+Guildbook_GuildInfoFrame.lua
+
+Guildbook_Gathering.lua
+
+Guildbook_Core.lua
+
+Guildbook_Dialogs.lua
+
+Guildbook_Options.lua
+Guildbook_Options.xml

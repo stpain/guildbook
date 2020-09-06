@@ -1,0 +1,793 @@
+<!--
+
+Copyright ©2019 Samuel Thomas Pain
+
+The contents of this addon, excluding third-party resources, are
+copyrighted to their authors with all rights reserved.
+
+This addon is free to use and the authors hereby grants you the following rights:
+
+1. 	You may make modifications to this addon for private use only, you
+    may not publicize any portion of this addon.
+
+2. 	Do not modify the name of this addon, including the addon folders.
+
+3. 	This copyright notice shall be included in all copies or substantial
+    portions of the Software.
+
+All rights not explicitly addressed in this license are reserved by
+the copyright holders.
+
+-->
+
+<UI xmlns="http://www.blizzard.com/wow/ui/"   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"   xsi:schemaLocation="http://www.blizzard.com/wow/ui/">
+    <Frame name="GuildbookOptions" enableMouse="true">
+        <Layers>
+			<Layer level="ARTWORK">
+                <FontString name="$parentTitleText" text="Guildbook" inherits="GameFontNormalLarge">
+                    <FontHeight val="14"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT">
+                            <offset x="16" y="-16"/>
+                        </Anchor>
+                    </Anchors>
+                </FontString>
+                <FontString name="$parentHeader" font="Fonts\FRIZQT__.TTF" justifyH="LEFT" justifyV="TOP">          
+                    <FontHeight val="11"/>
+                    <Size x="0" y="40"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeTo="$parentTitleText" relativePoint="BOTTOMLEFT">
+                            <offset x="0" y="-8"/>
+                        </Anchor>
+                        <Anchor point="RIGHT">
+                            <offset x="-16" y="0"/>
+                        </Anchor>
+                    </Anchors>
+                </FontString>                
+                <!--               
+                
+                -->
+                <FontString name="$parentCharacterProfileHeader" font="Fonts\FRIZQT__.TTF" justifyH="LEFT" justifyV="TOP" text="Character Profile" inherits="GameFontNormalLarge">          
+                    <FontHeight val="14"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT">
+                            <offset x="16" y="-120"/>
+                        </Anchor>
+                    </Anchors>
+                </FontString>
+                <FontString name="$parentMainCharacterNameInputDesc" font="Fonts\FRIZQT__.TTF" justifyH="LEFT" justifyV="BOTTOM">          
+                    <FontHeight val="10.5"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="$parentCharacterProfileHeader">
+                            <offset x="0" y="-10"/>
+                        </Anchor>
+                    </Anchors>
+                </FontString>                                 
+                <FontString name="$parentCharacterMainSpec" font="Fonts\FRIZQT__.TTF" >          
+                    <FontHeight val="10.5"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeTo="$parentMainCharacterNameInputDesc" relativePoint="BOTTOMLEFT">
+                            <offset x="0" y="-24"/>
+                        </Anchor>
+                    </Anchors>
+                </FontString>
+                <FontString name="$parentCharacterOffSpec" font="Fonts\FRIZQT__.TTF" >          
+                    <FontHeight val="10.5"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeTo="$parentCharacterMainSpec" relativePoint="BOTTOMLEFT">
+                            <offset x="0" y="-24"/>
+                        </Anchor>
+                    </Anchors>
+                </FontString>      
+                <FontString name="$parentGatheringHeader" font="Fonts\FRIZQT__.TTF" justifyH="LEFT" justifyV="TOP" text="Gathering Options" inherits="GameFontNormalLarge">          
+                    <FontHeight val="14"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT">
+                            <offset x="16" y="-290"/>
+                        </Anchor>
+                    </Anchors>
+                </FontString>                                         
+                <FontString name="$parentMinimapGatheringIconSliderTitle" font="Fonts\FRIZQT__.TTF" justifyH="LEFT" justifyV="TOP" text="Minimap Icon Size">          
+                    <FontHeight val="10.5"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeTo="$parentGatheringHeader" relativePoint="BOTTOMLEFT">
+                            <offset x="0" y="-10"/>
+                        </Anchor>
+                    </Anchors>
+                </FontString>                                        
+                <FontString name="$parentWorldmapGatheringIconSliderTitle" font="Fonts\FRIZQT__.TTF" justifyH="LEFT" justifyV="TOP" text="World map Icon Size">          
+                    <FontHeight val="10.5"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativeTo="$parentMinimapGatheringIconSliderTitle" relativePoint="RIGHT">
+                            <offset x="25" y="0"/>
+                        </Anchor>
+                    </Anchors>
+                </FontString>                                        
+            </Layer>
+        </Layers>
+        <Frames>
+            <Frame name="$parentMainSpecDD" inherits="UIDropDownMenuTemplate">
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parentCharacterMainSpec" relativePoint="LEFT">
+                        <offset x="116" y="0"/>
+                    </Anchor>
+                </Anchors>
+            </Frame>
+            <Frame name="$parentOffSpecDD" inherits="UIDropDownMenuTemplate">
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parentCharacterOffSpec" relativePoint="LEFT">
+                        <offset x="116" y="0"/>
+                    </Anchor>
+                </Anchors>
+            </Frame>
+            <CheckButton name="$parentMainSpecIsPvpSpecCB" inherits="ChatConfigCheckButtonTemplate" >
+                <Size x="24" y="24"/>
+                <Layers>
+                    <Layer>
+                        <FontString name="$parentText" inherits="GameFontNormal" text="PvP Spec">
+                            <Color r="1" g="1" b="1" a="1"/>
+                            <FontHeight val="12"/>
+                            <Anchors>
+                                <Anchor point="LEFT">
+                                    <offset x="24" y="0"/>
+                                </Anchor>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>                
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parentMainSpecDD" relativePoint="RIGHT">
+                        <Offset x="150" y="2"/>
+                    </Anchor>
+                </Anchors>
+                <Scripts>        
+                    <OnClick>
+                        GuildbookOptionsMainSpecIsPvpSpecCB_OnClick(self)
+                    </OnClick>
+                </Scripts>
+            </CheckButton>                    
+            <CheckButton name="$parentOffSpecIsPvpSpecCB" inherits="ChatConfigCheckButtonTemplate" >
+                <Size x="24" y="24"/>
+                <Layers>
+                    <Layer>
+                        <FontString name="$parentText" inherits="GameFontNormal" text="PvP Spec">
+                            <Color r="1" g="1" b="1" a="1"/>
+                            <FontHeight val="12"/>
+                            <Anchors>
+                                <Anchor point="LEFT">
+                                    <offset x="24" y="0"/>
+                                </Anchor>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>                
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parentOffSpecDD" relativePoint="RIGHT">
+                        <Offset x="150" y="2"/>
+                    </Anchor>
+                </Anchors>
+                <Scripts>        
+                    <OnClick>
+                        GuildbookOptionsOffSpecIsPvpSpecCB_OnClick(self)
+                    </OnClick>
+                </Scripts>
+            </CheckButton>        
+
+            
+<!--add a frame here to swap between vanilla/tbc/wrath-->
+            <CheckButton name="$parentAttunementKeysUBRS" inherits="ChatConfigCheckButtonTemplate" >
+                <Size x="24" y="24"/>
+                <Layers>
+                    <Layer>
+                        <FontString name="$parentText" inherits="GameFontNormal" text="UBRS">
+                            <Color r="1" g="1" b="1" a="1"/>
+                            <FontHeight val="12"/>
+                            <Anchors>
+                                <Anchor point="LEFT">
+                                    <offset x="24" y="0"/>
+                                </Anchor>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>                
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parentMainCharacterNameInputDesc" relativePoint="RIGHT">
+                        <Offset x="250" y="0"/>
+                    </Anchor>
+                </Anchors>
+                <Scripts>        
+                    <OnClick>
+                        GuildbookOptionsAttunementKeysCB_OnClick(self, 'UBRS')
+                    </OnClick>
+                </Scripts>
+            </CheckButton>            
+            <CheckButton name="$parentAttunementKeysMC" inherits="ChatConfigCheckButtonTemplate" >
+                <Size x="24" y="24"/>
+                <Layers>
+                    <Layer>
+                        <FontString name="$parentText" inherits="GameFontNormal" text="MC">
+                            <Color r="1" g="1" b="1" a="1"/>
+                            <FontHeight val="12"/>
+                            <Anchors>
+                                <Anchor point="LEFT">
+                                    <offset x="24" y="0"/>
+                                </Anchor>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>                
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentAttunementKeysUBRS" relativePoint="BOTTOMLEFT">
+                        <Offset x="0" y="0"/>
+                    </Anchor>
+                </Anchors>
+                <Scripts>        
+                    <OnClick>
+                        GuildbookOptionsAttunementKeysCB_OnClick(self, 'MC')
+                    </OnClick>
+                </Scripts>
+            </CheckButton>
+            <CheckButton name="$parentAttunementKeysONY" inherits="ChatConfigCheckButtonTemplate" >
+                <Size x="24" y="24"/>
+                <Layers>
+                    <Layer>
+                        <FontString name="$parentText" inherits="GameFontNormal" text="ONY">
+                            <Color r="1" g="1" b="1" a="1"/>
+                            <FontHeight val="12"/>
+                            <Anchors>
+                                <Anchor point="LEFT">
+                                    <offset x="24" y="0"/>
+                                </Anchor>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>                
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentAttunementKeysMC" relativePoint="BOTTOMLEFT">
+                        <Offset x="0" y="0"/>
+                    </Anchor>
+                </Anchors>
+                <Scripts>        
+                    <OnClick>
+                        GuildbookOptionsAttunementKeysCB_OnClick(self, 'ONY')
+                    </OnClick>
+                </Scripts>
+            </CheckButton>     
+            <CheckButton name="$parentAttunementKeysBWL" inherits="ChatConfigCheckButtonTemplate" >
+                <Size x="24" y="24"/>
+                <Layers>
+                    <Layer>
+                        <FontString name="$parentText" inherits="GameFontNormal" text="BWL">
+                            <Color r="1" g="1" b="1" a="1"/>
+                            <FontHeight val="12"/>
+                            <Anchors>
+                                <Anchor point="LEFT">
+                                    <offset x="24" y="0"/>
+                                </Anchor>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>                
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentAttunementKeysONY" relativePoint="BOTTOMLEFT">
+                        <Offset x="0" y="0"/>
+                    </Anchor>
+                </Anchors>
+                <Scripts>        
+                    <OnClick>
+                        GuildbookOptionsAttunementKeysCB_OnClick(self, 'BWL')
+                    </OnClick>
+                </Scripts>
+            </CheckButton>                   
+            <CheckButton name="$parentAttunementKeysNAXX" inherits="ChatConfigCheckButtonTemplate" >
+                <Size x="24" y="24"/>
+                <Layers>
+                    <Layer>
+                        <FontString name="$parentText" inherits="GameFontNormal" text="NAXX">
+                            <Color r="1" g="1" b="1" a="1"/>
+                            <FontHeight val="12"/>
+                            <Anchors>
+                                <Anchor point="LEFT">
+                                    <offset x="24" y="0"/>
+                                </Anchor>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>                
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentAttunementKeysBWL" relativePoint="BOTTOMLEFT">
+                        <Offset x="0" y="0"/>
+                    </Anchor>
+                </Anchors>
+                <Scripts>        
+                    <OnClick>
+                        GuildbookOptionsAttunementKeysCB_OnClick(self, 'NAXX')
+                    </OnClick>
+                </Scripts>
+            </CheckButton>
+
+
+
+            <Editbox name="$parentMainCharacterNameInputBox" inherits="InputBoxTemplate" multiline="false" letters="25" autofocus="false">
+                <Size x="150" y="25"/>
+                <Anchors>
+                    <Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$parentMainCharacterNameInputDesc">
+                        <Offset x="20" y="0"/>
+                    </Anchor>
+                </Anchors>            
+                <FontString inherits="GameFontHighlightSmall"/>
+                <Scripts>
+                    <OnTextChanged>
+                        GuildbookOptionsMainCharacterNameInputBox_OnTextChanged(self)
+                    </OnTextChanged>
+                    <OnEnterPressed>
+                        GuildbookOptionsMainCharacterNameInputBox_OnEnterPressed(self)
+                    </OnEnterPressed>
+                </Scripts>
+            </Editbox>   
+
+            <Button name="$parentResetCharacterData" inherits="UIPanelButtonTemplate" text="Reset Character">
+                <Size x="140" y="25"/>
+                <Anchors>
+                    <Anchor point="BOTTOMRIGHT">
+                        <offset x="-16" y="48"/>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnClick>
+                        StaticPopup_Show('GuildbookResetCharacter')
+                    </OnClick>
+                </Scripts>
+            </Button>
+            <Button name="$parentResetGlobalSettings" inherits="UIPanelButtonTemplate" text="Reset Global Settings">
+                <Size x="190" y="25"/>
+                <Anchors>
+                    <Anchor point="BOTTOMRIGHT">
+                        <offset x="-16" y="16"/>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnClick>
+                        StaticPopup_Show('GuildbookResetGlobalSettings')
+                    </OnClick>
+                </Scripts>
+            </Button>
+
+            <Slider name="$parentMinimapIconSizeSlider" inherits="OptionsSliderTemplate" minvalue="2" maxvalue="20" defaultvalue="1" valuestep="1" enableMouse="true">
+                <Size x="100" y="20"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="$parentMinimapGatheringIconSliderTitle">
+                        <Offset x="0" y="-20"/>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnShow>
+                        GuildbookOptionsMinimapIconSizeSlider_OnShow(self)
+                    </OnShow>
+                    <OnValueChanged>
+                        GuildbookOptionsMinimapIconSizeSlider_OnValueChanged(self)
+                    </OnValueChanged>
+                </Scripts>
+            </Slider> 
+            <Slider name="$parentWorldmapIconSizeSlider" inherits="OptionsSliderTemplate" minvalue="2" maxvalue="20" defaultvalue="1" valuestep="1" enableMouse="true">
+                <Size x="100" y="20"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="$parentWorldmapGatheringIconSliderTitle">
+                        <Offset x="0" y="-20"/>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnShow>
+                        GuildbookOptionsWorldmapIconSizeSlider_OnShow(self)
+                    </OnShow>
+                    <OnValueChanged>
+                        GuildbookOptionsWorldmapIconSizeSlider_OnValueChanged(self)
+                    </OnValueChanged>
+                </Scripts>
+            </Slider> 
+
+            <CheckButton name="$parentDebugCB" inherits="ChatConfigCheckButtonTemplate" >
+                <Size x="24" y="24"/>
+                <Layers>
+                    <Layer>
+                        <FontString name="$parentText" inherits="GameFontNormal" text="Debug">
+                            <Color r="1" g="1" b="1" a="1"/>
+                            <FontHeight val="12"/>
+                            <Anchors>
+                                <Anchor point="LEFT">
+                                    <offset x="24" y="0"/>
+                                </Anchor>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>                
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT">
+                        <Offset x="16" y="16"/>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self.tooltip = 'Enable / Disable debugging'
+                    </OnLoad>                
+                    <OnClick>
+                        GuildbookOptionsDebugCB_OnClick(self)
+                    </OnClick>
+                </Scripts>
+            </CheckButton>
+            <CheckButton name="$parentShowMinimapButton" inherits="ChatConfigCheckButtonTemplate" >
+                <Size x="24" y="24"/>
+                <Layers>
+                    <Layer>
+                        <FontString name="$parentText" inherits="GameFontNormal" text="Minimap Button">
+                            <Color r="1" g="1" b="1" a="1"/>
+                            <FontHeight val="12"/>
+                            <Anchors>
+                                <Anchor point="LEFT">
+                                    <offset x="24" y="0"/>
+                                </Anchor>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>                
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT">
+                        <Offset x="16" y="48"/>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self.tooltip = 'Show / Hide Minimap Button'
+                    </OnLoad>                
+                    <OnClick>
+                        GuildbookOptionsShowMinimapButton_OnClick(self)
+                    </OnClick>
+                </Scripts>
+            </CheckButton>
+            <CheckButton name="$parentShowItemInfoTooltipCB" inherits="ChatConfigCheckButtonTemplate" >
+                <Size x="24" y="24"/>
+                <Layers>
+                    <Layer>
+                        <FontString name="$parentText" inherits="GameFontNormal" text="Tooltip item data">
+                            <Color r="1" g="1" b="1" a="1"/>
+                            <FontHeight val="12"/>
+                            <Anchors>
+                                <Anchor point="LEFT">
+                                    <offset x="24" y="0"/>
+                                </Anchor>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>                
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT">
+                        <Offset x="16" y="80"/>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self.tooltip = 'Show / Hide Item data in tooltip'
+                    </OnLoad>                
+                    <OnClick>
+                        GuildbookOptionsShowItemInfoTooltipCB_OnClick(self)
+                    </OnClick>
+                </Scripts>
+            </CheckButton>
+            <CheckButton name="$parentShowBankBagsInfoCB" inherits="ChatConfigCheckButtonTemplate" >
+                <Size x="24" y="24"/>
+                <Layers>
+                    <Layer>
+                        <FontString name="$parentText" inherits="GameFontNormal" text="Tooltip bank info">
+                            <Color r="1" g="1" b="1" a="1"/>
+                            <FontHeight val="12"/>
+                            <Anchors>
+                                <Anchor point="LEFT">
+                                    <offset x="24" y="0"/>
+                                </Anchor>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>                
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT">
+                        <Offset x="16" y="112"/>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self.tooltip = 'Show / Hide Bank bags info'
+                    </OnLoad>                
+                    <OnClick>
+                        GuildbookOptionsShowBankBagsInfoCB_OnClick(self)
+                    </OnClick>
+                </Scripts>
+            </CheckButton>
+
+            <Frame name="GuildbookOptionsGatheringDatabase" enableMouse="true" parent="GuildbookOptions">
+                <Layers>
+                    <Layer level="ARTWORK">
+                        <FontString name="$parentTitleText" text="Gathering Database" inherits="GameFontNormalLarge">
+                            <FontHeight val="14"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT">
+                                    <offset x="16" y="-16"/>
+                                </Anchor>
+                            </Anchors>
+                        </FontString>
+                        <FontString name="$parentHeader" font="Fonts\FRIZQT__.TTF" justifyH="LEFT" justifyV="TOP">          
+                            <FontHeight val="11"/>
+                            <Size x="0" y="85"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeTo="$parentTitleText" relativePoint="BOTTOMLEFT">
+                                    <offset x="0" y="-8"/>
+                                </Anchor>
+                                <Anchor point="RIGHT">
+                                    <offset x="-16" y="0"/>
+                                </Anchor>
+                            </Anchors>
+                        </FontString>                    
+                    </Layer>
+                </Layers>
+                <Frames>
+                    <CheckButton name="$parentSelectAllGameObjectCB" inherits="ChatConfigCheckButtonTemplate" >
+                        <Size x="24" y="24"/>
+                        <Layers>
+                            <Layer>
+                                <FontString name="$parentText" inherits="GameFontNormal" text="Select All Objects">
+                                    <Color r="1" g="1" b="1" a="1"/>
+                                    <FontHeight val="12"/>
+                                    <Anchors>
+                                        <Anchor point="LEFT">
+                                            <offset x="24" y="0"/>
+                                        </Anchor>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>                
+                        <Anchors>
+                            <Anchor point="TOPLEFT">
+                                <Offset x="16" y="-95"/>
+                            </Anchor>
+                        </Anchors>
+                        <Scripts>        
+                            <OnClick>
+                                GuildbookOptionsGatheringDatabaseSelectAllGameObjectCB_OnClick(self)
+                            </OnClick>
+                        </Scripts>
+                    </CheckButton>                    
+                    <!-- <Button name="$parentListViewSendSelectedItemsToGuild" inherits="UIPanelButtonTemplate">
+                        <Size x="28" y="28"/>
+                        <Anchors>
+                            <Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT" relativeTo="GuildbookOptionsGatheringDatabase">
+                                <offset x="-32" y="-115"/>
+                            </Anchor>
+                        </Anchors>
+                        <Scripts>
+                            <OnClick>
+                                GuildbookOptionsGatheringDatabaseListViewSendSelectedItemsToGuild_OnClick(self)
+                            </OnClick>
+                            <OnEnter>
+                                GuildbookOptionsGatheringDatabaseListViewSendSelectedItemsToGuild_OnEnter(self)
+                            </OnEnter>
+                            <OnLeave>
+                                GuildbookOptionsGatheringDatabaseListViewSendSelectedItemsToGuild_OnLeave(self)
+                            </OnLeave>
+                        </Scripts>
+                    </Button>     -->
+                    <!-- <Editbox name="$parentSendSelectedItemsRecipient" inherits="InputBoxTemplate" multiline="false" letters="25" autofocus="false">
+                        <Size x="150" y="28"/>
+                        <Anchors>
+                            <Anchor point="RIGHT" relativePoint="LEFT" relativeTo="$parentListViewSendSelectedItemsToGuild">
+                                <Offset x="-5" y="0"/>
+                            </Anchor>
+                        </Anchors>            
+                        <FontString inherits="GameFontHighlightSmall"/>
+                        <Scripts>
+                            <OnTextChanged>
+                                
+                            </OnTextChanged>
+                        </Scripts>
+                    </Editbox>
+                    <StatusBar name="$parentSendingDataSB" minValue="0" maxValue="100" defaultValue="0" orientation="HORIZONTAL">
+                        <Size x="160" y="16"/>
+                        <Anchors>
+                            <Anchor point="RIGHT" relativePoint="LEFT" relativeTo="$parentSendSelectedItemsRecipient">
+                                <offset x="-5" y="0"/>
+                            </Anchor>
+                        </Anchors>
+                        <BarColor r="0.67" g="0.83" b="0.45"/>
+                        <BarTexture file="Interface\TargetingFrame\UI-StatusBar"/>
+                    </StatusBar>                                                 -->
+                    <!-- <Button name="$parentListViewDeleteSelectedItems" inherits="UIPanelButtonTemplate" text="">
+                        <Size x="28" y="28"/>
+                        <Anchors>
+                       <Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" relativeTo="$parentListViewSendSelectedItemsToGuild">
+                                <offset x="0" y="0"/>
+                            </Anchor>
+                        </Anchors>
+                        <Scripts>
+                            <OnClick>
+                                
+                            </OnClick>
+                        </Scripts>
+                    </Button>                     -->
+                    <!-- <Button name="$parentDeleteListViewSelectedItemsButton" >
+                        <Size x="36" y="36"/>
+                        <NormalTexture name="$parentNormalTexture" file="interface/buttons/cancelbutton-up.blp">
+                            <Size x="48" y="48"/>				
+                        </NormalTexture>
+                        <PushedTexture name="$parentPushedTexture" file="interface/buttons/cancelbutton-down.blp">
+                            <Size x="32" y="32"/>
+                        </PushedTexture>
+                        <HighlightTexture name="$parentHighlightTexture" file="interface/buttons/cancelbutton-highlight.blp" alphaMode="ADD">
+                            <Size x="32" y="32"/>
+                        </HighlightTexture>
+                        <Anchors>
+                            <Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$parentSelectAllGameObjectCB">
+                                <offset x="500" y="-0"/>
+                            </Anchor>
+                        </Anchors>
+                        <Scripts>
+                            <OnClick>
+                                GuildbookOptionsGatheringDatabaseDeleteListViewSelectedItemsButton_OnClick(self)
+                            </OnClick>
+                        </Scripts>
+                    </Button> -->
+                    <Button name="$parentListViewHeaderButtonItemName" inherits="UIPanelButtonTemplate" text="Item Name">
+                        <Size x="200" y="20"/>
+                        <Anchors>
+                       <Anchor point="TOPLEFT">
+                                <offset x="16" y="-115"/>
+                            </Anchor>
+                        </Anchors>
+                        <Scripts>
+                            <OnClick>
+                                GuildbookOptionsGatheringDatabaseGameObjectsListViewHeaderButton_OnClick('ItemName')
+                            </OnClick>
+                        </Scripts>
+                    </Button>
+                    <Button name="$parentListViewHeaderButtonSourceName" inherits="UIPanelButtonTemplate" text="Source Name">
+                        <Size x="180" y="20"/>
+                        <Anchors>
+                       <Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$parentListViewHeaderButtonItemName">
+                                <offset x="0" y="0"/>
+                            </Anchor>
+                        </Anchors>
+                        <Scripts>
+                            <OnClick>
+                                GuildbookOptionsGatheringDatabaseGameObjectsListViewHeaderButton_OnClick('SourceName')
+                            </OnClick>
+                        </Scripts>
+                    </Button>
+                    <Button name="$parentListViewHeaderButtonMapZoneName" inherits="UIPanelButtonTemplate" text="Map Zone">
+                        <Size x="195" y="20"/>
+                        <Anchors>
+                       <Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$parentListViewHeaderButtonSourceName">
+                                <offset x="0" y="0"/>
+                            </Anchor>
+                        </Anchors>
+                        <Scripts>
+                            <OnClick>
+                                GuildbookOptionsGatheringDatabaseGameObjectsListViewHeaderButton_OnClick('MapZoneName')
+                            </OnClick>
+                        </Scripts>
+                    </Button>                    
+                    <!-- <Button name="$parentListViewHeaderButtonMapZonePosX" inherits="UIPanelButtonTemplate" text="Pos X">
+                        <Size x="45" y="20"/>
+                        <Anchors>
+                       <Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$parentListViewHeaderButtonMapZoneName">
+                                <offset x="0" y="0"/>
+                            </Anchor>
+                        </Anchors>
+                        <Scripts>
+                            <OnClick>
+                                GuildbookOptionsGatheringDatabaseGameObjectsListViewHeaderButton_OnClick('MapZonePosX')
+                            </OnClick>
+                        </Scripts>
+                    </Button>
+                    <Button name="$parentListViewHeaderButtonMapZonePosY" inherits="UIPanelButtonTemplate" text="Pos Y">
+                        <Size x="45" y="20"/>
+                        <Anchors>
+                       <Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$parentListViewHeaderButtonMapZonePosX">
+                                <offset x="1" y="0"/>
+                            </Anchor>
+                        </Anchors>
+                        <Scripts>
+                            <OnClick>
+                                GuildbookOptionsGatheringDatabaseGameObjectsListViewHeaderButton_OnClick('MapZonePosY')
+                            </OnClick>
+                        </Scripts>
+                    </Button> -->
+                    <Frame name="GuildbookOptionsGatheringDatabaseGameObjectsListView">
+                        <Layers>
+                            <Layer level="ARTWORK">
+                                <Texture name="$parentTexture">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT">
+                                            <offset x="0" y="0"/>
+                                        </Anchor>
+                                        <Anchor point="BOTTOMRIGHT">
+                                            <offset x="0" y="0"/>
+                                        </Anchor>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                        <Anchors>
+                            <Anchor point="TOPLEFT">
+                                <offset x="16" y="-135"/>
+                            </Anchor>
+                            <Anchor point="BOTTOMRIGHT">
+                                <offset x="-16" y="10"/>
+                            </Anchor>
+                        </Anchors>
+                        <Frames>
+                            <Slider name="$parentScrollBar" inherits="UIPanelScrollBarTemplate">
+                                <Anchors>
+                                    <Anchor point="TOPRIGHT" relativeTo="GuildbookOptionsGatheringDatabaseGameObjectsListView" relativePoint="TOPRIGHT">
+                                        <offset x="0" y="-16"/>
+                                    </Anchor>
+                                    <Anchor point="BOTTOMRIGHT" relativeTo="GuildbookOptionsGatheringDatabaseGameObjectsListView" relativePoint="BOTTOMRIGHT">
+                                        <offset x="0" y="16"/>
+                                    </Anchor> 
+                                </Anchors>
+                                <Scripts>
+                                    <OnValueChanged>
+                                        GuildbookOptionsGatheringDatabaseGameObjectsListViewScrollBar_OnValueChanged(self)
+                                    </OnValueChanged>
+                                    <OnLoad>
+                                        self:SetMinMaxValues(1, 10)
+                                        self:SetValueStep(0.1)
+                                        self:SetValue(1)
+                                        self.scrollStep = 1
+                                    </OnLoad>
+                                </Scripts>
+                                <ThumbTexture name="$parentThumbTexture" inherits="UIPanelScrollBarButton" file="Interface\Buttons\UI-ScrollBar-Knob">
+                                    <Size x="18" y="18"/>                            
+                                </ThumbTexture>
+                            </Slider>
+                        </Frames>
+                        <Scripts>
+                            <OnMouseWheel>
+                                GuildbookOptionsGatheringDatabaseGameObjectsListView_OnMouseWheel(self, delta)
+                            </OnMouseWheel>
+                        </Scripts>
+                    </Frame>
+                </Frames>
+                <Scripts>
+                    <OnShow>
+                        GuildbookOptionsGatheringDatabase_OnShow(self)
+                    </OnShow>
+                    <OnHide>
+                        GuildbookOptionsGatheringDatabase_OnHide(self)
+                    </OnHide>
+                </Scripts>
+            </Frame>
+        </Frames>
+        <Scripts>
+            <OnLoad>
+                self.name = 'Guildbook'
+	            InterfaceOptions_AddCategory(GuildbookOptions)
+                GuildbookOptions_OnLoad(self)
+            </OnLoad>
+            <OnShow>
+                GuildbookOptions_OnShow(self)
+            </OnShow>
+        </Scripts>
+
+
+
+
+
+
+
+
+
+
+
+
+    </Frame>
+
+
+
+</UI>
