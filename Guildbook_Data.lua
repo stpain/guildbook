@@ -131,6 +131,7 @@ Guildbook.Data.ProfToID = {
     Cooking = 'l',
     Fishing = 'm',
     FirstAid = 'n',
+    ['-'] = '-',
 }
 
 Guildbook.Data.ProfFromID = {
@@ -148,6 +149,7 @@ Guildbook.Data.ProfFromID = {
     ['l'] = 'Cooking',
     ['m'] = 'Fishing',
     ['n'] = 'FirstAid',
+    ['-'] = '-',
 }
 
 Guildbook.Data.SpecToID = {
@@ -179,6 +181,7 @@ Guildbook.Data.SpecToID = {
     Protection = 'z',
     Retribution = '0',
     Feral = '1', --hmm maybe used?
+    ['-'] = '-',
 }
 
 Guildbook.Data.SpecFromID = {
@@ -210,6 +213,7 @@ Guildbook.Data.SpecFromID = {
     ['z'] = 'Protection',
     ['0'] = 'Retribution',
     ['1'] = 'Feral', --hmm maybe used?
+    ['-'] = 'None',
 }
 
 Guildbook.Data.SpecFontStringIconSMALL = { 

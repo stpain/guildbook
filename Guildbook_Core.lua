@@ -85,6 +85,7 @@ Guildbook.CharDataMsgkeys = {
     [14] = 'offspec',
     [15] = 'mainspecispvp',
     [16] = 'offspecispvp',
+    [17] = 'guildname',
 }
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -266,14 +267,17 @@ function Guildbook:Init()
                 _G['GuildFrameButton'..i].GuildbookColumnProfession1:SetText('-')
                 _G['GuildFrameButton'..i].GuildbookColumnProfession2:SetText('-')
                 -- loop local cache and update columns
-                if GUILDBOOK_GLOBAL and next(GUILDBOOK_GLOBAL.GuildRosterCache) then
-                    if GUILDBOOK_GLOBAL.GuildRosterCache[GUID] then
-                        local ms, os = GUILDBOOK_GLOBAL.GuildRosterCache[GUID]['MainSpec'], GUILDBOOK_GLOBAL.GuildRosterCache[GUID]['OffSpec']
-                        local prof1 = GUILDBOOK_GLOBAL.GuildRosterCache[GUID]['Profession1']
-                        local prof2 = GUILDBOOK_GLOBAL.GuildRosterCache[GUID]['Profession2']
-                        _G['GuildFrameButton'..i].GuildbookColumnMainSpec:SetText(string.format('%s %s', self.Data.SpecFontStringIconSMALL[GUILDBOOK_GLOBAL.GuildRosterCache[GUID]['Class']][ms], ms))                
-                        _G['GuildFrameButton'..i].GuildbookColumnProfession1:SetText(string.format('%s %s', self.Data.Profession[prof1].FontStringIconSMALL, prof1))
-                        _G['GuildFrameButton'..i].GuildbookColumnProfession2:SetText(string.format('%s %s', self.Data.Profession[prof2].FontStringIconSMALL, prof2))
+                local guildName = Guildbook:GetGuildName()
+                if guildName then
+                    if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache and GUILDBOOK_GLOBAL.GuildRosterCache[guildName] and next(GUILDBOOK_GLOBAL.GuildRosterCache[guildName]) then
+                        if GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID] then
+                            local ms, os = GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]['MainSpec'], GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]['OffSpec']
+                            local prof1 = GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]['Profession1']
+                            local prof2 = GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]['Profession2']
+                            _G['GuildFrameButton'..i].GuildbookColumnMainSpec:SetText(string.format('%s %s', self.Data.SpecFontStringIconSMALL[GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]['Class']][ms], ms))                
+                            _G['GuildFrameButton'..i].GuildbookColumnProfession1:SetText(string.format('%s %s', self.Data.Profession[prof1].FontStringIconSMALL, prof1))
+                            _G['GuildFrameButton'..i].GuildbookColumnProfession2:SetText(string.format('%s %s', self.Data.Profession[prof2].FontStringIconSMALL, prof2))
+                        end
                     end
                 end
             end
@@ -403,25 +407,40 @@ function Guildbook:Init()
 
     -- allow time for loading and whats nots, then send character data
     C_Timer.After(5, function()
-        local profs = self:GetCharacterProfessions()
-        local spec = self:GetCharacterSpecs()
-        local guid = UnitGUID('player')
-        local level = UnitLevel('player')
-        if not self.PlayerMixin then
-            self.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
-        else
-            self.PlayerMixin:SetGUID(guid)
-        end
-        if self.PlayerMixin:IsValid() then
-            local _, class, _ = C_PlayerInfo.GetClass(self.PlayerMixin)
-            local name = C_PlayerInfo.GetName(self.PlayerMixin)
-            local profs = self:GetCharacterProfessions()
-            local specs = self:GetCharacterSpecs()
-            local msg = tostring(guid..'$'..name..'$'..class..'$'..level..'$'..profs..'$'..GUILDBOOK_CHARACTER['MainCharacter']..'$'..specs)
-            ChatThrottleLib:SendAddonMessage("NORMAL",  "gb-char-stats", msg, "GUILD")
-        end
+        Guildbook:SendCharacterStats()
     end)
 
+end
+
+function Guildbook:GetGuildName()
+    local guildName = false
+    if IsInGuild() and GetGuildInfo("player") then
+        local guildName, _, _, _ = GetGuildInfo('player')
+        return guildName
+    end
+end
+
+function Guildbook:SendCharacterStats()
+    local profs = self:GetCharacterProfessions()
+    local spec = self:GetCharacterSpecs()
+    local guid = UnitGUID('player')
+    local level = UnitLevel('player')
+    if not self.PlayerMixin then
+        self.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
+    else
+        self.PlayerMixin:SetGUID(guid)
+    end
+    if self.PlayerMixin:IsValid() then
+        local _, class, _ = C_PlayerInfo.GetClass(self.PlayerMixin)
+        local name = C_PlayerInfo.GetName(self.PlayerMixin)
+        local profs = self:GetCharacterProfessions()
+        local specs = self:GetCharacterSpecs()
+        local guildName = self:GetGuildName()
+        if guildName then
+            local msg = tostring(guid..'$'..name..'$'..class..'$'..level..'$'..profs..'$'..GUILDBOOK_CHARACTER['MainCharacter']..'$'..specs..'$'..guildName)
+            ChatThrottleLib:SendAddonMessage("NORMAL",  "gb-char-stats", msg, "GUILD")
+        end
+    end
 end
 
 function Guildbook:GetCharacterProfessions()
@@ -481,6 +500,10 @@ function Guildbook:ParseCharacterData(msg)
         t[Guildbook.CharDataMsgkeys[i]] = d
         i = i + 1
     end
+    local guildName = t['guildname']
+    if not GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
+        GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] = {}
+    end
     --convert values back
     local prof1 = self.Data.ProfFromID[t['prof1']]
     local prof2 = self.Data.ProfFromID[t['prof2']]
@@ -493,7 +516,7 @@ function Guildbook:ParseCharacterData(msg)
     if GUILDBOOK_CHARACTER['OffSpecIsPvP'] == 1 then
         ospvp = true
     end
-    GUILDBOOK_GLOBAL.GuildRosterCache[t['guid']] = {
+    GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']] = {
         Name = t['name'],
         Class = t['class'],
         Level = tonumber(t['level']),
@@ -537,11 +560,26 @@ function Guildbook:CHAT_MSG_ADDON(...)
     end
 end
 
+function Guildbook:PLAYER_LEVEL_UP()
+    C_Timer.After(3, function()
+        self:SendCharacterStats()
+    end)
+end
+
+function Guildbook:SKILL_LINES_CHANGED()
+    C_Timer.After(3, function()
+        DEBUG('sending char data due to skill line event')
+        self:SendCharacterStats()
+    end)
+end
+
 --set up event listener
 Guildbook.EventFrame = CreateFrame('FRAME', 'GuildbookEventFrame', UIParent)
 Guildbook.EventFrame:RegisterEvent('GUILD_ROSTER_UPDATE')
 Guildbook.EventFrame:RegisterEvent('CHAT_MSG_ADDON')
 Guildbook.EventFrame:RegisterEvent('ADDON_LOADED')
+Guildbook.EventFrame:RegisterEvent('PLAYER_LEVEL_UP')
+Guildbook.EventFrame:RegisterEvent('SKILL_LINES_CHANGED')
 Guildbook.EventFrame:SetScript('OnEvent', function(self, event, ...)
     --DEBUG('EVENT='..tostring(event))
     Guildbook[event](Guildbook, ...)

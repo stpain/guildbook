@@ -157,29 +157,32 @@ function Guildbook:SetupSummaryFrame()
     end
 
     function self.GuildFrame.SummaryFrame:GetClassRoleFromCache()
-        if GUILDBOOK_GLOBAL and next(GUILDBOOK_GLOBAL.GuildRosterCache) then
-            self.Roles = {
-                Tank = { DEATHKNIGHT = 0, WARRIOR = 0, DRUID = 0, PALADIN = 0 },
-                Healer = { DRUID = 0, SHAMAN = 0, PRIEST = 0, PALADIN = 0 },
-                Ranged = { DRUID = 0, SHAMAN = 0, PRIEST = 0, MAGE = 0, WARLOCK = 0, HUNTER = 0 },
-                Melee = { DRUID = 0, SHAMAN = 0, PALADIN = 0, WARRIOR = 0, ROGUE = 0, DEATHKNIGHT = 0 }
-            }
-            for guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache) do
-                self.Roles[Guildbook.Data.SpecToRole[character.Class][character.MainSpec]][character.Class] = self.Roles[Guildbook.Data.SpecToRole[character.Class][character.MainSpec]][character.Class] + 1
-            end
-            for role, classes in pairs(self.Roles) do
-                self.RoleCharts[role]:ResetPie()
-                local total = 0
-                for class, count in pairs(classes) do
-                    total = total + count
+        local guildName = Guildbook:GetGuildName()
+        if guildName then
+            if GUILDBOOK_GLOBAL and next(GUILDBOOK_GLOBAL.GuildRosterCache[guildName]) then
+                self.Roles = {
+                    Tank = { DEATHKNIGHT = 0, WARRIOR = 0, DRUID = 0, PALADIN = 0 },
+                    Healer = { DRUID = 0, SHAMAN = 0, PRIEST = 0, PALADIN = 0 },
+                    Ranged = { DRUID = 0, SHAMAN = 0, PRIEST = 0, MAGE = 0, WARLOCK = 0, HUNTER = 0 },
+                    Melee = { DRUID = 0, SHAMAN = 0, PALADIN = 0, WARRIOR = 0, ROGUE = 0, DEATHKNIGHT = 0 }
+                }
+                for guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[guildName]) do
+                    self.Roles[Guildbook.Data.SpecToRole[character.Class][character.MainSpec]][character.Class] = self.Roles[Guildbook.Data.SpecToRole[character.Class][character.MainSpec]][character.Class] + 1
                 end
-                if total > 0 then
+                for role, classes in pairs(self.Roles) do
+                    self.RoleCharts[role]:ResetPie()
+                    local total = 0
                     for class, count in pairs(classes) do
-                        if count > 0 then
-                            self.RoleCharts[role]:AddPie((count/total) * 100, Guildbook.Data.Class[class].RGB)
-                        end
+                        total = total + count
                     end
-                    self.RoleCharts[role]:CompletePie({0,0,0})
+                    if total > 0 then
+                        for class, count in pairs(classes) do
+                            if count > 0 then
+                                self.RoleCharts[role]:AddPie((count/total) * 100, Guildbook.Data.Class[class].RGB)
+                            end
+                        end
+                        self.RoleCharts[role]:CompletePie({0,0,0})
+                    end
                 end
             end
         end
