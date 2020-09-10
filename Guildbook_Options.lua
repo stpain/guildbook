@@ -169,8 +169,9 @@ function GuildbookOptionsMainSpecDD_Init()
     if Guildbook.LOADED == true then
         UIDropDownMenu_Initialize(GuildbookOptionsMainSpecDD, function(self, level, menuList)
             local info = UIDropDownMenu_CreateInfo()
-            for i, spec in pairs(Guildbook.Data.Class[Guildbook.PLAYER_CLASS].Specializations) do
-                info.text = tostring(Guildbook.Data.SpecFontStringIconSMALL[Guildbook.PLAYER_CLASS][spec]..'  '..L[spec])
+            local _, class, _ = UnitClass('player')
+            for i, spec in pairs(Guildbook.Data.Class[class].Specializations) do
+                info.text = tostring(Guildbook.Data.SpecFontStringIconSMALL[class][spec]..'  '..L[spec])
                 info.hasArrow = false
                 info.keepShownOnClick = false
                 info.func = function() 
@@ -187,8 +188,9 @@ function GuildbookOptionsOffSpecDD_Init()
     if Guildbook.LOADED == true then
         UIDropDownMenu_Initialize(GuildbookOptionsOffSpecDD, function(self, level, menuList)
             local info = UIDropDownMenu_CreateInfo()
-            for i, spec in pairs(Guildbook.Data.Class[Guildbook.PLAYER_CLASS].Specializations) do
-                info.text = tostring(Guildbook.Data.SpecFontStringIconSMALL[Guildbook.PLAYER_CLASS][spec]..'  '..L[spec])
+            local _, class, _ = UnitClass('player')
+            for i, spec in pairs(Guildbook.Data.Class[class].Specializations) do
+                info.text = tostring(Guildbook.Data.SpecFontStringIconSMALL[class][spec]..'  '..L[spec])
                 info.hasArrow = false
                 info.keepShownOnClick = false
                 info.func = function() 

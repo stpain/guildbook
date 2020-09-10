@@ -20,9 +20,8 @@ Guildbook_Data.lua
 
 Guildbook_GuildMemberDetailFrame.lua
 
-Guildbook_GuildInfoFrame.lua
-
 Guildbook_Core.lua
+Guildbook_GuildFrame.lua
 
 Guildbook_Dialogs.lua
 
