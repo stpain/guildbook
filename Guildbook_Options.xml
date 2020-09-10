@@ -372,22 +372,6 @@ the copyright holders.
                     </OnValueChanged>
                 </Scripts>
             </Slider> 
-            <Slider name="$parentWorldmapIconSizeSlider" inherits="OptionsSliderTemplate" minvalue="2" maxvalue="20" defaultvalue="1" valuestep="1" enableMouse="true">
-                <Size x="100" y="20"/>
-                <Anchors>
-                    <Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="$parentWorldmapGatheringIconSliderTitle">
-                        <Offset x="0" y="-20"/>
-                    </Anchor>
-                </Anchors>
-                <Scripts>
-                    <OnShow>
-                        
-                    </OnShow>
-                    <OnValueChanged>
-                        
-                    </OnValueChanged>
-                </Scripts>
-            </Slider>
 -->
 
             <CheckButton name="$parentDebugCB" inherits="ChatConfigCheckButtonTemplate" >

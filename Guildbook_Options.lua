@@ -33,16 +33,6 @@ function GuildbookOptionsDebugCB_OnClick(self)
     self:SetChecked(GUILDBOOK_GLOBAL['Debug'])
 end
 
-function GuildbookOptionsShowItemInfoTooltipCB_OnClick(self)
-    GUILDBOOK_CHARACTER['TooltipItemData'] = self:GetChecked()
-    self:GetChecked(GUILDBOOK_CHARACTER['TooltipItemData'])
-end
-
-function GuildbookOptionsShowBankBagsInfoCB_OnClick(self)
-    GUILDBOOK_CHARACTER['TooltipBankData'] = self:GetChecked()
-    self:GetChecked(GUILDBOOK_CHARACTER['TooltipBankData'])
-end
-
 function GuildbookOptionsAttunementKeysCB_OnClick(self, instance)
     if not GUILDBOOK_CHARACTER['AttunementsKeys'] then
         GUILDBOOK_CHARACTER['AttunementsKeys'] = Guildbook.Data.DefaultCharacterSettings.AttunementsKeys
@@ -50,50 +40,6 @@ function GuildbookOptionsAttunementKeysCB_OnClick(self, instance)
     GUILDBOOK_CHARACTER['AttunementsKeys'][instance] = self:GetChecked()
     self:SetChecked(GUILDBOOK_CHARACTER['AttunementsKeys'][instance])
     DEBUG('set instance: '..instance..' attunement key as: '..tostring(self:GetChecked()))
-end
-
-function GuildbookOptionsMinimapIconSizeSlider_OnShow(self)
-    if Guildbook.LOADED then
-        if not GUILDBOOK_CHARACTER['MinimapGatheringIconSize'] then
-            GUILDBOOK_CHARACTER['MinimapGatheringIconSize'] = 8.0
-        end
-        self:SetValue(tonumber(GUILDBOOK_CHARACTER['MinimapGatheringIconSize']))
-    end
-end
-
-function GuildbookOptionsMinimapIconSizeSlider_OnValueChanged(self)
-    if Guildbook.LOADED then
-        if not GUILDBOOK_CHARACTER['MinimapGatheringIconSize'] then
-            GUILDBOOK_CHARACTER['MinimapGatheringIconSize'] = 8.0
-        end
-        GUILDBOOK_CHARACTER['MinimapGatheringIconSize'] = self:GetValue()
-        _G[self:GetName()..'Text']:SetText(string.format("%.0f", tostring(GUILDBOOK_CHARACTER['MinimapGatheringIconSize'])))
-        _G[self:GetName()..'Low']:SetText('2');
-        _G[self:GetName()..'High']:SetText('20')
-    end
-    --Guildbook.Gathering.UpdateMapGatheringIcons()
-end
-
-function GuildbookOptionsWorldmapIconSizeSlider_OnShow(self)
-    if Guildbook.LOADED then
-        if not GUILDBOOK_CHARACTER['WorldmapGatheringIconSize'] then
-            GUILDBOOK_CHARACTER['WorldmapGatheringIconSize'] = 8.0
-        end
-        self:SetValue(tonumber(GUILDBOOK_CHARACTER['WorldmapGatheringIconSize']))
-    end
-end
-
-function GuildbookOptionsWorldmapIconSizeSlider_OnValueChanged(self)
-    if Guildbook.LOADED then
-        if not GUILDBOOK_CHARACTER['WorldmapGatheringIconSize'] then
-            GUILDBOOK_CHARACTER['WorldmapGatheringIconSize'] = 8.0
-        end
-        GUILDBOOK_CHARACTER['WorldmapGatheringIconSize'] = self:GetValue()
-        _G[self:GetName()..'Text']:SetText(string.format("%.0f", tostring(GUILDBOOK_CHARACTER['WorldmapGatheringIconSize'])))
-        _G[self:GetName()..'Low']:SetText('2');
-        _G[self:GetName()..'High']:SetText('20')
-    end
-    --Guildbook.Gathering.UpdateMapGatheringIcons()
 end
 
 function GuildbookOptionsShowMinimapButton_OnClick(self)
@@ -139,8 +85,6 @@ function GuildbookOptions_OnShow(self)
             GuildbookOptionsAttunementKeysBWL:SetChecked(GUILDBOOK_CHARACTER['AttunementsKeys']['BWL'])
             GuildbookOptionsAttunementKeysNAXX:SetChecked(GUILDBOOK_CHARACTER['AttunementsKeys']['NAXX'])
         end
-
-        --GuildbookOptionsGatheringDatabaseSendSelectedItemsRecipient:SetText(L['CharacterName'])
     end
 end
 

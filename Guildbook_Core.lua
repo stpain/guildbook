@@ -173,36 +173,36 @@ function Guildbook:Init()
         end)
     end
     
-    local function formatGuildFrameButton(button)
-        button:SetFont("Fonts\\FRIZQT__.TTF", 10)
+    local function formatGuildFrameButton(button, col)
+        --button:SetFont("Fonts\\FRIZQT__.TTF", 10)
         button:SetJustifyH('LEFT')
-        button:SetTextColor(1,1,1,1)
+        button:SetTextColor(col[1], col[2], col[3], col[4])
     end
     
-    GuildFrameButton1.GuildbookColumnRank = GuildFrameButton1:CreateFontString('$parentGuildbookRank', 'OVERLAY', 'GameFontNormal')
+    GuildFrameButton1.GuildbookColumnRank = GuildFrameButton1:CreateFontString('$parentGuildbookRank', 'OVERLAY', 'GameFontNormalSmall')
     GuildFrameButton1.GuildbookColumnRank:SetPoint('LEFT', _G['GuildFrameButton1Class'], 'RIGHT', -12.0, 0)
     GuildFrameButton1.GuildbookColumnRank:SetSize(self.GuildFrame.ColumnWidths['Rank'], GuildFrameButton1:GetHeight())
-    formatGuildFrameButton(GuildFrameButton1.GuildbookColumnRank)
+    formatGuildFrameButton(GuildFrameButton1.GuildbookColumnRank, {1,1,1,1})
     
-    GuildFrameButton1.GuildbookColumnNote = GuildFrameButton1:CreateFontString('$parentGuildbookNote', 'OVERLAY', 'GameFontNormal')
+    GuildFrameButton1.GuildbookColumnNote = GuildFrameButton1:CreateFontString('$parentGuildbookNote', 'OVERLAY', 'GameFontNormalSmall')
     GuildFrameButton1.GuildbookColumnNote:SetPoint('LEFT', GuildFrameButton1.GuildbookColumnRank, 'RIGHT', self.GuildFrame.ColumnMarginX, 0)
     GuildFrameButton1.GuildbookColumnNote:SetSize(self.GuildFrame.ColumnWidths['Note'], GuildFrameButton1:GetHeight())
-    formatGuildFrameButton(GuildFrameButton1.GuildbookColumnNote)
+    formatGuildFrameButton(GuildFrameButton1.GuildbookColumnNote, {1,1,1,1})
     
-    GuildFrameButton1.GuildbookColumnMainSpec = GuildFrameButton1:CreateFontString('$parentGuildbookMainSpec', 'OVERLAY', 'GameFontNormal')
+    GuildFrameButton1.GuildbookColumnMainSpec = GuildFrameButton1:CreateFontString('$parentGuildbookMainSpec', 'OVERLAY', 'GameFontNormalSmall')
     GuildFrameButton1.GuildbookColumnMainSpec:SetPoint('LEFT', GuildFrameButton1.GuildbookColumnNote, 'RIGHT', self.GuildFrame.ColumnMarginX, 0)
     GuildFrameButton1.GuildbookColumnMainSpec:SetSize(self.GuildFrame.ColumnWidths['MainSpec'], GuildFrameButton1:GetHeight())
-    formatGuildFrameButton(GuildFrameButton1.GuildbookColumnMainSpec)
+    formatGuildFrameButton(GuildFrameButton1.GuildbookColumnMainSpec, {1,1,1,1})
     
-    GuildFrameButton1.GuildbookColumnProfession1 = GuildFrameButton1:CreateFontString('$parentGuildbookProfession1', 'OVERLAY', 'GameFontNormal')
+    GuildFrameButton1.GuildbookColumnProfession1 = GuildFrameButton1:CreateFontString('$parentGuildbookProfession1', 'OVERLAY', 'GameFontNormalSmall')
     GuildFrameButton1.GuildbookColumnProfession1:SetPoint('LEFT', GuildFrameButton1.GuildbookColumnMainSpec, 'RIGHT', self.GuildFrame.ColumnMarginX, 0)
     GuildFrameButton1.GuildbookColumnProfession1:SetSize(self.GuildFrame.ColumnWidths['Profession1'], GuildFrameButton1:GetHeight())
-    formatGuildFrameButton(GuildFrameButton1.GuildbookColumnProfession1)
+    formatGuildFrameButton(GuildFrameButton1.GuildbookColumnProfession1, {1,1,1,1})
     
-    GuildFrameButton1.GuildbookColumnProfession2 = GuildFrameButton1:CreateFontString('$parentGuildbookProfession2', 'OVERLAY', 'GameFontNormal')
+    GuildFrameButton1.GuildbookColumnProfession2 = GuildFrameButton1:CreateFontString('$parentGuildbookProfession2', 'OVERLAY', 'GameFontNormalSmall')
     GuildFrameButton1.GuildbookColumnProfession2:SetPoint('LEFT', GuildFrameButton1.GuildbookColumnProfession1, 'RIGHT', self.GuildFrame.ColumnMarginX, 0)
     GuildFrameButton1.GuildbookColumnProfession2:SetSize(self.GuildFrame.ColumnWidths['Profession2'], GuildFrameButton1:GetHeight())
-    formatGuildFrameButton(GuildFrameButton1.GuildbookColumnProfession2)
+    formatGuildFrameButton(GuildFrameButton1.GuildbookColumnProfession2, {1,1,1,1})
     
     for i = 2, 13 do
         _G['GuildFrameButton'..i]:ClearAllPoints()
@@ -210,30 +210,30 @@ function Guildbook:Init()
         _G['GuildFrameButton'..i]:SetPoint('TOPRIGHT', _G['GuildFrameButton'..(i-1)], 'BOTTOMRIGHT', 0.0, 0.0)
         _G['GuildFrameButton'..i]:GetHighlightTexture():SetAllPoints(_G['GuildFrameButton'..i])
     
-        _G['GuildFrameButton'..i].GuildbookColumnRank = _G['GuildFrameButton'..i]:CreateFontString('$parentGuildbookRank', 'OVERLAY', 'GameFontNormal')
+        _G['GuildFrameButton'..i].GuildbookColumnRank = _G['GuildFrameButton'..i]:CreateFontString('$parentGuildbookRank', 'OVERLAY', 'GameFontNormalSmall')
         _G['GuildFrameButton'..i].GuildbookColumnRank:SetPoint('LEFT', _G['GuildFrameButton'..i..'Class'], 'RIGHT', -12.0, 0)
         _G['GuildFrameButton'..i].GuildbookColumnRank:SetSize(self.GuildFrame.ColumnWidths['Rank'], _G['GuildFrameButton'..i]:GetHeight())
-        formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnRank)
+        formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnRank, {1,1,1,1})
     
-        _G['GuildFrameButton'..i].GuildbookColumnNote = _G['GuildFrameButton'..i]:CreateFontString('$parentGuildbookNote', 'OVERLAY', 'GameFontNormal')
+        _G['GuildFrameButton'..i].GuildbookColumnNote = _G['GuildFrameButton'..i]:CreateFontString('$parentGuildbookNote', 'OVERLAY', 'GameFontNormalSmall')
         _G['GuildFrameButton'..i].GuildbookColumnNote:SetPoint('LEFT', _G['GuildFrameButton'..i].GuildbookColumnRank, 'RIGHT', self.GuildFrame.ColumnMarginX, 0)
         _G['GuildFrameButton'..i].GuildbookColumnNote:SetSize(self.GuildFrame.ColumnWidths['Note'], _G['GuildFrameButton'..i]:GetHeight())
-        formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnNote)
+        formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnNote, {1,1,1,1})
     
-        _G['GuildFrameButton'..i].GuildbookColumnMainSpec = _G['GuildFrameButton'..i]:CreateFontString('$parentGuildbookMainSpec', 'OVERLAY', 'GameFontNormal')
+        _G['GuildFrameButton'..i].GuildbookColumnMainSpec = _G['GuildFrameButton'..i]:CreateFontString('$parentGuildbookMainSpec', 'OVERLAY', 'GameFontNormalSmall')
         _G['GuildFrameButton'..i].GuildbookColumnMainSpec:SetPoint('LEFT', _G['GuildFrameButton'..i].GuildbookColumnNote, 'RIGHT', self.GuildFrame.ColumnMarginX, 0)
         _G['GuildFrameButton'..i].GuildbookColumnMainSpec:SetSize(self.GuildFrame.ColumnWidths['MainSpec'], _G['GuildFrameButton'..i]:GetHeight())
-        formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnMainSpec)   
+        formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnMainSpec, {1,1,1,1})  
     
-        _G['GuildFrameButton'..i].GuildbookColumnProfession1 = _G['GuildFrameButton'..i]:CreateFontString('$parentGuildbookProfession1', 'OVERLAY', 'GameFontNormal')
+        _G['GuildFrameButton'..i].GuildbookColumnProfession1 = _G['GuildFrameButton'..i]:CreateFontString('$parentGuildbookProfession1', 'OVERLAY', 'GameFontNormalSmall')
         _G['GuildFrameButton'..i].GuildbookColumnProfession1:SetPoint('LEFT', _G['GuildFrameButton'..i].GuildbookColumnMainSpec, 'RIGHT', self.GuildFrame.ColumnMarginX, 0)
         _G['GuildFrameButton'..i].GuildbookColumnProfession1:SetSize(self.GuildFrame.ColumnWidths['Profession1'], _G['GuildFrameButton'..i]:GetHeight())
-        formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnProfession1)   
+        formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnProfession1, {1,1,1,1})   
     
-        _G['GuildFrameButton'..i].GuildbookColumnProfession2 = _G['GuildFrameButton'..i]:CreateFontString('$parentGuildbookProfession2', 'OVERLAY', 'GameFontNormal')
+        _G['GuildFrameButton'..i].GuildbookColumnProfession2 = _G['GuildFrameButton'..i]:CreateFontString('$parentGuildbookProfession2', 'OVERLAY', 'GameFontNormalSmall')
         _G['GuildFrameButton'..i].GuildbookColumnProfession2:SetPoint('LEFT', _G['GuildFrameButton'..i].GuildbookColumnProfession1, 'RIGHT', self.GuildFrame.ColumnMarginX, 0)
         _G['GuildFrameButton'..i].GuildbookColumnProfession2:SetSize(self.GuildFrame.ColumnWidths['Profession2'], _G['GuildFrameButton'..i]:GetHeight())
-        formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnProfession2)    
+        formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnProfession2, {1,1,1,1})   
     end
     
     hooksecurefunc("GuildStatus_Update", function()
@@ -242,6 +242,20 @@ function Guildbook:Init()
                 _G['GuildFrameButton'..i]:Hide()
             else
                 local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, GUID = GetGuildRosterInfo(tonumber(_G['GuildFrameButton'..i].guildIndex))
+                -- update font colours
+                if isOnline == false then
+                    formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnRank, {0.5,0.5,0.5,1})
+                    formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnNote, {0.5,0.5,0.5,1})
+                    formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnMainSpec, {0.5,0.5,0.5,1})
+                    formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnProfession1, {0.5,0.5,0.5,1})
+                    formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnProfession2, {0.5,0.5,0.5,1})
+                else
+                    formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnRank, {1,1,1,1})
+                    formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnNote, {1,1,1,1})
+                    formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnMainSpec, {1,1,1,1})
+                    formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnProfession1, {1,1,1,1})
+                    formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnProfession2, {1,1,1,1})
+                end                
                 --change class text colour
                 _G['GuildFrameButton'..i..'Class']:SetText(string.format('%s%s|r', self.Data.Class[class].FontColour, classDisplayName))
                 -- set known columns
@@ -281,10 +295,12 @@ function Guildbook:Init()
     self.GuildFrame.SummaryFrame:SetFrameLevel(6)
     self.GuildFrame.SummaryFrame:Hide()
 
-    self.GuildFrame.StatsButton = CreateFrame('BUTTON', 'GuildbookGuildFrameStatsButton', GuildFrame, "UIPanelButtonTemplate" )
+    self.GuildFrame.StatsButton = CreateFrame('BUTTON', 'GuildbookGuildFrameStatsButton', GuildFrame, "UIPanelButtonTemplate")
     self.GuildFrame.StatsButton:SetPoint('RIGHT', GuildFrameGuildInformationButton, 'LEFT', -2, 0)
     self.GuildFrame.StatsButton:SetSize(100, GuildFrameGuildInformationButton:GetHeight())
     self.GuildFrame.StatsButton:SetText('Guild Stats')
+    self.GuildFrame.StatsButton:SetNormalFontObject(GameFontNormalSmall)
+    self.GuildFrame.StatsButton:SetHighlightFontObject(GameFontNormalSmall)
     self.GuildFrame.StatsButton:SetScript('OnClick', function(self)
         if Guildbook.GuildFrame.SummaryFrame:IsVisible() then
             Guildbook.GuildFrame.SummaryFrame:Hide()
@@ -338,9 +354,7 @@ function Guildbook:Init()
     end
 
     self.LOADED = true
-
     self.FONT_COLOUR = '|cffFF7D0A'
-
 
     local ldb = LibStub("LibDataBroker-1.1")
     self.MinimapButton = ldb:NewDataObject('GuildbookMinimapIcon', {
@@ -372,7 +386,6 @@ function Guildbook:Init()
         self.MinimapIcon:Hide('GuildbookMinimapIcon')
     end
 
-
     GuildbookOptionsMainSpecDD_Init()
     GuildbookOptionsOffSpecDD_Init()
 
@@ -387,7 +400,6 @@ function Guildbook:Init()
 
     local version = GetAddOnMetadata(addonName, "Version")
     PRINT(self.FONT_COLOUR, 'loaded (version '..version..')')
-
 
     -- allow time for loading and whats nots, then send character data
     C_Timer.After(5, function()
@@ -460,7 +472,6 @@ function Guildbook:GetCharacterSpecs()
     return string.format('%s$%s$%s$%s', ms, os, mspvp, ospvp)
 end
 
-
 function Guildbook:ParseCharacterData(msg)
     if not GUILDBOOK_GLOBAL['GuildRosterCache'] then
         GUILDBOOK_GLOBAL['GuildRosterCache'] = {}
@@ -501,10 +512,6 @@ function Guildbook:ParseCharacterData(msg)
     }
 end
 
-
-
-
-
 function Guildbook:ADDON_LOADED(...)
     if tostring(...):lower() == addonName:lower() then
         self:Init()
@@ -512,9 +519,6 @@ function Guildbook:ADDON_LOADED(...)
 end
 
 function Guildbook:GUILD_ROSTER_UPDATE(...)
-    -- if GuildbookGuildInfoFrameSummaryFrame:IsVisible() then
-    --     self.GuildInfoFrame.SummaryFrame:UpdateClassChart()
-    -- end
     if GuildMemberDetailFrame:IsVisible() then     
         self.GuildMemberDetailFrame:HandleRosterUpdate()
     end
@@ -527,13 +531,9 @@ function Guildbook:CHAT_MSG_ADDON(...)
     if string.find(prefix, 'mdf') then
         DEBUG('member detail frame msg event')
         self.GuildMemberDetailFrame:HandleAddonMessage(...)
-    elseif string.find(prefix, '-clsrle-') then
-        DEBUG('summary class role event msg')
-        --self.GuildInfoFrame.SummaryFrame:GetSetClassRoleData(prefix, msg, sender)
     elseif prefix == 'gb-char-stats' then
         DEBUG('character stats msg event')
         self:ParseCharacterData(msg)
-
     end
 end
 
