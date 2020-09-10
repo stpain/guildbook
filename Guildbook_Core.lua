@@ -160,7 +160,7 @@ function Guildbook:Init()
         _G['GuildFrameButton'..i]:HookScript('OnClick', function(self, button)
             if (button == 'LeftButton') and (GuildMemberDetailFrame:IsVisible()) then
                 print(_G['GuildFrameButton'..i..'Name']:GetText())
-                self.GuildMemberDetailFrame:ClearText()
+                Guildbook.GuildMemberDetailFrame:ClearText()
                 local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, GUID = GetGuildRosterInfo(GetGuildRosterSelection())
                 if isOnline then
                     local requestSent = C_ChatInfo.SendAddonMessage('gb-mdf-req', 'requestdata', 'WHISPER', name)
@@ -168,7 +168,7 @@ function Guildbook:Init()
                         DEBUG('sent data request to '..name)
                     end
                 end
-                self.GuildMemberDetailFrame:UpdateLabels()
+                Guildbook.GuildMemberDetailFrame:UpdateLabels()
             end
         end)
     end
@@ -238,25 +238,29 @@ function Guildbook:Init()
     
     hooksecurefunc("GuildStatus_Update", function()
         for i = 1, 13 do
-            local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, GUID = GetGuildRosterInfo(tonumber(_G['GuildFrameButton'..i].guildIndex))
-            --change class text colour
-            _G['GuildFrameButton'..i..'Class']:SetText(string.format('%s%s|r', self.Data.Class[class].FontColour, classDisplayName))
-            -- set known columns
-            _G['GuildFrameButton'..i].GuildbookColumnRank:SetText(rankName)    
-            _G['GuildFrameButton'..i].GuildbookColumnNote:SetText(publicNote)
-            -- clear unknown columns
-            _G['GuildFrameButton'..i].GuildbookColumnMainSpec:SetText('-')
-            _G['GuildFrameButton'..i].GuildbookColumnProfession1:SetText('-')
-            _G['GuildFrameButton'..i].GuildbookColumnProfession2:SetText('-')
-            -- loop local cache and update columns
-            if GUILDBOOK_GLOBAL and next(GUILDBOOK_GLOBAL.GuildRosterCache) then
-                if GUILDBOOK_GLOBAL.GuildRosterCache[GUID] then
-                    local ms, os = GUILDBOOK_GLOBAL.GuildRosterCache[GUID]['MainSpec'], GUILDBOOK_GLOBAL.GuildRosterCache[GUID]['OffSpec']
-                    local prof1 = GUILDBOOK_GLOBAL.GuildRosterCache[GUID]['Profession1']
-                    local prof2 = GUILDBOOK_GLOBAL.GuildRosterCache[GUID]['Profession2']
-                    _G['GuildFrameButton'..i].GuildbookColumnMainSpec:SetText(string.format('%s %s', self.Data.SpecFontStringIconSMALL[GUILDBOOK_GLOBAL.GuildRosterCache[GUID]['Class']][ms], ms))                
-                    _G['GuildFrameButton'..i].GuildbookColumnProfession1:SetText(string.format('%s %s', self.Data.Profession[prof1].FontStringIconSMALL, prof1))
-                    _G['GuildFrameButton'..i].GuildbookColumnProfession2:SetText(string.format('%s %s', self.Data.Profession[prof2].FontStringIconSMALL, prof2))
+            if Guildbook.GuildFrame.SummaryFrame:IsVisible() then
+                _G['GuildFrameButton'..i]:Hide()
+            else
+                local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, GUID = GetGuildRosterInfo(tonumber(_G['GuildFrameButton'..i].guildIndex))
+                --change class text colour
+                _G['GuildFrameButton'..i..'Class']:SetText(string.format('%s%s|r', self.Data.Class[class].FontColour, classDisplayName))
+                -- set known columns
+                _G['GuildFrameButton'..i].GuildbookColumnRank:SetText(rankName)    
+                _G['GuildFrameButton'..i].GuildbookColumnNote:SetText(publicNote)
+                -- clear unknown columns
+                _G['GuildFrameButton'..i].GuildbookColumnMainSpec:SetText('-')
+                _G['GuildFrameButton'..i].GuildbookColumnProfession1:SetText('-')
+                _G['GuildFrameButton'..i].GuildbookColumnProfession2:SetText('-')
+                -- loop local cache and update columns
+                if GUILDBOOK_GLOBAL and next(GUILDBOOK_GLOBAL.GuildRosterCache) then
+                    if GUILDBOOK_GLOBAL.GuildRosterCache[GUID] then
+                        local ms, os = GUILDBOOK_GLOBAL.GuildRosterCache[GUID]['MainSpec'], GUILDBOOK_GLOBAL.GuildRosterCache[GUID]['OffSpec']
+                        local prof1 = GUILDBOOK_GLOBAL.GuildRosterCache[GUID]['Profession1']
+                        local prof2 = GUILDBOOK_GLOBAL.GuildRosterCache[GUID]['Profession2']
+                        _G['GuildFrameButton'..i].GuildbookColumnMainSpec:SetText(string.format('%s %s', self.Data.SpecFontStringIconSMALL[GUILDBOOK_GLOBAL.GuildRosterCache[GUID]['Class']][ms], ms))                
+                        _G['GuildFrameButton'..i].GuildbookColumnProfession1:SetText(string.format('%s %s', self.Data.Profession[prof1].FontStringIconSMALL, prof1))
+                        _G['GuildFrameButton'..i].GuildbookColumnProfession2:SetText(string.format('%s %s', self.Data.Profession[prof2].FontStringIconSMALL, prof2))
+                    end
                 end
             end
         end
@@ -266,14 +270,14 @@ function Guildbook:Init()
     self.GuildFrame.SummaryFrame:SetBackdrop({
         edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
         edgeSize = 16,
-        bgFile = "interface/framegeneral/ui-background-rock",
+        bgFile = "interface/framegeneral/ui-background-marble",
         tile = true,
         tileEdge = false,
         tileSize = 200,
-        insets = { left = 0, right = 0, top = 0, bottom = 0 }
+        insets = { left = 4, right = 4, top = 4, bottom = 4 }
     })
-    self.GuildFrame.SummaryFrame:SetPoint('TOPLEFT', GuildFrame, 'TOPLEFT', 3.00, -57.0)
-    self.GuildFrame.SummaryFrame:SetPoint('BOTTOMRIGHT', GuildFrame, 'TOPRIGHT', -5.00, -325.0)
+    self.GuildFrame.SummaryFrame:SetPoint('TOPLEFT', GuildFrame, 'TOPLEFT', 2.00, -55.0)
+    self.GuildFrame.SummaryFrame:SetPoint('BOTTOMRIGHT', GuildFrame, 'TOPRIGHT', -4.00, -325.0)
     self.GuildFrame.SummaryFrame:SetFrameLevel(6)
     self.GuildFrame.SummaryFrame:Hide()
 

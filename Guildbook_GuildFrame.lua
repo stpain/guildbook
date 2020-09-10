@@ -33,14 +33,9 @@ local PRINT = Guildbook.PRINT
 
 
 function Guildbook:SetupSummaryFrame()
-    self.GuildFrame.SummaryFrame.RoleHeader = self.GuildFrame.SummaryFrame:CreateFontString('GuildbookGuildInfoFrameSummaryFrameRoleHeader', 'OVERLAY', 'GameFontNormal')
-    self.GuildFrame.SummaryFrame.RoleHeader:SetPoint('TOPLEFT', 20, -22)
-    self.GuildFrame.SummaryFrame.RoleHeader:SetText(L['RoleChart'])
-    self.GuildFrame.SummaryFrame.RoleHeader:SetTextColor(1,1,1,1)
-    self.GuildFrame.SummaryFrame.RoleHeader:SetFont("Fonts\\FRIZQT__.TTF", 12)
 
     self.GuildFrame.SummaryFrame.MinLevelSlider = CreateFrame('SLIDER', 'GuildbookGuildInfoFrameminLevelSlider', self.GuildFrame.SummaryFrame, 'OptionsSliderTemplate')
-    self.GuildFrame.SummaryFrame.MinLevelSlider:SetPoint('TOPLEFT', 250, -215)
+    self.GuildFrame.SummaryFrame.MinLevelSlider:SetPoint('TOPLEFT', 35, -35)
     self.GuildFrame.SummaryFrame.MinLevelSlider:SetThumbTexture("Interface/Buttons/UI-SliderBar-Button-Horizontal")
     self.GuildFrame.SummaryFrame.MinLevelSlider:SetSize(150, 16)
     self.GuildFrame.SummaryFrame.MinLevelSlider:SetOrientation('HORIZONTAL')
@@ -70,7 +65,7 @@ function Guildbook:SetupSummaryFrame()
     }
 
     local segCol = 0.66 --adjustment % of class colours
-    self.GuildFrame.SummaryFrame.ClassSummaryPieChart = LibGraph:CreateGraphPieChart('GuildbookClassSummaryCountChart', self.GuildFrame.SummaryFrame, 'TOPRIGHT', 'TOPRIGHT', -15, -35, 180, 180)
+    self.GuildFrame.SummaryFrame.ClassSummaryPieChart = LibGraph:CreateGraphPieChart('GuildbookClassSummaryCountChart', self.GuildFrame.SummaryFrame, 'BOTTOMRIGHT', 'BOTTOMRIGHT', -15, 15, 180, 180)
     self.GuildFrame.SummaryFrame.ClassHeader = self.GuildFrame.SummaryFrame:CreateFontString('GuildbookGuildInfoFrameSummaryFrameClassHeader', 'OVERLAY', 'GameFontNormal')
     self.GuildFrame.SummaryFrame.ClassHeader:SetPoint('BOTTOM', Guildbook.GuildFrame.SummaryFrame.ClassSummaryPieChart, 'TOP', 0, 2)
     self.GuildFrame.SummaryFrame.ClassHeader:SetText('Class Summary')
@@ -103,7 +98,7 @@ function Guildbook:SetupSummaryFrame()
     local roles = { 'Tank', 'Melee', 'Healer', 'Ranged' }
     for i = 1, 4 do
         local role = roles[i]
-        local chart = LibGraph:CreateGraphPieChart('GuildbookTankPieChart', self.GuildFrame.SummaryFrame, 'TOPLEFT', 'TOPLEFT', (25 + ((i - 1) * 100)), -50, 90, 90)
+        local chart = LibGraph:CreateGraphPieChart('GuildbookTankPieChart', self.GuildFrame.SummaryFrame, 'BOTTOMLEFT', 'BOTTOMLEFT', (25 + ((i - 1) * 100)), 30, 90, 90)
         local title = self.GuildFrame.SummaryFrame:CreateFontString('$parentRolePieChartTitle', 'OVERLAY', 'GameFontNormal')
         title:SetPoint('TOP', chart, 'BOTTOM', 0, -5)
         title:SetText(role)
@@ -119,6 +114,11 @@ function Guildbook:SetupSummaryFrame()
         end
         self.GuildFrame.SummaryFrame.RoleCharts[role] = chart
     end
+    self.GuildFrame.SummaryFrame.RoleHeader = self.GuildFrame.SummaryFrame:CreateFontString('GuildbookGuildInfoFrameSummaryFrameRoleHeader', 'OVERLAY', 'GameFontNormal')
+    self.GuildFrame.SummaryFrame.RoleHeader:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.SummaryFrame.RoleCharts['Tank'], 'TOPLEFT', 0, 10)
+    self.GuildFrame.SummaryFrame.RoleHeader:SetText('Role Summary')
+    self.GuildFrame.SummaryFrame.RoleHeader:SetTextColor(1,1,1,1)
+    self.GuildFrame.SummaryFrame.RoleHeader:SetFont("Fonts\\FRIZQT__.TTF", 12)
 
     function self.GuildFrame.SummaryFrame:ResetClassCount()
         for k, v in ipairs(self.ClassCount) do
@@ -193,4 +193,3 @@ function Guildbook:SetupSummaryFrame()
     
 end
 
---Guildbook.GuildInfoFrame:Init()
