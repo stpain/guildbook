@@ -36,6 +36,7 @@ Guildbook.Data.DefaultGlobalSettings = {
         Saturday = nil,
         Sunday = nil,
     },
+    GuildRosterCache = {},
 }
 
 Guildbook.Data.DefaultCharacterSettings = {
@@ -57,11 +58,6 @@ Guildbook.Data.DefaultCharacterSettings = {
         Saturday = nil,
         Sunday = nil,
     },
-    GatheringToDisplay = {},
-    WorldmapGatheringIconSize = 8,
-    MinimapGatheringIconSize = 8,
-    DisplayWorldmapGatheringIcons = true,
-    DisplayMinimapGatheringIcons = true,
     AttunementsKeys = {
         UBRS = false,
         MC = false,
@@ -124,6 +120,102 @@ Guildbook.Data.Profession = {
     Cooking = { ID = 12, Name = 'Cooking', Icon = 'Interface\\Icons\\inv_misc_food_15' , FontStringIconSMALL='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:2:66:226:290|t', },
     Fishing = { ID = 13, Name = 'Fishing', Icon = 'Interface\\Icons\\Trade_Fishing' , FontStringIconSMALL='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:151:215:226:290|t', },
     FirstAid = { ID = 14, Name = 'FirstAid', Icon = 'Interface\\Icons\\Spell_Holy_SealOfSacrifice', FontStringIconSMALL='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:76:140:226:290|t', },
+}
+
+Guildbook.Data.ProfToID = {
+    Alchemy = 'a',
+    Blacksmithing = 'b',
+    Enchanting = 'c',
+    Engineering = 'd',
+    Inscription = 'e',
+    Jewelcrafting = 'f',
+    Leatherworking = 'g',
+    Tailoring = 'h',
+    Herbalism = 'i',
+    Skinning = 'j',
+    Mining = 'k',
+    Cooking = 'l',
+    Fishing = 'm',
+    FirstAid = 'n',
+}
+
+Guildbook.Data.ProfFromID = {
+    ['a'] = 'Alchemy',
+    ['b'] = 'Blacksmithing',
+    ['c'] = 'Enchanting',
+    ['d'] = 'Engineering',
+    ['e'] = 'Inscription',
+    ['f'] = 'Jewelcrafting',
+    ['g'] = 'Leatherworking',
+    ['h'] = 'Tailoring',
+    ['i'] = 'Herbalism',
+    ['j'] = 'Skinning',
+    ['k'] = 'Mining',
+    ['l'] = 'Cooking',
+    ['m'] = 'Fishing',
+    ['n'] = 'FirstAid',
+}
+
+Guildbook.Data.SpecToID = {
+    Balance = 'a',
+    Bear = 'b',
+    Cat = 'c',
+    Restoration = 'd',
+    Frost = 'e',
+    Blood = 'f',
+    Unholy = 'g',
+    ['Beast Master'] = 'h',
+    Marksmanship = 'i',
+    Survival = 'j',
+    Assassination = 'k',
+    Combat = 'l',
+    Subtlety = 'm',
+    Fire = 'n',
+    Arcane = 'o',
+    Holy = 'p',
+    Discipline = 'q',
+    Shadow = 'r',
+    Elemental = 's',
+    Enhancement = 't',
+    Demonology = 'u',
+    Affliction = 'v',
+    Destruction = 'w',
+    Arms = 'x',
+    Fury = 'y',
+    Protection = 'z',
+    Retribution = '0',
+    Feral = '1', --hmm maybe used?
+}
+
+Guildbook.Data.SpecFromID = {
+    ['a'] = 'Balance',
+    ['b'] = 'Bear',
+    ['c'] = 'Cat',
+    ['d'] = 'Restoration',
+    ['e'] = 'Frost',
+    ['f'] = 'Blood',
+    ['g'] = 'Unholy',
+    ['h'] = 'Beast Master',
+    ['i'] = 'Marksmanship',
+    ['j'] = 'Survival',
+    ['k'] = 'Assassination',
+    ['l'] = 'Combat',
+    ['m'] = 'Subtlety',
+    ['n'] = 'Fire',
+    ['o'] = 'Arcane',
+    ['p'] = 'Holy',
+    ['q'] = 'Discipline',
+    ['r'] = 'Shadow',
+    ['s'] = 'Elemental',
+    ['t'] = 'Enhancement',
+    ['u'] = 'Demonology',
+    ['v'] = 'Affliction',
+    ['w'] = 'Destruction',
+    ['x'] = 'Arms',
+    ['y'] = 'Fury',
+    ['z'] = 'Protection',
+    ['0'] = 'Retribution',
+    ['1'] = 'Feral', --hmm maybe used?
 }
 
 Guildbook.Data.SpecFontStringIconSMALL = { 

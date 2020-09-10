@@ -28,9 +28,6 @@ local addonName, Guildbook = ...
 local L = Guildbook.Locales
 local DEBUG = Guildbook.DEBUG
 local PRINT = Guildbook.PRINT
---might be used in future updates
---local tinsert, tsort = table.insert, table.sort
---local ceil, floor = math.ceil, math.floor 
 
 Guildbook.GuildMemberDetailFrame = {
     MemberDataMsgKeys = { 'MainSpec', 'OffSpec', 'Fishing', 'Cooking', 'FirstAid', 'Prof1', 'Prof1Level', 'Prof2', 'Prof2Level', 'MainCharacter', 'ilvl', 'MainSpecIsPvP', 'OffSpecIsPvP' }, --data returned will be in this order
@@ -157,11 +154,9 @@ Guildbook.GuildMemberDetailFrame = {
                 --local keys = { 'MainSpec', 'OffSpec', 'Fishing', 'Cooking', 'FirstAid', 'Prof1', 'Prof1Level', 'Prof2', 'Prof2Level', 'MainCharacter', 'ilvl', 'MainSpecIsPvp', 'OffSpecIsPvp' } --data returned will be in this order
                 local i = 1
                 for d in string.gmatch(msg, '[^:]+') do
-                    --self.CurrentMember[keys[i]] = d
                     self.CurrentMember[self.MemberDataMsgKeys[i]] = d
                     i = i + 1
                 end
-                --GuildRoster()
                 self:UpdateText()
             end
         end

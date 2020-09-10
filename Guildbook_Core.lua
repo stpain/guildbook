@@ -22,8 +22,8 @@ the copyright holders.
 
 local addonName, Guildbook = ...
 
-local HBD = LibStub("HereBeDragons-2.0")
-local Pins = LibStub("HereBeDragons-Pins-2.0")
+-- local HBD = LibStub("HereBeDragons-2.0")
+-- local Pins = LibStub("HereBeDragons-Pins-2.0")
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 --local variables
@@ -39,8 +39,123 @@ local FRIENDS_FRAME_WIDTH = FriendsFrame:GetWidth()
 local GUILD_FRAME_WIDTH = GuildFrame:GetWidth()
 local GUILD_INFO_FRAME_WIDTH = GuildInfoFrame:GetWidth()
 
+GuildFrameGuildListToggleButton:Hide()
+
+GuildFrame:HookScript('OnShow', function(self)
+    self:SetWidth(800)
+    FriendsFrame:SetWidth(800)
+end)
+
+GuildFrame:HookScript('OnHide', function(self)
+    self:SetWidth(GUILD_FRAME_WIDTH)
+    FriendsFrame:SetWidth(FRIENDS_FRAME_WIDTH)
+end)
+
+GuildFrameNotesText:ClearAllPoints()
+GuildFrameNotesText:SetPoint('TOPLEFT', GuildFrameNotesLabel, 'BOTTOMLEFT', 0.0, -3.0)
+GuildFrameNotesText:SetPoint('BOTTOMRIGHT', GuildFrame, 'BOTTOMRIGHT', -12.0, 30.0)
+
+GuildListScrollFrame:ClearAllPoints()
+GuildListScrollFrame:SetPoint('TOPLEFT', GuildFrame, 'TOPLEFT', 11.0, -87.0)
+GuildListScrollFrame:SetPoint('TOPRIGHT', GuildFrame, 'TOPRIGHT', -32.0, -87.0)
+
+GuildFrameButton1:ClearAllPoints()
+GuildFrameButton1:SetPoint('TOPLEFT', GuildFrame, 'TOPLEFT', 8.0, -82.0)
+GuildFrameButton1:SetPoint('TOPRIGHT', GuildFrame, 'TOPRIGHT', -32.0, -82.0)
+GuildFrameButton1:GetHighlightTexture():SetAllPoints(GuildFrameButton1)
+
+local function formatGuildFrameButton(button)
+    button:SetFont("Fonts\\FRIZQT__.TTF", 10)
+    button:SetJustifyH('LEFT')
+    button:SetTextColor(1,1,1,1)
+end
+
+GuildFrameButton1.GuildbookColumnRank = GuildFrameButton1:CreateFontString('$parentGuildbookRank', 'OVERLAY', 'GameFontNormal')
+GuildFrameButton1.GuildbookColumnRank:SetPoint('LEFT', _G['GuildFrameButton1Class'], 'RIGHT', -16.0, 0)
+GuildFrameButton1.GuildbookColumnRank:SetSize(70, GuildFrameButton1:GetHeight())
+GuildFrameButton1.GuildbookColumnRank:SetText('rank')
+formatGuildFrameButton(GuildFrameButton1.GuildbookColumnRank)
+
+GuildFrameButton1.GuildbookColumnNote = GuildFrameButton1:CreateFontString('$parentGuildbookNote', 'OVERLAY', 'GameFontNormal')
+GuildFrameButton1.GuildbookColumnNote:SetPoint('LEFT', GuildFrameButton1.GuildbookColumnRank, 'RIGHT', 0.0, 0)
+GuildFrameButton1.GuildbookColumnNote:SetSize(80, GuildFrameButton1:GetHeight())
+formatGuildFrameButton(GuildFrameButton1.GuildbookColumnNote)
+
+GuildFrameButton1.GuildbookColumnMainSpec = GuildFrameButton1:CreateFontString('$parentGuildbookMainSpec', 'OVERLAY', 'GameFontNormal')
+GuildFrameButton1.GuildbookColumnMainSpec:SetPoint('LEFT', GuildFrameButton1.GuildbookColumnNote, 'RIGHT', 0.0, 0)
+GuildFrameButton1.GuildbookColumnMainSpec:SetSize(90, GuildFrameButton1:GetHeight())
+formatGuildFrameButton(GuildFrameButton1.GuildbookColumnMainSpec)
+
+for i = 2, 13 do
+    _G['GuildFrameButton'..i]:ClearAllPoints()
+    _G['GuildFrameButton'..i]:SetPoint('TOPLEFT', _G['GuildFrameButton'..(i-1)], 'BOTTOMLEFT', 0.0, 0.0)
+    _G['GuildFrameButton'..i]:SetPoint('TOPRIGHT', _G['GuildFrameButton'..(i-1)], 'BOTTOMRIGHT', 0.0, 0.0)
+    _G['GuildFrameButton'..i]:GetHighlightTexture():SetAllPoints(_G['GuildFrameButton'..i])
+
+    _G['GuildFrameButton'..i].GuildbookColumnRank = _G['GuildFrameButton'..i]:CreateFontString('$parentGuildbookRank', 'OVERLAY', 'GameFontNormal')
+    _G['GuildFrameButton'..i].GuildbookColumnRank:SetPoint('LEFT', _G['GuildFrameButton'..i..'Class'], 'RIGHT', -16.0, 0)
+    _G['GuildFrameButton'..i].GuildbookColumnRank:SetSize(70, _G['GuildFrameButton'..i]:GetHeight())
+    formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnRank)
+
+    _G['GuildFrameButton'..i].GuildbookColumnNote = _G['GuildFrameButton'..i]:CreateFontString('$parentGuildbookNote', 'OVERLAY', 'GameFontNormal')
+    _G['GuildFrameButton'..i].GuildbookColumnNote:SetPoint('LEFT', _G['GuildFrameButton'..i].GuildbookColumnRank, 'RIGHT', 0.0, 0)
+    _G['GuildFrameButton'..i].GuildbookColumnNote:SetSize(80, _G['GuildFrameButton'..i]:GetHeight())
+    formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnNote)
+
+    _G['GuildFrameButton'..i].GuildbookColumnMainSpec = _G['GuildFrameButton'..i]:CreateFontString('$parentGuildbookMainSpec', 'OVERLAY', 'GameFontNormal')
+    _G['GuildFrameButton'..i].GuildbookColumnMainSpec:SetPoint('LEFT', _G['GuildFrameButton'..i].GuildbookColumnNote, 'RIGHT', 0.0, 0)
+    _G['GuildFrameButton'..i].GuildbookColumnMainSpec:SetSize(90, _G['GuildFrameButton'..i]:GetHeight())
+    formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnMainSpec)    
+end
+
+Guildbook.GuildFrame = {
+    ColumnHeaders = {
+        { Text = 'Rank', Width = 70, },
+        { Text = 'Note', Width = 80, },
+        { Text = 'Main Spec', Width = 90, },
+        { Text = 'Profession 1', Width = 110, },
+        { Text = 'Profession 2', Width = 110, },
+    },
+    ColumnTabs = {}
+}
+for k, col in ipairs(Guildbook.GuildFrame.ColumnHeaders) do
+    local tab = CreateFrame('BUTTON', 'GuildbookGuildFrameColumnHeader'..col.Text, GuildFrame)--, "OptionsFrameTabButtonTemplate")
+    if col.Text == 'Rank' then
+        tab:SetPoint('LEFT', GuildFrameColumnHeader4, 'RIGHT', -2.0, 0.0)
+    else
+        tab:SetPoint('LEFT', Guildbook.GuildFrame.ColumnTabs[k-1], 'RIGHT', -2.0, 0.0)
+    end
+    tab:SetSize(col.Width, GuildFrameColumnHeader4:GetHeight())
+    tab.text = tab:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
+    tab.text:SetPoint('LEFT', tab, 'LEFT', 8.0, 0.0)
+    tab.text:SetText(col.Text)
+    tab.text:SetFont("Fonts\\FRIZQT__.TTF", 10)
+    tab.text:SetTextColor(1,1,1,1)
+    tab.background = tab:CreateTexture('$parentBackground', 'BACKGROUND')
+    tab.background:SetAllPoints(tab)
+    tab.background:SetTexture(131139)
+    tab.background:SetTexCoord(0.0, 0.00, 0.0 ,0.75, 0.97, 0.0, 0.97, 0.75)
+    Guildbook.GuildFrame.ColumnTabs[k] = tab
+end
+
+hooksecurefunc("GuildStatus_Update", function()
+    for i = 1, 13 do
+        local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, GUID = GetGuildRosterInfo(tonumber(_G['GuildFrameButton'..i].guildIndex))
+        _G['GuildFrameButton'..i].GuildbookColumnRank:SetText(rankName)        
+        _G['GuildFrameButton'..i].GuildbookColumnNote:SetText(publicNote)
+           
+        _G['GuildFrameButton'..i].GuildbookColumnMainSpec:SetText('-')
+        if GUILDBOOK_GLOBAL and next(GUILDBOOK_GLOBAL.GuildRosterCache) then
+            if GUILDBOOK_GLOBAL.GuildRosterCache[GUID] then
+                local ms, os = GUILDBOOK_GLOBAL.GuildRosterCache[GUID]['MainSpec'], GUILDBOOK_GLOBAL.GuildRosterCache[GUID]['OffSpec']
+                _G['GuildFrameButton'..i].GuildbookColumnMainSpec:SetText(ms)
+            end
+        end
+    end
+end)
+
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
---global variables
+--addon variables
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 Guildbook.PLAYER_RACE = select(2, UnitRace("player")):upper()
 Guildbook.PLAYER_CLASS = select(2, UnitClass("player")):upper()
@@ -51,18 +166,27 @@ Guildbook.PLAYER_GENDER = Guildbook.GetGender('player')
 Guildbook.PLAYER_NAME = UnitName('player')
 
 Guildbook.FONT_COLOUR = ''
-Guildbook.LastTarget = nil
 
-Guildbook.GameTooltip = {
-    Item = {},
-    ItemKeys = { 'ItemName', 'ItemLink', 'ItemRarity', 'ItemLevel', 'ItemMinLevel', 'ItemType', 'ItemSubType', 'ItemStockCount', 'ItemEquipLocation', 'ItemIcon', 'ItemSellPrice', 'ItemClassID', 'ItemSubClassID', 'ItemBindType' },
-}
-Guildbook.Bags = {
-    PlayerBags = {},
-    PlayerKingring ={},
-    PlayerBank = {},
-}
+Guildbook.PlayerMixin = nil
 
+Guildbook.CharDataMsgkeys = {
+    [1] = 'guid',
+    [2] = 'name',
+    [3] = 'class',
+    [4] = 'level',
+    [5] = 'fishing',
+    [6] = 'cooking',
+    [7] = 'firstaid',
+    [8] = 'prof1',
+    [9] = 'prof1level',
+    [10] = 'prof2',
+    [11] = 'prof2level',
+    [12] = 'main',
+    [13] = 'mainspec',
+    [14] = 'offspec',
+    [15] = 'mainspecispvp',
+    [16] = 'offspecispvp',
+}
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 --slash commands
@@ -71,22 +195,14 @@ SLASH_GUILDHELPERCLASSIC1 = '/guildbook'
 SLASH_GUILDHELPERCLASSIC2 = '/g-k'
 SlashCmdList['GUILDHELPERCLASSIC'] = function(msg)
     if msg == '-help' then
-        
-    elseif msg == '-reset-character' then
-
-    elseif msg == '-test' then
-        Guildbook.Bags.ScanPlayerBags()
-    elseif msg == '-debug' then
-        if GUILDBOOK_GLOBAL then
-            GUILDBOOK_GLOBAL['Debug'] = not GUILDBOOK_GLOBAL['Debug']
-        end
+    
     end
 end
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 --init
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
-function Guildbook.Init()
+function Guildbook:Init()
     DEBUG('running init')
 
     --extend the guild info frame to full guild frame height
@@ -101,6 +217,7 @@ function Guildbook.Init()
     for i = 1, 13 do
         _G['GuildFrameButton'..i]:HookScript('OnClick', function(self, button)
             if (button == 'LeftButton') and (GuildMemberDetailFrame:IsVisible()) then
+                print(_G['GuildFrameButton'..i..'Name']:GetText())
                 Guildbook.GuildMemberDetailFrame:ClearText()
                 local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, GUID = GetGuildRosterInfo(GetGuildRosterSelection())
                 if isOnline then
@@ -127,44 +244,22 @@ function Guildbook.Init()
         end)
     end
 
-    --create the quest xp fontstring and tooltip
-    Guildbook.QuestInfoRewardsFrame_XP = QuestInfoRewardsFrame:CreateFontString('GuildbookQuestInfoRewardsFrame_XP', 'OVERLAY')
-    Guildbook.QuestInfoRewardsFrame_XP:SetPoint('BOTTOMRIGHT', -5, 0)
-    Guildbook.QuestInfoRewardsFrame_XP:SetTextColor(0,0,0,1)
-    Guildbook.QuestInfoRewardsFrame_XP:SetFont("Fonts\\FRIZQT__.TTF", 14)
-    for i = 1, 6 do
-        _G['QuestLogTitle'..i]:HookScript('OnClick', function() GameTooltip:Hide() Guildbook.GetQuestLogInfo() end)
-    end
 
     --register the addon message prefixes
+    -- TODO: remove these mdf message, use local cache data instead to populate frame, add events for level up, skill up etc
     local memberDetailFrameRequestPrefix = C_ChatInfo.RegisterAddonMessagePrefix('gb-mdf-req')
     DEBUG('registered details request prefix: '..tostring(memberDetailFrameRequestPrefix))
+
     local memberDetailFrameSentPrefix = C_ChatInfo.RegisterAddonMessagePrefix('gb-mdf-data')
     DEBUG('registered details sent prefix: '..tostring(memberDetailFrameSentPrefix))
-    local summaryRequestPrefix = C_ChatInfo.RegisterAddonMessagePrefix('gb-sum-req')
-    DEBUG('registered summary request prefix: '..tostring(summaryRequestPrefix))
-    local summarySentPrefix = C_ChatInfo.RegisterAddonMessagePrefix('gb-sum-data')
-    DEBUG('registered summary sent prefix: '..tostring(summarySentPrefix))
-    local gatheringData = C_ChatInfo.RegisterAddonMessagePrefix('gb-gat-data')
-    DEBUG('registered gathering data prefix: '..tostring(gatheringData))
-    local raidRosterDataRequestPrefix = C_ChatInfo.RegisterAddonMessagePrefix('gb-raid-req')
-    DEBUG('registered summary sent prefix: '..tostring(raidRosterDataRequestPrefix))
-    local raidRosterSentRequestPrefix = C_ChatInfo.RegisterAddonMessagePrefix('gb-raid-data')
-    DEBUG('registered gathering data prefix: '..tostring(raidRosterSentRequestPrefix))
-    local gatheringDatabaseDataPrefix = C_ChatInfo.RegisterAddonMessagePrefix('gb-gat-db')
-    DEBUG('registered gathering data prefix: '..tostring(gatheringDatabaseDataPrefix))
+
+    --this is a string of character info
+    local requestCharacterInfo = C_ChatInfo.RegisterAddonMessagePrefix('gb-char-stats')
+    DEBUG('registered char data req prefix: '..tostring(requestCharacterInfo))
 
     --drawn the additional labels and text for the guild member detail frame
     Guildbook.GuildMemberDetailFrame:DrawLabels()          
     Guildbook.GuildMemberDetailFrame:DrawText()
-
-    --draw the class bar chart
-    Guildbook.SummaryFrame:DrawClassChart()
-    Guildbook.SummaryFrame:DrawRoleChart()
-
-    --draw raid frame roster
-    Guildbook.RaidRosterFrame:DrawListView()
-    Guildbook.RaidRosterFrame:DrawGroups()
 
     --create stored variable tables
     if GUILDBOOK_GLOBAL == nil then
@@ -179,25 +274,16 @@ function Guildbook.Init()
     else
         DEBUG('character variables exists')
     end
-    if GUILDBOOK_GAMEOBJECTS == nil then
-        GUILDBOOK_GAMEOBJECTS = {}
-        DEBUG('created game object table')
-    else
-        DEBUG('game object table exists')
-    end
-    if not GUILDBOOK_CHARACTER['MinimapGatheringIconSize'] then
-        GUILDBOOK_CHARACTER['MinimapGatheringIconSize'] = 8.0
-    end
-    if not GUILDBOOK_CHARACTER['WorldmapGatheringIconSize'] then
-        GUILDBOOK_CHARACTER['WorldmapGatheringIconSize'] = 8.0
+
+    --added later
+    if not GUILDBOOK_GLOBAL['GuildRosterCache'] then
+        GUILDBOOK_GLOBAL['GuildRosterCache'] = {}
     end
 
     Guildbook.LOADED = true
 
     Guildbook.FONT_COLOUR = '|cffFF7D0A'
 
-    GameTooltip:HookScript("OnTooltipSetItem", Guildbook.OnTooltipSetItem)
-    GameTooltip:HookScript("OnTooltipCleared", Guildbook.OnTooltipCleared)
 
     local ldb = LibStub("LibDataBroker-1.1")
     Guildbook.MinimapButton = ldb:NewDataObject('GuildbookMinimapIcon', {
@@ -212,16 +298,14 @@ function Guildbook.Init()
                     InterfaceOptionsFrame_OpenToCategory(addonName)
                 end
             elseif button == 'RightButton' then
-                ToggleDropDownMenu(1, nil, Guildbook.MinimapGatheringMenu, "cursor", 3, -3, nil, nil, 2) --add this somewhere else ?
-                Guildbook.Gathering.UpdateMapGatheringIcons()
-                Guildbook.Gathering.UpdateWorldMapGatheringIcons()
+                ToggleFriendsFrame(3)
             end
         end,
         OnTooltipShow = function(tooltip)
             if not tooltip or not tooltip.AddLine then return end
             tooltip:AddLine(tostring(Guildbook.FONT_COLOUR..addonName))
-            tooltip:AddDoubleLine('|cffffffffLeft Click|r Open options menu')
-            tooltip:AddDoubleLine('|cffffffffRight Click|r Toggle gathering map menu')
+            tooltip:AddDoubleLine('|cffffffffLeft Click|r Options')
+            tooltip:AddDoubleLine('|cffffffffRight Click|r Guild')
         end,
     })
     Guildbook.MinimapIcon = LibStub("LibDBIcon-1.0")
@@ -231,24 +315,9 @@ function Guildbook.Init()
         Guildbook.MinimapIcon:Hide('GuildbookMinimapIcon')
     end
 
-    --minimap game object context menu
-    Guildbook.MinimapGatheringMenu = CreateFrame("Frame", "GuildbookMinimapGatheringMenu", UIParent, "UIDropDownMenuTemplate")
-    --hook a function to update world maps when player changes zone viewed - events are slow to update map ID
-    WorldMapFrame.ScrollContainer:HookScript('OnMouseUp', function(self)
-        Guildbook.Gathering.UpdateWorldMapGatheringIcons(WorldMapFrame:GetMapID()) 
-    end)
-    WorldMapFrame:HookScript('OnShow', function(self)
-        Guildbook.Gathering.UpdateWorldMapGatheringIcons(WorldMapFrame:GetMapID()) 
-    end)
-    WorldMapFrame:HookScript('OnHide', function(self)
-        Pins:RemoveAllMinimapIcons("GuildbookGatheringMinimapIcons") 
-        Pins:RemoveAllWorldMapIcons("GuildbookGatheringMinimapIcons") 
-        Guildbook.Gathering.ClearGatheringIcons()
-    end)
 
     GuildbookOptionsMainSpecDD_Init()
     GuildbookOptionsOffSpecDD_Init()
-    GuildbookGameObjectDropDown_Init()
 
     --the OnShow event doesnt fire for the first time the options frame is shown? set the values here
     UIDropDownMenu_SetText(GuildbookOptionsMainSpecDD, GUILDBOOK_CHARACTER['MainSpec'])
@@ -258,387 +327,169 @@ function Guildbook.Init()
     GuildbookOptionsOffSpecIsPvpSpecCB:SetChecked(GUILDBOOK_CHARACTER['OffSpecIsPvP'])
     GuildbookOptionsDebugCB:SetChecked(GUILDBOOK_GLOBAL['Debug'])
     GuildbookOptionsShowMinimapButton:SetChecked(GUILDBOOK_GLOBAL['ShowMinimapButton'])
-    --GuildbookOptionsGatheringDatabaseListViewSendSelectedItemsToGuild:SetText(Guildbook.Data.StatusIconStringsSMALL['Mail'])
-    --GuildbookOptionsGatheringDatabaseSendSelectedItemsRecipient:SetText(L['CharacterName'])
-
-    GuildbookOptionsMinimapIconSizeSlider:SetValue(tonumber(GUILDBOOK_CHARACTER['MinimapGatheringIconSize']))
-    GuildbookOptionsMinimapIconSizeSlider.tooltipText = 'Minimap icon size'
-    GuildbookOptionsMinimapIconSizeSliderText:SetText(string.format("%.0f", tostring(GUILDBOOK_CHARACTER['MinimapGatheringIconSize'])))
-    GuildbookOptionsMinimapIconSizeSliderLow:SetText('2');
-    GuildbookOptionsMinimapIconSizeSliderHigh:SetText('20')
-
-    GuildbookOptionsWorldmapIconSizeSlider:SetValue(tonumber(GUILDBOOK_CHARACTER['WorldmapGatheringIconSize']))
-    GuildbookOptionsWorldmapIconSizeSlider.tooltipText = 'World map icon size'
-    GuildbookOptionsWorldmapIconSizeSliderText:SetText(string.format("%.0f", tostring(GUILDBOOK_CHARACTER['WorldmapGatheringIconSize'])))
-    GuildbookOptionsWorldmapIconSizeSliderLow:SetText('2');
-    GuildbookOptionsWorldmapIconSizeSliderHigh:SetText('20')
-
-    if not GUILDBOOK_CHARACTER['TooltipItemData'] then
-        GUILDBOOK_CHARACTER['TooltipItemData'] = true
-    end
-    GuildbookOptionsShowItemInfoTooltipCB:SetChecked(GUILDBOOK_CHARACTER['TooltipItemData'])
-    if not GUILDBOOK_CHARACTER['TooltipBankData'] then
-        GUILDBOOK_CHARACTER['TooltipBankData'] = true
-    end
-    GuildbookOptionsShowItemInfoTooltipCB:SetChecked(GUILDBOOK_CHARACTER['TooltipBankData'])
-
-    --GuildbookGuildInfoFrameRaidRosterFrameRosterListViewScrollbar:SetValue(1)
 
     local version = GetAddOnMetadata(addonName, "Version")
-
     PRINT(Guildbook.FONT_COLOUR, 'loaded (version '..version..')')
 
-
-    --gathering database quick fix
-    if GUILDBOOK_GAMEOBJECTS and next(GUILDBOOK_GAMEOBJECTS) then
-        for k, v in ipairs(GUILDBOOK_GAMEOBJECTS) do
-            if string.find(v['ItemName'], ':') then
-                DEBUG('found \':\' in item name, removing symbol')
-                v['ItemName'] = string.gsub(v['ItemName'],':', '')
-            end
-            if string.find(v['SourceName'], ':') then
-                DEBUG('found \':\' in source name, removing symbol')
-                v['ISourceName'] = string.gsub(v['SourceName'],':', '')
-            end
-        end
+    self.PLAYER_CLASS = select(2, UnitClass("player")):upper()
+    if self.PLAYER_CLASS == 'DEATH KNIGHT' then
+        self.PLAYER_CLASS = 'DEATHKNIGHT'
     end
 
-end
-
----------------------------------------------------------------------------------------------------------------------------------------------------------------
---tooltip extension
----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Guildbook.TooltipLineAdded = false
-function Guildbook.OnTooltipSetItem(tooltip, ...)
-    local name, link = GameTooltip:GetItem()
-    if link then
-        for i = 1, 14 do
-            Guildbook.GameTooltip.Item[Guildbook.GameTooltip.ItemKeys[i]] = select(i, GetItemInfo(link))
-        end
-        if not Guildbook.TooltipLineAdded then
-            if GUILDBOOK_CHARACTER['TooltipItemData'] == true then
-                tooltip:AddLine(' ') --create a line break
-                tooltip:AddLine(Guildbook.FONT_COLOUR.."Guildbook:|r")
-                if type(Guildbook.GameTooltip.Item['ItemSellPrice']) == 'number' then
-                    tooltip:AddDoubleLine('Value', GetCoinTextureString(Guildbook.GameTooltip.Item['ItemSellPrice']), 1, 1, 1, 1, 1, 1)
-                end
-                tooltip:AddDoubleLine('Type', Guildbook.GameTooltip.Item['ItemType'], 1, 1, 1, 1, 1, 1)
-                tooltip:AddDoubleLine('Item Level', Guildbook.GameTooltip.Item['ItemLevel'], 1, 1, 1, 1, 1, 1)
-            end
-            tooltip:AddLine(' ')
-            if GUILDBOOK_CHARACTER['TooltipBankData'] == true then
-                if GUILDBOOK_CHARACTER['BankItems'] and next(GUILDBOOK_CHARACTER['BankItems']) then    
-                    local itemExists = false            
-                    for k, v in ipairs(GUILDBOOK_CHARACTER['BankItems']) do
-                        if tonumber(v['ItemID']) == tonumber(Guildbook.GetItemIdFromLink(link)) then
-                            tooltip:AddDoubleLine(tostring(Guildbook.FONT_COLOUR.."Bank"), v['Count'], 1,1,1,1,1,1)
-                            itemExists = true
-                        end
-                    end
-                    local t = tostring(Guildbook.GetDateFormatted(GUILDBOOK_CHARACTER['BankItemsScanTime'])..'-'..Guildbook.GetTimeFormatted(GUILDBOOK_CHARACTER['BankItemsScanTime']))
-                    if itemExists == true then
-                        tooltip:AddDoubleLine('Last Scaned:', t, 1,1,1,1,1,1)
-                    end
-                end
-            end
-            if LootFrame:IsVisible() then
-                Guildbook.Bags.SmartLootScanPlayerBags()
-                tooltip:AddLine(Guildbook.FONT_COLOUR..'Lowest value items in bags:')
-                for i = 1, GetNumLootItems() do
-                    if next(Guildbook.Bags.PlayerBags) and Guildbook.Bags.PlayerBags[i] then
-                        tooltip:AddDoubleLine(tostring(i..' '..Guildbook.Bags.PlayerBags[i].Name..', Bag: '..Guildbook.Bags.PlayerBags[i].BagID..', Slot: '..Guildbook.Bags.PlayerBags[i].SlotID), GetCoinTextureString(Guildbook.Bags.PlayerBags[i].SlotValue), 1, 1, 1, 1, 1, 1)
-                    end
-                end
-                tooltip:AddLine(' ')
-            end
-			Guildbook.TooltipLineAdded = true
-		end
-    end
-end
-
-function Guildbook.OnTooltipCleared(tooltip, ...)
-    Guildbook.TooltipLineAdded = false
-end
-
----------------------------------------------------------------------------------------------------------------------------------------------------------------
---core functions
----------------------------------------------------------------------------------------------------------------------------------------------------------------
---creates a tooltip when clicking on quests to show xp rewards
-function Guildbook.GetQuestLogInfo()
-    local questIndex = GetQuestLogSelection()
-    local title, level, suggestedGroup, isHeader, isCollapsed, isComplete, frequency, questID, startEvent, displayQuestID, isOnMap, hasLocalPOI, isTask, isBounty, isStory, isHidden, isScaling = GetQuestLogTitle(questIndex)
-    if GUILDBOOK_GLOBAL['QuestRewardsXP'] and GUILDBOOK_GLOBAL['QuestRewardsXP'][tostring(questID)] then
-        GameTooltip:SetOwner(QuestLogFrame, "ANCHOR_CURSOR")
-        GameTooltip:AddLine(Guildbook.FONT_COLOUR.."Guildbook:|r")
-        GameTooltip:AddDoubleLine(title, tostring('XP '..GUILDBOOK_GLOBAL['QuestRewardsXP'][tostring(questID)]), 1, 1, 1, 1, 1, 1)
-        GameTooltip:Show()
-    else
-        GameTooltip:Hide()
-    end
-end
-
-function Guildbook.Bags.SmartLootScanPlayerBags()
-    Guildbook.Bags.PlayerBags = {}
-    for bag = 0, 4 do
-        for slot = 1, GetContainerNumSlots(bag) do
-            local link = GetContainerItemLink(bag,slot)
-            if link then
-                local id = select(10, GetContainerItemInfo(bag, slot))
-                local count = select(2, GetContainerItemInfo(bag, slot))
-                local name = select(1, GetItemInfo(link))
-                local price = select(11, GetItemInfo(link))
-                local rarity = select(3, GetItemInfo(link))
-                local iType = select(12, GetItemInfo(link)) -- 0=consumable, 2=weapon, 4=armour, 7=trade goods, 9=recipe, 12=quest
-                local iSubType = select(13, GetItemInfo(link)) --does nothing much in classic, keep if tbc or wrath provide sub type data
-                if rarity == 1 then
-                    if tonumber(iType) == 2 then
-                        if (iSubType ~= 14) and (iSubType ~= 20) then --ignore misc & fishing poles
-                            --print('added weapon: '..name..' rarity: '..rarity..' sub type: '..iSubType)
-                            tinsert(Guildbook.Bags.PlayerBags, { 
-                                Name = name, 
-                                ItemID = tonumber(id), 
-                                SlotValue = tonumber(count * price),
-                                BagID = bag,
-                                SlotID = slot,
-                            })
-                        end
-                    elseif tonumber(iType) == 4 then
-                        if iSubType > 0 and iSubType < 5 then --include only cloth, leather, mail & plate, this ignores 
-                            --print('added armour: '..name..' rarity: '..rarity..' sub type: '..iSubType)
-                            tinsert(Guildbook.Bags.PlayerBags, { 
-                                Name = name, 
-                                ItemID = tonumber(id), 
-                                SlotValue = tonumber(count * price),
-                                BagID = bag,
-                                SlotID = slot,
-                            })
-                        end
-                    end
-                elseif rarity == 0 then
-                    --print('added junk: '..name..' rarity: '..rarity..' sub type: '..iSubType)
-                    tinsert(Guildbook.Bags.PlayerBags, { 
-                        Name = name, 
-                        ItemID = tonumber(id), 
-                        SlotValue = tonumber(count * price),
-                        BagID = bag,
-                        SlotID = slot,
-                    }) 
-                end
-            end
-        end
-    end
-    table.sort(Guildbook.Bags.PlayerBags, function(a, b)
-        if a.Rarity == b.Rarity then
-            return a.SlotValue < b.SlotValue
+    -- allow time for loading and whats nots, then send character data
+    C_Timer.After(5, function()
+        local profs = self:GetCharacterProfessions()
+        local spec = self:GetCharacterSpecs()
+        local guid = UnitGUID('player')
+        local level = UnitLevel('player')
+        if not self.PlayerMixin then
+            self.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
         else
-            return a.Rarity < b.Rarity
+            self.PlayerMixin:SetGUID(guid)
+        end
+        if self.PlayerMixin:IsValid() then
+            local _, class, _ = C_PlayerInfo.GetClass(self.PlayerMixin)
+            local name = C_PlayerInfo.GetName(self.PlayerMixin)
+            local profs = self:GetCharacterProfessions()
+            local specs = self:GetCharacterSpecs()
+            local msg = tostring(guid..'$'..name..'$'..class..'$'..level..'$'..profs..'$'..GUILDBOOK_CHARACTER['MainCharacter']..'$'..specs)
+            ChatThrottleLib:SendAddonMessage("NORMAL",  "gb-char-stats", msg, "GUILD")
         end
     end)
+
 end
 
-function Guildbook.Bags.ScanPlayerBankBags()
-    GUILDBOOK_CHARACTER['BankItems'] = {}
-    GUILDBOOK_CHARACTER['BankItemsScanTime'] = date('*t')
-    for slot = 1, 28 do
-        local link = GetContainerItemLink(-1,slot)
-        if link then
-            local id = tonumber(Guildbook.GetItemIdFromLink(link))
-            local count = select(2, GetContainerItemInfo(-1, slot))
-            local added = false
-            if next(GUILDBOOK_CHARACTER['BankItems']) then
-                for k, v in ipairs(GUILDBOOK_CHARACTER['BankItems']) do
-                    if tonumber(v['ItemID']) == id then
-                        v['Count'] = tonumber(v['Count'] + count)
-                        added = true
+function Guildbook:GetCharacterProfessions()
+    local myCharacter = { Fishing = 0, Cooking = 0, FirstAid = 0, Prof1 = '-', Prof1Level = 0, Prof2 = '-', Prof2Level = 0 }
+    for s = 1, GetNumSkillLines() do
+        local skill, _, _, level, _, _, _, _, _, _, _, _, _ = GetSkillLineInfo(s)
+        if skill == 'Fishing' then 
+            myCharacter.Fishing = level
+        elseif skill == 'Cooking' then
+            myCharacter.Cooking = level
+        elseif skill == 'First Aid' then
+            myCharacter.FirstAid = level
+        else
+            for k, prof in pairs(Guildbook.Data.Profession) do
+                if skill == prof.Name then
+                    if myCharacter.Prof1 == '-' then
+                        myCharacter.Prof1 = skill
+                        myCharacter.Prof1Level = level
+                    elseif myCharacter.Prof2 == '-' then
+                        myCharacter.Prof2 = skill
+                        myCharacter.Prof2Level = level
                     end
-                end
-            end
-            if added == false then
-                tinsert(GUILDBOOK_CHARACTER['BankItems'], { 
-                    ItemID = tonumber(id), 
-                    Count = tonumber(count) 
-                })
-            end
-        end
-    end
-    for bag = 5, 11 do
-        for slot = 1, GetContainerNumSlots(bag) do
-            local link = GetContainerItemLink(bag,slot)
-            if link then
-                local id = tonumber(Guildbook.GetItemIdFromLink(link))
-                local count = select(2, GetContainerItemInfo(bag, slot))
-                local added = false
-                if next(GUILDBOOK_CHARACTER['BankItems']) then
-                    for k, v in ipairs(GUILDBOOK_CHARACTER['BankItems']) do
-                        if tonumber(v['ItemID']) == id then
-                            v['Count'] = tonumber(v['Count'] + count)
-                            added = true
-                        end
-                    end
-                end
-                if added == false then
-                    tinsert(GUILDBOOK_CHARACTER['BankItems'], { 
-                        ItemID = tonumber(id), 
-                        Count = tonumber(count) 
-                    })
                 end
             end
         end
     end
+    if GUILDBOOK_CHARACTER then
+        GUILDBOOK_CHARACTER['Profession1'] = myCharacter.Prof1
+        GUILDBOOK_CHARACTER['Profession1Level'] = myCharacter.Prof1Level
+        GUILDBOOK_CHARACTER['Profession2'] = myCharacter.Prof2
+        GUILDBOOK_CHARACTER['Profession2Level'] = myCharacter.Prof2Level
+    end
+    local prof1Id = self.Data.ProfToID[myCharacter.Prof1]
+    local prof2Id = self.Data.ProfToID[myCharacter.Prof2]
+    return string.format('%s$%s$%s$%s$%s$%s$%s', myCharacter.Fishing, myCharacter.Cooking, myCharacter.FirstAid, prof1Id, myCharacter.Prof1Level, prof2Id, myCharacter.Prof2Level)
 end
 
----------------------------------------------------------------------------------------------------------------------------------------------------------------
---events, self refers to the addon as its overriden in the call during the init
----------------------------------------------------------------------------------------------------------------------------------------------------------------
+function Guildbook:GetCharacterSpecs()
+    local ms = self.Data.SpecToID[GUILDBOOK_CHARACTER['MainSpec']]
+    local os = self.Data.SpecToID[GUILDBOOK_CHARACTER['OffSpec']]
+    local mspvp, ospvp = 0, 0
+    if GUILDBOOK_CHARACTER['MainSpecIsPvP'] == true then
+        mspvp = 1
+    end
+    if GUILDBOOK_CHARACTER['OffSpecIsPvP'] == true then
+        ospvp = 1
+    end
+    return string.format('%s$%s$%s$%s', ms, os, mspvp, ospvp)
+end
+
+
+function Guildbook:ParseCharacterData(msg)
+    if not GUILDBOOK_GLOBAL['GuildRosterCache'] then
+        GUILDBOOK_GLOBAL['GuildRosterCache'] = {}
+    end
+    local i, t = 1, {}
+    for d in string.gmatch(msg, '[^$]+') do
+        t[Guildbook.CharDataMsgkeys[i]] = d
+        i = i + 1
+    end
+    --convert values back
+    local prof1 = self.Data.ProfFromID[t['prof1']]
+    local prof2 = self.Data.ProfFromID[t['prof2']]
+    local ms = self.Data.SpecFromID[t['mainspec']]
+    local os = self.Data.SpecFromID[t['offspec']]
+    local mspvp, ospvp = false, false
+    if GUILDBOOK_CHARACTER['MainSpecIsPvP'] == 1 then
+        mspvp = true
+    end
+    if GUILDBOOK_CHARACTER['OffSpecIsPvP'] == 1 then
+        ospvp = true
+    end
+    GUILDBOOK_GLOBAL.GuildRosterCache[t['guid']] = {
+        Name = t['name'],
+        Class = t['class'],
+        Level = tonumber(t['level']),
+        MainSpec = ms,
+        OffSpec = os,
+        MainSpecIsPvP = mspvp,
+        OffSpecIsPvP = ospvp,
+        Profession1 = prof1,
+        Profession1Level = tonumber(t['prof1level']),
+        Profession2 = prof2,
+        Profession2Level = tonumber(t['prof2level']),
+        MainCharacter = t['main'],
+        Fishing = tonumber(t['fishing']),
+        Cooking = tonumber(t['cooking']),
+        FirstAid = tonumber(t['firstaid']),
+    }
+end
+
+
+
+
+
+function Guildbook:ADDON_LOADED(...)
+    if tostring(...):lower() == addonName:lower() then
+        self:Init()
+    end
+end
+
+function Guildbook:GUILD_ROSTER_UPDATE(...)
+    if GuildbookGuildInfoFrameSummaryFrame:IsVisible() then
+        self.GuildInfoFrame.SummaryFrame:UpdateClassChart()
+    end
+    if GuildMemberDetailFrame:IsVisible() then     
+        self.GuildMemberDetailFrame:HandleRosterUpdate()
+    end
+end
+
+function Guildbook:CHAT_MSG_ADDON(...)
+    local prefix = select(1, ...)
+    local msg = select(2, ...)
+    local sender = select(5, ...)
+    if string.find(prefix, 'mdf') then
+        DEBUG('member detail frame msg event')
+        self.GuildMemberDetailFrame:HandleAddonMessage(...)
+    elseif string.find(prefix, '-clsrle-') then
+        DEBUG('summary class role event msg')
+        --self.GuildInfoFrame.SummaryFrame:GetSetClassRoleData(prefix, msg, sender)
+    elseif prefix == 'gb-char-stats' then
+        DEBUG('character stats msg event')
+        self:ParseCharacterData(msg)
+
+    end
+end
+
 --set up event listener
 Guildbook.EventFrame = CreateFrame('FRAME', 'GuildbookEventFrame', UIParent)
 Guildbook.EventFrame:RegisterEvent('GUILD_ROSTER_UPDATE')
 Guildbook.EventFrame:RegisterEvent('CHAT_MSG_ADDON')
-Guildbook.EventFrame:RegisterEvent('CHAT_MSG_GUILD')
-Guildbook.EventFrame:RegisterEvent('LOOT_OPENED')
-Guildbook.EventFrame:RegisterEvent('BANKFRAME_OPENED')
-Guildbook.EventFrame:RegisterEvent('UNIT_SPELLCAST_SENT')
 Guildbook.EventFrame:RegisterEvent('ADDON_LOADED')
-Guildbook.EventFrame:RegisterEvent('QUEST_ACCEPTED')
-Guildbook.EventFrame:RegisterEvent('QUEST_TURNED_IN')
-Guildbook.EventFrame:RegisterEvent('QUEST_REMOVED')
-Guildbook.EventFrame:RegisterEvent('ZONE_CHANGED')
-Guildbook.EventFrame:RegisterEvent('ZONE_CHANGED_INDOORS')
-Guildbook.EventFrame:RegisterEvent('ZONE_CHANGED_NEW_AREA')
-Guildbook.EventFrame:RegisterEvent('COMBAT_LOG_EVENT_UNFILTERED')
---Guildbook.EventFrame:RegisterEvent('UI_ERROR_MESSAGE')
 Guildbook.EventFrame:SetScript('OnEvent', function(self, event, ...)
-    DEBUG('EVENT='..tostring(event))
-    --Guildbook.GetArgs(...)
-    Guildbook.Events[event](Guildbook, ...) --override the 'self' arguement with the addon namespace, convention?
+    --DEBUG('EVENT='..tostring(event))
+    Guildbook[event](Guildbook, ...)
 end)
-
---event handler, self=addon
-Guildbook.Events = {
-    ['ADDON_LOADED'] = function(self, ...)
-        if select(1, ...):lower() == addonName:lower() then
-            self:Init()
-            self.Gathering.UpdateMapGatheringIcons()
-            self.Gathering.UpdateWorldMapGatheringIcons()
-        end
-    end,
-    ['GUILD_ROSTER_UPDATE'] = function(self, ...)
-        if GuildbookGuildInfoFrameSummaryFrame:IsVisible() then
-            self.SummaryFrame:UpdateClassBars()
-        end
-        if GuildMemberDetailFrame:IsVisible() then     
-            self.GuildMemberDetailFrame:HandleRosterUpdate()
-        end
-        if GuildbookGuildInfoFrameRaidRosterFrame:IsVisible() then
-            self.RaidRosterFrame:ScanGuildMembers()
-        end
-    end,
-    ['CHAT_MSG_ADDON'] = function(self, ...)
-        local prefix = select(1, ...)
-        DEBUG('handle addon msg: '..prefix)
-        if string.find(prefix, 'mdf') then
-            self.GuildMemberDetailFrame:HandleAddonMessage(...)
-        elseif string.find(prefix, 'sum') then
-            self.SummaryFrame:HandleAddonMessage(...)
-        elseif string.find(prefix, 'gat') then
-            self.Gathering.ParseGatheringData(true, ...)
-        elseif string.find(prefix, 'gat-db') then
-            self.Gathering.ParseGatheringData(false, ...)
-        elseif string.find(prefix, 'raid') then
-            self.RaidRosterFrame:HandleAddonMessage(...)
-        end
-    end,
-    ['UNIT_SPELLCAST_SENT'] = function(self, ...)
-        local target = select(2, ...)
-        local c = UnitClass('target')
-        if c then
-            DEBUG('target has class of '..c)
-        else
-            DEBUG('target has no class')
-        end
-        if target then
-            Guildbook.LastTarget = target
-            local spell = select(4, ...)
-            local name, rank, icon, castTime, minRange, maxRange, spellId = GetSpellInfo(spell)
-            DEBUG('cast: '..name..' at '..target)
-        end
-    end,
-    ['LOOT_OPENED'] = function(self, ...)
-        self.Gathering.ScanLoot()
-        --self.Bags.SmartLootScanPlayerBags()
-    end,
-    ['QUEST_ACCEPTED'] = function(self, ...)
-        local questID = select(2, ...)
-        if not GUILDBOOK_GLOBAL['QuestRewardsXP'] then
-            GUILDBOOK_GLOBAL['QuestRewardsXP'] = {}
-        end
-        GUILDBOOK_GLOBAL['QuestRewardsXP'][tostring(questID)] = tonumber(GetRewardXP())
-    end,
-    ['QUEST_TURNED_IN'] = function(self, ...)
-        local questID = select(2, ...)
-        if not GUILDBOOK_GLOBAL['QuestRewardsXP'] then
-            GUILDBOOK_GLOBAL['QuestRewardsXP'] = {}
-        end
-        GUILDBOOK_GLOBAL['QuestRewardsXP'][tostring(questID)] = nil
-    end,
-    ['QUEST_REMOVED'] = function(self, ...)
-        local questID = select(2, ...)
-        if not GUILDBOOK_GLOBAL['QuestRewardsXP'] then
-            GUILDBOOK_GLOBAL['QuestRewardsXP'] = {}
-        end
-        GUILDBOOK_GLOBAL['QuestRewardsXP'][tostring(questID)] = nil
-    end,
-    ['ZONE_CHANGED'] = function(self, ...)
-        self.Gathering.UpdateMapGatheringIcons()
-        self.Gathering.UpdateWorldMapGatheringIcons()
-    end,
-    ['ZONE_CHANGED_INDOORS'] = function(self, ...)
-        self.Gathering.UpdateMapGatheringIcons()
-        self.Gathering.UpdateWorldMapGatheringIcons()
-    end,
-    ['ZONE_CHANGED_NEW_AREA'] = function(self, ...)
-        self.Gathering.UpdateMapGatheringIcons()
-        self.Gathering.UpdateWorldMapGatheringIcons()
-    end,
-    ['CHAT_MSG_GUILD'] = function(self, ...)
-        local msg = select(1, ...)
-        local sender = select(5, ...)
-        if msg:lower() == 'ding' then
-            -- SendChatMessage('{rt5}{rt1}{rt5}{rt1}{rt5}{rt1}{rt5}', 'GUILD')
-            -- SendChatMessage('{rt1}GRATZ{rt1}{rt5}{rt1}', 'GUILD')
-            -- SendChatMessage('{rt5}{rt1}{rt5}{rt1}{rt5}{rt1}{rt5}', 'GUILD')
-            -- SendChatMessage('{rt1}{rt5}{rt1}GRATZ{rt1}', 'GUILD')
-            -- SendChatMessage('{rt5}{rt1}{rt5}{rt1}{rt5}{rt1}{rt5}', 'GUILD')
-        end
-    end,
-    ['BANKFRAME_OPENED'] = function(self)
-        self.Bags.ScanPlayerBankBags()
-    end,
-    ['UI_ERROR_MESSAGE'] = function(self, ...)
-        Guildbook.GetArgs(...)
-        local t = select(1, ...)
-        if GetGameMessageInfo(t) == 'ERR_INV_FULL' then
-            --Guildbook.Bags.PlayerBags = {}
---            self.Bags.SmartLootScanPlayerBags()
-        end
-    end,
-    ['COMBAT_LOG_EVENT_UNFILTERED'] = function(self, ...)
-        local d = {CombatLogGetCurrentEventInfo()}
-        if tostring(d[2]) == 'SPELL_DAMAGE' then
-            -- for i = 1, #d do
-            --     --print(i, d[i])
-            -- end
-            if d[18] == true then
-                --print(d[13], 'critical hit for: '..d[15], d[5], d[9])
-            end
-        elseif tostring(d[2]) == "SPELL_HEAL" then
-            -- for i = 1, #d do
-            --     --print(i, d[i])
-            -- end
-            if d[18] == true then
-                --print(d[13], 'critical hit for: '..d[15], d[5], d[9])
-                --SendChatMessage(tostring(d[5]..' - '..d[13]..' Critical hit '..d[9]..' for: '..d[15]), 'PARTY')
-            end
-        end
-    end
-}
