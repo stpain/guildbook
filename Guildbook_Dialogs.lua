@@ -32,11 +32,36 @@ Guildbook.Dialogs = {
     end,
 }
 
+StaticPopupDialogs['GuildbookReset'] = {
+    text = 'Guildbook has had major changes made, do you wish to reset all data for a fresh install?',
+    button1 = 'Yes',
+    button2 = 'No',
+    OnAccept = function(self)
+        wipe(GUILDBOOK_CHARACTER)
+        wipe(GUILDBOOK_GLOBAL)
+        if GUILDBOOK_GAMEOBJECTS then
+            GUILDBOOK_GAMEOBJECTS = nil
+        end
+        GUILDBOOK_CHARACTER = Guildbook.Data.DefaultCharacterSettings
+        GUILDBOOK_GLOBAL = Guildbook.Data.DefaultGlobalSettings
+        ReloadUI()
+    end,
+    OnCancel = function(self)
+        PRINT('|cffC41F3B', 'GUILDBOOK hasn\'t been reset, you will most likely experience errors as a result!')
+    end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = false,
+    preferredIndex = 3,
+    showAlert = 1,    
+}
+
 StaticPopupDialogs['GuildbookResetCharacter'] = {
     text = 'Reset data for '..select(1, UnitName("player"))..' to default values?',
     button1 = 'Reset',
     button2 = 'Cancel',
     OnAccept = function(self)
+        wipe(GUILDBOOK_CHARACTER)
         GUILDBOOK_CHARACTER = Guildbook.Data.DefaultCharacterSettings
         UIDropDownMenu_SetText(GuildbookOptionsMainSpecDD, '')
         UIDropDownMenu_SetText(GuildbookOptionsOffSpecDD, '')      
@@ -57,6 +82,7 @@ StaticPopupDialogs['GuildbookResetGlobalSettings'] = {
     button1 = 'Reset',
     button2 = 'Cancel',
     OnAccept = function(self)
+        wipe(GUILDBOOK_GLOBAL)
         GUILDBOOK_GLOBAL = Guildbook.Data.DefaultGlobalSettings
         GuildbookOptionsDebugCB:SetChecked(GUILDBOOK_GLOBAL['Debug'])
         PRINT(Guildbook.FONT_COLOUR, 'reset global settings to default values.')

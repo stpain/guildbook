@@ -213,7 +213,7 @@ Guildbook.Data.SpecFromID = {
     ['z'] = 'Protection',
     ['0'] = 'Retribution',
     ['1'] = 'Feral', --hmm maybe used?
-    ['-'] = 'None',
+    ['-'] = '-',
 }
 
 Guildbook.Data.SpecFontStringIconSMALL = { 

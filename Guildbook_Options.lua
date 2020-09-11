@@ -121,7 +121,10 @@ function GuildbookOptionsMainSpecDD_Init()
                 info.func = function() 
                     UIDropDownMenu_SetText(GuildbookOptionsMainSpecDD, L[spec]) 
                     GUILDBOOK_CHARACTER['MainSpec'] = tostring(spec)
-                    GUILDBOOK_GLOBAL.GuildRosterCache[UnitGUID('player')].MainSpec = tostring(spec)
+                    local guildName = Guildbook:GetGuildName()
+                    if guildName then
+                        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][UnitGUID('player')].MainSpec = tostring(spec)
+                    end
                     DEBUG('set players main spec as: '..spec)
                 end
                 UIDropDownMenu_AddButton(info)
@@ -141,7 +144,10 @@ function GuildbookOptionsOffSpecDD_Init()
                 info.func = function() 
                     UIDropDownMenu_SetText(GuildbookOptionsOffSpecDD, L[spec]) 
                     GUILDBOOK_CHARACTER['OffSpec'] = tostring(spec)
-                    GUILDBOOK_GLOBAL.GuildRosterCache[UnitGUID('player')].OffSpec = tostring(spec)
+                    local guildName = Guildbook:GetGuildName()
+                    if guildName then
+                        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][UnitGUID('player')].OffSpec = tostring(spec)
+                    end
                     DEBUG('set players off spec as: '..spec)
                 end
                 UIDropDownMenu_AddButton(info)

@@ -39,8 +39,6 @@ end
 local L = Guildbook.Locales
 local DEBUG = Guildbook.DEBUG
 local PRINT = Guildbook.PRINT
-local tinsert, tsort = table.insert, table.sort
-local ceil, floor = math.ceil, math.floor
 
 --set constants
 local FRIENDS_FRAME_WIDTH = FriendsFrame:GetWidth()
@@ -137,6 +135,11 @@ function Guildbook:Init()
         tab.background:SetAllPoints(tab)
         tab.background:SetTexture(131139)
         tab.background:SetTexCoord(0.0, 0.00, 0.0 ,0.75, 0.97, 0.0, 0.97, 0.75)
+        if k < 3 then -- for now so it only works on blizz columns
+            tab:SetScript('OnClick', function()
+                SortGuildRoster(col.Text);
+            end)
+        end
         self.GuildFrame.ColumnTabs[k] = tab
     end
     
@@ -404,6 +407,10 @@ function Guildbook:Init()
 
     local version = GetAddOnMetadata(addonName, "Version")
     PRINT(self.FONT_COLOUR, 'loaded (version '..version..')')
+
+    if GUILDBOOK_GAMEOBJECTS then
+        StaticPopup_Show('GuildbookReset')
+    end
 
     -- allow time for loading and whats nots, then send character data
     C_Timer.After(5, function()
