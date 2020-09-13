@@ -32,26 +32,34 @@ local DEBUG = Guildbook.DEBUG
 local PRINT = Guildbook.PRINT
 
 
-function Guildbook:SetupSummaryFrame()
+function Guildbook:SetupStatsFrame()
 
-    self.GuildFrame.SummaryFrame.MinLevelSlider = CreateFrame('SLIDER', 'GuildbookGuildInfoFrameminLevelSlider', self.GuildFrame.SummaryFrame, 'OptionsSliderTemplate')
-    self.GuildFrame.SummaryFrame.MinLevelSlider:SetPoint('TOPLEFT', 35, -35)
-    self.GuildFrame.SummaryFrame.MinLevelSlider:SetThumbTexture("Interface/Buttons/UI-SliderBar-Button-Horizontal")
-    self.GuildFrame.SummaryFrame.MinLevelSlider:SetSize(150, 16)
-    self.GuildFrame.SummaryFrame.MinLevelSlider:SetOrientation('HORIZONTAL')
-    self.GuildFrame.SummaryFrame.MinLevelSlider:SetMinMaxValues(1, 60) 
-    self.GuildFrame.SummaryFrame.MinLevelSlider:SetValueStep(1.0)
-    _G[Guildbook.GuildFrame.SummaryFrame.MinLevelSlider:GetName()..'Low']:SetText('1')
-    _G[Guildbook.GuildFrame.SummaryFrame.MinLevelSlider:GetName()..'High']:SetText('60')
-    self.GuildFrame.SummaryFrame.MinLevelSlider:SetValue(60)
-    self.GuildFrame.SummaryFrame.MinLevelSlider:SetScript('OnValueChanged', function(self)
+    self.GuildFrame.StatsFrame.Header = self.GuildFrame.StatsFrame:CreateFontString('GuildbookGuildInfoFrameStatsFrameHeader', 'OVERLAY', 'GameFontNormal')
+    self.GuildFrame.StatsFrame.Header:SetPoint('TOPLEFT', Guildbook.GuildFrame.StatsFrame, 'TOPLEFT', 16, -16)
+    self.GuildFrame.StatsFrame.Header:SetText('Class and Role Summary')
+    self.GuildFrame.StatsFrame.Header:SetTextColor(1,1,1,1)
+    self.GuildFrame.StatsFrame.Header:SetFont("Fonts\\FRIZQT__.TTF", 12)
+
+    self.GuildFrame.StatsFrame.MinLevelSlider = CreateFrame('SLIDER', 'GuildbookGuildInfoFrameminLevelSlider', self.GuildFrame.StatsFrame, 'OptionsSliderTemplate')
+    self.GuildFrame.StatsFrame.MinLevelSlider:SetPoint('TOPLEFT', 35, -80)
+    self.GuildFrame.StatsFrame.MinLevelSlider:SetThumbTexture("Interface/Buttons/UI-SliderBar-Button-Horizontal")
+    self.GuildFrame.StatsFrame.MinLevelSlider:SetSize(125, 16)
+    self.GuildFrame.StatsFrame.MinLevelSlider:SetOrientation('HORIZONTAL')
+    self.GuildFrame.StatsFrame.MinLevelSlider:SetMinMaxValues(1, 60) 
+    self.GuildFrame.StatsFrame.MinLevelSlider:SetValueStep(1.0)
+    _G[Guildbook.GuildFrame.StatsFrame.MinLevelSlider:GetName()..'Low']:SetText('1')
+    _G[Guildbook.GuildFrame.StatsFrame.MinLevelSlider:GetName()..'High']:SetText('60')
+    self.GuildFrame.StatsFrame.MinLevelSlider:SetValue(60)
+    self.GuildFrame.StatsFrame.MinLevelSlider:SetScript('OnValueChanged', function(self)
         --print(math.floor(self:GetValue()))
+        Guildbook.GuildFrame.StatsFrame:GetClassRoleFromCache()
     end)
-    self.GuildFrame.SummaryFrame.MinLevelSlider_Title = self.GuildFrame.SummaryFrame:CreateFontString('GuildbookGuildInfoFrameSummaryFrameminLevelTitle', 'OVERLAY', 'GameFontNormal')
-    self.GuildFrame.SummaryFrame.MinLevelSlider_Title:SetPoint('BOTTOM', self.GuildFrame.SummaryFrame.MinLevelSlider, 'TOP', 0, 5)
-    self.GuildFrame.SummaryFrame.MinLevelSlider_Title:SetText('Character min level')
+    self.GuildFrame.StatsFrame.MinLevelSlider.tooltipText = 'Show data for characters with a minimun level'
+    self.GuildFrame.StatsFrame.MinLevelSlider_Title = self.GuildFrame.StatsFrame:CreateFontString('GuildbookGuildInfoFrameStatsFrameminLevelTitle', 'OVERLAY', 'GameFontNormal')
+    self.GuildFrame.StatsFrame.MinLevelSlider_Title:SetPoint('BOTTOM', self.GuildFrame.StatsFrame.MinLevelSlider, 'TOP', 0, 5)
+    self.GuildFrame.StatsFrame.MinLevelSlider_Title:SetText('Character min level')
 
-    self.GuildFrame.SummaryFrame.ClassCount = {
+    self.GuildFrame.StatsFrame.ClassCount = {
         { Class = 'DEATHKNIGHT', Count = 0 },
         { Class = 'DRUID', Count = 0 },
         { Class = 'HUNTER', Count = 0 },
@@ -65,41 +73,41 @@ function Guildbook:SetupSummaryFrame()
     }
 
     local segCol = 0.66 --adjustment % of class colours
-    self.GuildFrame.SummaryFrame.ClassSummaryPieChart = LibGraph:CreateGraphPieChart('GuildbookClassSummaryCountChart', self.GuildFrame.SummaryFrame, 'BOTTOMRIGHT', 'BOTTOMRIGHT', -15, 15, 180, 180)
-    self.GuildFrame.SummaryFrame.ClassHeader = self.GuildFrame.SummaryFrame:CreateFontString('GuildbookGuildInfoFrameSummaryFrameClassHeader', 'OVERLAY', 'GameFontNormal')
-    self.GuildFrame.SummaryFrame.ClassHeader:SetPoint('BOTTOM', Guildbook.GuildFrame.SummaryFrame.ClassSummaryPieChart, 'TOP', 0, 2)
-    self.GuildFrame.SummaryFrame.ClassHeader:SetText('Class Summary')
-    self.GuildFrame.SummaryFrame.ClassHeader:SetTextColor(1,1,1,1)
-    self.GuildFrame.SummaryFrame.ClassHeader:SetFont("Fonts\\FRIZQT__.TTF", 12)
+    self.GuildFrame.StatsFrame.ClassSummaryPieChart = LibGraph:CreateGraphPieChart('GuildbookClassSummaryCountChart', self.GuildFrame.StatsFrame, 'BOTTOMRIGHT', 'BOTTOMRIGHT', -15, 15, 180, 180)
+    self.GuildFrame.StatsFrame.ClassHeader = self.GuildFrame.StatsFrame:CreateFontString('GuildbookGuildInfoFrameStatsFrameClassHeader', 'OVERLAY', 'GameFontNormal')
+    self.GuildFrame.StatsFrame.ClassHeader:SetPoint('BOTTOM', Guildbook.GuildFrame.StatsFrame.ClassSummaryPieChart, 'TOP', 0, 2)
+    self.GuildFrame.StatsFrame.ClassHeader:SetText('Classes')
+    self.GuildFrame.StatsFrame.ClassHeader:SetTextColor(1,1,1,1)
+    self.GuildFrame.StatsFrame.ClassHeader:SetFont("Fonts\\FRIZQT__.TTF", 12)
     local function classSummaryPieChart_SelectionFunc(_, segment)
         if type(segment) == 'number' and segment > 0 and segment < 11 then
-            GameTooltip:SetOwner(self.GuildFrame.SummaryFrame, 'ANCHOR_CURSOR')
+            GameTooltip:SetOwner(self.GuildFrame.StatsFrame, 'ANCHOR_CURSOR')
             --GameTooltip:AddLine('|cffffffffClass Info|r')
-            GameTooltip:AddDoubleLine('|cffffffff'..self.GuildFrame.SummaryFrame.ClassCount[segment].Class..'|r', self.GuildFrame.SummaryFrame.ClassCount[segment].Count)
+            GameTooltip:AddDoubleLine('|cffffffff'..self.GuildFrame.StatsFrame.ClassCount[segment].Class..'|r', self.GuildFrame.StatsFrame.ClassCount[segment].Count)
             GameTooltip:Show()
         else
             GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
         end
     end
-    self.GuildFrame.SummaryFrame.ClassSummaryPieChart:SetSelectionFunc(classSummaryPieChart_SelectionFunc)
-    for k, class in pairs(self.GuildFrame.SummaryFrame.ClassCount) do
+    self.GuildFrame.StatsFrame.ClassSummaryPieChart:SetSelectionFunc(classSummaryPieChart_SelectionFunc)
+    for k, class in pairs(self.GuildFrame.StatsFrame.ClassCount) do
         local r, g, b = unpack(Guildbook.Data.Class[class.Class].RGB)
-        self.GuildFrame.SummaryFrame.ClassSummaryPieChart:AddPie(10, {r*segCol, g*segCol, b*segCol});
+        self.GuildFrame.StatsFrame.ClassSummaryPieChart:AddPie(10, {r*segCol, g*segCol, b*segCol});
     end
-    self.GuildFrame.SummaryFrame.ClassSummaryPieChart:CompletePie({0,0,0})
+    self.GuildFrame.StatsFrame.ClassSummaryPieChart:CompletePie({0,0,0})
     
-    self.GuildFrame.SummaryFrame.Roles = {
+    self.GuildFrame.StatsFrame.Roles = {
 		Tank = { DEATHKNIGHT = 0, WARRIOR = 0, DRUID = 0, PALADIN = 0 },
 		Healer = { DRUID = 0, SHAMAN = 0, PRIEST = 0, PALADIN = 0 },
 		Ranged = { DRUID = 0, SHAMAN = 0, PRIEST = 0, MAGE = 0, WARLOCK = 0, HUNTER = 0 },
         Melee = { DRUID = 0, SHAMAN = 0, PALADIN = 0, WARRIOR = 0, ROGUE = 0, DEATHKNIGHT = 0 },
     }
-    self.GuildFrame.SummaryFrame.RoleCharts = {}
+    self.GuildFrame.StatsFrame.RoleCharts = {}
     local roles = { 'Tank', 'Melee', 'Healer', 'Ranged' }
     for i = 1, 4 do
         local role = roles[i]
-        local chart = LibGraph:CreateGraphPieChart('GuildbookTankPieChart', self.GuildFrame.SummaryFrame, 'BOTTOMLEFT', 'BOTTOMLEFT', (25 + ((i - 1) * 100)), 30, 90, 90)
-        local title = self.GuildFrame.SummaryFrame:CreateFontString('$parentRolePieChartTitle', 'OVERLAY', 'GameFontNormal')
+        local chart = LibGraph:CreateGraphPieChart('GuildbookTankPieChart', self.GuildFrame.StatsFrame, 'BOTTOMLEFT', 'BOTTOMLEFT', (25 + ((i - 1) * 100)), 30, 90, 90)
+        local title = self.GuildFrame.StatsFrame:CreateFontString('$parentRolePieChartTitle', 'OVERLAY', 'GameFontNormal')
         title:SetPoint('TOP', chart, 'BOTTOM', 0, -5)
         title:SetText(role)
         local deg = 0
@@ -108,19 +116,19 @@ function Guildbook:SetupSummaryFrame()
         else
             deg = 6
         end
-        for class, count in pairs(self.GuildFrame.SummaryFrame.Roles[role]) do
+        for class, count in pairs(self.GuildFrame.StatsFrame.Roles[role]) do
             local r, g, b = unpack(Guildbook.Data.Class[class].RGB)
             chart:AddPie((100 / deg), {r*segCol, g*segCol, b*segCol})
         end
-        self.GuildFrame.SummaryFrame.RoleCharts[role] = chart
+        self.GuildFrame.StatsFrame.RoleCharts[role] = chart
     end
-    self.GuildFrame.SummaryFrame.RoleHeader = self.GuildFrame.SummaryFrame:CreateFontString('GuildbookGuildInfoFrameSummaryFrameRoleHeader', 'OVERLAY', 'GameFontNormal')
-    self.GuildFrame.SummaryFrame.RoleHeader:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.SummaryFrame.RoleCharts['Tank'], 'TOPLEFT', 0, 10)
-    self.GuildFrame.SummaryFrame.RoleHeader:SetText('Role Summary')
-    self.GuildFrame.SummaryFrame.RoleHeader:SetTextColor(1,1,1,1)
-    self.GuildFrame.SummaryFrame.RoleHeader:SetFont("Fonts\\FRIZQT__.TTF", 12)
+    self.GuildFrame.StatsFrame.RoleHeader = self.GuildFrame.StatsFrame:CreateFontString('GuildbookGuildInfoFrameStatsFrameRoleHeader', 'OVERLAY', 'GameFontNormal')
+    self.GuildFrame.StatsFrame.RoleHeader:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.StatsFrame.RoleCharts['Tank'], 'TOPLEFT', 0, 10)
+    self.GuildFrame.StatsFrame.RoleHeader:SetText('Roles')
+    self.GuildFrame.StatsFrame.RoleHeader:SetTextColor(1,1,1,1)
+    self.GuildFrame.StatsFrame.RoleHeader:SetFont("Fonts\\FRIZQT__.TTF", 12)
 
-    function self.GuildFrame.SummaryFrame:ResetClassCount()
+    function self.GuildFrame.StatsFrame:ResetClassCount()
         for k, v in ipairs(self.ClassCount) do
             v.Count = 0
         end
@@ -128,7 +136,7 @@ function Guildbook:SetupSummaryFrame()
     end
     
     --currently just calling blizz api - maybe use local cache?
-    function self.GuildFrame.SummaryFrame:UpdateClassChart()
+    function self.GuildFrame.StatsFrame:UpdateClassChart()
         self:ResetClassCount()
         GuildRoster()
         local totalMembers, onlineMembers, _ = GetNumGuildMembers()
@@ -153,10 +161,10 @@ function Guildbook:SetupSummaryFrame()
             local r, g, b = unpack(Guildbook.Data.Class[v.Class].RGB)
             self.ClassSummaryPieChart:AddPie(tonumber((v.Count / totalMembers) * 100), {r*segCol, g*segCol, b*segCol});
         end
-        Guildbook.GuildFrame.SummaryFrame.ClassSummaryPieChart:CompletePie({0,0,0})
+        Guildbook.GuildFrame.StatsFrame.ClassSummaryPieChart:CompletePie({0,0,0})
     end
 
-    function self.GuildFrame.SummaryFrame:GetClassRoleFromCache()
+    function self.GuildFrame.StatsFrame:GetClassRoleFromCache()
         local guildName = Guildbook:GetGuildName()
         if guildName then
             if GUILDBOOK_GLOBAL then
@@ -174,7 +182,9 @@ function Guildbook:SetupSummaryFrame()
                     }
                     for guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[guildName]) do
                         if character.MainSpec ~= '-' then
-                            self.Roles[Guildbook.Data.SpecToRole[character.Class][character.MainSpec]][character.Class] = self.Roles[Guildbook.Data.SpecToRole[character.Class][character.MainSpec]][character.Class] + 1
+                            if tonumber(character.Level) >= self.MinLevelSlider:GetValue() then
+                                self.Roles[Guildbook.Data.SpecToRole[character.Class][character.MainSpec]][character.Class] = self.Roles[Guildbook.Data.SpecToRole[character.Class][character.MainSpec]][character.Class] + 1
+                            end
                         end
                     end
                     for role, classes in pairs(self.Roles) do
@@ -198,7 +208,7 @@ function Guildbook:SetupSummaryFrame()
     end
 
 
-    self.GuildFrame.SummaryFrame:SetScript('OnShow', function(self)
+    self.GuildFrame.StatsFrame:SetScript('OnShow', function(self)
         self:GetClassRoleFromCache()
         self:UpdateClassChart()
     end)

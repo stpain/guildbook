@@ -29,7 +29,7 @@ SLASH_GUILDHELPERCLASSIC1 = '/guildbook'
 SLASH_GUILDHELPERCLASSIC2 = '/g-k'
 SlashCmdList['GUILDHELPERCLASSIC'] = function(msg)
     if msg == '-help' then
-    
+        Guildbook:ScanPlayerProfession()
     end
 end
 
@@ -241,54 +241,83 @@ function Guildbook:Init()
     end
     
     hooksecurefunc("GuildStatus_Update", function()
+        local numTotal, numOnline, numOnlineAndMobile = GetNumGuildMembers()
         for i = 1, 13 do
-            if Guildbook.GuildFrame.SummaryFrame:IsVisible() then
-                _G['GuildFrameButton'..i]:Hide()
+            local button = _G['GuildFrameButton'..i]
+            button:Show()
+            --clear text
+            button.GuildbookColumnRank:SetText('')
+            button.GuildbookColumnNote:SetText('')
+            button.GuildbookColumnMainSpec:SetText('')
+            button.GuildbookColumnProfession1:SetText('')
+            button.GuildbookColumnProfession2:SetText('')
+            local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, GUID = GetGuildRosterInfo(tonumber(button.guildIndex))
+            -- update font colours
+            if isOnline == false then
+                formatGuildFrameButton(button.GuildbookColumnRank, {0.5,0.5,0.5,1})
+                formatGuildFrameButton(button.GuildbookColumnNote, {0.5,0.5,0.5,1})
+                formatGuildFrameButton(button.GuildbookColumnMainSpec, {0.5,0.5,0.5,1})
+                formatGuildFrameButton(button.GuildbookColumnProfession1, {0.5,0.5,0.5,1})
+                formatGuildFrameButton(button.GuildbookColumnProfession2, {0.5,0.5,0.5,1})
             else
-                local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, GUID = GetGuildRosterInfo(tonumber(_G['GuildFrameButton'..i].guildIndex))
-                -- update font colours
-                if isOnline == false then
-                    formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnRank, {0.5,0.5,0.5,1})
-                    formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnNote, {0.5,0.5,0.5,1})
-                    formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnMainSpec, {0.5,0.5,0.5,1})
-                    formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnProfession1, {0.5,0.5,0.5,1})
-                    formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnProfession2, {0.5,0.5,0.5,1})
-                else
-                    formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnRank, {1,1,1,1})
-                    formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnNote, {1,1,1,1})
-                    formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnMainSpec, {1,1,1,1})
-                    formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnProfession1, {1,1,1,1})
-                    formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnProfession2, {1,1,1,1})
-                end                
-                --change class text colour
-                _G['GuildFrameButton'..i..'Class']:SetText(string.format('%s%s|r', self.Data.Class[class].FontColour, classDisplayName))
-                -- set known columns
-                _G['GuildFrameButton'..i].GuildbookColumnRank:SetText(rankName)    
-                _G['GuildFrameButton'..i].GuildbookColumnNote:SetText(publicNote)
-                -- clear unknown columns
-                _G['GuildFrameButton'..i].GuildbookColumnMainSpec:SetText('-')
-                _G['GuildFrameButton'..i].GuildbookColumnProfession1:SetText('-')
-                _G['GuildFrameButton'..i].GuildbookColumnProfession2:SetText('-')
-                -- loop local cache and update columns
-                local guildName = Guildbook:GetGuildName()
-                if guildName then
-                    if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache and GUILDBOOK_GLOBAL.GuildRosterCache[guildName] and next(GUILDBOOK_GLOBAL.GuildRosterCache[guildName]) then
-                        if GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID] then
-                            local ms, os = GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]['MainSpec'], GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]['OffSpec']
-                            local prof1 = GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]['Profession1']
-                            local prof2 = GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]['Profession2']
-                            _G['GuildFrameButton'..i].GuildbookColumnMainSpec:SetText(string.format('%s %s', self.Data.SpecFontStringIconSMALL[GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]['Class']][ms], ms))                
-                            _G['GuildFrameButton'..i].GuildbookColumnProfession1:SetText(string.format('%s %s', self.Data.Profession[prof1].FontStringIconSMALL, prof1))
-                            _G['GuildFrameButton'..i].GuildbookColumnProfession2:SetText(string.format('%s %s', self.Data.Profession[prof2].FontStringIconSMALL, prof2))
-                        end
+                formatGuildFrameButton(button.GuildbookColumnRank, {1,1,1,1})
+                formatGuildFrameButton(button.GuildbookColumnNote, {1,1,1,1})
+                formatGuildFrameButton(button.GuildbookColumnMainSpec, {1,1,1,1})
+                formatGuildFrameButton(button.GuildbookColumnProfession1, {1,1,1,1})
+                formatGuildFrameButton(button.GuildbookColumnProfession2, {1,1,1,1})
+            end                
+            --change class text colour
+            _G['GuildFrameButton'..i..'Class']:SetText(string.format('%s%s|r', self.Data.Class[class].FontColour, classDisplayName))
+            -- set known columns
+            button.GuildbookColumnRank:SetText(rankName)    
+            button.GuildbookColumnNote:SetText(publicNote)
+            -- clear unknown columns
+            button.GuildbookColumnMainSpec:SetText('-')
+            button.GuildbookColumnProfession1:SetText('-')
+            button.GuildbookColumnProfession2:SetText('-')
+            -- loop local cache and update columns
+            local guildName = Guildbook:GetGuildName()
+            if guildName then
+                if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache and GUILDBOOK_GLOBAL.GuildRosterCache[guildName] and next(GUILDBOOK_GLOBAL.GuildRosterCache[guildName]) then
+                    if GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID] then
+                        local ms, os = GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]['MainSpec'], GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]['OffSpec']
+                        local prof1 = GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]['Profession1']
+                        local prof2 = GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]['Profession2']
+                        button.GuildbookColumnMainSpec:SetText(string.format('%s %s', self.Data.SpecFontStringIconSMALL[GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]['Class']][ms], ms))                
+                        button.GuildbookColumnProfession1:SetText(string.format('%s %s', self.Data.Profession[prof1].FontStringIconSMALL, prof1))
+                        button.GuildbookColumnProfession2:SetText(string.format('%s %s', self.Data.Profession[prof2].FontStringIconSMALL, prof2))
                     end
                 end
+            end
+            if Guildbook.GuildFrame.StatsFrame:IsVisible() then
+                button:Hide()
+            end
+            if (GuildFrameLFGButton:GetChecked() == false) and(i > numOnline) then
+                button:Hide()
             end
         end
     end)
     
-    self.GuildFrame.SummaryFrame = CreateFrame('FRAME', 'GuildbookGuildFrameSummaryFrame', GuildFrame)
-    self.GuildFrame.SummaryFrame:SetBackdrop({
+    --add extra frames to guild ui
+    self.GuildFrame.Frames = {}
+    local function toggleGuildFrames(frame)
+        for k, f in pairs(Guildbook.GuildFrame.Frames) do
+            f:Hide()
+        end
+        if frame == 'none' then
+            for i = 1, 13 do
+                _G['GuildFrameButton'..i]:Show()
+            end
+        else
+            for i = 1, 13 do
+                _G['GuildFrameButton'..i]:Hide()
+            end
+            Guildbook.GuildFrame.Frames[frame]:Show()
+        end
+    end
+
+    self.GuildFrame.StatsFrame = CreateFrame('FRAME', 'GuildbookGuildFrameStatsFrame', GuildFrame)
+    self.GuildFrame.StatsFrame:SetBackdrop({
         edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
         edgeSize = 16,
         bgFile = "interface/framegeneral/ui-background-marble",
@@ -297,34 +326,60 @@ function Guildbook:Init()
         tileSize = 200,
         insets = { left = 4, right = 4, top = 4, bottom = 4 }
     })
-    self.GuildFrame.SummaryFrame:SetPoint('TOPLEFT', GuildFrame, 'TOPLEFT', 2.00, -55.0)
-    self.GuildFrame.SummaryFrame:SetPoint('BOTTOMRIGHT', GuildFrame, 'TOPRIGHT', -4.00, -325.0)
-    self.GuildFrame.SummaryFrame:SetFrameLevel(6)
-    self.GuildFrame.SummaryFrame:Hide()
+    self.GuildFrame.StatsFrame:SetPoint('TOPLEFT', GuildFrame, 'TOPLEFT', 2.00, -55.0)
+    self.GuildFrame.StatsFrame:SetPoint('BOTTOMRIGHT', GuildFrame, 'TOPRIGHT', -4.00, -325.0)
+    self.GuildFrame.StatsFrame:SetFrameLevel(6)
+    self.GuildFrame.StatsFrame:Hide()
+    self.GuildFrame.Frames['stats'] = self.GuildFrame.StatsFrame
+
+    self.GuildFrame.TradeSkill = CreateFrame('FRAME', 'GuildbookGuildFrameTradeSkill', GuildFrame)
+    self.GuildFrame.TradeSkill:SetBackdrop({
+        edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+        edgeSize = 16,
+        bgFile = "interface/framegeneral/ui-background-marble",
+        tile = true,
+        tileEdge = false,
+        tileSize = 200,
+        insets = { left = 4, right = 4, top = 4, bottom = 4 }
+    })
+    self.GuildFrame.TradeSkill:SetPoint('TOPLEFT', GuildFrame, 'TOPLEFT', 2.00, -55.0)
+    self.GuildFrame.TradeSkill:SetPoint('BOTTOMRIGHT', GuildFrame, 'TOPRIGHT', -4.00, -325.0)
+    self.GuildFrame.TradeSkill:SetFrameLevel(6)
+    self.GuildFrame.TradeSkill:Hide()
+    self.GuildFrame.Frames['tradeskill'] = self.GuildFrame.TradeSkill
+
+    -- add buttons to toggle between extra frames
+    self.GuildFrame.RosterButton = CreateFrame('BUTTON', 'GuildbookGuildFrameRosterButton', GuildFrame, "UIPanelButtonTemplate")
+    self.GuildFrame.RosterButton:SetPoint('RIGHT', GuildFrameGuildInformationButton, 'LEFT', -2, 0)
+    self.GuildFrame.RosterButton:SetSize(100, GuildFrameGuildInformationButton:GetHeight())
+    self.GuildFrame.RosterButton:SetText('Guild Roster')
+    self.GuildFrame.RosterButton:SetNormalFontObject(GameFontNormalSmall)
+    self.GuildFrame.RosterButton:SetHighlightFontObject(GameFontNormalSmall)
+    self.GuildFrame.RosterButton:SetScript('OnClick', function(self)
+        toggleGuildFrames('none')
+    end)
 
     self.GuildFrame.StatsButton = CreateFrame('BUTTON', 'GuildbookGuildFrameStatsButton', GuildFrame, "UIPanelButtonTemplate")
-    self.GuildFrame.StatsButton:SetPoint('RIGHT', GuildFrameGuildInformationButton, 'LEFT', -2, 0)
+    self.GuildFrame.StatsButton:SetPoint('RIGHT', Guildbook.GuildFrame.RosterButton, 'LEFT', -2, 0)
     self.GuildFrame.StatsButton:SetSize(100, GuildFrameGuildInformationButton:GetHeight())
     self.GuildFrame.StatsButton:SetText('Guild Stats')
     self.GuildFrame.StatsButton:SetNormalFontObject(GameFontNormalSmall)
     self.GuildFrame.StatsButton:SetHighlightFontObject(GameFontNormalSmall)
     self.GuildFrame.StatsButton:SetScript('OnClick', function(self)
-        if Guildbook.GuildFrame.SummaryFrame:IsVisible() then
-            Guildbook.GuildFrame.SummaryFrame:Hide()
-            self:SetText('Guild Stats')
-            for i = 1, 13 do
-                _G['GuildFrameButton'..i]:Show()
-            end
-        else
-            Guildbook.GuildFrame.SummaryFrame:Show()
-            self:SetText('Guild Roster')
-            for i = 1, 13 do
-                _G['GuildFrameButton'..i]:Hide()
-            end
-        end
+        toggleGuildFrames('stats')
+    end)
+
+    self.GuildFrame.TradeSkillButton = CreateFrame('BUTTON', 'GuildbookGuildFrameTradeSkillButton', GuildFrame, "UIPanelButtonTemplate")
+    self.GuildFrame.TradeSkillButton:SetPoint('RIGHT',  Guildbook.GuildFrame.StatsButton, 'LEFT', -2, 0)
+    self.GuildFrame.TradeSkillButton:SetSize(100, GuildFrameGuildInformationButton:GetHeight())
+    self.GuildFrame.TradeSkillButton:SetText('Professions')
+    self.GuildFrame.TradeSkillButton:SetNormalFontObject(GameFontNormalSmall)
+    self.GuildFrame.TradeSkillButton:SetHighlightFontObject(GameFontNormalSmall)
+    self.GuildFrame.TradeSkillButton:SetScript('OnClick', function(self)
+        toggleGuildFrames('tradeskill')
     end)
     
-    self:SetupSummaryFrame()
+    self:SetupStatsFrame()
 
     --register the addon message prefixes
     -- TODO: remove these mdf message, use local cache data instead to populate frame, add events for level up, skill up etc
@@ -417,6 +472,65 @@ function Guildbook:Init()
         Guildbook:SendCharacterStats()
     end)
 
+end
+
+
+function Guildbook:TRADE_SKILL_SHOW()
+    C_Timer.After(1, function()
+        print('trade skill open, scanning skills')
+        --self:ScanTradeSkillFrame()
+    end)
+end
+
+function Guildbook:TRADE_SKILL_UPDATE()
+    C_Timer.After(1, function()
+        print('trade skill update, scanning skills')
+        self:ScanTradeSkillFrame()
+    end)
+end
+
+function Guildbook:RefreshGuildFrameButtons()
+
+end
+
+function Guildbook:ScanTradeSkillFrame()
+    --local prof = TradeSkillFrameTitleText:GetText()
+    local prof = GetTradeSkillLine()
+    --print('prof: '..prof)
+    GUILDBOOK_CHARACTER[prof] = {}
+    for i = 1, GetNumTradeSkills() do
+        local name, type, _, _, _, _ = GetTradeSkillInfo(i)
+        if (name and type ~= "header") then
+            local itemLink = GetTradeSkillItemLink(i)
+            local itemID = select(1, GetItemInfoInstant(itemLink))
+            local itemName = select(1, GetItemInfo(itemID))
+            --print(string.format('|cff0070DETrade item|r: %s, with ID: %s', name, itemID))
+            if itemName and itemID then
+                GUILDBOOK_CHARACTER[prof][itemID] = {}
+                -- GUILDBOOK_CHARACTER[prof][itemID] = {
+                --     CraftedItem = itemName,
+                --     Reagents = {},
+                -- }
+            end
+            local numReagents = GetTradeSkillNumReagents(i);
+            if numReagents > 0 then
+                for j = 1, numReagents, 1 do
+                    local reagentName, reagentTexture, reagentCount, playerReagentCount = GetTradeSkillReagentInfo(i, j)
+                    local reagentLink = GetTradeSkillReagentItemLink(i, j)
+                    local reagentID = select(1, GetItemInfoInstant(reagentLink))
+                    --print(string.format('    Reagent name: %s, with ID: %s, Needed: %s', reagentName, reagentID, reagentCount))
+                    if reagentName and reagentID and reagentCount then
+                        GUILDBOOK_CHARACTER[prof][itemID][reagentID] = reagentCount
+                        -- table.insert(GUILDBOOK_CHARACTER[prof][itemID].Reagents, {
+                        --     ReagentName = reagentName,
+                        --     ReagentID = tonumber(reagentID),
+                        --     ReagentCount = tonumber(reagentCount),
+                        -- })
+                    end
+                end
+            end
+        end
+    end
 end
 
 function Guildbook:GetGuildName()
@@ -587,6 +701,8 @@ Guildbook.EventFrame:RegisterEvent('CHAT_MSG_ADDON')
 Guildbook.EventFrame:RegisterEvent('ADDON_LOADED')
 Guildbook.EventFrame:RegisterEvent('PLAYER_LEVEL_UP')
 Guildbook.EventFrame:RegisterEvent('SKILL_LINES_CHANGED')
+Guildbook.EventFrame:RegisterEvent('TRADE_SKILL_SHOW')
+Guildbook.EventFrame:RegisterEvent('TRADE_SKILL_UPDATE')
 Guildbook.EventFrame:SetScript('OnEvent', function(self, event, ...)
     --DEBUG('EVENT='..tostring(event))
     Guildbook[event](Guildbook, ...)
