@@ -332,8 +332,8 @@ function Guildbook:Init()
     self.GuildFrame.StatsFrame:Hide()
     self.GuildFrame.Frames['stats'] = self.GuildFrame.StatsFrame
 
-    self.GuildFrame.TradeSkill = CreateFrame('FRAME', 'GuildbookGuildFrameTradeSkill', GuildFrame)
-    self.GuildFrame.TradeSkill:SetBackdrop({
+    self.GuildFrame.TradeSkillFrame = CreateFrame('FRAME', 'GuildbookGuildFrameTradeSkillFrame', GuildFrame)
+    self.GuildFrame.TradeSkillFrame:SetBackdrop({
         edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
         edgeSize = 16,
         bgFile = "interface/framegeneral/ui-background-marble",
@@ -342,11 +342,11 @@ function Guildbook:Init()
         tileSize = 200,
         insets = { left = 4, right = 4, top = 4, bottom = 4 }
     })
-    self.GuildFrame.TradeSkill:SetPoint('TOPLEFT', GuildFrame, 'TOPLEFT', 2.00, -55.0)
-    self.GuildFrame.TradeSkill:SetPoint('BOTTOMRIGHT', GuildFrame, 'TOPRIGHT', -4.00, -325.0)
-    self.GuildFrame.TradeSkill:SetFrameLevel(6)
-    self.GuildFrame.TradeSkill:Hide()
-    self.GuildFrame.Frames['tradeskill'] = self.GuildFrame.TradeSkill
+    self.GuildFrame.TradeSkillFrame:SetPoint('TOPLEFT', GuildFrame, 'TOPLEFT', 2.00, -55.0)
+    self.GuildFrame.TradeSkillFrame:SetPoint('BOTTOMRIGHT', GuildFrame, 'TOPRIGHT', -4.00, -325.0)
+    self.GuildFrame.TradeSkillFrame:SetFrameLevel(6)
+    self.GuildFrame.TradeSkillFrame:Hide()
+    self.GuildFrame.Frames['tradeskill'] = self.GuildFrame.TradeSkillFrame
 
     -- add buttons to toggle between extra frames
     self.GuildFrame.RosterButton = CreateFrame('BUTTON', 'GuildbookGuildFrameRosterButton', GuildFrame, "UIPanelButtonTemplate")
@@ -380,6 +380,7 @@ function Guildbook:Init()
     end)
     
     self:SetupStatsFrame()
+    self:SetupTradeSkillFrame()
 
     --register the addon message prefixes
     -- TODO: remove these mdf message, use local cache data instead to populate frame, add events for level up, skill up etc
@@ -477,15 +478,15 @@ end
 
 function Guildbook:TRADE_SKILL_SHOW()
     C_Timer.After(1, function()
-        print('trade skill open, scanning skills')
-        --self:ScanTradeSkillFrame()
+        DEBUG('trade skill open, scanning skills')
+        --self:ScanTradeSkill()
     end)
 end
 
 function Guildbook:TRADE_SKILL_UPDATE()
     C_Timer.After(1, function()
-        print('trade skill update, scanning skills')
-        self:ScanTradeSkillFrame()
+        DEBUG('trade skill update, scanning skills')
+        self:ScanTradeSkill()
     end)
 end
 
@@ -493,7 +494,7 @@ function Guildbook:RefreshGuildFrameButtons()
 
 end
 
-function Guildbook:ScanTradeSkillFrame()
+function Guildbook:ScanTradeSkill()
     --local prof = TradeSkillFrameTitleText:GetText()
     local prof = GetTradeSkillLine()
     --print('prof: '..prof)

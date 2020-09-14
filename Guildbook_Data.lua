@@ -116,6 +116,24 @@ Guildbook.Data.Profession = {
     FirstAid = { ID = 14, Name = 'FirstAid', Icon = 'Interface\\Icons\\Spell_Holy_SealOfSacrifice', FontStringIconSMALL='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:76:140:226:290|t', },
 }
 
+Guildbook.Data.Professions = {
+    { Name = 'Alchemy', TradeSkill = true, },
+    { Name = 'Blacksmithing', TradeSkill = true, },
+    { Name = 'Enchanting', TradeSkill = true, },
+    { Name = 'Engineering', TradeSkill = true, },
+    { Name = 'Inscription', TradeSkill = true, },
+    { Name = 'Jewelcrafting', TradeSkill = true, },
+    { Name = 'Leatherworking', TradeSkill = true, },
+    { Name = 'Tailoring', TradeSkill = true, },
+    { Name = 'Herbalism', TradeSkill = true, },
+    { Name = 'Skinning', TradeSkill = true, },
+    { Name = 'Mining', TradeSkill = true, },
+    { Name = 'Cooking', TradeSkill = true, },
+    { Name = 'Fishing', TradeSkill = false, },
+    { Name = 'First Aid', TradeSkill = false, },
+    { Name = '-', TradeSkill = false, },
+}
+
 Guildbook.Data.ProfToID = {
     Alchemy = 'a',
     Blacksmithing = 'b',

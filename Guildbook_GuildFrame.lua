@@ -215,3 +215,315 @@ function Guildbook:SetupStatsFrame()
     
 end
 
+
+
+function Guildbook:SetupTradeSkillFrame()
+
+    self.GuildFrame.TradeSkillFrame.SelectedCharacter = nil
+    self.GuildFrame.TradeSkillFrame.SelectedProfession = nil
+
+    self.GuildFrame.TradeSkillFrame.Header = self.GuildFrame.TradeSkillFrame:CreateFontString('GuildbookGuildInfoFrameTradeSkillFrameHeader', 'OVERLAY', 'GameFontNormal')
+    self.GuildFrame.TradeSkillFrame.Header:SetPoint('BOTTOM', Guildbook.GuildFrame.TradeSkillFrame, 'TOP', 0, 4)
+    self.GuildFrame.TradeSkillFrame.Header:SetText('Trade Skills')
+    self.GuildFrame.TradeSkillFrame.Header:SetTextColor(1,1,1,1)
+    self.GuildFrame.TradeSkillFrame.Header:SetFont("Fonts\\FRIZQT__.TTF", 12)
+
+    local profButtonPosY = 0
+    for i = 12, 1, -1 do
+        local prof = Guildbook.Data.Professions[i]
+        if prof.TradeSkill == true then
+            local f = CreateFrame('BUTTON', 'GuildbookTradeSkillFrameProfessionButton'..prof.Name, self.GuildFrame.TradeSkillFrame, "UIPanelButtonTemplate")
+            f:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.TradeSkillFrame, 'BOTTOMLEFT', 6, profButtonPosY + 4)
+            f:SetSize(120, 20)
+            f:SetText(prof.Name)
+            f:SetNormalFontObject(GameFontNormalSmall)
+            f:SetHighlightFontObject(GameFontNormalSmall)
+            f:SetScript('OnClick', function(self)
+                Guildbook.GuildFrame.TradeSkillFrame.CharactersListviewScrollBar:SetValue(1)
+                Guildbook.GuildFrame.TradeSkillFrame:GetPlayersWithProf(prof.Name)
+                Guildbook.GuildFrame.TradeSkillFrame:RefreshCharactersListview()
+                Guildbook.GuildFrame.TradeSkillFrame.SelectedProfession = prof.Name
+                DEBUG('selected '..prof.Name)
+            end)
+            profButtonPosY = profButtonPosY + 19
+        end
+    end
+
+    self.GuildFrame.TradeSkillFrame.CharactersWithProf = {'test'}
+    self.GuildFrame.TradeSkillFrame.CharactersListview = {
+        Rows = {},
+        HoverColour = {0.0,0.44,0.78,0.2},
+        SelectedColour = {1.0,0.96,0.41,0.2},
+        BackgroundColour_Odd = {0.2,0.2,0.2,0.3},
+        BackgroundColour_Even = {0.2,0.2,0.2,0.1},
+    }
+    self.GuildFrame.TradeSkillFrame.CharactersListviewParent = CreateFrame('FRAME', 'GuildbookGuildFrameCharactersListviewParent', self.GuildFrame.TradeSkillFrame)
+    self.GuildFrame.TradeSkillFrame.CharactersListviewParent:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.TradeSkillFrame, 'BOTTOMLEFT', 125, 4)
+    self.GuildFrame.TradeSkillFrame.CharactersListviewParent:SetSize(136, 230)
+    self.GuildFrame.TradeSkillFrame.CharactersListviewParent.background = self.GuildFrame.TradeSkillFrame.CharactersListviewParent:CreateTexture('$parentBackground', 'BACKGROND')
+    self.GuildFrame.TradeSkillFrame.CharactersListviewParent.background:SetAllPoints(Guildbook.GuildFrame.TradeSkillFrame.CharactersListviewParent)
+    self.GuildFrame.TradeSkillFrame.CharactersListviewParent.background:SetColorTexture(0.2,0.2,0.2,0.2)
+    self.GuildFrame.TradeSkillFrame.CharactersListviewParent:EnableMouse(true)
+
+    self.GuildFrame.TradeSkillFrame.CharactersListviewScrollBar = CreateFrame('SLIDER', 'GuildbookGuildFrameCharactersListviewScrollBar', Guildbook.GuildFrame.TradeSkillFrame.CharactersListviewParent, "UIPanelScrollBarTemplate")
+    self.GuildFrame.TradeSkillFrame.CharactersListviewScrollBar:SetPoint('TOPLEFT', Guildbook.GuildFrame.TradeSkillFrame.CharactersListviewParent, 'TOPRIGHT', 16, -16)
+    self.GuildFrame.TradeSkillFrame.CharactersListviewScrollBar:SetPoint('BOTTOMRIGHT', Guildbook.GuildFrame.TradeSkillFrame.CharactersListviewParent, 'BOTTOMRIGHT', 0, 16)
+    self.GuildFrame.TradeSkillFrame.CharactersListviewScrollBar:EnableMouse(true)
+    self.GuildFrame.TradeSkillFrame.CharactersListviewScrollBar:SetValueStep(1)
+    self.GuildFrame.TradeSkillFrame.CharactersListviewScrollBar:SetValue(1)
+    self.GuildFrame.TradeSkillFrame.CharactersListviewScrollBar:SetScript('OnValueChanged', function(self)
+        Guildbook.GuildFrame.TradeSkillFrame:RefreshCharactersListview()
+    end)
+
+    -- create characters with prof listview
+    for i = 1, 10 do
+        local f = CreateFrame('FRAME', tostring('GuildbookGuildFrameCharactersListviewRow'..i), self.GuildFrame.TradeSkillFrame.CharactersListviewParent)
+        f:SetPoint('TOPLEFT', Guildbook.GuildFrame.TradeSkillFrame.CharactersListviewParent, 'TOPLEFT', 0, (i - 1) * -23)
+        f:SetSize(self.GuildFrame.TradeSkillFrame.CharactersListviewParent:GetWidth(), 22)
+        f:EnableMouse(true)
+        f.Text = f:CreateFontString('$parentText', 'OVERLAY', 'GameFontNormal')
+        f.Text:SetPoint('LEFT', 4, 0)
+        f.Text:SetText('row '..i)
+        f.Text:SetTextColor(1,1,1,1)
+        f.highlight = f:CreateTexture('$parentHighlight', 'BACKGROUND')
+        f.highlight:SetAllPoints(f)
+        f.id = i
+        f.data = nil
+        if f.id % 2 == 0 then
+            f.highlight:SetColorTexture(unpack(Guildbook.GuildFrame.TradeSkillFrame.CharactersListview.BackgroundColour_Even))
+        else
+            f.highlight:SetColorTexture(unpack(Guildbook.GuildFrame.TradeSkillFrame.CharactersListview.BackgroundColour_Odd))
+        end
+        f:SetScript('OnMouseDown', function(self)
+            if self.data then
+                Guildbook.GuildFrame.TradeSkillFrame.SelectedCharacter = self.data.Name
+                DEBUG('selected '..self.data.Name)
+                Guildbook.GuildFrame.TradeSkillFrame:RefreshRecipesListview()
+            end
+        end)
+        f:SetScript('OnEnter', function(self)
+            f.highlight:SetColorTexture(unpack(Guildbook.GuildFrame.TradeSkillFrame.CharactersListview.HoverColour))
+        end)
+        f:SetScript('OnShow', function(self)
+            if self.data then
+                self.Text:SetText(self.data.Name)
+            end
+        end)
+        f:SetScript('OnHide', function(self)
+            self.data = nil
+            self.Text:SetText(' ')
+        end)
+        f:SetScript('OnLeave', function(self)
+            if f.id % 2 == 0 then
+                f.highlight:SetColorTexture(unpack(Guildbook.GuildFrame.TradeSkillFrame.CharactersListview.BackgroundColour_Even))
+            else
+                f.highlight:SetColorTexture(unpack(Guildbook.GuildFrame.TradeSkillFrame.CharactersListview.BackgroundColour_Odd))
+            end
+        end)
+        self.GuildFrame.TradeSkillFrame.CharactersListview.Rows[i] = f
+    end
+
+    function self.GuildFrame.TradeSkillFrame:GetPlayersWithProf(prof)
+        local guildName = Guildbook:GetGuildName()
+        if guildName and next(self.CharactersWithProf) then
+            wipe(self.CharactersWithProf)
+            for guid, character in pairs(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName]) do
+                if (character.Profession1 == prof) or (character.Profession2 == prof) then
+                    table.insert(self.CharactersWithProf, {
+                        Name = character.Name,
+                    })
+                    DEBUG('added '..character.Name..' to list')
+                end
+                if prof == 'Cooking' and tonumber(character.Cooking) > 0.0 then
+                    table.insert(self.CharactersWithProf, {
+                        Name = character.Name,
+                    })
+                    DEBUG('added '..character.Name..' to list')
+                end
+            end
+            
+            -- for testing
+            -- for x = 1, 20 do
+            --     table.insert(self.CharactersWithProf, {
+            --         Name = tostring('test '..x),
+            --     })
+            -- end
+
+
+            local c = #self.CharactersWithProf
+            if c <= 10 then
+                self.CharactersListviewScrollBar:SetMinMaxValues(1, 1)
+                DEBUG('set minmax to 1,1')
+            else
+                self.CharactersListviewScrollBar:SetMinMaxValues(1, (c - 9))
+                DEBUG('set minmax to 1,'..(c-9))
+            end
+        end
+    end
+
+    function self.GuildFrame.TradeSkillFrame:ClearCharactersListeview()
+        for i = 1, 10 do
+            self.CharactersListview.Rows[i]:Hide()
+        end
+    end
+
+    function self.GuildFrame.TradeSkillFrame:RefreshCharactersListview()
+        self:ClearCharactersListeview()
+        if next(self.CharactersWithProf) then
+            local scrollPos = math.floor(self.CharactersListviewScrollBar:GetValue())
+            if scrollPos == 0 then
+                scrollPos = 1
+            end
+            for i = 1, 10 do
+                if self.CharactersWithProf[(i - 1) + scrollPos] then
+                    self.CharactersListview.Rows[i]:Hide()
+                    self.CharactersListview.Rows[i].data = self.CharactersWithProf[(i - 1) + scrollPos]
+                    self.CharactersListview.Rows[i]:Show()
+                end
+            end
+        end
+    end
+
+    -- recipes
+    self.GuildFrame.TradeSkillFrame.Recipes = {'test'}
+    self.GuildFrame.TradeSkillFrame.RecipesListview = {
+        Rows = {},
+        HoverColour = {0.0,0.44,0.78,0.2},
+        SelectedColour = {1.0,0.96,0.41,0.2},
+        BackgroundColour_Odd = {0.2,0.2,0.2,0.3},
+        BackgroundColour_Even = {0.2,0.2,0.2,0.1},
+    }
+    self.GuildFrame.TradeSkillFrame.RecipesListviewParent = CreateFrame('FRAME', 'GuildbookGuildFrameRecipesListviewParent', self.GuildFrame.TradeSkillFrame)
+    self.GuildFrame.TradeSkillFrame.RecipesListviewParent:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.TradeSkillFrame.CharactersListviewParent, 'BOTTOMRIGHT', 20, 0)
+    self.GuildFrame.TradeSkillFrame.RecipesListviewParent:SetSize(275, 230)
+    self.GuildFrame.TradeSkillFrame.RecipesListviewParent.background = self.GuildFrame.TradeSkillFrame.RecipesListviewParent:CreateTexture('$parentBackground', 'BACKGROND')
+    self.GuildFrame.TradeSkillFrame.RecipesListviewParent.background:SetAllPoints(Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewParent)
+    self.GuildFrame.TradeSkillFrame.RecipesListviewParent.background:SetColorTexture(0.2,0.2,0.2,0.2)
+    self.GuildFrame.TradeSkillFrame.RecipesListviewParent:EnableMouse(true)
+
+    self.GuildFrame.TradeSkillFrame.RecipesListviewScrollBar = CreateFrame('SLIDER', 'GuildbookGuildFrameRecipesListviewScrollBar', Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewParent, "UIPanelScrollBarTemplate")
+    self.GuildFrame.TradeSkillFrame.RecipesListviewScrollBar:SetPoint('TOPLEFT', Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewParent, 'TOPRIGHT', 16, -16)
+    self.GuildFrame.TradeSkillFrame.RecipesListviewScrollBar:SetPoint('BOTTOMRIGHT', Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewParent, 'BOTTOMRIGHT', 0, 16)
+    self.GuildFrame.TradeSkillFrame.RecipesListviewScrollBar:EnableMouse(true)
+    self.GuildFrame.TradeSkillFrame.RecipesListviewScrollBar:SetValueStep(1)
+    self.GuildFrame.TradeSkillFrame.RecipesListviewScrollBar:SetValue(1)
+    self.GuildFrame.TradeSkillFrame.RecipesListviewScrollBar:SetScript('OnValueChanged', function(self)
+        Guildbook.GuildFrame.TradeSkillFrame:RefreshRecipesListview()
+    end)
+
+    -- create characters with prof listview
+    for i = 1, 10 do
+        local f = CreateFrame('FRAME', tostring('GuildbookGuildFrameRecipesListviewRow'..i), self.GuildFrame.TradeSkillFrame.RecipesListviewParent)
+        f:SetPoint('TOPLEFT', Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewParent, 'TOPLEFT', 0, (i - 1) * -23)
+        f:SetSize(self.GuildFrame.TradeSkillFrame.RecipesListviewParent:GetWidth(), 22)
+        f.Text = f:CreateFontString('$parentText', 'OVERLAY', 'GameFontNormal')
+        f.Text:SetPoint('LEFT', 4, 0)
+        f.Text:SetText('row '..i)
+        f.Text:SetTextColor(1,1,1,1)
+        f.background = f:CreateTexture('$parentBackground', 'BACKGROUND')
+        f.background:SetAllPoints(f)
+        f.id = i
+        f.data = nil
+        if f.id % 2 == 0 then
+            f.background:SetColorTexture(unpack(Guildbook.GuildFrame.TradeSkillFrame.RecipesListview.BackgroundColour_Even))
+        else
+            f.background:SetColorTexture(unpack(Guildbook.GuildFrame.TradeSkillFrame.RecipesListview.BackgroundColour_Odd))
+        end
+        f:SetScript('OnEnter', function(self)
+            f.background:SetColorTexture(unpack(Guildbook.GuildFrame.TradeSkillFrame.RecipesListview.HoverColour))
+        end)
+        f:SetScript('OnShow', function(self)
+            if self.data then
+                self.Text:SetText(self.data.Link)
+                --self.background:SetColorTexture(ITEM_QUALITY_COLORS[self.data.Rarity].r, ITEM_QUALITY_COLORS[self.data.Rarity].g, ITEM_QUALITY_COLORS[self.data.Rarity].b, 0.03)
+            end
+        end)
+        f:SetScript('OnHide', function(self)
+            self.data = nil
+            self.Text:SetText(' ')
+            if f.id % 2 == 0 then
+                f.background:SetColorTexture(unpack(Guildbook.GuildFrame.TradeSkillFrame.RecipesListview.BackgroundColour_Even))
+            else
+                f.background:SetColorTexture(unpack(Guildbook.GuildFrame.TradeSkillFrame.RecipesListview.BackgroundColour_Odd))
+            end
+        end)
+        f:SetScript('OnLeave', function(self)
+            if f.id % 2 == 0 then
+                f.background:SetColorTexture(unpack(Guildbook.GuildFrame.TradeSkillFrame.RecipesListview.BackgroundColour_Even))
+            else
+                f.background:SetColorTexture(unpack(Guildbook.GuildFrame.TradeSkillFrame.RecipesListview.BackgroundColour_Odd))
+            end
+        end)
+        self.GuildFrame.TradeSkillFrame.RecipesListview.Rows[i] = f
+    end
+
+    function self.GuildFrame.TradeSkillFrame:ClearRecipesListeview()
+        for i = 1, 10 do
+            self.RecipesListview.Rows[i]:Hide()
+        end
+    end
+
+    function self.GuildFrame.TradeSkillFrame:RefreshRecipesListview()
+        self:ClearRecipesListeview()
+        if self.SelectedCharacter and self.SelectedProfession then
+            wipe(self.Recipes)
+            -- set up comms to whisper for data
+
+            --set up for testing only
+            if GUILDBOOK_CHARACTER[self.SelectedProfession] then
+                for itemID, reagents in pairs(GUILDBOOK_CHARACTER[self.SelectedProfession]) do
+                    local itemLink = select(2, GetItemInfo(itemID))
+                    local itemRarity = select(3, GetItemInfo(itemID))
+                    local recipeItem = {
+                        Link = itemLink,
+                        Rarity = tonumber(itemRarity),
+                        Reagents = {},
+                    }
+                    for reagentID, count in pairs(reagents) do
+                        local reagentLink = select(2, GetItemInfo(reagentID))
+                        local reagentRarity = select(3, GetItemInfo(reagentID))
+                        table.insert(recipeItem.Reagents, {
+                            Link = reagentLink,
+                            Rarity = tonumber(reagentRarity),
+                            Count = tonumber(count),
+                        })
+                    end
+                    table.insert(self.Recipes, recipeItem)
+                end
+            end
+
+            table.sort(self.Recipes, function(a, b)
+                return a.Rarity > b.Rarity
+            end)
+
+            if next(self.Recipes) then
+                local scrollPos = math.floor(self.RecipesListviewScrollBar:GetValue())
+                if scrollPos == 0 then
+                    scrollPos = 1
+                end
+                for i = 1, 10 do
+                    if self.Recipes[(i - 1) + scrollPos] then
+                        self.RecipesListview.Rows[i]:Hide()
+                        self.RecipesListview.Rows[i].data = self.Recipes[(i - 1) + scrollPos]
+                        self.RecipesListview.Rows[i]:Show()
+                    end
+                end
+            end
+
+            local c = #self.Recipes
+            if c <= 10 then
+                self.RecipesListviewScrollBar:SetMinMaxValues(1, 1)
+                DEBUG('set minmax to 1,1')
+            else
+                self.RecipesListviewScrollBar:SetMinMaxValues(1, (c - 9))
+                DEBUG('set minmax to 1,'..(c-9))
+            end
+
+        end
+
+    end
+
+
+
+
+end
