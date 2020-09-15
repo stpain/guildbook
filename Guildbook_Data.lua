@@ -125,13 +125,8 @@ Guildbook.Data.Professions = {
     { Name = 'Jewelcrafting', TradeSkill = true, },
     { Name = 'Leatherworking', TradeSkill = true, },
     { Name = 'Tailoring', TradeSkill = true, },
-    { Name = 'Herbalism', TradeSkill = true, },
-    { Name = 'Skinning', TradeSkill = true, },
-    { Name = 'Mining', TradeSkill = true, },
     { Name = 'Cooking', TradeSkill = true, },
-    { Name = 'Fishing', TradeSkill = false, },
-    { Name = 'First Aid', TradeSkill = false, },
-    { Name = '-', TradeSkill = false, },
+    { Name = 'Mining', TradeSkill = true, },
 }
 
 Guildbook.Data.ProfToID = {
@@ -344,7 +339,7 @@ Guildbook.Data.InventorySlots = {
     { Name = 'INVSLOT_RANGED', Id = 18, Pos = 0, Display = 'Range' },
 }
 
-Guildbook.ProfessionDescriptions = {
+Guildbook.Data.ProfessionDescriptions = {
     Alchemy = 'Mix potions, elixirs, flasks, oils and other alchemical substances into vials using herbs and other reagents. Your concoctions can restore health and mana, enhance attributes, or provide any number of other useful (or not-so-useful) effects. High level alchemists can also transmute essences and metals into other essences and metals. Alchemists can specialize as a Master of Potions, Master of Elixirs, or a Master of Transmutation.',
     Blacksmithing = 'Smith various melee weapons, mail and plate armor, and other useful trade goods like skeleton keys, shield-spikes and weapon chains to prevent disarming. Blacksmiths can also make various stones to provide temporary physical buffs to weapons.',
     Enchanting = 'Imbue all manner of equipable items with magical properties and enhancements using dusts, essences and shards gained by disenchanting (breaking down) magical items that are no longer useful. Enchanters can also make a few low-level wands, as well as oils that can be applied to weapons providing a temporary magical buff.',
