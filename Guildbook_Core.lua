@@ -22,6 +22,10 @@ the copyright holders.
 
 local addonName, Guildbook = ...
 
+local AceComm = LibStub:GetLibrary("AceComm-3.0")
+local LibDeflate = LibStub:GetLibrary("LibDeflate")
+local LibSerialize = LibStub:GetLibrary("LibSerialize")
+
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 --slash commands
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -209,35 +213,36 @@ function Guildbook:Init()
     formatGuildFrameButton(GuildFrameButton1.GuildbookColumnProfession2, {1,1,1,1})
     
     for i = 2, 13 do
-        _G['GuildFrameButton'..i]:ClearAllPoints()
-        _G['GuildFrameButton'..i]:SetPoint('TOPLEFT', _G['GuildFrameButton'..(i-1)], 'BOTTOMLEFT', 0.0, 0.0)
-        _G['GuildFrameButton'..i]:SetPoint('TOPRIGHT', _G['GuildFrameButton'..(i-1)], 'BOTTOMRIGHT', 0.0, 0.0)
-        _G['GuildFrameButton'..i]:GetHighlightTexture():SetAllPoints(_G['GuildFrameButton'..i])
+        local button = _G['GuildFrameButton'..i]
+        button:ClearAllPoints()
+        button:SetPoint('TOPLEFT', _G['GuildFrameButton'..(i-1)], 'BOTTOMLEFT', 0.0, 0.0)
+        button:SetPoint('TOPRIGHT', _G['GuildFrameButton'..(i-1)], 'BOTTOMRIGHT', 0.0, 0.0)
+        button:GetHighlightTexture():SetAllPoints(button)
     
-        _G['GuildFrameButton'..i].GuildbookColumnRank = _G['GuildFrameButton'..i]:CreateFontString('$parentGuildbookRank', 'OVERLAY', 'GameFontNormalSmall')
-        _G['GuildFrameButton'..i].GuildbookColumnRank:SetPoint('LEFT', _G['GuildFrameButton'..i..'Class'], 'RIGHT', -12.0, 0)
-        _G['GuildFrameButton'..i].GuildbookColumnRank:SetSize(self.GuildFrame.ColumnWidths['Rank'], _G['GuildFrameButton'..i]:GetHeight())
-        formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnRank, {1,1,1,1})
+        button.GuildbookColumnRank = button:CreateFontString('$parentGuildbookRank', 'OVERLAY', 'GameFontNormalSmall')
+        button.GuildbookColumnRank:SetPoint('LEFT', _G['GuildFrameButton'..i..'Class'], 'RIGHT', -12.0, 0)
+        button.GuildbookColumnRank:SetSize(self.GuildFrame.ColumnWidths['Rank'], button:GetHeight())
+        formatGuildFrameButton(button.GuildbookColumnRank, {1,1,1,1})
     
-        _G['GuildFrameButton'..i].GuildbookColumnNote = _G['GuildFrameButton'..i]:CreateFontString('$parentGuildbookNote', 'OVERLAY', 'GameFontNormalSmall')
-        _G['GuildFrameButton'..i].GuildbookColumnNote:SetPoint('LEFT', _G['GuildFrameButton'..i].GuildbookColumnRank, 'RIGHT', self.GuildFrame.ColumnMarginX, 0)
-        _G['GuildFrameButton'..i].GuildbookColumnNote:SetSize(self.GuildFrame.ColumnWidths['Note'], _G['GuildFrameButton'..i]:GetHeight())
-        formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnNote, {1,1,1,1})
+        button.GuildbookColumnNote = button:CreateFontString('$parentGuildbookNote', 'OVERLAY', 'GameFontNormalSmall')
+        button.GuildbookColumnNote:SetPoint('LEFT', button.GuildbookColumnRank, 'RIGHT', self.GuildFrame.ColumnMarginX, 0)
+        button.GuildbookColumnNote:SetSize(self.GuildFrame.ColumnWidths['Note'], button:GetHeight())
+        formatGuildFrameButton(button.GuildbookColumnNote, {1,1,1,1})
     
-        _G['GuildFrameButton'..i].GuildbookColumnMainSpec = _G['GuildFrameButton'..i]:CreateFontString('$parentGuildbookMainSpec', 'OVERLAY', 'GameFontNormalSmall')
-        _G['GuildFrameButton'..i].GuildbookColumnMainSpec:SetPoint('LEFT', _G['GuildFrameButton'..i].GuildbookColumnNote, 'RIGHT', self.GuildFrame.ColumnMarginX, 0)
-        _G['GuildFrameButton'..i].GuildbookColumnMainSpec:SetSize(self.GuildFrame.ColumnWidths['MainSpec'], _G['GuildFrameButton'..i]:GetHeight())
-        formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnMainSpec, {1,1,1,1})  
+        button.GuildbookColumnMainSpec = button:CreateFontString('$parentGuildbookMainSpec', 'OVERLAY', 'GameFontNormalSmall')
+        button.GuildbookColumnMainSpec:SetPoint('LEFT', button.GuildbookColumnNote, 'RIGHT', self.GuildFrame.ColumnMarginX, 0)
+        button.GuildbookColumnMainSpec:SetSize(self.GuildFrame.ColumnWidths['MainSpec'], button:GetHeight())
+        formatGuildFrameButton(button.GuildbookColumnMainSpec, {1,1,1,1})  
     
-        _G['GuildFrameButton'..i].GuildbookColumnProfession1 = _G['GuildFrameButton'..i]:CreateFontString('$parentGuildbookProfession1', 'OVERLAY', 'GameFontNormalSmall')
-        _G['GuildFrameButton'..i].GuildbookColumnProfession1:SetPoint('LEFT', _G['GuildFrameButton'..i].GuildbookColumnMainSpec, 'RIGHT', self.GuildFrame.ColumnMarginX, 0)
-        _G['GuildFrameButton'..i].GuildbookColumnProfession1:SetSize(self.GuildFrame.ColumnWidths['Profession1'], _G['GuildFrameButton'..i]:GetHeight())
-        formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnProfession1, {1,1,1,1})   
+        button.GuildbookColumnProfession1 = button:CreateFontString('$parentGuildbookProfession1', 'OVERLAY', 'GameFontNormalSmall')
+        button.GuildbookColumnProfession1:SetPoint('LEFT', button.GuildbookColumnMainSpec, 'RIGHT', self.GuildFrame.ColumnMarginX, 0)
+        button.GuildbookColumnProfession1:SetSize(self.GuildFrame.ColumnWidths['Profession1'], button:GetHeight())
+        formatGuildFrameButton(button.GuildbookColumnProfession1, {1,1,1,1})   
     
-        _G['GuildFrameButton'..i].GuildbookColumnProfession2 = _G['GuildFrameButton'..i]:CreateFontString('$parentGuildbookProfession2', 'OVERLAY', 'GameFontNormalSmall')
-        _G['GuildFrameButton'..i].GuildbookColumnProfession2:SetPoint('LEFT', _G['GuildFrameButton'..i].GuildbookColumnProfession1, 'RIGHT', self.GuildFrame.ColumnMarginX, 0)
-        _G['GuildFrameButton'..i].GuildbookColumnProfession2:SetSize(self.GuildFrame.ColumnWidths['Profession2'], _G['GuildFrameButton'..i]:GetHeight())
-        formatGuildFrameButton(_G['GuildFrameButton'..i].GuildbookColumnProfession2, {1,1,1,1})   
+        button.GuildbookColumnProfession2 = button:CreateFontString('$parentGuildbookProfession2', 'OVERLAY', 'GameFontNormalSmall')
+        button.GuildbookColumnProfession2:SetPoint('LEFT', button.GuildbookColumnProfession1, 'RIGHT', self.GuildFrame.ColumnMarginX, 0)
+        button.GuildbookColumnProfession2:SetSize(self.GuildFrame.ColumnWidths['Profession2'], button:GetHeight())
+        formatGuildFrameButton(button.GuildbookColumnProfession2, {1,1,1,1})   
     end
     
     hooksecurefunc("GuildStatus_Update", function()
@@ -382,21 +387,23 @@ function Guildbook:Init()
     self:SetupStatsFrame()
     self:SetupTradeSkillFrame()
 
+    -- TODO: translate old guild memer detail frame into new code style
+    self.GuildMemberDetailFrame:DrawLabels()          
+    self.GuildMemberDetailFrame:DrawText()
+
     --register the addon message prefixes
-    -- TODO: remove these mdf message, use local cache data instead to populate frame, add events for level up, skill up etc
+    -- TODO: migrate this to use AceComm
     local memberDetailFrameRequestPrefix = C_ChatInfo.RegisterAddonMessagePrefix('gb-mdf-req')
     DEBUG('registered details request prefix: '..tostring(memberDetailFrameRequestPrefix))
 
     local memberDetailFrameSentPrefix = C_ChatInfo.RegisterAddonMessagePrefix('gb-mdf-data')
     DEBUG('registered details sent prefix: '..tostring(memberDetailFrameSentPrefix))
 
-    --this is a string of character info
     local requestCharacterInfo = C_ChatInfo.RegisterAddonMessagePrefix('gb-char-stats')
     DEBUG('registered char data req prefix: '..tostring(requestCharacterInfo))
 
-    --draw the additional labels and text for the guild member detail frame
-    self.GuildMemberDetailFrame:DrawLabels()          
-    self.GuildMemberDetailFrame:DrawText()
+    AceComm:Embed(self)
+    self:RegisterComm(addonName, 'ON_COMMS_RECEIVED')
 
     --create stored variable tables
     if GUILDBOOK_GLOBAL == nil then
@@ -476,11 +483,74 @@ function Guildbook:Init()
 end
 
 
-function Guildbook:TRADE_SKILL_SHOW()
-    C_Timer.After(1, function()
-        DEBUG('trade skill open, scanning skills')
-        --self:ScanTradeSkill()
-    end)
+
+function Guildbook:Transmit(data, channel, target, priority)
+    local serialized = LibSerialize:Serialize(data);
+    local compressed = LibDeflate:CompressDeflate(serialized);
+    local encoded    = LibDeflate:EncodeForWoWAddonChannel(compressed);
+
+    self:SendCommMessage(addonName, encoded, channel, target, priority);
+end
+
+function Guildbook:SendTradeSkillsRequest(target, profession)
+    local request = {
+        type = "TRADESKILLS_REQUEST",
+        payload = profession,
+    }
+    self:Transmit(request, "WHISPER", target, "NORMAL")
+end
+
+function Guildbook:OnTradeSkillsRequested(request, distribution, sender)
+    if distribution ~= "WHISPER" then
+        return
+    end
+    if GUILDBOOK_CHARACTER and GUILDBOOK_CHARACTER[request.payload] then
+        local response = {
+            type    = "TRADESKILLS_RESPONSE",
+            payload = GUILDBOOK_CHARACTER[request.payload]
+        }
+        self:Transmit(response, distribution, sender, "BULK")
+    end
+end
+
+function Guildbook:OnTradeSkillsReceived(data, distribution, sender)
+
+    -- for now we just pass the return table to the listview
+    -- TODO: set up system to check against a local cache of prof data instead of spamming chat channels
+    self.GuildFrame.TradeSkillFrame:RefreshRecipesListview(data.payload)
+
+    -- loop the data and add to local cache
+    -- for recipeItemID, reagentsInfo in pairs(data.payload) do
+    --     if type(reagentsInfo) == 'table' then
+    --         for reagent, count in pairs(reagentsInfo) do
+
+    --         end
+    --     end
+    -- end
+end
+
+function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
+    if prefix ~= addonName then 
+        return 
+    end
+    local decoded = LibDeflate:DecodeForWoWAddonChannel(message);
+    if not decoded then
+        return;
+    end
+    local decompressed = LibDeflate:DecompressDeflate(decoded);
+    if not decompressed then
+        return;
+    end
+    local success, data = LibSerialize:Deserialize(decompressed);
+    if not success or type(data) ~= "table" then
+        return;
+    end
+
+    if data.type == "TRADESKILLS_REQUEST" then
+        self:OnTradeSkillsRequested(data, distribution, sender);
+    elseif data.type == "TRADESKILLS_RESPONSE" then
+        self:OnTradeSkillsReceived(data, distribution, sender);
+    end
 end
 
 function Guildbook:TRADE_SKILL_UPDATE()
@@ -495,9 +565,7 @@ function Guildbook:RefreshGuildFrameButtons()
 end
 
 function Guildbook:ScanTradeSkill()
-    --local prof = TradeSkillFrameTitleText:GetText()
     local prof = GetTradeSkillLine()
-    --print('prof: '..prof)
     GUILDBOOK_CHARACTER[prof] = {}
     for i = 1, GetNumTradeSkills() do
         local name, type, _, _, _, _ = GetTradeSkillInfo(i)
@@ -505,13 +573,9 @@ function Guildbook:ScanTradeSkill()
             local itemLink = GetTradeSkillItemLink(i)
             local itemID = select(1, GetItemInfoInstant(itemLink))
             local itemName = select(1, GetItemInfo(itemID))
-            --print(string.format('|cff0070DETrade item|r: %s, with ID: %s', name, itemID))
+            DEBUG(string.format('|cff0070DETrade item|r: %s, with ID: %s', name, itemID))
             if itemName and itemID then
                 GUILDBOOK_CHARACTER[prof][itemID] = {}
-                -- GUILDBOOK_CHARACTER[prof][itemID] = {
-                --     CraftedItem = itemName,
-                --     Reagents = {},
-                -- }
             end
             local numReagents = GetTradeSkillNumReagents(i);
             if numReagents > 0 then
@@ -519,14 +583,9 @@ function Guildbook:ScanTradeSkill()
                     local reagentName, reagentTexture, reagentCount, playerReagentCount = GetTradeSkillReagentInfo(i, j)
                     local reagentLink = GetTradeSkillReagentItemLink(i, j)
                     local reagentID = select(1, GetItemInfoInstant(reagentLink))
-                    --print(string.format('    Reagent name: %s, with ID: %s, Needed: %s', reagentName, reagentID, reagentCount))
+                    DEBUG(string.format('    Reagent name: %s, with ID: %s, Needed: %s', reagentName, reagentID, reagentCount))
                     if reagentName and reagentID and reagentCount then
                         GUILDBOOK_CHARACTER[prof][itemID][reagentID] = reagentCount
-                        -- table.insert(GUILDBOOK_CHARACTER[prof][itemID].Reagents, {
-                        --     ReagentName = reagentName,
-                        --     ReagentID = tonumber(reagentID),
-                        --     ReagentCount = tonumber(reagentCount),
-                        -- })
                     end
                 end
             end
@@ -565,6 +624,7 @@ function Guildbook:SendCharacterStats()
     end
 end
 
+--TODO: add func to drop prof if a player deletes a prof
 function Guildbook:GetCharacterProfessions()
     local myCharacter = { Fishing = 0, Cooking = 0, FirstAid = 0, Prof1 = '-', Prof1Level = 0, Prof2 = '-', Prof2Level = 0 }
     for s = 1, GetNumSkillLines() do
@@ -702,7 +762,6 @@ Guildbook.EventFrame:RegisterEvent('CHAT_MSG_ADDON')
 Guildbook.EventFrame:RegisterEvent('ADDON_LOADED')
 Guildbook.EventFrame:RegisterEvent('PLAYER_LEVEL_UP')
 Guildbook.EventFrame:RegisterEvent('SKILL_LINES_CHANGED')
-Guildbook.EventFrame:RegisterEvent('TRADE_SKILL_SHOW')
 Guildbook.EventFrame:RegisterEvent('TRADE_SKILL_UPDATE')
 Guildbook.EventFrame:SetScript('OnEvent', function(self, event, ...)
     --DEBUG('EVENT='..tostring(event))

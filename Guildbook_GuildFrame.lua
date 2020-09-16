@@ -219,8 +219,8 @@ end
 
 function Guildbook:SetupTradeSkillFrame()
 
-    self.GuildFrame.TradeSkillFrame.SelectedCharacter = nil
-    self.GuildFrame.TradeSkillFrame.SelectedProfession = nil
+    local selectedCharacter = nil
+    local selectedProfession = nil
 
     self.GuildFrame.TradeSkillFrame.Header = self.GuildFrame.TradeSkillFrame:CreateFontString('GuildbookGuildInfoFrameTradeSkillFrameHeader', 'OVERLAY', 'GameFontNormal')
     self.GuildFrame.TradeSkillFrame.Header:SetPoint('BOTTOM', Guildbook.GuildFrame.TradeSkillFrame, 'TOP', 0, 4)
@@ -260,7 +260,7 @@ function Guildbook:SetupTradeSkillFrame()
             f:SetScript('OnClick', function(self)
                 Guildbook.GuildFrame.TradeSkillFrame:ClearCharactersListeview()
                 Guildbook.GuildFrame.TradeSkillFrame:ClearCharactersListeview()
-                Guildbook.GuildFrame.TradeSkillFrame.SelectedProfession = prof.Name
+                selectedProfession = prof.Name
                 Guildbook.GuildFrame.TradeSkillFrame.CharactersListviewScrollBar:SetValue(1)
                 Guildbook.GuildFrame.TradeSkillFrame:GetPlayersWithProf(prof.Name)
                 Guildbook.GuildFrame.TradeSkillFrame:RefreshCharactersListview()
@@ -345,10 +345,11 @@ function Guildbook:SetupTradeSkillFrame()
             end
             self.selected = not self.selected
             if self.data then
-                Guildbook.GuildFrame.TradeSkillFrame.SelectedCharacter = self.data.Name
+                selectedCharacter = self.data.Name
                 DEBUG('selected '..self.data.Name)
-                Guildbook.GuildFrame.TradeSkillFrame:RefreshRecipesListview()
+                --Guildbook.GuildFrame.TradeSkillFrame:RefreshRecipesListview()
                 Guildbook.GuildFrame.TradeSkillFrame:ClearReagentsListview()
+                Guildbook:SendTradeSkillsRequest(selectedCharacter, selectedProfession)
             end
         end)
         f:SetScript('OnMouseUp', function(self)
@@ -415,21 +416,17 @@ function Guildbook:SetupTradeSkillFrame()
                     DEBUG('added '..character.Name..' to list')
                 end
             end
-            
-            -- for testing
-            -- for x = 1, 20 do
-            --     table.insert(self.CharactersWithProf, {
-            --         Name = tostring('test '..x),
-            --     })
-            -- end
-
-
             local c = #self.CharactersWithProf
             if c <= 10 then
+                self.CharactersListviewScrollBar:SetMinMaxValues(1, 2)
+                self.CharactersListviewScrollBar:SetValue(2)
+                self.CharactersListviewScrollBar:SetValue(1)
                 self.CharactersListviewScrollBar:SetMinMaxValues(1, 1)
                 DEBUG('set minmax to 1,1')
             else
                 self.CharactersListviewScrollBar:SetMinMaxValues(1, (c - 9))
+                self.CharactersListviewScrollBar:SetValue(2)
+                self.CharactersListviewScrollBar:SetValue(1)
                 DEBUG('set minmax to 1,'..(c-9))
             end
         end
@@ -464,7 +461,7 @@ function Guildbook:SetupTradeSkillFrame()
     self.GuildFrame.TradeSkillFrame.RecipesListviewRows = {}
     self.GuildFrame.TradeSkillFrame.RecipesListviewParent = CreateFrame('FRAME', 'GuildbookGuildFrameRecipesListviewParent', self.GuildFrame.TradeSkillFrame)
     self.GuildFrame.TradeSkillFrame.RecipesListviewParent:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.TradeSkillFrame.CharactersListviewParent, 'BOTTOMRIGHT', 28, 0)
-    self.GuildFrame.TradeSkillFrame.RecipesListviewParent:SetSize(275, 210)
+    self.GuildFrame.TradeSkillFrame.RecipesListviewParent:SetSize(245, 210)
     self.GuildFrame.TradeSkillFrame.RecipesListviewParent.background = self.GuildFrame.TradeSkillFrame.RecipesListviewParent:CreateTexture('$parentBackground', 'BACKGROND')
     self.GuildFrame.TradeSkillFrame.RecipesListviewParent.background:SetAllPoints(Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewParent)
     self.GuildFrame.TradeSkillFrame.RecipesListviewParent.background:SetColorTexture(0.2,0.2,0.2,0.2)
@@ -487,7 +484,19 @@ function Guildbook:SetupTradeSkillFrame()
     self.GuildFrame.TradeSkillFrame.RecipesListviewScrollBar:SetValueStep(1)
     self.GuildFrame.TradeSkillFrame.RecipesListviewScrollBar:SetValue(1)
     self.GuildFrame.TradeSkillFrame.RecipesListviewScrollBar:SetScript('OnValueChanged', function(self)
-        Guildbook.GuildFrame.TradeSkillFrame:RefreshRecipesListview()
+        if next(Guildbook.GuildFrame.TradeSkillFrame.Recipes) then
+            local scrollPos = math.floor(self:GetValue())
+            if scrollPos == 0 then
+                scrollPos = 1
+            end
+            for i = 1, 10 do
+                if Guildbook.GuildFrame.TradeSkillFrame.Recipes[(i - 1) + scrollPos] then
+                    Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewRows[i]:Hide()
+                    Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewRows[i].data = Guildbook.GuildFrame.TradeSkillFrame.Recipes[(i - 1) + scrollPos]
+                    Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewRows[i]:Show()
+                end
+            end
+        end
     end)
 
     -- create characters with prof listview
@@ -566,32 +575,28 @@ function Guildbook:SetupTradeSkillFrame()
         end
     end
 
-    function self.GuildFrame.TradeSkillFrame:RefreshRecipesListview()
+    function self.GuildFrame.TradeSkillFrame:RefreshRecipesListview(data)
         self:ClearRecipesListeview()
-        if self.SelectedCharacter and self.SelectedProfession then
+        if data and next(data) then
             wipe(self.Recipes)
-            -- set up comms to whisper for data
-            --using this for testing only
-            if GUILDBOOK_CHARACTER[self.SelectedProfession] then
-                for itemID, reagents in pairs(GUILDBOOK_CHARACTER[self.SelectedProfession]) do
-                    local itemLink = select(2, GetItemInfo(itemID))
-                    local itemRarity = select(3, GetItemInfo(itemID))
-                    local recipeItem = {
-                        Link = itemLink,
-                        Rarity = tonumber(itemRarity),
-                        Reagents = {},
-                    }
-                    for reagentID, count in pairs(reagents) do
-                        local reagentLink = select(2, GetItemInfo(reagentID))
-                        local reagentRarity = select(3, GetItemInfo(reagentID))
-                        table.insert(recipeItem.Reagents, {
-                            Link = reagentLink,
-                            Rarity = tonumber(reagentRarity),
-                            Count = tonumber(count),
-                        })
-                    end
-                    table.insert(self.Recipes, recipeItem)
+            for itemID, reagents in pairs(data) do
+                local itemLink = select(2, GetItemInfo(itemID))
+                local itemRarity = select(3, GetItemInfo(itemID))
+                local recipeItem = {
+                    Link = itemLink,
+                    Rarity = tonumber(itemRarity),
+                    Reagents = {},
+                }
+                for reagentID, count in pairs(reagents) do
+                    local reagentLink = select(2, GetItemInfo(reagentID))
+                    local reagentRarity = select(3, GetItemInfo(reagentID))
+                    table.insert(recipeItem.Reagents, {
+                        Link = reagentLink,
+                        Rarity = tonumber(reagentRarity),
+                        Count = tonumber(count),
+                    })
                 end
+                table.insert(self.Recipes, recipeItem)
             end
 
             table.sort(self.Recipes, function(a, b)
@@ -600,26 +605,17 @@ function Guildbook:SetupTradeSkillFrame()
                 end
             end)
 
-            if next(self.Recipes) then
-                local scrollPos = math.floor(self.RecipesListviewScrollBar:GetValue())
-                if scrollPos == 0 then
-                    scrollPos = 1
-                end
-                for i = 1, 10 do
-                    if self.Recipes[(i - 1) + scrollPos] then
-                        self.RecipesListviewRows[i]:Hide()
-                        self.RecipesListviewRows[i].data = self.Recipes[(i - 1) + scrollPos]
-                        self.RecipesListviewRows[i]:Show()
-                    end
-                end
-            end
-
             local c = #self.Recipes
             if c <= 10 then
+                self.RecipesListviewScrollBar:SetMinMaxValues(1, 2)
+                self.RecipesListviewScrollBar:SetValue(2)
+                self.RecipesListviewScrollBar:SetValue(1)
                 self.RecipesListviewScrollBar:SetMinMaxValues(1, 1)
                 DEBUG('set minmax to 1,1')
             else
                 self.RecipesListviewScrollBar:SetMinMaxValues(1, (c - 9))
+                self.RecipesListviewScrollBar:SetValue(2)
+                self.RecipesListviewScrollBar:SetValue(1)
                 DEBUG('set minmax to 1,'..(c-9))
             end
 
@@ -634,7 +630,7 @@ function Guildbook:SetupTradeSkillFrame()
     self.GuildFrame.TradeSkillFrame.ReagentsListviewRows = {}
     self.GuildFrame.TradeSkillFrame.ReagentsListviewParent = CreateFrame('FRAME', 'GuildbookGuildFrameReagentsListviewParent', self.GuildFrame.TradeSkillFrame)
     self.GuildFrame.TradeSkillFrame.ReagentsListviewParent:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewParent, 'BOTTOMRIGHT', 28, 0)
-    self.GuildFrame.TradeSkillFrame.ReagentsListviewParent:SetSize(200, 210)
+    self.GuildFrame.TradeSkillFrame.ReagentsListviewParent:SetSize(230, 210)
     self.GuildFrame.TradeSkillFrame.ReagentsListviewParent.background = self.GuildFrame.TradeSkillFrame.ReagentsListviewParent:CreateTexture('$parentBackground', 'BACKGROND')
     self.GuildFrame.TradeSkillFrame.ReagentsListviewParent.background:SetAllPoints(Guildbook.GuildFrame.TradeSkillFrame.ReagentsListviewParent)
     self.GuildFrame.TradeSkillFrame.ReagentsListviewParent.background:SetColorTexture(0.2,0.2,0.2,0.2)
