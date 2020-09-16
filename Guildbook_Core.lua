@@ -313,10 +313,12 @@ function Guildbook:Init()
             for i = 1, 13 do
                 _G['GuildFrameButton'..i]:Show()
             end
+            GuildFrameLFGFrame:Show()
         else
             for i = 1, 13 do
                 _G['GuildFrameButton'..i]:Hide()
             end
+            GuildFrameLFGFrame:Hide()
             Guildbook.GuildFrame.Frames[frame]:Show()
         end
     end
@@ -517,7 +519,12 @@ function Guildbook:OnTradeSkillsReceived(data, distribution, sender)
 
     -- for now we just pass the return table to the listview
     -- TODO: set up system to check against a local cache of prof data instead of spamming chat channels
-    self.GuildFrame.TradeSkillFrame:RefreshRecipesListview(data.payload)
+
+    -- using a 1 sec delay to allow all messages to be received and data extracted, this should be looked at after testing
+    C_Timer.After(1.0, function()
+        self.GuildFrame.TradeSkillFrame:RefreshRecipesListview(data.payload)
+    end)
+    
 
     -- loop the data and add to local cache
     -- for recipeItemID, reagentsInfo in pairs(data.payload) do
