@@ -1,6 +1,6 @@
 ## Interface: 11302
 ## Author: Copperbolts
-## Version: 1.0.2
+## Version: 1.0.3
 ## Title: |cff0070DEGuildbook|r
 ## Notes: Guildbook adds additional information to the standard guild interface.
 ## SavedVariables: GUILDBOOK_GLOBAL
