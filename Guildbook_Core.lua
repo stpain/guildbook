@@ -379,10 +379,6 @@ function Guildbook:Init()
     self.BankFrameRequestGuildBank:SetScript('OnClick', function(self)
         print('scanning bank')
         Guildbook:ScanCharacterContainers()
-        Guildbook:SendGuildBankCommitRequest()
-        C_Timer.After(5, function()
-            Guildbook:SendGuildBankDataRequest()
-        end)
     end)
 
     
@@ -592,44 +588,48 @@ function Guildbook:OnCharacterDataReceived(data, distribution, sender)
     end
 end
 
-function Guildbook:SendGuildBankCommitRequest()
+function Guildbook:SendGuildBankCommitRequest(bankCharacter)
     local request = {
         type = 'GUILD_BANK_COMMIT_REQUEST',
+        payload = bankCharacter,
     }
     self:Transmit(request, 'GUILD', nil, 'NORMAL')
-    DEBUG('sending guild bank commit request to guild')
+    DEBUG('sending guild bank commit request to guild, for bank character: '..bankCharacter)
 end
 
 function Guildbook:OnGuildBankCommitRequested(data, distribution, sender)
     if distribution == 'GUILD' then
-        if GUILDBOOK_CHARACTER['GuildBankCommit'] then
+        if GUILDBOOK_CHARACTER['GuildBank'] and GUILDBOOK_CHARACTER['GuildBank'][data.payload] and GUILDBOOK_CHARACTER['GuildBank'][data.payload].Commit then
             local response = {
                 type = 'GUILD_BANK_COMMIT_RESPONSE',
-                payload = GUILDBOOK_CHARACTER['GuildBankCommit']
+                payload = { 
+                    Commit = GUILDBOOK_CHARACTER['GuildBank'][data.payload].Commit,
+                    Character = data.payload
+                }
             }
             self:Transmit(response, 'WHISPER', sender, 'NORMAL')
-            DEBUG('responding to guild bank commit request, sent commit: '..GUILDBOOK_CHARACTER['GuildBankCommit'])
+            DEBUG('responding to guild bank commit request, sent commit: '..GUILDBOOK_CHARACTER['GuildBank'][data.payload].Commit)
         end
     end
 end
 
 function Guildbook:OnGuildBankCommitReceived(data, distribution, sender)
     if distribution == 'WHISPER' then
-        if not GUILDBOOK_CHARACTER['GuildBankCommit'] then
-            GUILDBOOK_CHARACTER['GuildBankCommit'] = 0.0
-        end
-        --print(tonumber(data.payload), tonumber(GUILDBOOK_CHARACTER['GuildBankCommit']))
-        if tonumber(data.payload) >= tonumber(GUILDBOOK_CHARACTER['GuildBankCommit']) then --remove the >= should be >
-            DEBUG('commit is newer than saved var commit')
-            if Guildbook.GuildBankCommit['Commit'] == nil then
-                Guildbook.GuildBankCommit['Commit'] = data.payload
-                Guildbook.GuildBankCommit['Character'] = sender
-                DEBUG('cached first response')
-            else
-                if tonumber(data.payload) > tonumber(Guildbook.GuildBankCommit['Commit']) then
-                    Guildbook.GuildBankCommit['Commit'] = data.payload
+        if GUILDBOOK_CHARACTER['GuildBank'] and GUILDBOOK_CHARACTER['GuildBank'][data.payload.Character] then
+            if tonumber(data.payload.Commit) >= tonumber(GUILDBOOK_CHARACTER['GuildBank'][data.payload.Character].Commit) then --remove the >= should be >
+                DEBUG('commit is newer than saved var commit')
+                if Guildbook.GuildBankCommit['Commit'] == nil then
+                    Guildbook.GuildBankCommit['Commit'] = data.payload.Commit
                     Guildbook.GuildBankCommit['Character'] = sender
-                    DEBUG('commit is newer than cached response')
+                    Guildbook.GuildBankCommit['BankCharacter'] = data.payload.Character
+                    DEBUG('cached first response')
+                else
+                    if tonumber(data.payload) > tonumber(Guildbook.GuildBankCommit['Commit']) then
+                        Guildbook.GuildBankCommit['Commit'] = data.payload.Commit
+                        Guildbook.GuildBankCommit['Character'] = sender
+                        Guildbook.GuildBankCommit['BankCharacter'] = data.payload.Character
+                        DEBUG('commit is newer than cached response')
+                    end
                 end
             end
         end
@@ -640,6 +640,7 @@ function Guildbook:SendGuildBankDataRequest()
     if Guildbook.GuildBankCommit['Character'] ~= nil then
         local request = {
             type = 'GUILD_BANK_DATA_REQUEST',
+            payload = Guildbook.GuildBankCommit['BankCharacter']
         }
         self:Transmit(request, 'WHISPER', Guildbook.GuildBankCommit['Character'], 'NORMAL')
         DEBUG('sent request for guild bank data from: '..Guildbook.GuildBankCommit['Character'])
@@ -650,10 +651,10 @@ function Guildbook:OnGuildBankDataRequested(data, distribution, sender)
     if distribution == 'WHISPER' then
         local response = {
             type = 'GUILD_BANK_DATA_RESPONSE',
-            payload = GUILDBOOK_CHARACTER['GuildBankData'],
+            payload = GUILDBOOK_CHARACTER['GuildBank'][data.payload].Data,
         }
         self:Transmit(response, 'WHISPER', sender, 'BULK')
-        DEBUG('sendign guild bank data to: '..sender)
+        DEBUG('sending guild bank data to: '..sender)
     end
 end
 
@@ -680,52 +681,68 @@ end
 
 function Guildbook:ScanCharacterContainers()
     if BankFrame:IsVisible() then
-
-        if not GUILDBOOK_CHARACTER['GuildBankData'] then
-            GUILDBOOK_CHARACTER['GuildBankData'] = {}
-            GUILDBOOK_CHARACTER['GuildBankCommit'] = GetServerTime()
+        local guid = UnitGUID('player')
+        if not self.PlayerMixin then
+            self.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
         else
-            GUILDBOOK_CHARACTER['GuildBankCommit'] = GetServerTime()
+            self.PlayerMixin:SetGUID(guid)
         end
+        if self.PlayerMixin:IsValid() then
+            local name = C_PlayerInfo.GetName(self.PlayerMixin)
 
-        -- player bags
-        for bag = 0, 4 do
-            for slot = 1, GetContainerNumSlots(bag) do
-                local id = select(10, GetContainerItemInfo(bag, slot))
-                local count = select(2, GetContainerItemInfo(bag, slot))
-                if id and count then
-                    if not GUILDBOOK_CHARACTER['GuildBankData'][id] then
-                        GUILDBOOK_CHARACTER['GuildBankData'][id] = count
-                    else
-                        GUILDBOOK_CHARACTER['GuildBankData'][id] = GUILDBOOK_CHARACTER['GuildBankData'][id] + count
+            if not GUILDBOOK_CHARACTER['GuildBank'] then
+                GUILDBOOK_CHARACTER['GuildBank'] = {
+                    [name] = {
+                        Data = {},
+                        Commit = GetServerTime()
+                    }
+                }
+            else
+                GUILDBOOK_CHARACTER['GuildBank'][name].Commit = GetServerTime()
+                GUILDBOOK_CHARACTER['GuildBank'][name].Data = {}
+            end
+
+            -- player bags
+            for bag = 0, 4 do
+                for slot = 1, GetContainerNumSlots(bag) do
+                    local id = select(10, GetContainerItemInfo(bag, slot))
+                    local count = select(2, GetContainerItemInfo(bag, slot))
+                    if id and count then
+                        if not GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] then
+                            GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] = count
+                            print('adding first item to gb data')
+                        else
+                            GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] = GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] + count
+                            print('updating item as already in data')
+                        end
                     end
                 end
             end
-        end
 
-        -- main bank
-        for slot = 1, 28 do
-            local id = select(10, GetContainerItemInfo(-1, slot))
-            local count = select(2, GetContainerItemInfo(-1, slot))
-            if id and count then
-                if not GUILDBOOK_CHARACTER['GuildBankData'][id] then
-                    GUILDBOOK_CHARACTER['GuildBankData'][id] = count
-                else
-                    GUILDBOOK_CHARACTER['GuildBankData'][id] = GUILDBOOK_CHARACTER['GuildBankData'][id] + count
+            -- main bank
+            for slot = 1, 28 do
+                local id = select(10, GetContainerItemInfo(-1, slot))
+                local count = select(2, GetContainerItemInfo(-1, slot))
+                if id and count then
+                    if not GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] then
+                        GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] = count
+                    else
+                        GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] = GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] + count
+                    end
                 end
             end
-        end
 
-        -- bank bags
-        for bag = 5, 11 do
-            for slot = 1, GetContainerNumSlots(bag) do
-                local id = select(10, GetContainerItemInfo(bag, slot))
-                local count = select(2, GetContainerItemInfo(bag, slot))
-                if id and count then
-                    if not GUILDBOOK_CHARACTER['GuildBankData'][id] then
-                        GUILDBOOK_CHARACTER['GuildBankData'][id] = count
-                    else
-                        GUILDBOOK_CHARACTER['GuildBankData'][id] = GUILDBOOK_CHARACTER['GuildBankData'][id] + count
+            -- bank bags
+            for bag = 5, 11 do
+                for slot = 1, GetContainerNumSlots(bag) do
+                    local id = select(10, GetContainerItemInfo(bag, slot))
+                    local count = select(2, GetContainerItemInfo(bag, slot))
+                    if id and count then
+                        if not GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] then
+                            GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] = count
+                        else
+                            GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] = GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] + count
+                        end
                     end
                 end
             end
