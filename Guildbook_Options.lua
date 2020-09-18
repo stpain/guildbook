@@ -47,8 +47,10 @@ function GuildbookOptionsShowMinimapButton_OnClick(self)
     self:SetChecked(GUILDBOOK_GLOBAL['ShowMinimapButton'])
     if GUILDBOOK_GLOBAL['ShowMinimapButton'] == false then
         Guildbook.MinimapIcon:Hide('GuildbookMinimapIcon')
+        DEBUG('minimap button check box click, saved var: false')
     else
         Guildbook.MinimapIcon:Show('GuildbookMinimapIcon')
+        DEBUG('minimap button check box click, saved var: true')
     end
 end
 

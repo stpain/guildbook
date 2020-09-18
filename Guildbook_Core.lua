@@ -89,6 +89,10 @@ Guildbook.CharDataMsgkeys = {
     [16] = 'offspecispvp',
     [17] = 'guildname',
 }
+Guildbook.GuildBankCommit = {
+    Commit = nil,
+    Character = nil,
+}
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 --init
@@ -175,6 +179,7 @@ function Guildbook:Init()
                     if requestSent then
                         DEBUG('sent data request to '..name)
                     end
+                    Guildbook:CharacterDataRequest(name)
                 end
                 Guildbook.GuildMemberDetailFrame:UpdateLabels()
             end
@@ -302,12 +307,10 @@ function Guildbook:Init()
             end
         end
     end)
-    
-    --add extra frames to guild ui
-    self.GuildFrame.Frames = {}
+
     local function toggleGuildFrames(frame)
-        for k, f in pairs(Guildbook.GuildFrame.Frames) do
-            f:Hide()
+        for f, _ in pairs(Guildbook.GuildFrame.Frames) do
+            _G['GuildbookGuildFrame'..f]:Hide()
         end
         if frame == 'none' then
             for i = 1, 13 do
@@ -319,75 +322,74 @@ function Guildbook:Init()
                 _G['GuildFrameButton'..i]:Hide()
             end
             GuildFrameLFGFrame:Hide()
-            Guildbook.GuildFrame.Frames[frame]:Show()
+            Guildbook.GuildFrame[frame]:Show()
         end
     end
 
-    self.GuildFrame.StatsFrame = CreateFrame('FRAME', 'GuildbookGuildFrameStatsFrame', GuildFrame)
-    self.GuildFrame.StatsFrame:SetBackdrop({
-        edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-        edgeSize = 16,
-        bgFile = "interface/framegeneral/ui-background-marble",
-        tile = true,
-        tileEdge = false,
-        tileSize = 200,
-        insets = { left = 4, right = 4, top = 4, bottom = 4 }
-    })
-    self.GuildFrame.StatsFrame:SetPoint('TOPLEFT', GuildFrame, 'TOPLEFT', 2.00, -55.0)
-    self.GuildFrame.StatsFrame:SetPoint('BOTTOMRIGHT', GuildFrame, 'TOPRIGHT', -4.00, -325.0)
-    self.GuildFrame.StatsFrame:SetFrameLevel(6)
-    self.GuildFrame.StatsFrame:Hide()
-    self.GuildFrame.Frames['stats'] = self.GuildFrame.StatsFrame
-
-    self.GuildFrame.TradeSkillFrame = CreateFrame('FRAME', 'GuildbookGuildFrameTradeSkillFrame', GuildFrame)
-    self.GuildFrame.TradeSkillFrame:SetBackdrop({
-        edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-        edgeSize = 16,
-        bgFile = "interface/framegeneral/ui-background-marble",
-        tile = true,
-        tileEdge = false,
-        tileSize = 200,
-        insets = { left = 4, right = 4, top = 4, bottom = 4 }
-    })
-    self.GuildFrame.TradeSkillFrame:SetPoint('TOPLEFT', GuildFrame, 'TOPLEFT', 2.00, -55.0)
-    self.GuildFrame.TradeSkillFrame:SetPoint('BOTTOMRIGHT', GuildFrame, 'TOPRIGHT', -4.00, -325.0)
-    self.GuildFrame.TradeSkillFrame:SetFrameLevel(6)
-    self.GuildFrame.TradeSkillFrame:Hide()
-    self.GuildFrame.Frames['tradeskill'] = self.GuildFrame.TradeSkillFrame
-
-    -- add buttons to toggle between extra frames
     self.GuildFrame.RosterButton = CreateFrame('BUTTON', 'GuildbookGuildFrameRosterButton', GuildFrame, "UIPanelButtonTemplate")
     self.GuildFrame.RosterButton:SetPoint('RIGHT', GuildFrameGuildInformationButton, 'LEFT', -2, 0)
-    self.GuildFrame.RosterButton:SetSize(100, GuildFrameGuildInformationButton:GetHeight())
+    self.GuildFrame.RosterButton:SetSize(85, GuildFrameGuildInformationButton:GetHeight())
     self.GuildFrame.RosterButton:SetText('Guild Roster')
     self.GuildFrame.RosterButton:SetNormalFontObject(GameFontNormalSmall)
     self.GuildFrame.RosterButton:SetHighlightFontObject(GameFontNormalSmall)
     self.GuildFrame.RosterButton:SetScript('OnClick', function(self)
         toggleGuildFrames('none')
     end)
+    
+    self.GuildFrame.Frames = {
+        ['StatsFrame'] = { Text = 'Statistics', Width = 85.0, OffsetY = -87.0 },
+        ['TradeSkillFrame'] = { Text = 'Professions', Width = 85.0, OffsetY = -174.0 },
+        ['GuildBankFrame'] = { Text = 'Guild Bank', Width = 85.0, OffsetY = -261.0 },
+        ['GuildCalenderFrame'] = { Text = 'Calender', Width = 75.0, OffsetY = -338.0 },
+    }
 
-    self.GuildFrame.StatsButton = CreateFrame('BUTTON', 'GuildbookGuildFrameStatsButton', GuildFrame, "UIPanelButtonTemplate")
-    self.GuildFrame.StatsButton:SetPoint('RIGHT', Guildbook.GuildFrame.RosterButton, 'LEFT', -2, 0)
-    self.GuildFrame.StatsButton:SetSize(100, GuildFrameGuildInformationButton:GetHeight())
-    self.GuildFrame.StatsButton:SetText('Guild Stats')
-    self.GuildFrame.StatsButton:SetNormalFontObject(GameFontNormalSmall)
-    self.GuildFrame.StatsButton:SetHighlightFontObject(GameFontNormalSmall)
-    self.GuildFrame.StatsButton:SetScript('OnClick', function(self)
-        toggleGuildFrames('stats')
+    for frame, button in pairs(self.GuildFrame.Frames) do
+        self.GuildFrame[frame] = CreateFrame('FRAME', tostring('GuildbookGuildFrame'..frame), GuildFrame)
+        self.GuildFrame[frame]:SetBackdrop({
+            edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+            edgeSize = 16,
+            bgFile = "interface/framegeneral/ui-background-marble",
+            tile = true,
+            tileEdge = false,
+            tileSize = 200,
+            insets = { left = 4, right = 4, top = 4, bottom = 4 }
+        })
+        self.GuildFrame[frame]:SetPoint('TOPLEFT', GuildFrame, 'TOPLEFT', 2.00, -55.0)
+        self.GuildFrame[frame]:SetPoint('BOTTOMRIGHT', GuildFrame, 'TOPRIGHT', -4.00, -325.0)
+        self.GuildFrame[frame]:SetFrameLevel(6)
+        self.GuildFrame[frame]:Hide()
+
+        self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')] = CreateFrame('BUTTON', tostring('GuildbookGuildFrame'..frame..'Button'), GuildFrame, "UIPanelButtonTemplate")
+        self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetPoint('LEFT', Guildbook.GuildFrame.RosterButton, 'LEFT', button.OffsetY, 0)
+        self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetSize(button.Width, GuildFrameGuildInformationButton:GetHeight())
+        self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetText(button.Text)
+        self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetNormalFontObject(GameFontNormalSmall)
+        self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetHighlightFontObject(GameFontNormalSmall)
+        self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetScript('OnClick', function(self)
+            toggleGuildFrames(frame)
+        end)
+    end
+
+    self.BankFrameRequestGuildBank = CreateFrame('BUTTON', 'GuildbookGuildFrameRosterButton', BankFrame, "UIPanelButtonTemplate")
+    self.BankFrameRequestGuildBank:SetPoint('TOP', BankFrame, 'TOP', -10, -9)
+    self.BankFrameRequestGuildBank:SetSize(85, 22)
+    self.BankFrameRequestGuildBank:SetText('Scan Bank')
+    self.BankFrameRequestGuildBank:SetNormalFontObject(GameFontNormalSmall)
+    self.BankFrameRequestGuildBank:SetHighlightFontObject(GameFontNormalSmall)
+    self.BankFrameRequestGuildBank:SetScript('OnClick', function(self)
+        print('scanning bank')
+        Guildbook:ScanCharacterContainers()
+        Guildbook:SendGuildBankCommitRequest()
+        C_Timer.After(5, function()
+            Guildbook:SendGuildBankDataRequest()
+        end)
     end)
 
-    self.GuildFrame.TradeSkillButton = CreateFrame('BUTTON', 'GuildbookGuildFrameTradeSkillButton', GuildFrame, "UIPanelButtonTemplate")
-    self.GuildFrame.TradeSkillButton:SetPoint('RIGHT',  Guildbook.GuildFrame.StatsButton, 'LEFT', -2, 0)
-    self.GuildFrame.TradeSkillButton:SetSize(100, GuildFrameGuildInformationButton:GetHeight())
-    self.GuildFrame.TradeSkillButton:SetText('Professions')
-    self.GuildFrame.TradeSkillButton:SetNormalFontObject(GameFontNormalSmall)
-    self.GuildFrame.TradeSkillButton:SetHighlightFontObject(GameFontNormalSmall)
-    self.GuildFrame.TradeSkillButton:SetScript('OnClick', function(self)
-        toggleGuildFrames('tradeskill')
-    end)
     
     self:SetupStatsFrame()
     self:SetupTradeSkillFrame()
+    self:SetupGuildBankFrame()
+    self:SetupGuildCalenderFrame()
 
     -- TODO: translate old guild memer detail frame into new code style
     self.GuildMemberDetailFrame:DrawLabels()          
@@ -454,9 +456,13 @@ function Guildbook:Init()
     self.MinimapIcon = LibStub("LibDBIcon-1.0")
     if not GUILDBOOK_GLOBAL['MinimapButton'] then GUILDBOOK_GLOBAL['MinimapButton'] = {} end
     self.MinimapIcon:Register('GuildbookMinimapIcon', self.MinimapButton, GUILDBOOK_GLOBAL['MinimapButton'])
-    if GUILDBOOK_GLOBAL['ShowMinimapButton'] == false then
-        self.MinimapIcon:Hide('GuildbookMinimapIcon')
-    end
+    C_Timer.After(1, function()
+        if GUILDBOOK_GLOBAL['ShowMinimapButton'] == false then
+            self.MinimapIcon:Hide('GuildbookMinimapIcon')
+            DEBUG('minimap icon saved var setting: false, hiding minimap button')
+        end
+    end)
+
 
     GuildbookOptionsMainSpecDD_Init()
     GuildbookOptionsOffSpecDD_Init()
@@ -470,7 +476,7 @@ function Guildbook:Init()
     GuildbookOptionsDebugCB:SetChecked(GUILDBOOK_GLOBAL['Debug'])
     GuildbookOptionsShowMinimapButton:SetChecked(GUILDBOOK_GLOBAL['ShowMinimapButton'])
 
-    local version = GetAddOnMetadata(addonName, "Version")
+    local version = GetAddOnMetadata('Guildbook', "Version")
     PRINT(self.FONT_COLOUR, 'loaded (version '..version..')')
 
     if GUILDBOOK_GAMEOBJECTS then
@@ -483,7 +489,6 @@ function Guildbook:Init()
     end)
 
 end
-
 
 
 function Guildbook:Transmit(data, channel, target, priority)
@@ -536,29 +541,135 @@ function Guildbook:OnTradeSkillsReceived(data, distribution, sender)
     -- end
 end
 
-function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
-    if prefix ~= addonName then 
-        return 
-    end
-    local decoded = LibDeflate:DecodeForWoWAddonChannel(message);
-    if not decoded then
-        return;
-    end
-    local decompressed = LibDeflate:DecompressDeflate(decoded);
-    if not decompressed then
-        return;
-    end
-    local success, data = LibSerialize:Deserialize(decompressed);
-    if not success or type(data) ~= "table" then
-        return;
-    end
+function Guildbook:CharacterDataRequest(target)
+    local request = {
+        type = 'CHARACTER_DATA_REQUEST'
+    }
+    self:Transmit(request, 'WHISPER', target, 'NORMAL')
+end
 
-    if data.type == "TRADESKILLS_REQUEST" then
-        self:OnTradeSkillsRequested(data, distribution, sender);
-    elseif data.type == "TRADESKILLS_RESPONSE" then
-        self:OnTradeSkillsReceived(data, distribution, sender);
+function Guildbook:OnCharacterDataRequested(request, distribution, sender)
+    if distribution ~= 'WHISPER' then
+        return
+    end
+    local guid = UnitGUID('player')
+    local level = UnitLevel('player')
+    if not self.PlayerMixin then
+        self.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
+    else
+        self.PlayerMixin:SetGUID(guid)
+    end
+    if self.PlayerMixin:IsValid() then
+        local _, class, _ = C_PlayerInfo.GetClass(self.PlayerMixin)
+        local name = C_PlayerInfo.GetName(self.PlayerMixin)
+        local response = {
+            type = 'CHARACTER_DATA_RESPONSE',
+            payload = {
+                GUID = guid,
+                --Level = level,
+                Class = class,
+                Name = name,
+                Profession1Level = GUILDBOOK_CHARACTER["Profession1Level"],
+                OffSpec = GUILDBOOK_CHARACTER["OffSpec"],
+                Profession1 = GUILDBOOK_CHARACTER["Profession1"],
+                MainCharacter = GUILDBOOK_CHARACTER["MainCharacter"],
+                MainSpec = GUILDBOOK_CHARACTER["MainSpec"],
+                MainSpecIsPvP = GUILDBOOK_CHARACTER["MainSpecIsPvP"],
+                Profession2Level = GUILDBOOK_CHARACTER["Profession2Level"],
+                Profession2 = GUILDBOOK_CHARACTER["Profession2"],
+                AttunementsKeys = GUILDBOOK_CHARACTER["AttunementsKeys"],
+                Availability = GUILDBOOK_CHARACTER["Availability"],
+                OffSpecIsPvP = GUILDBOOK_CHARACTER["OffSpecIsPvP"],
+            }
+        }
+        self:Transmit(response, 'WHISPER', sender, 'NORMAL')
     end
 end
+
+function Guildbook:OnCharacterDataReceived(data, distribution, sender)
+    for k, v in pairs(data.payload) do
+        print(k, v)
+    end
+end
+
+function Guildbook:SendGuildBankCommitRequest()
+    local request = {
+        type = 'GUILD_BANK_COMMIT_REQUEST',
+    }
+    self:Transmit(request, 'GUILD', nil, 'NORMAL')
+    DEBUG('sending guild bank commit request to guild')
+end
+
+function Guildbook:OnGuildBankCommitRequested(data, distribution, sender)
+    if distribution == 'GUILD' then
+        if GUILDBOOK_CHARACTER['GuildBankCommit'] then
+            local response = {
+                type = 'GUILD_BANK_COMMIT_RESPONSE',
+                payload = GUILDBOOK_CHARACTER['GuildBankCommit']
+            }
+            self:Transmit(response, 'WHISPER', sender, 'NORMAL')
+            DEBUG('responding to guild bank commit request, sent commit: '..GUILDBOOK_CHARACTER['GuildBankCommit'])
+        end
+    end
+end
+
+function Guildbook:OnGuildBankCommitReceived(data, distribution, sender)
+    if distribution == 'WHISPER' then
+        if not GUILDBOOK_CHARACTER['GuildBankCommit'] then
+            GUILDBOOK_CHARACTER['GuildBankCommit'] = 0.0
+        end
+        --print(tonumber(data.payload), tonumber(GUILDBOOK_CHARACTER['GuildBankCommit']))
+        if tonumber(data.payload) >= tonumber(GUILDBOOK_CHARACTER['GuildBankCommit']) then --remove the >= should be >
+            DEBUG('commit is newer than saved var commit')
+            if Guildbook.GuildBankCommit['Commit'] == nil then
+                Guildbook.GuildBankCommit['Commit'] = data.payload
+                Guildbook.GuildBankCommit['Character'] = sender
+                DEBUG('cached first response')
+            else
+                if tonumber(data.payload) > tonumber(Guildbook.GuildBankCommit['Commit']) then
+                    Guildbook.GuildBankCommit['Commit'] = data.payload
+                    Guildbook.GuildBankCommit['Character'] = sender
+                    DEBUG('commit is newer than cached response')
+                end
+            end
+        end
+    end
+end
+
+function Guildbook:SendGuildBankDataRequest()
+    if Guildbook.GuildBankCommit['Character'] ~= nil then
+        local request = {
+            type = 'GUILD_BANK_DATA_REQUEST',
+        }
+        self:Transmit(request, 'WHISPER', Guildbook.GuildBankCommit['Character'], 'NORMAL')
+        DEBUG('sent request for guild bank data from: '..Guildbook.GuildBankCommit['Character'])
+    end
+end
+
+function Guildbook:OnGuildBankDataRequested(data, distribution, sender)
+    if distribution == 'WHISPER' then
+        local response = {
+            type = 'GUILD_BANK_DATA_RESPONSE',
+            payload = GUILDBOOK_CHARACTER['GuildBankData'],
+        }
+        self:Transmit(response, 'WHISPER', sender, 'BULK')
+        DEBUG('sendign guild bank data to: '..sender)
+    end
+end
+
+function Guildbook:OnGuildBankDataReceived(data, distribution, sender)
+    if distribution == 'WHISPER' then
+        for itemID, count in pairs(data.payload) do
+            --print(itemID, count)
+        end
+    end
+    self.GuildFrame.GuildBankFrame:RefreshSlots(data.payload)
+end
+
+-- TODO: add script for when a player drops a prof
+SkillDetailStatusBarUnlearnButton:HookScript('OnClick', function()
+
+end)
 
 function Guildbook:TRADE_SKILL_UPDATE()
     C_Timer.After(1, function()
@@ -567,8 +678,60 @@ function Guildbook:TRADE_SKILL_UPDATE()
     end)
 end
 
-function Guildbook:RefreshGuildFrameButtons()
+function Guildbook:ScanCharacterContainers()
+    if BankFrame:IsVisible() then
 
+        if not GUILDBOOK_CHARACTER['GuildBankData'] then
+            GUILDBOOK_CHARACTER['GuildBankData'] = {}
+            GUILDBOOK_CHARACTER['GuildBankCommit'] = GetServerTime()
+        else
+            GUILDBOOK_CHARACTER['GuildBankCommit'] = GetServerTime()
+        end
+
+        -- player bags
+        for bag = 0, 4 do
+            for slot = 1, GetContainerNumSlots(bag) do
+                local id = select(10, GetContainerItemInfo(bag, slot))
+                local count = select(2, GetContainerItemInfo(bag, slot))
+                if id and count then
+                    if not GUILDBOOK_CHARACTER['GuildBankData'][id] then
+                        GUILDBOOK_CHARACTER['GuildBankData'][id] = count
+                    else
+                        GUILDBOOK_CHARACTER['GuildBankData'][id] = GUILDBOOK_CHARACTER['GuildBankData'][id] + count
+                    end
+                end
+            end
+        end
+
+        -- main bank
+        for slot = 1, 28 do
+            local id = select(10, GetContainerItemInfo(-1, slot))
+            local count = select(2, GetContainerItemInfo(-1, slot))
+            if id and count then
+                if not GUILDBOOK_CHARACTER['GuildBankData'][id] then
+                    GUILDBOOK_CHARACTER['GuildBankData'][id] = count
+                else
+                    GUILDBOOK_CHARACTER['GuildBankData'][id] = GUILDBOOK_CHARACTER['GuildBankData'][id] + count
+                end
+            end
+        end
+
+        -- bank bags
+        for bag = 5, 11 do
+            for slot = 1, GetContainerNumSlots(bag) do
+                local id = select(10, GetContainerItemInfo(bag, slot))
+                local count = select(2, GetContainerItemInfo(bag, slot))
+                if id and count then
+                    if not GUILDBOOK_CHARACTER['GuildBankData'][id] then
+                        GUILDBOOK_CHARACTER['GuildBankData'][id] = count
+                    else
+                        GUILDBOOK_CHARACTER['GuildBankData'][id] = GUILDBOOK_CHARACTER['GuildBankData'][id] + count
+                    end
+                end
+            end
+        end
+
+    end
 end
 
 function Guildbook:ScanTradeSkill()
@@ -590,8 +753,8 @@ function Guildbook:ScanTradeSkill()
                     local reagentName, reagentTexture, reagentCount, playerReagentCount = GetTradeSkillReagentInfo(i, j)
                     local reagentLink = GetTradeSkillReagentItemLink(i, j)
                     local reagentID = select(1, GetItemInfoInstant(reagentLink))
-                    DEBUG(string.format('    Reagent name: %s, with ID: %s, Needed: %s', reagentName, reagentID, reagentCount))
                     if reagentName and reagentID and reagentCount then
+                        DEBUG(string.format('    Reagent name: %s, with ID: %s, Needed: %s', reagentName, reagentID, reagentCount))
                         GUILDBOOK_CHARACTER[prof][itemID][reagentID] = reagentCount
                     end
                 end
@@ -724,6 +887,7 @@ function Guildbook:ParseCharacterData(msg)
     }
 end
 
+-- events
 function Guildbook:ADDON_LOADED(...)
     if tostring(...):lower() == addonName:lower() then
         self:Init()
@@ -760,6 +924,42 @@ function Guildbook:SKILL_LINES_CHANGED()
         DEBUG('sending char data due to skill line event')
         self:SendCharacterStats()
     end)
+end
+
+function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
+    if prefix ~= addonName then 
+        return 
+    end
+    local decoded = LibDeflate:DecodeForWoWAddonChannel(message);
+    if not decoded then
+        return;
+    end
+    local decompressed = LibDeflate:DecompressDeflate(decoded);
+    if not decompressed then
+        return;
+    end
+    local success, data = LibSerialize:Deserialize(decompressed);
+    if not success or type(data) ~= "table" then
+        return;
+    end
+
+    if data.type == "TRADESKILLS_REQUEST" then
+        self:OnTradeSkillsRequested(data, distribution, sender);
+    elseif data.type == "TRADESKILLS_RESPONSE" then
+        self:OnTradeSkillsReceived(data, distribution, sender);
+    elseif data.type == 'CHARACTER_DATA_REQUEST' then
+        self:OnCharacterDataRequested(data, distribution, sender)
+    elseif data.type == 'CHARACTER_DATA_RESPONSE' then
+        self:OnCharacterDataReceived(data, distribution, sender)
+    elseif data.type == 'GUILD_BANK_COMMIT_REQUEST' then
+        self:OnGuildBankCommitRequested(data, distribution, sender)
+    elseif data.type == 'GUILD_BANK_COMMIT_RESPONSE' then
+        self:OnGuildBankCommitReceived(data, distribution, sender)
+    elseif data.type == 'GUILD_BANK_DATA_REQUEST' then
+        self:OnGuildBankDataRequested(data, distribution, sender)
+    elseif data.type == 'GUILD_BANK_DATA_RESPONSE' then
+        self:OnGuildBankDataReceived(data, distribution, sender)
+    end
 end
 
 --set up event listener

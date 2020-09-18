@@ -35,29 +35,35 @@ local PRINT = Guildbook.PRINT
 function Guildbook:SetupStatsFrame()
 
     self.GuildFrame.StatsFrame.Header = self.GuildFrame.StatsFrame:CreateFontString('GuildbookGuildInfoFrameStatsFrameHeader', 'OVERLAY', 'GameFontNormal')
-    self.GuildFrame.StatsFrame.Header:SetPoint('TOPLEFT', Guildbook.GuildFrame.StatsFrame, 'TOPLEFT', 16, -16)
+    self.GuildFrame.StatsFrame.Header:SetPoint('BOTTOM', Guildbook.GuildFrame.StatsFrame, 'TOP', 0, 4)
     self.GuildFrame.StatsFrame.Header:SetText('Class and Role Summary')
     self.GuildFrame.StatsFrame.Header:SetTextColor(1,1,1,1)
     self.GuildFrame.StatsFrame.Header:SetFont("Fonts\\FRIZQT__.TTF", 12)
 
-    self.GuildFrame.StatsFrame.MinLevelSlider = CreateFrame('SLIDER', 'GuildbookGuildInfoFrameminLevelSlider', self.GuildFrame.StatsFrame, 'OptionsSliderTemplate')
+    self.GuildFrame.StatsFrame.MinLevelSlider = CreateFrame('SLIDER', 'GuildbookGuildInfoFrameMinLevelSlider', self.GuildFrame.StatsFrame, 'OptionsSliderTemplate')
     self.GuildFrame.StatsFrame.MinLevelSlider:SetPoint('TOPLEFT', 35, -80)
     self.GuildFrame.StatsFrame.MinLevelSlider:SetThumbTexture("Interface/Buttons/UI-SliderBar-Button-Horizontal")
     self.GuildFrame.StatsFrame.MinLevelSlider:SetSize(125, 16)
     self.GuildFrame.StatsFrame.MinLevelSlider:SetOrientation('HORIZONTAL')
     self.GuildFrame.StatsFrame.MinLevelSlider:SetMinMaxValues(1, 60) 
     self.GuildFrame.StatsFrame.MinLevelSlider:SetValueStep(1.0)
-    _G[Guildbook.GuildFrame.StatsFrame.MinLevelSlider:GetName()..'Low']:SetText('1')
-    _G[Guildbook.GuildFrame.StatsFrame.MinLevelSlider:GetName()..'High']:SetText('60')
+    _G[Guildbook.GuildFrame.StatsFrame.MinLevelSlider:GetName()..'Low']:SetText(' ')
+    _G[Guildbook.GuildFrame.StatsFrame.MinLevelSlider:GetName()..'High']:SetText(' ')
     self.GuildFrame.StatsFrame.MinLevelSlider:SetValue(60)
     self.GuildFrame.StatsFrame.MinLevelSlider:SetScript('OnValueChanged', function(self)
-        --print(math.floor(self:GetValue()))
+        Guildbook.GuildFrame.StatsFrame.MinLevelSlider_Text:SetText(math.floor(Guildbook.GuildFrame.StatsFrame.MinLevelSlider:GetValue()))
         Guildbook.GuildFrame.StatsFrame:GetClassRoleFromCache()
     end)
     self.GuildFrame.StatsFrame.MinLevelSlider.tooltipText = 'Show data for characters with a minimun level'
-    self.GuildFrame.StatsFrame.MinLevelSlider_Title = self.GuildFrame.StatsFrame:CreateFontString('GuildbookGuildInfoFrameStatsFrameminLevelTitle', 'OVERLAY', 'GameFontNormal')
+    self.GuildFrame.StatsFrame.MinLevelSlider_Title = self.GuildFrame.StatsFrame:CreateFontString('GuildbookGuildInfoFrameMinLevelSliderTitle', 'OVERLAY', 'GameFontNormal')
     self.GuildFrame.StatsFrame.MinLevelSlider_Title:SetPoint('BOTTOM', self.GuildFrame.StatsFrame.MinLevelSlider, 'TOP', 0, 5)
     self.GuildFrame.StatsFrame.MinLevelSlider_Title:SetText('Character min level')
+
+    self.GuildFrame.StatsFrame.MinLevelSlider_Text = self.GuildFrame.StatsFrame:CreateFontString('GuildbookGuildInfoFrameMinLevelSliderText', 'OVERLAY', 'GameFontNormal')
+    self.GuildFrame.StatsFrame.MinLevelSlider_Text:SetPoint('LEFT', Guildbook.GuildFrame.StatsFrame.MinLevelSlider, 'RIGHT', 8, 0)
+    self.GuildFrame.StatsFrame.MinLevelSlider_Text:SetText(math.floor(Guildbook.GuildFrame.StatsFrame.MinLevelSlider:GetValue()))
+    self.GuildFrame.StatsFrame.MinLevelSlider_Text:SetTextColor(1,1,1,1)
+    self.GuildFrame.StatsFrame.MinLevelSlider_Text:SetFont("Fonts\\FRIZQT__.TTF", 12)
 
     self.GuildFrame.StatsFrame.ClassCount = {
         { Class = 'DEATHKNIGHT', Count = 0 },
@@ -226,6 +232,8 @@ function Guildbook:SetupTradeSkillFrame()
         self:ClearCharactersListview()
         self:ClearRecipesListview()
         self:ClearReagentsListview()
+        Guildbook.GuildFrame.TradeSkillFrame.ProfessionIcon:SetTexture(nil)
+        Guildbook.GuildFrame.TradeSkillFrame.ProfessionDescription:SetText('Select a profession to see members of your guild who are trained in that profession.')
     end)
 
     self.GuildFrame.TradeSkillFrame.Header = self.GuildFrame.TradeSkillFrame:CreateFontString('GuildbookGuildInfoFrameTradeSkillFrameHeader', 'OVERLAY', 'GameFontNormal')
@@ -264,7 +272,6 @@ function Guildbook:SetupTradeSkillFrame()
             f:SetNormalFontObject(GameFontNormalSmall)
             f:SetHighlightFontObject(GameFontNormalSmall)
             f:SetScript('OnClick', function(self)
-                Guildbook.GuildFrame.TradeSkillFrame:ClearCharactersListview()
                 Guildbook.GuildFrame.TradeSkillFrame:ClearCharactersListview()
                 selectedProfession = prof.Name
                 Guildbook.GuildFrame.TradeSkillFrame.CharactersListviewScrollBar:SetValue(1)
@@ -353,7 +360,7 @@ function Guildbook:SetupTradeSkillFrame()
             if self.data then
                 selectedCharacter = self.data.Name
                 DEBUG('selected '..self.data.Name)
-                --Guildbook.GuildFrame.TradeSkillFrame:RefreshRecipesListview()
+                Guildbook.GuildFrame.TradeSkillFrame:ClearRecipesListview()
                 Guildbook.GuildFrame.TradeSkillFrame:ClearReagentsListview()
                 Guildbook:SendTradeSkillsRequest(selectedCharacter, selectedProfession)
             end
@@ -693,13 +700,164 @@ function Guildbook:SetupTradeSkillFrame()
 
         if recipe and recipe.Reagents then
             for k, v in ipairs(recipe.Reagents) do
-                local icon = select(10, GetItemInfo(v.Link))
-                local name = select(1, GetItemInfo(v.Link))
-                self.ReagentsListviewRows[k].icon:SetTexture(icon)
-                self.ReagentsListviewRows[k].text:SetText(string.format('[%s] %s', v.Count, name))
+                if v.Link then
+                    local icon = select(10, GetItemInfo(v.Link))
+                    local name = select(1, GetItemInfo(v.Link))
+                    self.ReagentsListviewRows[k].icon:SetTexture(icon)
+                    self.ReagentsListviewRows[k].text:SetText(string.format('[%s] %s', v.Count, name))
+                end
             end
         end
     end
+
+
+end
+
+
+
+
+
+function Guildbook:SetupGuildBankFrame()
+
+    local slotBackground = 130766
+
+    self.GuildFrame.GuildBankFrame:SetScript('OnShow', function(self)
+
+    end)
+
+    self.GuildFrame.GuildBankFrame.Header = self.GuildFrame.GuildBankFrame:CreateFontString('GuildbookGuildInfoFrameGuildBankFrameHeader', 'OVERLAY', 'GameFontNormal')
+    self.GuildFrame.GuildBankFrame.Header:SetPoint('BOTTOM', Guildbook.GuildFrame.GuildBankFrame, 'TOP', 0, 4)
+    self.GuildFrame.GuildBankFrame.Header:SetText('Guild Bank')
+    self.GuildFrame.GuildBankFrame.Header:SetTextColor(1,1,1,1)
+    self.GuildFrame.GuildBankFrame.Header:SetFont("Fonts\\FRIZQT__.TTF", 12)
+
+    self.GuildFrame.GuildBankFrame.BankSlots = {}
+    local slotIdx, slotWidth = 1, 36
+    for column = 1, 14 do
+        local x = ((column - 1) * slotWidth) + 256
+        for row = 1, 7 do            
+            local y = ((row -1) * -slotWidth) - 10
+            local f = CreateFrame('FRAME', tostring('GuildbookGuildFrameGuildBankFrameCol'..column..'Row'..row), self.GuildFrame.GuildBankFrame)
+            f:SetSize(slotWidth, slotWidth)
+            f:SetPoint('TOPLEFT', Guildbook.GuildFrame.GuildBankFrame, 'TOPLEFT', x, y)
+            f:SetBackdrop({
+                edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+                edgeSize = 16,
+                --bgFile = "interface/framegeneral/ui-background-marble",
+                tile = true,
+                tileEdge = false,
+                tileSize = 200,
+                insets = { left = 4, right = 4, top = 4, bottom = 4 }
+            })
+            f.background = f:CreateTexture('$parentBackground', 'BACKGROUND')
+            f.background:SetPoint('TOPLEFT', -10, 10)
+            f.background:SetPoint('BOTTOMRIGHT', 10, -10)
+            f.background:SetTexture(130766)
+            f.icon = f:CreateTexture('$parentBackground', 'ARTWORK')
+            f.icon:SetPoint('TOPLEFT', 2, -2)
+            f.icon:SetPoint('BOTTOMRIGHT', -2, 2)
+            f.data = nil
+
+            self.GuildFrame.GuildBankFrame.BankSlots[slotIdx] = f
+            slotIdx = slotIdx + 1
+        end
+    end
+
+    self.GuildFrame.GuildBankFrame.scrollBarBackgroundTop = self.GuildFrame.GuildBankFrame:CreateTexture('$parentBackgroundTop', 'ARTWORK')
+    self.GuildFrame.GuildBankFrame.scrollBarBackgroundTop:SetTexture(136569)
+    self.GuildFrame.GuildBankFrame.scrollBarBackgroundTop:SetPoint('TOPRIGHT', Guildbook.GuildFrame.GuildBankFrame, 'TOPRIGHT', -3, -4)
+    self.GuildFrame.GuildBankFrame.scrollBarBackgroundTop:SetSize(30, 200)
+    self.GuildFrame.GuildBankFrame.scrollBarBackgroundTop:SetTexCoord(0, 0.5, 0, 0.7)
+    self.GuildFrame.GuildBankFrame.scrollBarBackgroundBottom = self.GuildFrame.GuildBankFrame:CreateTexture('$parentBackgroundBottom', 'ARTWORK')
+    self.GuildFrame.GuildBankFrame.scrollBarBackgroundBottom:SetTexture(136569)
+    self.GuildFrame.GuildBankFrame.scrollBarBackgroundBottom:SetPoint('BOTTOMRIGHT', Guildbook.GuildFrame.GuildBankFrame, 'BOTTOMRIGHT', -4, 4)
+    self.GuildFrame.GuildBankFrame.scrollBarBackgroundBottom:SetSize(30, 60)
+    self.GuildFrame.GuildBankFrame.scrollBarBackgroundBottom:SetTexCoord(0.5, 1.0, 0.2, 0.41)
+
+    self.GuildFrame.GuildBankFrame.RecipesListviewScrollBar = CreateFrame('SLIDER', 'GuildbookGuildFrameRecipesListviewScrollBar', Guildbook.GuildFrame.GuildBankFrame, "UIPanelScrollBarTemplate")
+    self.GuildFrame.GuildBankFrame.RecipesListviewScrollBar:SetPoint('TOPLEFT', Guildbook.GuildFrame.GuildBankFrame, 'TOPRIGHT', -26, -26)
+    self.GuildFrame.GuildBankFrame.RecipesListviewScrollBar:SetPoint('BOTTOMRIGHT', Guildbook.GuildFrame.GuildBankFrame, 'BOTTOMRIGHT', -10, 22)
+    self.GuildFrame.GuildBankFrame.RecipesListviewScrollBar:EnableMouse(true)
+    self.GuildFrame.GuildBankFrame.RecipesListviewScrollBar:SetValueStep(1)
+    self.GuildFrame.GuildBankFrame.RecipesListviewScrollBar:SetValue(1)
+    self.GuildFrame.GuildBankFrame.RecipesListviewScrollBar:SetScript('OnValueChanged', function(self)
+    
+    end)
+
+
+    function self.GuildFrame.GuildBankFrame:RefreshSlots(db)
+        local slot = 1
+        for id, count in pairs(db) do
+            local t = select(10, GetItemInfo(id))
+            self.BankSlots[slot].icon:SetTexture(t)
+            slot = slot + 1
+        end
+    end
+
+
+
+
+
+
+
+
+
+
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function Guildbook:SetupGuildCalenderFrame()
+
+    self.GuildFrame.GuildCalenderFrame:SetScript('OnShow', function(self)
+
+    end)
+
+    self.GuildFrame.GuildCalenderFrame.Header = self.GuildFrame.GuildCalenderFrame:CreateFontString('GuildbookGuildInfoFrameGuildCalenderFrameHeader', 'OVERLAY', 'GameFontNormal')
+    self.GuildFrame.GuildCalenderFrame.Header:SetPoint('BOTTOM', Guildbook.GuildFrame.GuildCalenderFrame, 'TOP', 0, 4)
+    self.GuildFrame.GuildCalenderFrame.Header:SetText('Guild Calender')
+    self.GuildFrame.GuildCalenderFrame.Header:SetTextColor(1,1,1,1)
+    self.GuildFrame.GuildCalenderFrame.Header:SetFont("Fonts\\FRIZQT__.TTF", 12)
 
 
 end
