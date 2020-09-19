@@ -720,6 +720,7 @@ end
 function Guildbook:SetupGuildBankFrame()
 
     local slotBackground = 130766
+    local bankCharacter = nil
 
     self.GuildFrame.GuildBankFrame:SetScript('OnShow', function(self)
         self:BankCharacterSelectDropDown_Init()
@@ -732,13 +733,22 @@ function Guildbook:SetupGuildBankFrame()
     self.GuildFrame.GuildBankFrame.Header:SetFont("Fonts\\FRIZQT__.TTF", 12)
 
     self.GuildFrame.GuildBankFrame.BankCharacterSelectDropDown = CreateFrame('FRAME', 'GuildbookGuildFrameGuildBankFrameBankCharacterSelectDropDown', self.GuildFrame.GuildBankFrame, "UIDropDownMenuTemplate")
-    self.GuildFrame.GuildBankFrame.BankCharacterSelectDropDown:SetPoint('TOPLEFT', self.GuildFrame.GuildBankFrame, 'TOPLEFT', 12, -48)
+    self.GuildFrame.GuildBankFrame.BankCharacterSelectDropDown:SetPoint('TOPLEFT', self.GuildFrame.GuildBankFrame, 'TOPLEFT', 28, -48)
     UIDropDownMenu_SetWidth(self.GuildFrame.GuildBankFrame.BankCharacterSelectDropDown, 150)
     UIDropDownMenu_SetText(self.GuildFrame.GuildBankFrame.BankCharacterSelectDropDown, 'Select Bank Character')
     function self.GuildFrame.GuildBankFrame:BankCharacterSelectDropDown_Init()
         UIDropDownMenu_Initialize(self.BankCharacterSelectDropDown, function(self, level, menuList)
+            GuildRoster()
+            local gbc = {}
+            local totalMembers, onlineMembers, _ = GetNumGuildMembers()
+            for i = 1, totalMembers do
+                local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, guid = GetGuildRosterInfo(i)
+                if publicNote:lower():find('guildbank') then
+                    table.insert(gbc, name:match("^(.-)%-"))
+                end
+            end
             local info = UIDropDownMenu_CreateInfo()
-            for k, p in pairs({'Copperbolts', 'Windstalker'}) do
+            for k, p in pairs(gbc) do
                 info.text = p
                 info.hasArrow = false
                 info.keepShownOnClick = false
@@ -746,12 +756,15 @@ function Guildbook:SetupGuildBankFrame()
                     Guildbook:SendGuildBankCommitRequest(p)
                     -- for now delay the data request to allow commit checks first, could look to improve this or at the very least just reduce the delay
                     C_Timer.After(3, function()
-                        local ts = date('*t', Guildbook.GuildBankCommit.Commit)
-                        ts.min = string.format('%02d', ts.min)
-                        Guildbook.GuildFrame.GuildBankFrame.CommitInfo:SetText(string.format('Latest Commit: %s:%s:%s  %s-%s-%s', ts.hour, ts.min, ts.sec, ts.day, ts.month, ts.year))
-                        Guildbook.GuildFrame.GuildBankFrame.CommitSource:SetText(string.format('Commit Source: %s', Guildbook.GuildBankCommit.Character))
-                        Guildbook.GuildFrame.GuildBankFrame.CommitBankCharacter:SetText(string.format('Bank Character: %s', Guildbook.GuildBankCommit.BankCharacter))
-                        Guildbook:SendGuildBankDataRequest()
+                        if Guildbook.GuildBankCommit.Character and Guildbook.GuildBankCommit.Commit and Guildbook.GuildBankCommit.BankCharacter then
+                            bankCharacter = p
+                            local ts = date('*t', Guildbook.GuildBankCommit.Commit)
+                            ts.min = string.format('%02d', ts.min)
+                            Guildbook.GuildFrame.GuildBankFrame.CommitInfo:SetText(string.format('Latest Commit: %s:%s:%s  %s-%s-%s', ts.hour, ts.min, ts.sec, ts.day, ts.month, ts.year))
+                            Guildbook.GuildFrame.GuildBankFrame.CommitSource:SetText(string.format('Commit Source: %s', Guildbook.GuildBankCommit.Character))
+                            Guildbook.GuildFrame.GuildBankFrame.CommitBankCharacter:SetText(string.format('Bank Character: %s', Guildbook.GuildBankCommit.BankCharacter))
+                            Guildbook:SendGuildBankDataRequest()
+                        end
                     end)
                     DEBUG('requesting guild bank data from: '..p)
                 end
@@ -761,7 +774,7 @@ function Guildbook:SetupGuildBankFrame()
     end
 
     self.GuildFrame.GuildBankFrame.CommitInfo = self.GuildFrame.GuildBankFrame:CreateFontString('$parentCommitInfo', 'OVERLAY', 'GameFontNormalSmall')
-    self.GuildFrame.GuildBankFrame.CommitInfo:SetPoint('TOPLEFT', Guildbook.GuildFrame.GuildBankFrame, 'TOPLEFT', 16, -80)
+    self.GuildFrame.GuildBankFrame.CommitInfo:SetPoint('TOP', Guildbook.GuildFrame.GuildBankFrame.BankCharacterSelectDropDown, 'BOTTOM', 0, -2)
     self.GuildFrame.GuildBankFrame.CommitInfo:SetSize(220, 20)
     self.GuildFrame.GuildBankFrame.CommitInfo:SetTextColor(1,1,1,1)
     self.GuildFrame.GuildBankFrame.CommitSource = self.GuildFrame.GuildBankFrame:CreateFontString('$parentCommitSource', 'OVERLAY', 'GameFontNormalSmall')
@@ -798,22 +811,16 @@ function Guildbook:SetupGuildBankFrame()
             f.icon = f:CreateTexture('$parentBackground', 'ARTWORK')
             f.icon:SetPoint('TOPLEFT', 2, -2)
             f.icon:SetPoint('BOTTOMRIGHT', -2, 2)
-            f.data = nil
+            f.count = f:CreateFontString('$parentCount', 'OVERLAY', 'GameFontNormal') --Small')
+            f.count:SetPoint('BOTTOMRIGHT', -4, 3)
+            f.count:SetTextColor(1,1,1,1)
+            f.itemID = nil
 
             f:SetScript('OnEnter', function(self)
-                if self.data then
+                if self.itemID then
                     GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
-                    local link = select(2, GetItemInfo(self.data.Id))
-                    if link then
-                        GameTooltip:SetHyperlink(link)
-                        GameTooltip:AddLine(' ')
-                        GameTooltip:AddLine('|cffffffffGuild Bank Count: '..self.data.Count..'|r')
-                        GameTooltip:Show()
-                    else
-                        GameTooltip:AddLine(' ')
-                        GameTooltip:AddLine('|cffffffffGuild Bank Count: '..self.data.Count..'|r')
-                        GameTooltip:Show()
-                    end
+                    GameTooltip:SetItemByID(self.itemID)
+                    GameTooltip:Show()
                 else
                     GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
                 end
@@ -849,13 +856,20 @@ function Guildbook:SetupGuildBankFrame()
     end)
 
 
-    function self.GuildFrame.GuildBankFrame:RefreshSlots(db)
-        local slot = 1
-        for id, count in pairs(db) do
-            local t = select(10, GetItemInfo(id))
-            self.BankSlots[slot].icon:SetTexture(t)
-            self.BankSlots[slot].data = { Id = id, Count = count }
-            slot = slot + 1
+    function self.GuildFrame.GuildBankFrame:RefreshSlots()
+        if bankCharacter and GUILDBOOK_CHARACTER['GuildBank'] and GUILDBOOK_CHARACTER['GuildBank'][bankCharacter] then
+            local slot = 1
+            for id, count in pairs(GUILDBOOK_CHARACTER['GuildBank'][bankCharacter].Data) do
+                self.BankSlots[slot].icon:SetTexture(C_Item.GetItemIconByID(id))
+                self.BankSlots[slot].count:SetText(count)
+                self.BankSlots[slot].itemID = id
+                -- local item = Item:CreateFromItemID(id)
+                -- item:ContinueOnItemLoad(function()
+                --     self.BankSlots[slot].icon:SetTexture(item:GetItemIcon())
+                --     self.BankSlots[slot].data = { ItemID = id, Count = count }
+                -- end)
+                slot = slot + 1
+            end
         end
     end
 

@@ -651,20 +651,34 @@ function Guildbook:OnGuildBankDataRequested(data, distribution, sender)
     if distribution == 'WHISPER' then
         local response = {
             type = 'GUILD_BANK_DATA_RESPONSE',
-            payload = GUILDBOOK_CHARACTER['GuildBank'][data.payload].Data,
+            payload = {
+                Data = GUILDBOOK_CHARACTER['GuildBank'][data.payload].Data,
+                Commit = GUILDBOOK_CHARACTER['GuildBank'][data.payload].Commit,
+                Bank = data.payload,
+            }
         }
         self:Transmit(response, 'WHISPER', sender, 'BULK')
-        DEBUG('sending guild bank data to: '..sender)
+        DEBUG('sending guild bank data to: '..sender..' as requested')
     end
 end
 
 function Guildbook:OnGuildBankDataReceived(data, distribution, sender)
-    if distribution == 'WHISPER' then
-        for itemID, count in pairs(data.payload) do
-            --print(itemID, count)
+    if distribution == 'WHISPER' or distribution == 'GUILD' then
+        if not GUILDBOOK_CHARACTER['GuildBank'] then
+            GUILDBOOK_CHARACTER['GuildBank'] = {
+                [data.payload.Bank] = {
+                    Commit = data.payload.Commit,
+                    Data = data.payload.Data,
+                }
+            }
+        else
+            GUILDBOOK_CHARACTER['GuildBank'][data.payload] = {
+                Commit = data.payload.Commit,
+                Data = data.payload.Data,
+            }
         end
     end
-    self.GuildFrame.GuildBankFrame:RefreshSlots(data.payload)
+    self.GuildFrame.GuildBankFrame:RefreshSlots()
 end
 
 -- TODO: add script for when a player drops a prof
@@ -746,8 +760,18 @@ function Guildbook:ScanCharacterContainers()
                     end
                 end
             end
-        end
 
+            local bankUpdate = {
+                type = 'GUILD_BANK_DATA_RESPONSE',
+                payload = {
+                    Data = GUILDBOOK_CHARACTER['GuildBank'][name].Data,
+                    Commit = GUILDBOOK_CHARACTER['GuildBank'][name].Commit,
+                    Bank = name,
+                }
+            }
+            self:Transmit(bankUpdate, 'GUILD', sender, 'BULK')
+            DEBUG('sending guild bank data due to new commit')
+        end
     end
 end
 
