@@ -54,17 +54,19 @@ Guildbook.GuildFrame = {
     ColumnHeaders = {
         { Text = 'Rank', Width = 70, },
         { Text = 'Note', Width = 80, },
-        { Text = 'Main Spec', Width = 90, },
-        { Text = 'Profession 1', Width = 110, },
-        { Text = 'Profession 2', Width = 110, },
+        { Text = 'Main Spec', Width = 80, },
+        { Text = 'Profession 1', Width = 90, },
+        { Text = 'Profession 2', Width = 90, },
+        { Text = 'Online', Width = 65, },
     },
     ColumnTabs = {},
     ColumnWidths = {
         Rank = 67.0,
         Note = 77.0,
-        MainSpec = 87.0,
-        Profession1 = 107.0,
-        Profession2 = 107.0,
+        MainSpec = 77.0,
+        Profession1 = 87.0,
+        Profession2 = 87.0,
+        Online = 52.0,
     },
     ColumnMarginX = 1.0,
 }
@@ -101,11 +103,11 @@ function Guildbook:Init()
     DEBUG('running init')
 
     -- adjust blizz layout and add widget
-    GuildFrameGuildListToggleButton:Hide()
+    --GuildFrameGuildListToggleButton:Hide()
 
     GuildFrame:HookScript('OnShow', function(self)
-        self:SetWidth(800)
-        FriendsFrame:SetWidth(800)
+        self:SetWidth(810)
+        FriendsFrame:SetWidth(810)
     end)
     
     GuildFrame:HookScript('OnHide', function(self)
@@ -125,7 +127,8 @@ function Guildbook:Init()
     GuildInfoTextBackground:SetPoint('TOPLEFT', GuildInfoFrame, 'TOPLEFT', 11, -32)
     GuildInfoTextBackground:SetPoint('BOTTOMRIGHT', GuildInfoFrame, 'BOTTOMRIGHT', -11, 40)
     GuildInfoFrameScrollFrame:SetPoint('BOTTOMRIGHT', GuildInfoTextBackground, 'BOTTOMRIGHT', -31, 7)
-    
+
+   
     for k, col in ipairs(self.GuildFrame.ColumnHeaders) do
         local tab = CreateFrame('BUTTON', 'GuildbookGuildFrameColumnHeader'..col.Text, GuildFrame)--, "OptionsFrameTabButtonTemplate")
         if col.Text == 'Rank' then
@@ -143,7 +146,7 @@ function Guildbook:Init()
         tab.background:SetAllPoints(tab)
         tab.background:SetTexture(131139)
         tab.background:SetTexCoord(0.0, 0.00, 0.0 ,0.75, 0.97, 0.0, 0.97, 0.75)
-        if k < 3 then -- for now so it only works on blizz columns
+        if (col.Text == 'Rank') or (col.Text == 'Note') or (col.Text == 'Online') then -- for now so it only works on blizz columns
             tab:SetScript('OnClick', function()
                 SortGuildRoster(col.Text);
             end)
@@ -154,7 +157,7 @@ function Guildbook:Init()
     GuildFrameNotesText:ClearAllPoints()
     GuildFrameNotesText:SetPoint('TOPLEFT', GuildFrameNotesLabel, 'BOTTOMLEFT', 0.0, -3.0)
     GuildFrameNotesText:SetPoint('BOTTOMRIGHT', GuildFrame, 'BOTTOMRIGHT', -12.0, 30.0)
-    
+   
     GuildListScrollFrame:ClearAllPoints()
     GuildListScrollFrame:SetPoint('TOPLEFT', GuildFrame, 'TOPLEFT', 11.0, -87.0)
     GuildListScrollFrame:SetPoint('TOPRIGHT', GuildFrame, 'TOPRIGHT', -32.0, -87.0)
@@ -171,7 +174,7 @@ function Guildbook:Init()
         -- hook the click event
         _G['GuildFrameButton'..i]:HookScript('OnClick', function(self, button)
             if (button == 'LeftButton') and (GuildMemberDetailFrame:IsVisible()) then
-                print(_G['GuildFrameButton'..i..'Name']:GetText())
+                --print(_G['GuildFrameButton'..i..'Name']:GetText())
                 Guildbook.GuildMemberDetailFrame:ClearText()
                 local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, GUID = GetGuildRosterInfo(GetGuildRosterSelection())
                 if isOnline then
@@ -216,6 +219,11 @@ function Guildbook:Init()
     GuildFrameButton1.GuildbookColumnProfession2:SetPoint('LEFT', GuildFrameButton1.GuildbookColumnProfession1, 'RIGHT', self.GuildFrame.ColumnMarginX, 0)
     GuildFrameButton1.GuildbookColumnProfession2:SetSize(self.GuildFrame.ColumnWidths['Profession2'], GuildFrameButton1:GetHeight())
     formatGuildFrameButton(GuildFrameButton1.GuildbookColumnProfession2, {1,1,1,1})
+
+    GuildFrameButton1.GuildbookColumnOnline = GuildFrameButton1:CreateFontString('$parentGuildbookOnline', 'OVERLAY', 'GameFontNormalSmall')
+    GuildFrameButton1.GuildbookColumnOnline:SetPoint('LEFT', GuildFrameButton1.GuildbookColumnProfession2, 'RIGHT', self.GuildFrame.ColumnMarginX, 0)
+    GuildFrameButton1.GuildbookColumnOnline:SetSize(self.GuildFrame.ColumnWidths['Online'], GuildFrameButton1:GetHeight())
+    formatGuildFrameButton(GuildFrameButton1.GuildbookColumnOnline, {1,1,1,1})
     
     for i = 2, 13 do
         local button = _G['GuildFrameButton'..i]
@@ -248,12 +256,18 @@ function Guildbook:Init()
         button.GuildbookColumnProfession2:SetPoint('LEFT', button.GuildbookColumnProfession1, 'RIGHT', self.GuildFrame.ColumnMarginX, 0)
         button.GuildbookColumnProfession2:SetSize(self.GuildFrame.ColumnWidths['Profession2'], button:GetHeight())
         formatGuildFrameButton(button.GuildbookColumnProfession2, {1,1,1,1})   
+
+        button.GuildbookColumnOnline = button:CreateFontString('$parentGuildbookOnline', 'OVERLAY', 'GameFontNormalSmall')
+        button.GuildbookColumnOnline:SetPoint('LEFT', button.GuildbookColumnProfession2, 'RIGHT', self.GuildFrame.ColumnMarginX, 0)
+        button.GuildbookColumnOnline:SetSize(self.GuildFrame.ColumnWidths['Online'], button:GetHeight())
+        formatGuildFrameButton(button.GuildbookColumnOnline, {1,1,1,1})   
     end
     
     hooksecurefunc("GuildStatus_Update", function()
         local numTotal, numOnline, numOnlineAndMobile = GetNumGuildMembers()
         for i = 1, 13 do
             local button = _G['GuildFrameButton'..i]
+            local idx = tonumber(button.guildIndex)
             button:Show()
             --clear text
             button.GuildbookColumnRank:SetText('')
@@ -261,7 +275,31 @@ function Guildbook:Init()
             button.GuildbookColumnMainSpec:SetText('')
             button.GuildbookColumnProfession1:SetText('')
             button.GuildbookColumnProfession2:SetText('')
-            local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, GUID = GetGuildRosterInfo(tonumber(button.guildIndex))
+            button.GuildbookColumnOnline:SetText('')
+            local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, GUID = GetGuildRosterInfo(idx)
+            local offline = 'online'
+            if isOnline == false then            
+                local yearsOffline, monthsOffline, daysOffline, hoursOffline = GetGuildRosterLastOnline(idx)
+                --print(string.format('%d, %s - years %s, months %s, days %s, hours %s', idx, name, yearsOffline, monthsOffline, daysOffline, hoursOffline))
+                if yearsOffline and yearsOffline > 0 then
+                    offline = string.format('%s years', yearsOffline)
+                else
+                    if monthsOffline and monthsOffline > 0 then
+                        offline = string.format('%s months', monthsOffline)
+                    else
+                        if daysOffline and daysOffline > 0 then
+                            offline = string.format('%s days', daysOffline)
+                        else
+                            if hoursOffline and hoursOffline > 0 then
+                                offline = string.format('%s hours', hoursOffline)
+                            else
+                                offline = '< an hour'
+                            end
+                        end
+                    end
+                end
+                --print('status, '..offline)
+            end
             -- update font colours
             if isOnline == false then
                 formatGuildFrameButton(button.GuildbookColumnRank, {0.5,0.5,0.5,1})
@@ -269,18 +307,22 @@ function Guildbook:Init()
                 formatGuildFrameButton(button.GuildbookColumnMainSpec, {0.5,0.5,0.5,1})
                 formatGuildFrameButton(button.GuildbookColumnProfession1, {0.5,0.5,0.5,1})
                 formatGuildFrameButton(button.GuildbookColumnProfession2, {0.5,0.5,0.5,1})
+                formatGuildFrameButton(button.GuildbookColumnOnline, {0.5,0.5,0.5,1})
             else
                 formatGuildFrameButton(button.GuildbookColumnRank, {1,1,1,1})
                 formatGuildFrameButton(button.GuildbookColumnNote, {1,1,1,1})
                 formatGuildFrameButton(button.GuildbookColumnMainSpec, {1,1,1,1})
                 formatGuildFrameButton(button.GuildbookColumnProfession1, {1,1,1,1})
                 formatGuildFrameButton(button.GuildbookColumnProfession2, {1,1,1,1})
+                formatGuildFrameButton(button.GuildbookColumnOnline, {1,1,1,1})
             end                
             --change class text colour
             _G['GuildFrameButton'..i..'Class']:SetText(string.format('%s%s|r', self.Data.Class[class].FontColour, classDisplayName))
             -- set known columns
             button.GuildbookColumnRank:SetText(rankName)    
             button.GuildbookColumnNote:SetText(publicNote)
+            --offline = _G['GuildFrameGuildStatusButton'..idx..'Online']:GetText()
+            button.GuildbookColumnOnline:SetText(offline)
             -- clear unknown columns
             button.GuildbookColumnMainSpec:SetText('-')
             button.GuildbookColumnProfession1:SetText('-')
@@ -293,9 +335,12 @@ function Guildbook:Init()
                         local ms, os = GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]['MainSpec'], GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]['OffSpec']
                         local prof1 = GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]['Profession1']
                         local prof2 = GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]['Profession2']
-                        button.GuildbookColumnMainSpec:SetText(string.format('%s %s', self.Data.SpecFontStringIconSMALL[GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]['Class']][ms], ms))                
-                        button.GuildbookColumnProfession1:SetText(string.format('%s %s', self.Data.Profession[prof1].FontStringIconSMALL, prof1))
-                        button.GuildbookColumnProfession2:SetText(string.format('%s %s', self.Data.Profession[prof2].FontStringIconSMALL, prof2))
+                        button.GuildbookColumnMainSpec:SetText(ms)
+                        --button.GuildbookColumnMainSpec:SetText(string.format('%s %s', self.Data.SpecFontStringIconSMALL[GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]['Class']][ms], ms))
+                        button.GuildbookColumnProfession1:SetText(prof1)
+                        button.GuildbookColumnProfession2:SetText(prof2)
+                        -- button.GuildbookColumnProfession1:SetText(string.format('%s %s', self.Data.Profession[prof1].FontStringIconSMALL, prof1))
+                        -- button.GuildbookColumnProfession2:SetText(string.format('%s %s', self.Data.Profession[prof2].FontStringIconSMALL, prof2))
                     end
                 end
             end
