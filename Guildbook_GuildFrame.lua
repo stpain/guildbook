@@ -862,7 +862,7 @@ function Guildbook:SetupGuildBankFrame()
     self.GuildFrame.GuildBankFrame.BankSlotsScrollBar:SetValue(1)
     self.GuildFrame.GuildBankFrame.BankSlotsScrollBar:SetMinMaxValues(1,3)
     self.GuildFrame.GuildBankFrame.BankSlotsScrollBar:SetScript('OnValueChanged', function(self)
-    
+        Guildbook.GuildFrame.GuildBankFrame:RefreshSlots()
     end)
 
     self.GuildFrame.GuildBankFrame.BankData = {}
@@ -901,7 +901,8 @@ function Guildbook:SetupGuildBankFrame()
 
     function self.GuildFrame.GuildBankFrame:RefreshSlots()
         if bankCharacter and GUILDBOOK_CHARACTER['GuildBank'] and GUILDBOOK_CHARACTER['GuildBank'][bankCharacter] then
-            local scrollPos = self.BankSlotsScrollBar:GetValue()
+            local scrollPos = math.floor(self.BankSlotsScrollBar:GetValue())
+            print(scrollPos)
             for i = 1, 98 do
                 if Guildbook.GuildFrame.GuildBankFrame.BankData[i + ((scrollPos - 1) * 98)] then
                     local item = Guildbook.GuildFrame.GuildBankFrame.BankData[i + ((scrollPos - 1) * 98)]
@@ -909,6 +910,10 @@ function Guildbook:SetupGuildBankFrame()
                     self.BankSlots[i].count:SetText(item.Count)
                     self.BankSlots[i].itemID = item.ItemID
                     DEBUG(string.format('updating slot %s with item id %s', i, item.ItemID))
+                else
+                    self.BankSlots[i].icon:SetTexture(nil)
+                    self.BankSlots[i].count:SetText(' ')
+                    self.BankSlots[i].itemID = nil
                 end
 
             end
