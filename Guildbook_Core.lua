@@ -103,7 +103,7 @@ function Guildbook:Init()
     DEBUG('running init')
 
     -- adjust blizz layout and add widget
-    --GuildFrameGuildListToggleButton:Hide()
+    GuildFrameGuildListToggleButton:Hide()
 
     GuildFrame:HookScript('OnShow', function(self)
         self:SetWidth(810)
@@ -415,15 +415,32 @@ function Guildbook:Init()
         end)
     end
 
-    self.BankFrameRequestGuildBank = CreateFrame('BUTTON', 'GuildbookGuildFrameRosterButton', BankFrame, "UIPanelButtonTemplate")
-    self.BankFrameRequestGuildBank:SetPoint('TOP', BankFrame, 'TOP', -10, -9)
-    self.BankFrameRequestGuildBank:SetSize(85, 22)
-    self.BankFrameRequestGuildBank:SetText('Scan Bank')
-    self.BankFrameRequestGuildBank:SetNormalFontObject(GameFontNormalSmall)
-    self.BankFrameRequestGuildBank:SetHighlightFontObject(GameFontNormalSmall)
-    self.BankFrameRequestGuildBank:SetScript('OnClick', function(self)
-        print('scanning bank')
+    --134441
+
+    self.ScanGuildBankButton = CreateFrame('BUTTON', 'GuildbookBankFrameScanBankButton', BankFrame)
+    self.ScanGuildBankButton:SetPoint('TOPLEFT', BankCloseButton, 'BOTTOMRIGHT', -10, -50)
+    self.ScanGuildBankButton:SetSize(60, 60)
+    self.ScanGuildBankButton.background = self.ScanGuildBankButton:CreateTexture('$parentBakground', 'BACKGROUND')
+    self.ScanGuildBankButton.background:SetAllPoints(self.ScanGuildBankButton)
+    self.ScanGuildBankButton.background:SetTexture(136831)
+    self.ScanGuildBankButton.icon = self.ScanGuildBankButton:CreateTexture('$parentBakground', 'ARTWORK')
+    self.ScanGuildBankButton.icon:SetPoint('TOPLEFT', 4, -12)
+    self.ScanGuildBankButton.icon:SetPoint('BOTTOMRIGHT', -28, 20)
+    self.ScanGuildBankButton.icon:SetTexture(136453)
+    -- self.ScanGuildBankButton:SetText('Guildbook Scan Bank')
+    -- self.ScanGuildBankButton:SetNormalFontObject(GameFontNormalSmall)
+    -- self.ScanGuildBankButton:SetHighlightFontObject(GameFontNormalSmall)
+    self.ScanGuildBankButton:SetScript('OnClick', function(self)
         Guildbook:ScanCharacterContainers()
+        PRINT(Guildbook.FONT_COLOUR, 'scanning bank, sending data to all online guild members.')
+    end)
+    self.ScanGuildBankButton:SetScript('OnEnter', function(self)
+        GameTooltip:SetOwner(self, 'ANCHOR_RIGHT', -28, -10)
+        GameTooltip:AddLine('Guildbook: Scan bank and update online players.')
+        GameTooltip:Show()
+    end)
+    self.ScanGuildBankButton:SetScript('OnLeave', function(self)
+        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
     end)
 
     
@@ -723,6 +740,7 @@ function Guildbook:OnGuildBankDataReceived(data, distribution, sender)
             }
         end
     end
+    self.GuildFrame.GuildBankFrame:ProcessBankData(data.payload.Data)
     self.GuildFrame.GuildBankFrame:RefreshSlots()
 end
 

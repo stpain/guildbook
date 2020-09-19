@@ -640,7 +640,7 @@ function Guildbook:SetupTradeSkillFrame()
     self.GuildFrame.TradeSkillFrame.ReagentsListviewRows = {}
     self.GuildFrame.TradeSkillFrame.ReagentsListviewParent = CreateFrame('FRAME', 'GuildbookGuildFrameReagentsListviewParent', self.GuildFrame.TradeSkillFrame)
     self.GuildFrame.TradeSkillFrame.ReagentsListviewParent:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewParent, 'BOTTOMRIGHT', 28, 0)
-    self.GuildFrame.TradeSkillFrame.ReagentsListviewParent:SetSize(240, 210)
+    self.GuildFrame.TradeSkillFrame.ReagentsListviewParent:SetSize(250, 210)
     self.GuildFrame.TradeSkillFrame.ReagentsListviewParent.background = self.GuildFrame.TradeSkillFrame.ReagentsListviewParent:CreateTexture('$parentBackground', 'BACKGROND')
     self.GuildFrame.TradeSkillFrame.ReagentsListviewParent.background:SetAllPoints(Guildbook.GuildFrame.TradeSkillFrame.ReagentsListviewParent)
     self.GuildFrame.TradeSkillFrame.ReagentsListviewParent.background:SetColorTexture(0.2,0.2,0.2,0.2)
@@ -719,7 +719,6 @@ end
 
 function Guildbook:SetupGuildBankFrame()
 
-    --local slotBackground = 130766
     local bankCharacter = nil
 
     self.GuildFrame.GuildBankFrame:SetScript('OnShow', function(self)
@@ -790,7 +789,7 @@ function Guildbook:SetupGuildBankFrame()
     self.GuildFrame.GuildBankFrame.BankSlots = {}
     local slotIdx, slotWidth = 1, 36
     for column = 1, 14 do
-        local x = ((column - 1) * slotWidth) + 256
+        local x = ((column - 1) * slotWidth) + 266
         for row = 1, 7 do            
             local y = ((row -1) * -slotWidth) - 10
             local f = CreateFrame('FRAME', tostring('GuildbookGuildFrameGuildBankFrameCol'..column..'Row'..row), self.GuildFrame.GuildBankFrame)
@@ -855,30 +854,63 @@ function Guildbook:SetupGuildBankFrame()
     self.GuildFrame.GuildBankFrame.scrollBarBackgroundBottom:SetSize(30, 60)
     self.GuildFrame.GuildBankFrame.scrollBarBackgroundBottom:SetTexCoord(0.5, 1.0, 0.2, 0.41)
 
-    self.GuildFrame.GuildBankFrame.RecipesListviewScrollBar = CreateFrame('SLIDER', 'GuildbookGuildFrameRecipesListviewScrollBar', Guildbook.GuildFrame.GuildBankFrame, "UIPanelScrollBarTemplate")
-    self.GuildFrame.GuildBankFrame.RecipesListviewScrollBar:SetPoint('TOPLEFT', Guildbook.GuildFrame.GuildBankFrame, 'TOPRIGHT', -26, -26)
-    self.GuildFrame.GuildBankFrame.RecipesListviewScrollBar:SetPoint('BOTTOMRIGHT', Guildbook.GuildFrame.GuildBankFrame, 'BOTTOMRIGHT', -10, 22)
-    self.GuildFrame.GuildBankFrame.RecipesListviewScrollBar:EnableMouse(true)
-    self.GuildFrame.GuildBankFrame.RecipesListviewScrollBar:SetValueStep(1)
-    self.GuildFrame.GuildBankFrame.RecipesListviewScrollBar:SetValue(1)
-    self.GuildFrame.GuildBankFrame.RecipesListviewScrollBar:SetScript('OnValueChanged', function(self)
+    self.GuildFrame.GuildBankFrame.BankSlotsScrollBar = CreateFrame('SLIDER', 'GuildbookGuildFrameBankSlotsScrollBar', Guildbook.GuildFrame.GuildBankFrame, "UIPanelScrollBarTemplate")
+    self.GuildFrame.GuildBankFrame.BankSlotsScrollBar:SetPoint('TOPLEFT', Guildbook.GuildFrame.GuildBankFrame, 'TOPRIGHT', -26, -26)
+    self.GuildFrame.GuildBankFrame.BankSlotsScrollBar:SetPoint('BOTTOMRIGHT', Guildbook.GuildFrame.GuildBankFrame, 'BOTTOMRIGHT', -10, 22)
+    self.GuildFrame.GuildBankFrame.BankSlotsScrollBar:EnableMouse(true)
+    self.GuildFrame.GuildBankFrame.BankSlotsScrollBar:SetValueStep(1)
+    self.GuildFrame.GuildBankFrame.BankSlotsScrollBar:SetValue(1)
+    self.GuildFrame.GuildBankFrame.BankSlotsScrollBar:SetMinMaxValues(1,3)
+    self.GuildFrame.GuildBankFrame.BankSlotsScrollBar:SetScript('OnValueChanged', function(self)
     
     end)
 
+    self.GuildFrame.GuildBankFrame.BankData = {}
+    function self.GuildFrame.GuildBankFrame:ProcessBankData(data)
+        wipe(self.BankData)
+        local c = 0
+        for id, count in pairs(data) do
+            table.insert(Guildbook.GuildFrame.GuildBankFrame.BankData, {
+                ItemID = id,
+                Count = count,
+            })
+            c = c + 1
+        end
+        DEBUG(string.format('processed %s bank items from data', c))
+        self.BankSlotsScrollBar:SetValue(1)
+    end
+
+    -- function self.GuildFrame.GuildBankFrame:RefreshSlots()
+    --     if bankCharacter and GUILDBOOK_CHARACTER['GuildBank'] and GUILDBOOK_CHARACTER['GuildBank'][bankCharacter] then
+    --         local slot, c = 1, 1
+    --         for id, count in pairs(GUILDBOOK_CHARACTER['GuildBank'][bankCharacter].Data) do
+    --             self.BankSlots[slot].icon:SetTexture(C_Item.GetItemIconByID(id))
+    --             self.BankSlots[slot].count:SetText(count)
+    --             self.BankSlots[slot].itemID = id
+
+    --             -- NOTE: leaving this here in case its required in future updates etc
+    --             -- local item = Item:CreateFromItemID(id)
+    --             -- item:ContinueOnItemLoad(function()
+    --             --     self.BankSlots[slot].icon:SetTexture(item:GetItemIcon())
+    --             --     self.BankSlots[slot].data = { ItemID = id, Count = count }
+    --             -- end)
+    --             slot = slot + 1
+    --         end
+    --     end
+    -- end
 
     function self.GuildFrame.GuildBankFrame:RefreshSlots()
         if bankCharacter and GUILDBOOK_CHARACTER['GuildBank'] and GUILDBOOK_CHARACTER['GuildBank'][bankCharacter] then
-            local slot = 1
-            for id, count in pairs(GUILDBOOK_CHARACTER['GuildBank'][bankCharacter].Data) do
-                self.BankSlots[slot].icon:SetTexture(C_Item.GetItemIconByID(id))
-                self.BankSlots[slot].count:SetText(count)
-                self.BankSlots[slot].itemID = id
-                -- local item = Item:CreateFromItemID(id)
-                -- item:ContinueOnItemLoad(function()
-                --     self.BankSlots[slot].icon:SetTexture(item:GetItemIcon())
-                --     self.BankSlots[slot].data = { ItemID = id, Count = count }
-                -- end)
-                slot = slot + 1
+            local scrollPos = self.BankSlotsScrollBar:GetValue()
+            for i = 1, 98 do
+                if Guildbook.GuildFrame.GuildBankFrame.BankData[i + ((scrollPos - 1) * 98)] then
+                    local item = Guildbook.GuildFrame.GuildBankFrame.BankData[i + ((scrollPos - 1) * 98)]
+                    self.BankSlots[i].icon:SetTexture(C_Item.GetItemIconByID(item.ItemID))
+                    self.BankSlots[i].count:SetText(item.Count)
+                    self.BankSlots[i].itemID = item.ItemID
+                    DEBUG(string.format('updating slot %s with item id %s', i, item.ItemID))
+                end
+
             end
         end
     end
