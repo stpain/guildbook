@@ -624,7 +624,7 @@ function Guildbook:OnGuildBankCommitReceived(data, distribution, sender)
                     Guildbook.GuildBankCommit['BankCharacter'] = data.payload.Character
                     DEBUG('cached first response')
                 else
-                    if tonumber(data.payload) > tonumber(Guildbook.GuildBankCommit['Commit']) then
+                    if tonumber(data.payload.Commit) > tonumber(Guildbook.GuildBankCommit['Commit']) then
                         Guildbook.GuildBankCommit['Commit'] = data.payload.Commit
                         Guildbook.GuildBankCommit['Character'] = sender
                         Guildbook.GuildBankCommit['BankCharacter'] = data.payload.Character

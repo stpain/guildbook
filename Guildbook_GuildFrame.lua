@@ -719,7 +719,7 @@ end
 
 function Guildbook:SetupGuildBankFrame()
 
-    local slotBackground = 130766
+    --local slotBackground = 130766
     local bankCharacter = nil
 
     self.GuildFrame.GuildBankFrame:SetScript('OnShow', function(self)
@@ -753,6 +753,7 @@ function Guildbook:SetupGuildBankFrame()
                 info.hasArrow = false
                 info.keepShownOnClick = false
                 info.func = function() 
+                    Guildbook.GuildFrame.GuildBankFrame.ResetSlots()
                     Guildbook:SendGuildBankCommitRequest(p)
                     -- for now delay the data request to allow commit checks first, could look to improve this or at the very least just reduce the delay
                     C_Timer.After(3, function()
@@ -831,6 +832,15 @@ function Guildbook:SetupGuildBankFrame()
 
             self.GuildFrame.GuildBankFrame.BankSlots[slotIdx] = f
             slotIdx = slotIdx + 1
+        end
+    end
+
+    function self.GuildFrame.GuildBankFrame:ResetSlots()
+        for k, slot in pairs(Guildbook.GuildFrame.GuildBankFrame.BankSlots) do
+            slot.background:SetTexture(130766)
+            slot.icon:SetTexture(nil)
+            slot.count:SetText(' ')
+            slot.itemID = nil
         end
     end
 
