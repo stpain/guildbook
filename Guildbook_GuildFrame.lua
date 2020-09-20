@@ -40,8 +40,12 @@ function Guildbook:SetupStatsFrame()
     self.GuildFrame.StatsFrame.Header:SetTextColor(1,1,1,1)
     self.GuildFrame.StatsFrame.Header:SetFont("Fonts\\FRIZQT__.TTF", 12)
 
+    self.GuildFrame.StatsFrame.MinLevelSlider_Title = self.GuildFrame.StatsFrame:CreateFontString('GuildbookGuildInfoFrameMinLevelSliderTitle', 'OVERLAY', 'GameFontNormal')
+    self.GuildFrame.StatsFrame.MinLevelSlider_Title:SetPoint('TOPLEFT', self.GuildFrame.StatsFrame, 'TOPLEFT', 10, -10)
+    self.GuildFrame.StatsFrame.MinLevelSlider_Title:SetText('Character min level')
+
     self.GuildFrame.StatsFrame.MinLevelSlider = CreateFrame('SLIDER', 'GuildbookGuildInfoFrameMinLevelSlider', self.GuildFrame.StatsFrame, 'OptionsSliderTemplate')
-    self.GuildFrame.StatsFrame.MinLevelSlider:SetPoint('TOPLEFT', 35, -80)
+    self.GuildFrame.StatsFrame.MinLevelSlider:SetPoint('LEFT', self.GuildFrame.StatsFrame.MinLevelSlider_Title, 'RIGHT', 5, 0)
     self.GuildFrame.StatsFrame.MinLevelSlider:SetThumbTexture("Interface/Buttons/UI-SliderBar-Button-Horizontal")
     self.GuildFrame.StatsFrame.MinLevelSlider:SetSize(125, 16)
     self.GuildFrame.StatsFrame.MinLevelSlider:SetOrientation('HORIZONTAL')
@@ -55,9 +59,6 @@ function Guildbook:SetupStatsFrame()
         Guildbook.GuildFrame.StatsFrame:GetClassRoleFromCache()
     end)
     self.GuildFrame.StatsFrame.MinLevelSlider.tooltipText = 'Show data for characters with a minimun level'
-    self.GuildFrame.StatsFrame.MinLevelSlider_Title = self.GuildFrame.StatsFrame:CreateFontString('GuildbookGuildInfoFrameMinLevelSliderTitle', 'OVERLAY', 'GameFontNormal')
-    self.GuildFrame.StatsFrame.MinLevelSlider_Title:SetPoint('BOTTOM', self.GuildFrame.StatsFrame.MinLevelSlider, 'TOP', 0, 5)
-    self.GuildFrame.StatsFrame.MinLevelSlider_Title:SetText('Character min level')
 
     self.GuildFrame.StatsFrame.MinLevelSlider_Text = self.GuildFrame.StatsFrame:CreateFontString('GuildbookGuildInfoFrameMinLevelSliderText', 'OVERLAY', 'GameFontNormal')
     self.GuildFrame.StatsFrame.MinLevelSlider_Text:SetPoint('LEFT', Guildbook.GuildFrame.StatsFrame.MinLevelSlider, 'RIGHT', 8, 0)
@@ -102,6 +103,18 @@ function Guildbook:SetupStatsFrame()
     end
     self.GuildFrame.StatsFrame.ClassSummaryPieChart:CompletePie({0,0,0})
     
+    self.GuildFrame.StatsFrame.RoleFrame = CreateFrame('FRAME', 'GuildbookGuildFrameStatsFrameRoleFrame', self.GuildFrame.StatsFrame)
+    self.GuildFrame.StatsFrame.RoleFrame:SetPoint('TOPLEFT', self.GuildFrame.StatsFrame, 'TOPLEFT', 10, -50)
+    self.GuildFrame.StatsFrame.RoleFrame:SetSize(450, 140)
+    self.GuildFrame.StatsFrame.RoleFrame:SetBackdrop({
+        edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+        edgeSize = 12,
+        --bgFile = "interface/framegeneral/ui-background-marble",
+        tile = true,
+        tileEdge = false,
+        --tileSize = 200,
+        insets = { left = 4, right = 4, top = 4, bottom = 4 }
+    })
     self.GuildFrame.StatsFrame.Roles = {
 		Tank = { DEATHKNIGHT = 0, WARRIOR = 0, DRUID = 0, PALADIN = 0 },
 		Healer = { DRUID = 0, SHAMAN = 0, PRIEST = 0, PALADIN = 0 },
@@ -112,9 +125,9 @@ function Guildbook:SetupStatsFrame()
     local roles = { 'Tank', 'Melee', 'Healer', 'Ranged' }
     for i = 1, 4 do
         local role = roles[i]
-        local chart = LibGraph:CreateGraphPieChart('GuildbookTankPieChart', self.GuildFrame.StatsFrame, 'BOTTOMLEFT', 'BOTTOMLEFT', (25 + ((i - 1) * 100)), 30, 90, 90)
+        local chart = LibGraph:CreateGraphPieChart('GuildbookTankPieChart', self.GuildFrame.StatsFrame.RoleFrame, 'LEFT', 'LEFT', ((i - 1) * 110) + 2, 2, 100, 100)
         local title = self.GuildFrame.StatsFrame:CreateFontString('$parentRolePieChartTitle', 'OVERLAY', 'GameFontNormal')
-        title:SetPoint('TOP', chart, 'BOTTOM', 0, -5)
+        title:SetPoint('TOP', chart, 'BOTTOM', 0, 0)
         title:SetText(role)
         local deg = 0
         if role == 'Tank' or role == 'Healer' then
@@ -128,11 +141,66 @@ function Guildbook:SetupStatsFrame()
         end
         self.GuildFrame.StatsFrame.RoleCharts[role] = chart
     end
-    self.GuildFrame.StatsFrame.RoleHeader = self.GuildFrame.StatsFrame:CreateFontString('GuildbookGuildInfoFrameStatsFrameRoleHeader', 'OVERLAY', 'GameFontNormal')
-    self.GuildFrame.StatsFrame.RoleHeader:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.StatsFrame.RoleCharts['Tank'], 'TOPLEFT', 0, 10)
+    self.GuildFrame.StatsFrame.RoleHeader = self.GuildFrame.StatsFrame.RoleFrame:CreateFontString('GuildbookGuildInfoFrameStatsFrameRoleHeader', 'OVERLAY', 'GameFontNormal')
+    self.GuildFrame.StatsFrame.RoleHeader:SetPoint('TOP', Guildbook.GuildFrame.StatsFrame.RoleFrame, 'TOP', 0, -5)
     self.GuildFrame.StatsFrame.RoleHeader:SetText('Roles')
     self.GuildFrame.StatsFrame.RoleHeader:SetTextColor(1,1,1,1)
     self.GuildFrame.StatsFrame.RoleHeader:SetFont("Fonts\\FRIZQT__.TTF", 12)
+
+    self.GuildFrame.StatsFrame.ProfessionFrame = CreateFrame('FRAME', 'GuildbookGuildFrameStatsFrameProfessionFrame', self.GuildFrame.StatsFrame)
+    self.GuildFrame.StatsFrame.ProfessionFrame:SetPoint('TOPLEFT', self.GuildFrame.StatsFrame, 'TOPLEFT', 10, -200)
+    self.GuildFrame.StatsFrame.ProfessionFrame:SetSize(450, 60)
+    self.GuildFrame.StatsFrame.ProfessionFrame:SetBackdrop({
+        edgeFile = 'interface/dialogframe/ui-dialogbox-border',
+        edgeSize = 16,
+        --bgFile = "interface/framegeneral/ui-background-marble",
+        tile = true,
+        tileEdge = false,
+        --tileSize = 200,
+        insets = { left = 4, right = 4, top = 4, bottom = 4 }
+    })
+    local profs = {
+        'Alchemy',
+        'Blacksmithing',
+        'Enchanting',
+        'Engineering',
+        'Inscription',
+        'Jewelcrafting',
+        'Leatherworking',
+        'Tailoring',
+    }
+    for k, prof in pairs(profs) do
+        local f = CreateFrame('FRAME', tostring('$parent'..prof), Guildbook.GuildFrame.StatsFrame.ProfessionFrame)
+        f:SetPoint('BOTTOMLEFT', ((k-1) * 55) + 5, 5)
+        f:SetSize(55, 25)
+        f.icon = f:CreateTexture(tostring('$parentIcon'..prof), 'ARTWORK')
+        f.icon:SetPoint('LEFT', 0, 0)
+        f.icon:SetSize(25, 25)
+
+        -- quick fix, this can be removed when inscription arrives in wrath
+        if prof == 'Inscription' then
+            f.icon:SetTexture('Interface/Addons/Guildbook/Icons/Professions/IconTextures')
+            f.icon:SetTexCoord(0.0, 0.13, 0.15, 0.27)
+        else
+            f.icon:SetTexture(Guildbook.Data.Profession[prof].Icon)
+        end
+
+        f:SetScript('OnEnter', function(self)
+            GameTooltip:SetOwner(self, 'ANCHOR_TOP')
+            GameTooltip:AddLine('|cffffffff'..prof..'|r')
+            GameTooltip:Show()
+        end)
+        f:SetScript('OnLeave', function(self)
+            GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+        end)
+    end
+    self.GuildFrame.StatsFrame.ProfessionHeader = self.GuildFrame.StatsFrame.ProfessionFrame:CreateFontString('GuildbookGuildInfoFrameStatsFrameProfessionHeader', 'OVERLAY', 'GameFontNormal')
+    self.GuildFrame.StatsFrame.ProfessionHeader:SetPoint('TOP', Guildbook.GuildFrame.StatsFrame.ProfessionFrame, 'TOP', 0, -5)
+    self.GuildFrame.StatsFrame.ProfessionHeader:SetText('Professions')
+    self.GuildFrame.StatsFrame.ProfessionHeader:SetTextColor(1,1,1,1)
+    self.GuildFrame.StatsFrame.ProfessionHeader:SetFont("Fonts\\FRIZQT__.TTF", 12)
+
+
 
     function self.GuildFrame.StatsFrame:ResetClassCount()
         for k, v in ipairs(self.ClassCount) do

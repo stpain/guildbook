@@ -378,6 +378,7 @@ function Guildbook:Init()
     self.GuildFrame.RosterButton:SetNormalFontObject(GameFontNormalSmall)
     self.GuildFrame.RosterButton:SetHighlightFontObject(GameFontNormalSmall)
     self.GuildFrame.RosterButton:SetScript('OnClick', function(self)
+        GuildRoster()
         toggleGuildFrames('none')
     end)
     
