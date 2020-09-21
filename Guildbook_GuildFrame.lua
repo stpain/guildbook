@@ -20,9 +20,6 @@ the copyright holders.
 
 ]==]--
 
---guild frame member detail frame extension
---adds spec and prof data to the detail frame
-
 local addonName, Guildbook = ...
 
 local LibGraph = LibStub("LibGraph-2.0");
@@ -34,18 +31,16 @@ local PRINT = Guildbook.PRINT
 
 function Guildbook:SetupStatsFrame()
 
+    local segCol = 0.66 --adjustment % of class colours
+
     self.GuildFrame.StatsFrame.Header = self.GuildFrame.StatsFrame:CreateFontString('GuildbookGuildInfoFrameStatsFrameHeader', 'OVERLAY', 'GameFontNormal')
     self.GuildFrame.StatsFrame.Header:SetPoint('BOTTOM', Guildbook.GuildFrame.StatsFrame, 'TOP', 0, 4)
     self.GuildFrame.StatsFrame.Header:SetText('Class and Role Summary')
     self.GuildFrame.StatsFrame.Header:SetTextColor(1,1,1,1)
     self.GuildFrame.StatsFrame.Header:SetFont("Fonts\\FRIZQT__.TTF", 12)
 
-    self.GuildFrame.StatsFrame.MinLevelSlider_Title = self.GuildFrame.StatsFrame:CreateFontString('GuildbookGuildInfoFrameMinLevelSliderTitle', 'OVERLAY', 'GameFontNormal')
-    self.GuildFrame.StatsFrame.MinLevelSlider_Title:SetPoint('TOPLEFT', self.GuildFrame.StatsFrame, 'TOPLEFT', 10, -10)
-    self.GuildFrame.StatsFrame.MinLevelSlider_Title:SetText('Character min level')
-
     self.GuildFrame.StatsFrame.MinLevelSlider = CreateFrame('SLIDER', 'GuildbookGuildInfoFrameMinLevelSlider', self.GuildFrame.StatsFrame, 'OptionsSliderTemplate')
-    self.GuildFrame.StatsFrame.MinLevelSlider:SetPoint('LEFT', self.GuildFrame.StatsFrame.MinLevelSlider_Title, 'RIGHT', 5, 0)
+    self.GuildFrame.StatsFrame.MinLevelSlider:SetPoint('BOTTOMRIGHT', self.GuildFrame.StatsFrame, 'TOPRIGHT', -30, 12)
     self.GuildFrame.StatsFrame.MinLevelSlider:SetThumbTexture("Interface/Buttons/UI-SliderBar-Button-Horizontal")
     self.GuildFrame.StatsFrame.MinLevelSlider:SetSize(125, 16)
     self.GuildFrame.StatsFrame.MinLevelSlider:SetOrientation('HORIZONTAL')
@@ -58,7 +53,10 @@ function Guildbook:SetupStatsFrame()
         Guildbook.GuildFrame.StatsFrame.MinLevelSlider_Text:SetText(math.floor(Guildbook.GuildFrame.StatsFrame.MinLevelSlider:GetValue()))
         Guildbook.GuildFrame.StatsFrame:GetClassRoleFromCache()
     end)
-    self.GuildFrame.StatsFrame.MinLevelSlider.tooltipText = 'Show data for characters with a minimun level'
+    self.GuildFrame.StatsFrame.MinLevelSlider.tooltipText = 'Show data for characters with a minimum level - |cffffffffRole data only|r'
+    self.GuildFrame.StatsFrame.MinLevelSlider_Title = self.GuildFrame.StatsFrame:CreateFontString('GuildbookGuildInfoFrameMinLevelSliderTitle', 'OVERLAY', 'GameFontNormal')
+    self.GuildFrame.StatsFrame.MinLevelSlider_Title:SetPoint('RIGHT', self.GuildFrame.StatsFrame.MinLevelSlider, 'LEFT', -10, 0)
+    self.GuildFrame.StatsFrame.MinLevelSlider_Title:SetText('Character level')
 
     self.GuildFrame.StatsFrame.MinLevelSlider_Text = self.GuildFrame.StatsFrame:CreateFontString('GuildbookGuildInfoFrameMinLevelSliderText', 'OVERLAY', 'GameFontNormal')
     self.GuildFrame.StatsFrame.MinLevelSlider_Text:SetPoint('LEFT', Guildbook.GuildFrame.StatsFrame.MinLevelSlider, 'RIGHT', 8, 0)
@@ -66,46 +64,10 @@ function Guildbook:SetupStatsFrame()
     self.GuildFrame.StatsFrame.MinLevelSlider_Text:SetTextColor(1,1,1,1)
     self.GuildFrame.StatsFrame.MinLevelSlider_Text:SetFont("Fonts\\FRIZQT__.TTF", 12)
 
-    self.GuildFrame.StatsFrame.ClassCount = {
-        { Class = 'DEATHKNIGHT', Count = 0 },
-        { Class = 'DRUID', Count = 0 },
-        { Class = 'HUNTER', Count = 0 },
-        { Class = 'MAGE', Count = 0 },
-        { Class = 'PALADIN', Count = 0 },
-        { Class = 'PRIEST', Count = 0 },
-        { Class = 'ROGUE', Count = 0 },
-        { Class = 'SHAMAN', Count = 0 },
-        { Class = 'WARLOCK', Count = 0},
-        { Class = 'WARRIOR', Count  = 0 },
-    }
-
-    local segCol = 0.66 --adjustment % of class colours
-    self.GuildFrame.StatsFrame.ClassSummaryPieChart = LibGraph:CreateGraphPieChart('GuildbookClassSummaryCountChart', self.GuildFrame.StatsFrame, 'BOTTOMRIGHT', 'BOTTOMRIGHT', -15, 15, 180, 180)
-    self.GuildFrame.StatsFrame.ClassHeader = self.GuildFrame.StatsFrame:CreateFontString('GuildbookGuildInfoFrameStatsFrameClassHeader', 'OVERLAY', 'GameFontNormal')
-    self.GuildFrame.StatsFrame.ClassHeader:SetPoint('BOTTOM', Guildbook.GuildFrame.StatsFrame.ClassSummaryPieChart, 'TOP', 0, 2)
-    self.GuildFrame.StatsFrame.ClassHeader:SetText('Classes')
-    self.GuildFrame.StatsFrame.ClassHeader:SetTextColor(1,1,1,1)
-    self.GuildFrame.StatsFrame.ClassHeader:SetFont("Fonts\\FRIZQT__.TTF", 12)
-    local function classSummaryPieChart_SelectionFunc(_, segment)
-        if type(segment) == 'number' and segment > 0 and segment < 11 then
-            GameTooltip:SetOwner(self.GuildFrame.StatsFrame, 'ANCHOR_CURSOR')
-            --GameTooltip:AddLine('|cffffffffClass Info|r')
-            GameTooltip:AddDoubleLine('|cffffffff'..self.GuildFrame.StatsFrame.ClassCount[segment].Class..'|r', self.GuildFrame.StatsFrame.ClassCount[segment].Count)
-            GameTooltip:Show()
-        else
-            GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-        end
-    end
-    self.GuildFrame.StatsFrame.ClassSummaryPieChart:SetSelectionFunc(classSummaryPieChart_SelectionFunc)
-    for k, class in pairs(self.GuildFrame.StatsFrame.ClassCount) do
-        local r, g, b = unpack(Guildbook.Data.Class[class.Class].RGB)
-        self.GuildFrame.StatsFrame.ClassSummaryPieChart:AddPie(10, {r*segCol, g*segCol, b*segCol});
-    end
-    self.GuildFrame.StatsFrame.ClassSummaryPieChart:CompletePie({0,0,0})
     
     self.GuildFrame.StatsFrame.RoleFrame = CreateFrame('FRAME', 'GuildbookGuildFrameStatsFrameRoleFrame', self.GuildFrame.StatsFrame)
-    self.GuildFrame.StatsFrame.RoleFrame:SetPoint('TOPLEFT', self.GuildFrame.StatsFrame, 'TOPLEFT', 10, -50)
-    self.GuildFrame.StatsFrame.RoleFrame:SetSize(450, 140)
+    self.GuildFrame.StatsFrame.RoleFrame:SetPoint('TOPLEFT', self.GuildFrame.StatsFrame, 'TOPLEFT', 10, -10)
+    self.GuildFrame.StatsFrame.RoleFrame:SetSize(450, 160)
     self.GuildFrame.StatsFrame.RoleFrame:SetBackdrop({
         edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
         edgeSize = 12,
@@ -148,51 +110,60 @@ function Guildbook:SetupStatsFrame()
     self.GuildFrame.StatsFrame.RoleHeader:SetFont("Fonts\\FRIZQT__.TTF", 12)
 
     self.GuildFrame.StatsFrame.ProfessionFrame = CreateFrame('FRAME', 'GuildbookGuildFrameStatsFrameProfessionFrame', self.GuildFrame.StatsFrame)
-    self.GuildFrame.StatsFrame.ProfessionFrame:SetPoint('TOPLEFT', self.GuildFrame.StatsFrame, 'TOPLEFT', 10, -200)
-    self.GuildFrame.StatsFrame.ProfessionFrame:SetSize(450, 60)
+    self.GuildFrame.StatsFrame.ProfessionFrame:SetPoint('TOPLEFT', self.GuildFrame.StatsFrame.RoleFrame, 'BOTTOMLEFT', 0, -10)
+    self.GuildFrame.StatsFrame.ProfessionFrame:SetPoint('TOPRIGHT', self.GuildFrame.StatsFrame.RoleFrame, 'BOTTOMRIGHT', 0, -10)
+    self.GuildFrame.StatsFrame.ProfessionFrame:SetPoint('BOTTOM', self.GuildFrame.StatsFrame, 'BOTTOM', 0, 10)
+    --self.GuildFrame.StatsFrame.ProfessionFrame:SetSize(450, 60)
     self.GuildFrame.StatsFrame.ProfessionFrame:SetBackdrop({
-        edgeFile = 'interface/dialogframe/ui-dialogbox-border',
-        edgeSize = 16,
+        edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+        edgeSize = 12,
         --bgFile = "interface/framegeneral/ui-background-marble",
         tile = true,
         tileEdge = false,
         --tileSize = 200,
         insets = { left = 4, right = 4, top = 4, bottom = 4 }
     })
-    local profs = {
-        'Alchemy',
-        'Blacksmithing',
-        'Enchanting',
-        'Engineering',
-        'Inscription',
-        'Jewelcrafting',
-        'Leatherworking',
-        'Tailoring',
+    self.GuildFrame.StatsFrame.ProfessionCount = {
+        { Name = 'Alchemy', Count = 0, },
+        { Name = 'Blacksmithing', Count = 0, },
+        { Name = 'Enchanting', Count = 0, },
+        { Name = 'Engineering', Count = 0, },
+        { Name = 'Inscription', Count = 0, },
+        { Name = 'Jewelcrafting', Count = 0, },
+        { Name = 'Leatherworking', Count = 0, },
+        { Name = 'Tailoring', Count = 0, },
     }
-    for k, prof in pairs(profs) do
-        local f = CreateFrame('FRAME', tostring('$parent'..prof), Guildbook.GuildFrame.StatsFrame.ProfessionFrame)
-        f:SetPoint('BOTTOMLEFT', ((k-1) * 55) + 5, 5)
+    self.GuildFrame.StatsFrame.Professions = {}
+    for k, prof in pairs(Guildbook.GuildFrame.StatsFrame.ProfessionCount) do
+        local f = CreateFrame('FRAME', tostring('$parent'..prof.Name), Guildbook.GuildFrame.StatsFrame.ProfessionFrame)
+        f:SetPoint('BOTTOMLEFT', ((k-1) * 55) + 5, 15)
         f:SetSize(55, 25)
-        f.icon = f:CreateTexture(tostring('$parentIcon'..prof), 'ARTWORK')
+        f.icon = f:CreateTexture(tostring('$parentIcon'..prof.Name), 'ARTWORK')
         f.icon:SetPoint('LEFT', 0, 0)
         f.icon:SetSize(25, 25)
 
+        f.text = f:CreateFontString('$parentText', 'OVERLAY', 'GameFontNormal')
+        f.text:SetPoint('LEFT', f.icon, 'RIGHT', 5, 0)
+        f.text:SetTextColor(1,1,1,1)
+        f.text:SetText(prof.Count)
+
         -- quick fix, this can be removed when inscription arrives in wrath
-        if prof == 'Inscription' then
+        if prof.Name == 'Inscription' then
             f.icon:SetTexture('Interface/Addons/Guildbook/Icons/Professions/IconTextures')
             f.icon:SetTexCoord(0.0, 0.13, 0.15, 0.27)
         else
-            f.icon:SetTexture(Guildbook.Data.Profession[prof].Icon)
+            f.icon:SetTexture(Guildbook.Data.Profession[prof.Name].Icon)
         end
 
         f:SetScript('OnEnter', function(self)
             GameTooltip:SetOwner(self, 'ANCHOR_TOP')
-            GameTooltip:AddLine('|cffffffff'..prof..'|r')
+            GameTooltip:AddLine('|cffffffff'..prof.Name..'|r')
             GameTooltip:Show()
         end)
         f:SetScript('OnLeave', function(self)
             GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
         end)
+        Guildbook.GuildFrame.StatsFrame.Professions[prof.Name] = f
     end
     self.GuildFrame.StatsFrame.ProfessionHeader = self.GuildFrame.StatsFrame.ProfessionFrame:CreateFontString('GuildbookGuildInfoFrameStatsFrameProfessionHeader', 'OVERLAY', 'GameFontNormal')
     self.GuildFrame.StatsFrame.ProfessionHeader:SetPoint('TOP', Guildbook.GuildFrame.StatsFrame.ProfessionFrame, 'TOP', 0, -5)
@@ -200,7 +171,93 @@ function Guildbook:SetupStatsFrame()
     self.GuildFrame.StatsFrame.ProfessionHeader:SetTextColor(1,1,1,1)
     self.GuildFrame.StatsFrame.ProfessionHeader:SetFont("Fonts\\FRIZQT__.TTF", 12)
 
+    function self.GuildFrame.StatsFrame:GetProfessionCount()
+        for k, prof in pairs(self.ProfessionCount) do
+            prof.Count = 0
+        end
+        local guildName = Guildbook:GetGuildName()
+        if guildName then
+            if GUILDBOOK_GLOBAL then
+                if not GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
+                    GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] = {}
+                    PRINT(Guildbook.FONT_COLOUR, 'local guild cache data not available, db created please wait for other players to send data')
+                    return
+                end
+                if next(GUILDBOOK_GLOBAL.GuildRosterCache[guildName]) then
+                    for guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[guildName]) do
+                        if character['Profession1'] ~= '-' then
+                            for k, prof in pairs(self.ProfessionCount) do
+                                if prof.Name == character['Profession1'] then
+                                    prof.Count = prof.Count + 1
+                                end
+                            end
+                        end
+                        if character['Profession2'] ~= '-' then
+                            for k, prof in pairs(self.ProfessionCount) do
+                                if prof.Name == character['Profession2'] then
+                                    prof.Count = prof.Count + 1
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        for k, prof in pairs(self.ProfessionCount) do
+            Guildbook.GuildFrame.StatsFrame.Professions[prof.Name].text:SetText(prof.Count)
+        end
+    end
 
+    self.GuildFrame.StatsFrame.ClassCount = {
+        { Class = 'DEATHKNIGHT', Count = 0 },
+        { Class = 'DRUID', Count = 0 },
+        { Class = 'HUNTER', Count = 0 },
+        { Class = 'MAGE', Count = 0 },
+        { Class = 'PALADIN', Count = 0 },
+        { Class = 'PRIEST', Count = 0 },
+        { Class = 'ROGUE', Count = 0 },
+        { Class = 'SHAMAN', Count = 0 },
+        { Class = 'WARLOCK', Count = 0},
+        { Class = 'WARRIOR', Count  = 0 },
+    }
+
+    self.GuildFrame.StatsFrame.ClassFrame = CreateFrame('FRAME', 'GuildbookGuildFrameStatsFrameClassFrame', self.GuildFrame.StatsFrame)
+    self.GuildFrame.StatsFrame.ClassFrame:SetPoint('TOPLEFT', self.GuildFrame.StatsFrame.RoleFrame, 'TOPRIGHT', 10, 0)
+    self.GuildFrame.StatsFrame.ClassFrame:SetPoint('BOTTOMLEFT', self.GuildFrame.StatsFrame.ProfessionFrame, 'BOTTOMRIGHT', 20, 0)
+    self.GuildFrame.StatsFrame.ClassFrame:SetPoint('RIGHT', self.GuildFrame.StatsFrame, 'RIGHT', -10, 0)
+    self.GuildFrame.StatsFrame.ClassFrame:SetSize(450, 60)
+    self.GuildFrame.StatsFrame.ClassFrame:SetBackdrop({
+        edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+        edgeSize = 12,
+        --bgFile = "interface/framegeneral/ui-background-marble",
+        tile = true,
+        tileEdge = false,
+        --tileSize = 200,
+        insets = { left = 4, right = 4, top = 4, bottom = 4 }
+    })
+    
+    self.GuildFrame.StatsFrame.ClassSummaryPieChart = LibGraph:CreateGraphPieChart('GuildbookClassSummaryCountChart', self.GuildFrame.StatsFrame.ClassFrame, 'LEFT', 'LEFT', 10, 0, 180, 180)
+    self.GuildFrame.StatsFrame.ClassHeader = self.GuildFrame.StatsFrame.ClassFrame:CreateFontString('GuildbookGuildInfoFrameStatsFrameClassHeader', 'OVERLAY', 'GameFontNormal')
+    self.GuildFrame.StatsFrame.ClassHeader:SetPoint('TOP', Guildbook.GuildFrame.StatsFrame.ClassFrame, 'TOP', 0, -5)
+    self.GuildFrame.StatsFrame.ClassHeader:SetText('Classes')
+    self.GuildFrame.StatsFrame.ClassHeader:SetTextColor(1,1,1,1)
+    self.GuildFrame.StatsFrame.ClassHeader:SetFont("Fonts\\FRIZQT__.TTF", 12)
+    local function classSummaryPieChart_SelectionFunc(_, segment)
+        if type(segment) == 'number' and segment > 0 and segment < 11 then
+            GameTooltip:SetOwner(self.GuildFrame.StatsFrame, 'ANCHOR_CURSOR')
+            --GameTooltip:AddLine('|cffffffffClass Info|r')
+            GameTooltip:AddDoubleLine('|cffffffff'..self.GuildFrame.StatsFrame.ClassCount[segment].Class..'|r', self.GuildFrame.StatsFrame.ClassCount[segment].Count)
+            GameTooltip:Show()
+        else
+            GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+        end
+    end
+    self.GuildFrame.StatsFrame.ClassSummaryPieChart:SetSelectionFunc(classSummaryPieChart_SelectionFunc)
+    for k, class in pairs(self.GuildFrame.StatsFrame.ClassCount) do
+        local r, g, b = unpack(Guildbook.Data.Class[class.Class].RGB)
+        self.GuildFrame.StatsFrame.ClassSummaryPieChart:AddPie(10, {r*segCol, g*segCol, b*segCol});
+    end
+    self.GuildFrame.StatsFrame.ClassSummaryPieChart:CompletePie({0,0,0})
 
     function self.GuildFrame.StatsFrame:ResetClassCount()
         for k, v in ipairs(self.ClassCount) do
@@ -285,8 +342,8 @@ function Guildbook:SetupStatsFrame()
     self.GuildFrame.StatsFrame:SetScript('OnShow', function(self)
         self:GetClassRoleFromCache()
         self:UpdateClassChart()
+        self:GetProfessionCount()
     end)
-    
 end
 
 
@@ -297,6 +354,7 @@ function Guildbook:SetupTradeSkillFrame()
     local selectedProfession = nil
 
     self.GuildFrame.TradeSkillFrame:SetScript('OnShow', function(self)
+        DEBUG('showing tradeskill frame')
         self:ClearCharactersListview()
         self:ClearRecipesListview()
         self:ClearReagentsListview()

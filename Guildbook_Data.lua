@@ -85,35 +85,209 @@ Guildbook.Data.RaceIcons = {
 }
 
 Guildbook.Data.Class = {
-    DEATHKNIGHT = { FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:64:128:128:192|t", FontStringIconMEDIUM="|TInterface\\WorldStateFrame\\ICONS-CLASSES:22:22:0:2:256:256:64:128:128:192|t", FontStringIconLARGE="|TInterface\\WorldStateFrame\\ICONS-CLASSES:28:28:0:2:256:256:64:128:128:192|t", IconID = 135771, Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\DEATHKNIGHT", RGB={ 0.77, 0.12, 0.23 }, FontColour='|cffC41F3B', Specializations={'Frost','Blood','Unholy',} },
-    ['DEATH KNIGHT'] = { FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:64:128:128:192|t", FontStringIconMEDIUM="|TInterface\\WorldStateFrame\\ICONS-CLASSES:22:22:0:2:256:256:64:128:128:192|t", FontStringIconLARGE="|TInterface\\WorldStateFrame\\ICONS-CLASSES:28:28:0:2:256:256:64:128:128:192|t", IconID = 135771, Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\DEATHKNIGHT", RGB={ 0.77, 0.12, 0.23 }, FontColour='|cffC41F3B', Specializations={'Frost','Blood','Unholy',} },
-    DRUID = { FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:192:256:0:64|t", FontStringIconMEDIUM="|TInterface\\WorldStateFrame\\ICONS-CLASSES:22:22:0:2:256:256:192:256:0:64|t", FontStringIconLARGE="|TInterface\\WorldStateFrame\\ICONS-CLASSES:28:28:0:2:256:256:192:256:0:64|t", IconID = 625999, Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\DRUID", RGB={ 1.00, 0.49, 0.04 }, FontColour='|cffFF7D0A', Specializations={'Balance','Restoration','Cat','Bear',} },
-    HUNTER = { FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:0:64:64:128|t", FontStringIconMEDIUM="|TInterface\\WorldStateFrame\\ICONS-CLASSES:22:22:0:2:256:256:0:64:64:128|t", FontStringIconLARGE="|TInterface\\WorldStateFrame\\ICONS-CLASSES:28:28:0:2:256:256:0:64:64:128|t", IconID = 626000, Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\HUNTER", RGB={ 0.67, 0.83, 0.45 }, FontColour='|cffABD473', Specializations={'Marksmanship','Beast Master','Survival',} },
-    MAGE = { FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:64:128:0:64|t", FontStringIconMEDIUM="|TInterface\\WorldStateFrame\\ICONS-CLASSES:22:22:0:2:256:256:64:128:0:64|t", FontStringIconLARGE="|TInterface\\WorldStateFrame\\ICONS-CLASSES:28:28:0:2:256:256:64:128:0:64|t", IconID = 626001, Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\MAGE", RGB={ 0.25, 0.78, 0.92 }, FontColour='|cff40C7EB', Specializations={'Fire','Frost','Arcane',} },
-    PALADIN = { FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:0:64:128:192|t", FontStringIconMEDIUM="|TInterface\\WorldStateFrame\\ICONS-CLASSES:22:22:0:2:256:256:0:64:128:192|t", FontStringIconLARGE="|TInterface\\WorldStateFrame\\ICONS-CLASSES:28:28:0:2:256:256:0:64:128:192|t", IconID = 626003, Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\PALADIN", RGB={ 0.96, 0.55, 0.73 }, FontColour='|cffF58CBA', Specializations={'Protection','Retribution','Holy',} },
-    PRIEST = { FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:128:192:64:128|t", FontStringIconMEDIUM="|TInterface\\WorldStateFrame\\ICONS-CLASSES:22:22:0:2:256:256:128:192:64:128|t", FontStringIconLARGE="|TInterface\\WorldStateFrame\\ICONS-CLASSES:28:28:0:2:256:256:128:192:64:128|t", IconID = 626004, Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\PRIEST", RGB={ 1.00, 1.00, 1.00 }, FontColour='|cffFFFFFF', Specializations={'Holy','Discipline','Shadow',} },
-    ROGUE = { FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:128:192:0:64|t", FontStringIconMEDIUM="|TInterface\\WorldStateFrame\\ICONS-CLASSES:22:22:0:2:256:256:128:192:0:64|t", FontStringIconLARGE="|TInterface\\WorldStateFrame\\ICONS-CLASSES:28:28:0:2:256:256:128:192:0:64|t", IconID = 626005, Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\ROGUE", RGB={ 1.00, 0.96, 0.41 }, FontColour='|cffFFF569', Specializations={'Assassination','Combat','Subtlety',} },
-    SHAMAN = { FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:64:128:64:128|t", FontStringIconMEDIUM="|TInterface\\WorldStateFrame\\ICONS-CLASSES:22:22:0:2:256:256:64:128:64:128|t", FontStringIconLARGE="|TInterface\\WorldStateFrame\\ICONS-CLASSES:28:28:0:2:256:256:64:128:64:128|t", IconID = 626006, Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\SHAMAN", RGB={ 0.00, 0.44, 0.87 }, FontColour='|cff0070DE', Specializations={'Elemental','Restoration','Enhancement',} },
-    WARLOCK = { FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:192:256:64:128|t", FontStringIconMEDIUM="|TInterface\\WorldStateFrame\\ICONS-CLASSES:22:22:0:2:256:256:192:256:64:128|t", FontStringIconLARGE="|TInterface\\WorldStateFrame\\ICONS-CLASSES:28:28:0:2:256:256:192:256:64:128|t", IconID = 626007, Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\WARLOCK", RGB={ 0.53, 0.53, 0.93 }, FontColour='|cff8787ED', Specializations={'Affliction','Demonology','Destruction',} },
-    WARRIOR = { FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:0:64:0:64|t", FontStringIconMEDIUM="|TInterface\\WorldStateFrame\\ICONS-CLASSES:22:22:0:2:256:256:0:64:0:64|t", FontStringIconLARGE="|TInterface\\WorldStateFrame\\ICONS-CLASSES:28:28:0:2:256:256:0:64:0:64|t", IconID = 626008, Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\WARRIOR", RGB={ 0.78, 0.61, 0.43 }, FontColour='|cffC79C6E', Specializations={'Protection','Arms','Fury',} },
+    DEATHKNIGHT = { 
+        FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:64:128:128:192|t", 
+        FontStringIconMEDIUM="|TInterface\\WorldStateFrame\\ICONS-CLASSES:22:22:0:2:256:256:64:128:128:192|t", 
+        FontStringIconLARGE="|TInterface\\WorldStateFrame\\ICONS-CLASSES:28:28:0:2:256:256:64:128:128:192|t", 
+        IconID = 135771, 
+        Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\DEATHKNIGHT", 
+        RGB={ 0.77, 0.12, 0.23 }, 
+        FontColour='|cffC41F3B', 
+        Specializations={'Frost','Blood','Unholy',} 
+    },
+    ['DEATH KNIGHT'] = { 
+        FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:64:128:128:192|t", 
+        FontStringIconMEDIUM="|TInterface\\WorldStateFrame\\ICONS-CLASSES:22:22:0:2:256:256:64:128:128:192|t", 
+        FontStringIconLARGE="|TInterface\\WorldStateFrame\\ICONS-CLASSES:28:28:0:2:256:256:64:128:128:192|t", 
+        IconID = 135771, 
+        Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\DEATHKNIGHT", 
+        RGB={ 0.77, 0.12, 0.23 }, 
+        FontColour='|cffC41F3B', 
+        Specializations={'Frost','Blood','Unholy',} 
+    },
+    DRUID = { 
+        FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:192:256:0:64|t", 
+        FontStringIconMEDIUM="|TInterface\\WorldStateFrame\\ICONS-CLASSES:22:22:0:2:256:256:192:256:0:64|t", 
+        FontStringIconLARGE="|TInterface\\WorldStateFrame\\ICONS-CLASSES:28:28:0:2:256:256:192:256:0:64|t", 
+        IconID = 625999, 
+        Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\DRUID", 
+        RGB={ 1.00, 0.49, 0.04 }, 
+        FontColour='|cffFF7D0A', 
+        Specializations={'Balance','Restoration','Cat','Bear',} 
+    },
+    HUNTER = { 
+        FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:0:64:64:128|t", 
+        FontStringIconMEDIUM="|TInterface\\WorldStateFrame\\ICONS-CLASSES:22:22:0:2:256:256:0:64:64:128|t", 
+        FontStringIconLARGE="|TInterface\\WorldStateFrame\\ICONS-CLASSES:28:28:0:2:256:256:0:64:64:128|t", 
+        IconID = 626000, 
+        Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\HUNTER", 
+        RGB={ 0.67, 0.83, 0.45 }, 
+        FontColour='|cffABD473', 
+        Specializations={'Marksmanship','Beast Master','Survival',} 
+    },
+    MAGE = { 
+        FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:64:128:0:64|t", 
+        FontStringIconMEDIUM="|TInterface\\WorldStateFrame\\ICONS-CLASSES:22:22:0:2:256:256:64:128:0:64|t", 
+        FontStringIconLARGE="|TInterface\\WorldStateFrame\\ICONS-CLASSES:28:28:0:2:256:256:64:128:0:64|t", 
+        IconID = 626001, 
+        Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\MAGE", 
+        RGB={ 0.25, 0.78, 0.92 }, 
+        FontColour='|cff40C7EB', 
+        Specializations={'Fire','Frost','Arcane',} 
+    },
+    PALADIN = { 
+        FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:0:64:128:192|t", 
+        FontStringIconMEDIUM="|TInterface\\WorldStateFrame\\ICONS-CLASSES:22:22:0:2:256:256:0:64:128:192|t", 
+        FontStringIconLARGE="|TInterface\\WorldStateFrame\\ICONS-CLASSES:28:28:0:2:256:256:0:64:128:192|t", 
+        IconID = 626003, 
+        Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\PALADIN", 
+        RGB={ 0.96, 0.55, 0.73 }, 
+        FontColour='|cffF58CBA', 
+        Specializations={'Protection','Retribution','Holy',} 
+    },
+    PRIEST = { 
+        FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:128:192:64:128|t", 
+        FontStringIconMEDIUM="|TInterface\\WorldStateFrame\\ICONS-CLASSES:22:22:0:2:256:256:128:192:64:128|t", 
+        FontStringIconLARGE="|TInterface\\WorldStateFrame\\ICONS-CLASSES:28:28:0:2:256:256:128:192:64:128|t", 
+        IconID = 626004, 
+        Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\PRIEST", 
+        RGB={ 1.00, 1.00, 1.00 }, 
+        FontColour='|cffFFFFFF', 
+        Specializations={'Holy','Discipline','Shadow',} 
+    },
+    ROGUE = { 
+        FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:128:192:0:64|t", 
+        FontStringIconMEDIUM="|TInterface\\WorldStateFrame\\ICONS-CLASSES:22:22:0:2:256:256:128:192:0:64|t", 
+        FontStringIconLARGE="|TInterface\\WorldStateFrame\\ICONS-CLASSES:28:28:0:2:256:256:128:192:0:64|t", 
+        IconID = 626005, 
+        Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\ROGUE", 
+        RGB={ 1.00, 0.96, 0.41 }, 
+        FontColour='|cffFFF569', 
+        Specializations={'Assassination','Combat','Subtlety',} 
+    },
+    SHAMAN = { 
+        FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:64:128:64:128|t", 
+        FontStringIconMEDIUM="|TInterface\\WorldStateFrame\\ICONS-CLASSES:22:22:0:2:256:256:64:128:64:128|t", 
+        FontStringIconLARGE="|TInterface\\WorldStateFrame\\ICONS-CLASSES:28:28:0:2:256:256:64:128:64:128|t", 
+        IconID = 626006, 
+        Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\SHAMAN", 
+        RGB={ 0.00, 0.44, 0.87 }, 
+        FontColour='|cff0070DE', 
+        Specializations={'Elemental','Restoration','Enhancement',} 
+    },
+    WARLOCK = { 
+        FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:192:256:64:128|t", 
+        FontStringIconMEDIUM="|TInterface\\WorldStateFrame\\ICONS-CLASSES:22:22:0:2:256:256:192:256:64:128|t", 
+        FontStringIconLARGE="|TInterface\\WorldStateFrame\\ICONS-CLASSES:28:28:0:2:256:256:192:256:64:128|t", 
+        IconID = 626007, 
+        Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\WARLOCK", 
+        RGB={ 0.53, 0.53, 0.93 }, 
+        FontColour='|cff8787ED', 
+        Specializations={'Affliction','Demonology','Destruction',} 
+    },
+    WARRIOR = { 
+        FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:0:64:0:64|t", 
+        FontStringIconMEDIUM="|TInterface\\WorldStateFrame\\ICONS-CLASSES:22:22:0:2:256:256:0:64:0:64|t", 
+        FontStringIconLARGE="|TInterface\\WorldStateFrame\\ICONS-CLASSES:28:28:0:2:256:256:0:64:0:64|t", 
+        IconID = 626008, 
+        Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\WARRIOR", 
+        RGB={ 0.78, 0.61, 0.43 }, 
+        FontColour='|cffC79C6E', 
+        Specializations={'Protection','Arms','Fury',} 
+    },
 }
 
 Guildbook.Data.Profession = {
-    ['-'] = { ID = 0, Name = 'Unknown', Icon = '', FontStringIconSMALL='', },
-    Alchemy = { ID = 1, Name = 'Alchemy' , Icon= 'Interface\\Icons\\Trade_Alchemy' , FontStringIconSMALL='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:3:67:3:67|t',},
-    Blacksmithing = { ID = 2, Name = 'Blacksmithing' , Icon= 'Interface\\Icons\\Trade_Blacksmithing' , FontStringIconSMALL='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:77:141:3:67|t', },
-    Enchanting = { ID = 3, Name = 'Enchanting' , Icon= 'Interface\\Icons\\Trade_Engraving' , FontStringIconSMALL='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:153:217:3:67|t', },
-    Engineering = { ID = 4, Name = 'Engineering' , Icon= 'Interface\\Icons\\Trade_Engineering' , FontStringIconSMALL='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:227:291:3:67|t', },
-    Inscription = { ID = 5, Name = 'Inscription' , Icon= 'Interface\\Icons\\INV_Inscription_Tradeskill01' , FontStringIconSMALL='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:3:67:79:143|t', },
-    Jewelcrafting = { ID = 6, Name = 'Jewelcrafting' , Icon= 'Interface\\Icons\\INV_MISC_GEM_01' , FontStringIconSMALL='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:77:141:79:143|t', },
-    Leatherworking = { ID = 7, Name = 'Leatherworking' , Icon= 'Interface\\Icons\\INV_Misc_ArmorKit_17' , FontStringIconSMALL='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:153:217:79:143|t', },
-    Tailoring = { ID = 8, Name = 'Tailoring' , Icon= 'Interface\\Icons\\Trade_Tailoring' , FontStringIconSMALL='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:227:291:79:143|t', },
-    Herbalism = { ID = 9, Name = 'Herbalism' , Icon= 'Interface\\Icons\\INV_Misc_Flower_02' , FontStringIconSMALL='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:38:102:153:217|t', },
-    Skinning = { ID = 10, Name = 'Skinning' , Icon= 'Interface\\Icons\\INV_Misc_Pelt_Wolf_01' , FontStringIconSMALL='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:187:251:153:217|t', },
-    Mining = { ID = 11, Name = 'Mining' , Icon= 'Interface\\Icons\\Spell_Fire_FlameBlades' , FontStringIconSMALL='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:112:176:153:217|t', },
-    Cooking = { ID = 12, Name = 'Cooking', Icon = 'Interface\\Icons\\inv_misc_food_15' , FontStringIconSMALL='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:2:66:226:290|t', },
-    Fishing = { ID = 13, Name = 'Fishing', Icon = 'Interface\\Icons\\Trade_Fishing' , FontStringIconSMALL='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:151:215:226:290|t', },
-    FirstAid = { ID = 14, Name = 'FirstAid', Icon = 'Interface\\Icons\\Spell_Holy_SealOfSacrifice', FontStringIconSMALL='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:76:140:226:290|t', },
+    ['-'] = { 
+        ID = 0, 
+        Name = 'Unknown', 
+        Icon = '', 
+        FontStringIconSMALL='', 
+    },
+    Alchemy = { 
+        ID = 1, 
+        Name = 'Alchemy', 
+        Icon= 'Interface\\Icons\\Trade_Alchemy', 
+        FontStringIconSMALL='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:3:67:3:67|t',
+    },
+    Blacksmithing = { 
+        ID = 2, 
+        Name = 'Blacksmithing', 
+        Icon= 'Interface\\Icons\\Trade_Blacksmithing', 
+        FontStringIconSMALL='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:77:141:3:67|t', 
+    },
+    Enchanting = { 
+        ID = 3, 
+        Name = 'Enchanting', 
+        Icon= 'Interface\\Icons\\Trade_Engraving', 
+        FontStringIconSMALL='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:153:217:3:67|t', 
+    },
+    Engineering = { 
+        ID = 4, 
+        Name = 'Engineering', 
+        Icon= 'Interface\\Icons\\Trade_Engineering', 
+        FontStringIconSMALL='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:227:291:3:67|t', 
+    },
+    Inscription = { 
+        ID = 5, 
+        Name = 'Inscription', 
+        Icon= 'Interface\\Icons\\INV_Inscription_Tradeskill01', 
+        FontStringIconSMALL='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:3:67:79:143|t', 
+    },
+    Jewelcrafting = { 
+        ID = 6, 
+        Name = 'Jewelcrafting', 
+        Icon= 'Interface\\Icons\\INV_MISC_GEM_01', 
+        FontStringIconSMALL='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:77:141:79:143|t', 
+    },
+    Leatherworking = { 
+        ID = 7, 
+        Name = 'Leatherworking', 
+        Icon= 'Interface\\Icons\\INV_Misc_ArmorKit_17', 
+        FontStringIconSMALL='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:153:217:79:143|t', 
+    },
+    Tailoring = { 
+        ID = 8, 
+        Name = 'Tailoring', 
+        Icon= 'Interface\\Icons\\Trade_Tailoring', 
+        FontStringIconSMALL='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:227:291:79:143|t', 
+    },
+    Herbalism = { 
+        ID = 9, 
+        Name = 'Herbalism', 
+        Icon= 'Interface\\Icons\\INV_Misc_Flower_02', 
+        FontStringIconSMALL='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:38:102:153:217|t', 
+    },
+    Skinning = { 
+        ID = 10, 
+        Name = 'Skinning', 
+        Icon= 'Interface\\Icons\\INV_Misc_Pelt_Wolf_01', 
+        FontStringIconSMALL='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:187:251:153:217|t', 
+    },
+    Mining = { 
+        ID = 11, 
+        Name = 'Mining', 
+        Icon= 'Interface\\Icons\\Spell_Fire_FlameBlades', 
+        FontStringIconSMALL='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:112:176:153:217|t', 
+    },
+    Cooking = { 
+        ID = 12, 
+        Name = 'Cooking', 
+        Icon = 'Interface\\Icons\\inv_misc_food_15', 
+        FontStringIconSMALL='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:2:66:226:290|t', 
+    },
+    Fishing = { 
+        ID = 13, 
+        Name = 'Fishing', 
+        Icon = 'Interface\\Icons\\Trade_Fishing' , 
+        FontStringIconSMALL='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:151:215:226:290|t', 
+    },
+    FirstAid = { 
+        ID = 14, 
+        Name = 'FirstAid', 
+        Icon = 'Interface\\Icons\\Spell_Holy_SealOfSacrifice', 
+        FontStringIconSMALL='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:76:140:226:290|t', 
+    },
 }
 
 Guildbook.Data.Professions = {
@@ -230,54 +404,269 @@ Guildbook.Data.SpecFromID = {
 }
 
 Guildbook.Data.SpecFontStringIconSMALL = { 
-    DRUID = { ['-'] = '', Balance = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:189:252:0:63|t", Bear = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:189:252:63:126|t", Cat = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:189:252:63:126|t", Feral = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:189:252:63:126|t", Restoration = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:189:252:126:188|t" },
-    DEATHKNIGHT = { ['-'] = '', Frost = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:567:640:63:126|t", Blood = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:567:640:0:63|t", Unholy = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:567:640:126:188|t"},
-    ['DEATH KNIGHT'] = { ['-'] = '', Frost = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:567:640:63:126|t", Blood = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:567:640:0:63|t", Unholy = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:567:640:126:188|t"},
-    HUNTER = { ['-'] = '', ['Beast Master'] = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:252:315:0:63|t", Marksmanship = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:252:315:63:126|t", Survival = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:252:315:126:188|t"},
-    ROGUE = { ['-'] = '', Assassination = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:126:188:0:63|t", Combat = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:126:188:63:126|t", Subtlety = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:126:188:126:188|t"},
-    MAGE = { ['-'] = '', Frost = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:63:126:126:188|t", Fire = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:63:126:63:126|t", Arcane = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:63:126:0:63|t"},
-    PRIEST = { ['-'] = '', Holy = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:378:441:63:126|t", Discipline = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:378:441:0:63|t", Shadow = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:378:441:126:188|t"},
-    SHAMAN = { ['-'] = '', Elemental = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:315:378:0:63|t", Enhancement = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:315:378:63:126|t", Restoration = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:315:378:126:188|t" },
-    WARLOCK = { ['-'] = '', Demonology = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:441:504:63:126|t", Affliction = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:441:504:0:63|t", Destruction = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:441:504:126:188|t"},
-    WARRIOR = { ['-'] = '', Arms = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:0:63:0:63|t", Fury = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:0:63:63:126|t", Protection = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:0:63:126:188|t"},
-    PALADIN = { ['-'] = '', Retribution = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:504:567:126:188|t", Holy = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:504:567:0:63|t", Protection = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:504:567:63:126|t"},
+    DRUID = { 
+        ['-'] = '', 
+        Balance = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:189:252:0:63|t", 
+        Bear = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:189:252:63:126|t", 
+        Cat = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:189:252:63:126|t", 
+        Feral = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:189:252:63:126|t", 
+        Restoration = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:189:252:126:188|t" 
+    },
+    DEATHKNIGHT = { 
+        ['-'] = '', 
+        Frost = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:567:640:63:126|t", 
+        Blood = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:567:640:0:63|t", 
+        Unholy = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:567:640:126:188|t"
+    },
+    ['DEATH KNIGHT'] = { 
+        ['-'] = '', 
+        Frost = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:567:640:63:126|t", 
+        Blood = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:567:640:0:63|t", 
+        Unholy = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:567:640:126:188|t"
+    },
+    HUNTER = { 
+        ['-'] = '', 
+        ['Beast Master'] = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:252:315:0:63|t", 
+        Marksmanship = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:252:315:63:126|t", 
+        Survival = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:252:315:126:188|t"
+    },
+    ROGUE = { 
+        ['-'] = '', 
+        Assassination = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:126:188:0:63|t", 
+        Combat = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:126:188:63:126|t", 
+        Subtlety = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:126:188:126:188|t"
+    },
+    MAGE = { 
+        ['-'] = '', 
+        Frost = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:63:126:126:188|t", 
+        Fire = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:63:126:63:126|t", 
+        Arcane = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:63:126:0:63|t"
+    },
+    PRIEST = { 
+        ['-'] = '', 
+        Holy = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:378:441:63:126|t", 
+        Discipline = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:378:441:0:63|t", 
+        Shadow = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:378:441:126:188|t"
+    },
+    SHAMAN = { 
+        ['-'] = '', 
+        Elemental = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:315:378:0:63|t", 
+        Enhancement = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:315:378:63:126|t", 
+        Restoration = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:315:378:126:188|t" 
+    },
+    WARLOCK = { 
+        ['-'] = '', 
+        Demonology = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:441:504:63:126|t", 
+        Affliction = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:441:504:0:63|t", 
+        Destruction = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:441:504:126:188|t"
+    },
+    WARRIOR = { 
+        ['-'] = '', 
+        Arms = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:0:63:0:63|t", 
+        Fury = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:0:63:63:126|t", 
+        Protection = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:0:63:126:188|t"
+    },
+    PALADIN = { 
+        ['-'] = '', 
+        Retribution = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:504:567:126:188|t", 
+        Holy = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:504:567:0:63|t", 
+        Protection = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:14:14:0:0:1024:256:504:567:63:126|t"
+    },
 }
 
 Guildbook.Data.SpecFontStringIconLARGE = { 
-    DRUID = { ['-'] = '', Balance = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:189:252:0:63|t", Bear = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:189:252:63:126|t", Cat = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:189:252:63:126|t", Feral = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:189:252:63:126|t", Restoration = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:189:252:126:188|t" },
-    DEATHKNIGHT = { ['-'] = '', Frost = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:567:640:63:126|t", Blood = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:567:640:0:63|t", Unholy = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:567:640:126:188|t"},
-    ['DEATH KNIGHT'] = { ['-'] = '', Frost = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:567:640:63:126|t", Blood = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:567:640:0:63|t", Unholy = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:567:640:126:188|t"},
-    HUNTER = { ['-'] = '', ['Beast Master'] = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:252:315:0:63|t", Marksmanship = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:252:315:63:126|t", Survival = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:252:315:126:188|t"},
-    ROGUE = { ['-'] = '', Assassination = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:126:188:0:63|t", Combat = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:126:188:63:126|t", Subtlety = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:126:188:126:188|t"},
-    MAGE = { ['-'] = '', Frost = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:63:126:126:188|t", Fire = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:63:126:63:126|t", Arcane = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:63:126:0:63|t"},
-    PRIEST = { ['-'] = '', Holy = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:378:441:63:126|t", Discipline = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:378:441:0:63|t", Shadow = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:378:441:126:188|t"},
-    SHAMAN = { ['-'] = '', Elemental = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:315:378:0:63|t", Enhancement = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:315:378:63:126|t", Restoration = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:315:378:126:188|t" },
-    WARLOCK = { ['-'] = '', Demonology = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:441:504:63:126|t", Affliction = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:441:504:0:63|t", Destruction = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:441:504:126:188|t"},
-    WARRIOR = { ['-'] = '', Arms = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:0:63:0:63|t", Fury = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:0:63:63:126|t", Protection = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:0:63:126:188|t"},
-    PALADIN = { ['-'] = '', Retribution = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:504:567:126:188|t", Holy = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:504:567:0:63|t", Protection = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:504:567:63:126|t"},
+    DRUID = { 
+        ['-'] = '', 
+        Balance = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:189:252:0:63|t", 
+        Bear = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:189:252:63:126|t", 
+        Cat = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:189:252:63:126|t", 
+        Feral = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:189:252:63:126|t", 
+        Restoration = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:189:252:126:188|t" 
+    },
+    DEATHKNIGHT = { 
+        ['-'] = '', 
+        Frost = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:567:640:63:126|t", 
+        Blood = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:567:640:0:63|t", 
+        Unholy = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:567:640:126:188|t"
+    },
+    ['DEATH KNIGHT'] = { 
+        ['-'] = '', 
+        Frost = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:567:640:63:126|t", 
+        Blood = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:567:640:0:63|t", 
+        Unholy = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:567:640:126:188|t"
+    },
+    HUNTER = { 
+        ['-'] = '', 
+        ['Beast Master'] = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:252:315:0:63|t",
+        Marksmanship = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:252:315:63:126|t", 
+        Survival = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:252:315:126:188|t"
+    },
+    ROGUE = { 
+        ['-'] = '', 
+        Assassination = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:126:188:0:63|t", 
+        Combat = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:126:188:63:126|t", 
+        Subtlety = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:126:188:126:188|t"
+    },
+    MAGE = { 
+        ['-'] = '', 
+        Frost = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:63:126:126:188|t", 
+        Fire = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:63:126:63:126|t", 
+        Arcane = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:63:126:0:63|t"
+    },
+    PRIEST = { 
+        ['-'] = '', 
+        Holy = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:378:441:63:126|t", 
+        Discipline = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:378:441:0:63|t", 
+        Shadow = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:378:441:126:188|t"
+    },
+    SHAMAN = { 
+        ['-'] = '', 
+        Elemental = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:315:378:0:63|t", 
+        Enhancement = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:315:378:63:126|t", 
+        Restoration = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:315:378:126:188|t" 
+    },
+    WARLOCK = { 
+        ['-'] = '', 
+        Demonology = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:441:504:63:126|t", 
+        Affliction = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:441:504:0:63|t", 
+        Destruction = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:441:504:126:188|t"
+    },
+    WARRIOR = { 
+        ['-'] = '', 
+        Arms = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:0:63:0:63|t", 
+        Fury = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:0:63:63:126|t", 
+        Protection = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:0:63:126:188|t"
+    },
+    PALADIN = { 
+        ['-'] = '', 
+        Retribution = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:504:567:126:188|t", 
+        Holy = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:504:567:0:63|t", 
+        Protection = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:504:567:63:126|t"
+    },
 }
 
 Guildbook.Data.SpecToRole = {
-    DRUID = { Restoration = 'Healer', Balance = 'Ranged', Cat = 'Melee',  Bear = 'Tank', unknown = 'Unknown', pvp = 'PvP', ['-'] = '-' },
-    SHAMAN = { Elemental = 'Ranged', Enhancement = 'Melee', Restoration = 'Healer', unknown = 'Unknown', pvp = 'PvP', ['-'] = '-' },
-    HUNTER = { Marksmanship = 'Ranged', ['Beast Master'] = 'Ranged', Survival = 'Ranged', unknown = 'Unknown', pvp = 'PvP', ['-'] = '-' },
-    PALADIN = { Holy = 'Healer', Protection = 'Tank', Retribution = 'Melee', unknown = 'Unknown', pvp = 'PvP', ['-'] = '-' },
-    WARRIOR = { Arms = 'Melee', Fury = 'Melee', Protection = 'Tank', unknown = 'Unknown', pvp = 'PvP', ['-'] = '-' },
-    ROGUE = { Assassination = 'Melee', Combat = 'Melee', Subtlety = 'Melee', unknown = 'Unknown', pvp = 'PvP', ['-'] = '-' },
-    PRIEST = { Holy = 'Healer', Discipline = 'Healer', Shadow = 'Ranged', unknown = 'Unknown', pvp = 'PvP', ['-'] = '-' },
-    WARLOCK = { Demonology = 'Ranged', Affliction = 'Ranged', Destruction = 'Ranged', unknown = 'Unknown', pvp = 'PvP', ['-'] = '-' },
-    MAGE = { Frost = 'Ranged', Fire = 'Ranged', Arcane = 'Ranged', unknown = 'Unknown', pvp = 'PvP', ['-'] = '-' },
-    DEATHKNIGHT = { Frost = 'Tank', Blood = 'Tank', Unholy = 'Melee', unknown = 'Unknown', pvp = 'PvP', ['-'] = '-' },
-    ['DEATH KNIGHT'] = { Frost = 'Tank', Blood = 'Tank', Unholy = 'Melee', unknown = 'Unknown', pvp = 'PvP', ['-'] = '-' },
+    DRUID = { 
+        Restoration = 'Healer', 
+        Balance = 'Ranged', 
+        Cat = 'Melee',  
+        Bear = 'Tank', 
+        unknown = 'Unknown',
+        pvp = 'PvP', 
+        ['-'] = '-' 
+    },
+    SHAMAN = { 
+        Elemental = 'Ranged', 
+        Enhancement = 'Melee', 
+        Restoration = 'Healer', 
+        unknown = 'Unknown', 
+        pvp = 'PvP', 
+        ['-'] = '-' 
+    },
+    HUNTER = { 
+        Marksmanship = 'Ranged', 
+        ['Beast Master'] = 'Ranged', 
+        Survival = 'Ranged', 
+        unknown = 'Unknown', 
+        pvp = 'PvP', 
+        ['-'] = '-' 
+    },
+    PALADIN = { 
+        Holy = 'Healer', 
+        Protection = 'Tank', 
+        Retribution = 'Melee', 
+        unknown = 'Unknown', 
+        pvp = 'PvP', 
+        ['-'] = '-' 
+    },
+    WARRIOR = { 
+        Arms = 'Melee', 
+        Fury = 'Melee', 
+        Protection = 'Tank', 
+        unknown = 'Unknown', 
+        pvp = 'PvP', 
+        ['-'] = '-' 
+    },
+    ROGUE = { 
+        Assassination = 'Melee', 
+        Combat = 'Melee', 
+        Subtlety = 'Melee', 
+        unknown = 'Unknown', 
+        pvp = 'PvP', 
+        ['-'] = '-' 
+    },
+    PRIEST = { 
+        Holy = 'Healer', 
+        Discipline = 'Healer', 
+        Shadow = 'Ranged', 
+        unknown = 'Unknown', 
+        pvp = 'PvP', 
+        ['-'] = '-' 
+    },
+    WARLOCK = { 
+        Demonology = 'Ranged', 
+        Affliction = 'Ranged', 
+        Destruction = 'Ranged', 
+        unknown = 'Unknown', 
+        pvp = 'PvP', 
+        ['-'] = '-' 
+    },
+    MAGE = { 
+        Frost = 'Ranged', 
+        Fire = 'Ranged', 
+        Arcane = 'Ranged', 
+        unknown = 'Unknown', 
+        pvp = 'PvP', 
+        ['-'] = '-' 
+    },
+    DEATHKNIGHT = { 
+        Frost = 'Tank', 
+        Blood = 'Tank', 
+        Unholy = 'Melee', 
+        unknown = 'Unknown', 
+        pvp = 'PvP', 
+        ['-'] = '-' 
+    },
+    ['DEATH KNIGHT'] = { 
+        Frost = 'Tank', 
+        Blood = 'Tank', 
+        Unholy = 'Melee', 
+        unknown = 'Unknown', 
+        pvp = 'PvP', 
+        ['-'] = '-' 
+    },
 }
 
 Guildbook.Data.RoleIcons = {
-    Healer = { Icon = '', FontStringIcon = "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES:16:16:0:0:64:64:20:39:1:20|t", FontStringIconLARGE = "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES:24:24:0:0:64:64:20:39:1:20|t" },
-    Tank = { Icon = '', FontStringIcon = "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES:16:16:0:0:64:64:0:19:22:41|t", FontStringIconLARGE = "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES:24:24:0:0:64:64:0:19:22:41|t" },
-    Melee = { Icon = '', FontStringIcon = "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES:16:16:0:0:64:64:20:39:22:41|t", FontStringIconLARGE = "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES:24:24:0:0:64:64:20:39:22:41|t" },
-    Ranged = { Icon = '', FontStringIcon = "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES:16:16:0:0:64:64:20:39:22:41|t", FontStringIconLARGE = "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES:24:24:0:0:64:64:20:39:22:41|t" },
-    Damage = { Icon = '', FontStringIcon = "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES:16:16:0:0:64:64:20:39:22:41|t" },
-    ['-'] = { Icon = '', FontStringIcon = '', FontStringIconLARGE = '' },
+    Healer = { 
+        Icon = '', 
+        FontStringIcon = "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES:16:16:0:0:64:64:20:39:1:20|t", 
+        FontStringIconLARGE = "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES:24:24:0:0:64:64:20:39:1:20|t" 
+    },
+    Tank = { 
+        Icon = '', 
+        FontStringIcon = "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES:16:16:0:0:64:64:0:19:22:41|t", 
+        FontStringIconLARGE = "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES:24:24:0:0:64:64:0:19:22:41|t" 
+    },
+    Melee = { 
+        Icon = '', 
+        FontStringIcon = "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES:16:16:0:0:64:64:20:39:22:41|t", 
+        FontStringIconLARGE = "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES:24:24:0:0:64:64:20:39:22:41|t" 
+    },
+    Ranged = { 
+        Icon = '', 
+        FontStringIcon = "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES:16:16:0:0:64:64:20:39:22:41|t", 
+        FontStringIconLARGE = "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES:24:24:0:0:64:64:20:39:22:41|t" 
+    },
+    Damage = { 
+        Icon = '', 
+        FontStringIcon = "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES:16:16:0:0:64:64:20:39:22:41|t" 
+    },
+    ['-'] = { 
+        Icon = '', 
+        FontStringIcon = '', 
+        FontStringIconLARGE = '' 
+    },
 }
 
 Guildbook.Data.StatusIconStringsSMALL = {
