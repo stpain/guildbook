@@ -646,9 +646,9 @@ function Guildbook:OnCharacterDataRequested(request, distribution, sender)
 end
 
 function Guildbook:OnCharacterDataReceived(data, distribution, sender)
-    for k, v in pairs(data.payload) do
-        print(k, v)
-    end
+    -- for k, v in pairs(data.payload) do
+    --     print(k, v)
+    -- end
 end
 
 function Guildbook:SendGuildBankCommitRequest(bankCharacter)
@@ -788,10 +788,10 @@ function Guildbook:ScanCharacterContainers()
                     if id and count then
                         if not GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] then
                             GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] = count
-                            print('adding first item to gb data')
+                            --print('adding first item to gb data')
                         else
                             GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] = GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] + count
-                            print('updating item as already in data')
+                            --print('updating item as already in data')
                         end
                     end
                 end

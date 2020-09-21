@@ -1,0 +1,9 @@
+test current features
+fix any bugs reported
+
+optionals:
+    prof recipe data should be stored when received and used instead of creating extra chat traffic
+    add context button to character listview (prof frame) with request update button
+
+
+translate detail frame to use new comms

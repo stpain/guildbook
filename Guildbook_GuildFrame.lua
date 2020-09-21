@@ -68,15 +68,15 @@ function Guildbook:SetupStatsFrame()
     self.GuildFrame.StatsFrame.RoleFrame = CreateFrame('FRAME', 'GuildbookGuildFrameStatsFrameRoleFrame', self.GuildFrame.StatsFrame)
     self.GuildFrame.StatsFrame.RoleFrame:SetPoint('TOPLEFT', self.GuildFrame.StatsFrame, 'TOPLEFT', 10, -10)
     self.GuildFrame.StatsFrame.RoleFrame:SetSize(450, 160)
-    self.GuildFrame.StatsFrame.RoleFrame:SetBackdrop({
-        edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-        edgeSize = 12,
-        --bgFile = "interface/framegeneral/ui-background-marble",
-        tile = true,
-        tileEdge = false,
-        --tileSize = 200,
-        insets = { left = 4, right = 4, top = 4, bottom = 4 }
-    })
+    -- self.GuildFrame.StatsFrame.RoleFrame:SetBackdrop({
+    --     edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+    --     edgeSize = 12,
+    --     --bgFile = "interface/framegeneral/ui-background-marble",
+    --     tile = true,
+    --     tileEdge = false,
+    --     --tileSize = 200,
+    --     insets = { left = 4, right = 4, top = 4, bottom = 4 }
+    -- })
     self.GuildFrame.StatsFrame.Roles = {
 		Tank = { DEATHKNIGHT = 0, WARRIOR = 0, DRUID = 0, PALADIN = 0 },
 		Healer = { DRUID = 0, SHAMAN = 0, PRIEST = 0, PALADIN = 0 },
@@ -91,15 +91,15 @@ function Guildbook:SetupStatsFrame()
         local title = self.GuildFrame.StatsFrame:CreateFontString('$parentRolePieChartTitle', 'OVERLAY', 'GameFontNormal')
         title:SetPoint('TOP', chart, 'BOTTOM', 0, 0)
         title:SetText(role)
-        local deg = 0
+        local seg = 0
         if role == 'Tank' or role == 'Healer' then
-            deg = 4
+            seg = 4
         else
-            deg = 6
+            seg = 6
         end
         for class, count in pairs(self.GuildFrame.StatsFrame.Roles[role]) do
             local r, g, b = unpack(Guildbook.Data.Class[class].RGB)
-            chart:AddPie((100 / deg), {r*segCol, g*segCol, b*segCol})
+            chart:AddPie((100 / seg), {r*segCol, g*segCol, b*segCol})
         end
         self.GuildFrame.StatsFrame.RoleCharts[role] = chart
     end
@@ -114,15 +114,15 @@ function Guildbook:SetupStatsFrame()
     self.GuildFrame.StatsFrame.ProfessionFrame:SetPoint('TOPRIGHT', self.GuildFrame.StatsFrame.RoleFrame, 'BOTTOMRIGHT', 0, -10)
     self.GuildFrame.StatsFrame.ProfessionFrame:SetPoint('BOTTOM', self.GuildFrame.StatsFrame, 'BOTTOM', 0, 10)
     --self.GuildFrame.StatsFrame.ProfessionFrame:SetSize(450, 60)
-    self.GuildFrame.StatsFrame.ProfessionFrame:SetBackdrop({
-        edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-        edgeSize = 12,
-        --bgFile = "interface/framegeneral/ui-background-marble",
-        tile = true,
-        tileEdge = false,
-        --tileSize = 200,
-        insets = { left = 4, right = 4, top = 4, bottom = 4 }
-    })
+    -- self.GuildFrame.StatsFrame.ProfessionFrame:SetBackdrop({
+    --     edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+    --     edgeSize = 12,
+    --     bgFile = "interface/framegeneral/ui-background-rock",
+    --     tile = true,
+    --     tileEdge = false,
+    --     tileSize = 200,
+    --     insets = { left = 4, right = 4, top = 4, bottom = 4 }
+    -- })
     self.GuildFrame.StatsFrame.ProfessionCount = {
         { Name = 'Alchemy', Count = 0, },
         { Name = 'Blacksmithing', Count = 0, },
@@ -226,15 +226,15 @@ function Guildbook:SetupStatsFrame()
     self.GuildFrame.StatsFrame.ClassFrame:SetPoint('BOTTOMLEFT', self.GuildFrame.StatsFrame.ProfessionFrame, 'BOTTOMRIGHT', 20, 0)
     self.GuildFrame.StatsFrame.ClassFrame:SetPoint('RIGHT', self.GuildFrame.StatsFrame, 'RIGHT', -10, 0)
     self.GuildFrame.StatsFrame.ClassFrame:SetSize(450, 60)
-    self.GuildFrame.StatsFrame.ClassFrame:SetBackdrop({
-        edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-        edgeSize = 12,
-        --bgFile = "interface/framegeneral/ui-background-marble",
-        tile = true,
-        tileEdge = false,
-        --tileSize = 200,
-        insets = { left = 4, right = 4, top = 4, bottom = 4 }
-    })
+    -- self.GuildFrame.StatsFrame.ClassFrame:SetBackdrop({
+    --     edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+    --     edgeSize = 12,
+    --     --bgFile = "interface/framegeneral/ui-background-marble",
+    --     tile = true,
+    --     tileEdge = false,
+    --     --tileSize = 200,
+    --     insets = { left = 4, right = 4, top = 4, bottom = 4 }
+    -- })
     
     self.GuildFrame.StatsFrame.ClassSummaryPieChart = LibGraph:CreateGraphPieChart('GuildbookClassSummaryCountChart', self.GuildFrame.StatsFrame.ClassFrame, 'LEFT', 'LEFT', 10, 0, 180, 180)
     self.GuildFrame.StatsFrame.ClassHeader = self.GuildFrame.StatsFrame.ClassFrame:CreateFontString('GuildbookGuildInfoFrameStatsFrameClassHeader', 'OVERLAY', 'GameFontNormal')
@@ -359,7 +359,7 @@ function Guildbook:SetupTradeSkillFrame()
         self:ClearRecipesListview()
         self:ClearReagentsListview()
         Guildbook.GuildFrame.TradeSkillFrame.ProfessionIcon:SetTexture(nil)
-        Guildbook.GuildFrame.TradeSkillFrame.ProfessionDescription:SetText('Select a profession to see members of your guild who are trained in that profession.')
+        Guildbook.GuildFrame.TradeSkillFrame.ProfessionDescription:SetText('|cffffffffSelect a profession to see members of your guild who are trained in that profession.|r \nThis feature can result in bulk comms, DO NOT spam click character names, there may be a need to click twice but twice only!')
     end)
 
     self.GuildFrame.TradeSkillFrame.Header = self.GuildFrame.TradeSkillFrame:CreateFontString('GuildbookGuildInfoFrameTradeSkillFrameHeader', 'OVERLAY', 'GameFontNormal')
@@ -375,8 +375,8 @@ function Guildbook:SetupTradeSkillFrame()
     self.GuildFrame.TradeSkillFrame.ProfessionDescription = self.GuildFrame.TradeSkillFrame:CreateFontString('GuildbookGuildInfoFrameTradeSkillFrameProfessionDescription', 'OVERLAY', 'GameFontNormalSmall')
     self.GuildFrame.TradeSkillFrame.ProfessionDescription:SetPoint('TOPLEFT', self.GuildFrame.TradeSkillFrame.ProfessionIcon, 'TOPRIGHT', 4, 6)
     self.GuildFrame.TradeSkillFrame.ProfessionDescription:SetSize(730, 50)
-    self.GuildFrame.TradeSkillFrame.ProfessionDescription:SetText('Select a profession to see members of your guild who are trained in that profession.')
-    self.GuildFrame.TradeSkillFrame.ProfessionDescription:SetTextColor(1,1,1,1)
+    --self.GuildFrame.TradeSkillFrame.ProfessionDescription:SetText('|cffffffffSelect a profession to see members of your guild who are trained in that profession.|r \nThis feature can result in bulk comms, DO NOT spam click character names, there may be a need to click twice but twice only!')
+    --self.GuildFrame.TradeSkillFrame.ProfessionDescription:SetTextColor(1,1,1,1)
 
     --130968
     self.GuildFrame.TradeSkillFrame.TopBorder = self.GuildFrame.TradeSkillFrame:CreateTexture('GuildbookGuildInfoFrameTradeSkillFrameTopBorder', 'ARTWORK')
@@ -406,7 +406,7 @@ function Guildbook:SetupTradeSkillFrame()
                 Guildbook.GuildFrame.TradeSkillFrame:ClearRecipesListview()
                 Guildbook.GuildFrame.TradeSkillFrame:ClearReagentsListview()
                 Guildbook.GuildFrame.TradeSkillFrame.ProfessionIcon:SetTexture(Guildbook.Data.Profession[prof.Name].Icon)
-                Guildbook.GuildFrame.TradeSkillFrame.ProfessionDescription:SetText(Guildbook.Data.ProfessionDescriptions[prof.Name])
+                Guildbook.GuildFrame.TradeSkillFrame.ProfessionDescription:SetText('|cffffffff'..Guildbook.Data.ProfessionDescriptions[prof.Name]..'|r')
                 DEBUG('selected '..prof.Name)
                 Guildbook.GuildFrame.TradeSkillFrame.UpdateRowBackground(Guildbook.GuildFrame.TradeSkillFrame.CharactersListviewRows)
                 Guildbook.GuildFrame.TradeSkillFrame.UpdateRowBackground(Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewRows)
@@ -422,6 +422,7 @@ function Guildbook:SetupTradeSkillFrame()
         BackgroundColour_Odd = {0.2,0.2,0.2,0.3},
         BackgroundColour_Even = {0.2,0.2,0.2,0.1},
     }
+
 
     self.GuildFrame.TradeSkillFrame.CharactersWithProf = {'test'}
     self.GuildFrame.TradeSkillFrame.CharactersListviewRows = {}
@@ -489,6 +490,10 @@ function Guildbook:SetupTradeSkillFrame()
                 Guildbook.GuildFrame.TradeSkillFrame:ClearRecipesListview()
                 Guildbook.GuildFrame.TradeSkillFrame:ClearReagentsListview()
                 Guildbook:SendTradeSkillsRequest(selectedCharacter, selectedProfession)
+                Guildbook.GuildFrame.TradeSkillFrame:DisableCharacterClicks()
+                C_Timer.After(4.0, function()
+                    Guildbook.GuildFrame.TradeSkillFrame:EnableCharacterClicks()
+                end)
             end
         end)
         f:SetScript('OnMouseUp', function(self)
@@ -575,6 +580,17 @@ function Guildbook:SetupTradeSkillFrame()
         for i = 1, 10 do
             self.CharactersListviewRows[i].selected = false
             self.CharactersListviewRows[i]:Hide()
+        end
+    end
+
+    function self.GuildFrame.TradeSkillFrame:DisableCharacterClicks()
+        for i = 1, 10 do
+            self.CharactersListviewRows[i]:EnableMouse(false)
+        end
+    end
+    function self.GuildFrame.TradeSkillFrame:EnableCharacterClicks()
+        for i = 1, 10 do
+            self.CharactersListviewRows[i]:EnableMouse(true)
         end
     end
 
@@ -758,8 +774,6 @@ function Guildbook:SetupTradeSkillFrame()
         end
 
     end
-
-    print(GuildFrameBarLeft:GetTexture())
 
     -- reagents
     self.GuildFrame.TradeSkillFrame.Reagents = {'test'}
@@ -1028,7 +1042,6 @@ function Guildbook:SetupGuildBankFrame()
     function self.GuildFrame.GuildBankFrame:RefreshSlots()
         if bankCharacter and GUILDBOOK_CHARACTER['GuildBank'] and GUILDBOOK_CHARACTER['GuildBank'][bankCharacter] then
             local scrollPos = math.floor(self.BankSlotsScrollBar:GetValue())
-            print(scrollPos)
             for i = 1, 98 do
                 if Guildbook.GuildFrame.GuildBankFrame.BankData[i + ((scrollPos - 1) * 98)] then
                     local item = Guildbook.GuildFrame.GuildBankFrame.BankData[i + ((scrollPos - 1) * 98)]
