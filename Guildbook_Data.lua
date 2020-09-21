@@ -737,4 +737,6 @@ Guildbook.Data.ProfessionDescriptions = {
     Jewelcrafting = 'Cut and polish powerful gems that can be socketed into armor and weapons to augment their attributes or fashioned into rings, necklaces, trinkets, and jeweled headpieces. Also teaches you the [Prospecting] ability, which sifts through raw ores to uncover the precious gems needed for your craft.',
     Leatherworking = 'Work leather and hides into goods such as leather and mail armor, armor kits, and some capes. Leatherworkers can also produce a number of utility items including large profession bags, ability-augmenting drums, and riding crops to increase mount speed.'	,
     Tailoring = 'Sew cloth armor and many kinds of bags using dye, thread and cloth gathered from humanoid enemies during your travels. Tailors can also fashion nets to slow enemies with, rideable flying carpets, and magical threads which empower items they are stitched into.',
+    Cooking = '',
+    Mining = '',
 }
