@@ -44,6 +44,8 @@ local L = Guildbook.Locales
 local DEBUG = Guildbook.DEBUG
 local PRINT = Guildbook.PRINT
 
+local PRINT_COLOUR = '|cffFF7D0A'
+
 --set constants
 local FRIENDS_FRAME_WIDTH = FriendsFrame:GetWidth()
 local GUILD_FRAME_WIDTH = GuildFrame:GetWidth()
@@ -101,6 +103,9 @@ Guildbook.GuildBankCommit = {
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 function Guildbook:Init()
     DEBUG('running init')
+
+    self.ContextMenu_DropDown = CreateFrame("Frame", "GuildbookContextMenu", UIParent, "UIDropDownMenuTemplate")
+    self.ContextMenu = {}
 
     -- adjust blizz layout and add widget
     GuildFrameGuildListToggleButton:Hide()
@@ -487,7 +492,6 @@ function Guildbook:Init()
     end
 
     self.LOADED = true
-    self.FONT_COLOUR = '|cffFF7D0A'
 
     local ldb = LibStub("LibDataBroker-1.1")
     self.MinimapButton = ldb:NewDataObject('GuildbookMinimapIcon', {
@@ -507,7 +511,7 @@ function Guildbook:Init()
         end,
         OnTooltipShow = function(tooltip)
             if not tooltip or not tooltip.AddLine then return end
-            tooltip:AddLine(tostring(self.FONT_COLOUR..addonName))
+            tooltip:AddLine(tostring(PRINT_COLOUR..addonName))
             tooltip:AddDoubleLine('|cffffffffLeft Click|r Options')
             tooltip:AddDoubleLine('|cffffffffRight Click|r Guild')
         end,
@@ -536,7 +540,7 @@ function Guildbook:Init()
     GuildbookOptionsShowMinimapButton:SetChecked(GUILDBOOK_GLOBAL['ShowMinimapButton'])
 
     local version = GetAddOnMetadata('Guildbook', "Version")
-    PRINT(self.FONT_COLOUR, 'loaded (version '..version..')')
+    PRINT(PRINT_COLOUR, 'loaded (version '..version..')')
 
     if GUILDBOOK_GAMEOBJECTS then
         StaticPopup_Show('GuildbookReset')
@@ -573,31 +577,28 @@ function Guildbook:OnTradeSkillsRequested(request, distribution, sender)
     if GUILDBOOK_CHARACTER and GUILDBOOK_CHARACTER[request.payload] then
         local response = {
             type    = "TRADESKILLS_RESPONSE",
-            payload = GUILDBOOK_CHARACTER[request.payload]
+            payload = {
+                profession = request.payload,
+                recipes = GUILDBOOK_CHARACTER[request.payload],
+            }
         }
         self:Transmit(response, distribution, sender, "BULK")
     end
 end
 
 function Guildbook:OnTradeSkillsReceived(data, distribution, sender)
-
-    -- for now we just pass the return table to the listview
-    -- TODO: set up system to check against a local cache of prof data instead of spamming chat channels
-
-    -- using a 1 sec delay to allow all messages to be received and data extracted, this should be looked at after testing
-    C_Timer.After(1.0, function()
-        self.GuildFrame.TradeSkillFrame:RefreshRecipesListview(data.payload)
+    C_Timer.After(4.0, function()
+        local guildName = Guildbook:GetGuildName()
+        if guildName and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
+            for guid, character in pairs(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName]) do
+                if character.Name == sender then                
+                    character[data.payload.profession] = data.payload.recipes
+                    DEBUG('set: '..character.Name..' prof: '..data.payload.profession)
+                end
+            end
+        end
+        self.GuildFrame.TradeSkillFrame.RecipesTable = data.payload.recipes
     end)
-    
-
-    -- loop the data and add to local cache
-    -- for recipeItemID, reagentsInfo in pairs(data.payload) do
-    --     if type(reagentsInfo) == 'table' then
-    --         for reagent, count in pairs(reagentsInfo) do
-
-    --         end
-    --     end
-    -- end
 end
 
 function Guildbook:CharacterDataRequest(target)
@@ -625,7 +626,7 @@ function Guildbook:OnCharacterDataRequested(request, distribution, sender)
             type = 'CHARACTER_DATA_RESPONSE',
             payload = {
                 GUID = guid,
-                --Level = level,
+                Level = level,
                 Class = class,
                 Name = name,
                 Profession1Level = GUILDBOOK_CHARACTER["Profession1Level"],
@@ -646,9 +647,26 @@ function Guildbook:OnCharacterDataRequested(request, distribution, sender)
 end
 
 function Guildbook:OnCharacterDataReceived(data, distribution, sender)
-    -- for k, v in pairs(data.payload) do
-    --     print(k, v)
-    -- end
+    local guildName = self:GetGuildName()
+    if guildName and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
+        if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID] then
+            local character = GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID]
+            character.Level = tonumber(data.payload.Level)
+            character.Class = data.payload.Class
+            character.Name = data.payload.Name
+            character.Profession1Level = tonumber(data.payload.Profession1Level)
+            character.OffSpec = data.payload.OffSpec
+            character.Profession1 = data.payload.Profession1
+            character.MainCharacter = data.payload.MainCharacter
+            character.MainSpec = data.payload.MainSpec
+            character.MainSpecIsPvP = data.payload.MainSpecIsPvP
+            character.Profession2Level = tonumber(data.payload.Profession2Level)
+            character.Profession2 = data.payload.Profession2
+            character.AttunementsKeys = data.payload.AttunementsKeys
+            character.Availability = data.payload.Availability
+            character.OffSpecIsPvP = data.payload.OffSpecIsPvP
+        end
+    end
 end
 
 function Guildbook:SendGuildBankCommitRequest(bankCharacter)
@@ -948,7 +966,7 @@ function Guildbook:GetCharacterSpecs()
     return string.format('%s$%s$%s$%s', ms, os, mspvp, ospvp)
 end
 
-function Guildbook:ParseCharacterData(msg)
+function Guildbook:ParseCharacterData_OLD(msg)
     if not GUILDBOOK_GLOBAL['GuildRosterCache'] then
         GUILDBOOK_GLOBAL['GuildRosterCache'] = {}
     end
@@ -973,23 +991,41 @@ function Guildbook:ParseCharacterData(msg)
     if GUILDBOOK_CHARACTER['OffSpecIsPvP'] == 1 then
         ospvp = true
     end
-    GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']] = {
-        Name = t['name'],
-        Class = t['class'],
-        Level = tonumber(t['level']),
-        MainSpec = ms,
-        OffSpec = os,
-        MainSpecIsPvP = mspvp,
-        OffSpecIsPvP = ospvp,
-        Profession1 = prof1,
-        Profession1Level = tonumber(t['prof1level']),
-        Profession2 = prof2,
-        Profession2Level = tonumber(t['prof2level']),
-        MainCharacter = t['main'],
-        Fishing = tonumber(t['fishing']),
-        Cooking = tonumber(t['cooking']),
-        FirstAid = tonumber(t['firstaid']),
-    }
+    if not GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']] then
+        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']] = {
+            Name = t['name'],
+            Class = t['class'],
+            Level = tonumber(t['level']),
+            MainSpec = ms,
+            OffSpec = os,
+            MainSpecIsPvP = mspvp,
+            OffSpecIsPvP = ospvp,
+            Profession1 = prof1,
+            Profession1Level = tonumber(t['prof1level']),
+            Profession2 = prof2,
+            Profession2Level = tonumber(t['prof2level']),
+            MainCharacter = t['main'],
+            FishingLevel = tonumber(t['fishing']),
+            CookingLevel = tonumber(t['cooking']),
+            FirstAidLevek = tonumber(t['firstaid']),
+        }
+    else
+        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']].Name = t['name']
+        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']].Class = t['class']
+        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']].Level = tonumber(t['level'])
+        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']].MainSpec = ms
+        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']].OffSpec = os
+        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']].MainSpecIsPvP = mspvp
+        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']].OffSpecIsPvP = ospvp
+        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']].Profession1 = prof1
+        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']].Profession1Level = tonumber(t['prof1level'])
+        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']].Profession2 = prof2
+        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']].Profession2Level = tonumber(t['prof2level'])
+        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']].MainCharacter = t['main']
+        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']].FishingLevel = tonumber(t['fishing'])
+        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']].CookingLevel = tonumber(t['cooking'])
+        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']].FirstAidLevel = tonumber(t['firstaid'])
+    end
 end
 
 -- events
@@ -1014,7 +1050,7 @@ function Guildbook:CHAT_MSG_ADDON(...)
         self.GuildMemberDetailFrame:HandleAddonMessage(...)
     elseif prefix == 'gb-char-stats' then
         DEBUG('character stats msg event')
-        self:ParseCharacterData(msg)
+        self:ParseCharacterData_OLD(msg)
     end
 end
 
@@ -1031,6 +1067,9 @@ function Guildbook:SKILL_LINES_CHANGED()
     end)
 end
 
+local tradeDelay, bankDelay = 10, 10
+local lastTradeSkillRequest = {}
+local lastGuildBankRequest = {}
 function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
     if prefix ~= addonName then 
         return 
@@ -1049,7 +1088,16 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
     end
 
     if data.type == "TRADESKILLS_REQUEST" then
-        self:OnTradeSkillsRequested(data, distribution, sender);
+        if not lastTradeSkillRequest[sender] then
+            lastTradeSkillRequest[sender] = -math.huge
+        end
+        if lastTradeSkillRequest[sender] + tradeDelay < GetTime() then
+            self:OnTradeSkillsRequested(data, distribution, sender)
+            lastTradeSkillRequest[sender] = GetTime()
+        else
+            local remaining = string.format("%.1d", (lastTradeSkillRequest[sender] + tradeDelay - GetTime()))
+            DEBUG(string.format('please allow 10 secs between requests, %d seconds remaining', remaining))
+        end
     elseif data.type == "TRADESKILLS_RESPONSE" then
         self:OnTradeSkillsReceived(data, distribution, sender);
     elseif data.type == 'CHARACTER_DATA_REQUEST' then
@@ -1061,6 +1109,16 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
     elseif data.type == 'GUILD_BANK_COMMIT_RESPONSE' then
         self:OnGuildBankCommitReceived(data, distribution, sender)
     elseif data.type == 'GUILD_BANK_DATA_REQUEST' then
+        if not lastGuildBankRequest[sender] then
+            lastGuildBankRequest[sender] = -math.huge
+        end
+        if lastGuildBankRequest[sender] + tradeDelay < GetTime() then
+            self:OnTradeSkillsRequested(data, distribution, sender)
+            lastGuildBankRequest[sender] = GetTime()
+        else
+            local remaining = string.format("%.1d", (lastGuildBankRequest[sender] + tradeDelay - GetTime()))
+            DEBUG(string.format('please allow 10 secs between requests, %d seconds remaining', remaining))
+        end
         self:OnGuildBankDataRequested(data, distribution, sender)
     elseif data.type == 'GUILD_BANK_DATA_RESPONSE' then
         self:OnGuildBankDataReceived(data, distribution, sender)
