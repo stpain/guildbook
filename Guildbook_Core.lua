@@ -44,7 +44,7 @@ local L = Guildbook.Locales
 local DEBUG = Guildbook.DEBUG
 local PRINT = Guildbook.PRINT
 
-local PRINT_COLOUR = '|cffFF7D0A'
+local PRINT_COLOUR = '|cff0070DE'
 
 --set constants
 local FRIENDS_FRAME_WIDTH = FriendsFrame:GetWidth()
@@ -104,10 +104,35 @@ Guildbook.GuildBankCommit = {
 function Guildbook:Init()
     DEBUG('running init')
 
+    local news = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+Enchanting recipes should now be scanned
+Minor UI tweaks and improvements
+
+|cff0070DEUpdates|r:
+Character profession data now saved. When you request profession data Guildbook will first check if you have any data on file, if not its sends a request otherwise it loads from file. This reduces the impact on server resources (chat systems).
+As a result of this change there will be some issues between this version and the previous version, some compatability has been included while guild members update their addon.
+You will still be able to request data from older versions, but this will not be stored locally. 
+Older versions will not be able to receive profession data from you.
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+]]
+
+    if GUILDBOOK_GLOBAL['ShowUpdatesDialog'] == nil then
+        GUILDBOOK_GLOBAL['ShowUpdatesDialog'] = true
+    end
+    if GUILDBOOK_GLOBAL['ShowUpdatesDialog'] == true then
+        StaticPopup_Show('GuildbookUpdates', news)
+    end
+
     self.ContextMenu_DropDown = CreateFrame("Frame", "GuildbookContextMenu", UIParent, "UIDropDownMenuTemplate")
     self.ContextMenu = {}
 
-    -- adjust blizz layout and add widget
+    -- adjust blizz layout and add widgets
     GuildFrameGuildListToggleButton:Hide()
 
     GuildFrame:HookScript('OnShow', function(self)
@@ -367,6 +392,7 @@ function Guildbook:Init()
                 _G['GuildFrameButton'..i]:Show()
             end
             GuildFrameLFGFrame:Show()
+            SortGuildRoster('Online')
         else
             for i = 1, 13 do
                 _G['GuildFrameButton'..i]:Hide()
@@ -391,7 +417,7 @@ function Guildbook:Init()
         ['StatsFrame'] = { Text = 'Statistics', Width = 85.0, OffsetY = -87.0 },
         ['TradeSkillFrame'] = { Text = 'Professions', Width = 85.0, OffsetY = -174.0 },
         ['GuildBankFrame'] = { Text = 'Guild Bank', Width = 85.0, OffsetY = -261.0 },
-        ['GuildCalenderFrame'] = { Text = 'Calender', Width = 75.0, OffsetY = -338.0 },
+        ['GuildCalendarFrame'] = { Text = 'Calendar', Width = 75.0, OffsetY = -338.0 },
     }
 
     for frame, button in pairs(self.GuildFrame.Frames) do
@@ -402,11 +428,15 @@ function Guildbook:Init()
             bgFile = "interface/framegeneral/ui-background-marble",
             tile = true,
             tileEdge = false,
-            tileSize = 200,
+            tileSize = 300,
             insets = { left = 4, right = 4, top = 4, bottom = 4 }
         })
         self.GuildFrame[frame]:SetPoint('TOPLEFT', GuildFrame, 'TOPLEFT', 2.00, -55.0)
-        self.GuildFrame[frame]:SetPoint('BOTTOMRIGHT', GuildFrame, 'TOPRIGHT', -4.00, -325.0)
+        if frame == 'GuildCalendarFrame' or frame == 'GuildBankFrame' then
+            self.GuildFrame[frame]:SetPoint('BOTTOMRIGHT', GuildFrame, 'BOTTOMRIGHT', -4.00, 25.0)
+        else
+            self.GuildFrame[frame]:SetPoint('BOTTOMRIGHT', GuildFrame, 'TOPRIGHT', -4.00, -325.0)
+        end        
         self.GuildFrame[frame]:SetFrameLevel(6)
         self.GuildFrame[frame]:Hide()
 
@@ -453,7 +483,7 @@ function Guildbook:Init()
     self:SetupStatsFrame()
     self:SetupTradeSkillFrame()
     self:SetupGuildBankFrame()
-    self:SetupGuildCalenderFrame()
+    self:SetupGuildCalendarFrame()
 
     -- TODO: translate old guild memer detail frame into new code style
     self.GuildMemberDetailFrame:DrawLabels()          
@@ -553,15 +583,29 @@ function Guildbook:Init()
 
 end
 
+function Guildbook:IsGuildMemberOnline(member)
+    local guildName = Guildbook:GetGuildName()
+    if guildName then
+        local totalMembers, onlineMembers, _ = GetNumGuildMembers()
+        for i = 1, totalMembers do
+            local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, guid = GetGuildRosterInfo(i)
+            if member == name then
+                return true
+            end
+        end
+    end
+end
 
 function Guildbook:Transmit(data, channel, target, priority)
     local serialized = LibSerialize:Serialize(data);
     local compressed = LibDeflate:CompressDeflate(serialized);
     local encoded    = LibDeflate:EncodeForWoWAddonChannel(compressed);
-
     self:SendCommMessage(addonName, encoded, channel, target, priority);
 end
 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- tradeskills comms
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function Guildbook:SendTradeSkillsRequest(target, profession)
     local request = {
         type = "TRADESKILLS_REQUEST",
@@ -587,20 +631,31 @@ function Guildbook:OnTradeSkillsRequested(request, distribution, sender)
 end
 
 function Guildbook:OnTradeSkillsReceived(data, distribution, sender)
-    C_Timer.After(4.0, function()
-        local guildName = Guildbook:GetGuildName()
-        if guildName and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
-            for guid, character in pairs(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName]) do
-                if character.Name == sender then                
-                    character[data.payload.profession] = data.payload.recipes
-                    DEBUG('set: '..character.Name..' prof: '..data.payload.profession)
+    if data.payload.profession and type(data.payload.recipes) == 'table' then
+        C_Timer.After(4.0, function()
+            local guildName = Guildbook:GetGuildName()
+            if guildName and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
+                for guid, character in pairs(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName]) do
+                    if character.Name == sender then                
+                        character[data.payload.profession] = data.payload.recipes
+                        DEBUG('set: '..character.Name..' prof: '..data.payload.profession)
+                    end
                 end
             end
-        end
-        self.GuildFrame.TradeSkillFrame.RecipesTable = data.payload.recipes
-    end)
+            self.GuildFrame.TradeSkillFrame.RecipesTable = data.payload.recipes
+        end)
+    else
+        -- this is due to older data format, if we get this we wont save as the prof name isnt sent
+        -- will remove this support after 1 update
+        C_Timer.After(4.0, function()
+            self.GuildFrame.TradeSkillFrame.RecipesTable = data.payload
+        end)
+    end
 end
 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- character data comms
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function Guildbook:CharacterDataRequest(target)
     local request = {
         type = 'CHARACTER_DATA_REQUEST'
@@ -669,6 +724,9 @@ function Guildbook:OnCharacterDataReceived(data, distribution, sender)
     end
 end
 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- guild bank comms
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function Guildbook:SendGuildBankCommitRequest(bankCharacter)
     local request = {
         type = 'GUILD_BANK_COMMIT_REQUEST',
@@ -772,6 +830,13 @@ function Guildbook:TRADE_SKILL_UPDATE()
     C_Timer.After(1, function()
         DEBUG('trade skill update, scanning skills')
         self:ScanTradeSkill()
+    end)
+end
+
+function Guildbook:CRAFT_UPDATE()
+    C_Timer.After(1, function()
+        DEBUG('craft skill update, scanning skills')
+        self:ScanCraftSkills_Enchanting()
     end)
 end
 
@@ -879,6 +944,50 @@ function Guildbook:ScanTradeSkill()
                     if reagentName and reagentID and reagentCount then
                         DEBUG(string.format('    Reagent name: %s, with ID: %s, Needed: %s', reagentName, reagentID, reagentCount))
                         GUILDBOOK_CHARACTER[prof][itemID][reagentID] = reagentCount
+                    end
+                end
+            end
+        end
+    end
+end
+
+function Guildbook:ScanCraftSkills_Enchanting()
+    local currentCraftingWindow = GetCraftSkillLine(1)
+    if currentCraftingWindow == 'Enchanting' then
+        GUILDBOOK_CHARACTER['Enchanting'] = {}
+        for i = 1, GetNumCrafts() do
+            local name, _, type, _, _, _, _ = GetCraftInfo(i)
+            if (name and type ~= "header") then
+                local itemLink = GetCraftItemLink(i)
+                local itemID = false
+                if string.find(itemLink, '|Henchant') then
+                    local l = string.sub(tostring(itemLink), (string.find(itemLink, '|Henchant')), (string.find(itemLink, '|h')) -1 )
+                    local t, i = {}, 1
+                    for d in string.gmatch(l, '[^:]+') do
+                        t[i] = d
+                        i = i + 1
+                    end
+                    itemID = tonumber(t[2])
+                end
+                if itemID then
+                    local itemName = select(1, GetItemInfo(itemID))
+                    DEBUG(string.format('|cff0070DETrade item|r: %s, with ID: %s', name, itemID))
+                    if itemName and itemID then
+                        GUILDBOOK_CHARACTER['Enchanting'][itemID] = {}
+                    end
+                    local numReagents = GetCraftNumReagents(i);
+                    if numReagents > 0 then
+                        for j = 1, numReagents, 1 do
+                            local reagentName, reagentTexture, reagentCount, playerReagentCount = GetCraftReagentInfo(i, j)
+                            local reagentLink = GetCraftReagentItemLink(i, j)
+                            if reagentLink then
+                                local reagentID = select(1, GetItemInfoInstant(reagentLink))
+                                if reagentID and reagentCount then
+                                    DEBUG(string.format('    Reagent name: %s, with ID: %s, Needed: %s', reagentName, reagentID, reagentCount))
+                                    GUILDBOOK_CHARACTER['Enchanting'][itemID][reagentID] = reagentCount
+                                end
+                            end
+                        end
                     end
                 end
             end
@@ -1041,6 +1150,7 @@ function Guildbook:GUILD_ROSTER_UPDATE(...)
     end
 end
 
+-- this is to be removed, need to translate detail frame first - SEND THIS WITH PROF SAVING UPDATE
 function Guildbook:CHAT_MSG_ADDON(...)
     local prefix = select(1, ...)
     local msg = select(2, ...)
@@ -1067,6 +1177,8 @@ function Guildbook:SKILL_LINES_CHANGED()
     end)
 end
 
+--- handle comms
+-- create a 10 sec period between request responses to reduce chat spam
 local tradeDelay, bankDelay = 10, 10
 local lastTradeSkillRequest = {}
 local lastGuildBankRequest = {}
@@ -1098,16 +1210,22 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
             local remaining = string.format("%.1d", (lastTradeSkillRequest[sender] + tradeDelay - GetTime()))
             DEBUG(string.format('please allow 10 secs between requests, %d seconds remaining', remaining))
         end
+
     elseif data.type == "TRADESKILLS_RESPONSE" then
         self:OnTradeSkillsReceived(data, distribution, sender);
+
     elseif data.type == 'CHARACTER_DATA_REQUEST' then
         self:OnCharacterDataRequested(data, distribution, sender)
+
     elseif data.type == 'CHARACTER_DATA_RESPONSE' then
         self:OnCharacterDataReceived(data, distribution, sender)
+
     elseif data.type == 'GUILD_BANK_COMMIT_REQUEST' then
         self:OnGuildBankCommitRequested(data, distribution, sender)
+
     elseif data.type == 'GUILD_BANK_COMMIT_RESPONSE' then
         self:OnGuildBankCommitReceived(data, distribution, sender)
+
     elseif data.type == 'GUILD_BANK_DATA_REQUEST' then
         if not lastGuildBankRequest[sender] then
             lastGuildBankRequest[sender] = -math.huge
@@ -1120,6 +1238,7 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
             DEBUG(string.format('please allow 10 secs between requests, %d seconds remaining', remaining))
         end
         self:OnGuildBankDataRequested(data, distribution, sender)
+
     elseif data.type == 'GUILD_BANK_DATA_RESPONSE' then
         self:OnGuildBankDataReceived(data, distribution, sender)
     end
@@ -1133,6 +1252,7 @@ Guildbook.EventFrame:RegisterEvent('ADDON_LOADED')
 Guildbook.EventFrame:RegisterEvent('PLAYER_LEVEL_UP')
 Guildbook.EventFrame:RegisterEvent('SKILL_LINES_CHANGED')
 Guildbook.EventFrame:RegisterEvent('TRADE_SKILL_UPDATE')
+Guildbook.EventFrame:RegisterEvent('CRAFT_UPDATE')
 Guildbook.EventFrame:SetScript('OnEvent', function(self, event, ...)
     --DEBUG('EVENT='..tostring(event))
     Guildbook[event](Guildbook, ...)

@@ -132,22 +132,27 @@ StaticPopupDialogs['GuildbookGatheringDatabaseEditObject'] = {
     showAlert = 1,    
 }
 
-StaticPopupDialogs['GuildbookGatheringDatabaseDeleteObject'] = {
-    text = '|cffC41F3B Delete game object:|r %s',  
-    button1 = 'Delete',
-    button2 = 'Cancel',
-    StartDelay = Guildbook.Dialogs.DeleteGameObjectTimeDelay,
-    --delayText = 't',
-    OnAccept = function(self, data, data2) --data is the gameObject and data2 is the key within the object
-        if GUILDBOOK_GAMEOBJECTS and Guildbook.OptionsInterface.GatheringDatabase.ContextMenuObjectKey then
-            PRINT(Guildbook.FONT_COLOUR, tostring('removed game object: '..data['ItemName']))
-            table.remove(GUILDBOOK_GAMEOBJECTS, Guildbook.OptionsInterface.GatheringDatabase.ContextMenuObjectKey)
-            Guildbook.OptionsInterface.GatheringDatabase.ContextMenuObjectKey = nil
-            Guildbook.OptionsInterface.GatheringDatabase.RefreshListView()
-        end
+StaticPopupDialogs['GuildbookUpdates'] = {
+    text = '%s',  
+    button1 = 'Remind me again',
+    button2 = 'Ok got it',
+    hasEditBox = true,
+    OnAccept = function(self)
+
     end,
     OnCancel = function(self)
-
+        GUILDBOOK_GLOBAL['ShowUpdatesDialog'] = false
+    end,
+    OnShow = function(self)
+        --self.icon:SetTexture(132049)
+        self.icon:SetTexture(nil)
+        self.editBox:SetMaxLetters(50)
+        self.editBox:SetWidth(300)
+        self.editBox:SetText('https://www.curseforge.com/wow/addons/guildbook')
+        self.editBox:HighlightText()
+    end,
+    OnHide = function(self)
+        self.icon:SetTexture("Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew")
     end,
     timeout = 0,
     whileDead = true,
