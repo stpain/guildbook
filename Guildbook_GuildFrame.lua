@@ -402,12 +402,11 @@ When you select a guild member Guildbook will either use data saved on file or r
 ]]
 
     self.GuildFrame.TradeSkillFrame.HelperIcon = CreateFrame('FRAME', 'GuildbookGuildInfoFrameTradeSkillFrameHelperIcon', self.GuildFrame.TradeSkillFrame)
-    self.GuildFrame.TradeSkillFrame.HelperIcon:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.TradeSkillFrame, 'TOPLEFT', 100, 4)
+    self.GuildFrame.TradeSkillFrame.HelperIcon:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.TradeSkillFrame, 'TOPLEFT', 100, 2)
     self.GuildFrame.TradeSkillFrame.HelperIcon:SetSize(20, 20)
     self.GuildFrame.TradeSkillFrame.HelperIcon.texture = self.GuildFrame.TradeSkillFrame.HelperIcon:CreateTexture('$parentTexture', 'ARTWORK')
     self.GuildFrame.TradeSkillFrame.HelperIcon.texture:SetAllPoints(self.GuildFrame.TradeSkillFrame.HelperIcon)
     self.GuildFrame.TradeSkillFrame.HelperIcon.texture:SetTexture(374216)
-
     self.GuildFrame.TradeSkillFrame.HelperIcon:SetScript('OnEnter', function(self)
         GameTooltip:SetOwner(self, 'ANCHOR_CURSOR')
         GameTooltip:AddLine(helpText)
@@ -782,6 +781,19 @@ When you select a guild member Guildbook will either use data saved on file or r
     function self.GuildFrame.TradeSkillFrame:SetRecipesListviewData(data)
         self:ClearRecipesListview()
         self:ClearReagentsListview()
+        if data then
+            print(type(data))
+            if type(data) == 'table' then
+                for k, v in pairs(data) do
+                    print(k, v)
+                    if type(v) == 'table' then
+                        for x, y in pairs(v) do
+                            print('    ', x, y)
+                        end
+                    end
+                end
+            end
+        end
         if data and type(data) == 'table' and next(data) then
             --wipe(self.Recipes)
             for itemID, reagents in pairs(data) do
@@ -949,7 +961,7 @@ end
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function Guildbook:SetupGuildBankFrame()
 
-    local bankCharacter = nil
+    self.GuildFrame.GuildBankFrame.bankCharacter = nil
 
     self.GuildFrame.GuildBankFrame:SetScript('OnShow', function(self)
         self:BankCharacterSelectDropDown_Init()
@@ -960,6 +972,16 @@ function Guildbook:SetupGuildBankFrame()
     self.GuildFrame.GuildBankFrame.Header:SetText('Guild Bank')
     self.GuildFrame.GuildBankFrame.Header:SetTextColor(1,1,1,1)
     self.GuildFrame.GuildBankFrame.Header:SetFont("Fonts\\FRIZQT__.TTF", 12)
+
+    self.GuildFrame.GuildBankFrame.ProgressCooldown = CreateFrame('FRAME', 'GuildbookGuildFrameRecipesListviewParentCooldown', self.GuildFrame.GuildBankFrame)
+    self.GuildFrame.GuildBankFrame.ProgressCooldown:SetPoint('LEFT', 80, 0)
+    self.GuildFrame.GuildBankFrame.ProgressCooldown:SetSize(40, 40)
+    self.GuildFrame.GuildBankFrame.ProgressCooldown.texture = self.GuildFrame.GuildBankFrame.ProgressCooldown:CreateTexture('$parentTexture', 'BACKGROUND')
+    self.GuildFrame.GuildBankFrame.ProgressCooldown.texture:SetAllPoints(self.GuildFrame.GuildBankFrame.ProgressCooldown)
+    self.GuildFrame.GuildBankFrame.ProgressCooldown.texture:SetTexture(132996)
+    self.GuildFrame.GuildBankFrame.ProgressCooldown.cooldown = CreateFrame("Cooldown", "$parentCooldown", Guildbook.GuildFrame.GuildBankFrame.ProgressCooldown, "CooldownFrameTemplate")
+    self.GuildFrame.GuildBankFrame.ProgressCooldown.cooldown:SetAllPoints(self.GuildFrame.GuildBankFrame.ProgressCooldown)
+    self.GuildFrame.GuildBankFrame.ProgressCooldown:Hide()
 
     self.GuildFrame.GuildBankFrame.BankCharacterSelectDropDown = CreateFrame('FRAME', 'GuildbookGuildFrameGuildBankFrameBankCharacterSelectDropDown', self.GuildFrame.GuildBankFrame, "UIDropDownMenuTemplate")
     self.GuildFrame.GuildBankFrame.BankCharacterSelectDropDown:SetPoint('TOPLEFT', self.GuildFrame.GuildBankFrame, 'TOPLEFT', 0, -48)
@@ -981,19 +1003,23 @@ function Guildbook:SetupGuildBankFrame()
                 info.text = p
                 info.hasArrow = false
                 info.keepShownOnClick = false
-                info.func = function() 
+                info.func = function()
+                    Guildbook.GuildFrame.GuildBankFrame.bankCharacter = p
                     Guildbook.GuildFrame.GuildBankFrame.ResetSlots()
                     Guildbook:SendGuildBankCommitRequest(p)
+                    Guildbook.GuildFrame.GuildBankFrame.ProgressCooldown:Show()
+                    Guildbook.GuildFrame.GuildBankFrame.ProgressCooldown.cooldown:SetCooldown(GetTime(), 3.5)
                     -- for now delay the data request to allow commit checks first, could look to improve this or at the very least just reduce the delay
-                    C_Timer.After(3, function()
+                    C_Timer.After(4, function()
+                        Guildbook.GuildFrame.GuildBankFrame.ProgressCooldown:Hide()
                         if Guildbook.GuildBankCommit.Character and Guildbook.GuildBankCommit.Commit and Guildbook.GuildBankCommit.BankCharacter then
-                            bankCharacter = p
+                            Guildbook:SendGuildBankDataRequest()
+                            DEBUG(string.format('using %s as has newest commit, sending request for guild bank data - delayed', Guildbook.GuildBankCommit['BankCharacter']))
                             local ts = date('*t', Guildbook.GuildBankCommit.Commit)
                             ts.min = string.format('%02d', ts.min)
                             Guildbook.GuildFrame.GuildBankFrame.CommitInfo:SetText(string.format('Commit: %s:%s:%s  %s-%s-%s', ts.hour, ts.min, ts.sec, ts.day, ts.month, ts.year))
                             Guildbook.GuildFrame.GuildBankFrame.CommitSource:SetText(string.format('Commit Source: %s', Guildbook.GuildBankCommit.Character))
                             Guildbook.GuildFrame.GuildBankFrame.CommitBankCharacter:SetText(string.format('Bank Character: %s', Guildbook.GuildBankCommit.BankCharacter))
-                            Guildbook:SendGuildBankDataRequest()
                         end
                     end)
                     DEBUG('requesting guild bank data from: '..p)
@@ -1130,15 +1156,15 @@ function Guildbook:SetupGuildBankFrame()
     -- end
 
     function self.GuildFrame.GuildBankFrame:RefreshSlots()
-        if bankCharacter and GUILDBOOK_CHARACTER['GuildBank'] and GUILDBOOK_CHARACTER['GuildBank'][bankCharacter] then
+        if self.bankCharacter and GUILDBOOK_CHARACTER['GuildBank'] and GUILDBOOK_CHARACTER['GuildBank'][self.bankCharacter] then
             local scrollPos = math.floor(self.BankSlotsScrollBar:GetValue())
-            for i = 1, 98 do
+            for i = 1, 98 do                
                 if Guildbook.GuildFrame.GuildBankFrame.BankData[i + ((scrollPos - 1) * 98)] then
                     local item = Guildbook.GuildFrame.GuildBankFrame.BankData[i + ((scrollPos - 1) * 98)]
                     self.BankSlots[i].icon:SetTexture(C_Item.GetItemIconByID(item.ItemID))
                     self.BankSlots[i].count:SetText(item.Count)
                     self.BankSlots[i].itemID = item.ItemID
-                    DEBUG(string.format('updating slot %s with item id %s', i, item.ItemID))
+                    --DEBUG(string.format('updating slot %s with item id %s', i, item.ItemID))
                 else
                     self.BankSlots[i].icon:SetTexture(nil)
                     self.BankSlots[i].count:SetText(' ')

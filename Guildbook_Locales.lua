@@ -157,3 +157,10 @@ elseif locale == '' then
 end
 
 Guildbook.Locales = L
+
+-- this will be a lookup table to convert to english for function args etc
+Guildbook.GetEnglish = {
+    ['deDE'] = {
+
+    },
+}
