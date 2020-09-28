@@ -27,32 +27,8 @@ local addonName, Guildbook = ...
 
 local L = Guildbook.Locales
 local DEBUG = Guildbook.DEBUG
-local PRINT = Guildbook.PRINT
 
 Guildbook.GuildMemberDetailFrame = {
-    MemberDataMsgKeys = { 'MainSpec', 'OffSpec', 'Fishing', 'Cooking', 'FirstAid', 'Prof1', 'Prof1Level', 'Prof2', 'Prof2Level', 'MainCharacter', 'ilvl', 'MainSpecIsPvP', 'OffSpecIsPvP' }, --data returned will be in this order
-    CurrentMember = {
-        MainSpec = nil,
-        OffSpec = nil,
-        Fishing = nil,
-        Cooking = nil,
-        FirstAid = nil,
-        Prof1 = nil,
-        Prof1Level = nil,
-        Prof2 = nil,
-        Prof2Level = nil,
-        MainCharacter = nil,
-        ilvl = nil,
-        MainSpecIsPvP = 'false',
-        OffSpecIsPvP = 'false',
-    },
-    ClearCurrentMember = function(self)
-        for k, v in pairs(self.CurrentMember) do
-            v = nil
-        end
-        self.CurrentMember.MainSpecIsPvP = 'false'
-        self.CurrentMember.OffSpecIsPvP = 'false'
-    end,
     Labels = {
         MainSpec = GuildMemberDetailFrame:CreateFontString('GuildMemberDetailMainSpecLabel', 'OVERLAY', 'GameFontNormal'),
         OffSpec = GuildMemberDetailFrame:CreateFontString('GuildMemberDetailOffSpecLabel', 'OVERLAY', 'GameFontNormal'),     
@@ -68,97 +44,80 @@ Guildbook.GuildMemberDetailFrame = {
         Main = GuildMemberDetailFrame:CreateFontString('GuildMemberDetailMainText', 'OVERLAY', 'GameFontNormal'),
         ilvl = GuildMemberDetailFrame:CreateFontString('GuildMemberDetaililvlText', 'OVERLAY', 'GameFontNormal'),
     },
-    UpdateLabels = function(self)
-        local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, GUID = GetGuildRosterInfo(GetGuildRosterSelection())
-        if class then
-            if GuildMemberDetailName:GetText() then
-                GuildMemberDetailName:SetText(GuildMemberDetailName:GetText()..' '..Guildbook.Data.Class[class].FontStringIconSMALL)
-            end
-            GuildMemberDetailName:SetTextColor(unpack(Guildbook.Data.Class[class].RGB))
-            GuildMemberDetailZoneLabel:SetTextColor(unpack(Guildbook.Data.Class[class].RGB))
-            GuildMemberDetailRankLabel:SetTextColor(unpack(Guildbook.Data.Class[class].RGB))
-            GuildMemberDetailOnlineLabel:SetTextColor(unpack(Guildbook.Data.Class[class].RGB))
-            GuildMemberDetailNoteLabel:SetTextColor(unpack(Guildbook.Data.Class[class].RGB))
-            GuildMemberDetailOfficerNoteLabel:SetTextColor(unpack(Guildbook.Data.Class[class].RGB))        
-            for k, label in pairs(self.Labels) do
-                label:SetTextColor(unpack(Guildbook.Data.Class[class].RGB))
-            end
-        end
-    end,
-    ClearText = function(self)
-        for k, v in pairs(self.Text) do
-            v:SetText('')
-        end
-    end,
-    UpdateText = function(self)
-        local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, GUID = GetGuildRosterInfo(GetGuildRosterSelection())
-        --self.Text.MainSpec:SetText(tostring(self.CurrentMember.MainSpec..' '..Guildbook.Data.SpecFontStringIconSMALL[class][self.CurrentMember.MainSpec]..' '..Guildbook.Data.RoleIcons[Guildbook.Data.SpecToRole[class][self.CurrentMember.MainSpec]].FontStringIcon))
-        --self.Text.OffSpec:SetText(tostring(self.CurrentMember.OffSpec..' '..Guildbook.Data.SpecFontStringIconSMALL[class][self.CurrentMember.OffSpec]..' '..Guildbook.Data.RoleIcons[Guildbook.Data.SpecToRole[class][self.CurrentMember.OffSpec]].FontStringIcon))
-        if self.CurrentMember.MainSpecIsPvP == 'true' then
-            self.Text.MainSpec:SetText(tostring(self.CurrentMember.MainSpec..' '..Guildbook.Data.RoleIcons[Guildbook.Data.SpecToRole[class][self.CurrentMember.MainSpec]].FontStringIcon..' '..Guildbook.Data.StatusIconStringsSMALL.PVP))
-        else
-            self.Text.MainSpec:SetText(tostring(self.CurrentMember.MainSpec..' '..Guildbook.Data.RoleIcons[Guildbook.Data.SpecToRole[class][self.CurrentMember.MainSpec]].FontStringIcon))
-        end
-        if self.CurrentMember.OffSpecIsPvP == 'true' then
-            self.Text.OffSpec:SetText(tostring(self.CurrentMember.OffSpec..' '..Guildbook.Data.RoleIcons[Guildbook.Data.SpecToRole[class][self.CurrentMember.OffSpec]].FontStringIcon..' '..Guildbook.Data.StatusIconStringsSMALL.PVP))
-        else
-            self.Text.OffSpec:SetText(tostring(self.CurrentMember.OffSpec..' '..Guildbook.Data.RoleIcons[Guildbook.Data.SpecToRole[class][self.CurrentMember.OffSpec]].FontStringIcon))
-        end
-        self.Text.Profession1:SetText(tostring(Guildbook.Data.Profession[self.CurrentMember.Prof1].FontStringIconSMALL..' '..self.CurrentMember.Prof1..' '..self.CurrentMember.Prof1Level))
-        self.Text.Profession2:SetText(tostring(Guildbook.Data.Profession[self.CurrentMember.Prof2].FontStringIconSMALL..' '..self.CurrentMember.Prof2..' '..self.CurrentMember.Prof2Level))
-        self.Text.Main:SetText(self.CurrentMember.MainCharacter)
-        self.Text.ilvl:SetText(self.CurrentMember.ilvl)
-    end,    
-    DrawLabels = function(self)
-        for k, label in pairs(self.Labels) do
-            label:SetText(L[k])
-            label:SetFont("Fonts\\FRIZQT__.TTF", 10)
-        end
-        self.Labels.ilvl:SetPoint('TOPLEFT', GuildMemberDetailOfficerNoteLabel, 'BOTTOMLEFT', 0, -50)
-        self.Labels.MainSpec:SetPoint('TOPLEFT', GuildMemberDetailOfficerNoteLabel, 'BOTTOMLEFT', 0, -70)
-        self.Labels.OffSpec:SetPoint('TOPLEFT', GuildMemberDetailOfficerNoteLabel, 'BOTTOMLEFT', 0, -90)
-        self.Labels.Professions:SetPoint('TOPLEFT', GuildMemberDetailOfficerNoteLabel, 'BOTTOMLEFT', 0, -110)
-        self.Labels.Main:SetPoint('BOTTOMLEFT', GuildMemberRemoveButton, 'TOPLEFT', 8, 5)
-    end,
-    DrawText = function(self)
-        for k, text in pairs(self.Text) do
-            text:SetText(L[k])
-            text:SetFont("Fonts\\FRIZQT__.TTF", 12)
-            text:SetTextColor(1,1,1,1)
-        end
-        self.Text.Main:SetPoint('LEFT', self.Labels.Main, 'RIGHT', 3, 0)
-        self.Text.MainSpec:SetPoint('LEFT', self.Labels.MainSpec, 'RIGHT', 3, 0)
-        self.Text.OffSpec:SetPoint('LEFT', self.Labels.OffSpec, 'RIGHT', 3, 0)
-        self.Text.Profession1:SetPoint('TOPLEFT', self.Labels.Professions, 'BOTTOMLEFT', 0, -5)
-        self.Text.Profession2:SetPoint('TOPLEFT', self.Text.Profession1, 'BOTTOMLEFT', 0, -5)
-        self.Text.ilvl:SetPoint('BOTTOMLEFT', self.Labels.ilvl, 'BOTTOMRIGHT', 3, 0)
-    end,
-    HandleRosterUpdate = function(self, ...)
-        if GetGuildRosterSelection() > 0 then
-            self:UpdateLabels()
-        end
-    end,
-    HandleAddonMessage = function(self, ...)
-        local prefix = select(1, ...)
-        local msg = select(2, ...)
-        local sender = select(5, ...)
-        if prefix == 'gb-mdf-req' then --guildbook-memberDetailFrame-request
-            local dataSent = C_ChatInfo.SendAddonMessage('gb-mdf-data', tostring(GUILDBOOK_CHARACTER['MainSpec']..':'..GUILDBOOK_CHARACTER['OffSpec']..':'..Guildbook.GetProfessionData()..':'..Guildbook.GetMainCharacter()..':'..Guildbook.GetItemLevel()..':'..tostring(GUILDBOOK_CHARACTER['MainSpecIsPvP'])..':'..tostring(GUILDBOOK_CHARACTER['OffSpecIsPvP'])), 'WHISPER', sender)
-            if dataSent then
-                DEBUG('data sent to '..sender)
-            end
-        elseif prefix == 'gb-mdf-data' then --guildbook-memberDetailFrame-data
-            DEBUG('data reply from '..sender)
-            if GuildMemberDetailFrame:IsVisible() and GetGuildRosterSelection() then
-                self:ClearCurrentMember()
-                --local keys = { 'MainSpec', 'OffSpec', 'Fishing', 'Cooking', 'FirstAid', 'Prof1', 'Prof1Level', 'Prof2', 'Prof2Level', 'MainCharacter', 'ilvl', 'MainSpecIsPvp', 'OffSpecIsPvp' } --data returned will be in this order
-                local i = 1
-                for d in string.gmatch(msg, '[^:]+') do
-                    self.CurrentMember[self.MemberDataMsgKeys[i]] = d
-                    i = i + 1
-                end
-                self:UpdateText()
-            end
-        end
-    end,
 }
+
+function Guildbook:UpdateGuildMemberDetailFrameLabels()
+    local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, GUID = GetGuildRosterInfo(GetGuildRosterSelection())
+    if class then
+        if GuildMemberDetailName:GetText() then
+            GuildMemberDetailName:SetText(GuildMemberDetailName:GetText()..' '..Guildbook.Data.Class[class].FontStringIconSMALL)
+        end
+        GuildMemberDetailName:SetTextColor(unpack(Guildbook.Data.Class[class].RGB))
+        GuildMemberDetailZoneLabel:SetTextColor(unpack(Guildbook.Data.Class[class].RGB))
+        GuildMemberDetailRankLabel:SetTextColor(unpack(Guildbook.Data.Class[class].RGB))
+        GuildMemberDetailOnlineLabel:SetTextColor(unpack(Guildbook.Data.Class[class].RGB))
+        GuildMemberDetailNoteLabel:SetTextColor(unpack(Guildbook.Data.Class[class].RGB))
+        GuildMemberDetailOfficerNoteLabel:SetTextColor(unpack(Guildbook.Data.Class[class].RGB))        
+        for k, label in pairs(self.GuildMemberDetailFrame.Labels) do
+            label:SetTextColor(unpack(Guildbook.Data.Class[class].RGB))
+        end
+    end
+end
+
+function Guildbook:ClearGuildMemberDetailFrame()
+    for k, v in pairs(self.GuildMemberDetailFrame.Text) do
+        v:SetText('')
+    end
+end
+
+function Guildbook:UpdateGuildMemberDetailFrame(guid)
+    for k, v in pairs(self.GuildMemberDetailFrame.Text) do
+        v:SetText('')
+    end
+    local guildName = Guildbook:GetGuildName()
+    if guildName and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
+        if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] then
+            local character = GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid]
+            self.GuildMemberDetailFrame.Text.Profession1:SetText(string.format('%s %s [%s]', Guildbook.Data.Profession[character.Profession1].FontStringIconSMALL, character.Profession1, character.Profession1Level))
+            self.GuildMemberDetailFrame.Text.Profession2:SetText(string.format('%s %s [%s]', Guildbook.Data.Profession[character.Profession2].FontStringIconSMALL, character.Profession2, character.Profession2Level))
+            self.GuildMemberDetailFrame.Text.Main:SetText(character.MainCharacter)
+            self.GuildMemberDetailFrame.Text.ilvl:SetText(character.ItemLevel)
+            if character.MainSpecIsPvP == 'true' then
+                self.GuildMemberDetailFrame.Text.MainSpec:SetText(string.format('%s %s %s', character.MainSpec, Guildbook.Data.RoleIcons[Guildbook.Data.SpecToRole[character.Class][character.MainSpec]].FontStringIcon, Guildbook.Data.StatusIconStringsSMALL.PVP))
+            else
+                self.GuildMemberDetailFrame.Text.MainSpec:SetText(string.format('%s %s', character.MainSpec, Guildbook.Data.RoleIcons[Guildbook.Data.SpecToRole[character.Class][character.MainSpec]].FontStringIcon))
+            end
+            if character.OffSpecIsPvP == 'true' then
+                self.GuildMemberDetailFrame.Text.OffSpec:SetText(string.format('%s %s %s', character.OffSpec, Guildbook.Data.RoleIcons[Guildbook.Data.SpecToRole[character.Class][character.OffSpec]].FontStringIcon, Guildbook.Data.StatusIconStringsSMALL.PVP))
+            else
+                self.GuildMemberDetailFrame.Text.OffSpec:SetText(string.format('%s %s', character.OffSpec, Guildbook.Data.RoleIcons[Guildbook.Data.SpecToRole[character.Class][character.OffSpec]].FontStringIcon))
+            end
+        end
+    end
+end
+
+function Guildbook:SetupGuildMemberDetailframe()
+    for k, label in pairs(self.GuildMemberDetailFrame.Labels) do
+        label:SetText(L[k])
+        label:SetFont("Fonts\\FRIZQT__.TTF", 10)
+    end
+    self.GuildMemberDetailFrame.Labels.ilvl:SetPoint('TOPLEFT', GuildMemberDetailOfficerNoteLabel, 'BOTTOMLEFT', 0, -50)
+    self.GuildMemberDetailFrame.Labels.MainSpec:SetPoint('TOPLEFT', GuildMemberDetailOfficerNoteLabel, 'BOTTOMLEFT', 0, -70)
+    self.GuildMemberDetailFrame.Labels.OffSpec:SetPoint('TOPLEFT', GuildMemberDetailOfficerNoteLabel, 'BOTTOMLEFT', 0, -90)
+    self.GuildMemberDetailFrame.Labels.Professions:SetPoint('TOPLEFT', GuildMemberDetailOfficerNoteLabel, 'BOTTOMLEFT', 0, -110)
+    self.GuildMemberDetailFrame.Labels.Main:SetPoint('BOTTOMLEFT', GuildMemberRemoveButton, 'TOPLEFT', 8, 5)
+
+    for k, text in pairs(self.GuildMemberDetailFrame.Text) do
+        text:SetText(L[k])
+        text:SetFont("Fonts\\FRIZQT__.TTF", 12)
+        text:SetTextColor(1,1,1,1)
+    end
+    self.GuildMemberDetailFrame.Text.Main:SetPoint('LEFT', self.GuildMemberDetailFrame.Labels.Main, 'RIGHT', 3, 0)
+    self.GuildMemberDetailFrame.Text.MainSpec:SetPoint('LEFT', self.GuildMemberDetailFrame.Labels.MainSpec, 'RIGHT', 3, 0)
+    self.GuildMemberDetailFrame.Text.OffSpec:SetPoint('LEFT', self.GuildMemberDetailFrame.Labels.OffSpec, 'RIGHT', 3, 0)
+    self.GuildMemberDetailFrame.Text.Profession1:SetPoint('TOPLEFT', self.GuildMemberDetailFrame.Labels.Professions, 'BOTTOMLEFT', 0, -5)
+    self.GuildMemberDetailFrame.Text.Profession2:SetPoint('TOPLEFT', self.GuildMemberDetailFrame.Text.Profession1, 'BOTTOMLEFT', 0, -5)
+    self.GuildMemberDetailFrame.Text.ilvl:SetPoint('BOTTOMLEFT', self.GuildMemberDetailFrame.Labels.ilvl, 'BOTTOMRIGHT', 3, 0)
+end
+
+

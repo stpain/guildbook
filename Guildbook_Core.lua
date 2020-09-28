@@ -22,9 +22,18 @@ the copyright holders.
 
 local addonName, Guildbook = ...
 
+local build = 2
+local locale = GetLocale()
+
 local AceComm = LibStub:GetLibrary("AceComm-3.0")
 local LibDeflate = LibStub:GetLibrary("LibDeflate")
 local LibSerialize = LibStub:GetLibrary("LibSerialize")
+
+function Guildbook.DEBUG(msg)
+    if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['Debug'] then
+        print(tostring('|cffC41F3BGUILDBOOK: '..msg))
+    end
+end
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 --slash commands
@@ -42,57 +51,9 @@ end
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 local L = Guildbook.Locales
 local DEBUG = Guildbook.DEBUG
-local PRINT = Guildbook.PRINT
 
-local PRINT_COLOUR = '|cff0070DE'
-
---set constants
-local FRIENDS_FRAME_WIDTH = FriendsFrame:GetWidth()
-local GUILD_FRAME_WIDTH = GuildFrame:GetWidth()
-local GUILD_INFO_FRAME_WIDTH = GuildInfoFrame:GetWidth()
-
--- config stuff
-Guildbook.GuildFrame = {
-    ColumnHeaders = {
-        { Text = 'Rank', Width = 70, },
-        { Text = 'Note', Width = 80, },
-        { Text = 'Main Spec', Width = 80, },
-        { Text = 'Profession 1', Width = 90, },
-        { Text = 'Profession 2', Width = 90, },
-        { Text = 'Online', Width = 65, },
-    },
-    ColumnTabs = {},
-    ColumnWidths = {
-        Rank = 67.0,
-        Note = 77.0,
-        MainSpec = 77.0,
-        Profession1 = 87.0,
-        Profession2 = 87.0,
-        Online = 52.0,
-    },
-    ColumnMarginX = 1.0,
-}
 Guildbook.FONT_COLOUR = ''
 Guildbook.PlayerMixin = nil
-Guildbook.CharDataMsgkeys = {
-    [1] = 'guid',
-    [2] = 'name',
-    [3] = 'class',
-    [4] = 'level',
-    [5] = 'fishing',
-    [6] = 'cooking',
-    [7] = 'firstaid',
-    [8] = 'prof1',
-    [9] = 'prof1level',
-    [10] = 'prof2',
-    [11] = 'prof2level',
-    [12] = 'main',
-    [13] = 'mainspec',
-    [14] = 'offspec',
-    [15] = 'mainspecispvp',
-    [16] = 'offspecispvp',
-    [17] = 'guildname',
-}
 Guildbook.GuildBankCommit = {
     Commit = nil,
     Character = nil,
@@ -103,416 +64,23 @@ Guildbook.GuildBankCommit = {
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 function Guildbook:Init()
     DEBUG('running init')
-
-    local news = [[
-Welcome to Guildbook and thank you for using the addon.
-
-|cff06B200Bug fixes|r:
-Enchanting recipes should now be scanned
-Minor UI tweaks and improvements
-
-|cff0070DEUpdates|r:
-Character profession data now saved. When you request profession data Guildbook will first check if you have any data on file, if not its sends a request otherwise it loads from file. This reduces the impact on server resources (chat systems).
-As a result of this change there will be some issues between this version and the previous version, some compatability has been included while guild members update their addon.
-You will still be able to request data from older versions, but this will not be stored locally. 
-Older versions will not be able to receive profession data from you.
-
-|cffC41F3BIssues|r:
-Please report bugs at curseforge 
-(ctrl+c to copy website)
-]]
-
-    if GUILDBOOK_GLOBAL['ShowUpdatesDialog'] == nil then
-        GUILDBOOK_GLOBAL['ShowUpdatesDialog'] = true
-    end
-    if GUILDBOOK_GLOBAL['ShowUpdatesDialog'] == true then
-        StaticPopup_Show('GuildbookUpdates', news)
-    end
+    
+    local version = GetAddOnMetadata('Guildbook', "Version")
 
     self.ContextMenu_DropDown = CreateFrame("Frame", "GuildbookContextMenu", UIParent, "UIDropDownMenuTemplate")
     self.ContextMenu = {}
-
-    -- adjust blizz layout and add widgets
-    GuildFrameGuildListToggleButton:Hide()
-
-    GuildFrame:HookScript('OnShow', function(self)
-        self:SetWidth(810)
-        FriendsFrame:SetWidth(810)
-    end)
-    
-    GuildFrame:HookScript('OnHide', function(self)
-        self:SetWidth(GUILD_FRAME_WIDTH)
-        FriendsFrame:SetWidth(FRIENDS_FRAME_WIDTH)
-    end)
-    
-    --extend the guild info frame to full guild frame height
-    GuildInfoFrame:SetPoint('TOPLEFT', GuildFrame, 'TOPRIGHT', 1, 0)
-    GuildInfoFrame:SetPoint('BOTTOMLEFT', GuildFrame, 'BOTTOMRIGHT', 1, 0) 
-    
-    --extend the player detail frame to full height
-    GuildMemberDetailFrame:SetPoint('TOPLEFT', GuildFrame, 'TOPRIGHT', 1, 0)
-    GuildMemberDetailFrame:SetPoint('BOTTOMLEFT', GuildFrame, 'BOTTOMRIGHT', 1, 0)
-
-    GuildInfoTextBackground:ClearAllPoints()
-    GuildInfoTextBackground:SetPoint('TOPLEFT', GuildInfoFrame, 'TOPLEFT', 11, -32)
-    GuildInfoTextBackground:SetPoint('BOTTOMRIGHT', GuildInfoFrame, 'BOTTOMRIGHT', -11, 40)
-    GuildInfoFrameScrollFrame:SetPoint('BOTTOMRIGHT', GuildInfoTextBackground, 'BOTTOMRIGHT', -31, 7)
-
-   
-    for k, col in ipairs(self.GuildFrame.ColumnHeaders) do
-        local tab = CreateFrame('BUTTON', 'GuildbookGuildFrameColumnHeader'..col.Text, GuildFrame)--, "OptionsFrameTabButtonTemplate")
-        if col.Text == 'Rank' then
-            tab:SetPoint('LEFT', GuildFrameColumnHeader4, 'RIGHT', -2.0, 0.0)
-        else
-            tab:SetPoint('LEFT', self.GuildFrame.ColumnTabs[k-1], 'RIGHT', -2.0, 0.0)
-        end
-        tab:SetSize(col.Width, GuildFrameColumnHeader4:GetHeight())
-        tab.text = tab:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
-        tab.text:SetPoint('LEFT', tab, 'LEFT', 8.0, 0.0)
-        tab.text:SetText(col.Text)
-        tab.text:SetFont("Fonts\\FRIZQT__.TTF", 10)
-        tab.text:SetTextColor(1,1,1,1)
-        tab.background = tab:CreateTexture('$parentBackground', 'BACKGROUND')
-        tab.background:SetAllPoints(tab)
-        tab.background:SetTexture(131139)
-        tab.background:SetTexCoord(0.0, 0.00, 0.0 ,0.75, 0.97, 0.0, 0.97, 0.75)
-        if (col.Text == 'Rank') or (col.Text == 'Note') or (col.Text == 'Online') then -- for now so it only works on blizz columns
-            tab:SetScript('OnClick', function()
-                SortGuildRoster(col.Text);
-            end)
-        end
-        self.GuildFrame.ColumnTabs[k] = tab
-    end
-    
-    GuildFrameNotesText:ClearAllPoints()
-    GuildFrameNotesText:SetPoint('TOPLEFT', GuildFrameNotesLabel, 'BOTTOMLEFT', 0.0, -3.0)
-    GuildFrameNotesText:SetPoint('BOTTOMRIGHT', GuildFrame, 'BOTTOMRIGHT', -12.0, 30.0)
-   
-    GuildListScrollFrame:ClearAllPoints()
-    GuildListScrollFrame:SetPoint('TOPLEFT', GuildFrame, 'TOPLEFT', 11.0, -87.0)
-    GuildListScrollFrame:SetPoint('TOPRIGHT', GuildFrame, 'TOPRIGHT', -32.0, -87.0)
-    
-    GuildFrameButton1:ClearAllPoints()
-    GuildFrameButton1:SetPoint('TOPLEFT', GuildFrame, 'TOPLEFT', 8.0, -82.0)
-    GuildFrameButton1:SetPoint('TOPRIGHT', GuildFrame, 'TOPRIGHT', -32.0, -82.0)
-    GuildFrameButton1:GetHighlightTexture():SetAllPoints(GuildFrameButton1)
-    
-    for i = 1, 13 do
-        -- adjust Name column position
-        _G['GuildFrameButton'..i..'Name']:ClearAllPoints()
-        _G['GuildFrameButton'..i..'Name']:SetPoint('TOPLEFT', _G['GuildFrameButton'..i], 'TOPLEFT', 7.0, -3.0)
-        -- hook the click event
-        _G['GuildFrameButton'..i]:HookScript('OnClick', function(self, button)
-            if (button == 'LeftButton') and (GuildMemberDetailFrame:IsVisible()) then
-                --print(_G['GuildFrameButton'..i..'Name']:GetText())
-                Guildbook.GuildMemberDetailFrame:ClearText()
-                local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, GUID = GetGuildRosterInfo(GetGuildRosterSelection())
-                if isOnline then
-                    local requestSent = C_ChatInfo.SendAddonMessage('gb-mdf-req', 'requestdata', 'WHISPER', name)
-                    if requestSent then
-                        DEBUG('sent data request to '..name)
-                    end
-                    Guildbook:CharacterDataRequest(name)
-                end
-                Guildbook.GuildMemberDetailFrame:UpdateLabels()
-            end
-        end)
-    end
-    
-    local function formatGuildFrameButton(button, col)
-        --button:SetFont("Fonts\\FRIZQT__.TTF", 10)
-        button:SetJustifyH('LEFT')
-        button:SetTextColor(col[1], col[2], col[3], col[4])
-    end
-    
-    GuildFrameButton1.GuildbookColumnRank = GuildFrameButton1:CreateFontString('$parentGuildbookRank', 'OVERLAY', 'GameFontNormalSmall')
-    GuildFrameButton1.GuildbookColumnRank:SetPoint('LEFT', _G['GuildFrameButton1Class'], 'RIGHT', -12.0, 0)
-    GuildFrameButton1.GuildbookColumnRank:SetSize(self.GuildFrame.ColumnWidths['Rank'], GuildFrameButton1:GetHeight())
-    formatGuildFrameButton(GuildFrameButton1.GuildbookColumnRank, {1,1,1,1})
-    
-    GuildFrameButton1.GuildbookColumnNote = GuildFrameButton1:CreateFontString('$parentGuildbookNote', 'OVERLAY', 'GameFontNormalSmall')
-    GuildFrameButton1.GuildbookColumnNote:SetPoint('LEFT', GuildFrameButton1.GuildbookColumnRank, 'RIGHT', self.GuildFrame.ColumnMarginX, 0)
-    GuildFrameButton1.GuildbookColumnNote:SetSize(self.GuildFrame.ColumnWidths['Note'], GuildFrameButton1:GetHeight())
-    formatGuildFrameButton(GuildFrameButton1.GuildbookColumnNote, {1,1,1,1})
-    
-    GuildFrameButton1.GuildbookColumnMainSpec = GuildFrameButton1:CreateFontString('$parentGuildbookMainSpec', 'OVERLAY', 'GameFontNormalSmall')
-    GuildFrameButton1.GuildbookColumnMainSpec:SetPoint('LEFT', GuildFrameButton1.GuildbookColumnNote, 'RIGHT', self.GuildFrame.ColumnMarginX, 0)
-    GuildFrameButton1.GuildbookColumnMainSpec:SetSize(self.GuildFrame.ColumnWidths['MainSpec'], GuildFrameButton1:GetHeight())
-    formatGuildFrameButton(GuildFrameButton1.GuildbookColumnMainSpec, {1,1,1,1})
-    
-    GuildFrameButton1.GuildbookColumnProfession1 = GuildFrameButton1:CreateFontString('$parentGuildbookProfession1', 'OVERLAY', 'GameFontNormalSmall')
-    GuildFrameButton1.GuildbookColumnProfession1:SetPoint('LEFT', GuildFrameButton1.GuildbookColumnMainSpec, 'RIGHT', self.GuildFrame.ColumnMarginX, 0)
-    GuildFrameButton1.GuildbookColumnProfession1:SetSize(self.GuildFrame.ColumnWidths['Profession1'], GuildFrameButton1:GetHeight())
-    formatGuildFrameButton(GuildFrameButton1.GuildbookColumnProfession1, {1,1,1,1})
-    
-    GuildFrameButton1.GuildbookColumnProfession2 = GuildFrameButton1:CreateFontString('$parentGuildbookProfession2', 'OVERLAY', 'GameFontNormalSmall')
-    GuildFrameButton1.GuildbookColumnProfession2:SetPoint('LEFT', GuildFrameButton1.GuildbookColumnProfession1, 'RIGHT', self.GuildFrame.ColumnMarginX, 0)
-    GuildFrameButton1.GuildbookColumnProfession2:SetSize(self.GuildFrame.ColumnWidths['Profession2'], GuildFrameButton1:GetHeight())
-    formatGuildFrameButton(GuildFrameButton1.GuildbookColumnProfession2, {1,1,1,1})
-
-    GuildFrameButton1.GuildbookColumnOnline = GuildFrameButton1:CreateFontString('$parentGuildbookOnline', 'OVERLAY', 'GameFontNormalSmall')
-    GuildFrameButton1.GuildbookColumnOnline:SetPoint('LEFT', GuildFrameButton1.GuildbookColumnProfession2, 'RIGHT', self.GuildFrame.ColumnMarginX, 0)
-    GuildFrameButton1.GuildbookColumnOnline:SetSize(self.GuildFrame.ColumnWidths['Online'], GuildFrameButton1:GetHeight())
-    formatGuildFrameButton(GuildFrameButton1.GuildbookColumnOnline, {1,1,1,1})
-    
-    for i = 2, 13 do
-        local button = _G['GuildFrameButton'..i]
-        button:ClearAllPoints()
-        button:SetPoint('TOPLEFT', _G['GuildFrameButton'..(i-1)], 'BOTTOMLEFT', 0.0, 0.0)
-        button:SetPoint('TOPRIGHT', _G['GuildFrameButton'..(i-1)], 'BOTTOMRIGHT', 0.0, 0.0)
-        button:GetHighlightTexture():SetAllPoints(button)
-    
-        button.GuildbookColumnRank = button:CreateFontString('$parentGuildbookRank', 'OVERLAY', 'GameFontNormalSmall')
-        button.GuildbookColumnRank:SetPoint('LEFT', _G['GuildFrameButton'..i..'Class'], 'RIGHT', -12.0, 0)
-        button.GuildbookColumnRank:SetSize(self.GuildFrame.ColumnWidths['Rank'], button:GetHeight())
-        formatGuildFrameButton(button.GuildbookColumnRank, {1,1,1,1})
-    
-        button.GuildbookColumnNote = button:CreateFontString('$parentGuildbookNote', 'OVERLAY', 'GameFontNormalSmall')
-        button.GuildbookColumnNote:SetPoint('LEFT', button.GuildbookColumnRank, 'RIGHT', self.GuildFrame.ColumnMarginX, 0)
-        button.GuildbookColumnNote:SetSize(self.GuildFrame.ColumnWidths['Note'], button:GetHeight())
-        formatGuildFrameButton(button.GuildbookColumnNote, {1,1,1,1})
-    
-        button.GuildbookColumnMainSpec = button:CreateFontString('$parentGuildbookMainSpec', 'OVERLAY', 'GameFontNormalSmall')
-        button.GuildbookColumnMainSpec:SetPoint('LEFT', button.GuildbookColumnNote, 'RIGHT', self.GuildFrame.ColumnMarginX, 0)
-        button.GuildbookColumnMainSpec:SetSize(self.GuildFrame.ColumnWidths['MainSpec'], button:GetHeight())
-        formatGuildFrameButton(button.GuildbookColumnMainSpec, {1,1,1,1})  
-    
-        button.GuildbookColumnProfession1 = button:CreateFontString('$parentGuildbookProfession1', 'OVERLAY', 'GameFontNormalSmall')
-        button.GuildbookColumnProfession1:SetPoint('LEFT', button.GuildbookColumnMainSpec, 'RIGHT', self.GuildFrame.ColumnMarginX, 0)
-        button.GuildbookColumnProfession1:SetSize(self.GuildFrame.ColumnWidths['Profession1'], button:GetHeight())
-        formatGuildFrameButton(button.GuildbookColumnProfession1, {1,1,1,1})   
-    
-        button.GuildbookColumnProfession2 = button:CreateFontString('$parentGuildbookProfession2', 'OVERLAY', 'GameFontNormalSmall')
-        button.GuildbookColumnProfession2:SetPoint('LEFT', button.GuildbookColumnProfession1, 'RIGHT', self.GuildFrame.ColumnMarginX, 0)
-        button.GuildbookColumnProfession2:SetSize(self.GuildFrame.ColumnWidths['Profession2'], button:GetHeight())
-        formatGuildFrameButton(button.GuildbookColumnProfession2, {1,1,1,1})   
-
-        button.GuildbookColumnOnline = button:CreateFontString('$parentGuildbookOnline', 'OVERLAY', 'GameFontNormalSmall')
-        button.GuildbookColumnOnline:SetPoint('LEFT', button.GuildbookColumnProfession2, 'RIGHT', self.GuildFrame.ColumnMarginX, 0)
-        button.GuildbookColumnOnline:SetSize(self.GuildFrame.ColumnWidths['Online'], button:GetHeight())
-        formatGuildFrameButton(button.GuildbookColumnOnline, {1,1,1,1})   
-    end
-    
-    hooksecurefunc("GuildStatus_Update", function()
-        local numTotal, numOnline, numOnlineAndMobile = GetNumGuildMembers()
-        for i = 1, 13 do
-            local button = _G['GuildFrameButton'..i]
-            local idx = tonumber(button.guildIndex)
-            button:Show()
-            --clear text
-            button.GuildbookColumnRank:SetText('')
-            button.GuildbookColumnNote:SetText('')
-            button.GuildbookColumnMainSpec:SetText('')
-            button.GuildbookColumnProfession1:SetText('')
-            button.GuildbookColumnProfession2:SetText('')
-            button.GuildbookColumnOnline:SetText('')
-            local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, GUID = GetGuildRosterInfo(idx)
-            local offline = 'online'
-            if isOnline == false then            
-                local yearsOffline, monthsOffline, daysOffline, hoursOffline = GetGuildRosterLastOnline(idx)
-                --print(string.format('%d, %s - years %s, months %s, days %s, hours %s', idx, name, yearsOffline, monthsOffline, daysOffline, hoursOffline))
-                if yearsOffline and yearsOffline > 0 then
-                    offline = string.format('%s years', yearsOffline)
-                else
-                    if monthsOffline and monthsOffline > 0 then
-                        offline = string.format('%s months', monthsOffline)
-                    else
-                        if daysOffline and daysOffline > 0 then
-                            offline = string.format('%s days', daysOffline)
-                        else
-                            if hoursOffline and hoursOffline > 0 then
-                                offline = string.format('%s hours', hoursOffline)
-                            else
-                                offline = '< an hour'
-                            end
-                        end
-                    end
-                end
-                --print('status, '..offline)
-            end
-            -- update font colours
-            if isOnline == false then
-                formatGuildFrameButton(button.GuildbookColumnRank, {0.5,0.5,0.5,1})
-                formatGuildFrameButton(button.GuildbookColumnNote, {0.5,0.5,0.5,1})
-                formatGuildFrameButton(button.GuildbookColumnMainSpec, {0.5,0.5,0.5,1})
-                formatGuildFrameButton(button.GuildbookColumnProfession1, {0.5,0.5,0.5,1})
-                formatGuildFrameButton(button.GuildbookColumnProfession2, {0.5,0.5,0.5,1})
-                formatGuildFrameButton(button.GuildbookColumnOnline, {0.5,0.5,0.5,1})
-            else
-                formatGuildFrameButton(button.GuildbookColumnRank, {1,1,1,1})
-                formatGuildFrameButton(button.GuildbookColumnNote, {1,1,1,1})
-                formatGuildFrameButton(button.GuildbookColumnMainSpec, {1,1,1,1})
-                formatGuildFrameButton(button.GuildbookColumnProfession1, {1,1,1,1})
-                formatGuildFrameButton(button.GuildbookColumnProfession2, {1,1,1,1})
-                formatGuildFrameButton(button.GuildbookColumnOnline, {1,1,1,1})
-            end                
-            --change class text colour
-            if class and classDisplayName then
-                _G['GuildFrameButton'..i..'Class']:SetText(string.format('%s%s|r', self.Data.Class[class].FontColour, classDisplayName))
-            end
-            -- set known columns
-            button.GuildbookColumnRank:SetText(rankName)    
-            button.GuildbookColumnNote:SetText(publicNote)
-            --offline = _G['GuildFrameGuildStatusButton'..idx..'Online']:GetText()
-            button.GuildbookColumnOnline:SetText(offline)
-            -- clear unknown columns
-            button.GuildbookColumnMainSpec:SetText('-')
-            button.GuildbookColumnProfession1:SetText('-')
-            button.GuildbookColumnProfession2:SetText('-')
-            -- loop local cache and update columns
-            local guildName = Guildbook:GetGuildName()
-            if guildName then
-                if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache and GUILDBOOK_GLOBAL.GuildRosterCache[guildName] and next(GUILDBOOK_GLOBAL.GuildRosterCache[guildName]) then
-                    if GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID] then
-                        local ms, os = GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]['MainSpec'], GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]['OffSpec']
-                        local prof1 = GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]['Profession1']
-                        local prof2 = GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]['Profession2']
-                        button.GuildbookColumnMainSpec:SetText(ms)
-                        --button.GuildbookColumnMainSpec:SetText(string.format('%s %s', self.Data.SpecFontStringIconSMALL[GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]['Class']][ms], ms))
-                        button.GuildbookColumnProfession1:SetText(prof1)
-                        button.GuildbookColumnProfession2:SetText(prof2)
-                        -- button.GuildbookColumnProfession1:SetText(string.format('%s %s', self.Data.Profession[prof1].FontStringIconSMALL, prof1))
-                        -- button.GuildbookColumnProfession2:SetText(string.format('%s %s', self.Data.Profession[prof2].FontStringIconSMALL, prof2))
-                    end
-                end
-            end
-            if Guildbook.GuildFrame.StatsFrame:IsVisible() then
-                button:Hide()
-            end
-            if (GuildFrameLFGButton:GetChecked() == false) and(i > numOnline) then
-                button:Hide()
-            end
-        end
-    end)
-
-    local function toggleGuildFrames(frame)
-        for f, _ in pairs(Guildbook.GuildFrame.Frames) do
-            _G['GuildbookGuildFrame'..f]:Hide()
-        end
-        if frame == 'none' then
-            for i = 1, 13 do
-                _G['GuildFrameButton'..i]:Show()
-            end
-            GuildFrameLFGFrame:Show()
-            SortGuildRoster('Online')
-        else
-            for i = 1, 13 do
-                _G['GuildFrameButton'..i]:Hide()
-            end
-            GuildFrameLFGFrame:Hide()
-            Guildbook.GuildFrame[frame]:Show()
-        end
-    end
-
-    self.GuildFrame.RosterButton = CreateFrame('BUTTON', 'GuildbookGuildFrameRosterButton', GuildFrame, "UIPanelButtonTemplate")
-    self.GuildFrame.RosterButton:SetPoint('RIGHT', GuildFrameGuildInformationButton, 'LEFT', -2, 0)
-    self.GuildFrame.RosterButton:SetSize(85, GuildFrameGuildInformationButton:GetHeight())
-    self.GuildFrame.RosterButton:SetText('Guild Roster')
-    self.GuildFrame.RosterButton:SetNormalFontObject(GameFontNormalSmall)
-    self.GuildFrame.RosterButton:SetHighlightFontObject(GameFontNormalSmall)
-    self.GuildFrame.RosterButton:SetScript('OnClick', function(self)
-        GuildRoster()
-        toggleGuildFrames('none')
-    end)
-    
-    self.GuildFrame.Frames = {
-        ['StatsFrame'] = { Text = 'Statistics', Width = 85.0, OffsetY = -87.0 },
-        ['TradeSkillFrame'] = { Text = 'Professions', Width = 85.0, OffsetY = -174.0 },
-        ['GuildBankFrame'] = { Text = 'Guild Bank', Width = 85.0, OffsetY = -261.0 },
-        ['GuildCalendarFrame'] = { Text = 'Calendar', Width = 75.0, OffsetY = -338.0 },
-    }
-
-    for frame, button in pairs(self.GuildFrame.Frames) do
-        self.GuildFrame[frame] = CreateFrame('FRAME', tostring('GuildbookGuildFrame'..frame), GuildFrame)
-        self.GuildFrame[frame]:SetBackdrop({
-            edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-            edgeSize = 16,
-            bgFile = "interface/framegeneral/ui-background-marble",
-            tile = true,
-            tileEdge = false,
-            tileSize = 300,
-            insets = { left = 4, right = 4, top = 4, bottom = 4 }
-        })
-        self.GuildFrame[frame]:SetPoint('TOPLEFT', GuildFrame, 'TOPLEFT', 2.00, -55.0)
-        if frame == 'GuildCalendarFrame' or frame == 'GuildBankFrame' then
-            self.GuildFrame[frame]:SetPoint('BOTTOMRIGHT', GuildFrame, 'BOTTOMRIGHT', -4.00, 25.0)
-        else
-            self.GuildFrame[frame]:SetPoint('BOTTOMRIGHT', GuildFrame, 'TOPRIGHT', -4.00, -325.0)
-        end        
-        self.GuildFrame[frame]:SetFrameLevel(6)
-        self.GuildFrame[frame]:Hide()
-
-        self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')] = CreateFrame('BUTTON', tostring('GuildbookGuildFrame'..frame..'Button'), GuildFrame, "UIPanelButtonTemplate")
-        self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetPoint('LEFT', Guildbook.GuildFrame.RosterButton, 'LEFT', button.OffsetY, 0)
-        self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetSize(button.Width, GuildFrameGuildInformationButton:GetHeight())
-        self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetText(button.Text)
-        self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetNormalFontObject(GameFontNormalSmall)
-        self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetHighlightFontObject(GameFontNormalSmall)
-        self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetScript('OnClick', function(self)
-            toggleGuildFrames(frame)
-        end)
-    end
-
-    --134441
-
-    self.ScanGuildBankButton = CreateFrame('BUTTON', 'GuildbookBankFrameScanBankButton', BankFrame)
-    self.ScanGuildBankButton:SetPoint('TOPLEFT', BankCloseButton, 'BOTTOMRIGHT', -10, -50)
-    self.ScanGuildBankButton:SetSize(60, 60)
-    self.ScanGuildBankButton.background = self.ScanGuildBankButton:CreateTexture('$parentBakground', 'BACKGROUND')
-    self.ScanGuildBankButton.background:SetAllPoints(self.ScanGuildBankButton)
-    self.ScanGuildBankButton.background:SetTexture(136831)
-    self.ScanGuildBankButton.icon = self.ScanGuildBankButton:CreateTexture('$parentBakground', 'ARTWORK')
-    self.ScanGuildBankButton.icon:SetPoint('TOPLEFT', 4, -12)
-    self.ScanGuildBankButton.icon:SetPoint('BOTTOMRIGHT', -28, 20)
-    self.ScanGuildBankButton.icon:SetTexture(136453)
-    -- self.ScanGuildBankButton:SetText('Guildbook Scan Bank')
-    -- self.ScanGuildBankButton:SetNormalFontObject(GameFontNormalSmall)
-    -- self.ScanGuildBankButton:SetHighlightFontObject(GameFontNormalSmall)
-    self.ScanGuildBankButton:SetScript('OnClick', function(self)
-        Guildbook:ScanCharacterContainers()
-        PRINT(Guildbook.FONT_COLOUR, 'scanning bank, sending data to all online guild members.')
-    end)
-    self.ScanGuildBankButton:SetScript('OnEnter', function(self)
-        GameTooltip:SetOwner(self, 'ANCHOR_RIGHT', -28, -10)
-        GameTooltip:AddLine('Guildbook: Scan bank and update online players.')
-        GameTooltip:Show()
-    end)
-    self.ScanGuildBankButton:SetScript('OnLeave', function(self)
-        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-    end)
-
-    
-    self:SetupStatsFrame()
-    self:SetupTradeSkillFrame()
-    self:SetupGuildBankFrame()
-    self:SetupGuildCalendarFrame()
-
-    -- TODO: translate old guild memer detail frame into new code style
-    self.GuildMemberDetailFrame:DrawLabels()          
-    self.GuildMemberDetailFrame:DrawText()
-
-    --register the addon message prefixes
-    -- TODO: migrate this to use AceComm
-    local memberDetailFrameRequestPrefix = C_ChatInfo.RegisterAddonMessagePrefix('gb-mdf-req')
-    DEBUG('registered details request prefix: '..tostring(memberDetailFrameRequestPrefix))
-
-    local memberDetailFrameSentPrefix = C_ChatInfo.RegisterAddonMessagePrefix('gb-mdf-data')
-    DEBUG('registered details sent prefix: '..tostring(memberDetailFrameSentPrefix))
-
-    local requestCharacterInfo = C_ChatInfo.RegisterAddonMessagePrefix('gb-char-stats')
-    DEBUG('registered char data req prefix: '..tostring(requestCharacterInfo))
 
     AceComm:Embed(self)
     self:RegisterComm(addonName, 'ON_COMMS_RECEIVED')
 
     --create stored variable tables
-    if GUILDBOOK_GLOBAL == nil then
+    if GUILDBOOK_GLOBAL == nil or GUILDBOOK_GLOBAL == {} then
         GUILDBOOK_GLOBAL = self.Data.DefaultGlobalSettings
         DEBUG('created global saved variable table')
     else
         DEBUG('global variables exists')
     end
-    if GUILDBOOK_CHARACTER == nil then
+    if GUILDBOOK_CHARACTER == nil or GUILDBOOK_CHARACTER == {} then
         GUILDBOOK_CHARACTER = self.Data.DefaultCharacterSettings
         DEBUG('created character saved variable table')
     else
@@ -522,8 +90,13 @@ Please report bugs at curseforge
     if not GUILDBOOK_GLOBAL['GuildRosterCache'] then
         GUILDBOOK_GLOBAL['GuildRosterCache'] = {}
     end
-
-    self.LOADED = true
+    if GUILDBOOK_GLOBAL['Build'] == nil then
+        GUILDBOOK_GLOBAL['Build'] = 0
+    end
+    if tonumber(GUILDBOOK_GLOBAL['Build']) < build then
+        GUILDBOOK_GLOBAL['Build'] = build
+        StaticPopup_Show('GuildbookUpdates', version, Guildbook.News[build])
+    end
 
     local ldb = LibStub("LibDataBroker-1.1")
     self.MinimapButton = ldb:NewDataObject('GuildbookMinimapIcon', {
@@ -543,7 +116,7 @@ Please report bugs at curseforge
         end,
         OnTooltipShow = function(tooltip)
             if not tooltip or not tooltip.AddLine then return end
-            tooltip:AddLine(tostring(PRINT_COLOUR..addonName))
+            tooltip:AddLine(tostring('|cff0070DE'..addonName))
             tooltip:AddDoubleLine('|cffffffffLeft Click|r Options')
             tooltip:AddDoubleLine('|cffffffffRight Click|r Guild')
         end,
@@ -551,6 +124,7 @@ Please report bugs at curseforge
     self.MinimapIcon = LibStub("LibDBIcon-1.0")
     if not GUILDBOOK_GLOBAL['MinimapButton'] then GUILDBOOK_GLOBAL['MinimapButton'] = {} end
     self.MinimapIcon:Register('GuildbookMinimapIcon', self.MinimapButton, GUILDBOOK_GLOBAL['MinimapButton'])
+    -- used a timer here for some reason to force hiding
     C_Timer.After(1, function()
         if GUILDBOOK_GLOBAL['ShowMinimapButton'] == false then
             self.MinimapIcon:Hide('GuildbookMinimapIcon')
@@ -558,6 +132,12 @@ Please report bugs at curseforge
         end
     end)
 
+    self:ModBlizzUI()
+    self:SetupStatsFrame()
+    self:SetupTradeSkillFrame()
+    self:SetupGuildBankFrame()
+    self:SetupGuildCalendarFrame()
+    self:SetupGuildMemberDetailframe()
 
     GuildbookOptionsMainSpecDD_Init()
     GuildbookOptionsOffSpecDD_Init()
@@ -571,19 +151,70 @@ Please report bugs at curseforge
     GuildbookOptionsDebugCB:SetChecked(GUILDBOOK_GLOBAL['Debug'])
     GuildbookOptionsShowMinimapButton:SetChecked(GUILDBOOK_GLOBAL['ShowMinimapButton'])
 
-    local version = GetAddOnMetadata('Guildbook', "Version")
-    PRINT(PRINT_COLOUR, 'loaded (version '..version..')')
-
-    if GUILDBOOK_GAMEOBJECTS then
-        StaticPopup_Show('GuildbookReset')
-    end
-
     -- allow time for loading and whats nots, then send character data
-    C_Timer.After(5, function()
+    C_Timer.After(3, function()
         --Guildbook:SendCharacterStats()
         Guildbook:CharacterStats_OnChanged()
     end)
 
+end
+
+function Guildbook.GetProfessionData()
+    local myCharacter = { Fishing = 0, Cooking = 0, FirstAid = 0, Prof1 = '-', Prof1Level = 0, Prof2 = '-', Prof2Level = 0 }
+    for s = 1, GetNumSkillLines() do
+        local skill, _, _, level, _, _, _, _, _, _, _, _, _ = GetSkillLineInfo(s)
+        if skill == Guildbook.GetEnglish[locale]['Fishing'] then 
+            myCharacter.Fishing = level
+        elseif skill == Guildbook.GetEnglish[locale]['Cooking'] then
+            myCharacter.Cooking = level
+        elseif skill == Guildbook.GetEnglish[locale]['First Aid'] then
+            myCharacter.FirstAid = level
+        else
+            for k, prof in pairs(Guildbook.Data.Profession) do
+                if skill == Guildbook.GetEnglish[locale][prof.Name] then
+                    if myCharacter.Prof1 == '-' then
+                        myCharacter.Prof1 = Guildbook.GetEnglish[locale][skill]
+                        myCharacter.Prof1Level = level
+                    elseif myCharacter.Prof2 == '-' then
+                        myCharacter.Prof2 = Guildbook.GetEnglish[locale][skill]
+                        myCharacter.Prof2Level = level
+                    end
+                end
+            end
+        end
+    end
+    if GUILDBOOK_CHARACTER then
+        GUILDBOOK_CHARACTER['Profession1'] = myCharacter.Prof1
+        GUILDBOOK_CHARACTER['Profession1Level'] = myCharacter.Prof1Level
+        DEBUG('Set player Profession1 as: '..myCharacter.Prof1)
+        GUILDBOOK_CHARACTER['Profession2'] = myCharacter.Prof2
+        GUILDBOOK_CHARACTER['Profession2Level'] = myCharacter.Prof2Level
+        DEBUG('Set player Profession2 as: '..myCharacter.Prof2)
+    end
+end
+
+function Guildbook.GetInstanceInfo()
+    local t = {}
+    if GetNumSavedInstances() > 0 then
+        for i = 1, GetNumSavedInstances() do
+            local name, id, reset, difficulty, locked, extended, instanceIDMostSig, isRaid, maxPlayers, difficultyName, numEncounters, encounterProgress = GetSavedInstanceInfo(i)
+            tinsert(t, { Name = name, ID = id, Resets = date('*t', tonumber(GetTime() + reset)) })
+        end
+    end
+    return t
+end
+
+function Guildbook.GetItemLevel()
+    local character, itemlevel, itemCount = {}, 0, 0
+	for k, slot in ipairs(Guildbook.Data.InventorySlots) do
+		character[slot.Name] = GetInventoryItemID('player', slot.Id)
+		if character[slot.Name] ~= nil then
+			local iName, iLink, iRarety, ilvl = GetItemInfo(character[slot.Name])
+			itemlevel = itemlevel + ilvl
+			itemCount = itemCount + 1
+		end
+	end	
+	return math.floor(itemlevel/itemCount)
 end
 
 function Guildbook:IsGuildMemberOnline(member)
@@ -636,7 +267,6 @@ function Guildbook:OnTradeSkillsRequested(request, distribution, sender)
 end
 
 function Guildbook:OnTradeSkillsReceived(data, distribution, sender)
-    print(data.payload.profession, type(data.payload.recipes))
     if data.payload.profession and type(data.payload.recipes) == 'table' then
         C_Timer.After(4.0, function()
             local guildName = Guildbook:GetGuildName()
@@ -681,6 +311,8 @@ end
 function Guildbook:GetCharacterDataPayload()
     local guid = UnitGUID('player')
     local level = UnitLevel('player')
+    local ilvl = self:GetItemLevel()
+    self.GetProfessionData()
     if not self.PlayerMixin then
         self.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
     else
@@ -694,6 +326,7 @@ function Guildbook:GetCharacterDataPayload()
             payload = {
                 GUID = guid,
                 Level = level,
+                ItemLevel = ilvl,
                 Class = class,
                 Name = name,
                 Profession1Level = GUILDBOOK_CHARACTER["Profession1Level"],
@@ -726,25 +359,30 @@ end
 
 function Guildbook:OnCharacterDataReceived(data, distribution, sender)
     local guildName = self:GetGuildName()
-    if guildName and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
-        if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID] then
-            local character = GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID]
-            character.Level = tonumber(data.payload.Level)
-            character.Class = data.payload.Class
-            character.Name = data.payload.Name
-            character.Profession1Level = tonumber(data.payload.Profession1Level)
-            character.OffSpec = data.payload.OffSpec
-            character.Profession1 = data.payload.Profession1
-            character.MainCharacter = data.payload.MainCharacter
-            character.MainSpec = data.payload.MainSpec
-            character.MainSpecIsPvP = data.payload.MainSpecIsPvP
-            character.Profession2Level = tonumber(data.payload.Profession2Level)
-            character.Profession2 = data.payload.Profession2
-            character.AttunementsKeys = data.payload.AttunementsKeys
-            character.Availability = data.payload.Availability
-            character.OffSpecIsPvP = data.payload.OffSpecIsPvP
-            DEBUG(string.format('Received character data from: %s', data.payload.Name))
+    if guildName then
+        if not GUILDBOOK_GLOBAL.GuildRosterCache[guildName] then
+            GUILDBOOK_GLOBAL.GuildRosterCache[guildName] = {}
         end
+        if not GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID] then
+            GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID] = {}
+        end
+        GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].Level = tonumber(data.payload.Level)
+        GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].ItemLevel = tonumber(data.payload.ItemLevel)
+        GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].Class = data.payload.Class
+        GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].Name = data.payload.Name
+        GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].Profession1Level = tonumber(data.payload.Profession1Level)
+        GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].OffSpec = data.payload.OffSpec
+        GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].Profession1 = data.payload.Profession1
+        GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].MainCharacter = data.payload.MainCharacter
+        GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].MainSpec = data.payload.MainSpec
+        GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].MainSpecIsPvP = data.payload.MainSpecIsPvP
+        GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].Profession2Level = tonumber(data.payload.Profession2Level)
+        GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].Profession2 = data.payload.Profession2
+        GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].AttunementsKeys = data.payload.AttunementsKeys
+        GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].Availability = data.payload.Availability
+        GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].OffSpecIsPvP = data.payload.OffSpecIsPvP
+        DEBUG(string.format('Received character data from: %s', data.payload.Name))
+        Guildbook:UpdateGuildMemberDetailFrame(data.payload.GUID)
     end
 end
 
@@ -793,13 +431,6 @@ function Guildbook:OnGuildBankCommitReceived(data, distribution, sender)
             end
         end
     end
-    -- 4 seconds needed?
-    -- C_Timer.After(4, function()
-    --     if Guildbook.GuildBankCommit['BankCharacter'] then
-    --         DEBUG(string.format('using %s as has newest commit, sending request for guild bank data - delayed', Guildbook.GuildBankCommit['BankCharacter']))
-    --         Guildbook:SendGuildBankDataRequest()
-    --     end
-    -- end)
 end
 
 function Guildbook:SendGuildBankDataRequest()
@@ -898,10 +529,8 @@ function Guildbook:ScanCharacterContainers()
                     if id and count then
                         if not GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] then
                             GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] = count
-                            --print('adding first item to gb data')
                         else
                             GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] = GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] + count
-                            --print('updating item as already in data')
                         end
                     end
                 end
@@ -1021,140 +650,6 @@ function Guildbook:GetGuildName()
     end
 end
 
--- function Guildbook:SendCharacterStats()
---     local profs = self:GetCharacterProfessions()
---     local spec = self:GetCharacterSpecs()
---     local guid = UnitGUID('player')
---     local level = UnitLevel('player')
---     if not self.PlayerMixin then
---         self.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
---     else
---         self.PlayerMixin:SetGUID(guid)
---     end
---     if self.PlayerMixin:IsValid() then
---         local _, class, _ = C_PlayerInfo.GetClass(self.PlayerMixin)
---         local name = C_PlayerInfo.GetName(self.PlayerMixin)
---         local profs = self:GetCharacterProfessions()
---         local specs = self:GetCharacterSpecs()
---         local guildName = self:GetGuildName()
---         if guildName then
---             local msg = tostring(guid..'$'..name..'$'..class..'$'..level..'$'..profs..'$'..GUILDBOOK_CHARACTER['MainCharacter']..'$'..specs..'$'..guildName)
---             ChatThrottleLib:SendAddonMessage("NORMAL",  "gb-char-stats", msg, "GUILD")
---         end
---     end
--- end
-
---TODO: add func to drop prof if a player deletes a prof
--- function Guildbook:GetCharacterProfessions()
---     local myCharacter = { Fishing = 0, Cooking = 0, FirstAid = 0, Prof1 = '-', Prof1Level = 0, Prof2 = '-', Prof2Level = 0 }
---     for s = 1, GetNumSkillLines() do
---         local skill, _, _, level, _, _, _, _, _, _, _, _, _ = GetSkillLineInfo(s)
---         if skill == 'Fishing' then 
---             myCharacter.Fishing = level
---         elseif skill == 'Cooking' then
---             myCharacter.Cooking = level
---         elseif skill == 'First Aid' then
---             myCharacter.FirstAid = level
---         else
---             for k, prof in pairs(Guildbook.Data.Profession) do
---                 if skill == prof.Name then
---                     if myCharacter.Prof1 == '-' then
---                         myCharacter.Prof1 = skill
---                         myCharacter.Prof1Level = level
---                     elseif myCharacter.Prof2 == '-' then
---                         myCharacter.Prof2 = skill
---                         myCharacter.Prof2Level = level
---                     end
---                 end
---             end
---         end
---     end
---     if GUILDBOOK_CHARACTER then
---         GUILDBOOK_CHARACTER['Profession1'] = myCharacter.Prof1
---         GUILDBOOK_CHARACTER['Profession1Level'] = myCharacter.Prof1Level
---         GUILDBOOK_CHARACTER['Profession2'] = myCharacter.Prof2
---         GUILDBOOK_CHARACTER['Profession2Level'] = myCharacter.Prof2Level
---     end
---     local prof1Id = self.Data.ProfToID[myCharacter.Prof1]
---     local prof2Id = self.Data.ProfToID[myCharacter.Prof2]
---     return string.format('%s$%s$%s$%s$%s$%s$%s', myCharacter.Fishing, myCharacter.Cooking, myCharacter.FirstAid, prof1Id, myCharacter.Prof1Level, prof2Id, myCharacter.Prof2Level)
--- end
-
--- function Guildbook:GetCharacterSpecs()
---     local ms = self.Data.SpecToID[GUILDBOOK_CHARACTER['MainSpec']]
---     local os = self.Data.SpecToID[GUILDBOOK_CHARACTER['OffSpec']]
---     local mspvp, ospvp = 0, 0
---     if GUILDBOOK_CHARACTER['MainSpecIsPvP'] == true then
---         mspvp = 1
---     end
---     if GUILDBOOK_CHARACTER['OffSpecIsPvP'] == true then
---         ospvp = 1
---     end
---     return string.format('%s$%s$%s$%s', ms, os, mspvp, ospvp)
--- end
-
-function Guildbook:ParseCharacterData_OLD(msg)
-    if not GUILDBOOK_GLOBAL['GuildRosterCache'] then
-        GUILDBOOK_GLOBAL['GuildRosterCache'] = {}
-    end
-    local i, t = 1, {}
-    for d in string.gmatch(msg, '[^$]+') do
-        t[Guildbook.CharDataMsgkeys[i]] = d
-        i = i + 1
-    end
-    local guildName = t['guildname']
-    if not GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
-        GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] = {}
-    end
-    --convert values back
-    local prof1 = self.Data.ProfFromID[t['prof1']]
-    local prof2 = self.Data.ProfFromID[t['prof2']]
-    local ms = self.Data.SpecFromID[t['mainspec']]
-    local os = self.Data.SpecFromID[t['offspec']]
-    local mspvp, ospvp = false, false
-    if GUILDBOOK_CHARACTER['MainSpecIsPvP'] == 1 then
-        mspvp = true
-    end
-    if GUILDBOOK_CHARACTER['OffSpecIsPvP'] == 1 then
-        ospvp = true
-    end
-    if not GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']] then
-        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']] = {
-            Name = t['name'],
-            Class = t['class'],
-            Level = tonumber(t['level']),
-            MainSpec = ms,
-            OffSpec = os,
-            MainSpecIsPvP = mspvp,
-            OffSpecIsPvP = ospvp,
-            Profession1 = prof1,
-            Profession1Level = tonumber(t['prof1level']),
-            Profession2 = prof2,
-            Profession2Level = tonumber(t['prof2level']),
-            MainCharacter = t['main'],
-            FishingLevel = tonumber(t['fishing']),
-            CookingLevel = tonumber(t['cooking']),
-            FirstAidLevek = tonumber(t['firstaid']),
-        }
-    else
-        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']].Name = t['name']
-        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']].Class = t['class']
-        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']].Level = tonumber(t['level'])
-        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']].MainSpec = ms
-        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']].OffSpec = os
-        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']].MainSpecIsPvP = mspvp
-        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']].OffSpecIsPvP = ospvp
-        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']].Profession1 = prof1
-        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']].Profession1Level = tonumber(t['prof1level'])
-        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']].Profession2 = prof2
-        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']].Profession2Level = tonumber(t['prof2level'])
-        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']].MainCharacter = t['main']
-        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']].FishingLevel = tonumber(t['fishing'])
-        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']].CookingLevel = tonumber(t['cooking'])
-        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][t['guid']].FirstAidLevel = tonumber(t['firstaid'])
-    end
-end
-
 -- events
 function Guildbook:ADDON_LOADED(...)
     if tostring(...):lower() == addonName:lower() then
@@ -1164,35 +659,23 @@ end
 
 function Guildbook:GUILD_ROSTER_UPDATE(...)
     if GuildMemberDetailFrame:IsVisible() then     
-        self.GuildMemberDetailFrame:HandleRosterUpdate()
-    end
-end
-
--- this is to be removed, need to translate detail frame first - SEND THIS WITH PROF SAVING UPDATE
-function Guildbook:CHAT_MSG_ADDON(...)
-    local prefix = select(1, ...)
-    local msg = select(2, ...)
-    local sender = select(5, ...)
-    if string.find(prefix, 'mdf') then
-        DEBUG('member detail frame msg event')
-        self.GuildMemberDetailFrame:HandleAddonMessage(...)
-    elseif prefix == 'gb-char-stats' then
-        -- DEBUG('character stats msg event')
-        -- self:ParseCharacterData_OLD(msg)
+        local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, GUID = GetGuildRosterInfo(GetGuildRosterSelection())
+        if isOnline then
+            Guildbook:UpdateGuildMemberDetailFrameLabels()
+            Guildbook:ClearGuildMemberDetailFrame()
+            Guildbook:CharacterDataRequest(name)
+        end
     end
 end
 
 function Guildbook:PLAYER_LEVEL_UP()
     C_Timer.After(3, function()
-        --self:SendCharacterStats()
         Guildbook:CharacterStats_OnChanged()
     end)
 end
 
 function Guildbook:SKILL_LINES_CHANGED()
     C_Timer.After(3, function()
-        DEBUG('sending char data due to skill line event')
-        --self:SendCharacterStats()
         Guildbook:CharacterStats_OnChanged()
     end)
 end
@@ -1267,7 +750,6 @@ end
 --set up event listener
 Guildbook.EventFrame = CreateFrame('FRAME', 'GuildbookEventFrame', UIParent)
 Guildbook.EventFrame:RegisterEvent('GUILD_ROSTER_UPDATE')
-Guildbook.EventFrame:RegisterEvent('CHAT_MSG_ADDON')
 Guildbook.EventFrame:RegisterEvent('ADDON_LOADED')
 Guildbook.EventFrame:RegisterEvent('PLAYER_LEVEL_UP')
 Guildbook.EventFrame:RegisterEvent('SKILL_LINES_CHANGED')

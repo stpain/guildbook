@@ -25,18 +25,7 @@ local addonName, Guildbook = ...
 --some of these options are from my old addon and will be remove in time if not used
 local L = {}
 L['CharacterName'] = 'Data Recipient'
-L['GatheringDatabaseHeader'] = 'Guildbook collects data about game objects you loot (Herbs\/Ores\/Quest Objects). If any errors occur with this you can use this database to correct any values. Right click the item and select the incorrect value from the context menu. You can also use this to search for specific game objects and share data with guild members.'
 L['OptionsHeader'] = 'Guildbook allows players to share more detail about their characters with guild members. Use the options below your to set spec/alt information for your character.'
-L['PrintHelp'] = '\n-debug, this will toggle the debug message on/off \n-toggle-welcome-message, this will enable/disable the welcome popup \n-ui, this will open/close Guildbook'
-L['Welcome'] = 'Welcome to Guildbook, due to the nature of the server and how it iteracts with your game client now all data is ready immediately, please wait a few minutes before opening the addon.'
-L['WelcomeMessageToggle'] = 'Welcome message enabled?'
-L['Greatest'] = 'the greatest'
-L['InGuild'] = 'in the guild, (Ever!)'
-L['GuildbookWelcomeBadPopup'] = 'Guildbook - A FATAL ERROR HAS OCCURRED, RUN !!!\n\nOr try turning it off and on again or use /reload ui.\n\nIf that fails mail Elementia for help.'
-L['GuildbookWelcomeGoodPopup'] = 'BEWARE the Gnomes! - Click ok to deploy the anti-Gnome discombobulator'
-L['CharacterDataMissing'] = 'This character hasn\'t shared their data yet.'
-L['Title'] = 'Guildbook'
-L['Version'] = 'Version'
 L['GearScoreDetected'] = 'GearScore detected, Guildbook will share your GearScore with your guild.'
 L['Summary'] = 'Summary'
 L['SummaryHeader'] = 'Guild Summary'
@@ -148,8 +137,7 @@ L['Shadow'] = 'Shadow'
 local locale = GetLocale()
 --USE THIS TO CREATE LOCALES - SWAP 'deDE' FOR THE COUNTRY/LANGUAGE YOU ARE TRANSLATING INTO
 if locale == "deDE" then
---copy the above lines into here and provide the translation after the = sign.
---L['Welcome'] = german for welcome goes here.
+
 
 elseif locale == '' then
 
@@ -160,7 +148,37 @@ Guildbook.Locales = L
 
 -- this will be a lookup table to convert to english for function args etc
 Guildbook.GetEnglish = {
+    ['enUS'] = {
+        ['Alchemy'] = 'Alchemy',
+        ['Blacksmithing'] = 'Blacksmithing',
+        ['Enchanting'] = 'Enchanting',
+        ['Engineering'] = 'Engineering',
+        ['Inscription'] = 'Inscription',
+        ['Jewelcrafting'] = 'Jewelcrafting',
+        ['Leatherworking'] = 'Leatherworking',
+        ['Tailoring'] = 'Tailoring',
+        ['Herbalism'] = 'Herbalism',
+        ['Skinning'] = 'Skinning',
+        ['Mining'] = 'Mining',
+        ['Cooking'] = 'Cooking',
+        ['Fishing'] = 'Fishing',
+        ['FirstAid'] = 'FirstAid',
+    },
     ['deDE'] = {
-
+        ["Alchimie"] = "Alchemy",
+        ["Schmiedekunst"] = "Blacksmithing",
+        ["Verzauberkunst"] = "Enchanting",
+        ["Ingenieurskunst"] = "Engineering",
+        --['Inscription'] = 'Inscription',
+        --['Jewelcrafting'] = 'Jewelcrafting',
+        ["Lederverarbeitung"] = "Leatherworking",
+        ["Schneiderei"] = "Tailoring",
+        ["Lederverarbeitung"] = "Leatherworking",
+        ["Kräuterkunde"] = "Herbalism",
+        ["Kürschnerei"] = "Skinning",
+        ["Bergbau"] = "Mining",
+        ['Erste Hilfe'] = 'FirstAid',
+        ['Angeln'] = 'Fishing',
+        ['Kochkunst'] = 'Cooking',
     },
 }

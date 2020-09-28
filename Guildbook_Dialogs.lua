@@ -26,35 +26,6 @@ local L = Guildbook.Locales
 local DEBUG = Guildbook.DEBUG
 local PRINT = Guildbook.PRINT
 
-Guildbook.Dialogs = {
-    DeleteGameObjectTimeDelay = function(self)
-        return 1.0
-    end,
-}
-
-StaticPopupDialogs['GuildbookReset'] = {
-    text = 'Guildbook has had major changes made, do you wish to reset all data for a fresh install?',
-    button1 = 'Yes',
-    button2 = 'No',
-    OnAccept = function(self)
-        wipe(GUILDBOOK_CHARACTER)
-        wipe(GUILDBOOK_GLOBAL)
-        if GUILDBOOK_GAMEOBJECTS then
-            GUILDBOOK_GAMEOBJECTS = nil
-        end
-        GUILDBOOK_CHARACTER = Guildbook.Data.DefaultCharacterSettings
-        GUILDBOOK_GLOBAL = Guildbook.Data.DefaultGlobalSettings
-        ReloadUI()
-    end,
-    OnCancel = function(self)
-        PRINT('|cffC41F3B', 'GUILDBOOK hasn\'t been reset, you will most likely experience errors as a result!')
-    end,
-    timeout = 0,
-    whileDead = true,
-    hideOnEscape = false,
-    preferredIndex = 3,
-    showAlert = 1,    
-}
 
 StaticPopupDialogs['GuildbookResetCharacter'] = {
     text = 'Reset data for '..select(1, UnitName("player"))..' to default values?',
@@ -65,7 +36,7 @@ StaticPopupDialogs['GuildbookResetCharacter'] = {
         GUILDBOOK_CHARACTER = Guildbook.Data.DefaultCharacterSettings
         UIDropDownMenu_SetText(GuildbookOptionsMainSpecDD, '')
         UIDropDownMenu_SetText(GuildbookOptionsOffSpecDD, '')      
-        PRINT(Guildbook.FONT_COLOUR, 'reset this character to default values.')
+        ReloadUI()
     end,
     OnCancel = function(self)
 
@@ -85,7 +56,7 @@ StaticPopupDialogs['GuildbookResetGlobalSettings'] = {
         wipe(GUILDBOOK_GLOBAL)
         GUILDBOOK_GLOBAL = Guildbook.Data.DefaultGlobalSettings
         GuildbookOptionsDebugCB:SetChecked(GUILDBOOK_GLOBAL['Debug'])
-        PRINT(Guildbook.FONT_COLOUR, 'reset global settings to default values.')
+        ReloadUI()
     end,
     OnCancel = function(self)
 
@@ -133,15 +104,11 @@ StaticPopupDialogs['GuildbookGatheringDatabaseEditObject'] = {
 }
 
 StaticPopupDialogs['GuildbookUpdates'] = {
-    text = '%s',  
-    button1 = 'Remind me again',
-    button2 = 'Ok got it',
+    text = 'Version: %s\n\n%s',  
+    button1 = 'OK',
     hasEditBox = true,
     OnAccept = function(self)
 
-    end,
-    OnCancel = function(self)
-        GUILDBOOK_GLOBAL['ShowUpdatesDialog'] = false
     end,
     OnShow = function(self)
         --self.icon:SetTexture(132049)

@@ -24,33 +24,36 @@ local addonName, Guildbook = ...
 
 local L = Guildbook.Locales
 local DEBUG = Guildbook.DEBUG
-local PRINT = Guildbook.PRINT
 
 Guildbook.OptionsInterface = {}
 
 function GuildbookOptionsDebugCB_OnClick(self)
-    GUILDBOOK_GLOBAL['Debug'] = not GUILDBOOK_GLOBAL['Debug']
-    self:SetChecked(GUILDBOOK_GLOBAL['Debug'])
+    if GUILDBOOK_CHARACTER and GUILDBOOK_GLOBAL then
+        GUILDBOOK_GLOBAL['Debug'] = not GUILDBOOK_GLOBAL['Debug']
+        self:SetChecked(GUILDBOOK_GLOBAL['Debug'])
+    end
 end
 
 function GuildbookOptionsAttunementKeysCB_OnClick(self, instance)
-    if not GUILDBOOK_CHARACTER['AttunementsKeys'] then
-        GUILDBOOK_CHARACTER['AttunementsKeys'] = Guildbook.Data.DefaultCharacterSettings.AttunementsKeys
+    if GUILDBOOK_CHARACTER and GUILDBOOK_GLOBAL then
+        if not GUILDBOOK_CHARACTER['AttunementsKeys'] then
+            GUILDBOOK_CHARACTER['AttunementsKeys'] = Guildbook.Data.DefaultCharacterSettings.AttunementsKeys
+        end
+        GUILDBOOK_CHARACTER['AttunementsKeys'][instance] = self:GetChecked()
+        self:SetChecked(GUILDBOOK_CHARACTER['AttunementsKeys'][instance])
+        DEBUG('set instance: '..instance..' attunement key as: '..tostring(self:GetChecked()))
     end
-    GUILDBOOK_CHARACTER['AttunementsKeys'][instance] = self:GetChecked()
-    self:SetChecked(GUILDBOOK_CHARACTER['AttunementsKeys'][instance])
-    DEBUG('set instance: '..instance..' attunement key as: '..tostring(self:GetChecked()))
 end
 
 function GuildbookOptionsShowMinimapButton_OnClick(self)
-    GUILDBOOK_GLOBAL['ShowMinimapButton'] = self:GetChecked()
-    self:SetChecked(GUILDBOOK_GLOBAL['ShowMinimapButton'])
-    if GUILDBOOK_GLOBAL['ShowMinimapButton'] == false then
-        Guildbook.MinimapIcon:Hide('GuildbookMinimapIcon')
-        DEBUG('minimap button check box click, saved var: false')
-    else
-        Guildbook.MinimapIcon:Show('GuildbookMinimapIcon')
-        DEBUG('minimap button check box click, saved var: true')
+    if GUILDBOOK_CHARACTER and GUILDBOOK_GLOBAL then
+        GUILDBOOK_GLOBAL['ShowMinimapButton'] = self:GetChecked()
+        self:SetChecked(GUILDBOOK_GLOBAL['ShowMinimapButton'])
+        if GUILDBOOK_GLOBAL['ShowMinimapButton'] == false then
+            Guildbook.MinimapIcon:Hide('GuildbookMinimapIcon')
+        else
+            Guildbook.MinimapIcon:Show('GuildbookMinimapIcon')
+        end
     end
 end
 
@@ -59,19 +62,10 @@ function GuildbookOptions_OnLoad(self)
     GuildbookOptionsCharacterMainSpec:SetText(L['MainSpec'])
     GuildbookOptionsCharacterOffSpec:SetText(L['OffSpec'])
     GuildbookOptionsMainCharacterNameInputDesc:SetText(L['MainCharacterNameInputDesc'])
-
-    --add gathering database child frame
-    -- GuildbookOptionsGatheringDatabase.name = 'Gathering Database'
-    -- GuildbookOptionsGatheringDatabase.parent = 'Guildbook'
-    -- InterfaceOptions_AddCategory(GuildbookOptionsGatheringDatabase)
-    -- local r, g, b = unpack(Guildbook.RgbToPercent(Guildbook.OptionsInterface.GatheringDatabase.ListViewBackground))
-    -- GuildbookOptionsGatheringDatabaseGameObjectsListViewTexture:SetColorTexture(r, g, b, 0.9)
-
-
 end
 
 function GuildbookOptions_OnShow(self)
-    if Guildbook.LOADED == true then
+    if GUILDBOOK_CHARACTER and GUILDBOOK_GLOBAL then
         UIDropDownMenu_SetText(GuildbookOptionsMainSpecDD, GUILDBOOK_CHARACTER['MainSpec'])
         UIDropDownMenu_SetText(GuildbookOptionsOffSpecDD, GUILDBOOK_CHARACTER['OffSpec'])
         GuildbookOptionsMainCharacterNameInputBox:SetText(GUILDBOOK_CHARACTER['MainCharacter'])
@@ -91,20 +85,25 @@ function GuildbookOptions_OnShow(self)
 end
 
 function GuildbookOptionsMainSpecIsPvpSpecCB_OnClick(self)
-    GUILDBOOK_CHARACTER['MainSpecIsPvP'] = self:GetChecked()
+    if GUILDBOOK_CHARACTER and GUILDBOOK_GLOBAL then
+        GUILDBOOK_CHARACTER['MainSpecIsPvP'] = self:GetChecked()
+    end
 end
 
 function GuildbookOptionsOffSpecIsPvpSpecCB_OnClick(self)
-    GUILDBOOK_CHARACTER['OffSpecIsPvP'] = self:GetChecked()
+    if GUILDBOOK_CHARACTER and GUILDBOOK_GLOBAL then
+        GUILDBOOK_CHARACTER['OffSpecIsPvP'] = self:GetChecked()
+    end
 end
 
 function GuildbookOptionsMainCharacterNameInputBox_OnTextChanged(self)
-    if string.len(self:GetText()) > 0 then
-        GUILDBOOK_CHARACTER['MainCharacter'] = tostring(self:GetText())
-    else
-        GUILDBOOK_CHARACTER['MainCharacter'] = '-'
+    if GUILDBOOK_CHARACTER and GUILDBOOK_GLOBAL then
+        if string.len(self:GetText()) > 0 then
+            GUILDBOOK_CHARACTER['MainCharacter'] = tostring(self:GetText())
+        else
+            GUILDBOOK_CHARACTER['MainCharacter'] = '-'
+        end
     end
-    DEBUG('set main character as: '..GUILDBOOK_CHARACTER['MainCharacter'])
 end
 
 function GuildbookOptionsMainCharacterNameInputBox_OnEnterPressed(self)
@@ -112,7 +111,7 @@ function GuildbookOptionsMainCharacterNameInputBox_OnEnterPressed(self)
 end
 
 function GuildbookOptionsMainSpecDD_Init()
-    if Guildbook.LOADED == true then
+    if GUILDBOOK_CHARACTER and GUILDBOOK_GLOBAL then
         UIDropDownMenu_Initialize(GuildbookOptionsMainSpecDD, function(self, level, menuList)
             local info = UIDropDownMenu_CreateInfo()
             local _, class, _ = UnitClass('player')
@@ -124,10 +123,17 @@ function GuildbookOptionsMainSpecDD_Init()
                     UIDropDownMenu_SetText(GuildbookOptionsMainSpecDD, L[spec]) 
                     GUILDBOOK_CHARACTER['MainSpec'] = tostring(spec)
                     local guildName = Guildbook:GetGuildName()
-                    if guildName then
+                    if guildName and GUILDBOOK_GLOBAL.GuildRosterCache[guildName] then
+                        if not GUILDBOOK_GLOBAL.GuildRosterCache[guildName] then
+                            GUILDBOOK_GLOBAL.GuildRosterCache[guildName] = {
+                                [UnitGUID('player')] = {}
+                            }
+                        end
+                        if not GUILDBOOK_GLOBAL.GuildRosterCache[guildName][UnitGUID('player')] then
+                            GUILDBOOK_GLOBAL.GuildRosterCache[guildName][UnitGUID('player')] = {}
+                        end
                         GUILDBOOK_GLOBAL.GuildRosterCache[guildName][UnitGUID('player')].MainSpec = tostring(spec)
                     end
-                    DEBUG('set players main spec as: '..spec)
                 end
                 UIDropDownMenu_AddButton(info)
             end
@@ -135,7 +141,7 @@ function GuildbookOptionsMainSpecDD_Init()
     end
 end
 function GuildbookOptionsOffSpecDD_Init()
-    if Guildbook.LOADED == true then
+    if GUILDBOOK_CHARACTER and GUILDBOOK_GLOBAL then
         UIDropDownMenu_Initialize(GuildbookOptionsOffSpecDD, function(self, level, menuList)
             local info = UIDropDownMenu_CreateInfo()
             local _, class, _ = UnitClass('player')
@@ -148,9 +154,16 @@ function GuildbookOptionsOffSpecDD_Init()
                     GUILDBOOK_CHARACTER['OffSpec'] = tostring(spec)
                     local guildName = Guildbook:GetGuildName()
                     if guildName then
+                        if not GUILDBOOK_GLOBAL.GuildRosterCache[guildName] then
+                            GUILDBOOK_GLOBAL.GuildRosterCache[guildName] = {
+                                [UnitGUID('player')] = {}
+                            }
+                        end
+                        if not GUILDBOOK_GLOBAL.GuildRosterCache[guildName][UnitGUID('player')] then
+                            GUILDBOOK_GLOBAL.GuildRosterCache[guildName][UnitGUID('player')] = {}
+                        end
                         GUILDBOOK_GLOBAL.GuildRosterCache[guildName][UnitGUID('player')].OffSpec = tostring(spec)
                     end
-                    DEBUG('set players off spec as: '..spec)
                 end
                 UIDropDownMenu_AddButton(info)
             end

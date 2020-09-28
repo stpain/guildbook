@@ -28,7 +28,6 @@ local LibGraph = LibStub("LibGraph-2.0");
 
 local L = Guildbook.Locales
 local DEBUG = Guildbook.DEBUG
-local PRINT = Guildbook.PRINT
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- statistics frame
@@ -202,7 +201,6 @@ function Guildbook:SetupStatsFrame()
             if GUILDBOOK_GLOBAL then
                 if not GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
                     GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] = {}
-                    PRINT(Guildbook.FONT_COLOUR, 'local guild cache data not available, db created please wait for other players to send data')
                     return
                 end
                 if next(GUILDBOOK_GLOBAL.GuildRosterCache[guildName]) then
@@ -336,7 +334,6 @@ function Guildbook:SetupStatsFrame()
             if GUILDBOOK_GLOBAL then
                 if not GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
                     GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] = {}
-                    PRINT(Guildbook.FONT_COLOUR, 'local guild cache data not available, db created please wait for other players to send data')
                     return
                 end
                 if next(GUILDBOOK_GLOBAL.GuildRosterCache[guildName]) then
@@ -602,7 +599,7 @@ When you select a guild member Guildbook will either use data saved on file or r
     function self.GuildFrame.TradeSkillFrame:GetPlayersWithProf(prof)
         DEBUG('getting players with prof '..prof)
         local guildName = Guildbook:GetGuildName()
-        if guildName then
+        if guildName and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
             wipe(self.CharactersWithProf)
             for guid, character in pairs(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName]) do
                 if (character.Profession1 == prof) or (character.Profession2 == prof) then
@@ -781,19 +778,19 @@ When you select a guild member Guildbook will either use data saved on file or r
     function self.GuildFrame.TradeSkillFrame:SetRecipesListviewData(data)
         self:ClearRecipesListview()
         self:ClearReagentsListview()
-        if data then
-            print(type(data))
-            if type(data) == 'table' then
-                for k, v in pairs(data) do
-                    print(k, v)
-                    if type(v) == 'table' then
-                        for x, y in pairs(v) do
-                            print('    ', x, y)
-                        end
-                    end
-                end
-            end
-        end
+        -- if data then
+        --     --print(type(data))
+        --     if type(data) == 'table' then
+        --         for k, v in pairs(data) do
+        --             --print(k, v)
+        --             if type(v) == 'table' then
+        --                 for x, y in pairs(v) do
+        --                     --print('    ', x, y)
+        --                 end
+        --             end
+        --         end
+        --     end
+        -- end
         if data and type(data) == 'table' and next(data) then
             --wipe(self.Recipes)
             for itemID, reagents in pairs(data) do
@@ -1126,12 +1123,18 @@ function Guildbook:SetupGuildBankFrame()
         wipe(self.BankData)
         local c = 0
         for id, count in pairs(data) do
+            local itemClass = select(6, GetItemInfoInstant(id))
             table.insert(Guildbook.GuildFrame.GuildBankFrame.BankData, {
                 ItemID = id,
                 Count = count,
+                Class = itemClass,
             })
             c = c + 1
         end
+        -- sort table by item class  https://wow.gamepedia.com/ItemType
+        table.sort(Guildbook.GuildFrame.GuildBankFrame.BankData, function(a, b)
+            return a.Class < b.Class
+        end)
         DEBUG(string.format('processed %s bank items from data', c))
         self.BankSlotsScrollBar:SetValue(1)
     end

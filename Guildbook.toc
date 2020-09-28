@@ -1,6 +1,6 @@
 ## Interface: 11305
 ## Author: Copperbolts
-## Version: 2.1.0
+## Version: 2.2.1
 ## Title: |cff0070DEGuildbook|r
 ## Notes: Guildbook adds additional information to the standard guild interface.
 ## SavedVariables: GUILDBOOK_GLOBAL
@@ -18,8 +18,9 @@ Libs\AceComm-3.0\AceComm-3.0.xml
 Libs\LibSerialize\lib.xml
 
 
+Guildbook_News.lua
 Guildbook_Locales.lua
-Guildbook_SDK.lua
+Guildbook_ModBlizzUI.lua
 Guildbook_Data.lua
 
 Guildbook_GuildMemberDetailFrame.lua

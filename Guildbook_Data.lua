@@ -31,6 +31,7 @@ Guildbook.Data.DefaultGlobalSettings = {
     Debug = false,
     ShowMinimapButton = true,
     GuildRosterCache = {},
+    Build = 0.0,
 }
 
 Guildbook.Data.DefaultCharacterSettings = {
@@ -58,7 +59,9 @@ Guildbook.Data.DefaultCharacterSettings = {
         ONY = false,
         BWL = false,
         NAXX = false,
-    }
+    },
+    CalendarEvents = {},
+    GuildBank = {},
 }
 
 Guildbook.Data.RaceIcons = {
@@ -301,106 +304,6 @@ Guildbook.Data.Professions = {
     { Name = 'Tailoring', TradeSkill = true, },
     { Name = 'Cooking', TradeSkill = true, },
     { Name = 'Mining', TradeSkill = true, },
-}
-
-Guildbook.Data.ProfToID = {
-    Alchemy = 'a',
-    Blacksmithing = 'b',
-    Enchanting = 'c',
-    Engineering = 'd',
-    Inscription = 'e',
-    Jewelcrafting = 'f',
-    Leatherworking = 'g',
-    Tailoring = 'h',
-    Herbalism = 'i',
-    Skinning = 'j',
-    Mining = 'k',
-    Cooking = 'l',
-    Fishing = 'm',
-    FirstAid = 'n',
-    ['-'] = '-',
-}
-
-Guildbook.Data.ProfFromID = {
-    ['a'] = 'Alchemy',
-    ['b'] = 'Blacksmithing',
-    ['c'] = 'Enchanting',
-    ['d'] = 'Engineering',
-    ['e'] = 'Inscription',
-    ['f'] = 'Jewelcrafting',
-    ['g'] = 'Leatherworking',
-    ['h'] = 'Tailoring',
-    ['i'] = 'Herbalism',
-    ['j'] = 'Skinning',
-    ['k'] = 'Mining',
-    ['l'] = 'Cooking',
-    ['m'] = 'Fishing',
-    ['n'] = 'FirstAid',
-    ['-'] = '-',
-}
-
-Guildbook.Data.SpecToID = {
-    Balance = 'a',
-    Bear = 'b',
-    Cat = 'c',
-    Restoration = 'd',
-    Frost = 'e',
-    Blood = 'f',
-    Unholy = 'g',
-    ['Beast Master'] = 'h',
-    Marksmanship = 'i',
-    Survival = 'j',
-    Assassination = 'k',
-    Combat = 'l',
-    Subtlety = 'm',
-    Fire = 'n',
-    Arcane = 'o',
-    Holy = 'p',
-    Discipline = 'q',
-    Shadow = 'r',
-    Elemental = 's',
-    Enhancement = 't',
-    Demonology = 'u',
-    Affliction = 'v',
-    Destruction = 'w',
-    Arms = 'x',
-    Fury = 'y',
-    Protection = 'z',
-    Retribution = '0',
-    Feral = '1', --hmm maybe used?
-    ['-'] = '-',
-}
-
-Guildbook.Data.SpecFromID = {
-    ['a'] = 'Balance',
-    ['b'] = 'Bear',
-    ['c'] = 'Cat',
-    ['d'] = 'Restoration',
-    ['e'] = 'Frost',
-    ['f'] = 'Blood',
-    ['g'] = 'Unholy',
-    ['h'] = 'Beast Master',
-    ['i'] = 'Marksmanship',
-    ['j'] = 'Survival',
-    ['k'] = 'Assassination',
-    ['l'] = 'Combat',
-    ['m'] = 'Subtlety',
-    ['n'] = 'Fire',
-    ['o'] = 'Arcane',
-    ['p'] = 'Holy',
-    ['q'] = 'Discipline',
-    ['r'] = 'Shadow',
-    ['s'] = 'Elemental',
-    ['t'] = 'Enhancement',
-    ['u'] = 'Demonology',
-    ['v'] = 'Affliction',
-    ['w'] = 'Destruction',
-    ['x'] = 'Arms',
-    ['y'] = 'Fury',
-    ['z'] = 'Protection',
-    ['0'] = 'Retribution',
-    ['1'] = 'Feral', --hmm maybe used?
-    ['-'] = '-',
 }
 
 Guildbook.Data.SpecFontStringIconSMALL = { 
