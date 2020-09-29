@@ -162,7 +162,7 @@ Guildbook.GetEnglish = {
         ['Mining'] = 'Mining',
         ['Cooking'] = 'Cooking',
         ['Fishing'] = 'Fishing',
-        ['FirstAid'] = 'FirstAid',
+        ['First Aid'] = 'First Aid',
     },
     ['deDE'] = {
         ["Alchimie"] = "Alchemy",
@@ -177,7 +177,7 @@ Guildbook.GetEnglish = {
         ["Kräuterkunde"] = "Herbalism",
         ["Kürschnerei"] = "Skinning",
         ["Bergbau"] = "Mining",
-        ['Erste Hilfe'] = 'FirstAid',
+        ['Erste Hilfe'] = 'First Aid',
         ['Angeln'] = 'Fishing',
         ['Kochkunst'] = 'Cooking',
     },

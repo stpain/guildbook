@@ -157,27 +157,45 @@ function Guildbook:Init()
         Guildbook:CharacterStats_OnChanged()
     end)
 
+    -- experiment
+    -- for i = 1,30 do
+    --     if _G['AtlasLoot_Button_'..i] then
+    --         local button = _G['AtlasLoot_Button_'..i]
+    --         button:HookScript('OnClick', function(self, mb)
+    --             if mb == 'MiddleButton' and IsAltKeyDown() then
+    --                 print(self.ItemID)
+    --             end
+    --         end)
+    --     end
+    -- end
+
 end
 
 function Guildbook.GetProfessionData()
     local myCharacter = { Fishing = 0, Cooking = 0, FirstAid = 0, Prof1 = '-', Prof1Level = 0, Prof2 = '-', Prof2Level = 0 }
     for s = 1, GetNumSkillLines() do
         local skill, _, _, level, _, _, _, _, _, _, _, _, _ = GetSkillLineInfo(s)
-        if skill == Guildbook.GetEnglish[locale]['Fishing'] then 
+        if Guildbook.GetEnglish[locale][skill] == 'Fishing' then 
             myCharacter.Fishing = level
-        elseif skill == Guildbook.GetEnglish[locale]['Cooking'] then
+            DEBUG(string.format('Found %s skill, level: %s', skill, level))
+        elseif Guildbook.GetEnglish[locale][skill] == 'Cooking' then
             myCharacter.Cooking = level
-        elseif skill == Guildbook.GetEnglish[locale]['First Aid'] then
+            DEBUG(string.format('Found %s skill, level: %s', skill, level))
+        elseif Guildbook.GetEnglish[locale][skill] == 'First Aid' then
             myCharacter.FirstAid = level
+            DEBUG(string.format('Found %s skill, level: %s', skill, level))
         else
             for k, prof in pairs(Guildbook.Data.Profession) do
-                if skill == Guildbook.GetEnglish[locale][prof.Name] then
+                DEBUG(string.format('Prof %s - skill %s', prof.Name, skill))
+                if prof.Name == Guildbook.GetEnglish[locale][skill] then
                     if myCharacter.Prof1 == '-' then
                         myCharacter.Prof1 = Guildbook.GetEnglish[locale][skill]
                         myCharacter.Prof1Level = level
+                        DEBUG(string.format('Prof %s matches skill %s, level: %s', prof.Name, skill, level))
                     elseif myCharacter.Prof2 == '-' then
                         myCharacter.Prof2 = Guildbook.GetEnglish[locale][skill]
                         myCharacter.Prof2Level = level
+                        DEBUG(string.format('Prof %s matches skill %s, level: %s', prof.Name, skill, level))
                     end
                 end
             end
