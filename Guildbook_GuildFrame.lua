@@ -1504,7 +1504,12 @@ during a raid.|r
         f:SetScript('OnShow', function(self)
             if self.data then
                 self.player:SetText(self.data.Character)
-                local link = select(2, GetItemInfo(self.data.ItemID))
+                local link = ' '
+                if self.data.ItemID == -1.0 then
+                    link = 'No soft reserve'
+                else
+                    link = select(2, GetItemInfo(self.data.ItemID))
+                end
                 self.softReserve:SetText(link)
             end
         end)
