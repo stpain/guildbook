@@ -711,13 +711,6 @@ function Guildbook:OnRaidSoftReserveReceived(data, distribution, sender)
                         Class = fileName,
                     }
                     self.GuildFrame.SoftReserveFrame.RaidRosterList[i]:Show()
-                elseif name then
-                    self.GuildFrame.SoftReserveFrame.RaidRosterList[i].data = {
-                        Character = name,
-                        ItemID = -1.0,
-                        Class = fileName,
-                    }
-                    self.GuildFrame.SoftReserveFrame.RaidRosterList[i]:Show()
                 end
             end
         end

@@ -1505,7 +1505,7 @@ during a raid.|r
             if self.data then
                 self.player:SetText(self.data.Character)
                 local link = ' '
-                if self.data.ItemID == -1.0 then
+                if not self.data.ItemID then
                     link = 'No soft reserve'
                 else
                     link = select(2, GetItemInfo(self.data.ItemID))
