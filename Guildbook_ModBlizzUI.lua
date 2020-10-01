@@ -318,8 +318,8 @@ function Guildbook:ModBlizzUI()
 
     self.GuildFrame.RosterButton = CreateFrame('BUTTON', 'GuildbookGuildFrameRosterButton', GuildFrame, "UIPanelButtonTemplate")
     self.GuildFrame.RosterButton:SetPoint('RIGHT', GuildFrameGuildInformationButton, 'LEFT', -2, 0)
-    self.GuildFrame.RosterButton:SetSize(85, GuildFrameGuildInformationButton:GetHeight())
-    self.GuildFrame.RosterButton:SetText('Guild Roster')
+    self.GuildFrame.RosterButton:SetSize(65, GuildFrameGuildInformationButton:GetHeight())
+    self.GuildFrame.RosterButton:SetText('Roster')
     self.GuildFrame.RosterButton:SetNormalFontObject(GameFontNormalSmall)
     self.GuildFrame.RosterButton:SetHighlightFontObject(GameFontNormalSmall)
     self.GuildFrame.RosterButton:SetScript('OnClick', function(self)
@@ -328,10 +328,11 @@ function Guildbook:ModBlizzUI()
     end)
     
     self.GuildFrame.Frames = {
-        ['StatsFrame'] = { Text = 'Statistics', Width = 85.0, OffsetY = -87.0 },
-        ['TradeSkillFrame'] = { Text = 'Professions', Width = 85.0, OffsetY = -174.0 },
-        ['GuildBankFrame'] = { Text = 'Guild Bank', Width = 85.0, OffsetY = -261.0 },
-        ['GuildCalendarFrame'] = { Text = 'Calendar', Width = 75.0, OffsetY = -338.0 },
+        ['StatsFrame'] = { Text = 'Statistics', Width = 76.0, OffsetY = -79.0 },
+        ['TradeSkillFrame'] = { Text = 'Professions', Width = 85.0, OffsetY = -166.0 },
+        ['GuildBankFrame'] = { Text = 'Guild Bank', Width = 85.0, OffsetY = -253.0 },
+        ['GuildCalendarFrame'] = { Text = 'Calendar', Width = 75.0, OffsetY = -330.0 },
+        ['SoftReserveFrame'] = { Text = 'Soft Res', Width = 70.0, OffsetY = -402.0 },
     }
 
     for frame, button in pairs(self.GuildFrame.Frames) do
@@ -346,7 +347,7 @@ function Guildbook:ModBlizzUI()
             insets = { left = 4, right = 4, top = 4, bottom = 4 }
         })
         self.GuildFrame[frame]:SetPoint('TOPLEFT', GuildFrame, 'TOPLEFT', 2.00, -55.0)
-        if frame == 'GuildCalendarFrame' or frame == 'GuildBankFrame' then
+        if frame == 'GuildCalendarFrame' or frame == 'GuildBankFrame' or frame == 'SoftReserveFrame' then
             self.GuildFrame[frame]:SetPoint('BOTTOMRIGHT', GuildFrame, 'BOTTOMRIGHT', -4.00, 25.0)
         else
             self.GuildFrame[frame]:SetPoint('BOTTOMRIGHT', GuildFrame, 'TOPRIGHT', -4.00, -325.0)

@@ -138,6 +138,7 @@ function Guildbook:Init()
     self:SetupGuildBankFrame()
     self:SetupGuildCalendarFrame()
     self:SetupGuildMemberDetailframe()
+    self:SetupSoftReserveFrame()
 
     GuildbookOptionsMainSpecDD_Init()
     GuildbookOptionsOffSpecDD_Init()
@@ -157,18 +158,14 @@ function Guildbook:Init()
         Guildbook:CharacterStats_OnChanged()
     end)
 
-    -- experiment
-    -- for i = 1,30 do
-    --     if _G['AtlasLoot_Button_'..i] then
-    --         local button = _G['AtlasLoot_Button_'..i]
-    --         button:HookScript('OnClick', function(self, mb)
-    --             if mb == 'MiddleButton' and IsAltKeyDown() then
-    --                 print(self.ItemID)
-    --             end
-    --         end)
-    --     end
-    -- end
+end
 
+function Guildbook:CleanUpCharacterSettings()
+    if GUILDBOOK_CHARACTER then
+        if GUILDBOOK_CHARACTER['UNKNOWN'] then
+            GUILDBOOK_CHARACTER['UNKNOWN'] = nil
+        end
+    end
 end
 
 function Guildbook.GetProfessionData()
@@ -675,6 +672,51 @@ function Guildbook:ADDON_LOADED(...)
     end
 end
 
+function Guildbook:RAID_ROSTER_UPDATE()
+    DEBUG('Raid roster update event')
+    self:RequestRaidSoftReserves()
+end
+
+function Guildbook:RequestRaidSoftReserves()
+    local request = {
+        type = 'RAID_SOFT_RESERVES_REQUEST',
+    }
+    self:Transmit(request, 'RAID', nil, 'NORMAL')
+    DEBUG('Sent a request on RAID channel for soft reserves')
+end
+
+function Guildbook:OnRaidSoftReserveRequested(data, distribution, sender)
+    DEBUG('Soft reserve request received')
+    if GUILDBOOK_CHARACTER and GUILDBOOK_CHARACTER['SoftReserve'] then
+        local response = {
+            type = 'RAID_SOFT_RESERVE_RESPONSE',
+            payload = GUILDBOOK_CHARACTER['SoftReserve'],
+        }
+        self:Transmit(response, 'RAID', nil, 'NORMAL')
+    end
+end
+
+function Guildbook:OnRaidSoftReserveReceived(data, distribution, sender)
+    DEBUG('Soft reserve response receieved from: '..sender)
+    if self.GuildFrame.SoftReserveFrame.SelectedRaid ~= nil then
+        if data.payload and data.payload[self.GuildFrame.SoftReserveFrame.SelectedRaid] then
+            DEBUG(string.format('%s has a soft reserved %s for %s', sender, data.payload[self.GuildFrame.SoftReserveFrame.SelectedRaid], self.GuildFrame.SoftReserveFrame.SelectedRaid))
+            for i = 1, 40 do
+                name, _, _, level, class, fileName, _, online, _, role, isML, _ = GetRaidRosterInfo(i)
+                -- this may not be quite right check for realms (name-realm)
+                if name and (name == sender) then
+                    self.GuildFrame.SoftReserveFrame.RaidRosterList[i].data = {
+                        Character = name,
+                        ItemID = tonumber(data.payload[self.GuildFrame.SoftReserveFrame.SelectedRaid]),
+                        Class = fileName,
+                    }
+                    self.GuildFrame.SoftReserveFrame.RaidRosterList[i]:Show()
+                end
+            end
+        end
+    end
+end
+
 function Guildbook:GUILD_ROSTER_UPDATE(...)
     if GuildMemberDetailFrame:IsVisible() then     
         local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, GUID = GetGuildRosterInfo(GetGuildRosterSelection())
@@ -762,6 +804,13 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
 
     elseif data.type == 'GUILD_BANK_DATA_RESPONSE' then
         self:OnGuildBankDataReceived(data, distribution, sender)
+
+    elseif data.type == 'RAID_SOFT_RESERVES_REQUEST' then
+        self:OnRaidSoftReserveRequested(data, distribution, sender)
+
+    elseif data.type == 'RAID_SOFT_RESERVE_RESPONSE' then
+        self:OnRaidSoftReserveReceived(data, distribution, sender)
+
     end
 end
 
@@ -773,6 +822,7 @@ Guildbook.EventFrame:RegisterEvent('PLAYER_LEVEL_UP')
 Guildbook.EventFrame:RegisterEvent('SKILL_LINES_CHANGED')
 Guildbook.EventFrame:RegisterEvent('TRADE_SKILL_UPDATE')
 Guildbook.EventFrame:RegisterEvent('CRAFT_UPDATE')
+Guildbook.EventFrame:RegisterEvent('RAID_ROSTER_UPDATE')
 Guildbook.EventFrame:SetScript('OnEvent', function(self, event, ...)
     --DEBUG('EVENT='..tostring(event))
     Guildbook[event](Guildbook, ...)

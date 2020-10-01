@@ -389,23 +389,29 @@ function Guildbook:SetupTradeSkillFrame()
 
     local helpText = [[
 |cffffd100Profession sharing|r
-|cffffffffGuildbook allows guild members to share their profession recipes.
-To do this players must first open their professions which will trigger a scan of available recipes and save this data.
+|cffffffffGuildbook allows guild members to share their 
+profession recipes.
+To do this players must first open their professions 
+which will trigger a scan of available recipes and save 
+this data.
 
-To view another members profession, select the profession to see a list of members who have that profession.
-When you select a guild member Guildbook will either use data saved on file or request data from the member.|r
+To view another members profession, select the profession 
+to see a list of members who have that profession.
+When you select a guild member Guildbook will either use 
+data saved on file or request data from the member.|r
 
-|cff06B200If recipes do not show correctly selecting the player again will usually fix the UI.|r
+|cff06B200If recipes do not show correctly selecting the 
+player again will usually fix the UI.|r
 ]]
 
     self.GuildFrame.TradeSkillFrame.HelperIcon = CreateFrame('FRAME', 'GuildbookGuildInfoFrameTradeSkillFrameHelperIcon', self.GuildFrame.TradeSkillFrame)
-    self.GuildFrame.TradeSkillFrame.HelperIcon:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.TradeSkillFrame, 'TOPLEFT', 100, 2)
+    self.GuildFrame.TradeSkillFrame.HelperIcon:SetPoint('BOTTOMRIGHT', Guildbook.GuildFrame.TradeSkillFrame, 'TOPRIGHT', -2, 2)
     self.GuildFrame.TradeSkillFrame.HelperIcon:SetSize(20, 20)
     self.GuildFrame.TradeSkillFrame.HelperIcon.texture = self.GuildFrame.TradeSkillFrame.HelperIcon:CreateTexture('$parentTexture', 'ARTWORK')
     self.GuildFrame.TradeSkillFrame.HelperIcon.texture:SetAllPoints(self.GuildFrame.TradeSkillFrame.HelperIcon)
     self.GuildFrame.TradeSkillFrame.HelperIcon.texture:SetTexture(374216)
     self.GuildFrame.TradeSkillFrame.HelperIcon:SetScript('OnEnter', function(self)
-        GameTooltip:SetOwner(self, 'ANCHOR_CURSOR')
+        GameTooltip:SetOwner(self, 'ANCHOR_BOTTOMRIGHT')
         GameTooltip:AddLine(helpText)
         GameTooltip:Show()
     end)
@@ -1297,6 +1303,239 @@ function Guildbook:SetupGuildCalendarFrame()
 
     self.GuildFrame.GuildCalendarFrame:SetScript('OnShow', function(self)
         self:MonthChanged()
+    end)
+
+end
+
+
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- soft res
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+function Guildbook:SetupSoftReserveFrame()
+
+    local helpText = [[
+|cffffd100Soft Reserve|r
+|cffffffffGuildbook soft reserve system is kept simple, you can select 1 
+item per raid as your soft reserve.
+To do this use the 'Select Reserve' drop down menu to search 
+raids and bosses, click the item you wish to reserve.
+To view current reserves for a raid use the 'Set Raid' drop down
+to select a raid.
+Only current raid members soft reserves will be shown, players 
+not yet in the group will not be queried.
+|r
+
+|cff06B200Soft reserves can only be set outside an instance, this 
+is to prevent players changing a reserve if they win an item early 
+during a raid.|r
+    ]]
+        
+    self.GuildFrame.SoftReserveFrame.HelperIcon = CreateFrame('FRAME', 'GuildbookGuildInfoFrameTradeSkillFrameHelperIcon', self.GuildFrame.SoftReserveFrame)
+    self.GuildFrame.SoftReserveFrame.HelperIcon:SetPoint('BOTTOMRIGHT', Guildbook.GuildFrame.SoftReserveFrame, 'TOPRIGHT', -2, 2)
+    self.GuildFrame.SoftReserveFrame.HelperIcon:SetSize(20, 20)
+    self.GuildFrame.SoftReserveFrame.HelperIcon.texture = self.GuildFrame.SoftReserveFrame.HelperIcon:CreateTexture('$parentTexture', 'ARTWORK')
+    self.GuildFrame.SoftReserveFrame.HelperIcon.texture:SetAllPoints(self.GuildFrame.SoftReserveFrame.HelperIcon)
+    self.GuildFrame.SoftReserveFrame.HelperIcon.texture:SetTexture(374216)
+    self.GuildFrame.SoftReserveFrame.HelperIcon:SetScript('OnEnter', function(self)
+        GameTooltip:SetOwner(self, 'ANCHOR_BOTTOMRIGHT')
+        GameTooltip:AddLine(helpText)
+        GameTooltip:Show()
+    end)
+    self.GuildFrame.SoftReserveFrame.HelperIcon:SetScript('OnLeave', function(self)
+        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+    end)
+
+    self.GuildFrame.SoftReserveFrame.SelectedRaid = nil
+
+    if not GUILDBOOK_CHARACTER['SoftReserve'] then
+        GUILDBOOK_CHARACTER['SoftReserve'] = {}
+    end
+
+    -- sort our data into alphabetical lists to help the player when navigating, items will be sorted by rarity later
+    local raidSorted, raidBosses = {}, {}
+    for raid, bosses in pairs(Guildbook.RaidItems) do
+        table.insert(raidSorted, raid)
+        raidBosses[raid] = {}
+        for boss, _ in pairs(bosses) do
+            table.insert(raidBosses[raid], boss)
+        end
+        table.sort(raidBosses[raid])
+    end
+    table.sort(raidSorted)
+
+    self.RaidLoot = {}
+
+    for k, raid in pairs(raidSorted) do
+        local bossList = {}
+        for j, boss in ipairs(raidBosses[raid]) do
+            local lootList = {}
+            for _, itemID in ipairs(Guildbook.RaidItems[raid][boss]) do
+                -- local itemLink = select(2, GetItemInfo(itemID))
+                -- local itemRarity = select(3, GetItemInfo(itemID))
+                -- table.insert(lootList, {
+                --     text = itemLink,
+                --     arg1 = itemRarity,
+                --     notCheckable = true,
+                --     func = function()
+                --         GUILDBOOK_CHARACTER['SoftReserve'][raid] = itemID
+                --         print(string.format('You have set %s as your soft reserve for %s', link, raid))
+                --     end,
+                -- })
+                -- table.sort(lootList, function(a, b)
+                --     return a.arg1 > b.arg1
+                -- end)
+
+                -- using the mixin to ensure we get data on first load
+                local item = Item:CreateFromItemID(itemID)
+                item:ContinueOnItemLoad(function()
+                    local link = item:GetItemLink()
+                    local quality = item:GetItemQuality()
+                    table.insert(lootList, {
+                        text = link,
+                        arg1 = quality,
+                        notCheckable = true,
+                        func = function()
+                            GUILDBOOK_CHARACTER['SoftReserve'][raid] = itemID
+                            print(string.format('You have set %s as your soft reserve for %s', link, raid))
+                        end,
+                    })
+                end)
+            end
+            -- this there a better way than relying on data being ready after 5 seconds and assuming the player wont access the dropdown before 5 seconds ?
+            C_Timer.After(5, function()
+                table.sort(lootList, function(a, b)
+                    return a.arg1 > b.arg1
+                end)
+            end)
+            table.insert(bossList, {
+                text = boss,
+                hasArrow = true,
+                notCheckable = true,
+                menuList = lootList
+            })
+        end
+        table.insert(self.RaidLoot, {
+            text = raid,
+            hasArrow = true,
+            notCheckable = true,
+            menuList = bossList
+        })
+    end
+
+    self.GuildFrame.SoftReserveFrame.Header = self.GuildFrame.SoftReserveFrame:CreateFontString('GuildbookGuildInfoFrameGuildBankFrameHeader', 'OVERLAY', 'GameFontNormal')
+    self.GuildFrame.SoftReserveFrame.Header:SetPoint('TOPLEFT', Guildbook.GuildFrame.SoftReserveFrame, 'TOPLEFT', 10, -5)
+    self.GuildFrame.SoftReserveFrame.Header:SetPoint('BOTTOMRIGHT', Guildbook.GuildFrame.SoftReserveFrame, 'TOPRIGHT', -180, -30)
+    self.GuildFrame.SoftReserveFrame.Header:SetText('Select your reserve and set raid to see other members reserves')
+    self.GuildFrame.SoftReserveFrame.Header:SetTextColor(1,1,1,1)
+    self.GuildFrame.SoftReserveFrame.Header:SetFont("Fonts\\FRIZQT__.TTF", 11)
+    self.GuildFrame.SoftReserveFrame.Header:SetJustifyH('LEFT')
+    self.GuildFrame.SoftReserveFrame.Header:SetJustifyV('CENTER')
+
+    self.GuildFrame.SoftReserveFrame.ItemDropdown = CreateFrame('FRAME', "GuildbookGuildFrameSoftReserveFrameItemDropdown", self.GuildFrame.SoftReserveFrame, "UIDropDownMenuTemplate")
+    self.GuildFrame.SoftReserveFrame.ItemDropdown:SetPoint('TOPRIGHT', 0, -10)
+    UIDropDownMenu_SetWidth(self.GuildFrame.SoftReserveFrame.ItemDropdown, 140)
+    UIDropDownMenu_SetText(self.GuildFrame.SoftReserveFrame.ItemDropdown, 'Select Reserve')
+    _G['GuildbookGuildFrameSoftReserveFrameItemDropdownButton']:SetScript('OnClick', function(self)
+        EasyMenu(Guildbook.RaidLoot, Guildbook.GuildFrame.SoftReserveFrame.ItemDropdown, Guildbook.GuildFrame.SoftReserveFrame.ItemDropdown, 10, 10, 'NONE')
+    end)
+
+    self.GuildFrame.SoftReserveFrame.RaidDropdown = CreateFrame('FRAME', "GuildbookGuildFrameSoftReserveFrameItemDropdown", self.GuildFrame.SoftReserveFrame, "UIDropDownMenuTemplate")
+    self.GuildFrame.SoftReserveFrame.RaidDropdown:SetPoint('RIGHT', Guildbook.GuildFrame.SoftReserveFrame.ItemDropdown, 'LEFT', 0, 0)
+    UIDropDownMenu_SetWidth(self.GuildFrame.SoftReserveFrame.RaidDropdown, 140)
+    UIDropDownMenu_SetText(self.GuildFrame.SoftReserveFrame.RaidDropdown, 'Set Raid')
+    function self.GuildFrame.SoftReserveFrame:RaidDropdown_Init()
+        UIDropDownMenu_Initialize(self.RaidDropdown, function(self, level, menuList)
+            local info = UIDropDownMenu_CreateInfo()
+            for raid, bosses in pairs(Guildbook.RaidItems) do
+                info.text = raid
+                info.notCheckable = true
+                info.func = function()
+                    Guildbook.GuildFrame.SoftReserveFrame.SelectedRaid = raid
+                    UIDropDownMenu_SetText(Guildbook.GuildFrame.SoftReserveFrame.RaidDropdown, raid)
+                    Guildbook.GuildFrame.SoftReserveFrame:ClearRaidCharacters()
+                    Guildbook:RequestRaidSoftReserves()
+                end
+                UIDropDownMenu_AddButton(info)
+            end
+        end)
+    end
+    self.GuildFrame.SoftReserveFrame:RaidDropdown_Init() -- ?
+
+    local offsetY = 38.0
+    self.GuildFrame.SoftReserveFrame.RaidRosterList = {}
+    for i = 1, 20 do
+        local f = CreateFrame('FRAME', tostring('GuildbookGuildFrameSoftReserveFrameRaidRosterList'..i), self.GuildFrame.SoftReserveFrame)
+        f:SetPoint('TOPLEFT', 16, ((i - 1) * -15) - offsetY)
+        f:SetSize(200, 14)
+        f.player = f:CreateFontString('$parentName', 'OVERLAY', 'GameFontNormalSmall')
+        f.player:SetPoint('LEFT', 0, 0)
+        f.player:SetText('player name '..i)
+        f.softReserve = f:CreateFontString('$parentName', 'OVERLAY', 'GameFontNormalSmall')
+        f.softReserve:SetPoint('LEFT', 90, 0)
+        f.softReserve:SetText('soft reserve '..i)
+        f.data= nil
+
+        f:SetScript('OnShow', function(self)
+            if self.data then
+                self.player:SetText(self.data.Character)
+                local link = select(2, GetItemInfo(self.data.ItemID))
+                self.softReserve:SetText(link)
+            end
+        end)
+
+        self.GuildFrame.SoftReserveFrame.RaidRosterList[i] = f
+    end
+    for i = 21, 40 do
+        local f = CreateFrame('FRAME', tostring('GuildbookGuildFrameSoftReserveFrameRaidRosterList'..i), self.GuildFrame.SoftReserveFrame)
+        f:SetPoint('TOPLEFT', 346, ((i - 21) * -15) - offsetY)
+        f:SetSize(200, 14)
+        f.player = f:CreateFontString('$parentName', 'OVERLAY', 'GameFontNormalSmall')
+        f.player:SetPoint('LEFT', 0, 0)
+        f.player:SetText('player name '..i)
+        f.softReserve = f:CreateFontString('$parentName', 'OVERLAY', 'GameFontNormalSmall')
+        f.softReserve:SetPoint('LEFT', 90, 0)
+        f.softReserve:SetText('soft reserve '..i)
+        f.data = nil
+
+        f:SetScript('OnShow', function(self)
+            if self.data then
+                self.player:SetText(self.data.Character)
+                local link = select(2, GetItemInfo(self.data.ItemID))
+                self.softReserve:SetText(link)
+            end
+        end)
+
+        self.GuildFrame.SoftReserveFrame.RaidRosterList[i] = f
+    end
+
+    function self.GuildFrame.SoftReserveFrame:LockItemDropdown()
+        UIDropDownMenu_DisableDropDown(self.ItemDropdown)
+    end
+    function self.GuildFrame.SoftReserveFrame:UnLockItemDropdown()
+        UIDropDownMenu_EnableDropDown(self.ItemDropdown)
+    end
+
+    function self.GuildFrame.SoftReserveFrame:ClearRaidCharacters()
+        for i = 1, 40 do
+            self.RaidRosterList[i].data = nil
+            self.RaidRosterList[i]:Hide()
+        end
+    end
+
+    self.GuildFrame.SoftReserveFrame:SetScript('OnShow', function(self)
+        self:ClearRaidCharacters()
+        Guildbook:RequestRaidSoftReserves()
+        local name, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceID, instanceGroupSize, LfgDungeonID = GetInstanceInfo()
+        --print(name, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceID, instanceGroupSize, LfgDungeonID)
+        if instanceType == 'none' then
+            self:UnLockItemDropdown()
+        else
+            self:LockItemDropdown()
+        end
     end)
 
 end
