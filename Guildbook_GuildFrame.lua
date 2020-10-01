@@ -1531,8 +1531,13 @@ during a raid.|r
         Guildbook:RequestRaidSoftReserves()
         local name, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceID, instanceGroupSize, LfgDungeonID = GetInstanceInfo()
         --print(name, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceID, instanceGroupSize, LfgDungeonID)
-        if instanceType == 'none' then
-            self:UnLockItemDropdown()
+        if instanceType == 'none' then            
+            local isDead = UnitIsDead('player')
+            if isDead then
+                self:LockItemDropdown()
+            else
+                self:UnLockItemDropdown()
+            end
         else
             self:LockItemDropdown()
         end
