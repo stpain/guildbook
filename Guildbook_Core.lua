@@ -397,7 +397,9 @@ function Guildbook:OnCharacterDataReceived(data, distribution, sender)
         GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].Availability = data.payload.Availability
         GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].OffSpecIsPvP = data.payload.OffSpecIsPvP
         DEBUG(string.format('Received character data from: %s', data.payload.Name))
-        Guildbook:UpdateGuildMemberDetailFrame(data.payload.GUID)
+        C_Timer.After(1, function()
+            Guildbook:UpdateGuildMemberDetailFrame(data.payload.GUID)
+        end)        
     end
 end
 
@@ -532,8 +534,10 @@ function Guildbook:ScanCharacterContainers()
                     }
                 }
             else
-                GUILDBOOK_CHARACTER['GuildBank'][name].Commit = GetServerTime()
-                GUILDBOOK_CHARACTER['GuildBank'][name].Data = {}
+                GUILDBOOK_CHARACTER['GuildBank'][name] = {
+                    Commit = GetServerTime(),
+                    Data = {},
+                }
             end
 
             -- player bags

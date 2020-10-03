@@ -26,6 +26,7 @@ local addonName, Guildbook = ...
 local FRIENDS_FRAME_WIDTH = FriendsFrame:GetWidth()
 local GUILD_FRAME_WIDTH = GuildFrame:GetWidth()
 local GUILD_INFO_FRAME_WIDTH = GuildInfoFrame:GetWidth()
+local GUILD_MEMBER_DETAIL_FRAME_WIDTH = GuildMemberDetailFrame:GetWidth()
 
 -- config stuff
 Guildbook.GuildFrame = {
@@ -50,6 +51,21 @@ Guildbook.GuildFrame = {
 }
 
 function Guildbook:ModBlizzUI()
+
+    GuildMemberDetailFrame:SetWidth(GUILD_MEMBER_DETAIL_FRAME_WIDTH + 120)
+    GuildMemberRemoveButton:SetWidth((GUILD_MEMBER_DETAIL_FRAME_WIDTH + 100) / 2)
+    GuildMemberGroupInviteButton:SetWidth((GUILD_MEMBER_DETAIL_FRAME_WIDTH + 100) / 2)
+    for k, v in pairs({GuildMemberDetailFrame:GetRegions()}) do
+        if v:GetObjectType() == 'Texture' then
+            if v:GetTexture():lower() == 'interface\\friendsframe\\ui-guildmember-patch' then
+                v:Hide()
+            end
+        end
+    end
+    local w = GuildMemberNoteBackground:GetWidth()
+    GuildMemberNoteBackground:SetWidth(w * 1.65)
+    w = PersonalNoteText:GetWidth()
+    PersonalNoteText:SetWidth(w * 1.65)
 
     -- adjust blizz layout and add widgets
     GuildFrameGuildListToggleButton:Hide()

@@ -1238,6 +1238,8 @@ function Guildbook:SetupGuildCalendarFrame()
             f:SetSize(dayW, dayH)
             f:SetHighlightTexture(235438)
             f:GetHighlightTexture():SetTexCoord(0.0, 0.35, 0.0, 0.7)
+            f:RegisterForClicks('AnyDown')
+            f:SetEnabled(true)
             local texLeft = random(0,1) * CALENDAR_DAYBUTTON_NORMALIZED_TEX_WIDTH;
             local texRight = texLeft + CALENDAR_DAYBUTTON_NORMALIZED_TEX_WIDTH;
             local texTop = random(0,1) * CALENDAR_DAYBUTTON_NORMALIZED_TEX_HEIGHT;
@@ -1248,11 +1250,28 @@ function Guildbook:SetupGuildCalendarFrame()
             f.background:SetTexture(235428)
             f.background:SetTexCoord(texLeft, texRight, texTop, texBottom)
 
+            -- f.instanceLocks = CreateFrame('FRAME', tostring('GuildbookGuildFrameGuildCalendarFrameWeek'..week..'Day'..day..'InstanceLocks'), f)
+            -- f.instanceLocks:SetPoint('BOTTOMLEFT', f, 'BOTTOMLEFT', 1, 1)
+            -- f.instanceLocks:SetPoint('TOPRIGHT', f, 'BOTTOMRIGHT', -1, 22)
+            -- f.instanceLocks.texture = f.instanceLocks:CreateTexture('$parentBackground', 'BACKGROUND')
+            -- f.instanceLocks.texture:SetAllPoints(f.instanceLocks)
+            -- f.instanceLocks.texture:SetColorTexture(0.2, 0.5, 0.8, 0.2)
+
             f.date = {}
+            f.data = {}
 
             f.dateText = f:CreateFontString('$parentDateText', 'OVERLAY', 'GameFontNormalSmall')
             f.dateText:SetPoint('TOPLEFT', 3, -3)
             f.dateText:SetTextColor(1,1,1,1)
+
+            
+            f:SetScript('OnClick', function(self, button)
+                if button == 'RightButton' then
+                    Guildbook.GuildFrame.GuildCalendarFrame.CreateEventFrame:Hide()
+                    Guildbook.GuildFrame.GuildCalendarFrame.CreateEventFrame.date = self.date
+                    Guildbook.GuildFrame.GuildCalendarFrame.CreateEventFrame:Show()
+                end
+            end)
 
             Guildbook.GuildFrame.GuildCalendarFrame.MonthView[i] = f
             i = i + 1
@@ -1272,18 +1291,18 @@ function Guildbook:SetupGuildCalendarFrame()
             day:Disable()
             day.dateText:SetText(' ')
             if i < monthStart then
-                day.dateText:SetText(daysInMonth[month - 1] - monthStart + 2)
+                day.dateText:SetText((daysInMonth[month - 1] - monthStart + 2) + (i - 1))
                 day.dateText:SetTextColor(0.5, 0.5, 0.5, 1)
-                day.date = {
-                    day = (daysInMonth[month - 1] - monthStart + 2),
-                    month = month - 1,
-                    year = 0,
-                }
             end
             if i >= monthStart and d <= daysInMonth[month] then
                 day.dateText:SetText(d)
                 day.dateText:SetTextColor(1,1,1,1)
                 day:Enable()
+                day.date = {
+                    day = d,
+                    month = today.month,
+                    year = today.year,
+                }
                 d = d + 1
             end
             if i > (daysInMonth[month] + (monthStart - 1)) then
@@ -1296,9 +1315,43 @@ function Guildbook:SetupGuildCalendarFrame()
     -- left as this in case month restriction gets lifted
     self.GuildFrame.GuildCalendarFrame:MonthChanged()
 
+    self.GuildFrame.GuildCalendarFrame.CreateEventFrame = CreateFrame('FRAME', 'GuildbookGuildFrameGuildCalendarFrameCreateEventFrame', self.GuildFrame.GuildCalendarFrame) --, "UIPanelDialogTemplate")
+    self.GuildFrame.GuildCalendarFrame.CreateEventFrame:SetPoint('TOPLEFT', self.GuildFrame.GuildCalendarFrame, 'TOPRIGHT', 4, 0)
+    self.GuildFrame.GuildCalendarFrame.CreateEventFrame:SetPoint('BOTTOMRIGHT', self.GuildFrame.GuildCalendarFrame, 'BOTTOMRIGHT', 254, 0)
+    self.GuildFrame.GuildCalendarFrame.CreateEventFrame:SetBackdrop({
+        edgeFile = "interface/dialogframe/ui-dialogbox-border",
+        edgeSize = 32,
+        bgFile = "interface/dialogframe/ui-dialogbox-background-dark",
+        tile = true,
+        tileEdge = false,
+        tileSize = 200,
+        insets = { left = 4, right = 4, top = 4, bottom = 4 }
+    })
+    self.GuildFrame.GuildCalendarFrame.CreateEventFrame:Hide()
+    self.GuildFrame.GuildCalendarFrame.CreateEventFrame.data = nil
 
+    self.GuildFrame.GuildCalendarFrame.CreateEventFrame.HeaderText = self.GuildFrame.GuildCalendarFrame.CreateEventFrame:CreateFontString('$parentHeader', 'OVERLAY', 'GameFontNormal')
+    self.GuildFrame.GuildCalendarFrame.CreateEventFrame.HeaderText:SetPoint('TOP', 0, -16)
 
+    self.GuildFrame.GuildCalendarFrame.CreateEventFrame.CreateButton = CreateFrame('BUTTON', 'GuildbookGuildFrameGuildCalendarFrameCreateEventFrameCreateButton', self.GuildFrame.GuildCalendarFrame.CreateEventFrame, "UIPanelButtonTemplate")
+    self.GuildFrame.GuildCalendarFrame.CreateEventFrame.CreateButton:SetPoint('BOTTOMLEFT', 10, 10)
+    self.GuildFrame.GuildCalendarFrame.CreateEventFrame.CreateButton:SetSize(115, 22)
+    self.GuildFrame.GuildCalendarFrame.CreateEventFrame.CreateButton:SetText('Create Event')
 
+    self.GuildFrame.GuildCalendarFrame.CreateEventFrame.CancelButton = CreateFrame('BUTTON', 'GuildbookGuildFrameGuildCalendarFrameCreateEventFrameCancelButton', self.GuildFrame.GuildCalendarFrame.CreateEventFrame, "UIPanelButtonTemplate")
+    self.GuildFrame.GuildCalendarFrame.CreateEventFrame.CancelButton:SetPoint('LEFT', self.GuildFrame.GuildCalendarFrame.CreateEventFrame.CreateButton, 'RIGHT', 0, 0)
+    self.GuildFrame.GuildCalendarFrame.CreateEventFrame.CancelButton:SetSize(115, 22)
+    self.GuildFrame.GuildCalendarFrame.CreateEventFrame.CancelButton:SetText('Cancel')
+    self.GuildFrame.GuildCalendarFrame.CreateEventFrame.CancelButton:SetScript('OnClick', function(self)
+        self:GetParent():Hide()
+    end)
+
+    self.GuildFrame.GuildCalendarFrame.CreateEventFrame:SetScript('OnShow', function(self)
+        local f = self        
+        if self.date then
+            self.HeaderText:SetText(string.format('%s/%s/%s', f.date.day, f.date.month, f.date.year))
+        end
+    end)
 
 
     self.GuildFrame.GuildCalendarFrame:SetScript('OnShow', function(self)
@@ -1478,10 +1531,11 @@ during a raid.|r
         f.softReserve:SetPoint('LEFT', 90, 0)
         f.softReserve:SetText('soft reserve '..i)
         f.data= nil
+        f.id = i
 
         f:SetScript('OnShow', function(self)
             if self.data then
-                self.player:SetText(self.data.Character)
+                self.player:SetText(self.id..' '..Guildbook.Data.Class[self.data.Class].FontColour..self.data.Character)
                 local link = select(2, GetItemInfo(self.data.ItemID))
                 self.softReserve:SetText(link)
             end
@@ -1500,10 +1554,11 @@ during a raid.|r
         f.softReserve:SetPoint('LEFT', 90, 0)
         f.softReserve:SetText('soft reserve '..i)
         f.data = nil
+        f.id = i
 
         f:SetScript('OnShow', function(self)
             if self.data then
-                self.player:SetText(self.data.Character)
+                self.player:SetText(self.id..' '..Guildbook.Data.Class[self.data.Class].FontColour..self.data.Character)
                 local link = ' '
                 if not self.data.ItemID then
                     link = 'No soft reserve'

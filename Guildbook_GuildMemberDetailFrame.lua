@@ -82,15 +82,17 @@ function Guildbook:UpdateGuildMemberDetailFrame(guid)
             self.GuildMemberDetailFrame.Text.Profession2:SetText(string.format('%s %s [%s]', Guildbook.Data.Profession[character.Profession2].FontStringIconSMALL, character.Profession2, character.Profession2Level))
             self.GuildMemberDetailFrame.Text.Main:SetText(character.MainCharacter)
             self.GuildMemberDetailFrame.Text.ilvl:SetText(character.ItemLevel)
+
+            -- the string formatting seems to sometimes mess up, for now just update as plain text TODO: look into formatting
             if character.MainSpecIsPvP == 'true' then
-                self.GuildMemberDetailFrame.Text.MainSpec:SetText(string.format('%s %s %s', character.MainSpec, Guildbook.Data.RoleIcons[Guildbook.Data.SpecToRole[character.Class][character.MainSpec]].FontStringIcon, Guildbook.Data.StatusIconStringsSMALL.PVP))
+                self.GuildMemberDetailFrame.Text.MainSpec:SetText(character.MainSpec) --string.format('%s %s %s', character.MainSpec, Guildbook.Data.RoleIcons[Guildbook.Data.SpecToRole[character.Class][character.MainSpec]].FontStringIcon, Guildbook.Data.StatusIconStringsSMALL.PVP))
             else
-                self.GuildMemberDetailFrame.Text.MainSpec:SetText(string.format('%s %s', character.MainSpec, Guildbook.Data.RoleIcons[Guildbook.Data.SpecToRole[character.Class][character.MainSpec]].FontStringIcon))
+                self.GuildMemberDetailFrame.Text.MainSpec:SetText(character.MainSpec) --string.format('%s %s', character.MainSpec, Guildbook.Data.RoleIcons[Guildbook.Data.SpecToRole[character.Class][character.MainSpec]].FontStringIcon))
             end
             if character.OffSpecIsPvP == 'true' then
-                self.GuildMemberDetailFrame.Text.OffSpec:SetText(string.format('%s %s %s', character.OffSpec, Guildbook.Data.RoleIcons[Guildbook.Data.SpecToRole[character.Class][character.OffSpec]].FontStringIcon, Guildbook.Data.StatusIconStringsSMALL.PVP))
+                self.GuildMemberDetailFrame.Text.OffSpec:SetText(character.OffSpec) --string.format('%s %s %s', character.OffSpec, Guildbook.Data.RoleIcons[Guildbook.Data.SpecToRole[character.Class][character.OffSpec]].FontStringIcon, Guildbook.Data.StatusIconStringsSMALL.PVP))
             else
-                self.GuildMemberDetailFrame.Text.OffSpec:SetText(string.format('%s %s', character.OffSpec, Guildbook.Data.RoleIcons[Guildbook.Data.SpecToRole[character.Class][character.OffSpec]].FontStringIcon))
+                self.GuildMemberDetailFrame.Text.OffSpec:SetText(character.OffSpec) --string.format('%s %s', character.OffSpec, Guildbook.Data.RoleIcons[Guildbook.Data.SpecToRole[character.Class][character.OffSpec]].FontStringIcon))
             end
         end
     end
