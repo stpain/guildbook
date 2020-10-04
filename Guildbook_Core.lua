@@ -502,6 +502,46 @@ function Guildbook:OnGuildBankDataReceived(data, distribution, sender)
     self.GuildFrame.GuildBankFrame:RefreshSlots()
 end
 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- calendar data comms
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+function Guildbook:SendCalendarEvent(event)
+    local calendarEvent = {
+        type = 'GUILD_CALENDAR_EVENT_CREATED',
+        payload = event,
+    }
+    self:Transmit(calendarEvent, 'GUILD', nil, 'NORMAL')
+    DEBUG(string.format('Sending calendar event to guild, event title: %s', event.title))
+end
+
+function Guildbook:OnGuildCalendarEventReceived(data, distribution, sender)
+    local guildName = Guildbook:GetGuildName()
+    if guildName then
+        if not GUILDBOOK_GLOBAL['Calendar'] then
+            GUILDBOOK_GLOBAL['Calendar'] = {
+                [guildName] = {},
+            }
+        else
+            if not GUILDBOOK_GLOBAL['Calendar'][guildName] then
+                GUILDBOOK_GLOBAL['Calendar'][guildName] = {}
+            end
+        end
+        local exists = false
+        for k, event in pairs(GUILDBOOK_GLOBAL['Calendar'][guildName]) do
+            if event.created == data.payload.created then
+                exists = true
+                DEBUG('this event already exists in your db')
+            end
+        end
+        if exists == false then
+            --table.insert(GUILDBOOK_GLOBAL['Calendar'][guildName], data.payload)
+            DEBUG(string.format('Received guild calendar event, title: %s', data.payload.title))
+        end
+    end
+end
+
+
+
 -- TODO: add script for when a player drops a prof
 SkillDetailStatusBarUnlearnButton:HookScript('OnClick', function()
 
@@ -820,6 +860,9 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
 
     elseif data.type == 'RAID_SOFT_RESERVE_RESPONSE' then
         self:OnRaidSoftReserveReceived(data, distribution, sender)
+
+    elseif data.type == 'GUILD_CALENDAR_EVENT_CREATED' then
+        self:OnGuildCalendarEventReceived(data, distribution, sender)
 
     end
 end
