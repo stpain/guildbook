@@ -101,6 +101,15 @@ function Guildbook:Init()
     if not GUILDBOOK_GLOBAL['Calender'] then
         GUILDBOOK_GLOBAL['Calender'] = {}
     end
+    if not GUILDBOOK_GLOBAL['CalenderDeleted'] then
+        GUILDBOOK_GLOBAL['CalenderDeleted'] = {}
+    end
+    if not GUILDBOOK_GLOBAL['LastCalenderTransmit'] then
+        GUILDBOOK_GLOBAL['LastCalenderTransmit'] = GetTime()
+    end
+    if not GUILDBOOK_GLOBAL['LastCalenderDeletedTransmit'] then
+        GUILDBOOK_GLOBAL['LastCalenderDeletedTransmit'] = GetTime()
+    end
 
     local ldb = LibStub("LibDataBroker-1.1")
     self.MinimapButton = ldb:NewDataObject('GuildbookMinimapIcon', {
@@ -505,7 +514,9 @@ end
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- calendar data comms
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-function Guildbook:SendCalendarEvent(event)
+local calDelay = 120.0
+
+function Guildbook:SendGuildCalendarEvent(event)
     local calendarEvent = {
         type = 'GUILD_CALENDAR_EVENT_CREATED',
         payload = event,
@@ -534,13 +545,54 @@ function Guildbook:OnGuildCalendarEventReceived(data, distribution, sender)
             end
         end
         if exists == false then
-            --table.insert(GUILDBOOK_GLOBAL['Calendar'][guildName], data.payload)
+            table.insert(GUILDBOOK_GLOBAL['Calendar'][guildName], data.payload)
             DEBUG(string.format('Received guild calendar event, title: %s', data.payload.title))
         end
     end
 end
 
+function Guildbook:SendGuildCalendarEventDeleted(event)
+    local calendarEventDeleted = {
+        type = 'GUILD_CALENDAR_EVENT_DELETED',
+        payload = event,
+    }
+    self:Transmit(calendarEventDeleted, 'GUILD', nil, 'NORMAL')
+    DEBUG(string.format('Sending calendar event deleted to guild, event title: %s', event.title))
+end
 
+function Guildbook:SendGuildCalendarEvents()
+    if GUILDBOOK_GLOBAL['LastCalenderTransmit'] > GetTime() + 120.0 then
+        local guildName = Guildbook:GetGuildName()
+        if guildName and GUILDBOOK_GLOBAL['Calendar'][guildName] then
+            local calendarEvents = {
+                type = 'GUILD_CALENDAR_DELETED_EVENTS',
+                payload = GUILDBOOK_GLOBAL['Calendar'][guildName],
+            }
+            self:Transmit(calendarEvents, 'GUILD', nil, 'BULK')
+            DEBUG('Sending calendar events to guild')
+        end
+        GUILDBOOK_GLOBAL['LastCalenderTransmit'] = GetTime()
+    end
+end
+
+function Guildbook:SendGuildCalendarDeletedEvents()
+    if GUILDBOOK_GLOBAL['LastCalenderDeletedTransmit'] > GetTime() + 120.0 then
+        local guildName = Guildbook:GetGuildName()
+        if guildName and GUILDBOOK_GLOBAL['CalendarDeleted'][guildName] then
+            local calendarDeletedEvents = {
+                type = 'GUILD_CALENDAR_DELETED_EVENTS',
+                payload = GUILDBOOK_GLOBAL['CalendarDeleted'][guildName],
+            }
+            self:Transmit(calendarDeletedEvents, 'GUILD', nil, 'BULK')
+            DEBUG('Sending deleted calendar events to guild')
+        end
+        GUILDBOOK_GLOBAL['LastCalenderDeletedTransmit'] = GetTime()
+    end
+end
+
+function Guildbook:OnGuildCalendarEventDeletedReceived(data, distribution, sender)
+    self.GuildFrame.GuildCalendarFrame.EventFrame:DeleteEvent(data.payload)
+end
 
 -- TODO: add script for when a player drops a prof
 SkillDetailStatusBarUnlearnButton:HookScript('OnClick', function()
@@ -846,9 +898,6 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
         if lastGuildBankRequest[sender] + tradeDelay < GetTime() then
             self:OnTradeSkillsRequested(data, distribution, sender)
             lastGuildBankRequest[sender] = GetTime()
-        else
-            local remaining = string.format("%.1d", (lastGuildBankRequest[sender] + tradeDelay - GetTime()))
-            DEBUG(string.format('please allow 10 secs between requests, %d seconds remaining', remaining))
         end
         self:OnGuildBankDataRequested(data, distribution, sender)
 
@@ -863,6 +912,9 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
 
     elseif data.type == 'GUILD_CALENDAR_EVENT_CREATED' then
         self:OnGuildCalendarEventReceived(data, distribution, sender)
+
+    elseif data.type == 'GUILD_CALENDAR_EVENT_DELETED' then
+        self:OnGuildCalendarEventDeletedReceived(data, distribution, sender)
 
     end
 end
