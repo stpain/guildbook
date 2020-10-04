@@ -97,6 +97,10 @@ function Guildbook:Init()
         GUILDBOOK_GLOBAL['Build'] = build
         StaticPopup_Show('GuildbookUpdates', version, Guildbook.News[build])
     end
+    -- added later again
+    if not GUILDBOOK_GLOBAL['Calender'] then
+        GUILDBOOK_GLOBAL['Calender'] = {}
+    end
 
     local ldb = LibStub("LibDataBroker-1.1")
     self.MinimapButton = ldb:NewDataObject('GuildbookMinimapIcon', {
@@ -159,6 +163,8 @@ function Guildbook:Init()
     end)
 
 end
+
+
 
 function Guildbook:CleanUpCharacterSettings()
     if GUILDBOOK_CHARACTER then
