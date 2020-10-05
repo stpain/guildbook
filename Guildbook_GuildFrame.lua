@@ -1397,11 +1397,16 @@ function Guildbook:SetupGuildCalendarFrame()
                     Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:Hide()
                     Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.date = self.date
                     Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.event = nil
-                    Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetText('')
-                    Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:Enable()
-                    Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox:SetText('')
-                    Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox:Enable()
-                    Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.CreateEventButton:Enable()
+                    if #self.events > 2.0 then
+                        Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.enabled = false
+                    else
+                        Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.enabled = true
+                    end
+                    -- Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetText('')
+                    -- Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:Enable()
+                    -- Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox:SetText('')
+                    -- Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox:Enable()
+                    -- Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.CreateEventButton:Enable()
                     Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:Show()
                 end
             end)
@@ -1484,9 +1489,8 @@ function Guildbook:SetupGuildCalendarFrame()
     self.GuildFrame.GuildCalendarFrame.EventFrame.CancelEventButton:SetSize(115, 22)
     self.GuildFrame.GuildCalendarFrame.EventFrame.CancelEventButton:SetText('Delete Event')
     self.GuildFrame.GuildCalendarFrame.EventFrame.CancelEventButton:SetScript('OnClick', function(self)
-        Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:DeleteEvent(self:GetParent().event)
+        Guildbook:SendGuildCalendarEventDeleted(self:GetParent().event)
         self:GetParent().event = nil
-        --Guildbook.GuildFrame.GuildCalendarFrame:GetEventsForDate(self:GetParent().dayButton.date)
         self:GetParent().CancelEventButton:Disable()
         self:GetParent().CreateEventButton:Enable()
         self:GetParent().EventTitleEditbox:SetText('')
@@ -1496,6 +1500,8 @@ function Guildbook:SetupGuildCalendarFrame()
         self:GetParent().AttendEventButton_Confirm:Disable()
         self:GetParent().AttendEventButton_Tentative:Disable()
         self:GetParent().AttendEventButton_Unable:Disable()
+        self:GetParent():ResetClassCounts()
+        self:GetParent():ResetAttending()
     end)
 
     self.GuildFrame.GuildCalendarFrame.EventFrame.CancelButton = CreateFrame('BUTTON', 'GuildbookGuildFrameGuildCalendarFrameEventFrameCancelButton', self.GuildFrame.GuildCalendarFrame.EventFrame, "UIPanelButtonTemplate")
@@ -1589,12 +1595,7 @@ function Guildbook:SetupGuildCalendarFrame()
         local event = self:GetParent().event
         local guildName = Guildbook:GetGuildName()
         if guildName and event then
-            for k, e in pairs(GUILDBOOK_GLOBAL['Calendar'][guildName]) do
-                if e.created == event.created then
-                    print('found event!')
-                    e['attend'][UnitGUID('player')] = { ['Updated'] = GetServerTime(), ['Status'] = 1}
-                end
-            end
+            Guildbook:SendGuildCalendarEventAttend(event, 1)
         end
     end)
     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Tentative = CreateFrame('BUTTON', 'GuildbookGuildFrameGuildCalendarFrameEventFrameAttendEventButtonTentative', self.GuildFrame.GuildCalendarFrame.EventFrame, "UIPanelButtonTemplate")
@@ -1608,12 +1609,7 @@ function Guildbook:SetupGuildCalendarFrame()
         local event = self:GetParent().event
         local guildName = Guildbook:GetGuildName()
         if guildName and event then
-            for k, e in pairs(GUILDBOOK_GLOBAL['Calendar'][guildName]) do
-                if e.created == event.created then
-                    print('found event!')
-                    e['attend'][UnitGUID('player')] = { ['Updated'] = GetServerTime(), ['Status'] = 2}
-                end
-            end
+            Guildbook:SendGuildCalendarEventAttend(event, 2)
         end
     end)
     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Unable = CreateFrame('BUTTON', 'GuildbookGuildFrameGuildCalendarFrameEventFrameAttendEventButtonUnable', self.GuildFrame.GuildCalendarFrame.EventFrame, "UIPanelButtonTemplate")
@@ -1627,12 +1623,7 @@ function Guildbook:SetupGuildCalendarFrame()
         local event = self:GetParent().event
         local guildName = Guildbook:GetGuildName()
         if guildName and event then
-            for k, e in pairs(GUILDBOOK_GLOBAL['Calendar'][guildName]) do
-                if e.created == event.created then
-                    print('found event!')
-                    e['attend'][UnitGUID('player')] = { ['Updated'] = GetServerTime(), ['Status'] = 0}
-                end
-            end
+            Guildbook:SendGuildCalendarEventAttend(event, 0)
         end
     end)
 
@@ -1688,6 +1679,31 @@ function Guildbook:SetupGuildCalendarFrame()
         end
     end
 
+    function self.GuildFrame.GuildCalendarFrame.EventFrame:UpdateAttending()
+        if self.event and next(self.event.attend) then
+            local i = 1
+            for guid, info in pairs(self.event.attend) do
+                if not Guildbook.PlayerMixin then
+                    Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
+                else
+                    Guildbook.PlayerMixin:SetGUID(guid)
+                end
+                if Guildbook.PlayerMixin:IsValid() then
+                    local _, class, _ = C_PlayerInfo.GetClass(Guildbook.PlayerMixin)
+                    local name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
+                    local count = tonumber(self.ClassTabs[class].text:GetText())
+                    self.ClassTabs[class].text:SetText(count + 1)
+                    self.ClassTabs[class].icon:SetVertexColor(1,1,1)
+
+                    -- update first 10 attending
+                    self.AttendingListview[i].character:SetText(Guildbook.Data.Class[class].FontColour..name)
+                    self.AttendingListview[i].status:SetText(status[info.Status])
+                    i = i + 1
+                end
+            end
+        end
+    end
+
     self.GuildFrame.GuildCalendarFrame.EventFrame:SetScript('OnShow', function(self)
         self:ResetClassCounts()
         self:ResetAttending()
@@ -1732,8 +1748,12 @@ function Guildbook:SetupGuildCalendarFrame()
                 self.CreateEventButton:Disable()
             end
         else
+            if self.enabled == true then
+                self.CreateEventButton:Enable()
+            else
+                self.CreateEventButton:Disable()
+            end
             self.CancelEventButton:Disable()
-            self.CreateEventButton:Enable()
             self.EventTitleEditbox:SetText('')
             self.EventTitleEditbox:Enable()
             self.EventDescriptionEditbox:SetText('')
@@ -1746,29 +1766,28 @@ function Guildbook:SetupGuildCalendarFrame()
 
 
 
-    function self.GuildFrame.GuildCalendarFrame.EventFrame:DeleteEvent(event)
+    function self.GuildFrame.GuildCalendarFrame.EventFrame:RegisterEventDeleted(event)
         local guildName = Guildbook:GetGuildName()
         if guildName and event then
-            if not GUILDBOOK_GLOBAL['CalenderDeleted'] then
-                GUILDBOOK_GLOBAL['CalenderDeleted'] = {
+            if not GUILDBOOK_GLOBAL['CalendarDeleted'] then
+                GUILDBOOK_GLOBAL['CalendarDeleted'] = {
                     [guildName] = {}
                 }
             else
-                if not GUILDBOOK_GLOBAL['CalenderDeleted'][guildName] then
-                    GUILDBOOK_GLOBAL['CalenderDeleted'][guildName] = {}
+                if not GUILDBOOK_GLOBAL['CalendarDeleted'][guildName] then
+                    GUILDBOOK_GLOBAL['CalendarDeleted'][guildName] = {}
                 end
             end
-            GUILDBOOK_GLOBAL['CalenderDeleted'][guildName][event.created] = event.owner
+            GUILDBOOK_GLOBAL['CalendarDeleted'][guildName][tostring(event.owner..'>'..event.created)] = true
         end
-        self:RemoveDeletedEvents()
     end
 
     function self.GuildFrame.GuildCalendarFrame.EventFrame:RemoveDeletedEvents()
         local guildName = Guildbook:GetGuildName()
-        if guildName and GUILDBOOK_GLOBAL['Calendar'][guildName] and GUILDBOOK_GLOBAL['CalenderDeleted'][guildName] then
+        if guildName and GUILDBOOK_GLOBAL['Calendar'][guildName] and GUILDBOOK_GLOBAL['CalendarDeleted'][guildName] then
             local keys = {}
             for k, v in pairs(GUILDBOOK_GLOBAL['Calendar'][guildName]) do
-                if GUILDBOOK_GLOBAL['CalenderDeleted'][guildName][v.created] and GUILDBOOK_GLOBAL['CalenderDeleted'][guildName][v.created] == v.owner then
+                if GUILDBOOK_GLOBAL['CalendarDeleted'][guildName][tostring(v.owner..'>'..v.created)] then
                     table.insert(keys, k)
                 end
             end

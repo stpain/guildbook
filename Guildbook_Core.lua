@@ -31,7 +31,13 @@ local LibSerialize = LibStub:GetLibrary("LibSerialize")
 
 function Guildbook.DEBUG(msg)
     if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['Debug'] then
-        print(tostring('|cffC41F3BGUILDBOOK: '..msg))
+        print(tostring('|cffC41F3BGB-DEBUG: '..msg))
+    end
+end
+
+function Guildbook.COMMS_DEBUG(msg)
+    if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['Debug'] then
+        print(tostring('|cff0070DEGB-COMMS: '..msg))
     end
 end
 
@@ -51,6 +57,7 @@ end
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 local L = Guildbook.Locales
 local DEBUG = Guildbook.DEBUG
+local DEBUG_COMMS = Guildbook.DEBUG_COMMS
 
 Guildbook.FONT_COLOUR = ''
 Guildbook.PlayerMixin = nil
@@ -98,17 +105,17 @@ function Guildbook:Init()
         StaticPopup_Show('GuildbookUpdates', version, Guildbook.News[build])
     end
     -- added later again
-    if not GUILDBOOK_GLOBAL['Calender'] then
-        GUILDBOOK_GLOBAL['Calender'] = {}
+    if not GUILDBOOK_GLOBAL['Calendar'] then
+        GUILDBOOK_GLOBAL['Calendar'] = {}
     end
-    if not GUILDBOOK_GLOBAL['CalenderDeleted'] then
-        GUILDBOOK_GLOBAL['CalenderDeleted'] = {}
+    if not GUILDBOOK_GLOBAL['CalendarDeleted'] then
+        GUILDBOOK_GLOBAL['CalendarDeleted'] = {}
     end
-    if not GUILDBOOK_GLOBAL['LastCalenderTransmit'] then
-        GUILDBOOK_GLOBAL['LastCalenderTransmit'] = GetTime()
+    if not GUILDBOOK_GLOBAL['LastCalendarTransmit'] then
+        GUILDBOOK_GLOBAL['LastCalendarTransmit'] = GetServerTime()
     end
-    if not GUILDBOOK_GLOBAL['LastCalenderDeletedTransmit'] then
-        GUILDBOOK_GLOBAL['LastCalenderDeletedTransmit'] = GetTime()
+    if not GUILDBOOK_GLOBAL['LastCalendarDeletedTransmit'] then
+        GUILDBOOK_GLOBAL['LastCalendarDeletedTransmit'] = GetServerTime()
     end
 
     local ldb = LibStub("LibDataBroker-1.1")
@@ -171,6 +178,15 @@ function Guildbook:Init()
         Guildbook:CharacterStats_OnChanged()
     end)
 
+
+    C_Timer.After(5, function()
+        local today = date('*t')
+        Guildbook:SendGuildCalendarEvents(today.month, today.year)
+    end)
+    C_Timer.After(10, function()
+        Guildbook:SendGuildCalendarDeletedEvents()
+    end)
+
 end
 
 
@@ -189,25 +205,25 @@ function Guildbook.GetProfessionData()
         local skill, _, _, level, _, _, _, _, _, _, _, _, _ = GetSkillLineInfo(s)
         if Guildbook.GetEnglish[locale][skill] == 'Fishing' then 
             myCharacter.Fishing = level
-            DEBUG(string.format('Found %s skill, level: %s', skill, level))
+            --DEBUG(string.format('Found %s skill, level: %s', skill, level))
         elseif Guildbook.GetEnglish[locale][skill] == 'Cooking' then
             myCharacter.Cooking = level
-            DEBUG(string.format('Found %s skill, level: %s', skill, level))
+            --DEBUG(string.format('Found %s skill, level: %s', skill, level))
         elseif Guildbook.GetEnglish[locale][skill] == 'First Aid' then
             myCharacter.FirstAid = level
-            DEBUG(string.format('Found %s skill, level: %s', skill, level))
+            --DEBUG(string.format('Found %s skill, level: %s', skill, level))
         else
             for k, prof in pairs(Guildbook.Data.Profession) do
-                DEBUG(string.format('Prof %s - skill %s', prof.Name, skill))
+                --DEBUG(string.format('Prof %s - skill %s', prof.Name, skill))
                 if prof.Name == Guildbook.GetEnglish[locale][skill] then
                     if myCharacter.Prof1 == '-' then
                         myCharacter.Prof1 = Guildbook.GetEnglish[locale][skill]
                         myCharacter.Prof1Level = level
-                        DEBUG(string.format('Prof %s matches skill %s, level: %s', prof.Name, skill, level))
+                        --DEBUG(string.format('Prof %s matches skill %s, level: %s', prof.Name, skill, level))
                     elseif myCharacter.Prof2 == '-' then
                         myCharacter.Prof2 = Guildbook.GetEnglish[locale][skill]
                         myCharacter.Prof2Level = level
-                        DEBUG(string.format('Prof %s matches skill %s, level: %s', prof.Name, skill, level))
+                        --DEBUG(string.format('Prof %s matches skill %s, level: %s', prof.Name, skill, level))
                     end
                 end
             end
@@ -216,10 +232,10 @@ function Guildbook.GetProfessionData()
     if GUILDBOOK_CHARACTER then
         GUILDBOOK_CHARACTER['Profession1'] = myCharacter.Prof1
         GUILDBOOK_CHARACTER['Profession1Level'] = myCharacter.Prof1Level
-        DEBUG('Set player Profession1 as: '..myCharacter.Prof1)
+        --DEBUG('Set player Profession1 as: '..myCharacter.Prof1)
         GUILDBOOK_CHARACTER['Profession2'] = myCharacter.Prof2
         GUILDBOOK_CHARACTER['Profession2Level'] = myCharacter.Prof2Level
-        DEBUG('Set player Profession2 as: '..myCharacter.Prof2)
+        --DEBUG('Set player Profession2 as: '..myCharacter.Prof2)
     end
 end
 
@@ -276,7 +292,7 @@ function Guildbook:SendTradeSkillsRequest(target, profession)
         payload = profession,
     }
     self:Transmit(request, "WHISPER", target, "NORMAL")
-    DEBUG(string.format('sent request for %s from %s', profession, target))
+    DEBUG_COMMS(string.format('sent request for %s from %s', profession, target))
 end
 
 function Guildbook:OnTradeSkillsRequested(request, distribution, sender)
@@ -292,7 +308,7 @@ function Guildbook:OnTradeSkillsRequested(request, distribution, sender)
             }
         }
         self:Transmit(response, distribution, sender, "BULK")
-        DEBUG(string.format('sending %s data to %s', request.payload, sender))
+        DEBUG_COMMS(string.format('sending %s data to %s', request.payload, sender))
     end
 end
 
@@ -304,7 +320,7 @@ function Guildbook:OnTradeSkillsReceived(data, distribution, sender)
                 for guid, character in pairs(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName]) do
                     if character.Name == sender then                
                         character[data.payload.profession] = data.payload.recipes
-                        DEBUG('set: '..character.Name..' prof: '..data.payload.profession)
+                        DEBUG_COMMS('set: '..character.Name..' prof: '..data.payload.profession)
                     end
                 end
             end
@@ -334,7 +350,7 @@ function Guildbook:CharacterStats_OnChanged()
     local d = self:GetCharacterDataPayload()
     if type(d) == 'table' and d.payload.GUID then
         self:Transmit(d, 'GUILD', sender, 'NORMAL')
-        DEBUG('Sending character data OnChanged')
+        DEBUG_COMMS('Sending character data OnChanged')
     end
 end
 
@@ -383,7 +399,7 @@ function Guildbook:OnCharacterDataRequested(request, distribution, sender)
     local d = self:GetCharacterDataPayload()
     if type(d) == 'table' and d.payload.GUID then
         self:Transmit(d, 'WHISPER', sender, 'NORMAL')
-        DEBUG('Sending character data OnCharacterDataRequested, sending to: '..sender)
+        DEBUG_COMMS('Sending character data OnCharacterDataRequested, sending to: '..sender)
     end
 end
 
@@ -411,7 +427,7 @@ function Guildbook:OnCharacterDataReceived(data, distribution, sender)
         GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].AttunementsKeys = data.payload.AttunementsKeys
         GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].Availability = data.payload.Availability
         GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].OffSpecIsPvP = data.payload.OffSpecIsPvP
-        DEBUG(string.format('Received character data from: %s', data.payload.Name))
+        DEBUG_COMMS(string.format('Received character data from: %s', data.payload.Name))
         C_Timer.After(1, function()
             Guildbook:UpdateGuildMemberDetailFrame(data.payload.GUID)
         end)        
@@ -427,7 +443,7 @@ function Guildbook:SendGuildBankCommitRequest(bankCharacter)
         payload = bankCharacter,
     }
     self:Transmit(request, 'GUILD', nil, 'NORMAL')
-    DEBUG(string.format('Sent a request on GUILD channel for commit times on bank character %s', bankCharacter))
+    DEBUG_COMMS(string.format('Sent a request on GUILD channel for commit times on bank character %s', bankCharacter))
 end
 
 function Guildbook:OnGuildBankCommitRequested(data, distribution, sender)
@@ -441,25 +457,25 @@ function Guildbook:OnGuildBankCommitRequested(data, distribution, sender)
                 }
             }
             self:Transmit(response, 'WHISPER', sender, 'NORMAL')
-            DEBUG(string.format('Responding to a guild bank commit request for bank character: %s - commit time: %s', data.payload, GUILDBOOK_CHARACTER['GuildBank'][data.payload].Commit))
+            DEBUG_COMMS(string.format('Responding to a guild bank commit request for bank character: %s - commit time: %s', data.payload, GUILDBOOK_CHARACTER['GuildBank'][data.payload].Commit))
         end
     end
 end
 
 function Guildbook:OnGuildBankCommitReceived(data, distribution, sender)
     if distribution == 'WHISPER' then
-        DEBUG(string.format('Received a commit for bank character %s from %s - commit time: %s', data.payload.Character, sender, data.payload.Commit))
+        DEBUG_COMMS(string.format('Received a commit for bank character %s from %s - commit time: %s', data.payload.Character, sender, data.payload.Commit))
         if Guildbook.GuildBankCommit['Commit'] == nil then
             Guildbook.GuildBankCommit['Commit'] = data.payload.Commit
             Guildbook.GuildBankCommit['Character'] = sender
             Guildbook.GuildBankCommit['BankCharacter'] = data.payload.Character
-            DEBUG('First response added to temp table, %s->%s', sender, data.payload.Commit)
+            DEBUG_COMMS('First response added to temp table, %s->%s', sender, data.payload.Commit)
         else
             if tonumber(data.payload.Commit) > tonumber(Guildbook.GuildBankCommit['Commit']) then
                 Guildbook.GuildBankCommit['Commit'] = data.payload.Commit
                 Guildbook.GuildBankCommit['Character'] = sender
                 Guildbook.GuildBankCommit['BankCharacter'] = data.payload.Character
-                DEBUG('Response commit is newer than temp table commit, updating info - %s->%s', sender, data.payload.Commit)
+                DEBUG_COMMS('Response commit is newer than temp table commit, updating info - %s->%s', sender, data.payload.Commit)
             end
         end
     end
@@ -472,7 +488,7 @@ function Guildbook:SendGuildBankDataRequest()
             payload = Guildbook.GuildBankCommit['BankCharacter']
         }
         self:Transmit(request, 'WHISPER', Guildbook.GuildBankCommit['Character'], 'NORMAL')
-        DEBUG(string.format('Sending request for guild bank data to %s for bank character %s', Guildbook.GuildBankCommit['Character'], Guildbook.GuildBankCommit['BankCharacter']))
+        DEBUG_COMMS(string.format('Sending request for guild bank data to %s for bank character %s', Guildbook.GuildBankCommit['Character'], Guildbook.GuildBankCommit['BankCharacter']))
     end
 end
 
@@ -487,7 +503,7 @@ function Guildbook:OnGuildBankDataRequested(data, distribution, sender)
             }
         }
         self:Transmit(response, 'WHISPER', sender, 'BULK')
-        DEBUG('Sending guild bank data to: '..sender..' as requested')
+        DEBUG_COMMS('Sending guild bank data to: '..sender..' as requested')
     end
 end
 
@@ -522,10 +538,10 @@ function Guildbook:SendGuildCalendarEvent(event)
         payload = event,
     }
     self:Transmit(calendarEvent, 'GUILD', nil, 'NORMAL')
-    DEBUG(string.format('Sending calendar event to guild, event title: %s', event.title))
+    DEBUG_COMMS(string.format('Sending calendar event to guild, event title: %s', event.title))
 end
 
-function Guildbook:OnGuildCalendarEventReceived(data, distribution, sender)
+function Guildbook:OnGuildCalendarEventCreated(data, distribution, sender)
     local guildName = Guildbook:GetGuildName()
     if guildName then
         if not GUILDBOOK_GLOBAL['Calendar'] then
@@ -541,14 +557,45 @@ function Guildbook:OnGuildCalendarEventReceived(data, distribution, sender)
         for k, event in pairs(GUILDBOOK_GLOBAL['Calendar'][guildName]) do
             if event.created == data.payload.created then
                 exists = true
-                DEBUG('this event already exists in your db')
+                DEBUG_COMMS('this event already exists in your db')
             end
         end
         if exists == false then
             table.insert(GUILDBOOK_GLOBAL['Calendar'][guildName], data.payload)
-            DEBUG(string.format('Received guild calendar event, title: %s', data.payload.title))
+            DEBUG_COMMS(string.format('Received guild calendar event, title: %s', data.payload.title))
         end
     end
+end
+
+function Guildbook:SendGuildCalendarEventAttend(event, attend)
+    local calendarEvent = {
+        type = 'GUILD_CALENDAR_EVENT_ATTEND',
+        payload = {
+            e = event,
+            a = attend,
+            guid = UnitGUID('player'),
+        },
+    }
+    self:Transmit(calendarEvent, 'GUILD', nil, 'NORMAL')
+    DEBUG_COMMS(string.format('Sending calendar event attend update to guild, event title: %s, attend: %s', event.title, attend))
+end
+
+function Guildbook:OnGuildCalendarEventAttendReceived(data, distribution, sender)
+    local guildName = Guildbook:GetGuildName()
+    if guildName and GUILDBOOK_GLOBAL['Calendar'][guildName] then
+        for k, v in pairs(GUILDBOOK_GLOBAL['Calendar'][guildName]) do
+            if v.created == data.payload.e.created and v.owner == data.payload.e.owner then
+                v.attend[data.payload.guid] = {
+                    ['Updated'] = GetServerTime(),
+                    ['Status'] = tonumber(data.payload.a),
+                }
+                DEBUG_COMMS(string.format('Updated event: %s attend, data from %s, attend: %s', v.title, sender, data.payload.a))
+            end
+        end
+    end
+    C_Timer.After(1, function()
+        Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:UpdateAttending()
+    end)
 end
 
 function Guildbook:SendGuildCalendarEventDeleted(event)
@@ -557,26 +604,73 @@ function Guildbook:SendGuildCalendarEventDeleted(event)
         payload = event,
     }
     self:Transmit(calendarEventDeleted, 'GUILD', nil, 'NORMAL')
-    DEBUG(string.format('Sending calendar event deleted to guild, event title: %s', event.title))
+    DEBUG_COMMS(string.format('Sending calendar event deleted to guild, event title: %s', event.title))
 end
 
-function Guildbook:SendGuildCalendarEvents()
-    if GUILDBOOK_GLOBAL['LastCalenderTransmit'] > GetTime() + 120.0 then
+function Guildbook:OnGuildCalendarEventDeleted(data, distribution, sender)
+    self.GuildFrame.GuildCalendarFrame.EventFrame:RegisterEventDeleted(data.payload)
+    DEBUG_COMMS('Adding event to deleted table, event: '..data.payload.title)
+    C_Timer.After(1, function()
+        Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:RemoveDeletedEvents()
+    end)
+end
+
+-- this will be restricted to only send events that fall within a month, this should reduce chat spam
+-- it is further restricted to send not within 2 minutes of previous send
+function Guildbook:SendGuildCalendarEvents(month, year)
+    print(string.format('last calendar send: %s, time now: %s, difference is: %s', GUILDBOOK_GLOBAL['LastCalendarTransmit'], GetServerTime(), GetServerTime()-GUILDBOOK_GLOBAL['LastCalendarTransmit']))
+    local events = {}
+    if GetServerTime() > GUILDBOOK_GLOBAL['LastCalendarTransmit'] + 120.0 then
         local guildName = Guildbook:GetGuildName()
         if guildName and GUILDBOOK_GLOBAL['Calendar'][guildName] then
+            for k, event in pairs(GUILDBOOK_GLOBAL['Calendar'][guildName]) do
+                if event.date.month == month and event.date.year == year then
+                    table.insert(events, event)
+                    DEBUG_COMMS(string.format('Added event: %s to this months sending table', event.title))
+                end
+            end
             local calendarEvents = {
-                type = 'GUILD_CALENDAR_DELETED_EVENTS',
-                payload = GUILDBOOK_GLOBAL['Calendar'][guildName],
+                type = 'GUILD_CALENDAR_EVENTS',
+                payload = events,
             }
             self:Transmit(calendarEvents, 'GUILD', nil, 'BULK')
-            DEBUG('Sending calendar events to guild')
+            DEBUG_COMMS('Sending calendar events to guild')
         end
-        GUILDBOOK_GLOBAL['LastCalenderTransmit'] = GetTime()
+        GUILDBOOK_GLOBAL['LastCalendarTransmit'] = GetServerTime()
+    end
+end
+
+function Guildbook:OnGuildCalendarEventsReceived(data, distribution, sender)
+    local guildName = Guildbook:GetGuildName()
+    if guildName and GUILDBOOK_GLOBAL['Calendar'][guildName] then
+        for k, event in ipairs(data.payload) do
+            DEBUG_COMMS(string.format('Scanning events received, event: %s', event.title))
+            local exists = false
+            for _, e in pairs(GUILDBOOK_GLOBAL['Calendar'][guildName]) do
+                if e.created == event.created and e.owner == event.owner then
+                    exists = true
+                    DEBUG_COMMS('    event exists!')
+
+                    -- check and update attend
+                    for guid, info in pairs(e.attend) do
+                        if tonumber(info.Updated) < event.attend[guid].Updated then
+                            info.Status = event.attend[guid].Status
+                            info.Updated = event.attend[guid].Updated
+                            DEBUG_COMMS('Updated attend status for event: '..event.title)
+                        end
+                    end
+                end
+            end
+            if exists == false then
+                table.insert(GUILDBOOK_GLOBAL['Calendar'][guildName], event)
+                DEBUG_COMMS(string.format('This event is a new event, adding to db: %s', event.title))
+            end
+        end
     end
 end
 
 function Guildbook:SendGuildCalendarDeletedEvents()
-    if GUILDBOOK_GLOBAL['LastCalenderDeletedTransmit'] > GetTime() + 120.0 then
+    if GetServerTime() > GUILDBOOK_GLOBAL['LastCalendarDeletedTransmit'] + 120.0 then
         local guildName = Guildbook:GetGuildName()
         if guildName and GUILDBOOK_GLOBAL['CalendarDeleted'][guildName] then
             local calendarDeletedEvents = {
@@ -584,14 +678,24 @@ function Guildbook:SendGuildCalendarDeletedEvents()
                 payload = GUILDBOOK_GLOBAL['CalendarDeleted'][guildName],
             }
             self:Transmit(calendarDeletedEvents, 'GUILD', nil, 'BULK')
-            DEBUG('Sending deleted calendar events to guild')
+            DEBUG_COMMS('Sending deleted calendar events to guild')
         end
-        GUILDBOOK_GLOBAL['LastCalenderDeletedTransmit'] = GetTime()
+        GUILDBOOK_GLOBAL['LastCalendarDeletedTransmit'] = GetServerTime()
     end
 end
 
-function Guildbook:OnGuildCalendarEventDeletedReceived(data, distribution, sender)
-    self.GuildFrame.GuildCalendarFrame.EventFrame:DeleteEvent(data.payload)
+
+function Guildbook:OnGuildCalendarEventsDeleted(data, distribution, sender)
+    local guildName = Guildbook:GetGuildName()
+    if guildName and GUILDBOOK_GLOBAL['CalendarDeleted'][guildName] then
+        for k, v in pairs(data.payload) do
+            if not GUILDBOOK_GLOBAL['CalendarDeleted'][guildName][k] then
+                GUILDBOOK_GLOBAL['CalendarDeleted'][guildName][k] = true
+                DEBUG_COMMS('Added event to deleted table')
+            end
+        end
+    end
+    self.GuildFrame.GuildCalendarFrame.EventFrame:RemoveDeletedEvents()
 end
 
 -- TODO: add script for when a player drops a prof
@@ -690,7 +794,7 @@ function Guildbook:ScanCharacterContainers()
                 }
             }
             self:Transmit(bankUpdate, 'GUILD', sender, 'BULK')
-            DEBUG('sending guild bank data due to new commit')
+            DEBUG_COMMS('sending guild bank data due to new commit')
         end
     end
 end
@@ -784,25 +888,25 @@ function Guildbook:RequestRaidSoftReserves()
         type = 'RAID_SOFT_RESERVES_REQUEST',
     }
     self:Transmit(request, 'RAID', nil, 'NORMAL')
-    DEBUG('Sent a request on RAID channel for soft reserves')
+    DEBUG_COMMS('Sent a request on RAID channel for soft reserves')
 end
 
 function Guildbook:OnRaidSoftReserveRequested(data, distribution, sender)
-    DEBUG('Soft reserve request received')
     if GUILDBOOK_CHARACTER and GUILDBOOK_CHARACTER['SoftReserve'] then
         local response = {
             type = 'RAID_SOFT_RESERVE_RESPONSE',
             payload = GUILDBOOK_CHARACTER['SoftReserve'],
         }
         self:Transmit(response, 'RAID', nil, 'NORMAL')
+        DEBUG_COMMS('Soft reserve response sent')
     end
 end
 
 function Guildbook:OnRaidSoftReserveReceived(data, distribution, sender)
-    DEBUG('Soft reserve response receieved from: '..sender)
+    DEBUG_COMMS('Soft reserve response receieved from: '..sender)
     if self.GuildFrame.SoftReserveFrame.SelectedRaid ~= nil then
         if data.payload and data.payload[self.GuildFrame.SoftReserveFrame.SelectedRaid] then
-            DEBUG(string.format('%s has a soft reserved %s for %s', sender, data.payload[self.GuildFrame.SoftReserveFrame.SelectedRaid], self.GuildFrame.SoftReserveFrame.SelectedRaid))
+            DEBUG_COMMS(string.format('%s has a soft reserved %s for %s', sender, data.payload[self.GuildFrame.SoftReserveFrame.SelectedRaid], self.GuildFrame.SoftReserveFrame.SelectedRaid))
             for i = 1, 40 do
                 name, _, _, level, class, fileName, _, online, _, role, isML, _ = GetRaidRosterInfo(i)
                 -- this may not be quite right check for realms (name-realm)
@@ -911,10 +1015,19 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
         self:OnRaidSoftReserveReceived(data, distribution, sender)
 
     elseif data.type == 'GUILD_CALENDAR_EVENT_CREATED' then
-        self:OnGuildCalendarEventReceived(data, distribution, sender)
+        self:OnGuildCalendarEventCreated(data, distribution, sender)
+
+    elseif data.type == 'GUILD_CALENDAR_EVENTS' then
+        self:OnGuildCalendarEventsReceived(data, distribution, sender)
 
     elseif data.type == 'GUILD_CALENDAR_EVENT_DELETED' then
-        self:OnGuildCalendarEventDeletedReceived(data, distribution, sender)
+        self:OnGuildCalendarEventDeleted(data, distribution, sender)
+
+    elseif data.type == 'GUILD_CALENDAR_DELETED_EVENTS' then
+        self:OnGuildCalendarEventsDeleted(data, distribution, sender)
+
+    elseif data.type == 'GUILD_CALENDAR_EVENT_ATTEND' then
+        self:OnGuildCalendarEventAttendReceived(data, distribution, sender)
 
     end
 end
