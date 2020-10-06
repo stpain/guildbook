@@ -618,7 +618,7 @@ end
 -- this will be restricted to only send events that fall within a month, this should reduce chat spam
 -- it is further restricted to send not within 2 minutes of previous send
 function Guildbook:SendGuildCalendarEvents(month, year)
-    print(string.format('last calendar send: %s, time now: %s, difference is: %s', GUILDBOOK_GLOBAL['LastCalendarTransmit'], GetServerTime(), GetServerTime()-GUILDBOOK_GLOBAL['LastCalendarTransmit']))
+    --print(string.format('last calendar send: %s, time now: %s, difference is: %s', GUILDBOOK_GLOBAL['LastCalendarTransmit'], GetServerTime(), GetServerTime()-GUILDBOOK_GLOBAL['LastCalendarTransmit']))
     local events = {}
     if GetServerTime() > GUILDBOOK_GLOBAL['LastCalendarTransmit'] + 120.0 then
         local guildName = Guildbook:GetGuildName()
@@ -1036,7 +1036,7 @@ function Guildbook:LOOT_OPENED()
     local numLootItems = GetNumLootItems()
     for i = 1, numLootItems do
         local lootIcon, lootName, lootQuantity, currencyID, lootQuality, locked, isQuestItem, questID, isActive = GetLootSlotInfo(i)
-        print(lootName)
+        --print(lootName)
     end
 end
 
