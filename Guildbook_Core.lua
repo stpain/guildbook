@@ -35,7 +35,7 @@ function Guildbook.DEBUG(msg)
     end
 end
 
-function Guildbook.COMMS_DEBUG(msg)
+function Guildbook.DEBUG_COMMS(msg)
     if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['Debug'] then
         print(tostring('|cff0070DEGB-COMMS: '..msg))
     end
@@ -1032,6 +1032,14 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
     end
 end
 
+function Guildbook:LOOT_OPENED()
+    local numLootItems = GetNumLootItems()
+    for i = 1, numLootItems do
+        local lootIcon, lootName, lootQuantity, currencyID, lootQuality, locked, isQuestItem, questID, isActive = GetLootSlotInfo(i)
+        print(lootName)
+    end
+end
+
 --set up event listener
 Guildbook.EventFrame = CreateFrame('FRAME', 'GuildbookEventFrame', UIParent)
 Guildbook.EventFrame:RegisterEvent('GUILD_ROSTER_UPDATE')
@@ -1041,6 +1049,7 @@ Guildbook.EventFrame:RegisterEvent('SKILL_LINES_CHANGED')
 Guildbook.EventFrame:RegisterEvent('TRADE_SKILL_UPDATE')
 Guildbook.EventFrame:RegisterEvent('CRAFT_UPDATE')
 Guildbook.EventFrame:RegisterEvent('RAID_ROSTER_UPDATE')
+Guildbook.EventFrame:RegisterEvent('LOOT_OPENED')
 Guildbook.EventFrame:SetScript('OnEvent', function(self, event, ...)
     --DEBUG('EVENT='..tostring(event))
     Guildbook[event](Guildbook, ...)

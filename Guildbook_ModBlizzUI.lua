@@ -67,6 +67,11 @@ function Guildbook:ModBlizzUI()
     w = PersonalNoteText:GetWidth()
     PersonalNoteText:SetWidth(w * 1.65)
 
+    local w = GuildMemberOfficerNoteBackground:GetWidth()
+    GuildMemberOfficerNoteBackground:SetWidth(w * 1.65)
+    w = OfficerNoteText:GetWidth()
+    OfficerNoteText:SetWidth(w * 1.65)
+
     -- adjust blizz layout and add widgets
     GuildFrameGuildListToggleButton:Hide()
 

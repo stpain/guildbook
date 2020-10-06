@@ -1214,7 +1214,7 @@ function Guildbook:SetupGuildCalendarFrame()
     }
 
     local status = {
-        [0] = 'Unable',
+        [0] = 'Decline',
         [1] = 'Confirmed',
         [2] = 'Tentative',
     }
@@ -1555,6 +1555,7 @@ function Guildbook:SetupGuildCalendarFrame()
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent = CreateFrame('FRAME', 'GuildbookGuildFrameGuildCalendarFrameEventFrameEventAttendeesListviewParent', self.GuildFrame.GuildCalendarFrame.EventFrame)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent:SetPoint('TOPLEFT', 20, -250)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent:SetSize(206, 120)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent:EnableMouse(true)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent:SetBackdrop({
         edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
         edgeSize = 16,
@@ -1563,7 +1564,7 @@ function Guildbook:SetupGuildCalendarFrame()
     for i = 1, 10 do
         local f = CreateFrame('FRAME', tostring('GuildbookGuildFrameGuildCalendarFrameEventFrameAttendListviewRow'..i), self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent)
         f:SetPoint('TOPLEFT', 0, ((i - 1) * -11) - 6)
-        f:SetPoint('TOPRIGHT', 0, ((i - 1) * -11) - 6)
+        f:SetPoint('TOPRIGHT', -25, ((i - 1) * -11) - 6)
         f:SetHeight(11)
         f.character = f:CreateFontString('$parentCharacter', 'OVERLAY', 'GameFontNormalSmall')
         f.character:SetPoint('LEFT', 10, 0)
@@ -1574,14 +1575,19 @@ function Guildbook:SetupGuildCalendarFrame()
         self.GuildFrame.GuildCalendarFrame.EventFrame.AttendingListview[i] = f
     end
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar = CreateFrame('SLIDER', 'GuildbookGuildFrameGuildCalendarFrameEventFrameEventAttendeesListviewScrollBar', self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent, "UIPanelScrollBarTemplate")
-    self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetPoint('TOPLEFT', self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent, 'TOPRIGHT', -14, -22)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetPoint('BOTTOMRIGHT', self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent, 'BOTTOMRIGHT', -14, 22)
+    --self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar = CreateFrame('SLIDER', 'GuildbookGuildFrameGuildCalendarFrameEventFrameEventAttendeesListviewScrollBar', self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent, "OptionsSliderTemplate")
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetOrientation('VERTICAL')
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetPoint('TOPRIGHT', -10, -25)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetHeight(78)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetWidth(10)
+    --self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetPoint('TOPLEFT', self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent, 'TOPRIGHT', -14, -22)
+    --self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetPoint('BOTTOMRIGHT', self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent, 'BOTTOMRIGHT', -14, 22)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:EnableMouse(true)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetValueStep(1)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetValue(1)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetMinMaxValues(1,1)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetMinMaxValues(1,4)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetScript('OnValueChanged', function(self)
-
+        Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:UpdateAttending()
     end)
 
     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Confirm = CreateFrame('BUTTON', 'GuildbookGuildFrameGuildCalendarFrameEventFrameAttendEventButtonConfirm', self.GuildFrame.GuildCalendarFrame.EventFrame, "UIPanelButtonTemplate")
@@ -1618,7 +1624,7 @@ function Guildbook:SetupGuildCalendarFrame()
     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Unable:SetNormalFontObject(GameFontNormalSmall)
     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Unable:SetHighlightFontObject(GameFontNormalSmall)
     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Unable:SetDisabledFontObject(GameFontNormalSmall)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Unable:SetText('Unable')
+    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Unable:SetText('Decline')
     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Unable:SetScript('OnClick', function(self)
         local event = self:GetParent().event
         local guildName = Guildbook:GetGuildName()
@@ -1677,12 +1683,15 @@ function Guildbook:SetupGuildCalendarFrame()
             v.character:SetText('')
             v.status:SetText('')
         end
+        self.EventAttendeesListviewScrollBar:SetValue(2)
+        self.EventAttendeesListviewScrollBar:SetValue(1)
     end
 
-    function self.GuildFrame.GuildCalendarFrame.EventFrame:UpdateAttending()
-        if self.event and next(self.event.attend) then
-            local i = 1
+    function self.GuildFrame.GuildCalendarFrame.EventFrame:UpdateClassTabs()
+        if self.event and next(self.event.attend) then            
+            local i = 0
             for guid, info in pairs(self.event.attend) do
+                i = i + 1
                 if not Guildbook.PlayerMixin then
                     Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
                 else
@@ -1694,11 +1703,36 @@ function Guildbook:SetupGuildCalendarFrame()
                     local count = tonumber(self.ClassTabs[class].text:GetText())
                     self.ClassTabs[class].text:SetText(count + 1)
                     self.ClassTabs[class].icon:SetVertexColor(1,1,1)
+                end
+            end
+        end
+    end
 
+    function self.GuildFrame.GuildCalendarFrame.EventFrame:UpdateAttending()
+        local scroll = math.floor(self.EventAttendeesListviewScrollBar:GetValue())
+        for k = 1, 10 do
+            self.AttendingListview[k].character:SetText('')
+            self.AttendingListview[k].status:SetText('')
+        end
+        if self.event and next(self.event.attend) then            
+            local i = 0
+            for guid, info in pairs(self.event.attend) do
+                i = i + 1
+                if not Guildbook.PlayerMixin then
+                    Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
+                else
+                    Guildbook.PlayerMixin:SetGUID(guid)
+                end
+                if Guildbook.PlayerMixin:IsValid() then
+                    local _, class, _ = C_PlayerInfo.GetClass(Guildbook.PlayerMixin)
+                    local name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
+                    local count = tonumber(self.ClassTabs[class].text:GetText())
+                    print(i, scroll)
                     -- update first 10 attending
-                    self.AttendingListview[i].character:SetText(Guildbook.Data.Class[class].FontColour..name)
-                    self.AttendingListview[i].status:SetText(status[info.Status])
-                    i = i + 1
+                    if i > ((scroll * 10) - 10) and i <= (scroll * 10) then
+                        self.AttendingListview[i].character:SetText(Guildbook.Data.Class[class].FontColour..name)
+                        self.AttendingListview[i].status:SetText(status[info.Status])
+                    end
                 end
             end
         end
@@ -1706,7 +1740,9 @@ function Guildbook:SetupGuildCalendarFrame()
 
     self.GuildFrame.GuildCalendarFrame.EventFrame:SetScript('OnShow', function(self)
         self:ResetClassCounts()
+        self:UpdateClassTabs()
         self:ResetAttending()
+        self:UpdateAttending()
         if self.date then
             self.HeaderText:SetText(string.format('%s/%s/%s', self.date.day, self.date.month, self.date.year))
         end
@@ -1720,28 +1756,28 @@ function Guildbook:SetupGuildCalendarFrame()
             self.AttendEventButton_Tentative:Enable()
             self.AttendEventButton_Unable:Enable()
             UIDropDownMenu_SetText(self.EventTypeDropdown, eventTypesReversed[self.event.type])
-            if next(self.event.attend) then
-                local i = 1
-                for guid, info in pairs(self.event.attend) do
-                    if not Guildbook.PlayerMixin then
-                        Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
-                    else
-                        Guildbook.PlayerMixin:SetGUID(guid)
-                    end
-                    if Guildbook.PlayerMixin:IsValid() then
-                        local _, class, _ = C_PlayerInfo.GetClass(Guildbook.PlayerMixin)
-                        local name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
-                        local count = tonumber(self.ClassTabs[class].text:GetText())
-                        self.ClassTabs[class].text:SetText(count + 1)
-                        self.ClassTabs[class].icon:SetVertexColor(1,1,1)
+            -- if next(self.event.attend) then
+            --     local i = 1
+            --     for guid, info in pairs(self.event.attend) do
+            --         if not Guildbook.PlayerMixin then
+            --             Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
+            --         else
+            --             Guildbook.PlayerMixin:SetGUID(guid)
+            --         end
+            --         if Guildbook.PlayerMixin:IsValid() then
+            --             local _, class, _ = C_PlayerInfo.GetClass(Guildbook.PlayerMixin)
+            --             local name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
+            --             local count = tonumber(self.ClassTabs[class].text:GetText())
+            --             self.ClassTabs[class].text:SetText(count + 1)
+            --             self.ClassTabs[class].icon:SetVertexColor(1,1,1)
 
-                        -- update first 10 attending
-                        self.AttendingListview[i].character:SetText(Guildbook.Data.Class[class].FontColour..name)
-                        self.AttendingListview[i].status:SetText(status[info.Status])
-                        i = i + 1
-                    end
-                end
-            end
+            --             -- update first 10 attending
+            --             self.AttendingListview[i].character:SetText(Guildbook.Data.Class[class].FontColour..name)
+            --             self.AttendingListview[i].status:SetText(status[info.Status])
+            --             i = i + 1
+            --         end
+            --     end
+            -- end
             if self.event.owner == UnitGUID('player') then
                 self.CancelEventButton:Enable()
             else
@@ -1970,6 +2006,15 @@ during a raid.|r
                     })
                 end)
             end
+            table.insert(lootList, {
+                text = 'None',
+                arg1 = 10000,
+                notCheckable = true,
+                func = function()
+                    GUILDBOOK_CHARACTER['SoftReserve'][raid] = -1
+                    --print(string.format('You have set %s as your soft reserve for %s', link, raid))
+                end,
+            })
             -- this there a better way than relying on data being ready after 5 seconds and assuming the player wont access the dropdown before 5 seconds ?
             C_Timer.After(5, function()
                 table.sort(lootList, function(a, b)
@@ -2048,7 +2093,10 @@ during a raid.|r
         f:SetScript('OnShow', function(self)
             if self.data then
                 self.player:SetText(self.id..' '..Guildbook.Data.Class[self.data.Class].FontColour..self.data.Character)
-                local link = select(2, GetItemInfo(self.data.ItemID))
+                local link = 'None'
+                if self.data.ItemID > 0 then
+                    link = select(2, GetItemInfo(self.data.ItemID))
+                end
                 self.softReserve:SetText(link)
             end
         end)
@@ -2071,10 +2119,8 @@ during a raid.|r
         f:SetScript('OnShow', function(self)
             if self.data then
                 self.player:SetText(self.id..' '..Guildbook.Data.Class[self.data.Class].FontColour..self.data.Character)
-                local link = ' '
-                if not self.data.ItemID then
-                    link = 'No soft reserve'
-                else
+                local link = 'None'
+                if self.data.ItemID > 0 then
                     link = select(2, GetItemInfo(self.data.ItemID))
                 end
                 self.softReserve:SetText(link)
