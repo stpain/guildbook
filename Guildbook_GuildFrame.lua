@@ -1727,7 +1727,6 @@ function Guildbook:SetupGuildCalendarFrame()
                     local _, class, _ = C_PlayerInfo.GetClass(Guildbook.PlayerMixin)
                     local name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
                     local count = tonumber(self.ClassTabs[class].text:GetText())
-                    print(i, scroll)
                     -- update first 10 attending
                     if i > ((scroll * 10) - 10) and i <= (scroll * 10) then
                         self.AttendingListview[i].character:SetText(Guildbook.Data.Class[class].FontColour..name)
@@ -1841,6 +1840,9 @@ function Guildbook:SetupGuildCalendarFrame()
         local event = nil
         local title = self.EventTitleEditbox:GetText()
         local description = self.EventDescriptionEditbox:GetText()
+        if description:len() == 0 then
+            description = '-'
+        end
         if title:len() > 0 and description:len() > 0 then
             event = {
                 ['created'] = GetServerTime(),
@@ -1881,7 +1883,7 @@ function Guildbook:SetupGuildCalendarFrame()
                 self:GetParent():MonthChanged()
             end
         else
-            print('|cffffffffYou have not set a title and/or a description|r')
+            print('|cffffffffYou have not set a title!|r')
         end
     end
 
@@ -2091,7 +2093,7 @@ during a raid.|r
         f.id = i
 
         f:SetScript('OnShow', function(self)
-            if self.data then
+            if self.data and self.data.Character then
                 self.player:SetText(self.id..' '..Guildbook.Data.Class[self.data.Class].FontColour..self.data.Character)
                 local link = 'None'
                 if self.data.ItemID > 0 then
@@ -2117,7 +2119,7 @@ during a raid.|r
         f.id = i
 
         f:SetScript('OnShow', function(self)
-            if self.data then
+            if self.data and self.data.Character then
                 self.player:SetText(self.id..' '..Guildbook.Data.Class[self.data.Class].FontColour..self.data.Character)
                 local link = 'None'
                 if self.data.ItemID > 0 then

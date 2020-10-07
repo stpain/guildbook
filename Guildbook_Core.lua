@@ -22,7 +22,7 @@ the copyright holders.
 
 local addonName, Guildbook = ...
 
-local build = 2
+local build = 3.0
 local locale = GetLocale()
 
 local AceComm = LibStub:GetLibrary("AceComm-3.0")
@@ -101,7 +101,7 @@ function Guildbook:Init()
         GUILDBOOK_GLOBAL['Build'] = 0
     end
     if tonumber(GUILDBOOK_GLOBAL['Build']) < build then
-        GUILDBOOK_GLOBAL['Build'] = build
+        --GUILDBOOK_GLOBAL['Build'] = build
         StaticPopup_Show('GuildbookUpdates', version, Guildbook.News[build])
     end
     -- added later again
@@ -185,6 +185,12 @@ function Guildbook:Init()
     end)
     C_Timer.After(10, function()
         Guildbook:SendGuildCalendarDeletedEvents()
+    end)
+    C_Timer.After(15, function()
+        Guildbook:RequestGuildCalendarEvents()
+    end)
+    C_Timer.After(20, function()
+        Guildbook:RequestGuildCalendarDeletedEvents()
     end)
 
 end
@@ -532,6 +538,24 @@ end
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 local calDelay = 120.0
 
+function Guildbook:RequestGuildCalendarDeletedEvents(event)
+    local calendarEvents = {
+        type = 'GUILD_CALENDAR_EVENTS_DELETED_REQUESTED',
+        payload = '-',
+    }
+    self:Transmit(calendarEvents, 'GUILD', nil, 'NORMAL')
+    DEBUG_COMMS('Sending calendar events deleted request')
+end
+
+function Guildbook:RequestGuildCalendarEvents(event)
+    local calendarEventsDeleted = {
+        type = 'GUILD_CALENDAR_EVENTS_REQUESTED',
+        payload = '-',
+    }
+    self:Transmit(calendarEventsDeleted, 'GUILD', nil, 'NORMAL')
+    DEBUG_COMMS('Sending calendar events request')
+end
+
 function Guildbook:SendGuildCalendarEvent(event)
     local calendarEvent = {
         type = 'GUILD_CALENDAR_EVENT_CREATED',
@@ -542,6 +566,7 @@ function Guildbook:SendGuildCalendarEvent(event)
 end
 
 function Guildbook:OnGuildCalendarEventCreated(data, distribution, sender)
+    DEBUG_COMMS(string.format('Received a calendar event created from %s', sender))
     local guildName = Guildbook:GetGuildName()
     if guildName then
         if not GUILDBOOK_GLOBAL['Calendar'] then
@@ -615,9 +640,11 @@ function Guildbook:OnGuildCalendarEventDeleted(data, distribution, sender)
     end)
 end
 
+-- TODO: make this take a ime period rather than a month
 -- this will be restricted to only send events that fall within a month, this should reduce chat spam
 -- it is further restricted to send not within 2 minutes of previous send
 function Guildbook:SendGuildCalendarEvents(month, year)
+    DEBUG_COMMS(string.format('Sending calendar events for month: %s and year: %s', month, year))
     --print(string.format('last calendar send: %s, time now: %s, difference is: %s', GUILDBOOK_GLOBAL['LastCalendarTransmit'], GetServerTime(), GetServerTime()-GUILDBOOK_GLOBAL['LastCalendarTransmit']))
     local events = {}
     if GetServerTime() > GUILDBOOK_GLOBAL['LastCalendarTransmit'] + 120.0 then
@@ -641,6 +668,7 @@ function Guildbook:SendGuildCalendarEvents(month, year)
 end
 
 function Guildbook:OnGuildCalendarEventsReceived(data, distribution, sender)
+    DEBUG_COMMS(string.format('Received calendar events from %s', sender))
     local guildName = Guildbook:GetGuildName()
     if guildName and GUILDBOOK_GLOBAL['Calendar'][guildName] then
         for k, event in ipairs(data.payload) do
@@ -670,6 +698,7 @@ function Guildbook:OnGuildCalendarEventsReceived(data, distribution, sender)
 end
 
 function Guildbook:SendGuildCalendarDeletedEvents()
+    DEBUG_COMMS('Sending calendar deleted events')
     if GetServerTime() > GUILDBOOK_GLOBAL['LastCalendarDeletedTransmit'] + 120.0 then
         local guildName = Guildbook:GetGuildName()
         if guildName and GUILDBOOK_GLOBAL['CalendarDeleted'][guildName] then
@@ -686,6 +715,7 @@ end
 
 
 function Guildbook:OnGuildCalendarEventsDeleted(data, distribution, sender)
+    DEBUG_COMMS(string.format('Received calendar events deleted from %s', sender))
     local guildName = Guildbook:GetGuildName()
     if guildName and GUILDBOOK_GLOBAL['CalendarDeleted'][guildName] then
         for k, v in pairs(data.payload) do
@@ -1028,6 +1058,13 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
 
     elseif data.type == 'GUILD_CALENDAR_EVENT_ATTEND' then
         self:OnGuildCalendarEventAttendReceived(data, distribution, sender)
+
+    elseif data.type == 'GUILD_CALENDAR_EVENTS_REQUESTED' then
+        local today = date('*t')
+        self:SendGuildCalendarEvents(today.month, today.year)
+
+    elseif data.type == 'GUILD_CALENDAR_EVENTS_DELETED_REQUESTED' then
+        self:SendGuildCalendarDeletedEvents()
 
     end
 end

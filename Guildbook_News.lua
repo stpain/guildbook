@@ -54,4 +54,19 @@ Removed all older chat messages, this means the addon will only work with other 
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [3.0] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+General UI improvements
+
+|cff0070DEUpdates|r:
+Guild Calendar! This follows a similar design to retail but with limited features.
+You can create and delete events, assign an event a type, provide a title and description, set your participation and view others who are attending.
+
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]]
 }
