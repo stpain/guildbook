@@ -644,7 +644,20 @@ Guildbook.Data.ProfessionDescriptions = {
     Mining = '',
 }
 
-
+Guildbook.CalendarWorldEvents = {
+	['DMF'] = {
+		['Elwynn'] = {
+			['Start'] = 235448,
+			['OnGoing'] = 235447,
+			['End'] = 235446,
+		},
+		['Mulgore'] = {
+			['Start'] = 235451,
+			['OnGoing'] = 235450,
+			['End'] = 235449,
+		},
+	},
+}
 
 
 Guildbook.itemdata = {}

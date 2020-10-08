@@ -1201,7 +1201,7 @@ end
 
 function Guildbook:SetupGuildCalendarFrame()
 
-    local today = date('*t')
+    self.GuildFrame.GuildCalendarFrame.date = date('*t')
 
     local weekdays = {
         [1] = 'Monday',
@@ -1211,6 +1211,21 @@ function Guildbook:SetupGuildCalendarFrame()
         [5] = 'Friday',
         [6] = 'Saturday',
         [7] = 'Sunday',
+    }
+
+    local monthNames = {
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December',
     }
 
     local status = {
@@ -1309,6 +1324,8 @@ function Guildbook:SetupGuildCalendarFrame()
     function self.GuildFrame.GuildCalendarFrame:GetMonthStart(month, year)
         local today = date('*t')
         today.day = 0
+        today.month = month
+        today.year = year
         local monthStart = date('*t', time(today))
         --print(monthStart.wday)
         return monthStart.wday
@@ -1320,13 +1337,43 @@ function Guildbook:SetupGuildCalendarFrame()
     self.GuildFrame.GuildCalendarFrame.Header:SetTextColor(1,1,1,1)
     self.GuildFrame.GuildCalendarFrame.Header:SetFont("Fonts\\FRIZQT__.TTF", 12)
 
+    self.GuildFrame.GuildCalendarFrame.NextMonthButton = CreateFrame('BUTTON', 'GuildbookGuildFrameGuildCalendarFrameNextMonthButton', self.GuildFrame.GuildCalendarFrame) --, "UIPanelButtonTemplate")
+    self.GuildFrame.GuildCalendarFrame.NextMonthButton:SetPoint('TOP', 90, 25)
+    self.GuildFrame.GuildCalendarFrame.NextMonthButton:SetSize(30, 30)
+    self.GuildFrame.GuildCalendarFrame.NextMonthButton:SetNormalTexture(130866)
+    self.GuildFrame.GuildCalendarFrame.NextMonthButton:SetPushedTexture(130865)
+    self.GuildFrame.GuildCalendarFrame.NextMonthButton:SetScript('OnClick', function(self)
+        if self:GetParent().date.month == 12 then
+            self:GetParent().date.month = 1
+            self:GetParent().date.year = self:GetParent().date.year + 1
+        else
+            self:GetParent().date.month = self:GetParent().date.month + 1
+        end
+        self:GetParent():MonthChanged()
+    end)
+
+    self.GuildFrame.GuildCalendarFrame.PrevMonthButton = CreateFrame('BUTTON', 'GuildbookGuildFrameGuildCalendarFramePrevMonthButton', self.GuildFrame.GuildCalendarFrame) --, "UIPanelButtonTemplate")
+    self.GuildFrame.GuildCalendarFrame.PrevMonthButton:SetPoint('TOP', -90, 25)
+    self.GuildFrame.GuildCalendarFrame.PrevMonthButton:SetSize(30, 30)
+    self.GuildFrame.GuildCalendarFrame.PrevMonthButton:SetNormalTexture(130869)
+    self.GuildFrame.GuildCalendarFrame.PrevMonthButton:SetPushedTexture(130868)
+    self.GuildFrame.GuildCalendarFrame.PrevMonthButton:SetScript('OnClick', function(self)
+        if self:GetParent().date.month == 1 then
+            self:GetParent().date.month = 12
+            self:GetParent().date.year = self:GetParent().date.year - 1
+        else
+            self:GetParent().date.month = self:GetParent().date.month - 1
+        end
+        self:GetParent():MonthChanged()
+    end)
+
     self.GuildFrame.GuildCalendarFrame.CalendarParent = CreateFrame('FRAME', 'GuildbookGuildFrameGuildCalendarFrameParent', Guildbook.GuildFrame.GuildCalendarFrame)
-    self.GuildFrame.GuildCalendarFrame.CalendarParent:SetPoint('TOPLEFT', 150, -9)
-    self.GuildFrame.GuildCalendarFrame.CalendarParent:SetSize(210, 240)
+    self.GuildFrame.GuildCalendarFrame.CalendarParent:SetPoint('TOPLEFT', 150, -15)
+    self.GuildFrame.GuildCalendarFrame.CalendarParent:SetSize(490, 330)
     -- draw days
     local CALENDAR_DAYBUTTON_NORMALIZED_TEX_WIDTH = 90 / 256 - 0.001
     local CALENDAR_DAYBUTTON_NORMALIZED_TEX_HEIGHT = 90 / 256 - 0.001
-    local dayW, dayH = 70, 55
+    local dayW, dayH = 70, 54
 
     self.GuildFrame.GuildCalendarFrame.MonthView = {}
     local i, d = 1, 1
@@ -1339,6 +1386,7 @@ function Guildbook:SetupGuildCalendarFrame()
             f:GetHighlightTexture():SetTexCoord(0.0, 0.35, 0.0, 0.7)
             f:RegisterForClicks('AnyDown')
             f:SetEnabled(true)
+
             local texLeft = random(0,1) * CALENDAR_DAYBUTTON_NORMALIZED_TEX_WIDTH;
             local texRight = texLeft + CALENDAR_DAYBUTTON_NORMALIZED_TEX_WIDTH;
             local texTop = random(0,1) * CALENDAR_DAYBUTTON_NORMALIZED_TEX_HEIGHT;
@@ -1348,6 +1396,12 @@ function Guildbook:SetupGuildCalendarFrame()
             f.background:SetPoint('BOTTOMRIGHT', 0, 0)
             f.background:SetTexture(235428)
             f.background:SetTexCoord(texLeft, texRight, texTop, texBottom)
+
+            f.eventTexture = f:CreateTexture('$parentBackground', 'ARTWORK')
+            f.eventTexture:SetPoint('TOPLEFT', 0, 0)
+            f.eventTexture:SetPoint('BOTTOMRIGHT', 0, 0)
+            f.eventTexture:SetTexture(235448)
+            f.eventTexture:SetTexCoord(0.0, 0.71, 0.0, 0.71)
 
             for e = 1, 3 do
                 f['eventButton'..e] = CreateFrame('BUTTON', tostring('GuildbookGuildFrameGuildCalendarFrameWeek'..week..'Day'..day..'Button'..e), f)
@@ -1376,6 +1430,22 @@ function Guildbook:SetupGuildCalendarFrame()
             f.dateText = f:CreateFontString('$parentDateText', 'OVERLAY', 'GameFontNormalSmall')
             f.dateText:SetPoint('TOPLEFT', 3, -3)
             f.dateText:SetTextColor(1,1,1,1)
+
+            f:SetScript('OnEnter', function(self)
+                GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
+                if f.dmf ~= false then
+                    GameTooltip:AddLine('Darkmoon Faire '..f.dmf)
+                end
+                if self.events then
+                    for k, v in ipairs(self.events) do
+                        GameTooltip:AddLine('|cffffffff'..v.title)
+                    end
+                end
+                GameTooltip:Show()
+            end)
+            f:SetScript('OnLeave', function(self)
+                GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+            end)
 
             f:SetScript('OnShow', function(self)
                 for i = 1, 3 do
@@ -1419,18 +1489,22 @@ function Guildbook:SetupGuildCalendarFrame()
     -- decided to limit calendar to current month only in order to reduce chat traffic
 
     function self.GuildFrame.GuildCalendarFrame:MonthChanged()
-        local today = date("*t")
-        DEBUG(string.format('Today is the %s/%s/%s this months starts on a %s', today.day, today.month, today.year, weekdays[today.wday]))
-        local month = today.month
-        local year = today.year
-        local monthStart = self:GetMonthStart(month, year)
-        local daysInMonth = self:GetDaysInMonth(month, year)
-        local daysInLastMonth = self:GetDaysInMonth(month - 1, year)
+        self.Header:SetText(monthNames[self.date.month]..' '..self.date.year)
+        local monthStart = self:GetMonthStart(self.date.month, self.date.year)
+        local daysInMonth = self:GetDaysInMonth(self.date.month, self.date.year)
+        local daysInLastMonth = 0
+        if self.date.month == 1 then
+            daysInLastMonth = self:GetDaysInMonth(12, self.date.year - 1)
+        else
+            daysInLastMonth = self:GetDaysInMonth(self.date.month - 1, self.date.year)
+        end
         local d, nm = 1, 1
         for i, day in ipairs(Guildbook.GuildFrame.GuildCalendarFrame.MonthView) do
             day.events = nil
+            day.dmf = false
             day:Disable()
             day.dateText:SetText(' ')
+            day.eventTexture:SetTexture(nil)
             if i < monthStart then
                 day.dateText:SetText((daysInLastMonth - monthStart + 2) + (i - 1))
                 day.dateText:SetTextColor(0.5, 0.5, 0.5, 1)
@@ -1441,10 +1515,26 @@ function Guildbook:SetupGuildCalendarFrame()
                 day:Enable()
                 day.date = {
                     day = d,
-                    month = today.month,
-                    year = today.year,
+                    month = self.date.month,
+                    year = self.date.year,
                 }
                 day:Hide()
+                local dmf = 'Elwynn'
+                if day.date.month % 2 == 0 then
+                    dmf = 'Mulgore'
+                end
+                if i == 7 then
+                    day.eventTexture:SetTexture(Guildbook.CalendarWorldEvents['DMF'][dmf]['Start'])
+                    day.dmf = dmf
+                end
+                if i > 7 and i < 14 then
+                    day.eventTexture:SetTexture(Guildbook.CalendarWorldEvents['DMF'][dmf]['OnGoing'])
+                    day.dmf = dmf
+                end
+                if i == 14 then
+                    day.eventTexture:SetTexture(Guildbook.CalendarWorldEvents['DMF'][dmf]['End'])
+                    day.dmf = dmf
+                end
                 day.events = self:GetEventsForDate(day.date)
                 day:Show()
                 d = d + 1
@@ -1699,10 +1789,12 @@ function Guildbook:SetupGuildCalendarFrame()
                 end
                 if Guildbook.PlayerMixin:IsValid() then
                     local _, class, _ = C_PlayerInfo.GetClass(Guildbook.PlayerMixin)
-                    local name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
-                    local count = tonumber(self.ClassTabs[class].text:GetText())
-                    self.ClassTabs[class].text:SetText(count + 1)
-                    self.ClassTabs[class].icon:SetVertexColor(1,1,1)
+                    --local name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
+                    if class then
+                        local count = tonumber(self.ClassTabs[class].text:GetText())
+                        self.ClassTabs[class].text:SetText(count + 1)
+                        self.ClassTabs[class].icon:SetVertexColor(1,1,1)
+                    end
                 end
             end
         end
@@ -1726,11 +1818,12 @@ function Guildbook:SetupGuildCalendarFrame()
                 if Guildbook.PlayerMixin:IsValid() then
                     local _, class, _ = C_PlayerInfo.GetClass(Guildbook.PlayerMixin)
                     local name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
-                    local count = tonumber(self.ClassTabs[class].text:GetText())
-                    -- update first 10 attending
-                    if i > ((scroll * 10) - 10) and i <= (scroll * 10) then
-                        self.AttendingListview[i].character:SetText(Guildbook.Data.Class[class].FontColour..name)
-                        self.AttendingListview[i].status:SetText(status[info.Status])
+                    if name and class then
+                        local count = tonumber(self.ClassTabs[class].text:GetText())
+                        if i > ((scroll * 10) - 10) and i <= (scroll * 10) then
+                            self.AttendingListview[i].character:SetText(Guildbook.Data.Class[class].FontColour..name)
+                            self.AttendingListview[i].status:SetText(status[info.Status])
+                        end
                     end
                 end
             end

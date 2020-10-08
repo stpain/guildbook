@@ -101,7 +101,7 @@ function Guildbook:Init()
         GUILDBOOK_GLOBAL['Build'] = 0
     end
     if tonumber(GUILDBOOK_GLOBAL['Build']) < build then
-        --GUILDBOOK_GLOBAL['Build'] = build
+        GUILDBOOK_GLOBAL['Build'] = build
         StaticPopup_Show('GuildbookUpdates', version, Guildbook.News[build])
     end
     -- added later again
@@ -644,14 +644,18 @@ end
 -- this will be restricted to only send events that fall within a month, this should reduce chat spam
 -- it is further restricted to send not within 2 minutes of previous send
 function Guildbook:SendGuildCalendarEvents(month, year)
+    local today = date('*t')
+    local future = date('*t', (time(today) + (60*60*24*28)))
+    --print(string.format('today is %s-%s-%s, future is %s-%s-%s', today.day, today.month, today.year, future.day, future.month, future.year))
     DEBUG_COMMS(string.format('Sending calendar events for month: %s and year: %s', month, year))
-    --print(string.format('last calendar send: %s, time now: %s, difference is: %s', GUILDBOOK_GLOBAL['LastCalendarTransmit'], GetServerTime(), GetServerTime()-GUILDBOOK_GLOBAL['LastCalendarTransmit']))
     local events = {}
     if GetServerTime() > GUILDBOOK_GLOBAL['LastCalendarTransmit'] + 120.0 then
         local guildName = Guildbook:GetGuildName()
         if guildName and GUILDBOOK_GLOBAL['Calendar'][guildName] then
             for k, event in pairs(GUILDBOOK_GLOBAL['Calendar'][guildName]) do
-                if event.date.month == month and event.date.year == year then
+                if event.date.month >= today.month and event.date.year >= today.year and event.date.month <= future.month and event.date.year <= future.year then
+                    print(string.format('today is %s-%s-%s, future is %s-%s-%s, found event %s for %s-%s-%s', today.day, today.month, today.year, future.day, future.month, future.year, event.title, event.date.day, event.date.month, event.date.year))
+                --if event.date.month == month and event.date.year == year then
                     table.insert(events, event)
                     DEBUG_COMMS(string.format('Added event: %s to this months sending table', event.title))
                 end
