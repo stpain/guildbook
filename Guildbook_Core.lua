@@ -48,7 +48,7 @@ SLASH_GUILDHELPERCLASSIC1 = '/guildbook'
 SLASH_GUILDHELPERCLASSIC2 = '/g-k'
 SlashCmdList['GUILDHELPERCLASSIC'] = function(msg)
     if msg == '-help' then
-        Guildbook:ScanPlayerProfession()
+        --Guildbook:ScanPlayerProfession()
     end
 end
 
@@ -654,7 +654,7 @@ function Guildbook:SendGuildCalendarEvents(month, year)
         if guildName and GUILDBOOK_GLOBAL['Calendar'][guildName] then
             for k, event in pairs(GUILDBOOK_GLOBAL['Calendar'][guildName]) do
                 if event.date.month >= today.month and event.date.year >= today.year and event.date.month <= future.month and event.date.year <= future.year then
-                    print(string.format('today is %s-%s-%s, future is %s-%s-%s, found event %s for %s-%s-%s', today.day, today.month, today.year, future.day, future.month, future.year, event.title, event.date.day, event.date.month, event.date.year))
+                    --print(string.format('today is %s-%s-%s, future is %s-%s-%s, found event %s for %s-%s-%s', today.day, today.month, today.year, future.day, future.month, future.year, event.title, event.date.day, event.date.month, event.date.year))
                 --if event.date.month == month and event.date.year == year then
                     table.insert(events, event)
                     DEBUG_COMMS(string.format('Added event: %s to this months sending table', event.title))

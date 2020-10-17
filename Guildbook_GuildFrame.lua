@@ -1368,12 +1368,28 @@ function Guildbook:SetupGuildCalendarFrame()
     end)
 
     self.GuildFrame.GuildCalendarFrame.CalendarParent = CreateFrame('FRAME', 'GuildbookGuildFrameGuildCalendarFrameParent', Guildbook.GuildFrame.GuildCalendarFrame)
-    self.GuildFrame.GuildCalendarFrame.CalendarParent:SetPoint('TOPLEFT', 150, -15)
-    self.GuildFrame.GuildCalendarFrame.CalendarParent:SetSize(490, 330)
+    self.GuildFrame.GuildCalendarFrame.CalendarParent:SetPoint('TOP', 0, -23)
+    self.GuildFrame.GuildCalendarFrame.CalendarParent:SetPoint('BOTTOM', 0, 0)
+    self.GuildFrame.GuildCalendarFrame.CalendarParent:SetWidth(490)
+
     -- draw days
     local CALENDAR_DAYBUTTON_NORMALIZED_TEX_WIDTH = 90 / 256 - 0.001
     local CALENDAR_DAYBUTTON_NORMALIZED_TEX_HEIGHT = 90 / 256 - 0.001
-    local dayW, dayH = 70, 54
+    local dayW, dayH = 70, 53
+
+    for i = 1, 7 do
+        local f = CreateFrame('FRAME', 'GuildbookGuildFrameGuildCalendarFrameDayHeaders'..i, Guildbook.GuildFrame.GuildCalendarFrame)
+        f:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.GuildCalendarFrame.CalendarParent, 'TOPLEFT', (i - 1) * dayW, 1)
+        f:SetSize(dayW, 18)
+        f.background = f:CreateTexture('$parentBackground', 'BACKGROUND')
+        f.background:SetAllPoints(f)
+        f.background:SetTexture(235428)
+        f.background:SetTexCoord(0.0, 0.35, 0.71, 0.81)
+        f.text = f:CreateFontString('$parentText', 'OVERLAY', 'GameFontNormalSmall')
+        f.text:SetPoint('CENTER', 0, 0)
+        f.text:SetTextColor(1,1,1,1)
+        f.text:SetText(weekdays[i])
+    end
 
     self.GuildFrame.GuildCalendarFrame.MonthView = {}
     local i, d = 1, 1
@@ -1396,6 +1412,13 @@ function Guildbook:SetupGuildCalendarFrame()
             f.background:SetPoint('BOTTOMRIGHT', 0, 0)
             f.background:SetTexture(235428)
             f.background:SetTexCoord(texLeft, texRight, texTop, texBottom)
+
+            f.currentDayTexture = f:CreateTexture('$parentCurrentDayTexture', 'ARTWORK')
+            f.currentDayTexture:SetPoint('TOPLEFT', -15, 15)
+            f.currentDayTexture:SetPoint('BOTTOMRIGHT', 16, -10)
+            f.currentDayTexture:SetTexture(235433)
+            f.currentDayTexture:SetTexCoord(0.05, 0.55, 0.05, 0.55)
+            f.currentDayTexture:Hide()
 
             f.eventTexture = f:CreateTexture('$parentBackground', 'ARTWORK')
             f.eventTexture:SetPoint('TOPLEFT', 0, 0)
@@ -1486,6 +1509,20 @@ function Guildbook:SetupGuildCalendarFrame()
         end
     end
 
+    function self.GuildFrame.GuildCalendarFrame:GetWorldEventsForDay(day, month)
+        local worldEvent = {}
+        for worldEvent, info in pairs(Guildbook.CalendarWorldEvents) do
+            if worldEvent ~= 'Darkmoon Faire' then
+                if info.Start.day == day and info.Start.month == month then
+
+                end
+                if info.End.day == day and info.End.month == month then
+
+                end
+            end
+        end
+    end
+
     -- decided to limit calendar to current month only in order to reduce chat traffic
 
     function self.GuildFrame.GuildCalendarFrame:MonthChanged()
@@ -1510,6 +1547,11 @@ function Guildbook:SetupGuildCalendarFrame()
                 day.dateText:SetTextColor(0.5, 0.5, 0.5, 1)
             end
             if i >= monthStart and d <= daysInMonth then
+                -- if d == self.date.day then
+                --     day.currentDayTexture:Show()
+                -- else
+                --     day.currentDayTexture:Hide()
+                -- end
                 day.dateText:SetText(d)
                 day.dateText:SetTextColor(1,1,1,1)
                 day:Enable()
@@ -1524,15 +1566,15 @@ function Guildbook:SetupGuildCalendarFrame()
                     dmf = 'Mulgore'
                 end
                 if i == 7 then
-                    day.eventTexture:SetTexture(Guildbook.CalendarWorldEvents['DMF'][dmf]['Start'])
+                    day.eventTexture:SetTexture(Guildbook.CalendarWorldEvents['Darkmoon Faire'][dmf]['Start'])
                     day.dmf = dmf
                 end
                 if i > 7 and i < 14 then
-                    day.eventTexture:SetTexture(Guildbook.CalendarWorldEvents['DMF'][dmf]['OnGoing'])
+                    day.eventTexture:SetTexture(Guildbook.CalendarWorldEvents['Darkmoon Faire'][dmf]['OnGoing'])
                     day.dmf = dmf
                 end
                 if i == 14 then
-                    day.eventTexture:SetTexture(Guildbook.CalendarWorldEvents['DMF'][dmf]['End'])
+                    day.eventTexture:SetTexture(Guildbook.CalendarWorldEvents['Darkmoon Faire'][dmf]['End'])
                     day.dmf = dmf
                 end
                 day.events = self:GetEventsForDate(day.date)

@@ -645,7 +645,7 @@ Guildbook.Data.ProfessionDescriptions = {
 }
 
 Guildbook.CalendarWorldEvents = {
-	['DMF'] = {
+	['Darkmoon Faire'] = {
 		['Elwynn'] = {
 			['Start'] = 235448,
 			['OnGoing'] = 235447,
@@ -656,6 +656,36 @@ Guildbook.CalendarWorldEvents = {
 			['OnGoing'] = 235450,
 			['End'] = 235449,
 		},
+	},
+	['Love is in the Air'] = {
+		['Start'] = { 
+			day = 7, 
+			month = 2,
+		},
+		['End'] = { 
+			day = 20, 
+			month = 2,
+		},
+		['Texture'] = {
+			['Start'] = 235468,
+			['OnGoing'] = 235467,
+			['End'] = 235466,
+		}
+	},
+	['Hallows End'] = {
+		['Start'] = { 
+			day = 18, 
+			month = 10,
+		},
+		['End'] = { 
+			day = 21, 
+			month = 11,
+		},
+		['Texture'] = {
+			['Start'] = 235468,
+			['OnGoing'] = 235467,
+			['End'] = 235466,
+		}
 	},
 }
 
@@ -1311,7 +1341,7 @@ Guildbook.itemdata["Zul'Gurub"] = {
 			AtlasMapBossID = 11,
 			['loot'] = {
 				{ 1,  19857 }, -- Cloak of Consumption
-				{ 2,  20257, [ATLASLOOT_IT_ALLIANCE] = 20264 }, -- Seafury Gauntlets
+				--{ 2,  20257, [ATLASLOOT_IT_ALLIANCE] = 20264 }, -- Seafury Gauntlets
 				--{ 3,  20264, [ATLASLOOT_IT_HORDE] = 20257 }, -- Peacekeeper Gauntlets
 				{ 3,  19855 }, -- Bloodsoaked Legplates
 				{ 4,  19876 }, -- Soul Corrupter's Necklace
@@ -1775,7 +1805,7 @@ Guildbook.itemdata["TheRuinsofAhnQiraj"] = { -- AQ20
 			DisplayIDs = {{15654}},
 			AtlasMapBossID = 4,
 			['loot'] = {
-				{ 1,  21487, [ATLASLOOT_IT_ALLIANCE] = 21486 }, -- Slimy Scaled Gauntlets
+				--{ 1,  21487, [ATLASLOOT_IT_ALLIANCE] = 21486 }, -- Slimy Scaled Gauntlets
 				--{ 2,  21486 }, -- Gloves of the Swarm
 				{ 2,  21485 }, -- Buru's Skull Fragment
 				{ 5,  21491 }, -- Scaled Bracers of the Gorger
