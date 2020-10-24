@@ -328,8 +328,8 @@ the copyright holders.
                 </Scripts>
             </Editbox>   
 
-            <Button name="$parentResetCharacterData" inherits="UIPanelButtonTemplate" text="Reset Character">
-                <Size x="140" y="25"/>
+            <Button name="$parentResetCharacterData" inherits="UIPanelButtonTemplate" text="Reset Character Settings">
+                <Size x="190" y="25"/>
                 <Anchors>
                     <Anchor point="BOTTOMRIGHT">
                         <offset x="-16" y="48"/>
@@ -354,6 +354,20 @@ the copyright holders.
                     </OnClick>
                 </Scripts>
             </Button>
+            <Button name="$parentRosterHealthCheck" inherits="UIPanelButtonTemplate" text="Roster Health Check">
+                <Size x="190" y="25"/>
+                <Anchors>
+                    <Anchor point="BOTTOMRIGHT">
+                        <offset x="-16" y="80"/>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnClick>
+                        GuildbookOptionsRosterHealthCheck_OnClick()
+                    </OnClick>
+                </Scripts>
+            </Button>
+
 
 <!--
             <Slider name="$parentMinimapIconSizeSlider" inherits="OptionsSliderTemplate" minvalue="2" maxvalue="20" defaultvalue="1" valuestep="1" enableMouse="true">

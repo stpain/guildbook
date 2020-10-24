@@ -22,7 +22,7 @@ the copyright holders.
 
 local addonName, Guildbook = ...
 
-local build = 3.0
+local build = 3.1
 local locale = GetLocale()
 
 local AceComm = LibStub:GetLibrary("AceComm-3.0")
@@ -45,10 +45,10 @@ end
 --slash commands
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 SLASH_GUILDHELPERCLASSIC1 = '/guildbook'
-SLASH_GUILDHELPERCLASSIC2 = '/g-k'
-SlashCmdList['GUILDHELPERCLASSIC'] = function(msg)
+SlashCmdList['GUILDBOOK'] = function(msg)
     if msg == '-help' then
         --Guildbook:ScanPlayerProfession()
+
     end
 end
 
@@ -59,7 +59,7 @@ local L = Guildbook.Locales
 local DEBUG = Guildbook.DEBUG
 local DEBUG_COMMS = Guildbook.DEBUG_COMMS
 
-Guildbook.FONT_COLOUR = ''
+Guildbook.FONT_COLOUR = '|cff0070DE'
 Guildbook.PlayerMixin = nil
 Guildbook.GuildBankCommit = {
     Commit = nil,
@@ -159,6 +159,7 @@ function Guildbook:Init()
     self:SetupGuildCalendarFrame()
     self:SetupGuildMemberDetailframe()
     self:SetupSoftReserveFrame()
+    self:SetupProfilesFrame()
 
     GuildbookOptionsMainSpecDD_Init()
     GuildbookOptionsOffSpecDD_Init()
@@ -195,7 +196,61 @@ function Guildbook:Init()
 
 end
 
+function Guildbook:CleanUpGuildRosterData(guild)
+    if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[guild] then
+        print(string.format('%s Guildbook|r, scanning roster for %s', Guildbook.FONT_COLOUR, guild))
+        for guid, info in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[guild]) do
+            if not self.PlayerMixin then
+                self.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
+            else
+                self.PlayerMixin:SetGUID(guid)
+            end
+            if self.PlayerMixin:IsValid() then
+                local _, class, _ = C_PlayerInfo.GetClass(self.PlayerMixin)
+                local name = C_PlayerInfo.GetName(self.PlayerMixin)
+                if name and class then
+                    if info.Class ~= class then
+                        print(name..' has error with class, updating class to mixin value')
+                        info.Class = class
+                    end
+                    if info.Name ~= name then
+                        print(name..' has error with name, updating name to mixin value')
+                        info.Name = name
+                    end
+                    local ms = false
+                    if info.MainSpec ~= '-' then
+                        for _, spec in pairs(Guildbook.Data.Class[class].Specializations) do
+                            if info.MainSpec == spec then
+                                ms = true
+                            end
+                        end
+                    elseif info.MainSpec == '-' then
+                        ms = true
+                    end
+                    if ms == false then
+                        print(name..' has error with main spec, setting to default')
+                        info.MainSpec = '-'
+                    end
+                    local os = false
+                    if info.OffSpec ~= '-' then
+                        for _, spec in pairs(Guildbook.Data.Class[class].Specializations) do
+                            if info.OffSpec == spec then
+                                os = true
+                            end
+                        end
+                    elseif info.OffSpec == '-' then
+                        os = true
+                    end
+                    if os == false then
+                        print(name..' has error with off spec, setting to default')
+                        info.OffSpec = '-'
+                    end
 
+                end
+            end
+        end
+    end
+end
 
 function Guildbook:CleanUpCharacterSettings()
     if GUILDBOOK_CHARACTER then
@@ -269,13 +324,13 @@ function Guildbook.GetItemLevel()
 	return math.floor(itemlevel/itemCount)
 end
 
-function Guildbook:IsGuildMemberOnline(member)
+function Guildbook:IsGuildMemberOnline(info)
     local guildName = Guildbook:GetGuildName()
     if guildName then
         local totalMembers, onlineMembers, _ = GetNumGuildMembers()
         for i = 1, totalMembers do
             local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, guid = GetGuildRosterInfo(i)
-            if member == name then
+            if isOnline and info == guid then
                 return true
             end
         end

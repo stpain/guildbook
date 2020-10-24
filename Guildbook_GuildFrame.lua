@@ -453,29 +453,52 @@ player again will usually fix the UI.|r
     self.GuildFrame.TradeSkillFrame.ProfessionDescription:SetSize(730, 50)
 
     self.GuildFrame.TradeSkillFrame.TopBorder = self.GuildFrame.TradeSkillFrame:CreateTexture('GuildbookGuildInfoFrameTradeSkillFrameTopBorder', 'ARTWORK')
-    self.GuildFrame.TradeSkillFrame.TopBorder:SetPoint('TOPLEFT', Guildbook.GuildFrame.TradeSkillFrame, 'TOPLEFT', 4, -50)
-    self.GuildFrame.TradeSkillFrame.TopBorder:SetPoint('TOPRIGHT', Guildbook.GuildFrame.TradeSkillFrame, 'TOPRIGHT', -4, -50)
+    self.GuildFrame.TradeSkillFrame.TopBorder:SetPoint('TOPLEFT', Guildbook.GuildFrame.TradeSkillFrame, 'TOPLEFT', 4, -125)
+    self.GuildFrame.TradeSkillFrame.TopBorder:SetPoint('TOPRIGHT', Guildbook.GuildFrame.TradeSkillFrame, 'TOPRIGHT', -4, -125)
     self.GuildFrame.TradeSkillFrame.TopBorder:SetHeight(10)
     self.GuildFrame.TradeSkillFrame.TopBorder:SetTexture(130968)
     self.GuildFrame.TradeSkillFrame.TopBorder:SetTexCoord(0.1, 1.0, 0.0, 0.3)
 
+    self.GuildFrame.TradeSkillFrame.HeaderInfoText = self.GuildFrame.TradeSkillFrame:CreateFontString(nil, 'OVERLAY', 'GameFontNormalSmall')
+    self.GuildFrame.TradeSkillFrame.HeaderInfoText:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.TradeSkillFrame.TopBorder, 'TOPLEFT', 3, 0)
+    self.GuildFrame.TradeSkillFrame.HeaderInfoText:SetText('Select Profession & Character |cffffffff'..Guildbook.Data.StatusIconStringsSMALL['Offline']..'offline, '..Guildbook.Data.StatusIconStringsSMALL['Online']..'online|r')
 
+    self.GuildFrame.TradeSkillFrame.ProfessionButtons = {}
     local profButtonPosY = 0
-    for i = 10, 1, -1 do
+    local x = 1
+    for i = 9, 1, -1 do
         local prof = Guildbook.Data.Professions[i]
         if prof.TradeSkill == true then
-            local f = CreateFrame('BUTTON', 'GuildbookTradeSkillFrameProfessionButton'..prof.Name, self.GuildFrame.TradeSkillFrame, "UIPanelButtonTemplate")
+            local f = CreateFrame('BUTTON', 'GuildbookTradeSkillFrameProfessionButton'..prof.Name, self.GuildFrame.TradeSkillFrame) --, "UIPanelButtonTemplate")
             f:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.TradeSkillFrame, 'BOTTOMLEFT', 6, profButtonPosY + 4)
-            f:SetSize(120, 22)
+            f:SetSize(120, 24.2)
             f:SetText(prof.Name)
             f:SetNormalFontObject(GameFontNormalSmall)
             f:SetHighlightFontObject(GameFontNormalSmall)
+            f:SetHighlightTexture("Interface/QuestFrame/UI-QuestLogTitleHighlight","ADD")
+            f:GetHighlightTexture():SetVertexColor(0.196, 0.388, 0.8)
+            f:GetFontString():SetPoint('LEFT', 4, 0)
+            f:GetFontString():SetTextColor(1,1,1,1)
+            f.icon = f:CreateTexture(nil, 'ARTWORK')
+            f.icon:SetPoint('RIGHT', 0, 0)
+            f.icon:SetSize(20, 20)
+            f.icon:SetTexture(Guildbook.Data.Profession[prof.Name].IconID)
+            f.data = { Selected = false }
             f:SetScript('OnClick', function(self)
+                for k, v in ipairs(Guildbook.GuildFrame.TradeSkillFrame.ProfessionButtons) do
+                    if v.data then
+                        v.data.Selected = false
+                    end
+                end
+                self.data.Selected = not self.data.Selected
+                Guildbook.GuildFrame.TradeSkillFrame.UpdateListviewSelectedTextures(Guildbook.GuildFrame.TradeSkillFrame.ProfessionButtons)
                 Guildbook.GuildFrame.TradeSkillFrame:HideCharacterListviewButtons()
                 selectedProfession = prof.Name
                 Guildbook.GuildFrame.TradeSkillFrame.CharactersListviewScrollBar:SetValue(1)
                 Guildbook.GuildFrame.TradeSkillFrame:GetPlayersWithProf(prof.Name)
-                Guildbook.GuildFrame.TradeSkillFrame:RefreshCharactersListview()
+                C_Timer.After(1, function()
+                    Guildbook.GuildFrame.TradeSkillFrame:RefreshCharactersListview()
+                end)                
                 Guildbook.GuildFrame.TradeSkillFrame:ClearRecipesListview()
                 Guildbook.GuildFrame.TradeSkillFrame:ClearReagentsListview()
                 Guildbook.GuildFrame.TradeSkillFrame.ProfessionIcon:SetTexture(Guildbook.Data.Profession[prof.Name].Icon)
@@ -483,7 +506,9 @@ player again will usually fix the UI.|r
                 Guildbook.GuildFrame.TradeSkillFrame.RecipesTable = {}
                 DEBUG('selected '..prof.Name)
             end)
-            profButtonPosY = profButtonPosY + 21
+            profButtonPosY = profButtonPosY + 23.1
+            self.GuildFrame.TradeSkillFrame.ProfessionButtons[x] = f
+            x = x + 1
         end
     end
 
@@ -562,7 +587,8 @@ player again will usually fix the UI.|r
                     -- if we have any recipes already on file, load these, this avoids sending additional chat messages, updates can be requested
                     if guildName and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][self.data.GUID][selectedProfession] and type(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][self.data.GUID][selectedProfession]) == 'table' then
                         DEBUG('recipe database found on file, loading data for: '..selectedProfession)
-                        Guildbook.GuildFrame.TradeSkillFrame:SetRecipesListviewData(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][self.data.GUID][selectedProfession])
+                        Guildbook.GuildFrame.TradeSkillFrame.RecipesTable = GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][self.data.GUID][selectedProfession]
+                        Guildbook.GuildFrame.TradeSkillFrame:SetRecipesListviewData(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][self.data.GUID][selectedProfession], nil)
                     else
                         -- send request and show cooldown UI so player is aware something is happening
                         DEBUG('no data on file, sending request to: '..self.data.Name..' for data: '..selectedProfession)
@@ -573,7 +599,11 @@ player again will usually fix the UI.|r
         end)
         f:SetScript('OnShow', function(self)
             if self.data then
-                self.Text:SetText(self.data.Name)
+                if Guildbook:IsGuildMemberOnline(self.data.GUID) then
+                    self.Text:SetText(Guildbook.Data.StatusIconStringsSMALL['Online']..' '..self.data.Name)
+                else
+                    self.Text:SetText(Guildbook.Data.StatusIconStringsSMALL['Offline']..' '..self.data.Name)
+                end
             end
         end)
         f:SetScript('OnHide', function(self)
@@ -598,7 +628,7 @@ player again will usually fix the UI.|r
                 self.CharactersListviewRows[i]:Enable()
             end
             Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewParent.ProgressCooldown:Hide()
-            Guildbook.GuildFrame.TradeSkillFrame:SetRecipesListviewData(self.RecipesTable)
+            Guildbook.GuildFrame.TradeSkillFrame:SetRecipesListviewData(self.RecipesTable, nil)
         end)
     end
 
@@ -628,15 +658,15 @@ player again will usually fix the UI.|r
             end
             local c = #self.CharactersWithProf
             if c <= 10 then
-                self.CharactersListviewScrollBar:SetMinMaxValues(1, 2)
-                self.CharactersListviewScrollBar:SetValue(2)
-                self.CharactersListviewScrollBar:SetValue(1)
+                -- self.CharactersListviewScrollBar:SetMinMaxValues(1, 2)
+                -- self.CharactersListviewScrollBar:SetValue(2)
+                -- self.CharactersListviewScrollBar:SetValue(1)
                 self.CharactersListviewScrollBar:SetMinMaxValues(1, 1)
                 DEBUG('set minmax to 1,1')
             else
                 self.CharactersListviewScrollBar:SetMinMaxValues(1, (c - 9))
-                self.CharactersListviewScrollBar:SetValue(2)
-                self.CharactersListviewScrollBar:SetValue(1)
+                -- self.CharactersListviewScrollBar:SetValue(2)
+                -- self.CharactersListviewScrollBar:SetValue(1)
                 DEBUG('set minmax to 1,'..(c-9))
             end
         end
@@ -676,7 +706,33 @@ player again will usually fix the UI.|r
     self.GuildFrame.TradeSkillFrame.RecipesListviewParent.background:SetAllPoints(Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewParent)
     self.GuildFrame.TradeSkillFrame.RecipesListviewParent.background:SetColorTexture(0.2,0.2,0.2,0.2)
     self.GuildFrame.TradeSkillFrame.RecipesListviewParent:EnableMouse(true)
+    self.GuildFrame.TradeSkillFrame.RecipesListviewParent:SetScript('OnMouseWheel', function(self, delta)
+        local s = self.ScrollBar:GetValue()
+        self.ScrollBar:SetValue(s - delta)
+    end)
 
+    self.GuildFrame.TradeSkillFrame.RecipesListviewParent.SearchBoxText = self.GuildFrame.TradeSkillFrame.RecipesListviewParent:CreateFontString(nil, 'OVERLAY', 'GameFontNormalSmall')
+    self.GuildFrame.TradeSkillFrame.RecipesListviewParent.SearchBoxText:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewParent, 'TOPLEFT', 0, 4)
+    self.GuildFrame.TradeSkillFrame.RecipesListviewParent.SearchBoxText:SetText('Search recipes')
+    self.GuildFrame.TradeSkillFrame.RecipesListviewParent.SearchBoxText:SetSize(80, 22)
+
+    self.GuildFrame.TradeSkillFrame.RecipesListviewParent.SearchBox = CreateFrame('EDITBOX', 'GuildbookGuildFrameRecipesListviewParentSearchBox', self.GuildFrame.TradeSkillFrame.RecipesListviewParent, "InputBoxTemplate")
+    self.GuildFrame.TradeSkillFrame.RecipesListviewParent.SearchBox:SetPoint('LEFT', Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewParent.SearchBoxText, 'RIGHT', 6, 0)
+    self.GuildFrame.TradeSkillFrame.RecipesListviewParent.SearchBox:SetSize(150, 22)
+    self.GuildFrame.TradeSkillFrame.RecipesListviewParent.SearchBox:ClearFocus()
+    self.GuildFrame.TradeSkillFrame.RecipesListviewParent.SearchBox:SetAutoFocus(false)
+    self.GuildFrame.TradeSkillFrame.RecipesListviewParent.SearchBox:SetScript('OnTextChanged', function(self)
+        if self:GetText():len() > 2 then
+            --print('settign recipes with filter')
+            local filter = self:GetText()
+            Guildbook.GuildFrame.TradeSkillFrame:SetRecipesListviewData(Guildbook.GuildFrame.TradeSkillFrame.RecipesTable, filter)
+        else
+            --print('settign recipes without filter')
+            Guildbook.GuildFrame.TradeSkillFrame:SetRecipesListviewData(Guildbook.GuildFrame.TradeSkillFrame.RecipesTable, nil)
+        end
+
+    end)
+   
     self.GuildFrame.TradeSkillFrame.RecipesListviewParent.ProgressCooldown = CreateFrame('FRAME', 'GuildbookGuildFrameRecipesListviewParentCooldown', self.GuildFrame.TradeSkillFrame.RecipesListviewParent)
     self.GuildFrame.TradeSkillFrame.RecipesListviewParent.ProgressCooldown:SetPoint('CENTER', 0, 0)
     self.GuildFrame.TradeSkillFrame.RecipesListviewParent.ProgressCooldown:SetSize(40, 40)
@@ -698,13 +754,13 @@ player again will usually fix the UI.|r
     self.GuildFrame.TradeSkillFrame.RecipesListviewParent.scrollBarBackgroundBottom:SetSize(30, 60)
     self.GuildFrame.TradeSkillFrame.RecipesListviewParent.scrollBarBackgroundBottom:SetTexCoord(0.5, 1.0, 0.2, 0.4)
 
-    self.GuildFrame.TradeSkillFrame.RecipesListviewScrollBar = CreateFrame('SLIDER', 'GuildbookGuildFrameRecipesListviewScrollBar', Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewParent, "UIPanelScrollBarTemplate")
-    self.GuildFrame.TradeSkillFrame.RecipesListviewScrollBar:SetPoint('TOPLEFT', Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewParent, 'TOPRIGHT', 28, -17)
-    self.GuildFrame.TradeSkillFrame.RecipesListviewScrollBar:SetPoint('BOTTOMRIGHT', Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewParent, 'BOTTOMRIGHT', 0, 16)
-    self.GuildFrame.TradeSkillFrame.RecipesListviewScrollBar:EnableMouse(true)
-    self.GuildFrame.TradeSkillFrame.RecipesListviewScrollBar:SetValueStep(1)
-    self.GuildFrame.TradeSkillFrame.RecipesListviewScrollBar:SetValue(1)
-    self.GuildFrame.TradeSkillFrame.RecipesListviewScrollBar:SetScript('OnValueChanged', function(self)
+    self.GuildFrame.TradeSkillFrame.RecipesListviewParent.ScrollBar = CreateFrame('SLIDER', 'GuildbookGuildFrameRecipesListviewScrollBar', Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewParent, "UIPanelScrollBarTemplate")
+    self.GuildFrame.TradeSkillFrame.RecipesListviewParent.ScrollBar:SetPoint('TOPLEFT', Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewParent, 'TOPRIGHT', 28, -17)
+    self.GuildFrame.TradeSkillFrame.RecipesListviewParent.ScrollBar:SetPoint('BOTTOMRIGHT', Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewParent, 'BOTTOMRIGHT', 0, 16)
+    self.GuildFrame.TradeSkillFrame.RecipesListviewParent.ScrollBar:EnableMouse(true)
+    self.GuildFrame.TradeSkillFrame.RecipesListviewParent.ScrollBar:SetValueStep(1)
+    self.GuildFrame.TradeSkillFrame.RecipesListviewParent.ScrollBar:SetValue(1)
+    self.GuildFrame.TradeSkillFrame.RecipesListviewParent.ScrollBar:SetScript('OnValueChanged', function(self)
         if next(Guildbook.GuildFrame.TradeSkillFrame.Recipes) then
             local scrollPos = math.floor(self:GetValue())
             if scrollPos == 0 then
@@ -781,7 +837,13 @@ player again will usually fix the UI.|r
         wipe(self.Recipes)
     end
 
-    function self.GuildFrame.TradeSkillFrame:SetRecipesListviewData(data)
+    function self.GuildFrame.TradeSkillFrame:ShowRecipesListviewRows()
+        for i = 1, 10 do
+            self.RecipesListviewRows[i]:Show()
+        end
+    end
+
+    function self.GuildFrame.TradeSkillFrame:SetRecipesListviewData(data, filter)
         self:ClearRecipesListview()
         self:ClearReagentsListview()
         -- if data then
@@ -839,7 +901,17 @@ player again will usually fix the UI.|r
                         })
                         DEBUG(string.format('add %s to reagents list', reagentID))
                     end
-                    table.insert(self.Recipes, recipeItem)
+                    --print(filter, recipeItem.Name)
+                    if filter == nil then
+                        table.insert(self.Recipes, recipeItem)
+                        --print('added '..recipeItem.Name..' as there is no filter term')
+                    else
+                        --print('filter term exists')
+                        if recipeItem.Name:lower():find(filter) then
+                            table.insert(self.Recipes, recipeItem)
+                            --print('added '..recipeItem.Name..' as it matched the filter term')
+                        end
+                    end
                 end
             end
 
@@ -853,25 +925,31 @@ player again will usually fix the UI.|r
 
             local c = #self.Recipes
             if c <= 10 then
-                self.RecipesListviewScrollBar:SetMinMaxValues(1, 2)
-                self.RecipesListviewScrollBar:SetValue(2)
-                self.RecipesListviewScrollBar:SetValue(1)
-                self.RecipesListviewScrollBar:SetMinMaxValues(1, 1)
+                -- self.RecipesListviewParent.ScrollBar:SetMinMaxValues(1, 2)
+                -- self.RecipesListviewParent.ScrollBar:SetValue(2)
+                -- self.RecipesListviewParent.ScrollBar:SetValue(1)
+                self.RecipesListviewParent.ScrollBar:SetMinMaxValues(1, 1)
                 DEBUG('set minmax to 1,1')
             else
-                self.RecipesListviewScrollBar:SetMinMaxValues(1, (c - 9))
-                self.RecipesListviewScrollBar:SetValue(2)
-                self.RecipesListviewScrollBar:SetValue(1)
+                self.RecipesListviewParent.ScrollBar:SetMinMaxValues(1, (c - 9))
+                -- self.RecipesListviewParent.ScrollBar:SetValue(2)
+                -- self.RecipesListviewParent.ScrollBar:SetValue(1)
                 DEBUG('set minmax to 1,'..(c-9))
             end
             for i = 1, 10 do
-                Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewRows[i]:Hide()
-                Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewRows[i].data = self.Recipes[i]
-                Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewRows[i]:Show()
+                --Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewRows[i]:Hide()
+                if self.Recipes[i] then
+                    Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewRows[i].data = self.Recipes[i]
+                else
+                    Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewRows[i]:Hide()
+                end
+                --Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewRows[i]:Show()
             end
 
         end
-
+        C_Timer.After(1, function()
+            Guildbook.GuildFrame.TradeSkillFrame:ShowRecipesListviewRows()
+        end)
     end
 
     -- reagents
@@ -1495,11 +1573,6 @@ function Guildbook:SetupGuildCalendarFrame()
                     else
                         Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.enabled = true
                     end
-                    -- Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetText('')
-                    -- Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:Enable()
-                    -- Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox:SetText('')
-                    -- Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox:Enable()
-                    -- Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.CreateEventButton:Enable()
                     Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:Show()
                 end
             end)
@@ -1890,28 +1963,6 @@ function Guildbook:SetupGuildCalendarFrame()
             self.AttendEventButton_Tentative:Enable()
             self.AttendEventButton_Unable:Enable()
             UIDropDownMenu_SetText(self.EventTypeDropdown, eventTypesReversed[self.event.type])
-            -- if next(self.event.attend) then
-            --     local i = 1
-            --     for guid, info in pairs(self.event.attend) do
-            --         if not Guildbook.PlayerMixin then
-            --             Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
-            --         else
-            --             Guildbook.PlayerMixin:SetGUID(guid)
-            --         end
-            --         if Guildbook.PlayerMixin:IsValid() then
-            --             local _, class, _ = C_PlayerInfo.GetClass(Guildbook.PlayerMixin)
-            --             local name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
-            --             local count = tonumber(self.ClassTabs[class].text:GetText())
-            --             self.ClassTabs[class].text:SetText(count + 1)
-            --             self.ClassTabs[class].icon:SetVertexColor(1,1,1)
-
-            --             -- update first 10 attending
-            --             self.AttendingListview[i].character:SetText(Guildbook.Data.Class[class].FontColour..name)
-            --             self.AttendingListview[i].status:SetText(status[info.Status])
-            --             i = i + 1
-            --         end
-            --     end
-            -- end
             if self.event.owner == UnitGUID('player') then
                 self.CancelEventButton:Enable()
             else
@@ -2297,5 +2348,17 @@ during a raid.|r
             self:LockItemDropdown()
         end
     end)
+
+end
+
+
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- profiles
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+function Guildbook:SetupProfilesFrame()
 
 end

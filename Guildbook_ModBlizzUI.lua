@@ -372,7 +372,8 @@ function Guildbook:ModBlizzUI()
         if frame == 'GuildCalendarFrame' or frame == 'GuildBankFrame' or frame == 'SoftReserveFrame' then
             self.GuildFrame[frame]:SetPoint('BOTTOMRIGHT', GuildFrame, 'BOTTOMRIGHT', -4.00, 25.0)
         else
-            self.GuildFrame[frame]:SetPoint('BOTTOMRIGHT', GuildFrame, 'TOPRIGHT', -4.00, -325.0)
+            self.GuildFrame[frame]:SetPoint('BOTTOMRIGHT', GuildFrame, 'BOTTOMRIGHT', -4.00, 25.0)
+            --self.GuildFrame[frame]:SetPoint('BOTTOMRIGHT', GuildFrame, 'TOPRIGHT', -4.00, -325.0)
         end        
         self.GuildFrame[frame]:SetFrameLevel(6)
         self.GuildFrame[frame]:Hide()

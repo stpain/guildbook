@@ -57,6 +57,13 @@ function GuildbookOptionsShowMinimapButton_OnClick(self)
     end
 end
 
+function GuildbookOptionsRosterHealthCheck_OnClick()
+    local guildName = Guildbook:GetGuildName()
+    if guildName then
+        Guildbook:CleanUpGuildRosterData(guildName)
+    end
+end
+
 function GuildbookOptions_OnLoad(self)
     GuildbookOptionsHeader:SetText(L['OptionsHeader'])
     GuildbookOptionsCharacterMainSpec:SetText(L['MainSpec'])
@@ -170,3 +177,4 @@ function GuildbookOptionsOffSpecDD_Init()
         end)
     end
 end
+

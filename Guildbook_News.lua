@@ -68,5 +68,19 @@ You can create and delete events, assign an event a type, provide a title and de
 |cffC41F3BIssues|r:
 Please report bugs at curseforge 
 (ctrl+c to copy website)
-    ]]
+    ]],
+    [3.1] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+General UI improvements
+
+|cff0070DEUpdates|r:
+Profession tab changes, added mouse wheel scrolling to the recipes listview! (About time)
+Added some info for online/offline status of characters after selecting a profession.
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }
