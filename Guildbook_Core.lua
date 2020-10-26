@@ -22,7 +22,7 @@ the copyright holders.
 
 local addonName, Guildbook = ...
 
-local build = 3.1
+local build = 3.11
 local locale = GetLocale()
 
 local AceComm = LibStub:GetLibrary("AceComm-3.0")
@@ -47,7 +47,10 @@ end
 SLASH_GUILDHELPERCLASSIC1 = '/guildbook'
 SlashCmdList['GUILDBOOK'] = function(msg)
     if msg == '-help' then
-        --Guildbook:ScanPlayerProfession()
+        print(':(')
+
+    elseif msg == '-scanbank' then
+        Guildbook:ScanCharacterContainers()
 
     end
 end

@@ -573,13 +573,25 @@ player again will usually fix the UI.|r
                 -- offer context menu with request update
                 if button == 'RightButton' then
                     Guildbook.ContextMenu = {
-                        { text = 'Options', isTitle = true, notCheckable = true, },
-                        { text = 'Request data', notCheckable = true, func = function()
-                            Guildbook.GuildFrame.TradeSkillFrame:RequestProfessionData(self.data.Name, selectedProfession)
-                        end, },
-                        { text = 'Cancel', notCheckable = true, func = function()
-                            CloseDropDownMenus()
-                        end, },
+                        { 
+                            text = 'Options', 
+                            isTitle = true, 
+                            notCheckable = true, },
+                        { 
+                            text = 'Request data', 
+                            notCheckable = true, 
+                            func = function()
+                            
+                                Guildbook.GuildFrame.TradeSkillFrame:RequestProfessionData(self.data.Name, selectedProfession)
+                            end, 
+                        },
+                        { 
+                            text = 'Cancel', 
+                            notCheckable = true, 
+                            func = function()
+                                CloseDropDownMenus()
+                            end, 
+                        },
                     }
                     EasyMenu(Guildbook.ContextMenu, Guildbook.ContextMenu_DropDown, "cursor", 0 , 0, "MENU")
                 else
@@ -761,19 +773,7 @@ player again will usually fix the UI.|r
     self.GuildFrame.TradeSkillFrame.RecipesListviewParent.ScrollBar:SetValueStep(1)
     self.GuildFrame.TradeSkillFrame.RecipesListviewParent.ScrollBar:SetValue(1)
     self.GuildFrame.TradeSkillFrame.RecipesListviewParent.ScrollBar:SetScript('OnValueChanged', function(self)
-        if next(Guildbook.GuildFrame.TradeSkillFrame.Recipes) then
-            local scrollPos = math.floor(self:GetValue())
-            if scrollPos == 0 then
-                scrollPos = 1
-            end
-            for i = 1, 10 do
-                if Guildbook.GuildFrame.TradeSkillFrame.Recipes[(i - 1) + scrollPos] then
-                    Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewRows[i]:Hide()
-                    Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewRows[i].data = Guildbook.GuildFrame.TradeSkillFrame.Recipes[(i - 1) + scrollPos]
-                    Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewRows[i]:Show()
-                end
-            end
-        end
+        Guildbook.GuildFrame.TradeSkillFrame:RefreshListview()
         Guildbook.GuildFrame.TradeSkillFrame.UpdateListviewSelectedTextures(Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewRows)
     end)
 
@@ -817,6 +817,8 @@ player again will usually fix the UI.|r
         f:SetScript('OnShow', function(self)
             if self.data then
                 self.Text:SetText(self.data.Link)
+            else
+                self:Hide()
             end
             Guildbook.GuildFrame.TradeSkillFrame.UpdateListviewSelectedTextures(Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewRows)
         end)
@@ -837,30 +839,76 @@ player again will usually fix the UI.|r
         wipe(self.Recipes)
     end
 
-    function self.GuildFrame.TradeSkillFrame:ShowRecipesListviewRows()
-        for i = 1, 10 do
-            self.RecipesListviewRows[i]:Show()
+    -- function self.GuildFrame.TradeSkillFrame:ShowRecipesListviewRows()
+    --     for i = 1, 10 do
+    --         self.RecipesListviewRows[i]:Show()
+    --     end
+    -- end
+
+    function self.GuildFrame.TradeSkillFrame:RefreshListview()
+        if next(self.Recipes) then
+            table.sort(self.Recipes, function(a, b)
+                if a.Rarity == b.Rarity then
+                    return a.Name < b.Name
+                else
+                    return a.Rarity > b.Rarity
+                end
+            end)
+            local c = #self.Recipes
+            if c <= 10 then
+                self.RecipesListviewParent.ScrollBar:SetMinMaxValues(1, 1)
+            else
+                self.RecipesListviewParent.ScrollBar:SetMinMaxValues(1, (c - 9))
+            end
+            local scrollPos = math.floor(self.RecipesListviewParent.ScrollBar:GetValue())
+            if scrollPos == 0 then
+                scrollPos = 1
+            end
+            for i = 1, 10 do
+                if self.Recipes[(i - 1) + scrollPos] then
+                    self.RecipesListviewRows[i]:Hide()
+                    self.RecipesListviewRows[i].data = self.Recipes[(i - 1) + scrollPos]
+                    self.RecipesListviewRows[i]:Show()
+                end
+            end
         end
+    end
+    
+    function self.GuildFrame.TradeSkillFrame:AddRecipe(itemID, link, enchant, rarity, icon, name, reagents, filter)
+        local recipeItem = {
+            ItemID = itemID,
+            Link = link,
+            Enchant = enchant,
+            Rarity = tonumber(rarity),
+            Reagents = {},
+            Icon = tonumber(icon),
+            Name = name,
+            Selected = false,
+        }
+        for reagentID, count in pairs(reagents) do
+            local reagentLink = select(2, GetItemInfo(reagentID))
+            local reagentRarity = select(3, GetItemInfo(reagentID))
+            table.insert(recipeItem.Reagents, {
+                ItemID = reagentID,
+                Count = tonumber(count),
+            })
+            DEBUG(string.format('add %s to reagents list', reagentID))
+        end
+        if filter == nil then
+            table.insert(self.Recipes, recipeItem)
+        else
+            if recipeItem.Name:lower():find(filter) then
+                table.insert(self.Recipes, recipeItem)
+            end
+        end
+        self:RefreshListview()
     end
 
     function self.GuildFrame.TradeSkillFrame:SetRecipesListviewData(data, filter)
         self:ClearRecipesListview()
         self:ClearReagentsListview()
-        -- if data then
-        --     --print(type(data))
-        --     if type(data) == 'table' then
-        --         for k, v in pairs(data) do
-        --             --print(k, v)
-        --             if type(v) == 'table' then
-        --                 for x, y in pairs(v) do
-        --                     --print('    ', x, y)
-        --                 end
-        --             end
-        --         end
-        --     end
-        -- end
         if data and type(data) == 'table' and next(data) then
-            --wipe(self.Recipes)
+            local k = 1
             for itemID, reagents in pairs(data) do
                 local link = false
                 local rarity = false
@@ -880,76 +928,32 @@ player again will usually fix the UI.|r
                     icon = select(10, GetItemInfo(itemID))
                 end
                 if link and rarity and icon and name then
-                    local recipeItem = {
-                        ItemID = itemID,
-                        Link = link,
-                        Enchant = enchant,
-                        Rarity = tonumber(rarity),
-                        Reagents = {},
-                        Icon = tonumber(icon),
-                        Name = name,
-                        Selected = false,
-                    }
-                    DEBUG(string.format('add %s to recipe list', link))
-                    for reagentID, count in pairs(reagents) do
-                        local reagentLink = select(2, GetItemInfo(reagentID))
-                        local reagentRarity = select(3, GetItemInfo(reagentID))
-                        table.insert(recipeItem.Reagents, {
-                            Link = reagentLink,
-                            Rarity = tonumber(reagentRarity),
-                            Count = tonumber(count),
-                        })
-                        DEBUG(string.format('add %s to reagents list', reagentID))
-                    end
-                    --print(filter, recipeItem.Name)
-                    if filter == nil then
-                        table.insert(self.Recipes, recipeItem)
-                        --print('added '..recipeItem.Name..' as there is no filter term')
+                    Guildbook.GuildFrame.TradeSkillFrame:AddRecipe(itemID, link, enchant, rarity, icon, name, reagents, filter)
+                else
+                    if selectedProfession == 'Enchanting' then                    
+                        local spell = Spell:CreateFromSpellID(spellID)
+                        spell:ContinueOnSpellLoad(function()
+                            link = select(1, GetSpellLink(itemID))
+                            rarity =  1
+                            name = select(1, GetSpellInfo(itemID)) or 'unknown'
+                            icon = select(3, GetSpellInfo(itemID)) or 134400
+                            enchant = true
+                            Guildbook.GuildFrame.TradeSkillFrame:AddRecipe(itemID, link, enchant, rarity, icon, name, reagents, filter)
+                        end)
                     else
-                        --print('filter term exists')
-                        if recipeItem.Name:lower():find(filter) then
-                            table.insert(self.Recipes, recipeItem)
-                            --print('added '..recipeItem.Name..' as it matched the filter term')
-                        end
+                        local item = Item:CreateFromItemID(itemID)
+                        item:ContinueOnItemLoad(function()
+                            icon = item:GetItemIcon()
+                            name = item:GetItemName()
+                            link = item:GetItemLink()
+                            rarity = item:GetItemQuality()
+                            enchant = false
+                            Guildbook.GuildFrame.TradeSkillFrame:AddRecipe(itemID, link, enchant, rarity, icon, name, reagents, filter)
+                        end)
                     end
                 end
             end
-
-            table.sort(self.Recipes, function(a, b)
-                if a.Rarity == b.Rarity then
-                    return a.Name < b.Name
-                else
-                    return a.Rarity > b.Rarity
-                end
-            end)
-
-            local c = #self.Recipes
-            if c <= 10 then
-                -- self.RecipesListviewParent.ScrollBar:SetMinMaxValues(1, 2)
-                -- self.RecipesListviewParent.ScrollBar:SetValue(2)
-                -- self.RecipesListviewParent.ScrollBar:SetValue(1)
-                self.RecipesListviewParent.ScrollBar:SetMinMaxValues(1, 1)
-                DEBUG('set minmax to 1,1')
-            else
-                self.RecipesListviewParent.ScrollBar:SetMinMaxValues(1, (c - 9))
-                -- self.RecipesListviewParent.ScrollBar:SetValue(2)
-                -- self.RecipesListviewParent.ScrollBar:SetValue(1)
-                DEBUG('set minmax to 1,'..(c-9))
-            end
-            for i = 1, 10 do
-                --Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewRows[i]:Hide()
-                if self.Recipes[i] then
-                    Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewRows[i].data = self.Recipes[i]
-                else
-                    Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewRows[i]:Hide()
-                end
-                --Guildbook.GuildFrame.TradeSkillFrame.RecipesListviewRows[i]:Show()
-            end
-
         end
-        C_Timer.After(1, function()
-            Guildbook.GuildFrame.TradeSkillFrame:ShowRecipesListviewRows()
-        end)
     end
 
     -- reagents
@@ -1013,15 +1017,21 @@ player again will usually fix the UI.|r
 
     function self.GuildFrame.TradeSkillFrame:UpdateReagents(recipe)
         self:ClearReagentsListview()
-        --wipe(self.Reagents)
-
         if recipe and recipe.Reagents then
             for k, v in ipairs(recipe.Reagents) do
-                if v.Link then
-                    local icon = select(10, GetItemInfo(v.Link))
-                    local name = select(1, GetItemInfo(v.Link))
+                local link = select(2, GetItemInfo(v.ItemID))
+                local icon = select(10, GetItemInfo(v.ItemID))
+                if link and icon then
                     self.ReagentsListviewRows[k].icon:SetTexture(icon)
-                    self.ReagentsListviewRows[k].text:SetText(string.format('[%s] %s', v.Count, name))
+                    self.ReagentsListviewRows[k].text:SetText(string.format('[%s] %s', v.Count, link))
+                else
+                    local item = Item:CreateFromItemID(v.ItemID)
+                    item:ContinueOnItemLoad(function()
+                        icon = item:GetItemIcon()
+                        link = item:GetItemLink()
+                        Guildbook.GuildFrame.TradeSkillFrame.ReagentsListviewRows[k].icon:SetTexture(icon)
+                        Guildbook.GuildFrame.TradeSkillFrame.ReagentsListviewRows[k].text:SetText(string.format('[%s] %s', v.Count, link))
+                    end)
                 end
             end
         end
@@ -1090,6 +1100,10 @@ function Guildbook:SetupGuildBankFrame()
                 info.hasArrow = false
                 info.keepShownOnClick = false
                 info.func = function()
+                    Guildbook.GuildBankCommit = {
+                        Commit = nil,
+                        Character = nil,
+                    }
                     Guildbook.GuildFrame.GuildBankFrame.bankCharacter = p
                     Guildbook.GuildFrame.GuildBankFrame.ResetSlots()
                     Guildbook:SendGuildBankCommitRequest(p)

@@ -83,4 +83,20 @@ Added some info for online/offline status of characters after selecting a profes
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [3.11] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+Fixed bug with bank not showing for multiple bank alts
+
+|cff0070DEUpdates|r:
+Improved profession UI, recipes and reagents now appear with first click.
+Search current character recipes.
+
+players not able to see bank scan button can use the slash command /guidbook -scanbank
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }
