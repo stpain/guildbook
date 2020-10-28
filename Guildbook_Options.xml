@@ -455,9 +455,6 @@ the copyright holders.
 	            InterfaceOptions_AddCategory(GuildbookOptions)
                 GuildbookOptions_OnLoad(self)
             </OnLoad>
-            <OnShow>
-                GuildbookOptions_OnShow(self)
-            </OnShow>
         </Scripts>
     </Frame>
 

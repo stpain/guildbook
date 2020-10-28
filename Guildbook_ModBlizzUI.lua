@@ -27,7 +27,12 @@ local FRIENDS_FRAME_WIDTH = FriendsFrame:GetWidth()
 local GUILD_FRAME_WIDTH = GuildFrame:GetWidth()
 local GUILD_INFO_FRAME_WIDTH = GuildInfoFrame:GetWidth()
 local GUILD_MEMBER_DETAIL_FRAME_WIDTH = GuildMemberDetailFrame:GetWidth()
-
+local GUILD_INFORMATION_BUTTON_WIDTH = GuildFrameGuildInformationButton:GetWidth()
+C_Timer.After(5, function() 
+    GuildFrameGuildInformationButton:ClearAllPoints()
+    GuildFrameGuildInformationButton:SetPoint('RIGHT', GuildFrameAddMemberButton, 'LEFT', -2.0, 0)
+    GuildFrameGuildInformationButton:SetWidth(GUILD_INFORMATION_BUTTON_WIDTH)
+end)
 -- config stuff
 Guildbook.GuildFrame = {
     ColumnHeaders = {
@@ -53,25 +58,25 @@ Guildbook.GuildFrame = {
 function Guildbook:ModBlizzUI()
 
     -- experimental stuff
-    -- GuildMemberDetailFrame:SetWidth(GUILD_MEMBER_DETAIL_FRAME_WIDTH + 120)
-    -- GuildMemberRemoveButton:SetWidth((GUILD_MEMBER_DETAIL_FRAME_WIDTH + 100) / 2)
-    -- GuildMemberGroupInviteButton:SetWidth((GUILD_MEMBER_DETAIL_FRAME_WIDTH + 100) / 2)
-    -- for k, v in pairs({GuildMemberDetailFrame:GetRegions()}) do
-    --     if v:GetObjectType() == 'Texture' then
-    --         if v:GetTexture():lower() == 'interface\\friendsframe\\ui-guildmember-patch' then
-    --             v:Hide()
-    --         end
-    --     end
-    -- end
-    -- local w = GuildMemberNoteBackground:GetWidth()
-    -- GuildMemberNoteBackground:SetWidth(w * 1.65)
-    -- w = PersonalNoteText:GetWidth()
-    -- PersonalNoteText:SetWidth(w * 1.65)
+    GuildMemberDetailFrame:SetWidth(GUILD_MEMBER_DETAIL_FRAME_WIDTH + 120)
+    GuildMemberRemoveButton:SetWidth((GUILD_MEMBER_DETAIL_FRAME_WIDTH + 100) / 2)
+    GuildMemberGroupInviteButton:SetWidth((GUILD_MEMBER_DETAIL_FRAME_WIDTH + 100) / 2)
+    for k, v in pairs({GuildMemberDetailFrame:GetRegions()}) do
+        if v:GetObjectType() == 'Texture' then
+            if v:GetTexture() and v:GetTexture():lower() == 'interface\\friendsframe\\ui-guildmember-patch' then
+                v:Hide()
+            end
+        end
+    end
+    local w = GuildMemberNoteBackground:GetWidth()
+    GuildMemberNoteBackground:SetWidth(w * 1.65)
+    w = PersonalNoteText:GetWidth()
+    PersonalNoteText:SetWidth(w * 1.65)
 
-    -- local w = GuildMemberOfficerNoteBackground:GetWidth()
-    -- GuildMemberOfficerNoteBackground:SetWidth(w * 1.65)
-    -- w = OfficerNoteText:GetWidth()
-    -- OfficerNoteText:SetWidth(w * 1.65)
+    local w = GuildMemberOfficerNoteBackground:GetWidth()
+    GuildMemberOfficerNoteBackground:SetWidth(w * 1.65)
+    w = OfficerNoteText:GetWidth()
+    OfficerNoteText:SetWidth(w * 1.65)
 
     -- adjust blizz layout and add widgets
     GuildFrameGuildListToggleButton:Hide()
@@ -99,11 +104,12 @@ function Guildbook:ModBlizzUI()
     GuildInfoTextBackground:SetPoint('BOTTOMRIGHT', GuildInfoFrame, 'BOTTOMRIGHT', -11, 40)
     GuildInfoFrameScrollFrame:SetPoint('BOTTOMRIGHT', GuildInfoTextBackground, 'BOTTOMRIGHT', -31, 7)
 
-   
+    -- because elvui alters the column order we just need to know if its loaded to then adjust anchor point
+    local anchor = IsAddOnLoaded('ElvUI') and GuildFrameColumnHeader2 or GuildFrameColumnHeader4
     for k, col in ipairs(self.GuildFrame.ColumnHeaders) do
         local tab = CreateFrame('BUTTON', 'GuildbookGuildFrameColumnHeader'..col.Text, GuildFrame)--, "OptionsFrameTabButtonTemplate")
         if col.Text == 'Rank' then
-            tab:SetPoint('LEFT', GuildFrameColumnHeader4, 'RIGHT', -2.0, 0.0)
+            tab:SetPoint('LEFT', anchor, 'RIGHT', -2.0, 0.0)
         else
             tab:SetPoint('LEFT', self.GuildFrame.ColumnTabs[k-1], 'RIGHT', -2.0, 0.0)
         end
@@ -113,10 +119,12 @@ function Guildbook:ModBlizzUI()
         tab.text:SetText(col.Text)
         tab.text:SetFont("Fonts\\FRIZQT__.TTF", 10)
         tab.text:SetTextColor(1,1,1,1)
-        tab.background = tab:CreateTexture('$parentBackground', 'BACKGROUND')
-        tab.background:SetAllPoints(tab)
-        tab.background:SetTexture(131139)
-        tab.background:SetTexCoord(0.0, 0.00, 0.0 ,0.75, 0.97, 0.0, 0.97, 0.75)
+        --if elvui == false then
+            tab.background = tab:CreateTexture('$parentBackground', 'BACKGROUND')
+            tab.background:SetAllPoints(tab)
+            tab.background:SetTexture(131139)
+            tab.background:SetTexCoord(0.0, 0.00, 0.0 ,0.75, 0.97, 0.0, 0.97, 0.75)
+        --end
         if (col.Text == 'Rank') or (col.Text == 'Note') or (col.Text == 'Online') then -- for now so it only works on blizz columns
             tab:SetScript('OnClick', function()
                 SortGuildRoster(col.Text);
@@ -138,10 +146,11 @@ function Guildbook:ModBlizzUI()
     GuildFrameButton1:SetPoint('TOPRIGHT', GuildFrame, 'TOPRIGHT', -32.0, -82.0)
     GuildFrameButton1:GetHighlightTexture():SetAllPoints(GuildFrameButton1)
     
+    local x = IsAddOnLoaded('ElvUI') and 86.0 or 7.0
     for i = 1, 13 do
         -- adjust Name column position
         _G['GuildFrameButton'..i..'Name']:ClearAllPoints()
-        _G['GuildFrameButton'..i..'Name']:SetPoint('TOPLEFT', _G['GuildFrameButton'..i], 'TOPLEFT', 7.0, -3.0)
+        _G['GuildFrameButton'..i..'Name']:SetPoint('TOPLEFT', _G['GuildFrameButton'..i], 'TOPLEFT', x, -3.0)
         -- hook the click event
         _G['GuildFrameButton'..i]:HookScript('OnClick', function(self, button)
             if (button == 'LeftButton') and (GuildMemberDetailFrame:IsVisible()) then
@@ -149,6 +158,7 @@ function Guildbook:ModBlizzUI()
                 if isOnline then
                     Guildbook:UpdateGuildMemberDetailFrameLabels()
                     Guildbook:ClearGuildMemberDetailFrame()
+                    Guildbook.GuildMemberDetailFrame.CurrentMemberGUID = nil
                     Guildbook:CharacterDataRequest(name)
                 end
             end
@@ -161,8 +171,10 @@ function Guildbook:ModBlizzUI()
         button:SetTextColor(col[1], col[2], col[3], col[4])
     end
     
+    local anchor = IsAddOnLoaded('ElvUI') and GuildFrameButton1Zone or GuildFrameButton1Class
+    local x = IsAddOnLoaded('ElvUI') and 12.0 or -12.0
     GuildFrameButton1.GuildbookColumnRank = GuildFrameButton1:CreateFontString('$parentGuildbookRank', 'OVERLAY', 'GameFontNormalSmall')
-    GuildFrameButton1.GuildbookColumnRank:SetPoint('LEFT', _G['GuildFrameButton1Class'], 'RIGHT', -12.0, 0)
+    GuildFrameButton1.GuildbookColumnRank:SetPoint('LEFT', anchor, 'RIGHT', x, 0)
     GuildFrameButton1.GuildbookColumnRank:SetSize(self.GuildFrame.ColumnWidths['Rank'], GuildFrameButton1:GetHeight())
     formatGuildFrameButton(GuildFrameButton1.GuildbookColumnRank, {1,1,1,1})
     
@@ -192,14 +204,16 @@ function Guildbook:ModBlizzUI()
     formatGuildFrameButton(GuildFrameButton1.GuildbookColumnOnline, {1,1,1,1})
     
     for i = 2, 13 do
+        local anchor = IsAddOnLoaded('ElvUI') and _G['GuildFrameButton'..i..'Zone'] or _G['GuildFrameButton'..i..'Class']
         local button = _G['GuildFrameButton'..i]
         button:ClearAllPoints()
         button:SetPoint('TOPLEFT', _G['GuildFrameButton'..(i-1)], 'BOTTOMLEFT', 0.0, 0.0)
         button:SetPoint('TOPRIGHT', _G['GuildFrameButton'..(i-1)], 'BOTTOMRIGHT', 0.0, 0.0)
         button:GetHighlightTexture():SetAllPoints(button)
     
+        local x = IsAddOnLoaded('ElvUI') and 12.0 or -12.0
         button.GuildbookColumnRank = button:CreateFontString('$parentGuildbookRank', 'OVERLAY', 'GameFontNormalSmall')
-        button.GuildbookColumnRank:SetPoint('LEFT', _G['GuildFrameButton'..i..'Class'], 'RIGHT', -12.0, 0)
+        button.GuildbookColumnRank:SetPoint('LEFT', anchor, 'RIGHT', x, 0)
         button.GuildbookColumnRank:SetSize(self.GuildFrame.ColumnWidths['Rank'], button:GetHeight())
         formatGuildFrameButton(button.GuildbookColumnRank, {1,1,1,1})
     

@@ -44,6 +44,7 @@ Guildbook.GuildMemberDetailFrame = {
         Main = GuildMemberDetailFrame:CreateFontString('GuildMemberDetailMainText', 'OVERLAY', 'GameFontNormal'),
         ilvl = GuildMemberDetailFrame:CreateFontString('GuildMemberDetaililvlText', 'OVERLAY', 'GameFontNormal'),
     },
+    CurrentMemberGUID = nil,
 }
 
 function Guildbook:UpdateGuildMemberDetailFrameLabels()
@@ -71,6 +72,7 @@ function Guildbook:ClearGuildMemberDetailFrame()
 end
 
 function Guildbook:UpdateGuildMemberDetailFrame(guid)
+    self.GuildMemberDetailFrame.CurrentMemberGUID = guid
     for k, v in pairs(self.GuildMemberDetailFrame.Text) do
         v:SetText('')
     end
@@ -120,6 +122,37 @@ function Guildbook:SetupGuildMemberDetailframe()
     self.GuildMemberDetailFrame.Text.Profession1:SetPoint('TOPLEFT', self.GuildMemberDetailFrame.Labels.Professions, 'BOTTOMLEFT', 0, -5)
     self.GuildMemberDetailFrame.Text.Profession2:SetPoint('TOPLEFT', self.GuildMemberDetailFrame.Text.Profession1, 'BOTTOMLEFT', 0, -5)
     self.GuildMemberDetailFrame.Text.ilvl:SetPoint('BOTTOMLEFT', self.GuildMemberDetailFrame.Labels.ilvl, 'BOTTOMRIGHT', 3, 0)
+
+    self.GuildMemberDetailFrame.AttunementDropdown = CreateFrame('FRAME', 'GuildbookGuildMemberDetailFrameAttunementDropDown', GuildMemberDetailFrame, "UIDropDownMenuTemplate")
+    self.GuildMemberDetailFrame.AttunementDropdown:SetPoint('TOPRIGHT', OfficerNoteText, 'BOTTOMRIGHT', 30, -5.0)
+    UIDropDownMenu_SetWidth(self.GuildMemberDetailFrame.AttunementDropdown, 100)
+    UIDropDownMenu_SetText(self.GuildMemberDetailFrame.AttunementDropdown, 'Attunements')
+    _G['GuildbookGuildMemberDetailFrameAttunementDropDownButton']:SetScript('OnClick', function()
+        if DropDownList1:IsVisible() then
+            CloseDropDownMenus()
+        else
+            local t = {}
+            local guildName = Guildbook:GetGuildName()
+            if guildName and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
+                if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][Guildbook.GuildMemberDetailFrame.CurrentMemberGUID] then
+                    local character = GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][Guildbook.GuildMemberDetailFrame.CurrentMemberGUID]
+                    for k, v in pairs(character["AttunementsKeys"]) do
+                        table.insert(t, {
+                            text = k,
+                            checked = v,
+                            isNotRadio = true,
+                        })
+                    end
+                    table.insert(t, {
+                        text = 'Cancel',
+                        notCheckable = true,
+                        func = CloseDropDownMenus()
+                    })
+                end
+            end
+            EasyMenu(t, Guildbook.GuildMemberDetailFrame.AttunementDropdown, Guildbook.GuildMemberDetailFrame.AttunementDropdown, 10, 10, 'NONE')
+        end
+    end)
 end
 
 

@@ -22,7 +22,7 @@ the copyright holders.
 
 local addonName, Guildbook = ...
 
-local build = 3.11
+local build = 3.2
 local locale = GetLocale()
 
 local AceComm = LibStub:GetLibrary("AceComm-3.0")
@@ -155,26 +155,38 @@ function Guildbook:Init()
         end
     end)
 
-    self:ModBlizzUI()
-    self:SetupStatsFrame()
-    self:SetupTradeSkillFrame()
-    self:SetupGuildBankFrame()
-    self:SetupGuildCalendarFrame()
-    self:SetupGuildMemberDetailframe()
-    self:SetupSoftReserveFrame()
-    self:SetupProfilesFrame()
+    -- this is now delayed using PLAYER_ENTERING_WORLD so we know if elvui is loaded
+    --self:ModBlizzUI()
+    -- self:SetupStatsFrame()
+    -- self:SetupTradeSkillFrame()
+    -- self:SetupGuildBankFrame()
+    -- self:SetupGuildCalendarFrame()
+    -- self:SetupGuildMemberDetailframe()
+    -- self:SetupSoftReserveFrame()
+    -- self:SetupProfilesFrame()
 
     GuildbookOptionsMainSpecDD_Init()
     GuildbookOptionsOffSpecDD_Init()
 
     --the OnShow event doesnt fire for the first time the options frame is shown? set the values here
-    UIDropDownMenu_SetText(GuildbookOptionsMainSpecDD, GUILDBOOK_CHARACTER['MainSpec'])
-    UIDropDownMenu_SetText(GuildbookOptionsOffSpecDD, GUILDBOOK_CHARACTER['OffSpec'])
-    GuildbookOptionsMainCharacterNameInputBox:SetText(GUILDBOOK_CHARACTER['MainCharacter'])
-    GuildbookOptionsMainSpecIsPvpSpecCB:SetChecked(GUILDBOOK_CHARACTER['MainSpecIsPvP'])
-    GuildbookOptionsOffSpecIsPvpSpecCB:SetChecked(GUILDBOOK_CHARACTER['OffSpecIsPvP'])
-    GuildbookOptionsDebugCB:SetChecked(GUILDBOOK_GLOBAL['Debug'])
-    GuildbookOptionsShowMinimapButton:SetChecked(GUILDBOOK_GLOBAL['ShowMinimapButton'])
+    -- these are all xml define widgets - REMOVE at some point?
+    if GUILDBOOK_CHARACTER and GUILDBOOK_GLOBAL then
+        UIDropDownMenu_SetText(GuildbookOptionsMainSpecDD, GUILDBOOK_CHARACTER['MainSpec'])
+        UIDropDownMenu_SetText(GuildbookOptionsOffSpecDD, GUILDBOOK_CHARACTER['OffSpec'])
+        GuildbookOptionsMainCharacterNameInputBox:SetText(GUILDBOOK_CHARACTER['MainCharacter'])
+        GuildbookOptionsMainSpecIsPvpSpecCB:SetChecked(GUILDBOOK_CHARACTER['MainSpecIsPvP'])
+        GuildbookOptionsOffSpecIsPvpSpecCB:SetChecked(GUILDBOOK_CHARACTER['OffSpecIsPvP'])
+        GuildbookOptionsDebugCB:SetChecked(GUILDBOOK_GLOBAL['Debug'])
+        GuildbookOptionsShowMinimapButton:SetChecked(GUILDBOOK_GLOBAL['ShowMinimapButton'])
+
+        if GUILDBOOK_CHARACTER['AttunementsKeys'] then
+            GuildbookOptionsAttunementKeysUBRS:SetChecked(GUILDBOOK_CHARACTER['AttunementsKeys']['UBRS'])
+            GuildbookOptionsAttunementKeysMC:SetChecked(GUILDBOOK_CHARACTER['AttunementsKeys']['MC'])
+            GuildbookOptionsAttunementKeysONY:SetChecked(GUILDBOOK_CHARACTER['AttunementsKeys']['ONY'])
+            GuildbookOptionsAttunementKeysBWL:SetChecked(GUILDBOOK_CHARACTER['AttunementsKeys']['BWL'])
+            GuildbookOptionsAttunementKeysNAXX:SetChecked(GUILDBOOK_CHARACTER['AttunementsKeys']['NAXX'])
+        end
+    end
 
     -- allow time for loading and whats nots, then send character data
     C_Timer.After(3, function()
@@ -409,12 +421,18 @@ function Guildbook:CharacterDataRequest(target)
     self:Transmit(request, 'WHISPER', target, 'NORMAL')
 end
 
-
+-- limited to once per minute to reduce chat spam
+local characterStatsLastSent = -math.huge
 function Guildbook:CharacterStats_OnChanged()
-    local d = self:GetCharacterDataPayload()
-    if type(d) == 'table' and d.payload.GUID then
-        self:Transmit(d, 'GUILD', sender, 'NORMAL')
-        DEBUG_COMMS('Sending character data OnChanged')
+    if characterStatsLastSent + 60.0 < GetTime() then
+        local d = self:GetCharacterDataPayload()
+        if type(d) == 'table' and d.payload.GUID then
+            self:Transmit(d, 'GUILD', sender, 'NORMAL')
+            DEBUG_COMMS('CharacterStats_OnChanged > GUILD')
+        end
+        characterStatsLastSent = GetTime()
+    else
+        DEBUG(string.format('character stats not sent, wait %s', (characterStatsLastSent + 30.0 - GetTime())))
     end
 end
 
@@ -463,7 +481,7 @@ function Guildbook:OnCharacterDataRequested(request, distribution, sender)
     local d = self:GetCharacterDataPayload()
     if type(d) == 'table' and d.payload.GUID then
         self:Transmit(d, 'WHISPER', sender, 'NORMAL')
-        DEBUG_COMMS('Sending character data OnCharacterDataRequested, sending to: '..sender)
+        DEBUG_COMMS('OnCharacterDataRequested, > WHISPER='..sender)
     end
 end
 
@@ -491,7 +509,7 @@ function Guildbook:OnCharacterDataReceived(data, distribution, sender)
         GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].AttunementsKeys = data.payload.AttunementsKeys
         GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].Availability = data.payload.Availability
         GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].OffSpecIsPvP = data.payload.OffSpecIsPvP
-        DEBUG_COMMS(string.format('Received character data from: %s', data.payload.Name))
+        DEBUG_COMMS(string.format('OnCharacterDataReceived > sender=%s', data.payload.Name))
         C_Timer.After(1, function()
             Guildbook:UpdateGuildMemberDetailFrame(data.payload.GUID)
         end)        
@@ -507,7 +525,7 @@ function Guildbook:SendGuildBankCommitRequest(bankCharacter)
         payload = bankCharacter,
     }
     self:Transmit(request, 'GUILD', nil, 'NORMAL')
-    DEBUG_COMMS(string.format('Sent a request on GUILD channel for commit times on bank character %s', bankCharacter))
+    DEBUG_COMMS(string.format('SendGuildBankCommitRequest > character=%s', bankCharacter))
 end
 
 function Guildbook:OnGuildBankCommitRequested(data, distribution, sender)
@@ -521,7 +539,7 @@ function Guildbook:OnGuildBankCommitRequested(data, distribution, sender)
                 }
             }
             self:Transmit(response, 'WHISPER', sender, 'NORMAL')
-            DEBUG_COMMS(string.format('Responding to a guild bank commit request for bank character: %s - commit time: %s', data.payload, GUILDBOOK_CHARACTER['GuildBank'][data.payload].Commit))
+            DEBUG_COMMS(string.format('OnGuildBankCommitRequested > character=%s, commit=%s', data.payload, GUILDBOOK_CHARACTER['GuildBank'][data.payload].Commit))
         end
     end
 end
@@ -533,13 +551,13 @@ function Guildbook:OnGuildBankCommitReceived(data, distribution, sender)
             Guildbook.GuildBankCommit['Commit'] = data.payload.Commit
             Guildbook.GuildBankCommit['Character'] = sender
             Guildbook.GuildBankCommit['BankCharacter'] = data.payload.Character
-            DEBUG_COMMS('First response added to temp table, %s->%s', sender, data.payload.Commit)
+            DEBUG_COMMS(string.format('First response added to temp table, %s->%s', sender, data.payload.Commit))
         else
             if tonumber(data.payload.Commit) > tonumber(Guildbook.GuildBankCommit['Commit']) then
                 Guildbook.GuildBankCommit['Commit'] = data.payload.Commit
                 Guildbook.GuildBankCommit['Character'] = sender
                 Guildbook.GuildBankCommit['BankCharacter'] = data.payload.Character
-                DEBUG_COMMS('Response commit is newer than temp table commit, updating info - %s->%s', sender, data.payload.Commit)
+                DEBUG_COMMS(string.format('Response commit is newer than temp table commit, updating info - %s->%s', sender, data.payload.Commit))
             end
         end
     end
@@ -970,6 +988,18 @@ function Guildbook:ADDON_LOADED(...)
     end
 end
 
+function Guildbook:PLAYER_ENTERING_WORLD()
+    self:ModBlizzUI()
+    self:SetupStatsFrame()
+    self:SetupTradeSkillFrame()
+    self:SetupGuildBankFrame()
+    self:SetupGuildCalendarFrame()
+    self:SetupGuildMemberDetailframe()
+    self:SetupSoftReserveFrame()
+    self:SetupProfilesFrame()
+    self.EventFrame:UnregisterEvent('PLAYER_ENTERING_WORLD')
+end
+
 function Guildbook:RAID_ROSTER_UPDATE()
     DEBUG('Raid roster update event')
     self:RequestRaidSoftReserves()
@@ -1144,6 +1174,7 @@ Guildbook.EventFrame = CreateFrame('FRAME', 'GuildbookEventFrame', UIParent)
 Guildbook.EventFrame:RegisterEvent('GUILD_ROSTER_UPDATE')
 Guildbook.EventFrame:RegisterEvent('ADDON_LOADED')
 Guildbook.EventFrame:RegisterEvent('PLAYER_LEVEL_UP')
+Guildbook.EventFrame:RegisterEvent('PLAYER_ENTERING_WORLD')
 Guildbook.EventFrame:RegisterEvent('SKILL_LINES_CHANGED')
 Guildbook.EventFrame:RegisterEvent('TRADE_SKILL_UPDATE')
 Guildbook.EventFrame:RegisterEvent('CRAFT_UPDATE')

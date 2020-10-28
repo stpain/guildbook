@@ -99,4 +99,17 @@ players not able to see bank scan button can use the slash command /guidbook -sc
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [3.2] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+-
+
+|cff0070DEUpdates|r:
+Updated to work with ElvUI!
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }

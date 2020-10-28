@@ -71,26 +71,6 @@ function GuildbookOptions_OnLoad(self)
     GuildbookOptionsMainCharacterNameInputDesc:SetText(L['MainCharacterNameInputDesc'])
 end
 
-function GuildbookOptions_OnShow(self)
-    if GUILDBOOK_CHARACTER and GUILDBOOK_GLOBAL then
-        UIDropDownMenu_SetText(GuildbookOptionsMainSpecDD, GUILDBOOK_CHARACTER['MainSpec'])
-        UIDropDownMenu_SetText(GuildbookOptionsOffSpecDD, GUILDBOOK_CHARACTER['OffSpec'])
-        GuildbookOptionsMainCharacterNameInputBox:SetText(GUILDBOOK_CHARACTER['MainCharacter'])
-        GuildbookOptionsMainSpecIsPvpSpecCB:SetChecked(GUILDBOOK_CHARACTER['MainSpecIsPvP'])
-        GuildbookOptionsOffSpecIsPvpSpecCB:SetChecked(GUILDBOOK_CHARACTER['OffSpecIsPvP'])
-        GuildbookOptionsDebugCB:SetChecked(GUILDBOOK_GLOBAL['Debug'])
-        GuildbookOptionsShowMinimapButton:SetChecked(GUILDBOOK_GLOBAL['ShowMinimapButton'])
-
-        if GUILDBOOK_CHARACTER['AttunementsKeys'] then
-            GuildbookOptionsAttunementKeysUBRS:SetChecked(GUILDBOOK_CHARACTER['AttunementsKeys']['UBRS'])
-            GuildbookOptionsAttunementKeysMC:SetChecked(GUILDBOOK_CHARACTER['AttunementsKeys']['MC'])
-            GuildbookOptionsAttunementKeysONY:SetChecked(GUILDBOOK_CHARACTER['AttunementsKeys']['ONY'])
-            GuildbookOptionsAttunementKeysBWL:SetChecked(GUILDBOOK_CHARACTER['AttunementsKeys']['BWL'])
-            GuildbookOptionsAttunementKeysNAXX:SetChecked(GUILDBOOK_CHARACTER['AttunementsKeys']['NAXX'])
-        end
-    end
-end
-
 function GuildbookOptionsMainSpecIsPvpSpecCB_OnClick(self)
     if GUILDBOOK_CHARACTER and GUILDBOOK_GLOBAL then
         GUILDBOOK_CHARACTER['MainSpecIsPvP'] = self:GetChecked()
