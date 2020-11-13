@@ -22,13 +22,16 @@ the copyright holders.
 
 local addonName, Guildbook = ...
 
-local build = 3.2
+local build = 3.3
 local locale = GetLocale()
 
 local AceComm = LibStub:GetLibrary("AceComm-3.0")
 local LibDeflate = LibStub:GetLibrary("LibDeflate")
 local LibSerialize = LibStub:GetLibrary("LibSerialize")
 
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+--debug printers
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
 function Guildbook.DEBUG(msg)
     if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['Debug'] then
         print(tostring('|cffC41F3BGB-DEBUG: '..msg))
@@ -40,6 +43,21 @@ function Guildbook.DEBUG_COMMS(msg)
         print(tostring('|cff0070DEGB-COMMS: '..msg))
     end
 end
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+--variables
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+local L = Guildbook.Locales
+local DEBUG = Guildbook.DEBUG
+local DEBUG_COMMS = Guildbook.DEBUG_COMMS
+
+Guildbook.FONT_COLOUR = '|cff0070DE'
+Guildbook.PlayerMixin = nil
+Guildbook.GuildBankCommit = {
+    Commit = nil,
+    Character = nil,
+}
+
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 --slash commands
@@ -54,20 +72,6 @@ SlashCmdList['GUILDBOOK'] = function(msg)
 
     end
 end
-
----------------------------------------------------------------------------------------------------------------------------------------------------------------
---local variables
----------------------------------------------------------------------------------------------------------------------------------------------------------------
-local L = Guildbook.Locales
-local DEBUG = Guildbook.DEBUG
-local DEBUG_COMMS = Guildbook.DEBUG_COMMS
-
-Guildbook.FONT_COLOUR = '|cff0070DE'
-Guildbook.PlayerMixin = nil
-Guildbook.GuildBankCommit = {
-    Commit = nil,
-    Character = nil,
-}
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 --init
@@ -155,16 +159,6 @@ function Guildbook:Init()
         end
     end)
 
-    -- this is now delayed using PLAYER_ENTERING_WORLD so we know if elvui is loaded
-    --self:ModBlizzUI()
-    -- self:SetupStatsFrame()
-    -- self:SetupTradeSkillFrame()
-    -- self:SetupGuildBankFrame()
-    -- self:SetupGuildCalendarFrame()
-    -- self:SetupGuildMemberDetailframe()
-    -- self:SetupSoftReserveFrame()
-    -- self:SetupProfilesFrame()
-
     GuildbookOptionsMainSpecDD_Init()
     GuildbookOptionsOffSpecDD_Init()
 
@@ -194,10 +188,9 @@ function Guildbook:Init()
         Guildbook:CharacterStats_OnChanged()
     end)
 
-
+    -- set up delays for calendar data syncing to prevent mass chat spam on log in
     C_Timer.After(5, function()
-        local today = date('*t')
-        Guildbook:SendGuildCalendarEvents(today.month, today.year)
+        Guildbook:SendGuildCalendarEvents()
     end)
     C_Timer.After(10, function()
         Guildbook:SendGuildCalendarDeletedEvents()
@@ -211,56 +204,227 @@ function Guildbook:Init()
 
 end
 
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- functions
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+function Guildbook:GetGuildName()
+    local guildName = false
+    if IsInGuild() and GetGuildInfo("player") then
+        local guildName, _, _, _ = GetGuildInfo('player')
+        return guildName
+    end
+end
+
+function Guildbook:ScanCharacterContainers()
+    if BankFrame:IsVisible() then
+        local guid = UnitGUID('player')
+        if not self.PlayerMixin then
+            self.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
+        else
+            self.PlayerMixin:SetGUID(guid)
+        end
+        if self.PlayerMixin:IsValid() then
+            local name = C_PlayerInfo.GetName(self.PlayerMixin)
+
+            if not GUILDBOOK_CHARACTER['GuildBank'] then
+                GUILDBOOK_CHARACTER['GuildBank'] = {
+                    [name] = {
+                        Data = {},
+                        Commit = GetServerTime()
+                    }
+                }
+            else
+                GUILDBOOK_CHARACTER['GuildBank'][name] = {
+                    Commit = GetServerTime(),
+                    Data = {},
+                }
+            end
+
+            -- player bags
+            for bag = 0, 4 do
+                for slot = 1, GetContainerNumSlots(bag) do
+                    local id = select(10, GetContainerItemInfo(bag, slot))
+                    local count = select(2, GetContainerItemInfo(bag, slot))
+                    if id and count then
+                        if not GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] then
+                            GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] = count
+                        else
+                            GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] = GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] + count
+                        end
+                    end
+                end
+            end
+
+            -- main bank
+            for slot = 1, 28 do
+                local id = select(10, GetContainerItemInfo(-1, slot))
+                local count = select(2, GetContainerItemInfo(-1, slot))
+                if id and count then
+                    if not GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] then
+                        GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] = count
+                    else
+                        GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] = GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] + count
+                    end
+                end
+            end
+
+            -- bank bags
+            for bag = 5, 11 do
+                for slot = 1, GetContainerNumSlots(bag) do
+                    local id = select(10, GetContainerItemInfo(bag, slot))
+                    local count = select(2, GetContainerItemInfo(bag, slot))
+                    if id and count then
+                        if not GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] then
+                            GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] = count
+                        else
+                            GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] = GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] + count
+                        end
+                    end
+                end
+            end
+
+            local bankUpdate = {
+                type = 'GUILD_BANK_DATA_RESPONSE',
+                payload = {
+                    Data = GUILDBOOK_CHARACTER['GuildBank'][name].Data,
+                    Commit = GUILDBOOK_CHARACTER['GuildBank'][name].Commit,
+                    Bank = name,
+                }
+            }
+            self:Transmit(bankUpdate, 'GUILD', sender, 'BULK')
+            DEBUG_COMMS('sending guild bank data due to new commit')
+        end
+    end
+end
+
+function Guildbook:ScanTradeSkill()
+    local prof = GetTradeSkillLine()
+    GUILDBOOK_CHARACTER[prof] = {}
+    for i = 1, GetNumTradeSkills() do
+        local name, type, _, _, _, _ = GetTradeSkillInfo(i)
+        if (name and type ~= "header") then
+            local itemLink = GetTradeSkillItemLink(i)
+            local itemID = select(1, GetItemInfoInstant(itemLink))
+            local itemName = select(1, GetItemInfo(itemID))
+            DEBUG(string.format('|cff0070DETrade item|r: %s, with ID: %s', name, itemID))
+            if itemName and itemID then
+                GUILDBOOK_CHARACTER[prof][itemID] = {}
+            end
+            local numReagents = GetTradeSkillNumReagents(i);
+            if numReagents > 0 then
+                for j = 1, numReagents, 1 do
+                    local reagentName, reagentTexture, reagentCount, playerReagentCount = GetTradeSkillReagentInfo(i, j)
+                    local reagentLink = GetTradeSkillReagentItemLink(i, j)
+                    local reagentID = select(1, GetItemInfoInstant(reagentLink))
+                    if reagentName and reagentID and reagentCount then
+                        DEBUG(string.format('    Reagent name: %s, with ID: %s, Needed: %s', reagentName, reagentID, reagentCount))
+                        GUILDBOOK_CHARACTER[prof][itemID][reagentID] = reagentCount
+                    end
+                end
+            end
+        end
+    end
+end
+
+function Guildbook:ScanCraftSkills_Enchanting()
+    local currentCraftingWindow = GetCraftSkillLine(1)
+    if currentCraftingWindow == 'Enchanting' then
+        GUILDBOOK_CHARACTER['Enchanting'] = {}
+        for i = 1, GetNumCrafts() do
+            local name, _, type, _, _, _, _ = GetCraftInfo(i)
+            if (name and type ~= "header") then
+                local itemID = select(7, GetSpellInfo(name))
+                DEBUG(string.format('|cff0070DETrade item|r: %s, with ID: %s', name, itemID))
+                if itemID then
+                    GUILDBOOK_CHARACTER['Enchanting'][itemID] = {}
+                end
+                local numReagents = GetCraftNumReagents(i);
+                DEBUG(string.format('this recipe has %s reagents', numReagents))
+                if numReagents > 0 then
+                    for j = 1, numReagents do
+                        local reagentName, reagentTexture, reagentCount, playerReagentCount = GetCraftReagentInfo(i, j)
+                        local reagentLink = GetCraftReagentItemLink(i, j)
+                        if reagentName and reagentCount then
+                            DEBUG(string.format('reagent number: %s with name %s and count %s', j, reagentName, reagentCount))
+                            if reagentLink then
+                                local reagentID = select(1, GetItemInfoInstant(reagentLink))
+                                DEBUG('reagent id: '..reagentID)
+                                if reagentID and reagentCount then
+                                    GUILDBOOK_CHARACTER['Enchanting'][itemID][reagentID] = reagentCount
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+
+--- scan the characters current guild cache and check for any characters with name/class/spec data not matching guid data
 function Guildbook:CleanUpGuildRosterData(guild)
     if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[guild] then
         print(string.format('%s Guildbook|r, scanning roster for %s', Guildbook.FONT_COLOUR, guild))
+        local currentGUIDs = {}
+        local totalMembers, onlineMembers, _ = GetNumGuildMembers()
+        for i = 1, totalMembers do
+            local name, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, guid = GetGuildRosterInfo(i)
+            currentGUIDs[guid] = true
+        end
         for guid, info in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[guild]) do
-            if not self.PlayerMixin then
-                self.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
+            if not currentGUIDs[guid] then
+                GUILDBOOK_GLOBAL.GuildRosterCache[guild][guid] = nil
+                print(string.format('removed %s from roster cache', info.Name))
             else
-                self.PlayerMixin:SetGUID(guid)
-            end
-            if self.PlayerMixin:IsValid() then
-                local _, class, _ = C_PlayerInfo.GetClass(self.PlayerMixin)
-                local name = C_PlayerInfo.GetName(self.PlayerMixin)
-                if name and class then
-                    if info.Class ~= class then
-                        print(name..' has error with class, updating class to mixin value')
-                        info.Class = class
-                    end
-                    if info.Name ~= name then
-                        print(name..' has error with name, updating name to mixin value')
-                        info.Name = name
-                    end
-                    local ms = false
-                    if info.MainSpec ~= '-' then
-                        for _, spec in pairs(Guildbook.Data.Class[class].Specializations) do
-                            if info.MainSpec == spec then
-                                ms = true
-                            end
+                if not self.PlayerMixin then
+                    self.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
+                else
+                    self.PlayerMixin:SetGUID(guid)
+                end
+                if self.PlayerMixin:IsValid() then
+                    local _, class, _ = C_PlayerInfo.GetClass(self.PlayerMixin)
+                    local name = C_PlayerInfo.GetName(self.PlayerMixin)
+                    if name and class then
+                        if info.Class ~= class then
+                            print(name..' has error with class, updating class to mixin value')
+                            info.Class = class
                         end
-                    elseif info.MainSpec == '-' then
-                        ms = true
-                    end
-                    if ms == false then
-                        print(name..' has error with main spec, setting to default')
-                        info.MainSpec = '-'
-                    end
-                    local os = false
-                    if info.OffSpec ~= '-' then
-                        for _, spec in pairs(Guildbook.Data.Class[class].Specializations) do
-                            if info.OffSpec == spec then
-                                os = true
-                            end
+                        if info.Name ~= name then
+                            print(name..' has error with name, updating name to mixin value')
+                            info.Name = name
                         end
-                    elseif info.OffSpec == '-' then
-                        os = true
+                        local ms = false
+                        if info.MainSpec ~= '-' then
+                            for _, spec in pairs(Guildbook.Data.Class[class].Specializations) do
+                                if info.MainSpec == spec then
+                                    ms = true
+                                end
+                            end
+                        elseif info.MainSpec == '-' then
+                            ms = true
+                        end
+                        if ms == false then
+                            print(name..' has error with main spec, setting to default')
+                            info.MainSpec = '-'
+                        end
+                        local os = false
+                        if info.OffSpec ~= '-' then
+                            for _, spec in pairs(Guildbook.Data.Class[class].Specializations) do
+                                if info.OffSpec == spec then
+                                    os = true
+                                end
+                            end
+                        elseif info.OffSpec == '-' then
+                            os = true
+                        end
+                        if os == false then
+                            print(name..' has error with off spec, setting to default')
+                            info.OffSpec = '-'
+                        end
+    
                     end
-                    if os == false then
-                        print(name..' has error with off spec, setting to default')
-                        info.OffSpec = '-'
-                    end
-
                 end
             end
         end
@@ -405,9 +569,10 @@ function Guildbook:OnTradeSkillsReceived(data, distribution, sender)
     else
         -- this is due to older data format, if we get this we wont save as the prof name isnt sent
         -- will remove this support after 1 update
-        C_Timer.After(4.0, function()
-            self.GuildFrame.TradeSkillFrame.RecipesTable = data.payload
-        end)
+        -- C_Timer.After(4.0, function()
+        --     self.GuildFrame.TradeSkillFrame.RecipesTable = data.payload
+        -- end)
+        print('You have an outdated version, please download the latest version.')
     end
 end
 
@@ -432,7 +597,7 @@ function Guildbook:CharacterStats_OnChanged()
         end
         characterStatsLastSent = GetTime()
     else
-        DEBUG(string.format('character stats not sent, wait %s', (characterStatsLastSent + 30.0 - GetTime())))
+        DEBUG(string.format('character stats not sent, wait %s', (characterStatsLastSent + 60.0 - GetTime())))
     end
 end
 
@@ -710,30 +875,26 @@ end
 
 function Guildbook:OnGuildCalendarEventDeleted(data, distribution, sender)
     self.GuildFrame.GuildCalendarFrame.EventFrame:RegisterEventDeleted(data.payload)
-    DEBUG_COMMS('Adding event to deleted table, event: '..data.payload.title)
+    DEBUG_COMMS('OnGuildCalendarEventDeleted > event='..data.payload.title)
     C_Timer.After(1, function()
         Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:RemoveDeletedEvents()
     end)
 end
 
--- TODO: make this take a ime period rather than a month
+
 -- this will be restricted to only send events that fall within a month, this should reduce chat spam
 -- it is further restricted to send not within 2 minutes of previous send
-function Guildbook:SendGuildCalendarEvents(month, year)
+function Guildbook:SendGuildCalendarEvents()
     local today = date('*t')
     local future = date('*t', (time(today) + (60*60*24*28)))
-    --print(string.format('today is %s-%s-%s, future is %s-%s-%s', today.day, today.month, today.year, future.day, future.month, future.year))
-    DEBUG_COMMS(string.format('Sending calendar events for month: %s and year: %s', month, year))
     local events = {}
     if GetServerTime() > GUILDBOOK_GLOBAL['LastCalendarTransmit'] + 120.0 then
         local guildName = Guildbook:GetGuildName()
         if guildName and GUILDBOOK_GLOBAL['Calendar'][guildName] then
             for k, event in pairs(GUILDBOOK_GLOBAL['Calendar'][guildName]) do
                 if event.date.month >= today.month and event.date.year >= today.year and event.date.month <= future.month and event.date.year <= future.year then
-                    --print(string.format('today is %s-%s-%s, future is %s-%s-%s, found event %s for %s-%s-%s', today.day, today.month, today.year, future.day, future.month, future.year, event.title, event.date.day, event.date.month, event.date.year))
-                --if event.date.month == month and event.date.year == year then
                     table.insert(events, event)
-                    DEBUG_COMMS(string.format('Added event: %s to this months sending table', event.title))
+                    --DEBUG_COMMS(string.format('Added event: %s to this months sending table', event.title))
                 end
             end
             local calendarEvents = {
@@ -741,7 +902,7 @@ function Guildbook:SendGuildCalendarEvents(month, year)
                 payload = events,
             }
             self:Transmit(calendarEvents, 'GUILD', nil, 'BULK')
-            DEBUG_COMMS('Sending calendar events to guild')
+            DEBUG_COMMS(string.format('SendGuildCalendarEvents > range=%s-%s-%s to %s-%s-%s', today.day, today.month, today.year, future.day, future.month, future.year))
         end
         GUILDBOOK_GLOBAL['LastCalendarTransmit'] = GetServerTime()
     end
@@ -813,198 +974,10 @@ SkillDetailStatusBarUnlearnButton:HookScript('OnClick', function()
 
 end)
 
-function Guildbook:TRADE_SKILL_UPDATE()
-    C_Timer.After(1, function()
-        DEBUG('trade skill update, scanning skills')
-        self:ScanTradeSkill()
-    end)
-end
 
-function Guildbook:CRAFT_UPDATE()
-    C_Timer.After(1, function()
-        DEBUG('craft skill update, scanning skills')
-        self:ScanCraftSkills_Enchanting()
-    end)
-end
-
-function Guildbook:ScanCharacterContainers()
-    if BankFrame:IsVisible() then
-        local guid = UnitGUID('player')
-        if not self.PlayerMixin then
-            self.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
-        else
-            self.PlayerMixin:SetGUID(guid)
-        end
-        if self.PlayerMixin:IsValid() then
-            local name = C_PlayerInfo.GetName(self.PlayerMixin)
-
-            if not GUILDBOOK_CHARACTER['GuildBank'] then
-                GUILDBOOK_CHARACTER['GuildBank'] = {
-                    [name] = {
-                        Data = {},
-                        Commit = GetServerTime()
-                    }
-                }
-            else
-                GUILDBOOK_CHARACTER['GuildBank'][name] = {
-                    Commit = GetServerTime(),
-                    Data = {},
-                }
-            end
-
-            -- player bags
-            for bag = 0, 4 do
-                for slot = 1, GetContainerNumSlots(bag) do
-                    local id = select(10, GetContainerItemInfo(bag, slot))
-                    local count = select(2, GetContainerItemInfo(bag, slot))
-                    if id and count then
-                        if not GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] then
-                            GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] = count
-                        else
-                            GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] = GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] + count
-                        end
-                    end
-                end
-            end
-
-            -- main bank
-            for slot = 1, 28 do
-                local id = select(10, GetContainerItemInfo(-1, slot))
-                local count = select(2, GetContainerItemInfo(-1, slot))
-                if id and count then
-                    if not GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] then
-                        GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] = count
-                    else
-                        GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] = GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] + count
-                    end
-                end
-            end
-
-            -- bank bags
-            for bag = 5, 11 do
-                for slot = 1, GetContainerNumSlots(bag) do
-                    local id = select(10, GetContainerItemInfo(bag, slot))
-                    local count = select(2, GetContainerItemInfo(bag, slot))
-                    if id and count then
-                        if not GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] then
-                            GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] = count
-                        else
-                            GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] = GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] + count
-                        end
-                    end
-                end
-            end
-
-            local bankUpdate = {
-                type = 'GUILD_BANK_DATA_RESPONSE',
-                payload = {
-                    Data = GUILDBOOK_CHARACTER['GuildBank'][name].Data,
-                    Commit = GUILDBOOK_CHARACTER['GuildBank'][name].Commit,
-                    Bank = name,
-                }
-            }
-            self:Transmit(bankUpdate, 'GUILD', sender, 'BULK')
-            DEBUG_COMMS('sending guild bank data due to new commit')
-        end
-    end
-end
-
-function Guildbook:ScanTradeSkill()
-    local prof = GetTradeSkillLine()
-    GUILDBOOK_CHARACTER[prof] = {}
-    for i = 1, GetNumTradeSkills() do
-        local name, type, _, _, _, _ = GetTradeSkillInfo(i)
-        if (name and type ~= "header") then
-            local itemLink = GetTradeSkillItemLink(i)
-            local itemID = select(1, GetItemInfoInstant(itemLink))
-            local itemName = select(1, GetItemInfo(itemID))
-            DEBUG(string.format('|cff0070DETrade item|r: %s, with ID: %s', name, itemID))
-            if itemName and itemID then
-                GUILDBOOK_CHARACTER[prof][itemID] = {}
-            end
-            local numReagents = GetTradeSkillNumReagents(i);
-            if numReagents > 0 then
-                for j = 1, numReagents, 1 do
-                    local reagentName, reagentTexture, reagentCount, playerReagentCount = GetTradeSkillReagentInfo(i, j)
-                    local reagentLink = GetTradeSkillReagentItemLink(i, j)
-                    local reagentID = select(1, GetItemInfoInstant(reagentLink))
-                    if reagentName and reagentID and reagentCount then
-                        DEBUG(string.format('    Reagent name: %s, with ID: %s, Needed: %s', reagentName, reagentID, reagentCount))
-                        GUILDBOOK_CHARACTER[prof][itemID][reagentID] = reagentCount
-                    end
-                end
-            end
-        end
-    end
-end
-
-function Guildbook:ScanCraftSkills_Enchanting()
-    local currentCraftingWindow = GetCraftSkillLine(1)
-    if currentCraftingWindow == 'Enchanting' then
-        GUILDBOOK_CHARACTER['Enchanting'] = {}
-        for i = 1, GetNumCrafts() do
-            local name, _, type, _, _, _, _ = GetCraftInfo(i)
-            if (name and type ~= "header") then
-                local itemID = select(7, GetSpellInfo(name))
-                DEBUG(string.format('|cff0070DETrade item|r: %s, with ID: %s', name, itemID))
-                if itemID then
-                    GUILDBOOK_CHARACTER['Enchanting'][itemID] = {}
-                end
-                local numReagents = GetCraftNumReagents(i);
-                DEBUG(string.format('this recipe has %s reagents', numReagents))
-                if numReagents > 0 then
-                    for j = 1, numReagents do
-                        local reagentName, reagentTexture, reagentCount, playerReagentCount = GetCraftReagentInfo(i, j)
-                        local reagentLink = GetCraftReagentItemLink(i, j)
-                        if reagentName and reagentCount then
-                            DEBUG(string.format('reagent number: %s with name %s and count %s', j, reagentName, reagentCount))
-                            if reagentLink then
-                                local reagentID = select(1, GetItemInfoInstant(reagentLink))
-                                DEBUG('reagent id: '..reagentID)
-                                if reagentID and reagentCount then
-                                    GUILDBOOK_CHARACTER['Enchanting'][itemID][reagentID] = reagentCount
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
-end
-
-function Guildbook:GetGuildName()
-    local guildName = false
-    if IsInGuild() and GetGuildInfo("player") then
-        local guildName, _, _, _ = GetGuildInfo('player')
-        return guildName
-    end
-end
-
--- events
-function Guildbook:ADDON_LOADED(...)
-    if tostring(...):lower() == addonName:lower() then
-        self:Init()
-    end
-end
-
-function Guildbook:PLAYER_ENTERING_WORLD()
-    self:ModBlizzUI()
-    self:SetupStatsFrame()
-    self:SetupTradeSkillFrame()
-    self:SetupGuildBankFrame()
-    self:SetupGuildCalendarFrame()
-    self:SetupGuildMemberDetailframe()
-    self:SetupSoftReserveFrame()
-    self:SetupProfilesFrame()
-    self.EventFrame:UnregisterEvent('PLAYER_ENTERING_WORLD')
-end
-
-function Guildbook:RAID_ROSTER_UPDATE()
-    DEBUG('Raid roster update event')
-    self:RequestRaidSoftReserves()
-end
-
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- soft reserve
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function Guildbook:RequestRaidSoftReserves()
     local request = {
         type = 'RAID_SOFT_RESERVES_REQUEST',
@@ -1045,15 +1018,58 @@ function Guildbook:OnRaidSoftReserveReceived(data, distribution, sender)
     end
 end
 
-function Guildbook:GUILD_ROSTER_UPDATE(...)
-    if GuildMemberDetailFrame:IsVisible() then     
-        local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, GUID = GetGuildRosterInfo(GetGuildRosterSelection())
-        if isOnline then
-            Guildbook:UpdateGuildMemberDetailFrameLabels()
-            Guildbook:ClearGuildMemberDetailFrame()
-            Guildbook:CharacterDataRequest(name)
-        end
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- events
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+function Guildbook:ADDON_LOADED(...)
+    if tostring(...):lower() == addonName:lower() then
+        self:Init()
     end
+end
+
+function Guildbook:TRADE_SKILL_UPDATE()
+    C_Timer.After(1, function()
+        DEBUG('trade skill update, scanning skills')
+        self:ScanTradeSkill()
+    end)
+end
+
+function Guildbook:CRAFT_UPDATE()
+    C_Timer.After(1, function()
+        DEBUG('craft skill update, scanning skills')
+        self:ScanCraftSkills_Enchanting()
+    end)
+end
+
+function Guildbook:PLAYER_ENTERING_WORLD()
+    self:ModBlizzUI()
+    self:SetupStatsFrame()
+    self:SetupTradeSkillFrame()
+    self:SetupGuildBankFrame()
+    self:SetupGuildCalendarFrame()
+    self:SetupGuildMemberDetailframe()
+    self:SetupSoftReserveFrame()
+    --self:SetupProfilesFrame()
+    self.EventFrame:UnregisterEvent('PLAYER_ENTERING_WORLD')
+end
+
+function Guildbook:RAID_ROSTER_UPDATE()
+    DEBUG('Raid roster update event')
+    self:RequestRaidSoftReserves()
+end
+
+
+function Guildbook:GUILD_ROSTER_UPDATE(...)
+    -- print('roster update')
+    -- if GuildMemberDetailFrame:IsVisible() then     
+    --     local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, GUID = GetGuildRosterInfo(GetGuildRosterSelection())
+    --     print('>>>', name, isOnline)
+    --     if isOnline then
+    --         -- Guildbook:UpdateGuildMemberDetailFrameLabels()
+    --         -- Guildbook:ClearGuildMemberDetailFrame()
+    --         -- Guildbook:CharacterDataRequest(name)
+    --     end
+    -- end
 end
 
 function Guildbook:PLAYER_LEVEL_UP()
@@ -1066,6 +1082,16 @@ function Guildbook:SKILL_LINES_CHANGED()
     C_Timer.After(3, function()
         Guildbook:CharacterStats_OnChanged()
     end)
+end
+
+-- added to automate the guildl bank scan
+function Guildbook:BANKFRAME_OPENED()
+    for i = 1, GetNumGuildMembers() do
+        local _, _, _, _, _, _, publicNote, _, _, _, _, _, _, _, _, _, GUID = GetGuildRosterInfo(i)
+        if publicNote:lower():find('guildbank') and GUID == UnitGUID('player') then
+            self:ScanCharacterContainers()
+        end
+    end
 end
 
 --- handle comms
@@ -1121,11 +1147,10 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
         if not lastGuildBankRequest[sender] then
             lastGuildBankRequest[sender] = -math.huge
         end
-        if lastGuildBankRequest[sender] + tradeDelay < GetTime() then
-            self:OnTradeSkillsRequested(data, distribution, sender)
+        if lastGuildBankRequest[sender] + bankDelay < GetTime() then
+            self:OnGuildBankDataRequested(data, distribution, sender)
             lastGuildBankRequest[sender] = GetTime()
         end
-        self:OnGuildBankDataRequested(data, distribution, sender)
 
     elseif data.type == 'GUILD_BANK_DATA_RESPONSE' then
         self:OnGuildBankDataReceived(data, distribution, sender)
@@ -1153,7 +1178,7 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
 
     elseif data.type == 'GUILD_CALENDAR_EVENTS_REQUESTED' then
         local today = date('*t')
-        self:SendGuildCalendarEvents(today.month, today.year)
+        self:SendGuildCalendarEvents()
 
     elseif data.type == 'GUILD_CALENDAR_EVENTS_DELETED_REQUESTED' then
         self:SendGuildCalendarDeletedEvents()
@@ -1161,13 +1186,6 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
     end
 end
 
-function Guildbook:LOOT_OPENED()
-    local numLootItems = GetNumLootItems()
-    for i = 1, numLootItems do
-        local lootIcon, lootName, lootQuantity, currencyID, lootQuality, locked, isQuestItem, questID, isActive = GetLootSlotInfo(i)
-        --print(lootName)
-    end
-end
 
 --set up event listener
 Guildbook.EventFrame = CreateFrame('FRAME', 'GuildbookEventFrame', UIParent)
@@ -1179,7 +1197,7 @@ Guildbook.EventFrame:RegisterEvent('SKILL_LINES_CHANGED')
 Guildbook.EventFrame:RegisterEvent('TRADE_SKILL_UPDATE')
 Guildbook.EventFrame:RegisterEvent('CRAFT_UPDATE')
 Guildbook.EventFrame:RegisterEvent('RAID_ROSTER_UPDATE')
-Guildbook.EventFrame:RegisterEvent('LOOT_OPENED')
+Guildbook.EventFrame:RegisterEvent('BANKFRAME_OPENED')
 Guildbook.EventFrame:SetScript('OnEvent', function(self, event, ...)
     --DEBUG('EVENT='..tostring(event))
     Guildbook[event](Guildbook, ...)

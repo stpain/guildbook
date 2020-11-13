@@ -69,6 +69,26 @@ function GuildbookOptions_OnLoad(self)
     GuildbookOptionsCharacterMainSpec:SetText(L['MainSpec'])
     GuildbookOptionsCharacterOffSpec:SetText(L['OffSpec'])
     GuildbookOptionsMainCharacterNameInputDesc:SetText(L['MainCharacterNameInputDesc'])
+
+    local deleteGuildDropdown = CreateFrame('FRAME', 'GuildbookDeleteGuildDropDown', GuildbookOptions, "UIDropDownMenuTemplate")
+    deleteGuildDropdown:SetPoint('BOTTOMRIGHT', _G['GuildbookOptionsRosterHealthCheck'], 'BOTTOMRIGHT', 10, 40.0)
+    UIDropDownMenu_SetWidth(deleteGuildDropdown, 180)
+    UIDropDownMenu_SetText(deleteGuildDropdown, 'Delete Guild')
+    _G['GuildbookDeleteGuildDropDownButton']:SetScript('OnClick', function()
+        if GUILDBOOK_GLOBAL and next(GUILDBOOK_GLOBAL['GuildRosterCache']) then
+            local t = {}
+            for guild, _ in pairs(GUILDBOOK_GLOBAL['GuildRosterCache']) do
+                table.insert(t, {
+                    text = guild,
+                    notCheckable = true,
+                    func = function() 
+                        StaticPopup_Show('GuildbookDeleteGuild', guild, nil, {Guild = guild})
+                    end
+                })
+            end
+            EasyMenu(t, deleteGuildDropdown, deleteGuildDropdown, 10, 10, 'NONE')
+        end
+    end)
 end
 
 function GuildbookOptionsMainSpecIsPvpSpecCB_OnClick(self)

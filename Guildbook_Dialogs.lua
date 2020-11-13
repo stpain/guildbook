@@ -27,6 +27,26 @@ local DEBUG = Guildbook.DEBUG
 local PRINT = Guildbook.PRINT
 
 
+StaticPopupDialogs['GuildbookDeleteGuild'] = {
+    text = 'Delete all data for %s',
+    button1 = 'Yes',
+    button2 = 'Cancel',
+    OnAccept = function(self, data)
+        GUILDBOOK_GLOBAL['GuildRosterCache'][data.Guild] = nil
+        GUILDBOOK_GLOBAL['Calendar'][data.Guild] = nil
+        GUILDBOOK_GLOBAL['CalendarDeleted'][data.Guild] = nil
+        print('All data for '..data.Guild..' deleted')
+    end,
+    OnCancel = function(self)
+
+    end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = false,
+    preferredIndex = 3,
+    showAlert = 1,    
+}
+
 StaticPopupDialogs['GuildbookResetCharacter'] = {
     text = 'Reset data for '..select(1, UnitName("player"))..' to default values?',
     button1 = 'Reset',

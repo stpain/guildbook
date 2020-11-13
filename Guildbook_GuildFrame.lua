@@ -450,7 +450,7 @@ player again will usually fix the UI.|r
 
     self.GuildFrame.TradeSkillFrame.ProfessionDescription = self.GuildFrame.TradeSkillFrame:CreateFontString('GuildbookGuildInfoFrameTradeSkillFrameProfessionDescription', 'OVERLAY', 'GameFontNormalSmall')
     self.GuildFrame.TradeSkillFrame.ProfessionDescription:SetPoint('TOPLEFT', self.GuildFrame.TradeSkillFrame.ProfessionIcon, 'TOPRIGHT', 4, 6)
-    self.GuildFrame.TradeSkillFrame.ProfessionDescription:SetSize(730, 50)
+    self.GuildFrame.TradeSkillFrame.ProfessionDescription:SetSize(730, 60)
 
     self.GuildFrame.TradeSkillFrame.TopBorder = self.GuildFrame.TradeSkillFrame:CreateTexture('GuildbookGuildInfoFrameTradeSkillFrameTopBorder', 'ARTWORK')
     self.GuildFrame.TradeSkillFrame.TopBorder:SetPoint('TOPLEFT', Guildbook.GuildFrame.TradeSkillFrame, 'TOPLEFT', 4, -125)
@@ -2372,7 +2372,57 @@ end
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- profiles
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
+--[[
 function Guildbook:SetupProfilesFrame()
 
+    self.GuildFrame.ProfilesFrame:SetScript('OnShow', function(self)
+        local guid = UnitGUID('player')
+        if not Guildbook.PlayerMixin then
+            Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
+        else
+            Guildbook.PlayerMixin:SetGUID(guid)
+        end
+        if Guildbook.PlayerMixin:IsValid() then
+            local name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
+            local _, class, _ = C_PlayerInfo.GetClass(Guildbook.PlayerMixin)
+            local sex = C_PlayerInfo.GetSex(Guildbook.PlayerMixin)
+            local race = C_CreatureInfo.GetRaceInfo(C_PlayerInfo.GetRace(Guildbook.PlayerMixin)).clientFileString:upper()
+            local tex = Guildbook.Data.RaceIcons[C_PlayerInfo.GetSex(Guildbook.PlayerMixin)][race]
+
+            self.ProfileContainer.portrait:SetTexture(tex)
+            self.ProfileContainer.class:SetTexture(Guildbook.Data.Class[class].IconID)
+            self.ProfileContainer.name:SetText(name)
+            local r, g, b = unpack(Guildbook.Data.Class[class].RGB)
+            self.ProfileContainer.name:SetTextColor(r, g, b, 1)
+        end
+    end)
+
+    self.GuildFrame.ProfilesFrame.SearchBox = CreateFrame('EDITBOX', 'GuildbookGuildFrameProfilesFramesearchBox', self.GuildFrame.ProfilesFrame, "InputBoxTemplate")
+    self.GuildFrame.ProfilesFrame.SearchBox:SetPoint('TOP', 0, -30)
+    self.GuildFrame.ProfilesFrame.SearchBox:SetSize(200, 22)
+    self.GuildFrame.ProfilesFrame.SearchBox:ClearFocus()
+    self.GuildFrame.ProfilesFrame.SearchBox:SetAutoFocus(false)
+    self.GuildFrame.ProfilesFrame.SearchBox:SetMaxLetters(15)
+    self.GuildFrame.ProfilesFrame.SearchBox.header = self.GuildFrame.ProfilesFrame.SearchBox:CreateFontString('$parentHeader', 'OVERLAY', 'GameFontNormalSmall')
+    self.GuildFrame.ProfilesFrame.SearchBox.header:SetPoint('BOTTOMLEFT', self.GuildFrame.ProfilesFrame.SearchBox, 'TOPLEFT', 0, 2)
+    self.GuildFrame.ProfilesFrame.SearchBox.header:SetText('Search for')
+
+    self.GuildFrame.ProfilesFrame.ProfileContainer = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameProfileContainer', self.GuildFrame.ProfilesFrame)
+    self.GuildFrame.ProfilesFrame.ProfileContainer:SetPoint('TOPLEFT', self.GuildFrame.ProfilesFrame, 'TOPLEFT', 100, -50)
+    self.GuildFrame.ProfilesFrame.ProfileContainer:SetPoint('BOTTOMRIGHT', self.GuildFrame.ProfilesFrame, 'BOTTOMRIGHT', -100, 10)
+
+    self.GuildFrame.ProfilesFrame.ProfileContainer.portrait = self.GuildFrame.ProfilesFrame.ProfileContainer:CreateTexture('$parentPortrait', 'ARTWORK')
+    self.GuildFrame.ProfilesFrame.ProfileContainer.portrait:SetPoint('TOPLEFT', 5, -5)
+    self.GuildFrame.ProfilesFrame.ProfileContainer.portrait:SetSize(50, 50)
+
+    self.GuildFrame.ProfilesFrame.ProfileContainer.class = self.GuildFrame.ProfilesFrame.ProfileContainer:CreateTexture('$parentClass', 'ARTWORK')
+    self.GuildFrame.ProfilesFrame.ProfileContainer.class:SetPoint('TOPRIGHT', -5, -5)
+    self.GuildFrame.ProfilesFrame.ProfileContainer.class:SetSize(50, 50)
+
+    self.GuildFrame.ProfilesFrame.ProfileContainer.name = self.GuildFrame.ProfilesFrame.ProfileContainer:CreateFontString('$parentName', 'OVERLAY', 'GameFontNormal')
+    self.GuildFrame.ProfilesFrame.ProfileContainer.name:SetPoint('TOP', 0, -10)
+
+
+
 end
+]]--

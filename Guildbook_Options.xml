@@ -368,6 +368,13 @@ the copyright holders.
                 </Scripts>
             </Button>
 
+            <!-- <Frame name="$parentDeleteGuildDropdown" inherits="UIDropDownMenuTemplate">
+                <Anchors>
+                    <Anchor point="BOTTOMRIGHT">
+                        <offset x="-16" y="120"/>
+                    </Anchor>
+                </Anchors>
+            </Frame> -->
 
 <!--
             <Slider name="$parentMinimapIconSizeSlider" inherits="OptionsSliderTemplate" minvalue="2" maxvalue="20" defaultvalue="1" valuestep="1" enableMouse="true">

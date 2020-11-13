@@ -112,4 +112,17 @@ Updated to work with ElvUI!
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [3.3] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+-
+
+|cff0070DEUpdates|r:
+Added a delete guild option for when the unthinkable happens, try not to need it!
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }

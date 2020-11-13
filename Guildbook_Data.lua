@@ -84,6 +84,26 @@ Guildbook.Data.RaceIcons = {
         TROLL = 130919,
         TAUREN = 130918,
         SCOURGE = 130917
+    },
+    [1] = {
+        HUMAN = 130904,
+        DWARF = 130902,
+        NIGHTELF = 130905,
+        GNOME = 130903,
+        ORC = 130906,
+        TROLL = 130909,
+        TAUREN = 130908,
+        SCOURGE = 130907
+    },
+    [0] = {
+        HUMAN = 130914,
+        DWARF = 130912,
+        NIGHTELF = 130915,
+        GNOME = 130913,
+        ORC = 130916,
+        TROLL = 130919,
+        TAUREN = 130918,
+        SCOURGE = 130917
     }
 }
 
