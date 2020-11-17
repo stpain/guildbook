@@ -125,4 +125,17 @@ Added a delete guild option for when the unthinkable happens, try not to need it
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [3.31] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+Fixed bug when searching profession recipes where search term was case sensetive
+
+|cff0070DEUpdates|r:
+You can now use the shift+click and ctrl+click on profession recipes to either copy the link into a chat message or view the item on your character.
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }

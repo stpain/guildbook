@@ -806,9 +806,9 @@ player again will usually fix the UI.|r
                 Guildbook.GuildFrame.TradeSkillFrame:ClearReagentsListview()
                 Guildbook.GuildFrame.TradeSkillFrame:UpdateReagents(f.data)
                 if self.data.Enchant then
-                    Guildbook.GuildFrame.TradeSkillFrame.ReagentsListviewParent.recipeItem.Link = 'enchant:'..self.data.ItemID
+                    Guildbook.GuildFrame.TradeSkillFrame.ReagentsListviewParent.recipeItem.link = 'enchant:'..self.data.ItemID
                 else
-                    Guildbook.GuildFrame.TradeSkillFrame.ReagentsListviewParent.recipeItem.Link = self.data.Link
+                    Guildbook.GuildFrame.TradeSkillFrame.ReagentsListviewParent.recipeItem.link = self.data.Link
                 end
                 Guildbook.GuildFrame.TradeSkillFrame.ReagentsListviewParent.recipeItemIcon:SetTexture(self.data.Icon)
                 Guildbook.GuildFrame.TradeSkillFrame.ReagentsListviewParent.recipeItemName:SetText(self.data.Link)
@@ -897,7 +897,7 @@ player again will usually fix the UI.|r
         if filter == nil then
             table.insert(self.Recipes, recipeItem)
         else
-            if recipeItem.Name:lower():find(filter) then
+            if recipeItem.Name:lower():find(filter:lower()) then
                 table.insert(self.Recipes, recipeItem)
             end
         end
@@ -970,11 +970,11 @@ player again will usually fix the UI.|r
     self.GuildFrame.TradeSkillFrame.ReagentsListviewParent.recipeItem:SetPoint('TOPLEFT', 4, -4)
     self.GuildFrame.TradeSkillFrame.ReagentsListviewParent.recipeItem:SetSize(200, 25)
     self.GuildFrame.TradeSkillFrame.ReagentsListviewParent.recipeItem:EnableMouse(true)
-    self.GuildFrame.TradeSkillFrame.ReagentsListviewParent.recipeItem.Link = nil
+    self.GuildFrame.TradeSkillFrame.ReagentsListviewParent.recipeItem.link = nil
     self.GuildFrame.TradeSkillFrame.ReagentsListviewParent.recipeItem:SetScript('OnEnter', function(self)
-        if self.Link then
+        if self.link then
             GameTooltip:SetOwner(self, 'ANCHOR_CURSOR')
-            GameTooltip:SetHyperlink(self.Link)
+            GameTooltip:SetHyperlink(self.link)
             GameTooltip:Show()
         else
             GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
@@ -982,6 +982,16 @@ player again will usually fix the UI.|r
     end)
     self.GuildFrame.TradeSkillFrame.ReagentsListviewParent.recipeItem:SetScript('OnLeave', function(self)
         GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+    end)
+    self.GuildFrame.TradeSkillFrame.ReagentsListviewParent.recipeItem:SetScript('OnMouseDown', function(self)
+        if self.link then
+            if IsShiftKeyDown() then
+                HandleModifiedItemClick(self.link)
+            end
+            if IsControlKeyDown() then
+                DressUpItemLink(self.link)
+            end
+        end
     end)
     self.GuildFrame.TradeSkillFrame.ReagentsListviewParent.recipeItemIcon = self.GuildFrame.TradeSkillFrame.ReagentsListviewParent.recipeItem:CreateTexture('$parentRecipeItemIcon', 'ARTWORK')
     self.GuildFrame.TradeSkillFrame.ReagentsListviewParent.recipeItemIcon:SetPoint('LEFT', 4, 0)
@@ -993,6 +1003,7 @@ player again will usually fix the UI.|r
         local f = CreateFrame('FRAME', tostring('GuildbookGuildFrameRecipesListviewRow'..i), self.GuildFrame.TradeSkillFrame.RecipesListviewParent)
         f:SetPoint('TOPLEFT', Guildbook.GuildFrame.TradeSkillFrame.ReagentsListviewParent, 'TOPLEFT', 4, ((i - 1) * -22) - 35)
         f:SetSize(self.GuildFrame.TradeSkillFrame.ReagentsListviewParent:GetWidth(), 20)
+        f:EnableMouse(true)
 
         f.icon = f:CreateTexture('$parentIcon', 'ARTWORK')
         f.icon:SetPoint('LEFT', 4, 0)
@@ -1002,16 +1013,41 @@ player again will usually fix the UI.|r
         f.text:SetPoint('LEFT', f.icon, 'RIGHT', 4, 0)
         f.text:SetTextColor(1,1,1,1)
 
+        f.link = nil
+        f:SetScript('OnEnter', function(self)
+            if self.link then
+                GameTooltip:SetOwner(self, 'ANCHOR_CURSOR')
+                GameTooltip:SetHyperlink(self.link)
+                GameTooltip:Show()
+            end
+        end)
+        f:SetScript('OnLeave', function(self)
+            GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+        end)
+        f:SetScript('OnMouseDown', function(self)
+            if self.link then
+                print('got link')
+                if IsShiftKeyDown() then
+                    HandleModifiedItemClick(self.link)
+                end
+                if IsControlKeyDown() then
+                    print('ctrl')
+                    DressUpItemLink(self.link)
+                end
+            end
+        end)
+
         self.GuildFrame.TradeSkillFrame.ReagentsListviewRows[i] = f
     end
 
     function self.GuildFrame.TradeSkillFrame:ClearReagentsListview()
-        Guildbook.GuildFrame.TradeSkillFrame.ReagentsListviewParent.recipeItem.Link = nil
+        Guildbook.GuildFrame.TradeSkillFrame.ReagentsListviewParent.recipeItem.link = nil
         Guildbook.GuildFrame.TradeSkillFrame.ReagentsListviewParent.recipeItemIcon:SetTexture(nil)
         Guildbook.GuildFrame.TradeSkillFrame.ReagentsListviewParent.recipeItemName:SetText(' ')
         for k, v in ipairs(self.ReagentsListviewRows) do
             v.icon:SetTexture(nil)
             v.text:SetText(' ')
+            v.link = nil
         end
     end
 
@@ -1024,6 +1060,7 @@ player again will usually fix the UI.|r
                 if link and icon then
                     self.ReagentsListviewRows[k].icon:SetTexture(icon)
                     self.ReagentsListviewRows[k].text:SetText(string.format('[%s] %s', v.Count, link))
+                    self.ReagentsListviewRows[k].link = link
                 else
                     local item = Item:CreateFromItemID(v.ItemID)
                     item:ContinueOnItemLoad(function()
@@ -1031,6 +1068,7 @@ player again will usually fix the UI.|r
                         link = item:GetItemLink()
                         Guildbook.GuildFrame.TradeSkillFrame.ReagentsListviewRows[k].icon:SetTexture(icon)
                         Guildbook.GuildFrame.TradeSkillFrame.ReagentsListviewRows[k].text:SetText(string.format('[%s] %s', v.Count, link))
+                        Guildbook.GuildFrame.TradeSkillFrame.ReagentsListviewRows[k].link = link
                     end)
                 end
             end

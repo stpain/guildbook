@@ -22,7 +22,7 @@ the copyright holders.
 
 local addonName, Guildbook = ...
 
-local build = 3.3
+local build = 3.31
 local locale = GetLocale()
 
 local AceComm = LibStub:GetLibrary("AceComm-3.0")
