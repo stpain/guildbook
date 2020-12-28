@@ -498,18 +498,18 @@ function Guildbook.GetProfessionData()
 end
 
 --- talent scanning for tbc new feature
-function Guildbook:GetPlayerTalentInfo(guid)
+function Guildbook:GetTalentInfo()
     local talents = {}
     for tabIndex = 1, GetNumTalentTabs() do
         local spec, texture, pointsSpent, fileName = GetTalentTabInfo(tabIndex)
         for talentIndex = 1, GetNumTalents(tabIndex) do
             local name, iconTexture, row, column, rank, maxRank, isExceptional, available = GetTalentInfo(tabIndex, talentIndex)
             table.insert(talents, {
-                TabIndex = tabIndex,
+                Tab = tabIndex,
                 Row = row,
-                Column = column,
+                Col = column,
                 Rank = rank,
-                MaxRank = maxRank,
+                MxRnk = maxRank,
                 Icon = iconTexture,
                 Name = name,
             })
@@ -518,30 +518,6 @@ function Guildbook:GetPlayerTalentInfo(guid)
     end
     return talents
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 function Guildbook.GetInstanceInfo()
@@ -587,6 +563,41 @@ function Guildbook:Transmit(data, channel, target, priority)
     local encoded    = LibDeflate:EncodeForWoWAddonChannel(compressed);
     self:SendCommMessage(addonName, encoded, channel, target, priority);
 end
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- talent comms
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+function Guildbook:SendTalentInfoRequest(target, spec)
+    local request = {
+        type = "TALENT_INFO_REQUEST",
+        payload = spec, -- dual spec future feature
+    }
+    self:Transmit(request, "WHISPER", target, "NORMAL")
+    DEBUG_COMMS(string.format('sent request for talents from %s', target))
+end
+
+function Guildbook:TALENT_INFO_REQUEST(request, distribution, sender)
+    if distribution ~= "WHISPER" then
+        return
+    end
+    local talents = Guildbook:GetTalentInfo()
+    local response = {
+        type = "TALENT_INFO_RESPONSE",
+        payload = talents,
+    }
+    self:Transmit(response, distribution, sender, "BULK")
+    DEBUG_COMMS(string.format('sending %s data to %s', 'talents info', sender))
+end
+
+function Guildbook:TALENT_INFO_RESPONSE(data, distribution, sender)
+    if distribution ~= "WHISPER" then
+        return
+    end
+    if type(data.payload) == 'table' then
+        self.GuildFrame.ProfilesFrame:LoadCharacterTalents(data.payload)
+    end
+end
+
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- tradeskills comms
@@ -1266,6 +1277,12 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
 
     elseif data.type == 'GUILD_CALENDAR_EVENTS_DELETED_REQUESTED' then
         self:SendGuildCalendarDeletedEvents()
+
+    elseif data.type == 'TALENT_INFO_REQUEST' then
+        self:TALENT_INFO_REQUEST(data, distribution, sender)
+
+    elseif data.type == 'TALENT_INFO_RESPONSE' then
+        self:TALENT_INFO_RESPONSE(data, distribution, sender)
 
     end
 end
