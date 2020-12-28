@@ -57,18 +57,21 @@ Guildbook.GuildBankCommit = {
     Commit = nil,
     Character = nil,
 }
-
+Guildbook.NUM_TALENT_ROWS = 7.0
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 --slash commands
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
-SLASH_GUILDHELPERCLASSIC1 = '/guildbook'
+SLASH_GUILDBOOK1 = '/guildbook'
 SlashCmdList['GUILDBOOK'] = function(msg)
     if msg == '-help' then
         print(':(')
 
     elseif msg == '-scanbank' then
         Guildbook:ScanCharacterContainers()
+
+    elseif msg == '-talents' then
+        Guildbook:GetPlayerTalentInfo(UnitGUID('player'))
 
     end
 end
@@ -183,9 +186,14 @@ function Guildbook:Init()
     end
 
     -- allow time for loading and whats nots, then send character data
-    C_Timer.After(3, function()
+    C_Timer.After(2, function()
         --Guildbook:SendCharacterStats()
         Guildbook:CharacterStats_OnChanged()
+    end)
+
+    Guildbook:CleanUpGuildRosterData(Guildbook:GetGuildName(), 'checking guild data...[1]')
+    C_Timer.After(3, function()
+        Guildbook:CleanUpGuildRosterData(Guildbook:GetGuildName(), 'checking guild data...[2]')
     end)
 
     -- set up delays for calendar data syncing to prevent mass chat spam on log in
@@ -364,9 +372,9 @@ end
 
 
 --- scan the characters current guild cache and check for any characters with name/class/spec data not matching guid data
-function Guildbook:CleanUpGuildRosterData(guild)
+function Guildbook:CleanUpGuildRosterData(guild, msg)
     if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[guild] then
-        print(string.format('%s Guildbook|r, scanning roster for %s', Guildbook.FONT_COLOUR, guild))
+        print(string.format('%s Guildbook|r, %s', Guildbook.FONT_COLOUR, msg))
         local currentGUIDs = {}
         local totalMembers, onlineMembers, _ = GetNumGuildMembers()
         for i = 1, totalMembers do
@@ -386,14 +394,24 @@ function Guildbook:CleanUpGuildRosterData(guild)
                 if self.PlayerMixin:IsValid() then
                     local _, class, _ = C_PlayerInfo.GetClass(self.PlayerMixin)
                     local name = C_PlayerInfo.GetName(self.PlayerMixin)
+                    -- local raceId = C_PlayerInfo.GetRace(self.PlayerMixin)
+                    -- if raceId then
+                    --     local raceName = C_CreatureInfo.GetRaceInfo(raceId).clientFileString
+                    --     if info.Race ~= raceName:upper() then
+                    --         info.Race = raceName:upper()
+                    --         print(name..'has error with race, updating race to mixin value')
+                    --     end
+                    -- end
+                    -- info.Race = nil
                     if name and class then
                         if info.Class ~= class then
                             print(name..' has error with class, updating class to mixin value')
                             info.Class = class
                         end
                         if info.Name ~= name then
-                            print(name..' has error with name, updating name to mixin value')
+                            print(info.Name..' has error with name, updating name to mixin value')
                             info.Name = name
+                            --print(info.Name, name)
                         end
                         local ms = false
                         if info.MainSpec ~= '-' then
@@ -478,6 +496,53 @@ function Guildbook.GetProfessionData()
         --DEBUG('Set player Profession2 as: '..myCharacter.Prof2)
     end
 end
+
+--- talent scanning for tbc new feature
+function Guildbook:GetPlayerTalentInfo(guid)
+    local talents = {}
+    for tabIndex = 1, GetNumTalentTabs() do
+        local spec, texture, pointsSpent, fileName = GetTalentTabInfo(tabIndex)
+        for talentIndex = 1, GetNumTalents(tabIndex) do
+            local name, iconTexture, row, column, rank, maxRank, isExceptional, available = GetTalentInfo(tabIndex, talentIndex)
+            table.insert(talents, {
+                TabIndex = tabIndex,
+                Row = row,
+                Column = column,
+                Rank = rank,
+                MaxRank = maxRank,
+                Icon = iconTexture,
+                Name = name,
+            })
+            --print(string.format("Tab %s [%s] > TalentIndex %s > name=%s, icon=%s, tier=%s, column=%s, rank=%s, maxRank=%s", spec, fileName, talentIndex, name, iconTexture, tier, column, rank, maxRank))
+        end
+    end
+    return talents
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function Guildbook.GetInstanceInfo()
     local t = {}
@@ -1049,7 +1114,7 @@ function Guildbook:PLAYER_ENTERING_WORLD()
     self:SetupGuildCalendarFrame()
     self:SetupGuildMemberDetailframe()
     self:SetupSoftReserveFrame()
-    --self:SetupProfilesFrame()
+    self:SetupProfilesFrame()
     self.EventFrame:UnregisterEvent('PLAYER_ENTERING_WORLD')
 end
 
@@ -1060,16 +1125,35 @@ end
 
 
 function Guildbook:GUILD_ROSTER_UPDATE(...)
-    -- print('roster update')
-    -- if GuildMemberDetailFrame:IsVisible() then     
-    --     local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, GUID = GetGuildRosterInfo(GetGuildRosterSelection())
-    --     print('>>>', name, isOnline)
-    --     if isOnline then
-    --         -- Guildbook:UpdateGuildMemberDetailFrameLabels()
-    --         -- Guildbook:ClearGuildMemberDetailFrame()
-    --         -- Guildbook:CharacterDataRequest(name)
-    --     end
-    -- end
+    if 1 == 1 then
+        local guildName = Guildbook:GetGuildName()
+        if guildName then
+            local totalMembers, onlineMembers, _ = GetNumGuildMembers()
+            for i = 1, totalMembers do
+                local name, _, _, level, _, _, _, _, _, _, class, _, _, _, _, _, guid = GetGuildRosterInfo(i)
+                if not GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] then
+                    GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] = {
+                        ['MainSpec'] = '-',
+                        ['OffSpec'] = '-',
+                        ['MainSpecIsPvP'] = false,
+                        ['OffSpecIsPvP'] = false,
+                        ['Profession1'] = '-',
+                        ['Profession1Level'] = 0,
+                        ['Profession2'] = '-',
+                        ['Profession2Level'] = 0,
+                        ['MainCharacter'] = '-',
+                    }
+                    GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Name = name
+                    GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Level = level
+                    GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Class = class
+                end
+            end
+            -- Guildbook:CleanUpGuildRosterData(guildName, 'checking guild data...[1]')
+            -- C_Timer.After(3, function()
+            --     Guildbook:CleanUpGuildRosterData(guildName, 'checking guild data...[2]')
+            -- end)
+        end
+    end
 end
 
 function Guildbook:PLAYER_LEVEL_UP()

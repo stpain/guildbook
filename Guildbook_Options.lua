@@ -60,7 +60,7 @@ end
 function GuildbookOptionsRosterHealthCheck_OnClick()
     local guildName = Guildbook:GetGuildName()
     if guildName then
-        Guildbook:CleanUpGuildRosterData(guildName)
+        Guildbook:CleanUpGuildRosterData(guildName, 'scanning '..guildName..' for errors')
     end
 end
 

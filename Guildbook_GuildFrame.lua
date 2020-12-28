@@ -806,7 +806,8 @@ player again will usually fix the UI.|r
                 Guildbook.GuildFrame.TradeSkillFrame:ClearReagentsListview()
                 Guildbook.GuildFrame.TradeSkillFrame:UpdateReagents(f.data)
                 if self.data.Enchant then
-                    Guildbook.GuildFrame.TradeSkillFrame.ReagentsListviewParent.recipeItem.link = 'enchant:'..self.data.ItemID
+                    Guildbook.GuildFrame.TradeSkillFrame.ReagentsListviewParent.recipeItem.link = 'spell:'..self.data.ItemID
+                    Guildbook.GuildFrame.TradeSkillFrame.ReagentsListviewParent.recipeItem.spellID = self.data.ItemID
                 else
                     Guildbook.GuildFrame.TradeSkillFrame.ReagentsListviewParent.recipeItem.link = self.data.Link
                 end
@@ -986,7 +987,11 @@ player again will usually fix the UI.|r
     self.GuildFrame.TradeSkillFrame.ReagentsListviewParent.recipeItem:SetScript('OnMouseDown', function(self)
         if self.link then
             if IsShiftKeyDown() then
-                HandleModifiedItemClick(self.link)
+                if selectedProfession == 'Enchanting' and self.spellID then
+                    HandleModifiedItemClick(GetSpellLink(self.spellID))
+                else
+                    HandleModifiedItemClick(self.link)
+                end
             end
             if IsControlKeyDown() then
                 DressUpItemLink(self.link)
@@ -2410,11 +2415,65 @@ end
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- profiles
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---[[
+
 function Guildbook:SetupProfilesFrame()
 
     self.GuildFrame.ProfilesFrame:SetScript('OnShow', function(self)
-        local guid = UnitGUID('player')
+        self.SearchBox:SetText('Search for...')
+        PanelTemplates_SetNumTabs(Guildbook.GuildFrame.ProfilesFrame, 2);
+        PanelTemplates_SetTab(Guildbook.GuildFrame.ProfilesFrame, 1);
+        self.DetailsTab:Show()
+        self.TalentsTab:Hide()
+        self:HideTalentGrid()
+        self:LoadCharacter(UnitGUID('player'))
+    end)
+
+    local searchResults = {}
+    self.GuildFrame.ProfilesFrame.SearchBox = CreateFrame('EDITBOX', 'GuildbookGuildFrameProfilesFramesearchBox', self.GuildFrame.ProfilesFrame, "InputBoxTemplate")
+    self.GuildFrame.ProfilesFrame.SearchBox:SetPoint('TOP', 0, 22)
+    self.GuildFrame.ProfilesFrame.SearchBox:SetSize(200, 22)
+    self.GuildFrame.ProfilesFrame.SearchBox:ClearFocus()
+    self.GuildFrame.ProfilesFrame.SearchBox:SetAutoFocus(false)
+    self.GuildFrame.ProfilesFrame.SearchBox:SetMaxLetters(15)
+    self.GuildFrame.ProfilesFrame.SearchBox:SetText('Search for')
+    self.GuildFrame.ProfilesFrame.SearchBox:SetScript('OnEditFocusGained', function(self)
+        if self:GetText() == 'Search for...' then
+            self:SetText('')
+        else
+            Guildbook.GuildFrame.ProfilesFrame:SearchText_OnChanged(self:GetText())
+        end
+    end)
+    self.GuildFrame.ProfilesFrame.SearchBox:SetScript('OnTextChanged', function(self)
+        Guildbook.GuildFrame.ProfilesFrame:SearchText_OnChanged(self:GetText())
+    end)
+    function self.GuildFrame.ProfilesFrame:SearchText_OnChanged(text)
+        if text:len() > 2 then
+            wipe(searchResults)
+            local guildName = Guildbook:GetGuildName()
+            if guildName then
+                for guid, info in pairs(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName]) do
+                    if info.Name:lower():find(Guildbook.GuildFrame.ProfilesFrame.SearchBox:GetText():lower()) then
+                        table.insert(searchResults, {
+                            text = info.Name,
+                            isTitle = false,
+                            notCheckable = true,
+                            icon = Guildbook.Data.Class[info.Class].IconID,
+                            func = function()
+                                Guildbook.GuildFrame.ProfilesFrame:LoadCharacter(guid)
+                                Guildbook.GuildFrame.ProfilesFrame.SearchBox:ClearFocus()
+                            end
+                        })
+                    end
+                end
+            end
+            EasyMenu(searchResults, Guildbook.ContextMenu_DropDown, Guildbook.GuildFrame.ProfilesFrame.SearchBox, -10, 0)
+        else
+            CloseDropDownMenus()
+        end
+    end
+
+    function self.GuildFrame.ProfilesFrame:LoadCharacter(guid)
+        self:HideTalentGrid()
         if not Guildbook.PlayerMixin then
             Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
         else
@@ -2427,40 +2486,210 @@ function Guildbook:SetupProfilesFrame()
             local race = C_CreatureInfo.GetRaceInfo(C_PlayerInfo.GetRace(Guildbook.PlayerMixin)).clientFileString:upper()
             local tex = Guildbook.Data.RaceIcons[C_PlayerInfo.GetSex(Guildbook.PlayerMixin)][race]
 
-            self.ProfileContainer.portrait:SetTexture(tex)
-            self.ProfileContainer.class:SetTexture(Guildbook.Data.Class[class].IconID)
-            self.ProfileContainer.name:SetText(name)
+            self.DetailsTab.portrait:SetTexture(tex)
+            self.DetailsTab.class:SetTexture(Guildbook.Data.Class[class].IconID)
+            self.DetailsTab.name:SetText(name)
             local r, g, b = unpack(Guildbook.Data.Class[class].RGB)
-            self.ProfileContainer.name:SetTextColor(r, g, b, 1)
+            self.DetailsTab.name:SetTextColor(r, g, b, 1)
+
+            self.TalentsTab.Tab1.background:SetTexture(Guildbook.Data.TalentBackgrounds[Guildbook.Data.Talents[class][1]])
+            self.TalentsTab.Tab2.background:SetTexture(Guildbook.Data.TalentBackgrounds[Guildbook.Data.Talents[class][2]])
+            self.TalentsTab.Tab3.background:SetTexture(Guildbook.Data.TalentBackgrounds[Guildbook.Data.Talents[class][3]])
+
+            local talents = Guildbook:GetPlayerTalentInfo(nil)
+            for k, info in ipairs(talents) do
+                --print(info.Name, info.Rank, info.MaxRank, info.Icon, info.TabIndex, info.Row, info.Column)
+                if self.TalentsTab.TalentGrid[info.TabIndex] and self.TalentsTab.TalentGrid[info.TabIndex][info.Row] then
+                    self.TalentsTab.TalentGrid[info.TabIndex][info.Row][info.Column]:Show()
+                    self.TalentsTab.TalentGrid[info.TabIndex][info.Row][info.Column].Icon:SetTexture(info.Icon)
+                    --self.TalentsTab.TalentGrid[info.TabIndex][info.Row][info.Column].talentIndex = info.TalentIndex
+                    self.TalentsTab.TalentGrid[info.TabIndex][info.Row][info.Column].name = info.Name
+                    self.TalentsTab.TalentGrid[info.TabIndex][info.Row][info.Column].rank = info.Rank
+                    self.TalentsTab.TalentGrid[info.TabIndex][info.Row][info.Column].maxRank = info.MaxRank
+
+                    if info.Rank > 0 then
+                        self.TalentsTab.TalentGrid[info.TabIndex][info.Row][info.Column].Icon:SetDesaturated(false)
+                    else
+                        self.TalentsTab.TalentGrid[info.TabIndex][info.Row][info.Column].Icon:SetDesaturated(true)
+                    end
+                else
+
+                end
+            end
+
+            
         end
+    end
+    
+    self.GuildFrame.ProfilesFrame.DetailsButton = CreateFrame('BUTTON', '$parentTab1', Guildbook.GuildFrame.ProfilesFrame, 'OptionsFrameTabButtonTemplate')
+    self.GuildFrame.ProfilesFrame.DetailsButton:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.ProfilesFrame, 'TOPRIGHT', -200, 0)
+    --self.GuildFrame.ProfilesFrame.DetailsButton:SetSize(60, 30)
+    self.GuildFrame.ProfilesFrame.DetailsButton:SetText('Details')
+    self.GuildFrame.ProfilesFrame.DetailsButton:SetID(1)
+    self.GuildFrame.ProfilesFrame.DetailsButton:SetScript('OnClick', function(self)
+        PanelTemplates_SetTab(Guildbook.GuildFrame.ProfilesFrame, 1)
+        Guildbook.GuildFrame.ProfilesFrame.DetailsTab:Show()
+        Guildbook.GuildFrame.ProfilesFrame.TalentsTab:Hide()
     end)
 
-    self.GuildFrame.ProfilesFrame.SearchBox = CreateFrame('EDITBOX', 'GuildbookGuildFrameProfilesFramesearchBox', self.GuildFrame.ProfilesFrame, "InputBoxTemplate")
-    self.GuildFrame.ProfilesFrame.SearchBox:SetPoint('TOP', 0, -30)
-    self.GuildFrame.ProfilesFrame.SearchBox:SetSize(200, 22)
-    self.GuildFrame.ProfilesFrame.SearchBox:ClearFocus()
-    self.GuildFrame.ProfilesFrame.SearchBox:SetAutoFocus(false)
-    self.GuildFrame.ProfilesFrame.SearchBox:SetMaxLetters(15)
-    self.GuildFrame.ProfilesFrame.SearchBox.header = self.GuildFrame.ProfilesFrame.SearchBox:CreateFontString('$parentHeader', 'OVERLAY', 'GameFontNormalSmall')
-    self.GuildFrame.ProfilesFrame.SearchBox.header:SetPoint('BOTTOMLEFT', self.GuildFrame.ProfilesFrame.SearchBox, 'TOPLEFT', 0, 2)
-    self.GuildFrame.ProfilesFrame.SearchBox.header:SetText('Search for')
+    self.GuildFrame.ProfilesFrame.TalentButton = CreateFrame('BUTTON', '$parentTab2', Guildbook.GuildFrame.ProfilesFrame, 'OptionsFrameTabButtonTemplate')
+    self.GuildFrame.ProfilesFrame.TalentButton:SetPoint('LEFT', Guildbook.GuildFrame.ProfilesFrame.DetailsButton, 'RIGHT', -16, 0)
+    --self.GuildFrame.ProfilesFrame.TalentButton:SetSize(60, 30)
+    self.GuildFrame.ProfilesFrame.TalentButton:SetText('Talents')
+    self.GuildFrame.ProfilesFrame.TalentButton:SetID(2)
+    self.GuildFrame.ProfilesFrame.TalentButton:SetScript('OnClick', function(self)
+        PanelTemplates_SetTab(Guildbook.GuildFrame.ProfilesFrame, 2)
+        Guildbook.GuildFrame.ProfilesFrame.DetailsTab:Hide()
+        Guildbook.GuildFrame.ProfilesFrame.TalentsTab:Show()
+    end)
 
-    self.GuildFrame.ProfilesFrame.ProfileContainer = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameProfileContainer', self.GuildFrame.ProfilesFrame)
-    self.GuildFrame.ProfilesFrame.ProfileContainer:SetPoint('TOPLEFT', self.GuildFrame.ProfilesFrame, 'TOPLEFT', 100, -50)
-    self.GuildFrame.ProfilesFrame.ProfileContainer:SetPoint('BOTTOMRIGHT', self.GuildFrame.ProfilesFrame, 'BOTTOMRIGHT', -100, 10)
+    self.GuildFrame.ProfilesFrame.DetailsTab = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameDetailsTab', self.GuildFrame.ProfilesFrame)
+    self.GuildFrame.ProfilesFrame.DetailsTab:SetPoint('TOPLEFT', self.GuildFrame.ProfilesFrame, 'TOPLEFT', 2, -2)
+    self.GuildFrame.ProfilesFrame.DetailsTab:SetPoint('BOTTOMRIGHT', self.GuildFrame.ProfilesFrame, 'BOTTOMRIGHT', -2, 2)
 
-    self.GuildFrame.ProfilesFrame.ProfileContainer.portrait = self.GuildFrame.ProfilesFrame.ProfileContainer:CreateTexture('$parentPortrait', 'ARTWORK')
-    self.GuildFrame.ProfilesFrame.ProfileContainer.portrait:SetPoint('TOPLEFT', 5, -5)
-    self.GuildFrame.ProfilesFrame.ProfileContainer.portrait:SetSize(50, 50)
+    self.GuildFrame.ProfilesFrame.DetailsTab.portrait = self.GuildFrame.ProfilesFrame.DetailsTab:CreateTexture('$parentPortrait', 'ARTWORK')
+    self.GuildFrame.ProfilesFrame.DetailsTab.portrait:SetPoint('TOPLEFT', 5, -5)
+    self.GuildFrame.ProfilesFrame.DetailsTab.portrait:SetSize(70, 70)
 
-    self.GuildFrame.ProfilesFrame.ProfileContainer.class = self.GuildFrame.ProfilesFrame.ProfileContainer:CreateTexture('$parentClass', 'ARTWORK')
-    self.GuildFrame.ProfilesFrame.ProfileContainer.class:SetPoint('TOPRIGHT', -5, -5)
-    self.GuildFrame.ProfilesFrame.ProfileContainer.class:SetSize(50, 50)
+    self.GuildFrame.ProfilesFrame.DetailsTab.class = self.GuildFrame.ProfilesFrame.DetailsTab:CreateTexture('$parentClass', 'ARTWORK')
+    self.GuildFrame.ProfilesFrame.DetailsTab.class:SetPoint('TOPRIGHT', -5, -5)
+    self.GuildFrame.ProfilesFrame.DetailsTab.class:SetSize(70, 70)
 
-    self.GuildFrame.ProfilesFrame.ProfileContainer.name = self.GuildFrame.ProfilesFrame.ProfileContainer:CreateFontString('$parentName', 'OVERLAY', 'GameFontNormal')
-    self.GuildFrame.ProfilesFrame.ProfileContainer.name:SetPoint('TOP', 0, -10)
+    self.GuildFrame.ProfilesFrame.DetailsTab.name = self.GuildFrame.ProfilesFrame.DetailsTab:CreateFontString('$parentName', 'OVERLAY', 'GameFontNormalLarge')
+    self.GuildFrame.ProfilesFrame.DetailsTab.name:SetPoint('TOP', 0, -20)
+
+
+
+
+
+
+
+
+
+    
+    self.GuildFrame.ProfilesFrame.TalentsTab = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameTalentsTab', self.GuildFrame.ProfilesFrame)
+    self.GuildFrame.ProfilesFrame.TalentsTab:SetPoint('TOPLEFT', self.GuildFrame.ProfilesFrame, 'TOPLEFT', 2, -2)
+    self.GuildFrame.ProfilesFrame.TalentsTab:SetPoint('BOTTOMRIGHT', self.GuildFrame.ProfilesFrame, 'BOTTOMRIGHT', -2, 2)
+    self.GuildFrame.ProfilesFrame.TalentsTab:Hide()
+
+    self.GuildFrame.ProfilesFrame.TalentsTab.ScrollFrame = CreateFrame("ScrollFrame", "GuildbookGuildFrameProfilesFrameTalentsTabScrollFrame", self.GuildFrame.ProfilesFrame.TalentsTab, "UIPanelScrollFrameTemplate")
+    self.GuildFrame.ProfilesFrame.TalentsTab.ScrollFrame:SetPoint("TOPLEFT", 2, -9)
+    self.GuildFrame.ProfilesFrame.TalentsTab.ScrollFrame:SetPoint("BOTTOMRIGHT", -30, 4)
+    self.GuildFrame.ProfilesFrame.TalentsTab.ScrollFrame:SetScript("OnMouseWheel", function(self, delta)
+        local newValue = self:GetVerticalScroll() - (delta * 20)
+        if (newValue < 0) then
+            newValue = 0;
+        elseif (newValue > self:GetVerticalScrollRange()) then
+            newValue = self:GetVerticalScrollRange()
+        end
+        self:SetVerticalScroll(newValue)
+    end)
+    local scrollChild = CreateFrame("Frame", nil, self.GuildFrame.ProfilesFrame.TalentsTab.ScrollFrame)
+    scrollChild:SetPoint("TOPLEFT", 0, 0)
+    scrollChild:SetSize(771, (Guildbook.NUM_TALENT_ROWS * 59) + 19)
+    self.GuildFrame.ProfilesFrame.TalentsTab.ScrollFrame:SetScrollChild(scrollChild)
+
+    -- create talent grid
+    self.GuildFrame.ProfilesFrame.TalentsTab.TalentGrid = {}
+    local colPoints = { 19.0, 78.0, 137.0, 196.0 }
+    local rowPoints = { 19.0, 78.0, 137.0, 196.0, 255.0, 314.0, 373.0, 432.0, 491.0, 550.0, 609.0 }
+    for spec = 1, 3 do
+        self.GuildFrame.ProfilesFrame.TalentsTab.TalentGrid[spec] = {}
+        for row = 1, Guildbook.NUM_TALENT_ROWS do
+            self.GuildFrame.ProfilesFrame.TalentsTab.TalentGrid[spec][row] = {}
+            for col = 1, 4 do
+                local f = CreateFrame('FRAME', tostring('GuildbookGuildFrameProfilesFrameTalentsTabScrollFrameTalent'..spec..row..col), scrollChild)
+                f:SetSize(40, 40)
+                f:SetPoint('TOPLEFT', (colPoints[col] + ((spec - 1) * 257.0)), rowPoints[row] * -1)
+
+                f.Icon = f:CreateTexture('$parentBackground', 'ARTWORK')
+                f.Icon:SetAllPoints(f)
+                -- f.IconBorder = f:CreateTexture('$parentBackground', 'BACKGROUND')
+                -- f.IconBorder:SetColorTexture(0,0.6,0,0.7)
+                -- f.IconBorder:SetPoint('TOPLEFT', -2, 2)
+                -- f.IconBorder:SetPoint('BOTTOMRIGHT', 2, -2)
+                -- f.IconBorder:Hide()
+                f.Name = nil
+                f.Rank = nil
+                f.MaxRank = nil
+                f.talentIndex = nil
+
+                f:SetScript('OnEnter', function(self)
+                    if self.name then
+                        GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
+                        --GameTooltip:SetSpellByID(self.spellID)
+                        GameTooltip:AddLine(self.name)
+                        GameTooltip:AddLine(string.format("|cffffffff%s / %s|r", self.rank, self.maxRank))
+                        GameTooltip:Show()
+                    else
+                        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+                    end
+                end)
+                f:SetScript('OnLeave', function(self)
+                    GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+                end)
+
+                self.GuildFrame.ProfilesFrame.TalentsTab.TalentGrid[spec][row][col] = f
+            end
+        end
+    end
+
+    function self.GuildFrame.ProfilesFrame:HideTalentGrid()
+        for spec = 1, 3 do
+            for row = 1, Guildbook.NUM_TALENT_ROWS do
+                for col = 1, 4 do
+                    self.TalentsTab.TalentGrid[spec][row][col]:Hide()
+                end
+            end
+        end
+    end
+
+    self.GuildFrame.ProfilesFrame.TalentsTab.scrollBarBackgroundTop = self.GuildFrame.ProfilesFrame.TalentsTab:CreateTexture('$parentBackgroundTop', 'ARTWORK')
+    self.GuildFrame.ProfilesFrame.TalentsTab.scrollBarBackgroundTop:SetTexture(136569)
+    self.GuildFrame.ProfilesFrame.TalentsTab.scrollBarBackgroundTop:SetPoint('TOPRIGHT', Guildbook.GuildFrame.GuildBankFrame, 'TOPRIGHT', -3, -4)
+    self.GuildFrame.ProfilesFrame.TalentsTab.scrollBarBackgroundTop:SetSize(30, 280)
+    self.GuildFrame.ProfilesFrame.TalentsTab.scrollBarBackgroundTop:SetTexCoord(0, 0.5, 0, 0.9)
+    self.GuildFrame.ProfilesFrame.TalentsTab.scrollBarBackgroundBottom = self.GuildFrame.ProfilesFrame.TalentsTab:CreateTexture('$parentBackgroundBottom', 'ARTWORK')
+    self.GuildFrame.ProfilesFrame.TalentsTab.scrollBarBackgroundBottom:SetTexture(136569)
+    self.GuildFrame.ProfilesFrame.TalentsTab.scrollBarBackgroundBottom:SetPoint('BOTTOMRIGHT', Guildbook.GuildFrame.GuildBankFrame, 'BOTTOMRIGHT', -4, 4)
+    self.GuildFrame.ProfilesFrame.TalentsTab.scrollBarBackgroundBottom:SetSize(30, 60)
+    self.GuildFrame.ProfilesFrame.TalentsTab.scrollBarBackgroundBottom:SetTexCoord(0.5, 1.0, 0.2, 0.41)
+
+    -- self.GuildFrame.ProfilesFrame.TalentsTab.ScrollBar = CreateFrame('SLIDER', 'GuildbookGuildFrameProfilesFrameTalentTabScrollBar', Guildbook.GuildFrame.ProfilesFrame.TalentsTab, "UIPanelScrollBarTemplate")
+    -- self.GuildFrame.ProfilesFrame.TalentsTab.ScrollBar:SetPoint('TOPLEFT', Guildbook.GuildFrame.ProfilesFrame.TalentsTab, 'TOPRIGHT', -24, -24)
+    -- self.GuildFrame.ProfilesFrame.TalentsTab.ScrollBar:SetPoint('BOTTOMRIGHT', Guildbook.GuildFrame.ProfilesFrame.TalentsTab, 'BOTTOMRIGHT', -8, 20)
+    -- self.GuildFrame.ProfilesFrame.TalentsTab.ScrollBar:EnableMouse(true)
+    -- self.GuildFrame.ProfilesFrame.TalentsTab.ScrollBar:SetValueStep(1)
+    -- self.GuildFrame.ProfilesFrame.TalentsTab.ScrollBar:SetValue(1)
+    -- self.GuildFrame.ProfilesFrame.TalentsTab.ScrollBar:SetMinMaxValues(1,3)
+    -- self.GuildFrame.ProfilesFrame.TalentsTab.ScrollBar:SetScript('OnValueChanged', function(self)
+        
+    -- end)
+
+    -- remove these frames
+    local w, h = 257.0, 335.0
+    local l, r, u, d = 0, 0.56, 0, 0.61
+    self.GuildFrame.ProfilesFrame.TalentsTab.Tab1 = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameTalentsTab_1', self.GuildFrame.ProfilesFrame.TalentsTab)
+    self.GuildFrame.ProfilesFrame.TalentsTab.Tab1:SetPoint('TOPLEFT', Guildbook.GuildFrame.ProfilesFrame.TalentsTab, 'TOPLEFT', 2, -2)
+    self.GuildFrame.ProfilesFrame.TalentsTab.Tab1:SetSize(w, h)
+    self.GuildFrame.ProfilesFrame.TalentsTab.Tab1.background = self.GuildFrame.ProfilesFrame.TalentsTab.Tab1:CreateTexture('$parentBackground', 'ARTWORK')
+    self.GuildFrame.ProfilesFrame.TalentsTab.Tab1.background:SetAllPoints(Guildbook.GuildFrame.ProfilesFrame.TalentsTab.Tab1)
+    self.GuildFrame.ProfilesFrame.TalentsTab.Tab1.background:SetTexCoord(l, r, u, d)
+
+    self.GuildFrame.ProfilesFrame.TalentsTab.Tab2 = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameTalentsTab_2', self.GuildFrame.ProfilesFrame.TalentsTab)
+    self.GuildFrame.ProfilesFrame.TalentsTab.Tab2:SetPoint('LEFT', Guildbook.GuildFrame.ProfilesFrame.TalentsTab.Tab1, 'RIGHT', 0, 0)
+    self.GuildFrame.ProfilesFrame.TalentsTab.Tab2:SetSize(w, h)
+    self.GuildFrame.ProfilesFrame.TalentsTab.Tab2.background = self.GuildFrame.ProfilesFrame.TalentsTab.Tab2:CreateTexture('$parentBackground', 'ARTWORK')
+    self.GuildFrame.ProfilesFrame.TalentsTab.Tab2.background:SetAllPoints(Guildbook.GuildFrame.ProfilesFrame.TalentsTab.Tab2)
+    self.GuildFrame.ProfilesFrame.TalentsTab.Tab2.background:SetTexCoord(l, r, u, d)
+
+    self.GuildFrame.ProfilesFrame.TalentsTab.Tab3 = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameTalentsTab_3', self.GuildFrame.ProfilesFrame.TalentsTab)
+    self.GuildFrame.ProfilesFrame.TalentsTab.Tab3:SetPoint('LEFT', Guildbook.GuildFrame.ProfilesFrame.TalentsTab.Tab2, 'RIGHT', 0, 0)
+    self.GuildFrame.ProfilesFrame.TalentsTab.Tab3:SetSize(w, h)
+    self.GuildFrame.ProfilesFrame.TalentsTab.Tab3.background = self.GuildFrame.ProfilesFrame.TalentsTab.Tab3:CreateTexture('$parentBackground', 'ARTWORK')
+    self.GuildFrame.ProfilesFrame.TalentsTab.Tab3.background:SetAllPoints(Guildbook.GuildFrame.ProfilesFrame.TalentsTab.Tab3)
+    self.GuildFrame.ProfilesFrame.TalentsTab.Tab3.background:SetTexCoord(l, r, u, d)
 
 
 
 end
-]]--

@@ -220,6 +220,93 @@ Guildbook.Data.Class = {
     },
 }
 
+Guildbook.Data.Talents = {
+    DEATHKNIGHT = {
+        [1] = "DeathKnightBlood", 
+        [2] = "DeathKnightFrost", 
+        [3] = "DeathKnightUnholy",
+    },
+	DRUID = {
+        [1] = "DruidBalance", 
+        [2] = "DruidFeralCombat", 
+        [3] = "DruidRestoration",
+    },
+	HUNTER = {
+        [1] = "HunterBeastMastery", 
+        [2] = "HunterMarksmanship", 
+        [3] = "HunterSurvival",
+    },
+--	"HunterPetCunning", "HunterPetFerocity", "HunterPetTenacity",},
+	MAGE = {
+        [1] = "MageArcane", 
+        [2] = "MageFire", 
+        [3] = "MageFrost",
+    },
+	PALADIN = {
+        [1] = "PaladinHoly", 
+        [2] = "PaladinProtection",
+        [3] = "PaladinCombat",
+    },
+	PRIEST = {
+        [1] = "PriestDiscipline", 
+        [2] = "PriestHoly", 
+        [3] = "PriestShadow",
+    },
+	ROGUE = {
+        [1] = "RogueAssassination", 
+        [2] = "RogueCombat", 
+        [3] = "RogueSubtlety",
+    },
+	SHAMAN = {
+        [1] = "ShamanElementalCombat", 
+        [2] = "ShamanEnhancement", 
+        [3] = "ShamanRestoration",
+    },
+	WARLOCK = {
+        [1] = "WarlockCurses", 
+        [2] = "WarlockSummoning", 
+        [3] = "WarlockDestruction",
+    },
+	WARRIOR = {
+        [1] = "WarriorArms", 
+        [2] = "WarriorFury", 
+        [3] = "WarriorProtection",
+    },
+}
+
+Guildbook.Data.TalentBackgrounds = {
+	["DeathKnightBlood"] = "Interface\\Addons\\Guildbook\\Icons\\Specialization\\DEATHKNIGHT\\Blood", 
+	["DeathKnightFrost"] = "Interface\\Addons\\Guildbook\\Icons\\Specialization\\DEATHKNIGHT\\Frost", 
+	["DeathKnightUnholy"] = "Interface\\Addons\\Guildbook\\Icons\\Specialization\\DEATHKNIGHT\\Unholy", 
+	["DruidBalance"] = "Interface\\Addons\\Guildbook\\Icons\\Specialization\\DRUID\\Balance",  
+	["DruidFeralCombat"] = "Interface\\Addons\\Guildbook\\Icons\\Specialization\\DRUID\\Bear", 
+	["DruidRestoration"] = "Interface\\Addons\\Guildbook\\Icons\\Specialization\\DRUID\\Restoration", 
+	["HunterBeastMastery"] = "Interface\\Addons\\Guildbook\\Icons\\Specialization\\HUNTER\\BeastMaster", 
+	["HunterMarksmanship"] = "Interface\\Addons\\Guildbook\\Icons\\Specialization\\HUNTER\\Marksmanship",  
+	["HunterSurvival"] = "Interface\\Addons\\Guildbook\\Icons\\Specialization\\HUNTER\\Survival", 
+	["MageArcane"] = "Interface\\Addons\\Guildbook\\Icons\\Specialization\\MAGE\\Arcane", 
+	["MageFire"] = "Interface\\Addons\\Guildbook\\Icons\\Specialization\\MAGE\\Fire",  
+	["MageFrost"] = "Interface\\Addons\\Guildbook\\Icons\\Specialization\\MAGE\\Frost", 
+	["PaladinCombat"] = "Interface\\Addons\\Guildbook\\Icons\\Specialization\\PALADIN\\Retribution",  
+	["PaladinHoly"] = "Interface\\Addons\\Guildbook\\Icons\\Specialization\\PALADIN\\Holy",  
+	["PaladinProtection"] = "Interface\\Addons\\Guildbook\\Icons\\Specialization\\PALADIN\\Protection", 
+	["PriestDiscipline"] = "Interface\\Addons\\Guildbook\\Icons\\Specialization\\PRIEST\\Discipline",  
+	["PriestHoly"] = "Interface\\Addons\\Guildbook\\Icons\\Specialization\\PRIEST\\Holy",  
+	["PriestShadow"] = "Interface\\Addons\\Guildbook\\Icons\\Specialization\\PRIEST\\Shadow", 
+	["RogueAssassination"] = "Interface\\Addons\\Guildbook\\Icons\\Specialization\\ROGUE\\Assassination",  
+	["RogueCombat"] = "Interface\\Addons\\Guildbook\\Icons\\Specialization\\ROGUE\\Combat",  
+	["RogueSubtlety"] = "Interface\\Addons\\Guildbook\\Icons\\Specialization\\ROGUE\\Subtlety", 
+	["ShamanElementalCombat"] = "Interface\\Addons\\Guildbook\\Icons\\Specialization\\SHAMAN\\Elemental", 
+	["ShamanEnhancement"] = "Interface\\Addons\\Guildbook\\Icons\\Specialization\\SHAMAN\\Enhancement",  
+	["ShamanRestoration"] = "Interface\\Addons\\Guildbook\\Icons\\Specialization\\SHAMAN\\Restoration", 
+	["WarlockCurses"] = "Interface\\Addons\\Guildbook\\Icons\\Specialization\\WARLOCK\\Affliction",  
+	["WarlockDestruction"] = "Interface\\Addons\\Guildbook\\Icons\\Specialization\\WARLOCK\\Destruction",  
+	["WarlockSummoning"] = "Interface\\Addons\\Guildbook\\Icons\\Specialization\\WARLOCK\\Demonology", 
+	["WarriorArms"] = "Interface\\Addons\\Guildbook\\Icons\\Specialization\\WARRIOR\\Arms",  
+	["WarriorFury"] = "Interface\\Addons\\Guildbook\\Icons\\Specialization\\WARRIOR\\Fury",  
+	["WarriorProtection"] = "Interface\\Addons\\Guildbook\\Icons\\Specialization\\WARRIOR\\Protection", 
+}
+
 Guildbook.Data.Profession = {
     ['-'] = { 
         ID = 0, 
