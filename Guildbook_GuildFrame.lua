@@ -1480,6 +1480,7 @@ Click the character to view the recipe item in their 'Professions' tab.
     function self.GuildFrame.ProfilesFrame:LoadCharacterTalents(talents)
         for k, info in ipairs(talents) do
             --print(info.Name, info.Rank, info.MaxRank, info.Icon, info.Tab, info.Row, info.Col)
+            DEBUG('load talents', info.Name..', '..info.Rank..', '..info.Row..', '..info.Col)
             if self.TalentsTab.TalentGrid[info.Tab] and self.TalentsTab.TalentGrid[info.Tab][info.Row] then
                 self.TalentsTab.TalentGrid[info.Tab][info.Row][info.Col]:Show()
                 self.TalentsTab.TalentGrid[info.Tab][info.Row][info.Col].Icon:SetTexture(info.Icon)

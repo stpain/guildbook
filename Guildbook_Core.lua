@@ -692,6 +692,7 @@ end
 -- talent comms
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function Guildbook:SendTalentInfoRequest(target, spec)
+    print(target, spec)
     local request = {
         type = "TALENT_INFO_REQUEST",
         payload = spec, -- dual spec future feature
@@ -700,7 +701,7 @@ function Guildbook:SendTalentInfoRequest(target, spec)
     DEBUG_COMMS('SendTalentInfoRequest', string.format('sent request for talents from %s', target))
 end
 
-function Guildbook:TALENT_INFO_REQUEST(request, distribution, sender)
+function Guildbook:OnTalentInfoRequest(request, distribution, sender)
     if distribution ~= "WHISPER" then
         return
     end
@@ -709,11 +710,11 @@ function Guildbook:TALENT_INFO_REQUEST(request, distribution, sender)
         type = "TALENT_INFO_RESPONSE",
         payload = talents,
     }
-    self:Transmit(response, distribution, sender, "BULK")
-    DEBUG_COMMS('TALENT_INFO_REQUEST', string.format('sending %s data to %s', 'talents info', sender))
+    self:Transmit(response, 'WHIPSER', sender, "BULK")
+    DEBUG_COMMS('OnTalentInfoRequest', string.format('sending %s data to %s', 'talents info', sender))
 end
 
-function Guildbook:TALENT_INFO_RESPONSE(data, distribution, sender)
+function Guildbook:OnTalentInfoReceived(data, distribution, sender)
     if distribution ~= "WHISPER" then
         return
     end
@@ -1407,10 +1408,12 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
         self:SendGuildCalendarDeletedEvents()
 
     elseif data.type == 'TALENT_INFO_REQUEST' then
-        self:TALENT_INFO_REQUEST(data, distribution, sender)
+        print('comms')
+        self:OnTalentInfoRequest(data, distribution, sender)
 
     elseif data.type == 'TALENT_INFO_RESPONSE' then
-        self:TALENT_INFO_RESPONSE(data, distribution, sender)
+        print('comms response')
+        self:OnTalentInfoReceived(data, distribution, sender)
 
     end
 end
