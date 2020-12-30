@@ -336,6 +336,7 @@ function Guildbook:ModBlizzUI()
     local function toggleGuildFrames(frame)
         for f, _ in pairs(Guildbook.GuildFrame.Frames) do
             _G['GuildbookGuildFrame'..f]:Hide()
+            --Guildbook.GuildFrame[f].helpIcon:Hide()
         end
         if frame == 'none' then
             for i = 1, 13 do
@@ -349,6 +350,7 @@ function Guildbook:ModBlizzUI()
             end
             GuildFrameLFGFrame:Hide()
             Guildbook.GuildFrame[frame]:Show()
+            --Guildbook.GuildFrame[frame].helpIcon:Show()
         end
     end
 

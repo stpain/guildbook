@@ -34,6 +34,8 @@ local DEBUG = Guildbook.DEBUG
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function Guildbook:SetupStatsFrame()
 
+    --self.GuildFrame.StatsFrame.helpIcon = Guildbook:CreateHelperIcon(self.GuildFrame.StatsFrame, 'BOTTOMRIGHT', Guildbook.GuildFrame.StatsFrame, 'TOPRIGHT', -2, 2, 'Stats')
+
     -- this value is used to adjust the colours of the pie charts, makes them less windows 98
     local segCol = 0.66
 
@@ -400,24 +402,11 @@ to see a list of members who have that profession.
 When you select a guild member Guildbook will either use 
 data saved on file or request data from the member.|r
 
-|cff06B200If recipes do not show correctly selecting the 
-player again will usually fix the UI.|r
+|cff06B200If recipes do not show correctly right click the 
+character and select|r |cffffffff'Request data'.|r
 ]]
 
-    self.GuildFrame.TradeSkillFrame.HelperIcon = CreateFrame('FRAME', 'GuildbookGuildInfoFrameTradeSkillFrameHelperIcon', self.GuildFrame.TradeSkillFrame)
-    self.GuildFrame.TradeSkillFrame.HelperIcon:SetPoint('BOTTOMRIGHT', Guildbook.GuildFrame.TradeSkillFrame, 'TOPRIGHT', -2, 2)
-    self.GuildFrame.TradeSkillFrame.HelperIcon:SetSize(20, 20)
-    self.GuildFrame.TradeSkillFrame.HelperIcon.texture = self.GuildFrame.TradeSkillFrame.HelperIcon:CreateTexture('$parentTexture', 'ARTWORK')
-    self.GuildFrame.TradeSkillFrame.HelperIcon.texture:SetAllPoints(self.GuildFrame.TradeSkillFrame.HelperIcon)
-    self.GuildFrame.TradeSkillFrame.HelperIcon.texture:SetTexture(374216)
-    self.GuildFrame.TradeSkillFrame.HelperIcon:SetScript('OnEnter', function(self)
-        GameTooltip:SetOwner(self, 'ANCHOR_BOTTOMRIGHT')
-        GameTooltip:AddLine(helpText)
-        GameTooltip:Show()
-    end)
-    self.GuildFrame.TradeSkillFrame.HelperIcon:SetScript('OnLeave', function(self)
-        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-    end)
+    self.GuildFrame.TradeSkillFrame.helpIcon = Guildbook:CreateHelperIcon(self.GuildFrame.TradeSkillFrame, 'BOTTOMRIGHT', Guildbook.GuildFrame.TradeSkillFrame, 'TOPRIGHT', -2, 2, helpText)
 
     -- hmmm? char not used but prof is - consider better
     local selectedCharacter = nil
@@ -504,7 +493,7 @@ player again will usually fix the UI.|r
                 Guildbook.GuildFrame.TradeSkillFrame.ProfessionIcon:SetTexture(Guildbook.Data.Profession[prof.Name].Icon)
                 Guildbook.GuildFrame.TradeSkillFrame.ProfessionDescription:SetText('|cffffffff'..Guildbook.Data.ProfessionDescriptions[prof.Name]..'|r')
                 Guildbook.GuildFrame.TradeSkillFrame.RecipesTable = {}
-                DEBUG('selected '..prof.Name)
+                DEBUG('SetupTradeSkillFrame', 'selected '..prof.Name)
             end)
             profButtonPosY = profButtonPosY + 23.1
             self.GuildFrame.TradeSkillFrame.ProfessionButtons[x] = f
@@ -598,12 +587,12 @@ player again will usually fix the UI.|r
                     local guildName = Guildbook:GetGuildName()
                     -- if we have any recipes already on file, load these, this avoids sending additional chat messages, updates can be requested
                     if guildName and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][self.data.GUID][selectedProfession] and type(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][self.data.GUID][selectedProfession]) == 'table' then
-                        DEBUG('recipe database found on file, loading data for: '..selectedProfession)
+                        DEBUG('SetupTradeSkillFrame', 'recipe database found on file, loading data for: '..selectedProfession)
                         Guildbook.GuildFrame.TradeSkillFrame.RecipesTable = GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][self.data.GUID][selectedProfession]
                         Guildbook.GuildFrame.TradeSkillFrame:SetRecipesListviewData(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][self.data.GUID][selectedProfession], nil)
                     else
                         -- send request and show cooldown UI so player is aware something is happening
-                        DEBUG('no data on file, sending request to: '..self.data.Name..' for data: '..selectedProfession)
+                        DEBUG('SetupTradeSkillFrame', 'no data on file, sending request to: '..self.data.Name..' for data: '..selectedProfession)
                         Guildbook.GuildFrame.TradeSkillFrame:RequestProfessionData(self.data.Name, selectedProfession)
                     end
                 end
@@ -645,19 +634,19 @@ player again will usually fix the UI.|r
     end
 
     function self.GuildFrame.TradeSkillFrame:GetPlayersWithProf(prof)
-        DEBUG('getting players with prof '..prof)
+        DEBUG('TradeSkillFrame:GetPlayersWithProf', 'getting players with prof '..prof)
         local guildName = Guildbook:GetGuildName()
         if guildName and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
             wipe(self.CharactersWithProf)
             for guid, character in pairs(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName]) do
                 if (character.Profession1 == prof) or (character.Profession2 == prof) then
-                    DEBUG('found matching profession with '..character.Name)
+                    DEBUG('TradeSkillFrame:GetPlayersWithProf', 'found matching profession with '..character.Name)
                     table.insert(self.CharactersWithProf, {
                         Name = character.Name,
                         GUID = guid,
                         Selected = false,
                     })
-                    DEBUG('added '..character.Name..' to list')
+                    DEBUG('TradeSkillFrame:GetPlayersWithProf', 'added '..character.Name..' to list')
                 end
                 if prof == 'Cooking' and character.CookingLevel and tonumber(character.CookingLevel) > 0.0 then
                     table.insert(self.CharactersWithProf, {
@@ -665,7 +654,7 @@ player again will usually fix the UI.|r
                         GUID = guid,
                         Selected = false,
                     })
-                    DEBUG('added '..character.Name..' to list')
+                    DEBUG('TradeSkillFrame:GetPlayersWithProf', 'added '..character.Name..' to list')
                 end
             end
             local c = #self.CharactersWithProf
@@ -674,12 +663,12 @@ player again will usually fix the UI.|r
                 -- self.CharactersListviewScrollBar:SetValue(2)
                 -- self.CharactersListviewScrollBar:SetValue(1)
                 self.CharactersListviewScrollBar:SetMinMaxValues(1, 1)
-                DEBUG('set minmax to 1,1')
+                DEBUG('TradeSkillFrame:GetPlayersWithProf', 'set minmax to 1,1')
             else
                 self.CharactersListviewScrollBar:SetMinMaxValues(1, (c - 9))
                 -- self.CharactersListviewScrollBar:SetValue(2)
                 -- self.CharactersListviewScrollBar:SetValue(1)
-                DEBUG('set minmax to 1,'..(c-9))
+                DEBUG('TradeSkillFrame:GetPlayersWithProf', 'set minmax to 1,'..(c-9))
             end
         end
     end
@@ -840,11 +829,6 @@ player again will usually fix the UI.|r
         wipe(self.Recipes)
     end
 
-    -- function self.GuildFrame.TradeSkillFrame:ShowRecipesListviewRows()
-    --     for i = 1, 10 do
-    --         self.RecipesListviewRows[i]:Show()
-    --     end
-    -- end
 
     function self.GuildFrame.TradeSkillFrame:RefreshListview()
         if next(self.Recipes) then
@@ -893,7 +877,7 @@ player again will usually fix the UI.|r
                 ItemID = reagentID,
                 Count = tonumber(count),
             })
-            DEBUG(string.format('add %s to reagents list', reagentID))
+            --DEBUG('TradeSkillFrame:AddRecipe', string.format('add %s to reagents list', reagentID))
         end
         if filter == nil then
             table.insert(self.Recipes, recipeItem)
@@ -921,7 +905,7 @@ player again will usually fix the UI.|r
                     name = select(1, GetSpellInfo(itemID)) or 'unknown'
                     icon = select(3, GetSpellInfo(itemID)) or 134400
                     enchant = true
-                    DEBUG(string.format('added enchant %s with rarity %s and icon %s', link, rarity, icon))
+                    DEBUG('TradeSkillFrame:SetRecipesListviewData', string.format('added enchant %s with rarity %s and icon %s', link, rarity, icon))
                 else
                     link = select(2, GetItemInfo(itemID))
                     rarity = select(3, GetItemInfo(itemID))
@@ -1081,7 +1065,7 @@ player again will usually fix the UI.|r
     end
 
     self.GuildFrame.TradeSkillFrame:SetScript('OnShow', function(self)
-        DEBUG('showing tradeskill frame')
+        DEBUG('TradeSkillFrame OnShow','showing tradeskill frame')
         self:HideCharacterListviewButtons()
         self:ClearRecipesListview()
         self:ClearReagentsListview()
@@ -1099,6 +1083,8 @@ end
 -- guild bank frame
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function Guildbook:SetupGuildBankFrame()
+
+    --self.GuildFrame.GuildBankFrame.helpIcon = Guildbook:CreateHelperIcon(self.GuildFrame.GuildBankFrame, 'BOTTOMRIGHT', Guildbook.GuildFrame.GuildBankFrame, 'TOPRIGHT', -2, 2, 'Bank')
 
     self.GuildFrame.GuildBankFrame.bankCharacter = nil
 
@@ -1157,7 +1143,7 @@ function Guildbook:SetupGuildBankFrame()
                         Guildbook.GuildFrame.GuildBankFrame.ProgressCooldown:Hide()
                         if Guildbook.GuildBankCommit.Character and Guildbook.GuildBankCommit.Commit and Guildbook.GuildBankCommit.BankCharacter then
                             Guildbook:SendGuildBankDataRequest()
-                            DEBUG(string.format('using %s as has newest commit, sending request for guild bank data - delayed', Guildbook.GuildBankCommit['BankCharacter']))
+                            DEBUG('GuildBankFrame:BankCharacterSelectDropDown_Init', string.format('using %s as has newest commit, sending request for guild bank data - delayed', Guildbook.GuildBankCommit['BankCharacter']))
                             local ts = date('*t', Guildbook.GuildBankCommit.Commit)
                             ts.min = string.format('%02d', ts.min)
                             Guildbook.GuildFrame.GuildBankFrame.CommitInfo:SetText(string.format('Commit: %s:%s:%s  %s-%s-%s', ts.hour, ts.min, ts.sec, ts.day, ts.month, ts.year))
@@ -1165,7 +1151,7 @@ function Guildbook:SetupGuildBankFrame()
                             Guildbook.GuildFrame.GuildBankFrame.CommitBankCharacter:SetText(string.format('Bank Character: %s', Guildbook.GuildBankCommit.BankCharacter))
                         end
                     end)
-                    DEBUG('requesting guild bank data from: '..p)
+                    DEBUG('GuildBankFrame:BankCharacterSelectDropDown_Init', 'requesting guild bank data from: '..p)
                 end
                 UIDropDownMenu_AddButton(info)
             end
@@ -1281,7 +1267,7 @@ function Guildbook:SetupGuildBankFrame()
         table.sort(Guildbook.GuildFrame.GuildBankFrame.BankData, function(a, b)
             return a.Class < b.Class
         end)
-        DEBUG(string.format('processed %s bank items from data', c))
+        DEBUG('GuildBankFrame:ProcessBankData', string.format('processed %s bank items from data', c))
         self.BankSlotsScrollBar:SetValue(1)
     end
 
@@ -1313,7 +1299,7 @@ function Guildbook:SetupGuildBankFrame()
                     self.BankSlots[i].icon:SetTexture(C_Item.GetItemIconByID(item.ItemID))
                     self.BankSlots[i].count:SetText(item.Count)
                     self.BankSlots[i].itemID = item.ItemID
-                    --DEBUG(string.format('updating slot %s with item id %s', i, item.ItemID))
+                    --DEBUG('GuildBankFrame:RefreshSlots', string.format('updating slot %s with item id %s', i, item.ItemID))
                 else
                     self.BankSlots[i].icon:SetTexture(nil)
                     self.BankSlots[i].count:SetText(' ')
@@ -1335,6 +1321,8 @@ end
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 function Guildbook:SetupGuildCalendarFrame()
+
+    --self.GuildFrame.GuildCalendarFrame.helpIcon = Guildbook:CreateHelperIcon(self.GuildFrame.GuildCalendarFrame, 'BOTTOMRIGHT', Guildbook.GuildFrame.GuildCalendarFrame, 'TOPRIGHT', -2, 2, 'Calendar')
 
     self.GuildFrame.GuildCalendarFrame.date = date('*t')
 
@@ -2139,7 +2127,7 @@ function Guildbook:SetupGuildCalendarFrame()
                 for k, event in pairs(GUILDBOOK_GLOBAL['Calendar'][guildName]) do
                     if event.date.day == date.day and event.date.month == date.month and event.date.year == date.year then
                         table.insert(events, event)
-                        DEBUG('found: '..event.title)
+                        DEBUG('GuildCalendarFrame:GetEventsForDate', 'found: '..event.title)
                     end
                 end
             end
@@ -2180,20 +2168,7 @@ is to prevent players changing a reserve if they win an item early
 during a raid.|r
     ]]
         
-    self.GuildFrame.SoftReserveFrame.HelperIcon = CreateFrame('FRAME', 'GuildbookGuildInfoFrameTradeSkillFrameHelperIcon', self.GuildFrame.SoftReserveFrame)
-    self.GuildFrame.SoftReserveFrame.HelperIcon:SetPoint('BOTTOMRIGHT', Guildbook.GuildFrame.SoftReserveFrame, 'TOPRIGHT', -2, 2)
-    self.GuildFrame.SoftReserveFrame.HelperIcon:SetSize(20, 20)
-    self.GuildFrame.SoftReserveFrame.HelperIcon.texture = self.GuildFrame.SoftReserveFrame.HelperIcon:CreateTexture('$parentTexture', 'ARTWORK')
-    self.GuildFrame.SoftReserveFrame.HelperIcon.texture:SetAllPoints(self.GuildFrame.SoftReserveFrame.HelperIcon)
-    self.GuildFrame.SoftReserveFrame.HelperIcon.texture:SetTexture(374216)
-    self.GuildFrame.SoftReserveFrame.HelperIcon:SetScript('OnEnter', function(self)
-        GameTooltip:SetOwner(self, 'ANCHOR_BOTTOMRIGHT')
-        GameTooltip:AddLine(helpText)
-        GameTooltip:Show()
-    end)
-    self.GuildFrame.SoftReserveFrame.HelperIcon:SetScript('OnLeave', function(self)
-        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-    end)
+    self.GuildFrame.SoftReserveFrame.helpIcon = Guildbook:CreateHelperIcon(self.GuildFrame.SoftReserveFrame, 'BOTTOMRIGHT', Guildbook.GuildFrame.SoftReserveFrame, 'TOPRIGHT', -2, 2, helptext)
 
     self.GuildFrame.SoftReserveFrame.SelectedRaid = nil
 
@@ -2418,59 +2393,50 @@ end
 
 function Guildbook:SetupProfilesFrame()
 
+    local helpText = [[
+Guildbook.
+|cffffffffYou can search for characters or items using Guildbook.
+
+When you search a drop-down list will show possible matches, this list is
+limited and if the results count exceeds the limit it won't show, so if 
+nothing appears keep typing to narrow the results.
+
+Recipe items will show a sub menu of characters who can craft the item.
+Click the character to view the recipe item in their 'Professions' tab.
+]]
+
+    self.GuildFrame.ProfilesFrame.helpIcon = Guildbook:CreateHelperIcon(self.GuildFrame.ProfilesFrame, 'BOTTOMRIGHT', Guildbook.GuildFrame.ProfilesFrame, 'TOPRIGHT', -2, 2, helpText)
+
     self.GuildFrame.ProfilesFrame:SetScript('OnShow', function(self)
         self.SearchBox:SetText('Search for...')
-        PanelTemplates_SetNumTabs(Guildbook.GuildFrame.ProfilesFrame, 2);
+        PanelTemplates_SetNumTabs(Guildbook.GuildFrame.ProfilesFrame, 3);
         PanelTemplates_SetTab(Guildbook.GuildFrame.ProfilesFrame, 1);
         self.DetailsTab:Show()
         self.TalentsTab:Hide()
         self:HideTalentGrid()
-        self:LoadCharacterDetails(UnitGUID('player'))
+        --self:LoadCharacterDetails(UnitGUID('player'))
     end)
 
-    self.GuildFrame.ProfilesFrame.SearchClassCheckbox = CreateFrame("CheckButton", 'GuildbookGuildFrameProfilesFrameSearchClassCheckbox', self.GuildFrame.ProfilesFrame, "ChatConfigCheckButtonTemplate")
-    self.GuildFrame.ProfilesFrame.SearchClassCheckbox:SetPoint('TOPLEFT', 60, 22)
-    self.GuildFrame.ProfilesFrame.SearchClassCheckbox:SetHitRectInsets(0,0,-30,0)
-    _G['GuildbookGuildFrameProfilesFrameSearchClassCheckboxText']:SetText('Class')
-    self.GuildFrame.ProfilesFrame.SearchClassCheckbox:SetChecked(false)
-    self.GuildFrame.ProfilesFrame.SearchClassCheckbox:SetScript('OnClick', function(self)
-        --self:GetChecked()
-    end)
-    self.GuildFrame.ProfilesFrame.SearchClassCheckbox.tooltip = [[
-Class.
-|cffffffffInclude character with a class match in the search results|r.
-]]
-
-    self.GuildFrame.ProfilesFrame.SearchMainSpecCheckbox = CreateFrame("CheckButton", 'GuildbookGuildFrameProfilesFrameSearchMainSpecCheckbox', self.GuildFrame.ProfilesFrame, "ChatConfigCheckButtonTemplate")
-    self.GuildFrame.ProfilesFrame.SearchMainSpecCheckbox:SetPoint('LEFT', Guildbook.GuildFrame.ProfilesFrame.SearchClassCheckbox, 'RIGHT', 60, 0)
-    self.GuildFrame.ProfilesFrame.SearchMainSpecCheckbox:SetHitRectInsets(0,0,-30,0)
-    _G['GuildbookGuildFrameProfilesFrameSearchMainSpecCheckboxText']:SetText('Spec')
-    self.GuildFrame.ProfilesFrame.SearchMainSpecCheckbox:SetChecked(false)
-    self.GuildFrame.ProfilesFrame.SearchMainSpecCheckbox:SetScript('OnClick', function(self)
-        --self:GetChecked()
-    end)
-    self.GuildFrame.ProfilesFrame.SearchMainSpecCheckbox.tooltip = [[
-Specialization.
-|cffffffffInclude characters with a main spec match in the search results|r.
-]]
-
-    self.GuildFrame.ProfilesFrame.SearchProfessionCheckbox = CreateFrame("CheckButton", 'GuildbookGuildFrameProfilesFrameSearchProfessionCheckbox', self.GuildFrame.ProfilesFrame, "ChatConfigCheckButtonTemplate")
-    self.GuildFrame.ProfilesFrame.SearchProfessionCheckbox:SetPoint('LEFT', Guildbook.GuildFrame.ProfilesFrame.SearchMainSpecCheckbox, 'RIGHT', 60, 0)
-    self.GuildFrame.ProfilesFrame.SearchProfessionCheckbox:SetHitRectInsets(0,0,-30,0)
-    _G['GuildbookGuildFrameProfilesFrameSearchProfessionCheckboxText']:SetText('Profession')
-    self.GuildFrame.ProfilesFrame.SearchProfessionCheckbox:SetChecked(false)
-    self.GuildFrame.ProfilesFrame.SearchProfessionCheckbox:SetScript('OnClick', function(self)
-        --self:GetChecked()
-    end)
-    self.GuildFrame.ProfilesFrame.SearchProfessionCheckbox.tooltip = [[
-Profession.
-|cffffffffInclude characters with a profession match in the search results|r.
-]]
+    
+--     self.GuildFrame.ProfilesFrame.SearchClassCheckbox = CreateFrame("CheckButton", 'GuildbookGuildFrameProfilesFrameSearchClassCheckbox', self.GuildFrame.ProfilesFrame, "ChatConfigCheckButtonTemplate")
+--     self.GuildFrame.ProfilesFrame.SearchClassCheckbox:SetPoint('TOPLEFT', 60, 22)
+--     self.GuildFrame.ProfilesFrame.SearchClassCheckbox:SetHitRectInsets(0,0,-30,0)
+--     _G['GuildbookGuildFrameProfilesFrameSearchClassCheckboxText']:SetText('Class')
+--     self.GuildFrame.ProfilesFrame.SearchClassCheckbox:SetChecked(false)
+--     self.GuildFrame.ProfilesFrame.SearchClassCheckbox:SetScript('OnClick', function(self)
+--         --self:GetChecked()
+--     end)
+--     self.GuildFrame.ProfilesFrame.SearchClassCheckbox.tooltip = [[
+-- Class.
+-- |cffffffffInclude character with a class match in the search results|r.
+-- ]]
 
     local searchResults = {}
+    local characterResults, professionResults, specResults, recipeResults = {}, {}, {}, {}
     self.GuildFrame.ProfilesFrame.SearchBox = CreateFrame('EDITBOX', 'GuildbookGuildFrameProfilesFrameSearchBox', self.GuildFrame.ProfilesFrame, "InputBoxTemplate")
-    self.GuildFrame.ProfilesFrame.SearchBox:SetPoint('LEFT', Guildbook.GuildFrame.ProfilesFrame.SearchProfessionCheckbox, 'RIGHT', 100, 0)
-    self.GuildFrame.ProfilesFrame.SearchBox:SetSize(200, 22)
+    --self.GuildFrame.ProfilesFrame.SearchBox:SetPoint('LEFT', Guildbook.GuildFrame.ProfilesFrame.SearchProfessionCheckbox, 'RIGHT', 100, 0)
+    self.GuildFrame.ProfilesFrame.SearchBox:SetPoint('TOP', -50, 22)
+    self.GuildFrame.ProfilesFrame.SearchBox:SetSize(300, 22)
     self.GuildFrame.ProfilesFrame.SearchBox:ClearFocus()
     self.GuildFrame.ProfilesFrame.SearchBox:SetAutoFocus(false)
     self.GuildFrame.ProfilesFrame.SearchBox:SetMaxLetters(15)
@@ -2488,46 +2454,134 @@ Profession.
     function self.GuildFrame.ProfilesFrame:SearchText_OnChanged(text)
         if text:len() > 2 then
             wipe(searchResults)
+            wipe(characterResults)
+            wipe(recipeResults)
             local guildName = Guildbook:GetGuildName()
             local match = false
             if guildName then
-                for guid, info in pairs(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName]) do
-                    if (info.Name:lower():find(text:lower())) then
-                        match = true
+                local characterName
+                for guid, character in pairs(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName]) do
+                    if not Guildbook.PlayerMixin then
+                        Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
+                    else
+                        Guildbook.PlayerMixin:SetGUID(guid)
                     end
-                    if (self.SearchClassCheckbox:GetChecked() == true) and (info.Class:lower():find(text:lower())) then
-                        match = true
+                    if Guildbook.PlayerMixin:IsValid() then
+                        characterName = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
                     end
-                    if (self.SearchMainSpecCheckbox:GetChecked() == true) and (info.MainSpec:lower():find(text:lower())) then
-                        match = true
-                    end
-                    if (self.SearchProfessionCheckbox:GetChecked() == true) then
-                        if (info.Profession1:lower():find(text:lower())) or (info.Profession2:lower():find(text:lower())) then
-                            match = true
+                    -- search professions for recipe item match
+                    if character.Profession1 ~= '-' then
+                        local prof = tostring(character.Profession1)
+                        if character[prof] then
+                            for itemID, reagents in pairs(character[prof]) do
+                                local itemName
+                                if prof == 'Enchanting' then
+                                    itemName = select(1, GetSpellInfo(itemID))
+                                else
+                                    itemName = select(1, GetItemInfo(itemID))
+                                end
+                                if itemName and itemName:lower():find(text:lower()) then
+                                    if not recipeResults[itemName] then
+                                        recipeResults[itemName] = {}
+                                    end
+                                    table.insert(recipeResults[itemName], {
+                                        GUID = guid,
+                                        Name = characterName,
+                                    })
+                                    --DEBUG('Search', itemName..'-'..characterName..' inserted')
+                                end
+                            end
                         end
                     end
-                    if match == true then
-                        table.insert(searchResults, {
-                            text = info.Name,
-                            isTitle = false,
-                            notCheckable = true,
-                            icon = Guildbook.Data.Class[info.Class].IconID,
-                            func = function()
-                                Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(guid)
-                                Guildbook.GuildFrame.ProfilesFrame.SearchBox:ClearFocus()
+                    if character.Profession2 ~= '-' then
+                        local prof = tostring(character.Profession2)
+                        if character[prof] then
+                            for itemID, reagents in pairs(character[prof]) do
+                                local itemName
+                                if prof == 'Enchanting' then
+                                    itemName = select(1, GetSpellInfo(itemID))
+                                else
+                                    itemName = select(1, GetItemInfo(itemID))
+                                end
+                                if itemName and itemName:lower():find(text:lower()) then
+                                    if not recipeResults[itemName] then
+                                        recipeResults[itemName] = {}
+                                    end
+                                    table.insert(recipeResults[itemName], {
+                                        GUID = guid,
+                                        Name = characterName,
+                                    })
+                                    --DEBUG('Search', itemName..'-'..characterName..' inserted')
+                                end
                             end
+                        end
+                    end
+                    -- search characters
+                    if (character.Name:lower():find(text:lower())) then
+                        table.insert(characterResults, {
+                            GUID = guid,
+                            Name = characterName,
                         })
                     end
-                    match = false
+
+                    searchResults = {
+                        {
+                            text = 'Characters',
+                            isTitle = true,
+                            notCheckable = true,
+                        },
+                    }
+                    if next(characterResults) then
+                        for k, info in ipairs(characterResults) do
+                            table.insert(searchResults, {
+                                text = info.Name,
+                                notCheckable = true,
+                                func = function()
+                                    Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(info.GUID, itemName)
+                                    Guildbook.GuildFrame.ProfilesFrame.SearchBox:ClearFocus()
+                                end,
+                            })
+                        end
+                    end
+                    table.insert(searchResults, {
+                        text = 'Recipe Items',
+                        isTitle = true,
+                        notCheckable = true,
+                    })
+                    if next(recipeResults) then
+                        for itemName, characters in pairs(recipeResults) do
+                            local characterList = {}
+                            for k, info in ipairs(characters) do
+                                table.insert(characterList, {
+                                    text = info.Name,
+                                    notCheckable = true,
+                                    func = function()
+                                        Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(info.GUID, itemName)
+                                        Guildbook.GuildFrame.ProfilesFrame.SearchBox:ClearFocus()
+                                        PanelTemplates_SetTab(Guildbook.GuildFrame.ProfilesFrame, 3)
+                                    end,
+                                })
+                            end
+                            table.insert(searchResults, {
+                                text = itemName,
+                                notCheckable = true,
+                                hasArrow = true,
+                                menuList = characterList
+                            })
+                        end
+                    end
                 end
             end
-            EasyMenu(searchResults, Guildbook.ContextMenu_DropDown, Guildbook.GuildFrame.ProfilesFrame.SearchBox, -10, 0)
+            -- monitor this limit
+            if #searchResults < 60 then
+                EasyMenu(searchResults, Guildbook.ContextMenu_DropDown, Guildbook.GuildFrame.ProfilesFrame.SearchBox, -10, 0)
+            end
         else
             CloseDropDownMenus()
         end
     end
 
-    function self.GuildFrame.ProfilesFrame:LoadCharacterDetails(guid)
+    function self.GuildFrame.ProfilesFrame:LoadCharacterDetails(guid, recipeFilter)
         self:HideTalentGrid()
         if not Guildbook.PlayerMixin then
             Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
@@ -2552,7 +2606,34 @@ Profession.
             self.TalentsTab.Tab3.background:SetTexture(Guildbook.Data.TalentBackgrounds[Guildbook.Data.Talents[class][3]])
 
             Guildbook:SendTalentInfoRequest(name, 1)
+
+            local guildName = Guildbook:GetGuildName()
+            if guildName then
+                if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid]['Profession1'] ~= '-' then
+                    local prof1 = GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid]['Profession1']
+                    if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][prof1] and next(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][prof1]) then
+                        self.ProfessionsTab:SetRecipesListviewData(prof1, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container, GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][prof1], recipeFilter)
+                    else
+                        Guildbook:SendTradeSkillsRequest(name, prof1)
+                        C_Timer.After(4, function()
+                            Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:SetRecipesListviewData(prof1, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container, GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][prof1], nil)
+                        end)
+                    end
+                end
+                if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid]['Profession2'] ~= '-' then
+                    local prof2 = GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid]['Profession2']
+                    if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][prof2] and next(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][prof2]) then
+                        self.ProfessionsTab:SetRecipesListviewData(prof2, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container, GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][prof2], recipeFilter)
+                    else
+                        Guildbook:SendTradeSkillsRequest(name, prof2)
+                        C_Timer.After(4, function()
+                            Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:SetRecipesListviewData(prof2, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container, GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][prof2], nil)
+                        end)
+                    end
+                end
+            end
         end
+        CloseDropDownMenus()
     end
 
     function self.GuildFrame.ProfilesFrame:LoadCharacterTalents(talents)
@@ -2589,7 +2670,7 @@ Profession.
     end
     
     self.GuildFrame.ProfilesFrame.DetailsButton = CreateFrame('BUTTON', '$parentTab1', Guildbook.GuildFrame.ProfilesFrame, 'OptionsFrameTabButtonTemplate')
-    self.GuildFrame.ProfilesFrame.DetailsButton:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.ProfilesFrame, 'TOPRIGHT', -200, 0)
+    self.GuildFrame.ProfilesFrame.DetailsButton:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.ProfilesFrame, 'TOPRIGHT', -255, 0)
     --self.GuildFrame.ProfilesFrame.DetailsButton:SetSize(60, 30)
     self.GuildFrame.ProfilesFrame.DetailsButton:SetText('Details')
     self.GuildFrame.ProfilesFrame.DetailsButton:SetID(1)
@@ -2597,6 +2678,7 @@ Profession.
         PanelTemplates_SetTab(Guildbook.GuildFrame.ProfilesFrame, 1)
         Guildbook.GuildFrame.ProfilesFrame.DetailsTab:Show()
         Guildbook.GuildFrame.ProfilesFrame.TalentsTab:Hide()
+        Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:Hide()
     end)
 
     self.GuildFrame.ProfilesFrame.TalentButton = CreateFrame('BUTTON', '$parentTab2', Guildbook.GuildFrame.ProfilesFrame, 'OptionsFrameTabButtonTemplate')
@@ -2608,6 +2690,19 @@ Profession.
         PanelTemplates_SetTab(Guildbook.GuildFrame.ProfilesFrame, 2)
         Guildbook.GuildFrame.ProfilesFrame.DetailsTab:Hide()
         Guildbook.GuildFrame.ProfilesFrame.TalentsTab:Show()
+        Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:Hide()
+    end)
+
+    self.GuildFrame.ProfilesFrame.ProfessionsButton = CreateFrame('BUTTON', '$parentTab3', Guildbook.GuildFrame.ProfilesFrame, 'OptionsFrameTabButtonTemplate')
+    self.GuildFrame.ProfilesFrame.ProfessionsButton:SetPoint('LEFT', Guildbook.GuildFrame.ProfilesFrame.TalentButton, 'RIGHT', -16, 0)
+    --self.GuildFrame.ProfilesFrame.ProfessionsButton:SetSize(60, 30)
+    self.GuildFrame.ProfilesFrame.ProfessionsButton:SetText('Professions')
+    self.GuildFrame.ProfilesFrame.ProfessionsButton:SetID(3)
+    self.GuildFrame.ProfilesFrame.ProfessionsButton:SetScript('OnClick', function(self)
+        PanelTemplates_SetTab(Guildbook.GuildFrame.ProfilesFrame, 3)
+        Guildbook.GuildFrame.ProfilesFrame.DetailsTab:Hide()
+        Guildbook.GuildFrame.ProfilesFrame.TalentsTab:Hide()
+        Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:Show()
     end)
 
     self.GuildFrame.ProfilesFrame.DetailsTab = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameDetailsTab', self.GuildFrame.ProfilesFrame)
@@ -2628,7 +2723,12 @@ Profession.
     self.GuildFrame.ProfilesFrame.DetailsTab.location = self.GuildFrame.ProfilesFrame.DetailsTab:CreateFontString('$parentLocation', 'OVERLAY', 'GameFontNormal')
     self.GuildFrame.ProfilesFrame.DetailsTab.name:SetPoint('TOP', 0, -20)
 
-
+    -- zone/location
+    -- guidl rank
+    -- level, current xp, rested xp
+    -- ilvl
+    -- prof info
+    -- spec, talent points 1/1/1
 
 
 
@@ -2728,16 +2828,6 @@ Profession.
     self.GuildFrame.ProfilesFrame.TalentsTab.scrollBarBackgroundBottom:SetSize(30, 60)
     self.GuildFrame.ProfilesFrame.TalentsTab.scrollBarBackgroundBottom:SetTexCoord(0.5, 1.0, 0.2, 0.41)
 
-    -- self.GuildFrame.ProfilesFrame.TalentsTab.ScrollBar = CreateFrame('SLIDER', 'GuildbookGuildFrameProfilesFrameTalentTabScrollBar', Guildbook.GuildFrame.ProfilesFrame.TalentsTab, "UIPanelScrollBarTemplate")
-    -- self.GuildFrame.ProfilesFrame.TalentsTab.ScrollBar:SetPoint('TOPLEFT', Guildbook.GuildFrame.ProfilesFrame.TalentsTab, 'TOPRIGHT', -24, -24)
-    -- self.GuildFrame.ProfilesFrame.TalentsTab.ScrollBar:SetPoint('BOTTOMRIGHT', Guildbook.GuildFrame.ProfilesFrame.TalentsTab, 'BOTTOMRIGHT', -8, 20)
-    -- self.GuildFrame.ProfilesFrame.TalentsTab.ScrollBar:EnableMouse(true)
-    -- self.GuildFrame.ProfilesFrame.TalentsTab.ScrollBar:SetValueStep(1)
-    -- self.GuildFrame.ProfilesFrame.TalentsTab.ScrollBar:SetValue(1)
-    -- self.GuildFrame.ProfilesFrame.TalentsTab.ScrollBar:SetMinMaxValues(1,3)
-    -- self.GuildFrame.ProfilesFrame.TalentsTab.ScrollBar:SetScript('OnValueChanged', function(self)
-        
-    -- end)
 
     -- remove these frames
     local w, h = 257.0, 335.0
@@ -2764,5 +2854,486 @@ Profession.
     self.GuildFrame.ProfilesFrame.TalentsTab.Tab3.background:SetTexCoord(l, r, u, d)
 
 
+
+
+
+
+    self.GuildFrame.ProfilesFrame.ProfessionsTab = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameProfessionsTab', self.GuildFrame.ProfilesFrame)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab:SetPoint('TOPLEFT', self.GuildFrame.ProfilesFrame, 'TOPLEFT', 2, -2)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab:SetPoint('BOTTOMRIGHT', self.GuildFrame.ProfilesFrame, 'BOTTOMRIGHT', -2, 2)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab:Hide()
+    self.GuildFrame.ProfilesFrame.ProfessionsTab:SetScript('OnShow', function(self)
+        self:RefreshListview(Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container)
+        self:RefreshListview(Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container)
+    end)
+
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.TopBorder = self.GuildFrame.ProfilesFrame.ProfessionsTab:CreateTexture('GuildbookGuildInfoFrameProfilesFrameProfessionsTabTopBorder', 'ARTWORK')
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.TopBorder:SetPoint('TOPLEFT', Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab, 'TOPLEFT', 2, -30)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.TopBorder:SetPoint('TOPRIGHT', Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab, 'TOPRIGHT', -2, -30)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.TopBorder:SetHeight(12)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.TopBorder:SetTexture(130968)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.TopBorder:SetTexCoord(0.1, 1.0, 0.0, 0.3)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.TopBorder:SetVertexColor(0.5,0.5,0.5,1)
+
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container = CreateFrame('FRAME', nil, self.GuildFrame.ProfilesFrame.ProfessionsTab)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container:SetPoint('TOPLEFT', Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab, 'TOPLEFT', 2, -37)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container:SetPoint('BOTTOMRIGHT', Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab, 'BOTTOMLEFT', 257, 2)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container:SetSize(257, 210)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container.background = self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container:CreateTexture('$parentBackground', 'BACKGROND')
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container.background:SetAllPoints(Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container.background:SetColorTexture(0.2,0.2,0.2,0.2)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container:EnableMouse(true)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container:SetScript('OnMouseWheel', function(self, delta)
+        local s = self.ScrollBar:GetValue()
+        self.ScrollBar:SetValue(s - delta)
+    end)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container.binding = {}
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container.rows = {}
+
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container.header = self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container:CreateFontString(nil, 'OVERLAY', 'GameFontNormalLarge')
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container.header:SetPoint('TOP', 0, 29)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container.header:SetTextColor(1,1,1,1)
+
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container.scrollBarBackgroundTop = self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container:CreateTexture('$parentBackgroundTop', 'ARTWORK')
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container.scrollBarBackgroundTop:SetTexture(136569)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container.scrollBarBackgroundTop:SetPoint('TOPLEFT', Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container, 'TOPRIGHT', -1, 2)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container.scrollBarBackgroundTop:SetSize(30, 280)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container.scrollBarBackgroundTop:SetTexCoord(0, 0.5, 0, 0.9)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container.scrollBarBackgroundBottom = self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container:CreateTexture('$parentBackgroundBottom', 'ARTWORK')
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container.scrollBarBackgroundBottom:SetTexture(136569)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container.scrollBarBackgroundBottom:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container, 'BOTTOMRIGHT', -2, 0)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container.scrollBarBackgroundBottom:SetSize(30, 60)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container.scrollBarBackgroundBottom:SetTexCoord(0.5, 1.0, 0.2, 0.41)
+
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container.ScrollBar = CreateFrame('SLIDER', nil, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container, "UIPanelScrollBarTemplate")
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container.ScrollBar:SetPoint('TOPLEFT', Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container, 'TOPRIGHT', 28, -17)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container.ScrollBar:SetPoint('BOTTOMRIGHT', Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container, 'BOTTOMRIGHT', 0, 16)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container.ScrollBar:EnableMouse(true)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container.ScrollBar:SetValueStep(1)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container.ScrollBar:SetValue(1)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container.ScrollBar:SetScript('OnValueChanged', function(self)
+        Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:RefreshListview(Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container) --, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container.binding)
+    end)
+
+    for i = 1, 15 do
+        local f = CreateFrame('BUTTON', tostring('GuildbookGuildFrameProfileFrameProfTabProf1'..i), self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container)
+        f:SetPoint('TOPLEFT', Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container, 'TOPLEFT', 0, (i - 1) * -20)
+        f:SetSize(257, 19)
+        f:SetEnabled(true)
+        f:RegisterForClicks('AnyDown')
+        f:SetHighlightTexture("Interface/QuestFrame/UI-QuestLogTitleHighlight","ADD")
+        f:GetHighlightTexture():SetVertexColor(0.196, 0.388, 0.8)
+        f.Text = f:CreateFontString('$parentText', 'OVERLAY', 'GameFontNormalSmall')
+        f.Text:SetPoint('LEFT', 4, 0)
+        f.Text:SetTextColor(1,1,1,1)
+        f.Text:SetText('test text')
+        f.id = i
+        f.selected = false
+        f.data = nil
+        f:SetScript('OnClick', function(self)
+            for k, v in ipairs(Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container.rows) do
+                if v.data then
+                    v.data.Selected = false
+                end
+            end
+            if self.data then
+                self.data.Selected = not self.data.Selected
+            end
+            Guildbook:UpdateListviewSelectedTextures(Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container.rows)
+            if self.data then
+                Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:ClearReagentsListview()
+                Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:UpdateReagents(f.data)
+                if self.data.Enchant then
+                    Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItem.link = 'spell:'..self.data.ItemID
+                    Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItem.spellID = self.data.ItemID
+                else
+                    Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItem.link = self.data.Link
+                end
+                Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItemIcon:SetTexture(self.data.Icon)
+                Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItemName:SetText(self.data.Link)
+            end
+        end)
+        f:SetScript('OnShow', function(self)
+            if self.data then
+                self.Text:SetText(self.data.Link)
+            else
+                self:Hide()
+            end
+            Guildbook:UpdateListviewSelectedTextures(Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container.rows)
+        end)
+        f:SetScript('OnHide', function(self)
+            self.data = nil
+            self.Text:SetText(' ')
+        end)
+        self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container.rows[i] = f
+    end
+
+
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container = CreateFrame('FRAME', nil, self.GuildFrame.ProfilesFrame.ProfessionsTab)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container:SetPoint('TOPLEFT', Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab, 'TOPLEFT', 284, -37)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab, 'BOTTOMLEFT', 284, 2)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container:SetSize(257, 210)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container.background = self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container:CreateTexture('$parentBackground', 'BACKGROND')
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container.background:SetAllPoints(Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container.background:SetColorTexture(0.2,0.2,0.2,0.2)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container:EnableMouse(true)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container:SetScript('OnMouseWheel', function(self, delta)
+        local s = self.ScrollBar:GetValue()
+        self.ScrollBar:SetValue(s - delta)
+    end)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container.binding = {}
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container.rows = {}
+
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container.header = self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container:CreateFontString(nil, 'OVERLAY', 'GameFontNormalLarge')
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container.header:SetPoint('TOP', 0, 29)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container.header:SetTextColor(1,1,1,1)
+
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container.scrollBarBackgroundTop = self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container:CreateTexture('$parentBackgroundTop', 'ARTWORK')
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container.scrollBarBackgroundTop:SetTexture(136569)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container.scrollBarBackgroundTop:SetPoint('TOPLEFT', Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container, 'TOPRIGHT', -1, 2)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container.scrollBarBackgroundTop:SetSize(30, 280)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container.scrollBarBackgroundTop:SetTexCoord(0, 0.5, 0, 0.9)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container.scrollBarBackgroundBottom = self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container:CreateTexture('$parentBackgroundBottom', 'ARTWORK')
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container.scrollBarBackgroundBottom:SetTexture(136569)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container.scrollBarBackgroundBottom:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container, 'BOTTOMRIGHT', -2, 0)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container.scrollBarBackgroundBottom:SetSize(30, 60)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container.scrollBarBackgroundBottom:SetTexCoord(0.5, 1.0, 0.2, 0.41)
+
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container.ScrollBar = CreateFrame('SLIDER', nil, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container, "UIPanelScrollBarTemplate")
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container.ScrollBar:SetPoint('TOPLEFT', Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container, 'TOPRIGHT', 28, -17)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container.ScrollBar:SetPoint('BOTTOMRIGHT', Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container, 'BOTTOMRIGHT', 0, 16)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container.ScrollBar:EnableMouse(true)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container.ScrollBar:SetValueStep(1)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container.ScrollBar:SetValue(1)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container.ScrollBar:SetScript('OnValueChanged', function(self)
+        Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:RefreshListview(Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container) --, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container.binding)
+    end)
+
+    for i = 1, 15 do
+        local f = CreateFrame('BUTTON', tostring('GuildbookGuildFrameProfileFrameProfTabProf2'..i), self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container)
+        f:SetPoint('TOPLEFT', Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container, 'TOPLEFT', 0, (i - 1) * -20)
+        f:SetSize(257, 19)
+        f:SetEnabled(true)
+        f:RegisterForClicks('AnyDown')
+        f:SetHighlightTexture("Interface/QuestFrame/UI-QuestLogTitleHighlight","ADD")
+        f:GetHighlightTexture():SetVertexColor(0.196, 0.388, 0.8)
+        f.Text = f:CreateFontString('$parentText', 'OVERLAY', 'GameFontNormalSmall')
+        f.Text:SetPoint('LEFT', 4, 0)
+        f.Text:SetTextColor(1,1,1,1)
+        f.Text:SetText('test text')
+        f.id = i
+        f.selected = false
+        f.data = nil
+        f:SetScript('OnClick', function(self)
+            for k, v in ipairs(Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container.rows) do
+                if v.data then
+                    v.data.Selected = false
+                end
+            end
+            if self.data then
+                self.data.Selected = not self.data.Selected
+            end
+            Guildbook:UpdateListviewSelectedTextures(Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container.rows)
+            if self.data then
+                Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:ClearReagentsListview()
+                Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:UpdateReagents(f.data)
+                if self.data.Enchant then
+                    Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItem.link = 'spell:'..self.data.ItemID
+                    Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItem.spellID = self.data.ItemID
+                else
+                    Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItem.link = self.data.Link
+                end
+                Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItemIcon:SetTexture(self.data.Icon)
+                Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItemName:SetText(self.data.Link)
+            end
+        end)
+        f:SetScript('OnShow', function(self)
+            if self.data then
+                self.Text:SetText(self.data.Link)
+            else
+                self:Hide()
+            end
+            Guildbook:UpdateListviewSelectedTextures(Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container.rows)
+        end)
+        f:SetScript('OnHide', function(self)
+            self.data = nil
+            self.Text:SetText(' ')
+        end)
+        self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container.rows[i] = f
+    end
+
+
+
+
+
+
+
+
+
+
+    function self.GuildFrame.ProfilesFrame.ProfessionsTab:ClearRecipesListview(listview)
+        Guildbook:UpdateListviewSelectedTextures(listview.rows)
+        for i = 1, 15 do
+            listview.rows[i].selected = false
+            listview.rows[i].data = nil
+            listview.rows[i]:Hide()
+        end
+        wipe(listview.binding)
+        listview.header:SetText(' ')
+    end
+
+
+    function self.GuildFrame.ProfilesFrame.ProfessionsTab:RefreshListview(listview)
+        if next(listview.binding) then
+            Guildbook:UpdateListviewSelectedTextures(listview.rows)
+            table.sort(listview.binding, function(a, b)
+                if a.Rarity == b.Rarity then
+                    return a.Name < b.Name
+                else
+                    return a.Rarity > b.Rarity
+                end
+            end)
+            local c = #listview.binding
+            if c <= 14 then
+                listview.ScrollBar:SetMinMaxValues(1, 1)
+            else
+                listview.ScrollBar:SetMinMaxValues(1, (c - 14))
+            end
+            local scrollPos = math.floor(listview.ScrollBar:GetValue())
+            if scrollPos == 0 then
+                scrollPos = 1
+            end
+            for i = 1, 15 do
+                if listview.binding[(i - 1) + scrollPos] then
+                    listview.rows[i]:Hide()
+                    listview.rows[i].data = listview.binding[(i - 1) + scrollPos]
+                    listview.rows[i]:Show()
+                end
+            end
+        end
+    end
+    
+    function self.GuildFrame.ProfilesFrame.ProfessionsTab:AddRecipe(itemID, link, enchant, rarity, icon, name, reagents, filter, listview)
+        local recipeItem = {
+            ItemID = itemID,
+            Link = link,
+            Enchant = enchant,
+            Rarity = tonumber(rarity),
+            Reagents = {},
+            Icon = tonumber(icon),
+            Name = name,
+            Selected = false,
+        }
+        for reagentID, count in pairs(reagents) do
+            local reagentLink = select(2, GetItemInfo(reagentID))
+            local reagentRarity = select(3, GetItemInfo(reagentID))
+            table.insert(recipeItem.Reagents, {
+                ItemID = reagentID,
+                Count = tonumber(count),
+            })
+            --DEBUG('ProfilesFrame.ProfessionsTab:AddRecipe', string.format('add %s to reagents list', reagentID))
+            --DEBUG(':AddRecipe', string.format("added %s", name))
+        end
+        if filter == nil then
+            table.insert(listview.binding, recipeItem)
+        else
+            if recipeItem.Name:lower():find(filter:lower()) then
+                table.insert(listview.binding, recipeItem)
+            end
+        end
+        self:RefreshListview(listview)
+    end
+
+    function self.GuildFrame.ProfilesFrame.ProfessionsTab:SetRecipesListviewData(profession, listview, data, filter)
+        self:ClearRecipesListview(listview)
+        --self:ClearReagentsListview()
+        if data and type(data) == 'table' and next(data) then
+            local k = 1
+            for itemID, reagents in pairs(data) do
+                local link = false
+                local rarity = false
+                local icon = false
+                local enchant = false
+                if profession == 'Enchanting' then
+                    link = select(1, GetSpellLink(itemID))
+                    rarity = select(3, GetItemInfo(link)) or 1
+                    name = select(1, GetSpellInfo(itemID)) or 'unknown'
+                    icon = select(3, GetSpellInfo(itemID)) or 134400
+                    enchant = true
+                else
+                    link = select(2, GetItemInfo(itemID))
+                    rarity = select(3, GetItemInfo(itemID))
+                    name = select(1, GetItemInfo(itemID))
+                    icon = select(10, GetItemInfo(itemID))
+                end
+                if link and rarity and icon and name then
+                    Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:AddRecipe(itemID, link, enchant, rarity, icon, name, reagents, filter, listview)
+                    DEBUG('AddRecipe', string.format('added recipe %s with rarity %s and icon %s, enchant=%s', link, rarity, icon, tostring(enchant)))
+                else
+                    if profession == 'Enchanting' then                    
+                        local spell = Spell:CreateFromSpellID(spellID)
+                        spell:ContinueOnSpellLoad(function()
+                            link = select(1, GetSpellLink(itemID))
+                            rarity =  1
+                            name = select(1, GetSpellInfo(itemID)) or 'unknown'
+                            icon = select(3, GetSpellInfo(itemID)) or 134400
+                            enchant = true
+                            Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:AddRecipe(itemID, link, enchant, rarity, icon, name, reagents, filter, listview)
+                        end)
+                    else
+                        local item = Item:CreateFromItemID(itemID)
+                        item:ContinueOnItemLoad(function()
+                            icon = item:GetItemIcon()
+                            name = item:GetItemName()
+                            link = item:GetItemLink()
+                            rarity = item:GetItemQuality()
+                            enchant = false
+                            Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:AddRecipe(itemID, link, enchant, rarity, icon, name, reagents, filter)
+                        end)
+                    end
+                end
+            end
+            listview.header:SetText(profession..'   '..Guildbook.Data.Profession[profession].FontStringIconSMALL)
+        end
+    end
+
+    -- reagents
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewRows = {}
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent = CreateFrame('FRAME', 'GuildbookGuildFrameReagentsListviewParent', self.GuildFrame.ProfilesFrame.ProfessionsTab)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container, 'BOTTOMRIGHT', 28, 0)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent:SetSize(250, 300)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.background = self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent:CreateTexture('$parentBackground', 'BACKGROND')
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.background:SetAllPoints(Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.background:SetColorTexture(0.2,0.2,0.2,0.2)
+
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItem = CreateFrame('FRAME', 'GuildbookGuildFrameReagentsListviewParentRecipeItem', self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItem:SetPoint('TOPLEFT', 4, -4)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItem:SetSize(200, 25)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItem:EnableMouse(true)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItem.link = nil
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItem:SetScript('OnEnter', function(self)
+        if self.link then
+            GameTooltip:SetOwner(self, 'ANCHOR_CURSOR')
+            GameTooltip:SetHyperlink(self.link)
+            GameTooltip:Show()
+        else
+            GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+        end
+    end)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItem:SetScript('OnLeave', function(self)
+        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+    end)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItem:SetScript('OnMouseDown', function(self)
+        if self.link then
+            if IsShiftKeyDown() then
+                if selectedProfession == 'Enchanting' and self.spellID then
+                    HandleModifiedItemClick(GetSpellLink(self.spellID))
+                else
+                    HandleModifiedItemClick(self.link)
+                end
+            end
+            if IsControlKeyDown() then
+                DressUpItemLink(self.link)
+            end
+        end
+    end)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItemIcon = self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItem:CreateTexture('$parentRecipeItemIcon', 'ARTWORK')
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItemIcon:SetPoint('LEFT', 4, 0)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItemIcon:SetSize(25, 25)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItemName = self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItem:CreateFontString('$parentRecipeItemName', 'OVERLAY', 'GameFontNormalSmall')
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItemName:SetPoint('TOPLEFT', self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItemIcon, 'TOPRIGHT', 4, -4)
+
+    for i = 1, 10 do
+        local f = CreateFrame('FRAME', tostring('GuildbookGuildFrameRecipesListviewRow'..i), self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent)
+        f:SetPoint('TOPLEFT', Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent, 'TOPLEFT', 4, ((i - 1) * -22) - 35)
+        f:SetSize(self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent:GetWidth(), 20)
+        f:EnableMouse(true)
+
+        f.icon = f:CreateTexture('$parentIcon', 'ARTWORK')
+        f.icon:SetPoint('LEFT', 4, 0)
+        f.icon:SetSize(20, 20)
+
+        f.text = f:CreateFontString('$parentName', 'OVERLAY', 'GameFontNormalSmall')
+        f.text:SetPoint('LEFT', f.icon, 'RIGHT', 4, 0)
+        f.text:SetTextColor(1,1,1,1)
+
+        f.link = nil
+        f:SetScript('OnEnter', function(self)
+            if self.link then
+                GameTooltip:SetOwner(self, 'ANCHOR_CURSOR')
+                GameTooltip:SetHyperlink(self.link)
+                GameTooltip:Show()
+            end
+        end)
+        f:SetScript('OnLeave', function(self)
+            GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+        end)
+        f:SetScript('OnMouseDown', function(self)
+            if self.link then
+                print('got link')
+                if IsShiftKeyDown() then
+                    HandleModifiedItemClick(self.link)
+                end
+                if IsControlKeyDown() then
+                    print('ctrl')
+                    DressUpItemLink(self.link)
+                end
+            end
+        end)
+
+        self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewRows[i] = f
+    end
+
+    function self.GuildFrame.ProfilesFrame.ProfessionsTab:ClearReagentsListview()
+        Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItem.link = nil
+        Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItemIcon:SetTexture(nil)
+        Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItemName:SetText(' ')
+        for k, v in ipairs(self.ReagentsListviewRows) do
+            v.icon:SetTexture(nil)
+            v.text:SetText(' ')
+            v.link = nil
+        end
+    end
+
+    function self.GuildFrame.ProfilesFrame.ProfessionsTab:UpdateReagents(recipe)
+        self:ClearReagentsListview()
+        if recipe and recipe.Reagents then
+            for k, v in ipairs(recipe.Reagents) do
+                local link = select(2, GetItemInfo(v.ItemID))
+                local icon = select(10, GetItemInfo(v.ItemID))
+                if link and icon then
+                    self.ReagentsListviewRows[k].icon:SetTexture(icon)
+                    self.ReagentsListviewRows[k].text:SetText(string.format('[%s] %s', v.Count, link))
+                    self.ReagentsListviewRows[k].link = link
+                else
+                    local item = Item:CreateFromItemID(v.ItemID)
+                    item:ContinueOnItemLoad(function()
+                        icon = item:GetItemIcon()
+                        link = item:GetItemLink()
+                        Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewRows[k].icon:SetTexture(icon)
+                        Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewRows[k].text:SetText(string.format('[%s] %s', v.Count, link))
+                        Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewRows[k].link = link
+                    end)
+                end
+            end
+        end
+    end
+
+
+    -- self.GuildFrame.ProfilesFrame.ProfessionsTab.SearchBox = CreateFrame('EDITBOX', 'GuildbookGuildFrameRecipesListviewParentSearchBox', self.GuildFrame.ProfilesFrame.ProfessionsTab, "InputBoxTemplate")
+    -- self.GuildFrame.ProfilesFrame.ProfessionsTab.SearchBox:SetPoint('LEFT', Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent, 'RIGHT', 6, 0)
+    -- self.GuildFrame.ProfilesFrame.ProfessionsTab.SearchBox:SetSize(150, 22)
+    -- self.GuildFrame.ProfilesFrame.ProfessionsTab.SearchBox:ClearFocus()
+    -- self.GuildFrame.ProfilesFrame.ProfessionsTab.SearchBox:SetAutoFocus(false)
+    -- self.GuildFrame.ProfilesFrame.ProfessionsTab.SearchBox:SetScript('OnTextChanged', function(self)
+    --     if self:GetText():len() > 2 then
+    --         local filter = self:GetText()
+    --         Guildbook.GuildFrame.TradeSkillFrame:SetRecipesListviewData(Guildbook.GuildFrame.TradeSkillFrame.RecipesTable, filter)
+    --         Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:SetRecipesListviewData(profession, listview, data, filter)
+    --     else
+    --         Guildbook.GuildFrame.TradeSkillFrame:SetRecipesListviewData(Guildbook.GuildFrame.TradeSkillFrame.RecipesTable, nil)
+    --         Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:SetRecipesListviewData(profession, listview, data, filter)
+    --     end
+    -- end)
 
 end

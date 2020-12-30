@@ -32,6 +32,11 @@ function GuildbookOptionsDebugCB_OnClick(self)
         GUILDBOOK_GLOBAL['Debug'] = not GUILDBOOK_GLOBAL['Debug']
         self:SetChecked(GUILDBOOK_GLOBAL['Debug'])
     end
+    if self:GetChecked() == true then
+        Guildbook.DebugFrame:Show()
+    else
+        Guildbook.DebugFrame:Hide()
+    end
 end
 
 function GuildbookOptionsAttunementKeysCB_OnClick(self, instance)
@@ -41,7 +46,7 @@ function GuildbookOptionsAttunementKeysCB_OnClick(self, instance)
         end
         GUILDBOOK_CHARACTER['AttunementsKeys'][instance] = self:GetChecked()
         self:SetChecked(GUILDBOOK_CHARACTER['AttunementsKeys'][instance])
-        DEBUG('set instance: '..instance..' attunement key as: '..tostring(self:GetChecked()))
+        DEBUG(' ', 'set instance: '..instance..' attunement key as: '..tostring(self:GetChecked()))
     end
 end
 
