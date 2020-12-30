@@ -366,12 +366,17 @@ function Guildbook:ModBlizzUI()
     end)
     
     self.GuildFrame.Frames = {
-        ['StatsFrame'] = { Text = 'Statistics', Width = 76.0, OffsetY = -79.0 },
-        ['TradeSkillFrame'] = { Text = 'Professions', Width = 85.0, OffsetY = -166.0 },
-        ['GuildBankFrame'] = { Text = 'Guild Bank', Width = 85.0, OffsetY = -253.0 },
-        ['ProfilesFrame'] = { Text = 'Profiles', Width = 85.0, OffsetY = -253.0 },
-        ['GuildCalendarFrame'] = { Text = 'Calendar', Width = 75.0, OffsetY = -330.0 },
-        ['SoftReserveFrame'] = { Text = 'Soft Res', Width = 70.0, OffsetY = -402.0 },
+        -- ['StatsFrame'] = { Text = 'Statistics', Width = 76.0, OffsetY = -79.0 },
+        -- ['TradeSkillFrame'] = { Text = 'Professions', Width = 85.0, OffsetY = -166.0 },
+        -- ['GuildBankFrame'] = { Text = 'Guild Bank', Width = 85.0, OffsetY = -253.0 },
+        -- ['ProfilesFrame'] = { Text = 'Profiles', Width = 85.0, OffsetY = -253.0 },
+        -- ['GuildCalendarFrame'] = { Text = 'Calendar', Width = 75.0, OffsetY = -330.0 },
+        -- ['SoftReserveFrame'] = { Text = 'Soft Res', Width = 70.0, OffsetY = -402.0 },
+
+        -- comment this out and uncomment above table for old UI
+        ['StatsFrame'] = { Text = 'Statistics', Width = 117.0, OffsetY = -120.0 },
+        ['ProfilesFrame'] = { Text = 'Guildbook Profies', Width = 157.0, OffsetY = -280.0 },
+        ['GuildCalendarFrame'] = { Text = 'Calendar', Width = 117.0, OffsetY = -400.0 },
     }
 
     for frame, button in pairs(self.GuildFrame.Frames) do
@@ -386,12 +391,7 @@ function Guildbook:ModBlizzUI()
             insets = { left = 4, right = 4, top = 4, bottom = 4 }
         })
         self.GuildFrame[frame]:SetPoint('TOPLEFT', GuildFrame, 'TOPLEFT', 2.00, -55.0)
-        self.GuildFrame[frame]:SetPoint('BOTTOMRIGHT', GuildFrame, 'BOTTOMRIGHT', -4.00, 25.0)
-        -- if frame == 'GuildCalendarFrame' or frame == 'GuildBankFrame' or frame == 'SoftReserveFrame' then
-        --     self.GuildFrame[frame]:SetPoint('BOTTOMRIGHT', GuildFrame, 'BOTTOMRIGHT', -4.00, 25.0)
-        -- else
-        --     self.GuildFrame[frame]:SetPoint('BOTTOMRIGHT', GuildFrame, 'TOPRIGHT', -4.00, -325.0)
-        -- end        
+        self.GuildFrame[frame]:SetPoint('BOTTOMRIGHT', GuildFrame, 'BOTTOMRIGHT', -4.00, 25.0)      
         self.GuildFrame[frame]:SetFrameLevel(6)
         self.GuildFrame[frame]:Hide()
 
@@ -405,11 +405,7 @@ function Guildbook:ModBlizzUI()
             toggleGuildFrames(frame)
         end)
 
-        -- remove this for release
-        if frame == 'ProfilesFrame' then
-            self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:ClearAllPoints()
-            self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetPoint('TOP', GuildFrameGuildInformationButton, 'BOTTOM', 0, -10)
-        end
+
     end
 
     self.ScanGuildBankButton = CreateFrame('BUTTON', 'GuildbookBankFrameScanBankButton', BankFrame)

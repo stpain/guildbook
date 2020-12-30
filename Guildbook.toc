@@ -23,13 +23,10 @@ Guildbook_RaidItems.lua
 Guildbook_Locales.lua
 Guildbook_ModBlizzUI.lua
 Guildbook_Data.lua
-
 Guildbook_GuildMemberDetailFrame.lua
-
 Guildbook_Core.lua
+Guildbook_Legacy.lua
 Guildbook_GuildFrame.lua
-
 Guildbook_Dialogs.lua
-
 Guildbook_Options.lua
 Guildbook_Options.xml

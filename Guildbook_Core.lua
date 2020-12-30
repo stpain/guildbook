@@ -754,7 +754,7 @@ end
 
 function Guildbook:OnTradeSkillsReceived(data, distribution, sender)
     if data.payload.profession and type(data.payload.recipes) == 'table' then
-        C_Timer.After(4.0, function()
+        C_Timer.After(3.0, function()
             local guildName = Guildbook:GetGuildName()
             if guildName and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
                 for guid, character in pairs(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName]) do
@@ -764,15 +764,8 @@ function Guildbook:OnTradeSkillsReceived(data, distribution, sender)
                     end
                 end
             end
-            self.GuildFrame.TradeSkillFrame.RecipesTable = data.payload.recipes
+            --self.GuildFrame.TradeSkillFrame.RecipesTable = data.payload.recipes
         end)
-    else
-        -- this is due to older data format, if we get this we wont save as the prof name isnt sent
-        -- will remove this support after 1 update
-        -- C_Timer.After(4.0, function()
-        --     self.GuildFrame.TradeSkillFrame.RecipesTable = data.payload
-        -- end)
-        print('You have an outdated version, please download the latest version.')
     end
 end
 
@@ -970,8 +963,8 @@ function Guildbook:OnGuildBankDataReceived(data, distribution, sender)
             }
         end
     end
-    self.GuildFrame.GuildBankFrame:ProcessBankData(data.payload.Data)
-    self.GuildFrame.GuildBankFrame:RefreshSlots()
+    --self.GuildFrame.GuildBankFrame:ProcessBankData(data.payload.Data)
+    --self.GuildFrame.GuildBankFrame:RefreshSlots()
 end
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1244,18 +1237,18 @@ end
 function Guildbook:PLAYER_ENTERING_WORLD()
     self:ModBlizzUI()
     self:SetupStatsFrame()
-    self:SetupTradeSkillFrame()
-    self:SetupGuildBankFrame()
+    --self:SetupTradeSkillFrame()
+    --self:SetupGuildBankFrame()
     self:SetupGuildCalendarFrame()
     self:SetupGuildMemberDetailframe()
-    self:SetupSoftReserveFrame()
+    --self:SetupSoftReserveFrame()
     self:SetupProfilesFrame()
     self.EventFrame:UnregisterEvent('PLAYER_ENTERING_WORLD')
 end
 
 function Guildbook:RAID_ROSTER_UPDATE()
     DEBUG(' ', 'Raid roster update event')
-    self:RequestRaidSoftReserves()
+    --self:RequestRaidSoftReserves()
 end
 
 
