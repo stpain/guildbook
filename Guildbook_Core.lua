@@ -692,7 +692,6 @@ end
 -- talent comms
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function Guildbook:SendTalentInfoRequest(target, spec)
-    print(target, spec)
     local request = {
         type = "TALENT_INFO_REQUEST",
         payload = spec, -- dual spec future feature
@@ -710,7 +709,7 @@ function Guildbook:OnTalentInfoRequest(request, distribution, sender)
         type = "TALENT_INFO_RESPONSE",
         payload = talents,
     }
-    self:Transmit(response, 'WHIPSER', sender, "BULK")
+    self:Transmit(response, distribution, sender, "BULK")
     DEBUG_COMMS('OnTalentInfoRequest', string.format('sending %s data to %s', 'talents info', sender))
 end
 
@@ -719,8 +718,11 @@ function Guildbook:OnTalentInfoReceived(data, distribution, sender)
         return
     end
     if type(data.payload) == 'table' then
-        self.GuildFrame.ProfilesFrame:LoadCharacterTalents(data.payload)
+        C_Timer.After(2, function()
+            self.GuildFrame.ProfilesFrame:LoadCharacterTalents(data.payload)
+        end)
     end
+    DEBUG_COMMS('OnTalentInfoReceived', string.format("received talent data from %s", sender))
 end
 
 
@@ -1332,6 +1334,7 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
     if not success or type(data) ~= "table" then
         return;
     end
+
 
     if data.type == "TRADESKILLS_REQUEST" then
         if not lastTradeSkillRequest[sender] then
