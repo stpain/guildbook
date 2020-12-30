@@ -1438,40 +1438,44 @@ Click the character to view the recipe item in their 'Professions' tab.
             local race = C_CreatureInfo.GetRaceInfo(C_PlayerInfo.GetRace(Guildbook.PlayerMixin)).clientFileString:upper()
             local tex = Guildbook.Data.RaceIcons[C_PlayerInfo.GetSex(Guildbook.PlayerMixin)][race]
 
-            self.DetailsTab.portrait:SetTexture(tex)
-            self.DetailsTab.class:SetTexture(Guildbook.Data.Class[class].IconID)
-            self.DetailsTab.name:SetText(name)
-            local r, g, b = unpack(Guildbook.Data.Class[class].RGB)
-            self.DetailsTab.name:SetTextColor(r, g, b, 1)
+            if name and race and class then
+                self.DetailsTab.portrait:SetTexture(tex)
+                self.DetailsTab.class:SetTexture(Guildbook.Data.Class[class].IconID)
+                self.DetailsTab.name:SetText(name)
+                local r, g, b = unpack(Guildbook.Data.Class[class].RGB)
+                self.DetailsTab.name:SetTextColor(r, g, b, 1)
 
-            self.TalentsTab.Tab1.background:SetTexture(Guildbook.Data.TalentBackgrounds[Guildbook.Data.Talents[class][1]])
-            self.TalentsTab.Tab2.background:SetTexture(Guildbook.Data.TalentBackgrounds[Guildbook.Data.Talents[class][2]])
-            self.TalentsTab.Tab3.background:SetTexture(Guildbook.Data.TalentBackgrounds[Guildbook.Data.Talents[class][3]])
+                self.TalentsTab.Tab1.background:SetTexture(Guildbook.Data.TalentBackgrounds[Guildbook.Data.Talents[class][1]])
+                self.TalentsTab.Tab2.background:SetTexture(Guildbook.Data.TalentBackgrounds[Guildbook.Data.Talents[class][2]])
+                self.TalentsTab.Tab3.background:SetTexture(Guildbook.Data.TalentBackgrounds[Guildbook.Data.Talents[class][3]])
 
-            Guildbook:SendTalentInfoRequest(name, 1)
+                Guildbook:SendTalentInfoRequest(name, 1)
 
-            local guildName = Guildbook:GetGuildName()
-            if guildName then
-                if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid]['Profession1'] ~= '-' then
-                    local prof1 = GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid]['Profession1']
-                    if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][prof1] and next(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][prof1]) then
-                        self.ProfessionsTab:SetRecipesListviewData(prof1, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container, GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][prof1], recipeFilter)
+                local guildName = Guildbook:GetGuildName()
+                if guildName then
+                    if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid]['Profession1'] ~= '-' then
+                        local prof1 = GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid]['Profession1']
+                        if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][prof1] and next(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][prof1]) then
+                            self.ProfessionsTab:SetRecipesListviewData(prof1, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container, GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][prof1], recipeFilter)
+                        end
+                        Guildbook:SendTradeSkillsRequest(name, prof1)
+                        C_Timer.After(4, function()
+                            Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:SetRecipesListviewData(prof1, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container, GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][prof1], recipeFilter)
+                        end)
                     end
-                    Guildbook:SendTradeSkillsRequest(name, prof1)
-                    C_Timer.After(4, function()
-                        Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:SetRecipesListviewData(prof1, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container, GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][prof1], recipeFilter)
-                    end)
-                end
-                if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid]['Profession2'] ~= '-' then
-                    local prof2 = GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid]['Profession2']
-                    if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][prof2] and next(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][prof2]) then
-                        self.ProfessionsTab:SetRecipesListviewData(prof2, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container, GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][prof2], recipeFilter)
+                    if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid]['Profession2'] ~= '-' then
+                        local prof2 = GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid]['Profession2']
+                        if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][prof2] and next(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][prof2]) then
+                            self.ProfessionsTab:SetRecipesListviewData(prof2, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container, GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][prof2], recipeFilter)
+                        end
+                        Guildbook:SendTradeSkillsRequest(name, prof2)
+                        C_Timer.After(4, function()
+                            Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:SetRecipesListviewData(prof2, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container, GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][prof2], recipeFilter)
+                        end)
                     end
-                    Guildbook:SendTradeSkillsRequest(name, prof2)
-                    C_Timer.After(4, function()
-                        Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:SetRecipesListviewData(prof2, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container, GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][prof2], recipeFilter)
-                    end)
                 end
+            else
+                DEBUG('load character', 'mixin error')
             end
         end
         CloseDropDownMenus()
@@ -2175,7 +2179,7 @@ Click the character to view the recipe item in their 'Professions' tab.
     self.GuildFrame.ProfilesFrame.ShowAllRecipesCheckbox:SetSize(120, 22)
     self.GuildFrame.ProfilesFrame.ShowAllRecipesCheckbox:SetText('Show all recipes')
     self.GuildFrame.ProfilesFrame.ShowAllRecipesCheckbox:SetScript('OnClick', function(self)
-        Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(self.selectedGUID, nil)
+        --Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(self.selectedGUID, nil)
     end)
 
 

@@ -718,9 +718,7 @@ function Guildbook:OnTalentInfoReceived(data, distribution, sender)
         return
     end
     if type(data.payload) == 'table' then
-        C_Timer.After(2, function()
-            self.GuildFrame.ProfilesFrame:LoadCharacterTalents(data.payload)
-        end)
+        self.GuildFrame.ProfilesFrame:LoadCharacterTalents(data.payload)
     end
     DEBUG_COMMS('OnTalentInfoReceived', string.format("received talent data from %s", sender))
 end
@@ -1411,11 +1409,11 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
         self:SendGuildCalendarDeletedEvents()
 
     elseif data.type == 'TALENT_INFO_REQUEST' then
-        print('comms')
+        DEBUG_COMMS('talent request', 'request from '..sender)
         self:OnTalentInfoRequest(data, distribution, sender)
 
     elseif data.type == 'TALENT_INFO_RESPONSE' then
-        print('comms response')
+        DEBUG_COMMS('talent response', 'got data from '..sender)
         self:OnTalentInfoReceived(data, distribution, sender)
 
     end
