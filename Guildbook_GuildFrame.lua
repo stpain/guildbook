@@ -1206,7 +1206,7 @@ function Guildbook:SetupGuildCalendarFrame()
                 for k, event in pairs(GUILDBOOK_GLOBAL['Calendar'][guildName]) do
                     if event.date.day == date.day and event.date.month == date.month and event.date.year == date.year then
                         table.insert(events, event)
-                        DEBUG('GuildCalendarFrame:GetEventsForDate', 'found: '..event.title)
+                        DEBUG(GetServerTime(), 'GuildCalendarFrame:GetEventsForDate', 'found: '..event.title)
                     end
                 end
             end
@@ -1324,7 +1324,7 @@ Click the character to view the recipe item in their 'Professions' tab.
                                         GUID = guid,
                                         Name = characterName,
                                     })
-                                    --DEBUG('Search', itemName..'-'..characterName..' inserted')
+                                    --DEBUG(GetServerTime(), 'ProfilesFrame:SearchText_OnChanged', itemName..'-'..characterName..' inserted')
                                 end
                             end
                         end
@@ -1347,7 +1347,7 @@ Click the character to view the recipe item in their 'Professions' tab.
                                         GUID = guid,
                                         Name = characterName,
                                     })
-                                    --DEBUG('Search', itemName..'-'..characterName..' inserted')
+                                    --DEBUG(GetServerTime(), 'ProfilesFrame:SearchText_OnChanged', itemName..'-'..characterName..' inserted')
                                 end
                             end
                         end
@@ -1424,6 +1424,7 @@ Click the character to view the recipe item in their 'Professions' tab.
     function self.GuildFrame.ProfilesFrame:LoadCharacterDetails(guid, recipeFilter)
         self.selectedGUID = guid
         self:HideTalentGrid()
+        self.ProfessionsTab:ClearReagentsListview()
         Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:ClearRecipesListview(Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container)
         Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:ClearRecipesListview(Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container)
         if not Guildbook.PlayerMixin then
@@ -1475,16 +1476,17 @@ Click the character to view the recipe item in their 'Professions' tab.
                     end
                 end
             else
-                DEBUG('load character', 'mixin error')
+                DEBUG(GetServerTime(), 'ProfilesFrame:LoadCharacterDetails', 'mixin error')
             end
         end
         CloseDropDownMenus()
     end
 
     function self.GuildFrame.ProfilesFrame:LoadCharacterTalents(talents)
+        DEBUG(GetServerTime(), 'ProfilesFrame:LoadCharacterTalents', 'loading character talents')
         for k, info in ipairs(talents) do
             --print(info.Name, info.Rank, info.MaxRank, info.Icon, info.Tab, info.Row, info.Col)
-            DEBUG('load talents', info.Name..', '..info.Rank..', '..info.Row..', '..info.Col)
+            --DEBUG(GetServerTime(), 'ProfilesFrame:LoadCharacterTalents', info.Name..', '..info.Rank..', '..info.Row..', '..info.Col)
             if self.TalentsTab.TalentGrid[info.Tab] and self.TalentsTab.TalentGrid[info.Tab][info.Row] then
                 self.TalentsTab.TalentGrid[info.Tab][info.Row][info.Col]:Show()
                 self.TalentsTab.TalentGrid[info.Tab][info.Row][info.Col].Icon:SetTexture(info.Icon)
@@ -1985,13 +1987,13 @@ Click the character to view the recipe item in their 'Professions' tab.
                 ItemID = reagentID,
                 Count = tonumber(count),
             })
-            --DEBUG('ProfilesFrame.ProfessionsTab:AddRecipe', string.format('add %s to reagents list', reagentID))
-            --DEBUG(':AddRecipe', string.format("added %s", name))
+            --DEBUG(GetServerTime(), 'ProfilesFrame.ProfessionsTab:AddRecipe', string.format('add %s to reagents list', reagentID))
+            --DEBUG(GetServerTime(), 'ProfilesFrame.ProfessionsTab:AddRecipe', string.format("added %s", name))
         end
         if filter == nil then
             table.insert(listview.binding, recipeItem)
         else
-            DEBUG('recipe match', recipeItem.Name..' -> '..filter)
+            DEBUG(GetServerTime(), 'ProfilesFrame.ProfessionsTab:AddRecipe', recipeItem.Name..' -> '..filter)
             if recipeItem.Name:lower():find(filter:lower(), 1, true) then
                 table.insert(listview.binding, recipeItem)
             end
@@ -2024,7 +2026,7 @@ Click the character to view the recipe item in their 'Professions' tab.
                 end
                 if link and rarity and icon and name then
                     Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:AddRecipe(itemID, link, enchant, rarity, icon, name, reagents, filter, listview)
-                    --DEBUG('AddRecipe', string.format('added recipe %s with rarity %s and icon %s, enchant=%s', link, rarity, icon, tostring(enchant)))
+                    --DEBUG(GetServerTime(), 'ProfilesFrame.ProfessionsTab:SetRecipesListviewData', string.format('added recipe %s with rarity %s and icon %s, enchant=%s', link, rarity, icon, tostring(enchant)))
                 else
                     if profession == 'Enchanting' then                    
                         local spell = Spell:CreateFromSpellID(spellID)
