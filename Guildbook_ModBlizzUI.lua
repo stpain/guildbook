@@ -22,6 +22,7 @@ the copyright holders.
 
 local addonName, Guildbook = ...
 
+
 --set constants
 local FRIENDS_FRAME_WIDTH = FriendsFrame:GetWidth()
 local GUILD_FRAME_WIDTH = GuildFrame:GetWidth()
@@ -159,7 +160,14 @@ function Guildbook:ModBlizzUI()
                     Guildbook:UpdateGuildMemberDetailFrameLabels()
                     Guildbook:ClearGuildMemberDetailFrame()
                     Guildbook.GuildMemberDetailFrame.CurrentMemberGUID = nil
+                    if name:find('-') then
+                        Guildbook.DEBUG(GetServerTime(), 'GuildFrameButton'..i..':OnClick', 'found "-" in name: '..name)
+                        local e = name:find('-')
+                        name = name:sub(1, e-1)
+                        Guildbook.DEBUG(GetServerTime(), 'GuildFrameButton'..i..':OnClick', 'name after removing realm: '..name)
+                    end
                     Guildbook:CharacterDataRequest(name)
+                    Guildbook.DEBUG(GetServerTime(), 'GuildFrameButton'..i..':OnClick', 'sent character data request to '..name)
                 end
             end
         end)

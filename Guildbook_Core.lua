@@ -634,13 +634,6 @@ function Guildbook:IsGuildMemberOnline(info)
     end
 end
 
-function Guildbook:Transmit(data, channel, target, priority)
-    local serialized = LibSerialize:Serialize(data);
-    local compressed = LibDeflate:CompressDeflate(serialized);
-    local encoded    = LibDeflate:EncodeForWoWAddonChannel(compressed);
-    self:SendCommMessage(addonName, encoded, channel, target, priority);
-end
-
 local helperIcons = 1
 function Guildbook:CreateHelperIcon(parent, relTo, anchor, relPoint, x, y, tooltiptext)
     local f = CreateFrame('FRAME', tostring('GuildbookHelperIcons'..helperIcons), parent)
@@ -673,6 +666,23 @@ function Guildbook:UpdateListviewSelectedTextures(listview)
         end
     end
 end
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- comms
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+function Guildbook:Transmit(data, channel, target, priority)
+    local serialized = LibSerialize:Serialize(data);
+    local compressed = LibDeflate:CompressDeflate(serialized);
+    local encoded    = LibDeflate:EncodeForWoWAddonChannel(compressed);
+    if target and target:find('-') then
+        DEBUG(GetServerTime(), 'SendCommMessage', [[target contains "-" comms not sent]])
+        return
+    else
+        self:SendCommMessage(addonName, encoded, channel, target, priority);
+        DEBUG(GetServerTime(), 'SendCommMessage', string.format("prefix: %s, channel: %s target: %s, prio: %s", addonName, channel, (target or 'nil'), priority))
+    end
+end
+
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- talent comms
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -763,6 +773,7 @@ function Guildbook:CharacterDataRequest(target)
         type = 'CHARACTER_DATA_REQUEST'
     }
     self:Transmit(request, 'WHISPER', target, 'NORMAL')
+    DEBUG(GetServerTime(), 'CharacterDataRequest', string.format("sent character data request to %s", target))
 end
 
 -- limited to once per minute to reduce chat spam
