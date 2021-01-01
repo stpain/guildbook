@@ -537,6 +537,13 @@ function Guildbook:CleanUpGuildRosterData(guild, msg)
                                 end
                             end
                         end
+                        if not info.Talents then
+                            info.Talents = {
+                                [1] = {},
+                                [2] = {},
+                            }
+                            DEBUG('func', GetServerTime(), 'CleanUpGuildRosterData', string.format('added talent tables to %s', name))
+                        end
                     end
                 end
             end
@@ -589,13 +596,16 @@ function Guildbook.GetProfessionData()
 end
 
 --- talent scanning for tbc new feature
-function Guildbook:GetTalentInfo()
-    local talents = {}
+function Guildbook:GetCharacterTalentInfo()
+    local talents = {
+        [1] = {},
+        [2] = {},
+    }
     for tabIndex = 1, GetNumTalentTabs() do
         local spec, texture, pointsSpent, fileName = GetTalentTabInfo(tabIndex)
         for talentIndex = 1, GetNumTalents(tabIndex) do
             local name, iconTexture, row, column, rank, maxRank, isExceptional, available = GetTalentInfo(tabIndex, talentIndex)
-            table.insert(talents, {
+            table.insert(talents[1], {
                 Tab = tabIndex,
                 Row = row,
                 Col = column,
@@ -604,7 +614,7 @@ function Guildbook:GetTalentInfo()
                 Icon = iconTexture,
                 Name = name,
             })
-            --print(string.format("Tab %s [%s] > TalentIndex %s > name=%s, icon=%s, tier=%s, column=%s, rank=%s, maxRank=%s", spec, fileName, talentIndex, name, iconTexture, tier, column, rank, maxRank))
+            DEBUG('func', GetServerTime(), 'GetCharacterTalentInfo', string.format("Tab %s: %s %s points", tabIndex, name, rank))
         end
     end
     return talents
@@ -685,14 +695,21 @@ end
 -- comms
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function Guildbook:Transmit(data, channel, target, priority)
+    if data.type then
+        DEBUG('func', GetServerTime(), 'Transmit_Request', string.format("type=%s, channel=%s, target=%s, prio=%s", data.type, channel or 'nil', target or 'nil', priority or 'nil'))
+    else
+        DEBUG('func', GetServerTime(), 'Transmit_Request', string.format("channel=%s, target=%s, prio=%s", channel or 'nil', target or 'nil', priority or 'nil'))
+    end
     local serialized = LibSerialize:Serialize(data);
     local compressed = LibDeflate:CompressDeflate(serialized);
     local encoded    = LibDeflate:EncodeForWoWAddonChannel(compressed);
     if channel == 'WHISPER' then
-        target = Ambiguate(target, 'none')
+        --target = Ambiguate(target, 'none')
     end
-    self:SendCommMessage(addonName, encoded, channel, target, priority)
-    DEBUG('comms', GetServerTime(), 'SendCommMessage', string.format("prefix: %s, channel: %s target: %s, prio: %s", addonName, channel, (target or 'nil'), priority))
+    if addonName and encoded and channel and priority then
+        self:SendCommMessage(addonName, encoded, channel, target, priority)
+        DEBUG('comms', GetServerTime(), 'SendCommMessage', string.format("prefix: %s, channel: %s target: %s, prio: %s", addonName, channel, (target or 'nil'), priority))
+    end
     -- if target and target:find('-') then
     --     DEBUG(GetServerTime(), 'SendCommMessage', [[target contains "-" comms not sent]])
     --     return
@@ -718,23 +735,40 @@ function Guildbook:OnTalentInfoRequest(request, distribution, sender)
     if distribution ~= "WHISPER" then
         return
     end
-    local talents = Guildbook:GetTalentInfo()
-    local response = {
-        type = "TALENT_INFO_RESPONSE",
-        payload = talents,
-    }
-    self:Transmit(response, distribution, sender, "BULK")
-    DEBUG('comms_out', GetServerTime(), 'OnTalentInfoRequest', string.format('sending talents data to %s', sender))
+    local tal = Guildbook:GetCharacterTalentInfo(spec)
+        if tal then
+        local response = {
+            type = "TALENT_INFO_RESPONSE",
+            payload = tal,
+        }
+        self:Transmit(response, distribution, sender, "BULK")
+        DEBUG('comms_out', GetServerTime(), 'OnTalentInfoRequest', string.format('sending talents data to %s', sender))
+    else
+        DEBUG('comms_out', GetServerTime(), 'OnTalentInfoRequest', string.format('unable to send talents, requested from %s', sender))
+    end
 end
 
 function Guildbook:OnTalentInfoReceived(data, distribution, sender)
+    DEBUG('comms_in', GetServerTime(), 'OnTalentInfoReceived', string.format("received talent data from %s", sender))
     if distribution ~= "WHISPER" then
         return
     end
     if type(data.payload) == 'table' then
-        self.GuildFrame.ProfilesFrame:LoadCharacterTalents(data.payload)
+        C_Timer.After(3.0, function()
+            local guildName = Guildbook:GetGuildName()
+            if guildName and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
+                for guid, character in pairs(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName]) do
+                    if character.Name == sender then
+                        character.Talents = {
+                            [1] = data.payload[1],
+                            [2] = data.payload[2]
+                        }
+                        DEBUG('func', GetServerTime(), 'OnTalentInfoReceived', string.format('updated %s talents', sender))
+                    end
+                end
+            end
+        end)
     end
-    DEBUG('comms_in', GetServerTime(), 'OnTalentInfoReceived', string.format("received talent data from %s", sender))
 end
 
 
@@ -859,7 +893,7 @@ function Guildbook:OnCharacterDataRequested(request, distribution, sender)
     local d = self:GetCharacterDataPayload()
     if type(d) == 'table' and d.payload.GUID then
         self:Transmit(d, 'WHISPER', sender, 'NORMAL')
-        DEBUG('comms_out', GetServerTime(), 'OnCharacterDataRequested', 'WHISPER='..sender)
+        DEBUG('comms_out', GetServerTime(), 'OnCharacterDataRequested', 'sending character data to '..sender)
     end
 end
 
@@ -887,13 +921,13 @@ function Guildbook:OnCharacterDataReceived(data, distribution, sender)
         GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].AttunementsKeys = data.payload.AttunementsKeys
         GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].Availability = data.payload.Availability
         GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].OffSpecIsPvP = data.payload.OffSpecIsPvP
-        for k, v in pairs({'Cooking', 'Fishing', 'FirstAid'}) do
+        for k, v in ipairs({'Cooking', 'Fishing', 'FirstAid'}) do
             if data.payload[v] then
                 GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID][v] = data.payload[v]
             end
         end
         DEBUG('comms_in', GetServerTime(), 'OnCharacterDataReceived', string.format('OnCharacterDataReceived > sender=%s', data.payload.Name))
-        C_Timer.After(1, function()
+        C_Timer.After(1.5, function()
             Guildbook:UpdateGuildMemberDetailFrame(data.payload.GUID)
         end)        
     end
