@@ -709,8 +709,10 @@ function Guildbook:Transmit(data, channel, target, priority)
         --target = Ambiguate(target, 'none')
     end
     if addonName and encoded and channel and priority then
-        self:SendCommMessage(addonName, encoded, channel, target, priority)
-        DEBUG('comms', GetServerTime(), 'SendCommMessage', string.format("prefix: %s, channel: %s target: %s, prio: %s", addonName, channel, (target or 'nil'), priority))
+        if data.type == 'TALENT_INFO_REQUEST' or data.type == 'TALENT_INFO_RESPONSE' then
+            self:SendCommMessage(addonName, encoded, channel, target, priority)
+            DEBUG('comms', GetServerTime(), 'SendCommMessage', string.format("prefix: %s, channel: %s target: %s, prio: %s", addonName, channel, (target or 'nil'), priority))
+        end
     end
 end
 
