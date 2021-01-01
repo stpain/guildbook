@@ -64,6 +64,7 @@ Guildbook.DebugLog = {}
 
 Guildbook.DebugFrame = CreateFrame('FRAME', 'SRBLPUI', UIParent, "UIPanelDialogTemplate")
 Guildbook.DebugFrame:SetPoint('CENTER', 0, 0)
+Guildbook.DebugFrame:SetFrameStrata('HIGH')
 Guildbook.DebugFrame:SetSize(800, 260)
 Guildbook.DebugFrame:SetMovable(true)
 Guildbook.DebugFrame:EnableMouse(true)
@@ -596,6 +597,7 @@ function Guildbook.GetProfessionData()
 end
 
 --- talent scanning for tbc new feature
+-- https://wow.gamepedia.com/API_GetActiveTalentGroup -- dual spec api for wrath
 function Guildbook:GetCharacterTalentInfo()
     local talents = {
         [1] = {},
@@ -710,13 +712,6 @@ function Guildbook:Transmit(data, channel, target, priority)
         self:SendCommMessage(addonName, encoded, channel, target, priority)
         DEBUG('comms', GetServerTime(), 'SendCommMessage', string.format("prefix: %s, channel: %s target: %s, prio: %s", addonName, channel, (target or 'nil'), priority))
     end
-    -- if target and target:find('-') then
-    --     DEBUG(GetServerTime(), 'SendCommMessage', [[target contains "-" comms not sent]])
-    --     return
-    -- else
-    --     self:SendCommMessage(addonName, encoded, channel, target, priority);
-    --     DEBUG(GetServerTime(), 'SendCommMessage', string.format("prefix: %s, channel: %s target: %s, prio: %s", addonName, channel, (target or 'nil'), priority))
-    -- end
 end
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -735,13 +730,13 @@ function Guildbook:OnTalentInfoRequest(request, distribution, sender)
     if distribution ~= "WHISPER" then
         return
     end
-    local tal = Guildbook:GetCharacterTalentInfo(spec)
+    local tal = Guildbook:GetCharacterTalentInfo()
         if tal then
         local response = {
             type = "TALENT_INFO_RESPONSE",
             payload = tal,
         }
-        self:Transmit(response, distribution, sender, "BULK")
+        self:Transmit(response, 'GUILD', sender, "BULK")
         DEBUG('comms_out', GetServerTime(), 'OnTalentInfoRequest', string.format('sending talents data to %s', sender))
     else
         DEBUG('comms_out', GetServerTime(), 'OnTalentInfoRequest', string.format('unable to send talents, requested from %s', sender))
@@ -751,7 +746,7 @@ end
 function Guildbook:OnTalentInfoReceived(data, distribution, sender)
     DEBUG('comms_in', GetServerTime(), 'OnTalentInfoReceived', string.format("received talent data from %s", sender))
     if distribution ~= "WHISPER" then
-        return
+        --return
     end
     if type(data.payload) == 'table' then
         C_Timer.After(3.0, function()

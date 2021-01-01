@@ -1253,7 +1253,7 @@ Click the character to view the recipe item in their 'Professions' tab.
     self.GuildFrame.ProfilesFrame.helpIcon = Guildbook:CreateHelperIcon(self.GuildFrame.ProfilesFrame, 'BOTTOMRIGHT', Guildbook.GuildFrame.ProfilesFrame, 'TOPRIGHT', -2, 2, helpText)
 
     self.GuildFrame.ProfilesFrame:SetScript('OnShow', function(self)
-        self:LoadCharacterDetails(UnitGUID('player'), nil)
+        --self:LoadCharacterDetails(UnitGUID('player'), nil)
     end)
 
     function self.GuildFrame.ProfilesFrame:ToggleTabs(id, frame)
@@ -1375,7 +1375,7 @@ Click the character to view the recipe item in their 'Professions' tab.
                                 func = function()
                                     Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(info.GUID, itemName)
                                     Guildbook.GuildFrame.ProfilesFrame.SearchBox:ClearFocus()
-                                    --Guildbook.GuildFrame.ProfilesFrame:ToggleTabs(1, self.DetailsTab)
+                                    Guildbook.GuildFrame.ProfilesFrame:ToggleTabs(1, self.DetailsTab)
                                 end,
                             })
                         end
@@ -1443,7 +1443,10 @@ Click the character to view the recipe item in their 'Professions' tab.
             if guid and race and raceTexture and guildName then
                 if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] then
                     -- load race background
-                    self.DetailsTab:ShowModelViewer(race)
+                    C_Timer.After(0.2, function()
+                        self.DetailsTab:ShowModelViewer(race)
+                    end)
+                    --self.DetailsTab:ShowModelViewer(race)
                     -- load race portrait
                     self.DetailsTab.Overlay.portrait:SetTexture(raceTexture)
                     -- load class icon
