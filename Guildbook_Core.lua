@@ -709,10 +709,8 @@ function Guildbook:Transmit(data, channel, target, priority)
         --target = Ambiguate(target, 'none')
     end
     if addonName and encoded and channel and priority then
-        if data.type == 'TALENT_INFO_REQUEST' or data.type == 'TALENT_INFO_RESPONSE' then
-            self:SendCommMessage(addonName, encoded, channel, target, priority)
-            DEBUG('comms', GetServerTime(), 'SendCommMessage', string.format("prefix: %s, channel: %s target: %s, prio: %s", addonName, channel, (target or 'nil'), priority))
-        end
+        self:SendCommMessage(addonName, encoded, channel, target, priority)
+        DEBUG('comms', GetServerTime(), 'SendCommMessage', string.format("prefix: %s, channel: %s target: %s, prio: %s", addonName, channel, (target or 'nil'), priority))
     end
 end
 
@@ -738,7 +736,9 @@ function Guildbook:OnTalentInfoRequest(request, distribution, sender)
             type = "TALENT_INFO_RESPONSE",
             payload = tal,
         }
-        self:Transmit(response, 'GUILD', sender, "BULK")
+        -- send to all online players
+        --self:Transmit(response, distribution, sender, "BULK")
+        self:Transmit(response, 'GUILD', nil, "BULK")
         DEBUG('comms_out', GetServerTime(), 'OnTalentInfoRequest', string.format('sending talents data to %s', sender))
     else
         DEBUG('comms_out', GetServerTime(), 'OnTalentInfoRequest', string.format('unable to send talents, requested from %s', sender))
@@ -793,7 +793,8 @@ function Guildbook:OnTradeSkillsRequested(request, distribution, sender)
                 recipes = GUILDBOOK_CHARACTER[request.payload],
             }
         }
-        self:Transmit(response, distribution, sender, "BULK")
+        self:Transmit(response, 'GUILD', nil, "BULK")
+        --self:Transmit(response, distribution, sender, "BULK")
         DEBUG('comms_out', GetServerTime(), 'OnTradeSkillsRequested', string.format('sending %s data to %s', request.payload, sender))
     end
 end

@@ -1473,7 +1473,7 @@ Click the character to view the recipe item in their 'Professions' tab.
                     -- talents
                     -- this has been a pickle to resolve but it seems delayign the ui update fixes things ?
                     if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Talents and next(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Talents[1]) then
-                        C_Timer.After(1, function()
+                        C_Timer.After(0.5, function()
                             self:LoadCharacterTalents(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Talents[1])
                             DEBUG('func', GetServerTime(), 'LoadCharacterDetails_Delayed', 'loading talents from file')
                         end)
