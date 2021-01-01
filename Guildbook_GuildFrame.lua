@@ -1206,7 +1206,7 @@ function Guildbook:SetupGuildCalendarFrame()
                 for k, event in pairs(GUILDBOOK_GLOBAL['Calendar'][guildName]) do
                     if event.date.day == date.day and event.date.month == date.month and event.date.year == date.year then
                         table.insert(events, event)
-                        DEBUG(GetServerTime(), 'GuildCalendarFrame:GetEventsForDate', 'found: '..event.title)
+                        DEBUG('func', GetServerTime(), 'GuildCalendarFrame:GetEventsForDate', 'found: '..event.title)
                     end
                 end
             end
@@ -1253,7 +1253,7 @@ Click the character to view the recipe item in their 'Professions' tab.
     self.GuildFrame.ProfilesFrame.helpIcon = Guildbook:CreateHelperIcon(self.GuildFrame.ProfilesFrame, 'BOTTOMRIGHT', Guildbook.GuildFrame.ProfilesFrame, 'TOPRIGHT', -2, 2, helpText)
 
     self.GuildFrame.ProfilesFrame:SetScript('OnShow', function(self)
-
+        self:LoadCharacterDetails(UnitGUID('player'), nil)
     end)
 
     function self.GuildFrame.ProfilesFrame:ToggleTabs(id, frame)
@@ -1324,7 +1324,7 @@ Click the character to view the recipe item in their 'Professions' tab.
                                         GUID = guid,
                                         Name = characterName,
                                     })
-                                    --DEBUG(GetServerTime(), 'ProfilesFrame:SearchText_OnChanged', itemName..'-'..characterName..' inserted')
+                                    --DEBUG('func', GetServerTime(), 'ProfilesFrame:SearchText_OnChanged', itemName..'-'..characterName..' inserted')
                                 end
                             end
                         end
@@ -1347,7 +1347,7 @@ Click the character to view the recipe item in their 'Professions' tab.
                                         GUID = guid,
                                         Name = characterName,
                                     })
-                                    --DEBUG(GetServerTime(), 'ProfilesFrame:SearchText_OnChanged', itemName..'-'..characterName..' inserted')
+                                    --DEBUG('func', GetServerTime(), 'ProfilesFrame:SearchText_OnChanged', itemName..'-'..characterName..' inserted')
                                 end
                             end
                         end
@@ -1440,11 +1440,13 @@ Click the character to view the recipe item in their 'Professions' tab.
             local tex = Guildbook.Data.RaceIcons[C_PlayerInfo.GetSex(Guildbook.PlayerMixin)][race]
 
             if name and race and class then
-                self.DetailsTab.portrait:SetTexture(tex)
-                self.DetailsTab.class:SetTexture(Guildbook.Data.Class[class].IconID)
-                self.DetailsTab.name:SetText(name)
+                self.DetailsTab:ShowModelViewer(race)
+
+                self.DetailsTab.Overlay.portrait:SetTexture(tex)
+                self.DetailsTab.Overlay.class:SetTexture(Guildbook.Data.Class[class].IconID)
+                self.DetailsTab.Overlay.name:SetText(name)
                 local r, g, b = unpack(Guildbook.Data.Class[class].RGB)
-                self.DetailsTab.name:SetTextColor(r, g, b, 1)
+                self.DetailsTab.Overlay.name:SetTextColor(r, g, b, 1)
 
                 self.TalentsTab.Tab1.background:SetTexture(Guildbook.Data.TalentBackgrounds[Guildbook.Data.Talents[class][1]])
                 self.TalentsTab.Tab2.background:SetTexture(Guildbook.Data.TalentBackgrounds[Guildbook.Data.Talents[class][2]])
@@ -1453,7 +1455,16 @@ Click the character to view the recipe item in their 'Professions' tab.
                 Guildbook:SendTalentInfoRequest(name, 1)
 
                 local guildName = Guildbook:GetGuildName()
-                if guildName then
+                if guildName and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] then
+
+                    for k, v in pairs(self.DetailsTab.Overlay.InfoContainer.labels) do
+                        if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][k] then
+                            self.DetailsTab.Overlay.InfoContainer[k]:SetText(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][k])
+                        end
+                    end
+
+
+
                     if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid]['Profession1'] ~= '-' then
                         local prof1 = GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid]['Profession1']
                         if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][prof1] and next(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][prof1]) then
@@ -1476,17 +1487,17 @@ Click the character to view the recipe item in their 'Professions' tab.
                     end
                 end
             else
-                DEBUG(GetServerTime(), 'ProfilesFrame:LoadCharacterDetails', 'mixin error')
+                DEBUG('func', GetServerTime(), 'ProfilesFrame:LoadCharacterDetails', 'mixin error')
             end
         end
         CloseDropDownMenus()
     end
 
     function self.GuildFrame.ProfilesFrame:LoadCharacterTalents(talents)
-        DEBUG(GetServerTime(), 'ProfilesFrame:LoadCharacterTalents', 'loading character talents')
+        DEBUG('func', GetServerTime(), 'ProfilesFrame:LoadCharacterTalents', 'loading character talents')
         for k, info in ipairs(talents) do
             --print(info.Name, info.Rank, info.MaxRank, info.Icon, info.Tab, info.Row, info.Col)
-            --DEBUG(GetServerTime(), 'ProfilesFrame:LoadCharacterTalents', info.Name..', '..info.Rank..', '..info.Row..', '..info.Col)
+            --DEBUG('func', GetServerTime(), 'ProfilesFrame:LoadCharacterTalents', info.Name..', '..info.Rank..', '..info.Row..', '..info.Col)
             if self.TalentsTab.TalentGrid[info.Tab] and self.TalentsTab.TalentGrid[info.Tab][info.Row] then
                 self.TalentsTab.TalentGrid[info.Tab][info.Row][info.Col]:Show()
                 self.TalentsTab.TalentGrid[info.Tab][info.Row][info.Col].Icon:SetTexture(info.Icon)
@@ -1558,19 +1569,39 @@ Click the character to view the recipe item in their 'Professions' tab.
     self.GuildFrame.ProfilesFrame.DetailsTab:SetPoint('BOTTOMRIGHT', self.GuildFrame.ProfilesFrame, 'BOTTOMRIGHT', -2, 2)
     self.GuildFrame.ProfilesFrame.DetailsTab:Hide()
 
-    self.GuildFrame.ProfilesFrame.DetailsTab.portrait = self.GuildFrame.ProfilesFrame.DetailsTab:CreateTexture('$parentPortrait', 'ARTWORK')
-    self.GuildFrame.ProfilesFrame.DetailsTab.portrait:SetPoint('TOPLEFT', 5, -5)
-    self.GuildFrame.ProfilesFrame.DetailsTab.portrait:SetSize(70, 70)
+    self.GuildFrame.ProfilesFrame.DetailsTab.ModelViewers = {}
+    for k, v in pairs(Guildbook.RaceBackgrounds) do
+        local f = CreateFrame('Model', 'GuildbookGuildFrameProfilesFrameModelViewer'..k, self.GuildFrame.ProfilesFrame.DetailsTab)
+        --f:SetFrameStrata('LOW')
+        --f:SetFrameLevel(0)
+        f:SetPoint('TOPLEFT', 0, 0)
+        f:SetPoint('BOTTOMRIGHT', 0, 0)
+        f:SetModel(v.FileName)
+        f:SetModelAlpha(0.9)
+        f:Hide()
+        self.GuildFrame.ProfilesFrame.DetailsTab.ModelViewers[k] = f
+    end
 
-    self.GuildFrame.ProfilesFrame.DetailsTab.class = self.GuildFrame.ProfilesFrame.DetailsTab:CreateTexture('$parentClass', 'ARTWORK')
-    self.GuildFrame.ProfilesFrame.DetailsTab.class:SetPoint('TOPRIGHT', -5, -5)
-    self.GuildFrame.ProfilesFrame.DetailsTab.class:SetSize(70, 70)
+    function self.GuildFrame.ProfilesFrame.DetailsTab:ShowModelViewer(model)
+        for k, v in pairs(self.ModelViewers) do
+            v:Hide()
+        end
+        self.ModelViewers[model]:Show()
+    end
 
-    self.GuildFrame.ProfilesFrame.DetailsTab.name = self.GuildFrame.ProfilesFrame.DetailsTab:CreateFontString('$parentName', 'OVERLAY', 'GameFontNormalLarge')
-    self.GuildFrame.ProfilesFrame.DetailsTab.name:SetPoint('TOP', 0, -20)
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameDetailsTabOverlay', self.GuildFrame.ProfilesFrame.DetailsTab)
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay:SetAllPoints(self.GuildFrame.ProfilesFrame.DetailsTab)
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay:SetFrameLevel(999)
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.portrait = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay:CreateTexture('$parentPortrait', 'OVERLAY')
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.portrait:SetPoint('TOPLEFT', 5, -5)
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.portrait:SetSize(70, 70)
 
-    self.GuildFrame.ProfilesFrame.DetailsTab.location = self.GuildFrame.ProfilesFrame.DetailsTab:CreateFontString('$parentLocation', 'OVERLAY', 'GameFontNormal')
-    self.GuildFrame.ProfilesFrame.DetailsTab.name:SetPoint('TOP', 0, -20)
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.class = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay:CreateTexture('$parentClass', 'OVERLAY')
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.class:SetPoint('TOPRIGHT', -5, -5)
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.class:SetSize(70, 70)
+
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.name = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay:CreateFontString('$parentName', 'OVERLAY', 'GameFontNormalLarge')
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.name:SetPoint('TOP', 0, -20)
 
     -- zone/location
     -- guidl rank
@@ -1579,9 +1610,62 @@ Click the character to view the recipe item in their 'Professions' tab.
     -- prof info
     -- spec, talent points 1/1/1
 
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoContainer = CreateFrame('FRAME', "GuildbookGuildFrameProfilesFrameDetailsFrameAboutFrame", self.GuildFrame.ProfilesFrame.DetailsTab.Overlay)
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoContainer:SetPoint('TOPLEFT', 20, -90)
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoContainer:SetSize(300, 200)
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoContainer.background = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoContainer:CreateTexture("$parentBackground", 'BACKGROUND')
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoContainer.background:SetPoint('TOPLEFT', 2, -2)
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoContainer.background:SetPoint('BOTTOMRIGHT', -2, 2)
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoContainer.background:SetColorTexture(0,0,0,0.7)
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoContainer:SetBackdrop({
+        edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+        edgeSize = 16,
+    })
 
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoContainer.labels = {
+        ['Location'] = {
+            label = 'Location',
+            offset = -0.0,
+        },
+        ['Level'] = {
+            label = 'Level',
+            offset = -20.0,
+        },
+        ['GuildRank'] = {
+            label = 'Guild Rank',
+            offset = -40.0,
+        },
+        ['Profession1'] = {
+            label = 'Profession 1',
+            offset = -60.0,
+        },
+        ['Profession2'] = {
+            label = 'Profession 2',
+            offset = -80.0,
+        },
+        ['Cooking'] = {
+            label = 'Cooking',
+            offset = -100.0,
+        },
+        ['Fishing'] = {
+            label = 'Fishing',
+            offset = -120.0,
+        },
+        ['FirstAid'] = {
+            label = 'First Aid',
+            offset = -140.0,
+        },
+    }
+    for k, v in pairs(self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoContainer.labels) do
+        local label = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoContainer:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
+        label:SetPoint('TOPLEFT', 6, v.offset - 40)
+        label:SetText(v.label)
 
-
+        local fs = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoContainer:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
+        fs:SetPoint('TOPLEFT', 106, v.offset - 40)
+        fs:SetText(v.label)
+        self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoContainer[k] = fs
+    end
 
     
     self.GuildFrame.ProfilesFrame.TalentsTab = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameTalentsTab', self.GuildFrame.ProfilesFrame)
@@ -1987,13 +2071,13 @@ Click the character to view the recipe item in their 'Professions' tab.
                 ItemID = reagentID,
                 Count = tonumber(count),
             })
-            --DEBUG(GetServerTime(), 'ProfilesFrame.ProfessionsTab:AddRecipe', string.format('add %s to reagents list', reagentID))
-            --DEBUG(GetServerTime(), 'ProfilesFrame.ProfessionsTab:AddRecipe', string.format("added %s", name))
+            --DEBUG('func', GetServerTime(), 'ProfilesFrame.ProfessionsTab:AddRecipe', string.format('add %s to reagents list', reagentID))
+            --DEBUG('func', GetServerTime(), 'ProfilesFrame.ProfessionsTab:AddRecipe', string.format("added %s", name))
         end
         if filter == nil then
             table.insert(listview.binding, recipeItem)
         else
-            DEBUG(GetServerTime(), 'ProfilesFrame.ProfessionsTab:AddRecipe', recipeItem.Name..' -> '..filter)
+            DEBUG('func', GetServerTime(), 'ProfilesFrame.ProfessionsTab:AddRecipe', recipeItem.Name..' -> '..filter)
             if recipeItem.Name:lower():find(filter:lower(), 1, true) then
                 table.insert(listview.binding, recipeItem)
             end
@@ -2026,7 +2110,7 @@ Click the character to view the recipe item in their 'Professions' tab.
                 end
                 if link and rarity and icon and name then
                     Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:AddRecipe(itemID, link, enchant, rarity, icon, name, reagents, filter, listview)
-                    --DEBUG(GetServerTime(), 'ProfilesFrame.ProfessionsTab:SetRecipesListviewData', string.format('added recipe %s with rarity %s and icon %s, enchant=%s', link, rarity, icon, tostring(enchant)))
+                    --DEBUG('func', GetServerTime(), 'ProfilesFrame.ProfessionsTab:SetRecipesListviewData', string.format('added recipe %s with rarity %s and icon %s, enchant=%s', link, rarity, icon, tostring(enchant)))
                 else
                     if profession == 'Enchanting' then                    
                         local spell = Spell:CreateFromSpellID(spellID)
