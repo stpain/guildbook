@@ -167,7 +167,7 @@ function Guildbook:ModBlizzUI()
                     --     Guildbook.DEBUG(GetServerTime(), 'GuildFrameButton'..i..':OnClick', 'name after removing realm: '..name)
                     -- end
                     Guildbook:CharacterDataRequest(name)
-                    Guildbook.DEBUG('comms_out', GetServerTime(), 'GuildFrameButton'..i..':OnClick', 'sent character data request to '..name)
+                    Guildbook.DEBUG('comms_out', 'GuildFrameButton'..i..':OnClick', 'sent character data request to '..name)
                 end
             end
         end)
