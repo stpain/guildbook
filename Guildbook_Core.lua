@@ -667,6 +667,19 @@ function Guildbook.GetItemLevel()
 	return math.floor(itemlevel/itemCount)
 end
 
+function Guildbook.GetCharacterInventory()
+    local character, itemlevel, itemCount = {}, 0, 0
+	for k, slot in ipairs(Guildbook.Data.InventorySlots) do
+		character[slot.Name] = GetInventoryItemLink('player', slot.Id) or false
+    end	
+    if GUILDBOOK_CHARACTER then
+        GUILDBOOK_CHARACTER['Inventory'] = {
+            Current = character,
+        }
+    end
+    --return character
+end
+
 function Guildbook:IsGuildMemberOnline(player)
     local online = false
     local guildName = Guildbook:GetGuildName()
@@ -885,6 +898,7 @@ function Guildbook:GetCharacterDataPayload()
     local level = UnitLevel('player')
     local ilvl = self:GetItemLevel()
     self.GetProfessionData()
+    self.GetCharacterInventory()
     if not self.PlayerMixin then
         self.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
     else
@@ -915,6 +929,8 @@ function Guildbook:GetCharacterDataPayload()
                 Cooking = GUILDBOOK_CHARACTER["Cooking"],
                 Fishing = GUILDBOOK_CHARACTER["Fishing"],
                 FirstAid = GUILDBOOK_CHARACTER["FirstAid"],
+
+                CurrentEquipment = GUILDBOOK_CHARACTER['Inventory'].Current
             }
         }
         return response
@@ -961,7 +977,11 @@ function Guildbook:OnCharacterDataReceived(data, distribution, sender)
                 GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID][v] = data.payload[v]
             end
         end
-        --DEBUG('comms_in', 'OnCharacterDataReceived', string.format('OnCharacterDataReceived > sender=%s', data.payload.Name))
+        if not GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].Inventory then
+            GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].Inventory = {}
+        end
+        GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].Inventory.Current = data.payload.CurrentEquipment
+        DEBUG('func', 'OnCharacterDataReceived', string.format('OnCharacterDataReceived > sender=%s', data.payload.Name))
         C_Timer.After(Guildbook.COMMS_DELAY, function()
             Guildbook:UpdateGuildMemberDetailFrame(data.payload.GUID)
         end)        
@@ -1522,6 +1542,23 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
     end
 end
 
+function Guildbook:UPDATE_MOUSEOVER_UNIT()
+    local guid = UnitGUID('mouseover')
+    if guid and guid:find('Player') then
+        if not Guildbook.PlayerMixin then
+            Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
+        else
+            Guildbook.PlayerMixin:SetGUID(guid)
+        end
+        if Guildbook.PlayerMixin:IsValid() then
+            --local name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
+            --local _, class, _ = C_PlayerInfo.GetClass(Guildbook.PlayerMixin)
+            local sex = C_PlayerInfo.GetSex(Guildbook.PlayerMixin)
+            local race = C_CreatureInfo.GetRaceInfo(C_PlayerInfo.GetRace(Guildbook.PlayerMixin)).clientFileString:upper()
+            self.GuildFrame.ProfilesFrame.DetailsTab:AddModelFrame('mouseover', race, sex)
+        end
+    end
+end
 
 --set up event listener
 Guildbook.EventFrame = CreateFrame('FRAME', 'GuildbookEventFrame', UIParent)
@@ -1534,6 +1571,7 @@ Guildbook.EventFrame:RegisterEvent('TRADE_SKILL_UPDATE')
 Guildbook.EventFrame:RegisterEvent('CRAFT_UPDATE')
 Guildbook.EventFrame:RegisterEvent('RAID_ROSTER_UPDATE')
 Guildbook.EventFrame:RegisterEvent('BANKFRAME_OPENED')
+Guildbook.EventFrame:RegisterEvent('UPDATE_MOUSEOVER_UNIT')
 Guildbook.EventFrame:SetScript('OnEvent', function(self, event, ...)
     --DEBUG( event, ' ')
     Guildbook[event](Guildbook, ...)

@@ -1427,6 +1427,7 @@ Click the character to view the recipe item in their 'Professions' tab.
     function self.GuildFrame.ProfilesFrame:LoadCharacterDetails(guid, recipeFilter)
         self.selectedGUID = guid
         self:HideTalentGrid()
+        self.DetailsTab:HideCharacterModels()
         self.ProfessionsTab:ClearReagentsListview()
         self.ProfessionsTab:ClearRecipesListview(Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container)
         self.ProfessionsTab:ClearRecipesListview(Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container)
@@ -1450,6 +1451,27 @@ Click the character to view the recipe item in their 'Professions' tab.
                     C_Timer.After(0.2, function()
                         self.DetailsTab:ShowModelViewer(race)
                     end)
+
+
+
+
+                    -- 3d model stuff (experimental)
+                    if self.DetailsTab.CharacterModels[race] and self.DetailsTab.CharacterModels[race][sex] then
+                        --self.DetailsTab.CharacterModels[race][sex]:UnequipItems()
+                        if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Inventory and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Inventory.Current then
+                            local items = GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Inventory.Current or {}
+                            for k, v in pairs(items) do
+                                local itemName, itemLink = GetItemInfo(v)
+                                DEBUG('func', 'equipping item', k..' '..itemName..' '..itemLink)
+                                self.DetailsTab.CharacterModels[race][sex]:TryOn(itemLink)
+                                self.DetailsTab.CharacterModels[race][sex]:SetRotation(0.25)
+                            end
+                            self.DetailsTab.CharacterModels[race][sex]:Show()
+                        end
+                    end
+
+
+
                     -- load race portrait
                     self.DetailsTab.Overlay.portrait:SetTexture(raceTexture)
                     -- load class icon
@@ -1646,6 +1668,57 @@ Click the character to view the recipe item in their 'Professions' tab.
         end
         self.ModelViewers[model]:Show()
     end
+
+
+
+
+
+
+
+
+
+
+
+
+    self.GuildFrame.ProfilesFrame.DetailsTab.CharacterModels = {}
+    function self.GuildFrame.ProfilesFrame.DetailsTab:AddModelFrame(target, race, gender)
+        --self:HideCharacterModels()
+        if not self.CharacterModels[race] then
+            self.CharacterModels[race] = {}
+        end
+        if not self.CharacterModels[race][gender] then
+            local f = CreateFrame('DressUpModel', 'GuildbookGuildFrameProfilesFrameModelViewer'..#Guildbook.GuildFrame.ProfilesFrame.DetailsTab.CharacterModels or 1, Guildbook.GuildFrame.ProfilesFrame.DetailsTab)
+            f:SetPoint('CENTER', 0, 0)
+            f:SetSize(300, 400)
+            f:SetPosition(0.0, 0.0, -0.2)
+            f:SetPortraitZoom(-0.2)
+            f:SetUnit(target)
+            --f:SetModel('character/nightelf/female/nightelffemale_hd.m2')
+            --f:UnequipItems()
+            --f:SetKeepModelOnHide(true)
+            f:Hide()
+            self.CharacterModels[race][gender] = f
+        end
+    end
+
+    function self.GuildFrame.ProfilesFrame.DetailsTab:HideCharacterModels()
+        for race, genders in pairs(self.CharacterModels) do
+            for k, v in pairs(genders) do
+                v:Hide()
+            end
+        end
+    end
+
+
+
+
+
+
+
+
+
+
+
 
     self.GuildFrame.ProfilesFrame.DetailsTab.Overlay = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameDetailsTabOverlay', self.GuildFrame.ProfilesFrame.DetailsTab)
     self.GuildFrame.ProfilesFrame.DetailsTab.Overlay:SetAllPoints(self.GuildFrame.ProfilesFrame.DetailsTab)
