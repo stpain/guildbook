@@ -731,25 +731,31 @@ Guildbook.EquipmentSlots = {
     { Id = 18, Name = "Ranged", Pos = 0 }
 }
 
+--local x = radius * math.cos(buff.Angle)
+--local y = radius * math.sin(buff.Angle)
 --pos was an old value used to determine display position
 Guildbook.Data.InventorySlots = {
-    { Name = 'INVSLOT_HEAD', Id = 1, Pos = 0, Display = 'Head' },
-    { Name = 'INVSLOT_NECK', Id = 2, Pos = 0, Display = 'Neck' },
-    { Name = 'INVSLOT_SHOULDER', Id = 3, Pos = 0, Display = 'Shoulder' },
-    { Name = 'INVSLOT_CHEST', Id = 5, Pos = 0, Display = 'Chest' },
-    { Name = 'INVSLOT_WAIST', Id = 6, Pos = 1, Display = 'Waist' },
-    { Name = 'INVSLOT_LEGS', Id = 7, Pos = 1, Display = 'Legs' },
-    { Name = 'INVSLOT_FEET', Id = 8, Pos = 1, Display = 'Feet' },
-    { Name = 'INVSLOT_WRIST', Id = 9, Pos = 0, Display = 'Wrist' },
-    { Name = 'INVSLOT_HAND', Id = 10, Pos = 1, Display = 'Hand' },
-    { Name = 'INVSLOT_FINGER1', Id = 11, Pos = 1, Display = 'Finger 1' },
-    { Name = 'INVSLOT_FINGER2', Id = 12, Pos = 1, Display = 'Finger 2' },
-    { Name = 'INVSLOT_TRINKET1', Id = 13, Pos = 1, Display = 'Trinket 1' },
-    { Name = 'INVSLOT_TRINKET2', Id = 14, Pos = 1, Display = 'Trinket 2' },
-    { Name = 'INVSLOT_BACK', Id = 15, Pos = 0, Display = 'Back' },
-    { Name = 'INVSLOT_MAINHAND', Id = 16, Pos = 0, Display = 'Main Hand' },
-    { Name = 'INVSLOT_OFFHAND', Id = 17, Pos = 0, Display = 'Off Hand' },
-    { Name = 'INVSLOT_RANGED', Id = 18, Pos = 0, Display = 'Range' },
+    { Name = 'HEADSLOT', Constant = 'INVSLOT_HEAD', Angle = 2.3, offsetX = -29.0, offsetY = 100.0 },
+    { Name = 'NECKSLOT', Constant = 'INVSLOT_NECK', Angle = 2.6, offsetX = -37.0, offsetY = 67.0 },
+    { Name = 'SHOULDERSLOT', Constant = 'INVSLOT_SHOULDER', Angle = 2.9, offsetX = -44.0, offsetY = 34.0 },
+    { Name = 'BACKSLOT', Constant = 'INVSLOT_BACK', Angle = 0.2, offsetX = -50.0, offsetY = 1.0 },
+    { Name = 'CHESTSLOT', Constant = 'INVSLOT_CHEST', Angle = 3.1, offsetX = -50.0, offsetY = -32.0 },
+    { Name = 'SHIRTSLOT', Constant = 'INVSLOT_BODY', Angle = 4.3, offsetX = -44.0, offsetY = -65.0 },
+    { Name = 'TABARDSLOT', Constant = 'INVSLOT_TABARD', Angle = 4.3, offsetX = -37.0, offsetY = -98.0 },
+    { Name = 'WRISTSLOT', Constant = 'INVSLOT_WRIST', Angle = 4.3, offsetX = -29.0, offsetY = -131.0 },
+
+    { Name = 'HANDSSLOT', Constant = 'INVSLOT_HAND', Angle = 1.7, offsetX = 229.0, offsetY = 100.0 },
+    { Name = 'WAISTSLOT', Constant = 'INVSLOT_WAIST', Angle = 3.4, offsetX = 237.0, offsetY = 67.0 },
+    { Name = 'LEGSSLOT', Constant = 'INVSLOT_LEGS', Angle = 3.7, offsetX = 244.0, offsetY = 34.0 },
+    { Name = 'FEETSLOT', Constant = 'INVSLOT_FEET', Angle = 4.0, offsetX = 250.0, offsetY = 1.0 },
+    { Name = 'FINGER0SLOT', Constant = 'INVSLOT_FINGER1', Angle = 1.4, offsetX = 250.0, offsetY = -32.0 },
+    { Name = 'FINGER1SLOT', Constant = 'INVSLOT_FINGER2', Angle = 1.1, offsetX = 244.0, offsetY = -65.0 },
+    { Name = 'TRINKET0SLOT', Constant = 'INVSLOT_TRINKET1', Angle = 0.8, offsetX = 237.0, offsetY = -98.0 },
+    { Name = 'TRINKET1SLOT', Constant = 'INVSLOT_TRINKET2', Angle = 0.5, offsetX = 229.0, offsetY = -131.0 },
+
+    { Name = 'MAINHANDSLOT', Angle = -3.9, offsetX = 48.0, offsetY = -125.0 },
+    { Name = 'SECONDARYHANDSLOT', Angle = -2.9, offsetX = 152.0, offsetY = -125.0 },
+    { Name = 'RANGEDSLOT', Angle = 0.9, offsetX = 100.0, offsetY = -135.0 },
 }
 
 Guildbook.Data.ProfessionDescriptions = {

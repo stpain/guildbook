@@ -312,6 +312,8 @@ function Guildbook:Init()
         Guildbook:RequestGuildCalendarDeletedEvents()
     end)
 
+    Guildbook.LoadTime = GetTime()
+    DEBUG('func', 'init', tostring('Load time '..date("%T")))
 end
 
 
@@ -636,7 +638,7 @@ function Guildbook:GetCharacterTalentInfo()
                 Icon = iconTexture,
                 Name = name,
             })
-            DEBUG('func', 'GetCharacterTalentInfo', string.format("Tab %s: %s %s points", tabIndex, name, rank))
+            --DEBUG('func', 'GetCharacterTalentInfo', string.format("Tab %s: %s %s points", tabIndex, name, rank))
         end
     end
     return talents
@@ -669,16 +671,18 @@ end
 
 function Guildbook.GetCharacterInventory()
     local character, itemlevel, itemCount = {}, 0, 0
-	for k, slot in ipairs(Guildbook.Data.InventorySlots) do
-		character[slot.Name] = GetInventoryItemLink('player', slot.Id) or false
+    for k, slot in ipairs(Guildbook.Data.InventorySlots) do
+        --print(slot.Name)
+		character[slot.Name] = GetInventoryItemLink('player', GetInventorySlotInfo(slot.Name)) or false
     end	
     if GUILDBOOK_CHARACTER then
         GUILDBOOK_CHARACTER['Inventory'] = {
             Current = character,
         }
     end
-    --return character
+    return character
 end
+
 
 function Guildbook:IsGuildMemberOnline(player)
     local online = false
@@ -1543,6 +1547,9 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
 end
 
 function Guildbook:UPDATE_MOUSEOVER_UNIT()
+    if Guildbook.LoadTime + 5.0 > GetTime() then
+        return
+    end
     local guid = UnitGUID('mouseover')
     if guid and guid:find('Player') then
         if not Guildbook.PlayerMixin then
@@ -1554,8 +1561,15 @@ function Guildbook:UPDATE_MOUSEOVER_UNIT()
             --local name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
             --local _, class, _ = C_PlayerInfo.GetClass(Guildbook.PlayerMixin)
             local sex = C_PlayerInfo.GetSex(Guildbook.PlayerMixin)
+            if sex == 0 then
+                sex = 'MALE'
+            else
+                sex = 'FEMALE'
+            end
             local race = C_CreatureInfo.GetRaceInfo(C_PlayerInfo.GetRace(Guildbook.PlayerMixin)).clientFileString:upper()
-            self.GuildFrame.ProfilesFrame.DetailsTab:AddModelFrame('mouseover', race, sex)
+            if race then
+                self.GuildFrame.ProfilesFrame.DetailsTab:AddModelFrame('mouseover', race, sex)
+            end
         end
     end
 end

@@ -1268,6 +1268,10 @@ Click the character to view the recipe item in their 'Professions' tab.
         frame:Show()
         self.activeTabID = id
         self.activeTabName = frame
+
+        if id == 1 and self.selectedGUID then
+            Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(Guildbook.GuildFrame.ProfilesFrame.selectedGUID, nil)
+        end
     end
     
     local searchResults = {}
@@ -1423,7 +1427,7 @@ Click the character to view the recipe item in their 'Professions' tab.
             CloseDropDownMenus()
         end
     end
-
+--    Guildbook.GuildFrame.ProfilesFrame.DetailsTab.CharacterModels
     function self.GuildFrame.ProfilesFrame:LoadCharacterDetails(guid, recipeFilter)
         self.selectedGUID = guid
         self:HideTalentGrid()
@@ -1437,10 +1441,18 @@ Click the character to view the recipe item in their 'Professions' tab.
             Guildbook.PlayerMixin:SetGUID(guid)
         end
         if Guildbook.PlayerMixin:IsValid() then
-            --local name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
+            local name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
             --local _, class, _ = C_PlayerInfo.GetClass(Guildbook.PlayerMixin)
             local sex = C_PlayerInfo.GetSex(Guildbook.PlayerMixin)
+            if sex == 0 then
+                sex = 'MALE'
+            else
+                sex = 'FEMALE'
+            end
             local race = C_CreatureInfo.GetRaceInfo(C_PlayerInfo.GetRace(Guildbook.PlayerMixin)).clientFileString:upper()
+            if not race then
+                return
+            end
             local raceTexture = Guildbook.Data.RaceIcons[C_PlayerInfo.GetSex(Guildbook.PlayerMixin)][race]
             local guildName = Guildbook:GetGuildName()
 
@@ -1452,21 +1464,35 @@ Click the character to view the recipe item in their 'Professions' tab.
                         self.DetailsTab:ShowModelViewer(race)
                     end)
 
-
-
+                    for k, v in ipairs(Guildbook.Data.InventorySlots) do
+                        self.DetailsTab.Overlay.InvIcons[v.Name]:Hide()
+                    end
 
                     -- 3d model stuff (experimental)
                     if self.DetailsTab.CharacterModels[race] and self.DetailsTab.CharacterModels[race][sex] then
-                        --self.DetailsTab.CharacterModels[race][sex]:UnequipItems()
+                        --self.DetailsTab.CharacterModels[race][sex]:Show()
                         if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Inventory and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Inventory.Current then
                             local items = GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Inventory.Current or {}
-                            for k, v in pairs(items) do
-                                local itemName, itemLink = GetItemInfo(v)
-                                DEBUG('func', 'equipping item', k..' '..itemName..' '..itemLink)
-                                self.DetailsTab.CharacterModels[race][sex]:TryOn(itemLink)
-                                self.DetailsTab.CharacterModels[race][sex]:SetRotation(0.25)
-                            end
-                            self.DetailsTab.CharacterModels[race][sex]:Show()
+                            self.DetailsTab.CharacterModels[race][sex]:Undress()
+                            self.DetailsTab.CharacterModels[race][sex]:UndressSlot(GetInventorySlotInfo("TABARDSLOT"))
+                            --self.DetailsTab.CharacterModels[race][sex]:Show()
+                            C_Timer.After(0.2, function()
+                                for slot, link in pairs(items) do
+                                    if link ~= false and slot ~= 'TABARDSLOT' then
+                                        self.DetailsTab.Overlay.InvIcons[slot].item = link
+                                        self.DetailsTab.Overlay.InvIcons[slot]:Show()
+                                        DEBUG('func', 'LoadCharacter', 'equipping '..slot..' '..link)
+                                        self.DetailsTab.CharacterModels[race][sex]:TryOn(link)
+                                        --self.DetailsTab.CharacterModels[race][sex]:SetRotation(0.0)
+                                    end
+                                    self.DetailsTab.CharacterModels[race][sex]:UndressSlot(GetInventorySlotInfo("TABARDSLOT"))
+                                    --self.DetailsTab.CharacterModels[race][sex]:SetRotation(0.1)
+
+                                    self.DetailsTab.CharacterModels[race][sex]:Show()
+                                end
+                            end)
+                        else
+                            --self.DetailsTab.CharacterModels[race][sex]:Hide(()
                         end
                     end
 
@@ -1486,21 +1512,21 @@ Click the character to view the recipe item in their 'Professions' tab.
                     self.TalentsTab.Tab2.background:SetTexture(Guildbook.Data.TalentBackgrounds[Guildbook.Data.Talents[character.Class][2]])
                     self.TalentsTab.Tab3.background:SetTexture(Guildbook.Data.TalentBackgrounds[Guildbook.Data.Talents[character.Class][3]])
                     -- update info panel
-                    for k, v in pairs(self.DetailsTab.Overlay.InfoPanel.labels) do
+                    for k, v in ipairs(self.DetailsTab.Overlay.InfoPanel.labels) do
+                        --print('prof', v.key, character[v.key])
                         --self.DetailsTab.Overlay.InfoPanel[k].Label:SetText('-')
                         self.DetailsTab.Overlay.InfoPanel[k].Level:SetText('-')
                         self.DetailsTab.Overlay.InfoPanel[k].Icon:SetTexture(nil)
-                        if k:find('Profession') then
-                            if character[k] then
-                                self.DetailsTab.Overlay.InfoPanel[k].Label:SetText(character[k])
-                                self.DetailsTab.Overlay.InfoPanel[k].Level:SetText(character[k..'Level'])
-                                self.DetailsTab.Overlay.InfoPanel[k].Icon:SetTexture(Guildbook.Data.Profession[character[k]].IconID)
-                            else
-                                self.DetailsTab.Overlay.InfoPanel[k].Level:SetText(character[k])
-                                --self.DetailsTab.Overlay.InfoPanel[k].Icon:SetTexture(Guildbook.Data.Profession[k].IconID)
+                        if v.key:find('Profession') then
+                            DEBUG('func', 'LoadCharacter', v.key..character[v.key])
+                            if character[v.key] then
+                                self.DetailsTab.Overlay.InfoPanel[k].Label:SetText(character[v.key])
+                                self.DetailsTab.Overlay.InfoPanel[k].Level:SetText(character[v.key..'Level'])
+                                self.DetailsTab.Overlay.InfoPanel[k].Icon:SetTexture(Guildbook.Data.Profession[character[v.key]].IconID)
                             end
                         else
-                            self.DetailsTab.Overlay.InfoPanel[k].Icon:SetTexture(Guildbook.Data.Profession[k].IconID)
+                            self.DetailsTab.Overlay.InfoPanel[k].Icon:SetTexture(Guildbook.Data.Profession[v.key].IconID)
+                            self.DetailsTab.Overlay.InfoPanel[k].Level:SetText(character[v.key])
                         end
                     end
 
@@ -1618,6 +1644,10 @@ Click the character to view the recipe item in their 'Professions' tab.
         Guildbook.GuildFrame.ProfilesFrame.DetailsTab:Show()
         Guildbook.GuildFrame.ProfilesFrame.TalentsTab:Hide()
         Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:Hide()
+        -- get the correct gear back on model
+        if Guildbook.GuildFrame.ProfilesFrame.selectedGUID then
+            Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(Guildbook.GuildFrame.ProfilesFrame.selectedGUID, nil)
+        end
     end)
 
     self.GuildFrame.ProfilesFrame.TalentButton = CreateFrame('BUTTON', '$parentTab2', Guildbook.GuildFrame.ProfilesFrame, 'OptionsFrameTabButtonTemplate')
@@ -1687,17 +1717,69 @@ Click the character to view the recipe item in their 'Professions' tab.
             self.CharacterModels[race] = {}
         end
         if not self.CharacterModels[race][gender] then
-            local f = CreateFrame('DressUpModel', 'GuildbookGuildFrameProfilesFrameModelViewer'..#Guildbook.GuildFrame.ProfilesFrame.DetailsTab.CharacterModels or 1, Guildbook.GuildFrame.ProfilesFrame.DetailsTab)
+            local f = CreateFrame('DressUpModel', 'GuildbookGuildFrameProfilesFrameModelViewer'..race..gender, Guildbook.GuildFrame.ProfilesFrame.DetailsTab)
             f:SetPoint('CENTER', 0, 0)
-            f:SetSize(300, 400)
-            f:SetPosition(0.0, 0.0, -0.2)
+            f:SetSize(400, 340)
+            if race == 'GNOME' or race == 'DWARF' then
+                f:SetPosition(0.0, 0.0, -0.1)
+            else
+                f:SetPosition(0.0, 0.0, -0.2)
+            end
             f:SetPortraitZoom(-0.2)
+            f:SetRotation(0.0)
             f:SetUnit(target)
-            --f:SetModel('character/nightelf/female/nightelffemale_hd.m2')
-            --f:UnequipItems()
-            --f:SetKeepModelOnHide(true)
-            f:Hide()
-            self.CharacterModels[race][gender] = f
+            f.rotation = 0.61
+            f.rotationCursorStart = 0.0
+            f:Undress()
+            f:SetKeepModelOnHide(true)
+            C_Timer.After(0.5, function()
+                f:Undress()
+                --f:UndressSlot(GetInventorySlotInfo("TABARDSLOT"))
+                f:SetRotation(0.2)
+                f:Hide()
+                Guildbook.GuildFrame.ProfilesFrame.DetailsTab.CharacterModels[race][gender] = f
+            end)
+            f:EnableMouse(true)
+
+            f:SetScript('OnShow', function(self)
+                DEBUG('func', 'CharacterModel_OnShow', 'showing model '..race..' '..gender)
+                C_Timer.After(0.5, function()
+                    self:SetRotation(0.1)
+                end)
+            end)
+
+            -- borrow straight from blizz but is buggy
+            f:SetScript('OnMouseDown', function(self, button)
+                if ( not button or button == "LeftButton" ) then
+                    self.mouseDown = true;
+                    self.rotationCursorStart = GetCursorPosition();
+                end
+            end)
+            f:SetScript('OnMouseUp', function(self, button)
+                if ( not button or button == "LeftButton" ) then
+                    self.mouseDown = false;
+                end
+            end)
+
+            f:SetScript('OnUpdate', function(self)
+                if (self.mouseDown) then
+                    if ( self.rotationCursorStart ) then
+                        local x = GetCursorPosition();
+                        local diff = (x - self.rotationCursorStart) * 0.05;
+                        self.rotationCursorStart = GetCursorPosition();
+                        self.rotation = self.rotation + diff;
+                        if ( self.rotation < 0 ) then
+                            self.rotation = self.rotation + (2 * PI);
+                        end
+                        if ( self.rotation > (2 * PI) ) then
+                            self.rotation = self.rotation - (2 * PI);
+                        end
+                        self:SetRotation(self.rotation, false);
+                    end
+                end
+            end)
+        else
+            DEBUG('func', 'CreateCharacterModel', race..' '..gender..' exists '..self.CharacterModels[race][gender]:GetName())
         end
     end
 
@@ -1722,7 +1804,7 @@ Click the character to view the recipe item in their 'Professions' tab.
 
     self.GuildFrame.ProfilesFrame.DetailsTab.Overlay = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameDetailsTabOverlay', self.GuildFrame.ProfilesFrame.DetailsTab)
     self.GuildFrame.ProfilesFrame.DetailsTab.Overlay:SetAllPoints(self.GuildFrame.ProfilesFrame.DetailsTab)
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay:SetFrameLevel(999)
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay:SetFrameLevel(599)
 
     self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.portraitBackground = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay:CreateTexture('$parentPortrait', 'BACKGROUND')
     self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.portraitBackground:SetPoint('TOPLEFT', -33, 33)
@@ -1771,28 +1853,33 @@ Click the character to view the recipe item in their 'Professions' tab.
     self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoPanel.header:SetTextColor(1,1,1,1)
 
     self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoPanel.labels = {
-        ['Profession1'] = {
+        {
+            key = 'Profession1',
             label = 'Profession1',
             offset = -20.0,
         },
-        ['Profession2'] = {
+        {
+            key = 'Profession2',
             label = 'Profession2',
             offset = -40.0,
         },
-        ['Cooking'] = {
+        {
+            key = 'Cooking',
             label = 'Cooking',
             offset = -60.0,
         },
-        ['Fishing'] = {
+        {
+            key = 'Fishing',
             label = 'Fishing',
             offset = -80.0,
         },
-        ['FirstAid'] = {
+        {
+            key = 'FirstAid',
             label = 'First Aid',
             offset = -100.0,
         },
     }
-    for k, v in pairs(self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoPanel.labels) do
+    for k, v in ipairs(self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoPanel.labels) do
         local label = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoPanel:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
         label:SetPoint('TOPLEFT', 32, v.offset - 12)
         label:SetText(v.label)
@@ -1806,8 +1893,71 @@ Click the character to view the recipe item in their 'Professions' tab.
         local icon = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoPanel:CreateTexture(nil, 'ARTWORK')
         icon:SetPoint('TOPLEFT', 12, v.offset - 12)
         icon:SetSize(16, 16)
-        self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoPanel[k] = { Label = label, Level = level, Icon = icon}
+        self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoPanel[k] = { Label = label, Level = level, Icon = icon }
     end
+    
+
+    -- equipment listview
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InvIcons = {}
+    for k, v in ipairs(Guildbook.Data.InventorySlots) do
+
+        local f = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameDetailsTabInventorySlot'..v.Name, self.GuildFrame.ProfilesFrame.DetailsTab.Overlay)
+        f:SetSize(25, 25)
+        f:SetPoint('CENTER', Guildbook.GuildFrame.ProfilesFrame.DetailsTab.Overlay, 'CENTER', v.offsetX - 100, v.offsetY)
+
+        f.background = f:CreateTexture(nil, 'BACKGROUND')
+        f.background:SetPoint('TOPLEFT', -19, 19)
+        f.background:SetPoint('BOTTOMRIGHT', 19, -19)
+        f.background:SetTexture(652158)
+
+        f.icon = f:CreateTexture("$parentIcon", 'ARTWORK')
+        f.icon:SetAllPoints()
+        f.icon:SetMask("Interface/ChatFrame/UI-ChatIcon-HotS")
+        f.icon:SetTexture(133176)
+
+        f.item = nil
+
+        f:SetScript('OnShow', function(self)
+            if self.item then
+                local itemID, itemType, itemSubType, itemEquipLoc, icon, itemClassID, itemSubClassID = GetItemInfoInstant(self.item)
+                self.icon:SetTexture(icon)
+                self.link = self.item
+            end
+        end)
+        f:SetScript('OnHide', function(self)
+            self.item = nil
+        end)
+        f:SetScript('OnEnter', function(self)
+            self:SetSize(40, 40)
+            self.background:ClearAllPoints()
+            self.background:SetPoint('TOPLEFT', -24, 24)
+            self.background:SetPoint('BOTTOMRIGHT', 24, -24)
+            if self.item then
+                GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
+                GameTooltip:SetHyperlink(self.item)
+                GameTooltip:Show()
+            else
+                GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+            end
+        end)
+        f:SetScript('OnLeave', function(self)
+            self:SetSize(22, 22)
+            self.background:ClearAllPoints()
+            self.background:SetPoint('TOPLEFT', -19, 19)
+            self.background:SetPoint('BOTTOMRIGHT', 19, -19)
+            GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+        end)
+        
+        self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InvIcons[v.Name] = f
+    end
+
+
+
+
+
+
+
+
 
     
     self.GuildFrame.ProfilesFrame.TalentsTab = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameTalentsTab', self.GuildFrame.ProfilesFrame)
