@@ -657,23 +657,27 @@ function Guildbook.GetInstanceInfo()
 end
 
 function Guildbook.GetItemLevel()
-    local character, itemlevel, itemCount = {}, 0, 0
+    local character, itemLevel, itemCount = {}, 0, 0
 	for k, slot in ipairs(Guildbook.Data.InventorySlots) do
-		character[slot.Name] = GetInventoryItemID('player', slot.Id)
+		character[slot.Name] = GetInventoryItemID('player', slot.Name)
 		if character[slot.Name] ~= nil then
 			local iName, iLink, iRarety, ilvl = GetItemInfo(character[slot.Name])
-			itemlevel = itemlevel + ilvl
+			itemLevel = itemLevel + ilvl
 			itemCount = itemCount + 1
 		end
-	end	
-	return math.floor(itemlevel/itemCount)
+    end
+    if math.floor(itemLevel/itemCount) > 0 then
+        return math.floor(itemLevel/itemCount)
+    else
+        return 0
+    end
 end
 
 function Guildbook.GetCharacterInventory()
     local character, itemlevel, itemCount = {}, 0, 0
     for k, slot in ipairs(Guildbook.Data.InventorySlots) do
         --print(slot.Name)
-		character[slot.Name] = GetInventoryItemLink('player', GetInventorySlotInfo(slot.Name)) or false
+		character[slot.Name] = GetInventoryItemLink('player', GetInventorySlotInfo(slot.Name))
     end	
     if GUILDBOOK_CHARACTER then
         GUILDBOOK_CHARACTER['Inventory'] = {
@@ -744,6 +748,14 @@ function Guildbook:Transmit(data, channel, target, priority)
             return
         end
     end
+
+    -- local ok, serialized = pcall(LibSerialize.Serialize, LibSerialize, data)
+    -- if not ok then
+    --     LoadAddOn("Blizzard_DebugTools")
+    --     DevTools_Dump(data)
+    --     return
+    -- end
+
     local serialized = LibSerialize:Serialize(data);
     local compressed = LibDeflate:CompressDeflate(serialized);
     local encoded    = LibDeflate:EncodeForWoWAddonChannel(compressed);
@@ -1568,7 +1580,9 @@ function Guildbook:UPDATE_MOUSEOVER_UNIT()
             end
             local race = C_CreatureInfo.GetRaceInfo(C_PlayerInfo.GetRace(Guildbook.PlayerMixin)).clientFileString:upper()
             if race then
-                self.GuildFrame.ProfilesFrame.DetailsTab:AddModelFrame('mouseover', race, sex)
+                if self.GuildFrame.ProfilesFrame.DetailsTab:IsVisible() then
+                    self.GuildFrame.ProfilesFrame.DetailsTab:AddModelFrame('mouseover', race, sex)
+                end
             end
         end
     end

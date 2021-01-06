@@ -1717,6 +1717,8 @@ Click the character to view the recipe item in their 'Professions' tab.
             self.CharacterModels[race] = {}
         end
         if not self.CharacterModels[race][gender] then
+            -- FriendsFrame:Show()
+            -- FriendsFrameTab3:Click()
             local f = CreateFrame('DressUpModel', 'GuildbookGuildFrameProfilesFrameModelViewer'..race..gender, Guildbook.GuildFrame.ProfilesFrame.DetailsTab)
             f:SetPoint('CENTER', 0, 0)
             f:SetSize(400, 340)
@@ -1738,6 +1740,7 @@ Click the character to view the recipe item in their 'Professions' tab.
                 f:SetRotation(0.2)
                 f:Hide()
                 Guildbook.GuildFrame.ProfilesFrame.DetailsTab.CharacterModels[race][gender] = f
+                --FriendsFrame:Hide()
             end)
             f:EnableMouse(true)
 
