@@ -1,6 +1,0 @@
-test current features
-fix any bugs reported
-
-translate detail frame to use new comms
-
-set up the Guildbook.ToEnglish lookuptable

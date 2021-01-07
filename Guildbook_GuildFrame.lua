@@ -28,6 +28,7 @@ local LibGraph = LibStub("LibGraph-2.0");
 
 local L = Guildbook.Locales
 local DEBUG = Guildbook.DEBUG
+local FRIENDS_FRAME_HEIGHT = FriendsFrame:GetHeight()
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- statistics frame
@@ -42,7 +43,7 @@ function Guildbook:SetupStatsFrame()
     -- header text
     self.GuildFrame.StatsFrame.Header = self.GuildFrame.StatsFrame:CreateFontString('GuildbookGuildInfoFrameStatsFrameHeader', 'OVERLAY', 'GameFontNormal')
     self.GuildFrame.StatsFrame.Header:SetPoint('BOTTOM', Guildbook.GuildFrame.StatsFrame, 'TOP', 0, 4)
-    self.GuildFrame.StatsFrame.Header:SetText('Class and Role Summary')
+    self.GuildFrame.StatsFrame.Header:SetText(L['ClassRoleSummary'])
     self.GuildFrame.StatsFrame.Header:SetTextColor(1,1,1,1)
     self.GuildFrame.StatsFrame.Header:SetFont("Fonts\\FRIZQT__.TTF", 12)
 
@@ -52,11 +53,11 @@ function Guildbook:SetupStatsFrame()
     self.GuildFrame.StatsFrame.MinLevelSlider:SetThumbTexture("Interface/Buttons/UI-SliderBar-Button-Horizontal")
     self.GuildFrame.StatsFrame.MinLevelSlider:SetSize(125, 16)
     self.GuildFrame.StatsFrame.MinLevelSlider:SetOrientation('HORIZONTAL')
-    self.GuildFrame.StatsFrame.MinLevelSlider:SetMinMaxValues(1, 60) 
+    self.GuildFrame.StatsFrame.MinLevelSlider:SetMinMaxValues(1, 70) 
     self.GuildFrame.StatsFrame.MinLevelSlider:SetValueStep(1.0)
     _G[Guildbook.GuildFrame.StatsFrame.MinLevelSlider:GetName()..'Low']:SetText(' ')
     _G[Guildbook.GuildFrame.StatsFrame.MinLevelSlider:GetName()..'High']:SetText(' ')
-    self.GuildFrame.StatsFrame.MinLevelSlider:SetValue(60)
+    self.GuildFrame.StatsFrame.MinLevelSlider:SetValue(1)
     self.GuildFrame.StatsFrame.MinLevelSlider:SetScript('OnValueChanged', function(self)
         Guildbook.GuildFrame.StatsFrame.MinLevelSlider_Text:SetText(math.floor(Guildbook.GuildFrame.StatsFrame.MinLevelSlider:GetValue()))
         Guildbook.GuildFrame.StatsFrame:GetClassRoleFromCache()
@@ -65,7 +66,7 @@ function Guildbook:SetupStatsFrame()
     -- slider label
     self.GuildFrame.StatsFrame.MinLevelSlider_Label = self.GuildFrame.StatsFrame:CreateFontString('GuildbookGuildInfoFrameMinLevelSliderLabel', 'OVERLAY', 'GameFontNormal')
     self.GuildFrame.StatsFrame.MinLevelSlider_Label:SetPoint('RIGHT', self.GuildFrame.StatsFrame.MinLevelSlider, 'LEFT', -10, 0)
-    self.GuildFrame.StatsFrame.MinLevelSlider_Label:SetText('Character level')
+    self.GuildFrame.StatsFrame.MinLevelSlider_Label:SetText(L['CharacterLevel'])
     -- slider value text
     self.GuildFrame.StatsFrame.MinLevelSlider_Text = self.GuildFrame.StatsFrame:CreateFontString('GuildbookGuildInfoFrameMinLevelSliderText', 'OVERLAY', 'GameFontNormal')
     self.GuildFrame.StatsFrame.MinLevelSlider_Text:SetPoint('LEFT', Guildbook.GuildFrame.StatsFrame.MinLevelSlider, 'RIGHT', 8, 0)
@@ -103,7 +104,7 @@ function Guildbook:SetupStatsFrame()
         local chart = LibGraph:CreateGraphPieChart('GuildbookTankPieChart', self.GuildFrame.StatsFrame.RoleFrame, 'LEFT', 'LEFT', ((i - 1) * 110) + 2, 2, 100, 100)
         local title = self.GuildFrame.StatsFrame:CreateFontString('$parentRolePieChartTitle', 'OVERLAY', 'GameFontNormal')
         title:SetPoint('TOP', chart, 'BOTTOM', 0, 0)
-        title:SetText(role)
+        title:SetText(L[role])
         local seg = 0
         if role == 'Tank' or role == 'Healer' then
             seg = 4
@@ -120,7 +121,7 @@ function Guildbook:SetupStatsFrame()
     -- role frame header
     self.GuildFrame.StatsFrame.RoleHeader = self.GuildFrame.StatsFrame.RoleFrame:CreateFontString('GuildbookGuildInfoFrameStatsFrameRoleHeader', 'OVERLAY', 'GameFontNormal')
     self.GuildFrame.StatsFrame.RoleHeader:SetPoint('TOP', Guildbook.GuildFrame.StatsFrame.RoleFrame, 'TOP', 0, -5)
-    self.GuildFrame.StatsFrame.RoleHeader:SetText('Roles')
+    self.GuildFrame.StatsFrame.RoleHeader:SetText(L['Roles'])
     self.GuildFrame.StatsFrame.RoleHeader:SetTextColor(1,1,1,1)
     self.GuildFrame.StatsFrame.RoleHeader:SetFont("Fonts\\FRIZQT__.TTF", 12)
 
@@ -401,7 +402,7 @@ end
 
 function Guildbook:SetupGuildCalendarFrame()
 
-    --self.GuildFrame.GuildCalendarFrame.helpIcon = Guildbook:CreateHelperIcon(self.GuildFrame.GuildCalendarFrame, 'BOTTOMRIGHT', Guildbook.GuildFrame.GuildCalendarFrame, 'TOPRIGHT', -2, 2, 'Calendar')
+    self.GuildFrame.GuildCalendarFrame.helpIcon = Guildbook:CreateHelperIcon(self.GuildFrame.GuildCalendarFrame, 'BOTTOMRIGHT', Guildbook.GuildFrame.GuildCalendarFrame, 'TOPRIGHT', -2, 2, L['calendarHelpText'])
 
     self.GuildFrame.GuildCalendarFrame.date = date('*t')
 
@@ -720,7 +721,6 @@ function Guildbook:SetupGuildCalendarFrame()
         end
     end
 
-    -- decided to limit calendar to current month only in order to reduce chat traffic
 
     function self.GuildFrame.GuildCalendarFrame:MonthChanged()
         self.Header:SetText(monthNames[self.date.month]..' '..self.date.year)
@@ -744,11 +744,6 @@ function Guildbook:SetupGuildCalendarFrame()
                 day.dateText:SetTextColor(0.5, 0.5, 0.5, 1)
             end
             if i >= monthStart and d <= daysInMonth then
-                -- if d == self.date.day then
-                --     day.currentDayTexture:Show()
-                -- else
-                --     day.currentDayTexture:Hide()
-                -- end
                 day.dateText:SetText(d)
                 day.dateText:SetTextColor(1,1,1,1)
                 day:Enable()
@@ -906,11 +901,8 @@ function Guildbook:SetupGuildCalendarFrame()
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar = CreateFrame('SLIDER', 'GuildbookGuildFrameGuildCalendarFrameEventFrameEventAttendeesListviewScrollBar', self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent, "UIPanelScrollBarTemplate")
     --self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar = CreateFrame('SLIDER', 'GuildbookGuildFrameGuildCalendarFrameEventFrameEventAttendeesListviewScrollBar', self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent, "OptionsSliderTemplate")
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetOrientation('VERTICAL')
-    self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetPoint('TOPRIGHT', -10, -25)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetHeight(78)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetWidth(10)
-    --self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetPoint('TOPLEFT', self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent, 'TOPRIGHT', -14, -22)
-    --self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetPoint('BOTTOMRIGHT', self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent, 'BOTTOMRIGHT', -14, 22)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetPoint('TOPRIGHT', Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent, 'TOPRIGHT', -8, -22)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetPoint('BOTTOMRIGHT', Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent, 'BOTTOMRIGHT', -8, 22)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:EnableMouse(true)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetValueStep(1)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetValue(1)
@@ -1216,6 +1208,11 @@ function Guildbook:SetupGuildCalendarFrame()
 
     self.GuildFrame.GuildCalendarFrame:SetScript('OnShow', function(self)
         self:MonthChanged()
+        --FriendsFrame:SetHeight(FRIENDS_FRAME_HEIGHT + 90)
+    end)
+
+    self.GuildFrame.GuildCalendarFrame:SetScript('OnHide', function(self)
+        --FriendsFrame:SetHeight(FRIENDS_FRAME_HEIGHT)
     end)
 
 end
@@ -1236,21 +1233,9 @@ end
 
 function Guildbook:SetupProfilesFrame()
 
-    local helpText = [[
-Guildbook.
-|cffffffffYou can search for characters or items using Guildbook.
-
-When you search a drop-down list will show possible matches, this list is
-limited and if the results count exceeds the limit it won't show, so if 
-nothing appears keep typing to narrow the results.
-
-Recipe items will show a sub menu of characters who can craft the item.
-Click the character to view the recipe item in their 'Professions' tab.
-]]
-
     self.GuildFrame.ProfilesFrame.selectedGUID = nil
 
-    self.GuildFrame.ProfilesFrame.helpIcon = Guildbook:CreateHelperIcon(self.GuildFrame.ProfilesFrame, 'BOTTOMRIGHT', Guildbook.GuildFrame.ProfilesFrame, 'TOPRIGHT', -2, 2, helpText)
+    self.GuildFrame.ProfilesFrame.helpIcon = Guildbook:CreateHelperIcon(self.GuildFrame.ProfilesFrame, 'BOTTOMRIGHT', Guildbook.GuildFrame.ProfilesFrame, 'TOPRIGHT', -2, 2, L['profilesHelpText'])
 
     self.GuildFrame.ProfilesFrame:SetScript('OnShow', function(self)
         if not self.selectedGUID then
@@ -1427,8 +1412,10 @@ Click the character to view the recipe item in their 'Professions' tab.
             CloseDropDownMenus()
         end
     end
---    Guildbook.GuildFrame.ProfilesFrame.DetailsTab.CharacterModels
+
+
     function self.GuildFrame.ProfilesFrame:LoadCharacterDetails(guid, recipeFilter)
+        GuildMemberDetailFrame:Hide()
         self.selectedGUID = guid
         self:HideTalentGrid()
         self.DetailsTab:HideCharacterModels()
@@ -1460,9 +1447,9 @@ Click the character to view the recipe item in their 'Professions' tab.
                 if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] then
                     local character = GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid]
                     -- load race background
-                    C_Timer.After(0.2, function()
+                    --C_Timer.After(0.0, function()
                         self.DetailsTab:ShowModelViewer(race)
-                    end)
+                    --end)
 
                     for k, v in ipairs(Guildbook.Data.InventorySlots) do
                         self.DetailsTab.Overlay.InvIcons[v.Name]:Hide()
@@ -1470,51 +1457,45 @@ Click the character to view the recipe item in their 'Professions' tab.
 
                     -- 3d model stuff (experimental)
                     if self.DetailsTab.CharacterModels[race] and self.DetailsTab.CharacterModels[race][sex] then
-                        --self.DetailsTab.CharacterModels[race][sex]:Show()
+                        self.DetailsTab.CharacterModels[race][sex]:Undress()
+                        C_Timer.After(0.0, function()
+                            self.DetailsTab.CharacterModels[race][sex]:Show()
+                        end)
                         if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Inventory and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Inventory.Current then
                             local items = GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Inventory.Current or {}
-                            self.DetailsTab.CharacterModels[race][sex]:Undress()
-                            self.DetailsTab.CharacterModels[race][sex]:UndressSlot(GetInventorySlotInfo("TABARDSLOT"))
-                            --self.DetailsTab.CharacterModels[race][sex]:Show()
-                            C_Timer.After(0.2, function()
+                            C_Timer.After(0.0, function()
                                 for slot, link in pairs(items) do
                                     if link ~= false and slot ~= 'TABARDSLOT' then
+                                        DEBUG('func', 'LoadCharacter', 'equipping '..slot..' '..link)
                                         self.DetailsTab.Overlay.InvIcons[slot].item = link
                                         self.DetailsTab.Overlay.InvIcons[slot]:Show()
-                                        DEBUG('func', 'LoadCharacter', 'equipping '..slot..' '..link)
                                         self.DetailsTab.CharacterModels[race][sex]:TryOn(link)
-                                        --self.DetailsTab.CharacterModels[race][sex]:SetRotation(0.0)
                                     end
                                     self.DetailsTab.CharacterModels[race][sex]:UndressSlot(GetInventorySlotInfo("TABARDSLOT"))
-                                    --self.DetailsTab.CharacterModels[race][sex]:SetRotation(0.1)
-
-                                    self.DetailsTab.CharacterModels[race][sex]:Show()
                                 end
                             end)
-                        else
-                            --self.DetailsTab.CharacterModels[race][sex]:Hide(()
                         end
                     end
 
-
-
                     -- load race portrait
                     self.DetailsTab.Overlay.portrait:SetTexture(raceTexture)
+
                     -- load class icon
                     self.DetailsTab.Overlay.class:SetTexture(Guildbook.Data.Class[character.Class].IconID)
                     self.DetailsTab.Overlay.classText:SetText(string.format("%s%s", character.Class:sub(1,1), character.Class:sub(2):lower()))
+
                     -- set name and colour
                     self.DetailsTab.Overlay.name:SetText(character.Name)
                     local r, g, b = unpack(Guildbook.Data.Class[character.Class].RGB)
                     self.DetailsTab.Overlay.name:SetTextColor(r, g, b, 1)
+
                     -- set talent backgrounds
                     self.TalentsTab.Tab1.background:SetTexture(Guildbook.Data.TalentBackgrounds[Guildbook.Data.Talents[character.Class][1]])
                     self.TalentsTab.Tab2.background:SetTexture(Guildbook.Data.TalentBackgrounds[Guildbook.Data.Talents[character.Class][2]])
                     self.TalentsTab.Tab3.background:SetTexture(Guildbook.Data.TalentBackgrounds[Guildbook.Data.Talents[character.Class][3]])
+
                     -- update info panel
                     for k, v in ipairs(self.DetailsTab.Overlay.InfoPanel.labels) do
-                        --print('prof', v.key, character[v.key])
-                        --self.DetailsTab.Overlay.InfoPanel[k].Label:SetText('-')
                         self.DetailsTab.Overlay.InfoPanel[k].Level:SetText('-')
                         self.DetailsTab.Overlay.InfoPanel[k].Icon:SetTexture(nil)
                         if v.key:find('Profession') then
@@ -1614,19 +1595,22 @@ Click the character to view the recipe item in their 'Professions' tab.
     self.GuildFrame.ProfilesFrame.HomeButton = CreateFrame('BUTTON', '$parentTab4', Guildbook.GuildFrame.ProfilesFrame, 'OptionsFrameTabButtonTemplate')
     self.GuildFrame.ProfilesFrame.HomeButton:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.ProfilesFrame, 'TOPLEFT', 50, 0)
     --self.GuildFrame.ProfilesFrame.HomeButton:SetSize(60, 30)
-    self.GuildFrame.ProfilesFrame.HomeButton:SetText('Home')
+    self.GuildFrame.ProfilesFrame.HomeButton:SetText('Guild Bank')
     self.GuildFrame.ProfilesFrame.HomeButton:SetID(4)
     self.GuildFrame.ProfilesFrame.HomeButton:SetScript('OnClick', function(self)
-        -- PanelTemplates_SetTab(Guildbook.GuildFrame.ProfilesFrame, 4)
+        PanelTemplates_SetTab(Guildbook.GuildFrame.ProfilesFrame, 4)
         -- --Guildbook.GuildFrame.ProfilesFrame.HomeTab:Show()
-        -- Guildbook.GuildFrame.ProfilesFrame.DetailsTab:Hide()
-        -- Guildbook.GuildFrame.ProfilesFrame.TalentsTab:Hide()
-        -- Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:Hide()
+        Guildbook.GuildFrame.ProfilesFrame.DetailsTab:Hide()
+        Guildbook.GuildFrame.ProfilesFrame.TalentsTab:Hide()
+        Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:Hide()
 
         -- --for now just load the player, will add editing in time
         -- Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(UnitGUID('player'), nil)
         -- Guildbook.GuildFrame.ProfilesFrame.DetailsTab:Show()
         -- PanelTemplates_SetTab(Guildbook.GuildFrame.ProfilesFrame, 4)
+
+        --temp fix till tbc
+        Guildbook.GuildFrame.GuildBankFrame:Show()
     end)
 
     self.GuildFrame.ProfilesFrame.HomeTab = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameHomeTab', self.GuildFrame.ProfilesFrame)
@@ -1648,6 +1632,9 @@ Click the character to view the recipe item in their 'Professions' tab.
         if Guildbook.GuildFrame.ProfilesFrame.selectedGUID then
             Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(Guildbook.GuildFrame.ProfilesFrame.selectedGUID, nil)
         end
+
+        -- remove this for tbc
+        Guildbook.GuildFrame.GuildBankFrame:Hide()
     end)
 
     self.GuildFrame.ProfilesFrame.TalentButton = CreateFrame('BUTTON', '$parentTab2', Guildbook.GuildFrame.ProfilesFrame, 'OptionsFrameTabButtonTemplate')
@@ -1660,6 +1647,9 @@ Click the character to view the recipe item in their 'Professions' tab.
         Guildbook.GuildFrame.ProfilesFrame.DetailsTab:Hide()
         Guildbook.GuildFrame.ProfilesFrame.TalentsTab:Show()
         Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:Hide()
+        
+        -- remove this for tbc
+        Guildbook.GuildFrame.GuildBankFrame:Hide()
     end)
 
     self.GuildFrame.ProfilesFrame.ProfessionsButton = CreateFrame('BUTTON', '$parentTab3', Guildbook.GuildFrame.ProfilesFrame, 'OptionsFrameTabButtonTemplate')
@@ -1672,6 +1662,9 @@ Click the character to view the recipe item in their 'Professions' tab.
         Guildbook.GuildFrame.ProfilesFrame.DetailsTab:Hide()
         Guildbook.GuildFrame.ProfilesFrame.TalentsTab:Hide()
         Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:Show()
+        
+        -- remove this for tbc
+        Guildbook.GuildFrame.GuildBankFrame:Hide()
     end)
 
     self.GuildFrame.ProfilesFrame.DetailsTab = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameDetailsTab', self.GuildFrame.ProfilesFrame)
@@ -1699,17 +1692,6 @@ Click the character to view the recipe item in their 'Professions' tab.
         self.ModelViewers[model]:Show()
     end
 
-
-
-
-
-
-
-
-
-
-
-
     self.GuildFrame.ProfilesFrame.DetailsTab.CharacterModels = {}
     function self.GuildFrame.ProfilesFrame.DetailsTab:AddModelFrame(target, race, gender)
         --self:HideCharacterModels()
@@ -1734,19 +1716,20 @@ Click the character to view the recipe item in their 'Professions' tab.
             f.rotationCursorStart = 0.0
             f:Undress()
             f:SetKeepModelOnHide(true)
-            C_Timer.After(0.5, function()
+            C_Timer.After(0.05, function()
                 f:Undress()
-                --f:UndressSlot(GetInventorySlotInfo("TABARDSLOT"))
                 f:SetRotation(0.2)
                 f:Hide()
                 Guildbook.GuildFrame.ProfilesFrame.DetailsTab.CharacterModels[race][gender] = f
-                --FriendsFrame:Hide()
+                if Guildbook.GuildFrame.ProfilesFrame.selectedGUID then
+                    Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(Guildbook.GuildFrame.ProfilesFrame.selectedGUID, nil)
+                end
             end)
             f:EnableMouse(true)
 
             f:SetScript('OnShow', function(self)
                 DEBUG('func', 'CharacterModel_OnShow', 'showing model '..race..' '..gender)
-                C_Timer.After(0.5, function()
+                C_Timer.After(0.0, function()
                     self:SetRotation(0.1)
                 end)
             end)
@@ -1793,16 +1776,6 @@ Click the character to view the recipe item in their 'Professions' tab.
             end
         end
     end
-
-
-
-
-
-
-
-
-
-
 
 
     self.GuildFrame.ProfilesFrame.DetailsTab.Overlay = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameDetailsTabOverlay', self.GuildFrame.ProfilesFrame.DetailsTab)
@@ -1955,14 +1928,6 @@ Click the character to view the recipe item in their 'Professions' tab.
     end
 
 
-
-
-
-
-
-
-
-    
     self.GuildFrame.ProfilesFrame.TalentsTab = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameTalentsTab', self.GuildFrame.ProfilesFrame)
     self.GuildFrame.ProfilesFrame.TalentsTab:SetPoint('TOPLEFT', self.GuildFrame.ProfilesFrame, 'TOPLEFT', 2, -2)
     self.GuildFrame.ProfilesFrame.TalentsTab:SetPoint('BOTTOMRIGHT', self.GuildFrame.ProfilesFrame, 'BOTTOMRIGHT', -2, 2)
@@ -2559,7 +2524,9 @@ Click the character to view the recipe item in their 'Professions' tab.
     self.GuildFrame.ProfilesFrame.ShowAllRecipesButton:SetSize(125, 22)
     self.GuildFrame.ProfilesFrame.ShowAllRecipesButton:SetText('Show all recipes')
     self.GuildFrame.ProfilesFrame.ShowAllRecipesButton:SetScript('OnClick', function(self)
-        Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(Guildbook.GuildFrame.ProfilesFrame.selectedGUID, nil)
+        if Guildbook.GuildFrame.ProfilesFrame.selectedGUID then
+            Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(Guildbook.GuildFrame.ProfilesFrame.selectedGUID, nil)
+        end
     end)
 
 
@@ -2567,3 +2534,6 @@ Click the character to view the recipe item in their 'Professions' tab.
     PanelTemplates_SetNumTabs(Guildbook.GuildFrame.ProfilesFrame, 4)
     PanelTemplates_SetTab(Guildbook.GuildFrame.ProfilesFrame, 1)
 end
+
+
+

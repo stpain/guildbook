@@ -138,4 +138,23 @@ You can now use the shift+click and ctrl+click on profession recipes to either c
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [4.0] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+-
+
+|cff0070DEUpdates|r:
+Profiles! You can view guild members details including gear, talents and professions through the new profiles UI.
+
+New UI, professions have been merged into the new profiles area and make better use of the frame size.
+The guild bank has been temporarily added to the profiles hub, *if* The Burning Crusade is released then this will be re-purposed as there is an in game guild bank.
+Soft Res has been removed, there are far better addons for this purpose.
+
+More features to be added soon, but need to level my hunter!
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }

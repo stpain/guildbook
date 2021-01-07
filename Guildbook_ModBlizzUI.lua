@@ -21,9 +21,10 @@ the copyright holders.
 ]==]
 
 local addonName, Guildbook = ...
-
+local L = Guildbook.Locales
 
 --set constants
+local ROSTER_VISIBLE = true
 local FRIENDS_FRAME_WIDTH = FriendsFrame:GetWidth()
 local GUILD_FRAME_WIDTH = GuildFrame:GetWidth()
 local GUILD_INFO_FRAME_WIDTH = GuildInfoFrame:GetWidth()
@@ -39,9 +40,9 @@ Guildbook.GuildFrame = {
     ColumnHeaders = {
         { Text = 'Rank', Width = 70, },
         { Text = 'Note', Width = 80, },
-        { Text = 'Main Spec', Width = 80, },
-        { Text = 'Profession 1', Width = 90, },
-        { Text = 'Profession 2', Width = 90, },
+        { Text = 'MainSpec', Width = 80, },
+        { Text = 'Profession1', Width = 90, },
+        { Text = 'Profession2', Width = 90, },
         { Text = 'Online', Width = 65, },
     },
     ColumnTabs = {},
@@ -117,7 +118,7 @@ function Guildbook:ModBlizzUI()
         tab:SetSize(col.Width, GuildFrameColumnHeader4:GetHeight())
         tab.text = tab:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
         tab.text:SetPoint('LEFT', tab, 'LEFT', 8.0, 0.0)
-        tab.text:SetText(col.Text)
+        tab.text:SetText(L[col.Text])
         tab.text:SetFont("Fonts\\FRIZQT__.TTF", 10)
         tab.text:SetTextColor(1,1,1,1)
         --if elvui == false then
@@ -160,16 +161,14 @@ function Guildbook:ModBlizzUI()
                     Guildbook:UpdateGuildMemberDetailFrameLabels()
                     Guildbook:ClearGuildMemberDetailFrame()
                     Guildbook.GuildMemberDetailFrame.CurrentMemberGUID = nil
-                    -- if name:find('-') then
-                    --     Guildbook.DEBUG(GetServerTime(), 'GuildFrameButton'..i..':OnClick', 'found "-" in name: '..name)
-                    --     local e = name:find('-')
-                    --     name = name:sub(1, e-1)
-                    --     Guildbook.DEBUG(GetServerTime(), 'GuildFrameButton'..i..':OnClick', 'name after removing realm: '..name)
-                    -- end
                     Guildbook:CharacterDataRequest(name)
-                    --Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(GUID, nil)
                     Guildbook.DEBUG('comms_out', 'GuildFrameButton'..i..':OnClick', 'sent character data request to '..name)
                 end
+            end
+        end)
+        _G['GuildFrameButton'..i]:HookScript('OnShow', function(self, button)
+            if ROSTER_VISIBLE == false then
+                self:Hide()
             end
         end)
     end
@@ -333,9 +332,6 @@ function Guildbook:ModBlizzUI()
                     end
                 end
             end
-            if Guildbook.GuildFrame.StatsFrame:IsVisible() then
-                button:Hide()
-            end
             if (GuildFrameLFGButton:GetChecked() == false) and(i > numOnline) then
                 button:Hide()
             end
@@ -350,12 +346,14 @@ function Guildbook:ModBlizzUI()
             for i = 1, 13 do
                 _G['GuildFrameButton'..i]:Show()
             end
+            ROSTER_VISIBLE = true
             GuildFrameLFGFrame:Show()
             SortGuildRoster('Online')
         else
             for i = 1, 13 do
                 _G['GuildFrameButton'..i]:Hide()
             end
+            ROSTER_VISIBLE = false
             GuildFrameLFGFrame:Hide()
             Guildbook.GuildFrame[frame]:Show()
         end
@@ -375,14 +373,14 @@ function Guildbook:ModBlizzUI()
     self.GuildFrame.Frames = {
         -- ['StatsFrame'] = { Text = 'Statistics', Width = 76.0, OffsetY = -79.0 },
         -- ['TradeSkillFrame'] = { Text = 'Professions', Width = 85.0, OffsetY = -166.0 },
-        -- ['GuildBankFrame'] = { Text = 'Guild Bank', Width = 85.0, OffsetY = -253.0 },
+         ['GuildBankFrame'] = { Text = 'Guild Bank', Width = 85.0, OffsetY = -253.0 },
         -- ['ProfilesFrame'] = { Text = 'Profiles', Width = 85.0, OffsetY = -253.0 },
         -- ['GuildCalendarFrame'] = { Text = 'Calendar', Width = 75.0, OffsetY = -330.0 },
         -- ['SoftReserveFrame'] = { Text = 'Soft Res', Width = 70.0, OffsetY = -402.0 },
 
         -- comment this out and uncomment above table for old UI
         ['StatsFrame'] = { Text = 'Statistics', Width = 117.0, OffsetY = -120.0 },
-        ['ProfilesFrame'] = { Text = 'Guildbook Profies', Width = 157.0, OffsetY = -280.0 },
+        ['ProfilesFrame'] = { Text = 'Profiles', Width = 157.0, OffsetY = -280.0 },
         ['GuildCalendarFrame'] = { Text = 'Calendar', Width = 117.0, OffsetY = -400.0 },
     }
 
@@ -405,13 +403,17 @@ function Guildbook:ModBlizzUI()
         self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')] = CreateFrame('BUTTON', tostring('GuildbookGuildFrame'..frame..'Button'), GuildFrame, "UIPanelButtonTemplate")
         self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetPoint('LEFT', Guildbook.GuildFrame.RosterButton, 'LEFT', button.OffsetY, 0)
         self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetSize(button.Width, GuildFrameGuildInformationButton:GetHeight())
-        self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetText(button.Text)
+        self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetText(L[button.Text])
         self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetNormalFontObject(GameFontNormalSmall)
         self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetHighlightFontObject(GameFontNormalSmall)
         self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetScript('OnClick', function(self)
             toggleGuildFrames(frame)
         end)
 
+        -- hack
+        if button.Text == 'Guild Bank' then
+            self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:Hide()
+        end
 
     end
 

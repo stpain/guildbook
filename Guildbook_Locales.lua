@@ -26,69 +26,102 @@ local addonName, Guildbook = ...
 local L = {}
 L['CharacterName'] = 'Data Recipient'
 L['OptionsHeader'] = 'Guildbook allows players to share more detail about their characters with guild members. Use the options below your to set spec/alt information for your character.'
-L['GearScoreDetected'] = 'GearScore detected, Guildbook will share your GearScore with your guild.'
 L['Summary'] = 'Summary'
 L['SummaryHeader'] = 'Guild Summary'
 L['Roster'] = 'Roster'
-L['RaidSpecs'] = 'Raid Specs'
-L['GuildTrade'] = 'Guild Trade'
-L['GuildTradeDesc'] = 'Guild Trade, search for a player to craft that epic gem or get the latest enchants. Select a profession to see addon users who have shared their profession crafts.'
-L['RosterHeader'] = 'Guild roster' --add more about the roster ???
-L['Level'] = 'Level'
+L['CharacterLevel'] = 'Character Level'
 L['Name'] = 'Name'
-L['Role'] = 'Role'
-L['ClassRoles'] = 'Class Roles'
+L['Roles'] = 'Roles'
+L['Tank'] = 'Tank'
+L['Melee'] = 'Melee'
+L['Ranged'] = 'Ranged'
+L['Healer'] = 'Healer'
+L['ClassRoleSummary'] = 'Class & Role Summary'
 L['RoleChart'] = 'Roles (Online Members)'
 L['ClassChart'] = 'Classes (All Members)'
-L['ClassSummaryMinLevel'] = 'Set the min level for characters to be shown in the class summary chart'
-L['RescanRoster'] = 'Rescan Roster'
-L['ShowOfflineCB'] = 'Online'
 L['Online'] = 'Online'
 L['Offline'] = 'Offline'
-L['SearchName'] = 'Search members'
-L['PlayerNotesInfo'] = 'Character Notes & Info'
+L['SearchFor'] = 'Search...'
 L['Info'] = 'Info'
 L['Specializations'] = 'Specializations'
 L['ItemLevel'] = 'Item Level'
-L['GearScore'] = 'Gear Score'
-L['MainSpec'] = 'Main Spec:'
+L['MainSpec'] = 'Main Spec'
 L['Main'] = 'Main:'
+L['Rank'] = 'Rank'
+L['Note'] = 'Note'
 L['OffSpec'] = 'Off Spec:'
 L['IsPvpSpec'] = 'PVP'
 L['Class'] = 'Class'
 L['FirstAid'] = 'First Aid'
 L['Fishing'] = 'Fishing'
 L['Cooking'] = 'Cooking'
-L['ProfessionRecipes'] = 'Profession Recipes'
 L['Professions'] = 'Professions'
 L['Profession1'] = 'Profession 1'
-L['ShareProfession'] = 'Share Recipes'
-L['ShareProfTooltip'] = 'This will open the profession window so Guildbook can scan your recipes.'
 L['Profession2'] = 'Profession 2'
-L['Profile'] = 'Profile'
+L['Profiles'] = 'Profiles'
+L['Statistics'] = 'Statistics'
+L['Calendar'] = 'Calendar'
+L['GuildBank'] = 'Guild Bank'
 L['EditCharacterInfo'] = 'Information about your character should be displayed below, update your specializations and if this is an alt provide your main character name.\nClick confirm to share with guild.'
 L['SaveCharacterData'] = 'Confirm'
 L['MainCharacterNameInputDesc'] = 'If this is an alt add your Main Character name' -- word better???
-L['SortClass'] = 'Click to sort guild members by Class'
-L['SortName'] = 'Click to sort guild members by Name'
-L['SortLevel'] = 'Click to sort guild members by Level'
-L['SortRole'] = 'Click to sort guild members by role Tanks > Healer > Damage (uses primary spec)'
 L['MainCharacter'] = 'Main Character'
-L['Raids'] = 'Raids'
-L['RaidSelectDesc'] = 'Select the raid and difficulty from the drop down to view reccommended information.'
 L['Gems'] = 'Gems'
 L['Enchants'] = 'Enchants'
-L['Tanks'] = 'Tanks'
-L['Melee'] = 'Melee'
-L['Ranged'] = 'Ranged'
-L['Healers'] = 'Healers'
 L['ilvl'] = 'ilvl'
 L['Guild Information'] = 'Guild Information'
 L['ClassRolesSummary'] = 'Class & Role Summary'
 L['RaidRoster'] = 'Raid Roster |cffffffff(Right click player for more options)|r'
 
---THE LIST BELOW ISNT USED YET SO CAN BE IGNORED FOR TRANSLATION.
---keep these as upper as its the return value from an api
+
+--------------------------------------------------------------------------------------------
+-- help text tooltips
+--------------------------------------------------------------------------------------------
+L['profilesHelpText'] = [[
+Profiles.
+
+|cffffffffYou can search for characters or items using Guildbook.
+
+When you search a drop-down list will show possible
+matches, this list is limited and if the results count 
+exceeds the limit it won't show, so if nothing appears 
+keep typing to narrow the results.
+
+Recipe items will show a sub menu of characters who can 
+craft the item. Click the character to view the recipe 
+item in their 'Professions' tab.|r
+
+|cff00BFF3Character models are not available by default, to display 
+them you will need to open profiles and mouse-over the various 
+race/gender combinations for your faction. The limitation here 
+is that the models shown will keep the characteristic's of the 
+character you mouse over. This shouldn't be to detrimental as most 
+characters will have a head/helm piece which hides the face and hair etc|r.
+]]
+
+
+L['calendarHelpText'] = [[
+Calendar
+
+|cffffffffGuildbook provides an in-game calendar for guilds to 
+schedule events. It's loosely based on an older version of the
+Blizzard calendar and functions in a similar manner. Currently 
+up to 3 events per day will be shown (an option to access more 
+will be added) on the day tiles.|r
+
+|cff00BFF3The calendar sends/receives data when a player logs in, 
+when an event is created or deleted and when an event is modified. 
+Events should sync with guild members although this is not guaranteed 
+as it relies on there being enough overlap between player sessions.
+
+Data sent is limited to 4 weeks to reduce demand on the addon chat 
+systems, events can be created for any date and will sync once they 
+fall within 4 weeks of the current date|r.
+]]
+
+--------------------------------------------------------------------------------------------
+-- class and spec
+--------------------------------------------------------------------------------------------
 L['DEATHKNIGHT'] = 'Deathknight'
 L['DRUID'] = 'Druid'
 L['HUNTER'] = 'Hunter'
@@ -134,6 +167,21 @@ L['Holy'] = 'Holy'
 L['Discipline'] = 'Discipline'
 L['Shadow'] = 'Shadow'
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 local locale = GetLocale()
 --USE THIS TO CREATE LOCALES - SWAP 'deDE' FOR THE COUNTRY/LANGUAGE YOU ARE TRANSLATING INTO
 if locale == "deDE" then
@@ -143,6 +191,9 @@ elseif locale == '' then
 
 
 end
+
+
+
 
 Guildbook.Locales = L
 

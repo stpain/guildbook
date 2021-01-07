@@ -22,7 +22,7 @@ the copyright holders.
 
 local addonName, Guildbook = ...
 
-local build = 3.31
+local build = 4.0
 local locale = GetLocale()
 
 local AceComm = LibStub:GetLibrary("AceComm-3.0")
@@ -158,7 +158,7 @@ Guildbook.GuildBankCommit = {
     Character = nil,
 }
 Guildbook.NUM_TALENT_ROWS = 7.0
-Guildbook.COMMS_DELAY = 2.0
+Guildbook.COMMS_DELAY = 1.0
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 --slash commands
@@ -292,12 +292,11 @@ function Guildbook:Init()
     end
 
     -- stagger some start up calls to prevent chat spam, use 3s interval
-    Guildbook:CleanUpGuildRosterData(Guildbook:GetGuildName(), 'checking guild data...[1]')
     C_Timer.After(3, function()
         Guildbook:CharacterStats_OnChanged()
     end)
     C_Timer.After(6, function()
-        Guildbook:CleanUpGuildRosterData(Guildbook:GetGuildName(), 'checking guild data...[2]')
+        Guildbook:CleanUpGuildRosterData(Guildbook:GetGuildName(), 'checking guild data')
     end)
     C_Timer.After(9, function()
         Guildbook:SendGuildCalendarEvents()
@@ -1093,8 +1092,8 @@ function Guildbook:OnGuildBankDataReceived(data, distribution, sender)
             }
         end
     end
-    --self.GuildFrame.GuildBankFrame:ProcessBankData(data.payload.Data)
-    --self.GuildFrame.GuildBankFrame:RefreshSlots()
+    self.GuildFrame.GuildBankFrame:ProcessBankData(data.payload.Data)
+    self.GuildFrame.GuildBankFrame:RefreshSlots()
 end
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1368,7 +1367,7 @@ function Guildbook:PLAYER_ENTERING_WORLD()
     self:ModBlizzUI()
     self:SetupStatsFrame()
     --self:SetupTradeSkillFrame()
-    --self:SetupGuildBankFrame()
+    self:SetupGuildBankFrame()
     self:SetupGuildCalendarFrame()
     self:SetupGuildMemberDetailframe()
     --self:SetupSoftReserveFrame()
@@ -1510,13 +1509,7 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
         self:OnGuildBankCommitReceived(data, distribution, sender)
 
     elseif data.type == 'GUILD_BANK_DATA_REQUEST' then
-        if not lastGuildBankRequest[sender] then
-            lastGuildBankRequest[sender] = -math.huge
-        end
-        if lastGuildBankRequest[sender] + bankDelay < GetTime() then
-            self:OnGuildBankDataRequested(data, distribution, sender)
-            lastGuildBankRequest[sender] = GetTime()
-        end
+        self:OnGuildBankDataRequested(data, distribution, sender)
 
     elseif data.type == 'GUILD_BANK_DATA_RESPONSE' then
         self:OnGuildBankDataReceived(data, distribution, sender)
@@ -1559,6 +1552,7 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
 end
 
 function Guildbook:UPDATE_MOUSEOVER_UNIT()
+    -- delay any model loading while players addons sort themselves out
     if Guildbook.LoadTime + 5.0 > GetTime() then
         return
     end
@@ -1570,7 +1564,11 @@ function Guildbook:UPDATE_MOUSEOVER_UNIT()
             Guildbook.PlayerMixin:SetGUID(guid)
         end
         if Guildbook.PlayerMixin:IsValid() then
-            --local name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
+            name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
+            -- double check mixin
+            if not name then
+                return
+            end
             --local _, class, _ = C_PlayerInfo.GetClass(Guildbook.PlayerMixin)
             local sex = C_PlayerInfo.GetSex(Guildbook.PlayerMixin)
             if sex == 0 then
