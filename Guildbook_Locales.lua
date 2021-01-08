@@ -92,11 +92,12 @@ craft the item. Click the character to view the recipe
 item in their 'Professions' tab.|r
 
 |cff00BFF3Character models are not available by default, to display 
-them you will need to open profiles and mouse-over the various 
-race/gender combinations for your faction. The limitation here 
-is that the models shown will keep the characteristic's of the 
-character you mouse over. This shouldn't be to detrimental as most 
-characters will have a head/helm piece which hides the face and hair etc|r.
+them you will need to open profiles and mouse-over the 
+various race/gender combinations for your faction. The 
+limitation here is that the models shown will keep the 
+characteristic's of the character you mouse over. This 
+shouldn't be to detrimental as most characters will have 
+a head/helm piece which hides the face and hair etc.|r
 ]]
 
 

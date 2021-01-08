@@ -454,14 +454,45 @@ function Guildbook:SetupGuildCalendarFrame()
     }
     -- make quick calculation to see if leap year?
 
+
+    -- event icons, icon id starts from 136320
+    local eventsRaids = {
+        {
+            text = 'Molten Core',
+            notCheckable = true,
+            func = function()
+                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetText('MC')
+                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 1
+            end,
+        },
+        {
+            text = 'Blackwing Liar',
+            notCheckable = true,
+            func = function()
+                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetText('BWL')
+                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 1
+            end,
+        },
+    }
+
     local eventTypes = {
+        { 
+            text = 'Dungeon', 
+            notCheckable = true, 
+            func = function(self) 
+                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 3
+                UIDropDownMenu_SetText(Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTypeDropdown, 'Dungeon')
+            end, 
+        },
         { 
             text = 'Raid', 
             notCheckable = true, 
             func = function(self) 
                 Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 1
                 UIDropDownMenu_SetText(Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTypeDropdown, 'Raid')
-            end, 
+            end,
+            hasArrow = true,
+            menuList = eventsRaids,
         },
         { 
             text = 'PVP', 
@@ -469,14 +500,6 @@ function Guildbook:SetupGuildCalendarFrame()
             func = function(self) 
                 Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 2
                 UIDropDownMenu_SetText(Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTypeDropdown, 'PVP')
-            end, 
-        },
-        { 
-            text = 'Dungeon', 
-            notCheckable = true, 
-            func = function(self) 
-                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 3
-                UIDropDownMenu_SetText(Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTypeDropdown, 'Dungeon')
             end, 
         },
         { 
@@ -616,18 +639,24 @@ function Guildbook:SetupGuildCalendarFrame()
             f.background:SetTexture(235428)
             f.background:SetTexCoord(texLeft, texRight, texTop, texBottom)
 
-            f.currentDayTexture = f:CreateTexture('$parentCurrentDayTexture', 'ARTWORK')
+            f.guildEventTexture = f:CreateTexture('$parentBackground', 'BACKGROUND')
+            f.guildEventTexture:SetAllPoints()
+            --f.guildEventTexture:SetTexture(135805)
+            --f.guildEventTexture:SetTexCoord(0.0, 0.71, 0.0, 0.71)
+
+            f.worldEventTexture = f:CreateTexture('$parentBackground', 'ARTWORK')
+            f.worldEventTexture:SetPoint('TOPLEFT', 0, 0)
+            f.worldEventTexture:SetPoint('BOTTOMRIGHT', 0, 0)
+            f.worldEventTexture:SetTexture(235448)
+            f.worldEventTexture:SetTexCoord(0.0, 0.71, 0.0, 0.71)
+
+            f.currentDayTexture = f:CreateTexture('$parentCurrentDayTexture', 'OVERLAY')
             f.currentDayTexture:SetPoint('TOPLEFT', -15, 15)
             f.currentDayTexture:SetPoint('BOTTOMRIGHT', 16, -10)
             f.currentDayTexture:SetTexture(235433)
             f.currentDayTexture:SetTexCoord(0.05, 0.55, 0.05, 0.55)
+            f.currentDayTexture:SetAlpha(0.7)
             f.currentDayTexture:Hide()
-
-            f.eventTexture = f:CreateTexture('$parentBackground', 'ARTWORK')
-            f.eventTexture:SetPoint('TOPLEFT', 0, 0)
-            f.eventTexture:SetPoint('BOTTOMRIGHT', 0, 0)
-            f.eventTexture:SetTexture(235448)
-            f.eventTexture:SetTexCoord(0.0, 0.71, 0.0, 0.71)
 
             for e = 1, 3 do
                 f['eventButton'..e] = CreateFrame('BUTTON', tostring('GuildbookGuildFrameGuildCalendarFrameWeek'..week..'Day'..day..'Button'..e), f)
@@ -640,6 +669,7 @@ function Guildbook:SetupGuildCalendarFrame()
                 f['eventButton'..e]:Hide()
                 f['eventButton'..e].event = nil
                 f['eventButton'..e]:SetScript('OnClick', function(self)
+                    Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.CancelEventButton:Disable()
                     if self.event then
                         Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:Hide()
                         Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.event = self.event
@@ -723,6 +753,7 @@ function Guildbook:SetupGuildCalendarFrame()
 
 
     function self.GuildFrame.GuildCalendarFrame:MonthChanged()
+        local today = date("*t")
         self.Header:SetText(monthNames[self.date.month]..' '..self.date.year)
         local monthStart = self:GetMonthStart(self.date.month, self.date.year)
         local daysInMonth = self:GetDaysInMonth(self.date.month, self.date.year)
@@ -738,12 +769,17 @@ function Guildbook:SetupGuildCalendarFrame()
             day.dmf = false
             day:Disable()
             day.dateText:SetText(' ')
-            day.eventTexture:SetTexture(nil)
+            day.worldEventTexture:SetTexture(nil)
             if i < monthStart then
                 day.dateText:SetText((daysInLastMonth - monthStart + 2) + (i - 1))
                 day.dateText:SetTextColor(0.5, 0.5, 0.5, 1)
             end
             if i >= monthStart and d <= daysInMonth then
+                if d == today.day and self.date.month == today.month then
+                    day.currentDayTexture:Show()
+                else
+                    day.currentDayTexture:Hide()
+                end
                 day.dateText:SetText(d)
                 day.dateText:SetTextColor(1,1,1,1)
                 day:Enable()
@@ -758,15 +794,15 @@ function Guildbook:SetupGuildCalendarFrame()
                     dmf = 'Mulgore'
                 end
                 if i == 7 then
-                    day.eventTexture:SetTexture(Guildbook.CalendarWorldEvents['Darkmoon Faire'][dmf]['Start'])
+                    day.worldEventTexture:SetTexture(Guildbook.CalendarWorldEvents['Darkmoon Faire'][dmf]['Start'])
                     day.dmf = dmf
                 end
                 if i > 7 and i < 14 then
-                    day.eventTexture:SetTexture(Guildbook.CalendarWorldEvents['Darkmoon Faire'][dmf]['OnGoing'])
+                    day.worldEventTexture:SetTexture(Guildbook.CalendarWorldEvents['Darkmoon Faire'][dmf]['OnGoing'])
                     day.dmf = dmf
                 end
                 if i == 14 then
-                    day.eventTexture:SetTexture(Guildbook.CalendarWorldEvents['Darkmoon Faire'][dmf]['End'])
+                    day.worldEventTexture:SetTexture(Guildbook.CalendarWorldEvents['Darkmoon Faire'][dmf]['End'])
                     day.dmf = dmf
                 end
                 day.events = self:GetEventsForDate(day.date)
@@ -1062,6 +1098,10 @@ function Guildbook:SetupGuildCalendarFrame()
     end
 
     self.GuildFrame.GuildCalendarFrame.EventFrame:SetScript('OnShow', function(self)
+        self.CancelEventButton:Disable()
+    end)
+
+    self.GuildFrame.GuildCalendarFrame.EventFrame:SetScript('OnShow', function(self)
         self:ResetClassCounts()
         self:UpdateClassTabs()
         self:ResetAttending()
@@ -1239,8 +1279,10 @@ function Guildbook:SetupProfilesFrame()
 
     self.GuildFrame.ProfilesFrame:SetScript('OnShow', function(self)
         if not self.selectedGUID then
+            DEBUG('func', 'ProfilesFrame:OnShow', 'no guid, loading player data')
             self:LoadCharacterDetails(UnitGUID('player'), nil)
             self.DetailsTab:Show()
+            GuildMemberDetailFrame:Hide()
         end
     end)
 
@@ -1254,8 +1296,9 @@ function Guildbook:SetupProfilesFrame()
         self.activeTabID = id
         self.activeTabName = frame
 
+        --
         if id == 1 and self.selectedGUID then
-            Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(Guildbook.GuildFrame.ProfilesFrame.selectedGUID, nil)
+            --Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(Guildbook.GuildFrame.ProfilesFrame.selectedGUID, nil)
         end
     end
     
@@ -1413,6 +1456,9 @@ function Guildbook:SetupProfilesFrame()
         end
     end
 
+    -- function self.GuildFrame.ProfilesFrame.DetailsTab:ForceCharacterModelUpdate(model)
+
+    -- end
 
     function self.GuildFrame.ProfilesFrame:LoadCharacterDetails(guid, recipeFilter)
         GuildMemberDetailFrame:Hide()
@@ -1630,7 +1676,7 @@ function Guildbook:SetupProfilesFrame()
         Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:Hide()
         -- get the correct gear back on model
         if Guildbook.GuildFrame.ProfilesFrame.selectedGUID then
-            Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(Guildbook.GuildFrame.ProfilesFrame.selectedGUID, nil)
+            --Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(Guildbook.GuildFrame.ProfilesFrame.selectedGUID, nil)
         end
 
         -- remove this for tbc

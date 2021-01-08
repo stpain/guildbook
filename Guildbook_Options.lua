@@ -94,6 +94,33 @@ function GuildbookOptions_OnLoad(self)
             EasyMenu(t, deleteGuildDropdown, deleteGuildDropdown, 10, 10, 'NONE')
         end
     end)
+
+    Guildbook.CommsDelaySlider = CreateFrame('SLIDER', 'CommsDelay', self, "OptionsSliderTemplate")
+    Guildbook.CommsDelaySlider:SetOrientation('HORIZONTAL')
+    Guildbook.CommsDelaySlider:SetPoint('BOTTOM', -50, 20)
+    Guildbook.CommsDelaySlider:SetSize(140, 16)
+    Guildbook.CommsDelaySlider:EnableMouse(true)
+    Guildbook.CommsDelaySlider:SetValueStep(0.1)
+    Guildbook.CommsDelaySlider:SetValue(1)
+    Guildbook.CommsDelaySlider:SetMinMaxValues(0.1,3.0)
+    _G[Guildbook.CommsDelaySlider:GetName()..'Low']:SetText('0.1')
+    _G[Guildbook.CommsDelaySlider:GetName()..'High']:SetText('3.0')
+    Guildbook.CommsDelaySlider:SetScript('OnValueChanged', function(self)
+        Guildbook.COMMS_DELAY = self:GetValue()
+        _G[Guildbook.CommsDelaySlider:GetName()..'Text']:SetText(string.format("%.2f", self:GetValue()))
+        if GUILDBOOK_GLOBAL then
+            GUILDBOOK_GLOBAL['CommsDelay'] = self:GetValue()
+        end
+    end)
+    Guildbook.CommsDelaySlider.tooltipText = 'Adjust the delay between the comms traffic and the UI refreshing'
+    --dirty hack to avoid loading order
+    Guildbook.CommsDelaySlider:SetScript('OnShow', function(self)
+        if GUILDBOOK_GLOBAL then
+            self:SetValue(GUILDBOOK_GLOBAL['CommsDelay'])
+        else
+            self:SetValue(1)
+        end
+    end)
 end
 
 function GuildbookOptionsMainSpecIsPvpSpecCB_OnClick(self)

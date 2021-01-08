@@ -22,12 +22,43 @@ the copyright holders.
 
 local addonName, Guildbook = ...
 
-local build = 4.0
-local locale = GetLocale()
-
 local AceComm = LibStub:GetLibrary("AceComm-3.0")
 local LibDeflate = LibStub:GetLibrary("LibDeflate")
 local LibSerialize = LibStub:GetLibrary("LibSerialize")
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+--variables
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+local build = 4.0
+local locale = GetLocale()
+local L = Guildbook.Locales
+
+
+Guildbook.FONT_COLOUR = '|cff0070DE'
+Guildbook.PlayerMixin = nil
+Guildbook.GuildBankCommit = {
+    Commit = nil,
+    Character = nil,
+}
+Guildbook.NUM_TALENT_ROWS = 7.0
+Guildbook.COMMS_DELAY = 0.5
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+--slash commands
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+SLASH_GUILDBOOK1 = '/guildbook'
+SlashCmdList['GUILDBOOK'] = function(msg)
+    if msg == '-help' then
+        print(':(')
+
+    elseif msg == '-scanbank' then
+        Guildbook:ScanCharacterContainers()
+
+    elseif msg == '-talents' then
+        Guildbook:GetPlayerTalentInfo(UnitGUID('player'))
+
+    end
+end
 
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -63,6 +94,7 @@ function Guildbook.DEBUG(type, err, msg)
         end)
     end
 end
+local DEBUG = Guildbook.DEBUG
 
 Guildbook.DebugLog = {}
 
@@ -145,37 +177,6 @@ Guildbook.DebugFrame.ScrollBar:SetScript('OnValueChanged', function(self)
     end
 end)
 
----------------------------------------------------------------------------------------------------------------------------------------------------------------
---variables
----------------------------------------------------------------------------------------------------------------------------------------------------------------
-local L = Guildbook.Locales
-local DEBUG = Guildbook.DEBUG
-
-Guildbook.FONT_COLOUR = '|cff0070DE'
-Guildbook.PlayerMixin = nil
-Guildbook.GuildBankCommit = {
-    Commit = nil,
-    Character = nil,
-}
-Guildbook.NUM_TALENT_ROWS = 7.0
-Guildbook.COMMS_DELAY = 1.0
-
----------------------------------------------------------------------------------------------------------------------------------------------------------------
---slash commands
----------------------------------------------------------------------------------------------------------------------------------------------------------------
-SLASH_GUILDBOOK1 = '/guildbook'
-SlashCmdList['GUILDBOOK'] = function(msg)
-    if msg == '-help' then
-        print(':(')
-
-    elseif msg == '-scanbank' then
-        Guildbook:ScanCharacterContainers()
-
-    elseif msg == '-talents' then
-        Guildbook:GetPlayerTalentInfo(UnitGUID('player'))
-
-    end
-end
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 --init
@@ -289,6 +290,8 @@ function Guildbook:Init()
             GuildbookOptionsAttunementKeysBWL:SetChecked(GUILDBOOK_CHARACTER['AttunementsKeys']['BWL'])
             GuildbookOptionsAttunementKeysNAXX:SetChecked(GUILDBOOK_CHARACTER['AttunementsKeys']['NAXX'])
         end
+
+        Guildbook.CommsDelaySlider:SetValue(GUILDBOOK_GLOBAL['CommsDelay'])
     end
 
     -- stagger some start up calls to prevent chat spam, use 3s interval
@@ -1143,14 +1146,14 @@ function Guildbook:OnGuildCalendarEventCreated(data, distribution, sender)
         end
         local exists = false
         for k, event in pairs(GUILDBOOK_GLOBAL['Calendar'][guildName]) do
-            if event.created == data.payload.created then
+            if event.created == data.payload.created and event.owner == data.payload.owner then
                 exists = true
                 DEBUG('func', 'OnGuildCalendarEventCreated', 'this event already exists in your db')
             end
         end
         if exists == false then
             table.insert(GUILDBOOK_GLOBAL['Calendar'][guildName], data.payload)
-            --DEBUG('comms_in', 'OnGuildCalendarEventCreated', string.format('Received guild calendar event, title: %s', data.payload.title))
+            DEBUG('func', 'OnGuildCalendarEventCreated', string.format('Received guild calendar event, title: %s', data.payload.title))
         end
     end
 end
@@ -1165,7 +1168,7 @@ function Guildbook:SendGuildCalendarEventAttend(event, attend)
         },
     }
     self:Transmit(calendarEvent, 'GUILD', nil, 'NORMAL')
-    --DEBUG('comms_out', 'SendGuildCalendarEventAttend', string.format('Sending calendar event attend update to guild, event title: %s, attend: %s', event.title, attend))
+    DEBUG('func', 'SendGuildCalendarEventAttend', string.format('Sending calendar event attend update to guild, event title: %s, attend: %s', event.title, attend))
 end
 
 function Guildbook:OnGuildCalendarEventAttendReceived(data, distribution, sender)
