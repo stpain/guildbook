@@ -1454,7 +1454,7 @@ function Guildbook:SetupProfilesFrame()
     -- end
 
     function self.GuildFrame.ProfilesFrame:LoadCharacterDetails(guid, recipeFilter)
-        GuildMemberDetailFrame:Hide()
+        --GuildMemberDetailFrame:Hide()
         self.selectedGUID = guid -- so we can reload data between tabs, not perfect but need to set up a binding system
         self:HideTalentGrid()
         self:HideInventoryIcons()
