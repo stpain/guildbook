@@ -1293,13 +1293,6 @@ function Guildbook:SetupProfilesFrame()
         self.TalentsTab:Hide()
         self:HideTalentGrid()
         frame:Show()
-        self.activeTabID = id
-        self.activeTabName = frame
-
-        --
-        if id == 1 and self.selectedGUID then
-            --Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(Guildbook.GuildFrame.ProfilesFrame.selectedGUID, nil)
-        end
     end
     
     local searchResults = {}
@@ -1462,8 +1455,9 @@ function Guildbook:SetupProfilesFrame()
 
     function self.GuildFrame.ProfilesFrame:LoadCharacterDetails(guid, recipeFilter)
         GuildMemberDetailFrame:Hide()
-        self.selectedGUID = guid
+        self.selectedGUID = guid -- so we can reload data between tabs, not perfect but need to set up a binding system
         self:HideTalentGrid()
+        self:HideInventoryIcons()
         self.DetailsTab:HideCharacterModels()
         self.ProfessionsTab:ClearReagentsListview()
         self.ProfessionsTab:ClearRecipesListview(Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container)
@@ -1475,6 +1469,9 @@ function Guildbook:SetupProfilesFrame()
         end
         if Guildbook.PlayerMixin:IsValid() then
             local name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
+            if not name then
+                return
+            end
             --local _, class, _ = C_PlayerInfo.GetClass(Guildbook.PlayerMixin)
             local sex = C_PlayerInfo.GetSex(Guildbook.PlayerMixin)
             if sex == 0 then
@@ -1492,33 +1489,91 @@ function Guildbook:SetupProfilesFrame()
             if guid and race and raceTexture and guildName then
                 if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] then
                     local character = GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid]
-                    -- load race background
-                    --C_Timer.After(0.0, function()
-                        self.DetailsTab:ShowModelViewer(race)
-                    --end)
+                    self.character = GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid]
+                    self.DetailsTab:ShowModelViewer(race)
 
-                    for k, v in ipairs(Guildbook.Data.InventorySlots) do
-                        self.DetailsTab.Overlay.InvIcons[v.Name]:Hide()
+                    -- as there is potentially a large amount of data to send/receive we will stagger the calls
+                    -- request order = inventory, talents, professions
+
+                    -- fetch inventory data
+                    Guildbook:SendInventoryRequest(character.Name)
+                    C_Timer.After(Guildbook.COMMS_DELAY, function()
+                        self:LoadCharacterInventory()
+                        -- if character.Inventory and character.Inventory.Current then
+                        --     for slot, link in pairs(character.Inventory.Current) do
+                        --         if link ~= false and slot ~= 'TABARDSLOT' then
+                        --             --DEBUG('func', 'LoadCharacterDetails', 'equipping '..slot..' '..link)
+                        --             self.DetailsTab.Overlay.InvIcons[slot].item = link
+                        --             self.DetailsTab.Overlay.InvIcons[slot]:Show()
+                        --         end
+                        --     end
+                        -- end
+                    end)
+
+                    -- fetch talent data
+                    C_Timer.After(0.2, function()
+                        Guildbook:SendTalentInfoRequest(character.Name, 1)
+                    end)
+                    C_Timer.After(0.2 + Guildbook.COMMS_DELAY, function()
+                        if character.Talents and character.Talents[1] and next(character.Talents[1]) then
+                            self:LoadCharacterTalents(character.Talents[1])
+                            DEBUG('func', 'LoadCharacterDetails', 'loading talents from file')
+                        end
+                    end)
+
+                    -- professions
+                    -- load prof data from saved var file if it exists first, the comms delay here is noticable
+                    if character['Profession1'] ~= '-' then
+                        local prof1 = character['Profession1']
+                        if character[prof1] and next(character[prof1]) then
+                            self.ProfessionsTab:SetRecipesListviewData(prof1, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container, character[prof1], recipeFilter)
+                        end
+                        C_Timer.After(0.4, function()
+                            Guildbook:SendTradeSkillsRequest(character.Name, prof1)
+                        end)
+                        C_Timer.After(0.4 + Guildbook.COMMS_DELAY, function()
+                            Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:SetRecipesListviewData(prof1, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container, character[prof1], recipeFilter)
+                        end)
+                    end
+                    if character['Profession2'] ~= '-' then
+                        local prof2 = character['Profession2']
+                        if character[prof2] and next(character[prof2]) then
+                            self.ProfessionsTab:SetRecipesListviewData(prof2, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container, character[prof2], recipeFilter)
+                        end
+                        C_Timer.After(0.6, function()
+                            Guildbook:SendTradeSkillsRequest(character.Name, prof2)
+                        end)
+                        C_Timer.After(0.6 + Guildbook.COMMS_DELAY, function()
+                            Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:SetRecipesListviewData(prof2, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container, character[prof2], recipeFilter)
+                        end)
                     end
 
                     -- 3d model stuff (experimental)
                     if self.DetailsTab.CharacterModels[race] and self.DetailsTab.CharacterModels[race][sex] then
                         self.DetailsTab.CharacterModels[race][sex]:Undress()
+                        -- self.DetailsTab.Overlay.LoadingBar:SetValue(100)
+                        -- self.DetailsTab.Overlay.LoadingBar.finish = GetTime() + 3
                         C_Timer.After(0.0, function()
                             self.DetailsTab.CharacterModels[race][sex]:Show()
+                            --self.DetailsTab.Overlay.LoadingBar:Show()
                         end)
-                        if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Inventory and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Inventory.Current then
-                            local items = GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Inventory.Current or {}
-                            C_Timer.After(0.0, function()
-                                for slot, link in pairs(items) do
+                        if character.Inventory and character.Inventory.Current then
+                            C_Timer.After(0.1, function()
+                                for slot, link in pairs(character.Inventory.Current) do
                                     if link ~= false and slot ~= 'TABARDSLOT' then
-                                        DEBUG('func', 'LoadCharacter', 'equipping '..slot..' '..link)
-                                        self.DetailsTab.Overlay.InvIcons[slot].item = link
-                                        self.DetailsTab.Overlay.InvIcons[slot]:Show()
                                         self.DetailsTab.CharacterModels[race][sex]:TryOn(link)
                                     end
-                                    self.DetailsTab.CharacterModels[race][sex]:UndressSlot(GetInventorySlotInfo("TABARDSLOT"))
+                                    --self.DetailsTab.CharacterModels[race][sex]:UndressSlot(GetInventorySlotInfo("TABARDSLOT"))
                                 end
+                            end)
+                            C_Timer.After(3.0, function()
+                                for slot, link in pairs(character.Inventory.Current) do
+                                    if link ~= false and slot ~= 'TABARDSLOT' then
+                                        self.DetailsTab.CharacterModels[race][sex]:TryOn(link)
+                                    end
+                                    --self.DetailsTab.CharacterModels[race][sex]:UndressSlot(GetInventorySlotInfo("TABARDSLOT"))
+                                end
+                                --self.DetailsTab.Overlay.LoadingBar:Hide()
                             end)
                         end
                     end
@@ -1557,43 +1612,43 @@ function Guildbook:SetupProfilesFrame()
                         end
                     end
 
-                    -- as there is potentially a large amount of data to send/receive we will stagger the calls
-                    -- request order = talents, professions
+                    -- -- as there is potentially a large amount of data to send/receive we will stagger the calls
+                    -- -- request order = talents, professions
 
-                    -- send request for latest data - this could be made a manual operation but will leave as auto for now
-                    -- load talents without checking saved vars, comms delay here is short
-                    Guildbook:SendTalentInfoRequest(character.Name, 1)
-                    C_Timer.After(0.5, function()
-                        self:LoadCharacterTalents(character.Talents[1])
-                        DEBUG('func', 'LoadCharacterDetails', 'loading talents from file')
-                    end)
+                    -- -- send request for latest data - this could be made a manual operation but will leave as auto for now
+                    -- -- load talents without checking saved vars, comms delay here is short
+                    -- Guildbook:SendTalentInfoRequest(character.Name, 1)
+                    -- C_Timer.After(0.5, function()
+                    --     self:LoadCharacterTalents(character.Talents[1])
+                    --     DEBUG('func', 'LoadCharacterDetails', 'loading talents from file')
+                    -- end)
 
-                    -- professions
-                    -- load prof data from saved var file if it exists first, the comms delay here is noticable
-                    if character['Profession1'] ~= '-' then
-                        local prof1 = character['Profession1']
-                        if character[prof1] and next(character[prof1]) then
-                            self.ProfessionsTab:SetRecipesListviewData(prof1, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container, character[prof1], recipeFilter)
-                        end
-                        C_Timer.After(1.0, function()
-                            Guildbook:SendTradeSkillsRequest(character.Name, prof1)
-                        end)
-                        C_Timer.After(1.5, function()
-                            Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:SetRecipesListviewData(prof1, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container, character[prof1], recipeFilter)
-                        end)
-                    end
-                    if character['Profession2'] ~= '-' then
-                        local prof2 = character['Profession2']
-                        if character[prof2] and next(character[prof2]) then
-                            self.ProfessionsTab:SetRecipesListviewData(prof2, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container, character[prof2], recipeFilter)
-                        end
-                        C_Timer.After(1.5, function()
-                            Guildbook:SendTradeSkillsRequest(character.Name, prof2)
-                        end)
-                        C_Timer.After(2.0, function()
-                            Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:SetRecipesListviewData(prof2, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container, character[prof2], recipeFilter)
-                        end)
-                    end
+                    -- -- professions
+                    -- -- load prof data from saved var file if it exists first, the comms delay here is noticable
+                    -- if character['Profession1'] ~= '-' then
+                    --     local prof1 = character['Profession1']
+                    --     if character[prof1] and next(character[prof1]) then
+                    --         self.ProfessionsTab:SetRecipesListviewData(prof1, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container, character[prof1], recipeFilter)
+                    --     end
+                    --     C_Timer.After(1.0, function()
+                    --         Guildbook:SendTradeSkillsRequest(character.Name, prof1)
+                    --     end)
+                    --     C_Timer.After(1.5, function()
+                    --         Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:SetRecipesListviewData(prof1, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container, character[prof1], recipeFilter)
+                    --     end)
+                    -- end
+                    -- if character['Profession2'] ~= '-' then
+                    --     local prof2 = character['Profession2']
+                    --     if character[prof2] and next(character[prof2]) then
+                    --         self.ProfessionsTab:SetRecipesListviewData(prof2, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container, character[prof2], recipeFilter)
+                    --     end
+                    --     C_Timer.After(1.5, function()
+                    --         Guildbook:SendTradeSkillsRequest(character.Name, prof2)
+                    --     end)
+                    --     C_Timer.After(2.0, function()
+                    --         Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:SetRecipesListviewData(prof2, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container, character[prof2], recipeFilter)
+                    --     end)
+                    -- end
                 end
             else
                 DEBUG('func', 'ProfilesFrame:LoadCharacterDetails', 'mixin error')
@@ -1601,6 +1656,21 @@ function Guildbook:SetupProfilesFrame()
         end
         CloseDropDownMenus()
     end
+
+    function self.GuildFrame.ProfilesFrame:LoadCharacterInventory()
+        if self.character then
+            if self.character.Inventory and self.character.Inventory.Current then
+                for slot, link in pairs(self.character.Inventory.Current) do
+                    if link ~= false and slot ~= 'TABARDSLOT' then
+                        self.DetailsTab.Overlay.InvIcons[slot].item = link
+                        self.DetailsTab.Overlay.InvIcons[slot]:Show()
+                    end
+                end
+            end
+        end
+    end
+
+
 
     function self.GuildFrame.ProfilesFrame:LoadCharacterTalents(talents)
         if type(talents) == 'table' then
@@ -1674,9 +1744,9 @@ function Guildbook:SetupProfilesFrame()
         Guildbook.GuildFrame.ProfilesFrame.DetailsTab:Show()
         Guildbook.GuildFrame.ProfilesFrame.TalentsTab:Hide()
         Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:Hide()
-        -- get the correct gear back on model
-        if Guildbook.GuildFrame.ProfilesFrame.selectedGUID then
-            --Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(Guildbook.GuildFrame.ProfilesFrame.selectedGUID, nil)
+
+        if self:GetParent().character then
+            self:GetParent():LoadCharacterInventory()
         end
 
         -- remove this for tbc
@@ -1719,16 +1789,24 @@ function Guildbook:SetupProfilesFrame()
     self.GuildFrame.ProfilesFrame.DetailsTab:Hide()
 
     self.GuildFrame.ProfilesFrame.DetailsTab.ModelViewers = {}
-    for k, v in pairs(Guildbook.RaceBackgrounds) do
-        local f = CreateFrame('Model', 'GuildbookGuildFrameProfilesFrameModelViewer'..k, self.GuildFrame.ProfilesFrame.DetailsTab)
-        --f:SetFrameStrata('LOW')
-        --f:SetFrameLevel(0)
-        f:SetPoint('TOPLEFT', 2, -2)
-        f:SetPoint('BOTTOMRIGHT', -3, 3)
-        f:SetModel(v.FileName)
-        f:SetModelAlpha(0.9)
-        f:Hide()
-        self.GuildFrame.ProfilesFrame.DetailsTab.ModelViewers[k] = f
+    if not Guildbook.PlayerMixin then
+        Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(UnitGUID('player'))
+    else
+        Guildbook.PlayerMixin:SetGUID(UnitGUID('player'))
+    end
+    if Guildbook.PlayerMixin:IsValid() then
+        local faction = C_CreatureInfo.GetFactionInfo(C_PlayerInfo.GetRace(Guildbook.PlayerMixin)).groupTag
+        for _, race in pairs(Guildbook.Data.Factions[faction]) do
+            local f = CreateFrame('Model', 'GuildbookGuildFrameProfilesFrameModelViewer'..race, self.GuildFrame.ProfilesFrame.DetailsTab)
+            --f:SetFrameStrata('LOW')
+            --f:SetFrameLevel(0)
+            f:SetPoint('TOPLEFT', 2, -2)
+            f:SetPoint('BOTTOMRIGHT', -3, 3)
+            f:SetModel(Guildbook.RaceBackgrounds[race].FileName)
+            f:SetModelAlpha(0.9)
+            f:Hide()
+            self.GuildFrame.ProfilesFrame.DetailsTab.ModelViewers[race] = f
+        end
     end
 
     function self.GuildFrame.ProfilesFrame.DetailsTab:ShowModelViewer(model)
@@ -1811,7 +1889,7 @@ function Guildbook:SetupProfilesFrame()
                 end
             end)
         else
-            DEBUG('func', 'CreateCharacterModel', race..' '..gender..' exists '..self.CharacterModels[race][gender]:GetName())
+            DEBUG('func', 'CreateCharacterModel', race..' '..gender..' exists')
         end
     end
 
@@ -1963,7 +2041,7 @@ function Guildbook:SetupProfilesFrame()
             end
         end)
         f:SetScript('OnLeave', function(self)
-            self:SetSize(22, 22)
+            self:SetSize(25, 25)
             self.background:ClearAllPoints()
             self.background:SetPoint('TOPLEFT', -19, 19)
             self.background:SetPoint('BOTTOMRIGHT', 19, -19)
@@ -1972,6 +2050,46 @@ function Guildbook:SetupProfilesFrame()
         
         self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InvIcons[v.Name] = f
     end
+
+
+    function self.GuildFrame.ProfilesFrame:HideInventoryIcons()
+        for k, v in ipairs(Guildbook.Data.InventorySlots) do
+            self.DetailsTab.Overlay.InvIcons[v.Name]:Hide()
+        end
+    end
+
+
+    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar = CreateFrame('StatusBar', 'GuildbookGuildFrameProfilesFrameDetailsTabLoadingBar', self.GuildFrame.ProfilesFrame.DetailsTab.Overlay)
+    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar:SetPoint('CENTER', 0, 0)
+    -- --self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar:SetPoint('TOPRIGHT', GuildFrame, 'BOTTOMRIGHT', 0, -4)
+    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar:SetSize(150, 16)
+    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
+    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar:GetStatusBarTexture():SetHorizTile(false)
+    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar:SetStatusBarColor(0.53, 0.53, 0.93, 1.0)
+    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar:SetMinMaxValues(1, 100)
+    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar:SetValue(50)
+    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar:SetOrientation('HORIZONTAL')
+    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar:SetFrameStrata('DIALOG')
+    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar:SetScript('OnShow', function(self)
+
+    -- end)
+    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar:SetScript('OnHide', function(self)
+    --     self:SetValue(1)
+    -- end)
+    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar:SetScript('OnUpdate', function(self)
+    --     if self.finish then
+    --         local remaining = self.finish - GetTime()
+    --         if remaining > 0 then
+    --             self:SetValue(remaining * 100)
+    --         end
+    --     end
+    -- end)
+    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar.background = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar:CreateTexture(nil, 'OVERLAY')
+    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar.background:SetPoint('TOPLEFT', -25, 15)
+    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar.background:SetPoint('BOTTOMRIGHT', 25, -15)
+    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar.background:SetTexture(130874)
+    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar:Hide()
+
 
 
     self.GuildFrame.ProfilesFrame.TalentsTab = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameTalentsTab', self.GuildFrame.ProfilesFrame)
@@ -2581,5 +2699,105 @@ function Guildbook:SetupProfilesFrame()
     PanelTemplates_SetTab(Guildbook.GuildFrame.ProfilesFrame, 1)
 end
 
+
+
+
+
+
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- chat
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+function Guildbook:SetupChatFrame()
+
+    local rowHeight = 16
+
+    self.GuildFrame.ChatFrame.Listview = {}
+    for i = 1, 20 do
+        local f = CreateFrame('BUTTON', tostring('GuildbookGuildFrameChatFrameRow'..i), self.GuildFrame.ChatFrame)
+        f:SetPoint('TOPLEFT', Guildbook.GuildFrame.ChatFrame, 'TOPLEFT', 8, (i * -rowHeight))
+        f:SetPoint('TOPRIGHT', Guildbook.GuildFrame.ChatFrame, 'TOPRIGHT', -8, (i * -rowHeight))
+        f:SetHeight(rowHeight)
+        f:SetHighlightTexture("Interface/QuestFrame/UI-QuestLogTitleHighlight","ADD")
+        f:GetHighlightTexture():SetVertexColor(0.196, 0.388, 0.8)
+        f.Message = f:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
+        f.Message:SetPoint('LEFT', 8, 0)
+        f.Message:SetSize(780, 20)
+        f.Message:SetJustifyH('LEFT')
+        f.Message:SetTextColor(0.25098040699959,1,0.25098040699959,1)
+        f.Message:SetFont("Fonts\\FRIZQT__.TTF", 12)
+        f.Message:SetText('chat example text')
+        f.msg = nil
+        f:SetScript('OnShow', function(self)
+            if self.msg then
+                self.Message:SetText(self.msg)
+            else
+                self:Hide()
+            end
+        end)
+        f:SetScript('OnHide', function(self)
+            self.Message:SetText(' ')
+        end)
+        f:SetScript('OnMouseWheel', function(self, delta)
+            local s = Guildbook.GuildFrame.ChatFrame.ScrollBar:GetValue()
+            Guildbook.GuildFrame.ChatFrame.ScrollBar:SetValue(s - delta)
+        end)
+        Guildbook.GuildFrame.ChatFrame.Listview[i] = f
+    end
+
+    Guildbook.GuildFrame.ChatFrame.ScrollBar = CreateFrame('SLIDER', 'GuildbookDebugFrameScrollBar', Guildbook.GuildFrame.ChatFrame, "UIPanelScrollBarTemplate")
+    Guildbook.GuildFrame.ChatFrame.ScrollBar:SetPoint('TOPLEFT', Guildbook.GuildFrame.ChatFrame, 'TOPRIGHT', -24, -44)
+    Guildbook.GuildFrame.ChatFrame.ScrollBar:SetPoint('BOTTOMRIGHT', Guildbook.GuildFrame.ChatFrame, 'BOTTOMRIGHT', -8, 26)
+    Guildbook.GuildFrame.ChatFrame.ScrollBar:EnableMouse(true)
+    Guildbook.GuildFrame.ChatFrame.ScrollBar:SetValueStep(1)
+    Guildbook.GuildFrame.ChatFrame.ScrollBar:SetValue(1)
+    Guildbook.GuildFrame.ChatFrame.ScrollBar:SetMinMaxValues(1, 1)
+    Guildbook.GuildFrame.ChatFrame.ScrollBar:SetScript('OnValueChanged', function(self)
+        if Guildbook.GuildChatLog then
+            local scrollPos = math.floor(self:GetValue())
+            if scrollPos == 0 then
+                scrollPos = 1
+            end
+            for i = 1, 20 do
+                if Guildbook.GuildChatLog[(i - 1) + scrollPos] then
+                    Guildbook.GuildFrame.ChatFrame.Listview[i]:Hide()
+                    Guildbook.GuildFrame.ChatFrame.Listview[i].msg = Guildbook.GuildChatLog[(i - 1) + scrollPos]
+                    Guildbook.GuildFrame.ChatFrame.Listview[i]:Show()
+                end
+            end
+        end
+    end)
+
+end
+
+
+function Guildbook:AddGuildChatMessage(channel, msg)
+    for i = 1, 20 do
+        Guildbook.GuildFrame.ChatFrame.Listview[i]:Hide()
+    end
+    if msg then
+        table.insert(channel, msg)
+    end
+    if Guildbook.GuildChatLog and next(Guildbook.GuildChatLog) then
+        local logCount = #Guildbook.GuildChatLog - 19
+        if logCount < 1 then
+            Guildbook.GuildFrame.ChatFrame.ScrollBar:SetMinMaxValues(1, 2)
+            Guildbook.GuildFrame.ChatFrame.ScrollBar:SetValue(2)
+            Guildbook.GuildFrame.ChatFrame.ScrollBar:SetValue(1)
+            Guildbook.GuildFrame.ChatFrame.ScrollBar:SetMinMaxValues(1, 1)
+        else
+            local pos = Guildbook.GuildFrame.ChatFrame.ScrollBar:GetValue()
+            Guildbook.GuildFrame.ChatFrame.ScrollBar:SetMinMaxValues(1, logCount)
+            Guildbook.GuildFrame.ChatFrame.ScrollBar:SetValue(pos - 1)
+            Guildbook.GuildFrame.ChatFrame.ScrollBar:SetValue(pos)
+        end
+    end
+    for i = 1, 20 do
+        Guildbook.GuildFrame.ChatFrame.Listview[i]:Show()
+    end
+end
 
 

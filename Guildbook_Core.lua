@@ -41,7 +41,7 @@ Guildbook.GuildBankCommit = {
     Character = nil,
 }
 Guildbook.NUM_TALENT_ROWS = 7.0
-Guildbook.COMMS_DELAY = 0.5
+Guildbook.COMMS_DELAY = 0.0
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 --slash commands
@@ -51,11 +51,6 @@ SlashCmdList['GUILDBOOK'] = function(msg)
     if msg == '-help' then
         print(':(')
 
-    elseif msg == '-scanbank' then
-        Guildbook:ScanCharacterContainers()
-
-    elseif msg == '-talents' then
-        Guildbook:GetPlayerTalentInfo(UnitGUID('player'))
 
     end
 end
@@ -71,9 +66,16 @@ Guildbook.DebugColours = {
     ['comms_out'] = '|cff0070DD', --shaman
 }
 
+-- table to hold debug messages
+Guildbook.DebugLog = {}
+
+--- add debug message to debugger window
+-- @param type string value used for lookup in Guildbook.DebugColours
+-- @param err string function name message originates from
+-- @param msg string the message to print
 function Guildbook.DEBUG(type, err, msg)
     for i = 1, 20 do
-        Guildbook.DebugFrame.Listview[i]:Hide()
+        Guildbook.DebuggerWindow.Listview[i]:Hide()
     end
     if err and msg then
         table.insert(Guildbook.DebugLog, string.format("%s [%s%s|r], %s", date("%T"), Guildbook.DebugColours[type], err, msg))
@@ -85,49 +87,49 @@ function Guildbook.DEBUG(type, err, msg)
         if i < 1 then
             i = 1
         end
-        Guildbook.DebugFrame.ScrollBar:SetMinMaxValues(1, i)
-        Guildbook.DebugFrame.ScrollBar:SetValue(i)
+        Guildbook.DebuggerWindow.ScrollBar:SetMinMaxValues(1, i)
+        Guildbook.DebuggerWindow.ScrollBar:SetValue(i)
         C_Timer.After(0, function()
             for i = 1, 20 do
-                Guildbook.DebugFrame.Listview[i]:Show()
+                Guildbook.DebuggerWindow.Listview[i]:Show()
             end
         end)
     end
 end
 local DEBUG = Guildbook.DEBUG
 
-Guildbook.DebugLog = {}
 
-Guildbook.DebugFrame = CreateFrame('FRAME', 'GuildbookDebugFrame', UIParent, "UIPanelDialogTemplate")
-Guildbook.DebugFrame:SetPoint('CENTER', 0, 0)
-Guildbook.DebugFrame:SetFrameStrata('HIGH')
-Guildbook.DebugFrame:SetSize(800, 280)
-Guildbook.DebugFrame:SetMovable(true)
-Guildbook.DebugFrame:EnableMouse(true)
-Guildbook.DebugFrame:RegisterForDrag("LeftButton")
-Guildbook.DebugFrame:SetScript("OnDragStart", Guildbook.DebugFrame.StartMoving)
-Guildbook.DebugFrame:SetScript("OnDragStop", Guildbook.DebugFrame.StopMovingOrSizing)
+-- create the debugging window
+Guildbook.DebuggerWindow = CreateFrame('FRAME', 'GuildbookDebugFrame', UIParent, "UIPanelDialogTemplate")
+Guildbook.DebuggerWindow:SetPoint('CENTER', 0, 0)
+Guildbook.DebuggerWindow:SetFrameStrata('HIGH')
+Guildbook.DebuggerWindow:SetSize(800, 280)
+Guildbook.DebuggerWindow:SetMovable(true)
+Guildbook.DebuggerWindow:EnableMouse(true)
+Guildbook.DebuggerWindow:RegisterForDrag("LeftButton")
+Guildbook.DebuggerWindow:SetScript("OnDragStart", Guildbook.DebuggerWindow.StartMoving)
+Guildbook.DebuggerWindow:SetScript("OnDragStop", Guildbook.DebuggerWindow.StopMovingOrSizing)
 _G['GuildbookDebugFrameClose']:SetScript('OnClick', function()
     if GUILDBOOK_CHARACTER and GUILDBOOK_GLOBAL then
         GUILDBOOK_GLOBAL['Debug'] = false
         GuildbookOptionsDebugCB:SetChecked(GUILDBOOK_GLOBAL['Debug'])
     end
     if GuildbookOptionsDebugCB:GetChecked() == true then
-        Guildbook.DebugFrame:Show()
+        Guildbook.DebuggerWindow:Show()
     else
-        Guildbook.DebugFrame:Hide()
+        Guildbook.DebuggerWindow:Hide()
     end
 end)
 
-Guildbook.DebugFrame.header = Guildbook.DebugFrame:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
-Guildbook.DebugFrame.header:SetPoint('TOP', 0, -9)
-Guildbook.DebugFrame.header:SetText('Guildbook Debug')
+Guildbook.DebuggerWindow.header = Guildbook.DebuggerWindow:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
+Guildbook.DebuggerWindow.header:SetPoint('TOP', 0, -9)
+Guildbook.DebuggerWindow.header:SetText('Guildbook Debug')
 
-Guildbook.DebugFrame.Listview = {}
+Guildbook.DebuggerWindow.Listview = {}
 for i = 1, 20 do
-    local f = CreateFrame('BUTTON', tostring('SRBLP_LogsListview'..i), Guildbook.DebugFrame)
-    f:SetPoint('TOPLEFT', Guildbook.DebugFrame, 'TOPLEFT', 8, (i * -12) -18)
-    f:SetPoint('TOPRIGHT', Guildbook.DebugFrame, 'TOPRIGHT', -8, (i * -12) -18)
+    local f = CreateFrame('BUTTON', tostring('SRBLP_LogsListview'..i), Guildbook.DebuggerWindow)
+    f:SetPoint('TOPLEFT', Guildbook.DebuggerWindow, 'TOPLEFT', 8, (i * -12) -18)
+    f:SetPoint('TOPRIGHT', Guildbook.DebuggerWindow, 'TOPRIGHT', -8, (i * -12) -18)
     f:SetHeight(12)
     f:SetHighlightTexture("Interface/QuestFrame/UI-QuestLogTitleHighlight","ADD")
     f:GetHighlightTexture():SetVertexColor(0.196, 0.388, 0.8)
@@ -148,20 +150,20 @@ for i = 1, 20 do
         self.Message:SetText(' ')
     end)
     f:SetScript('OnMouseWheel', function(self, delta)
-        local s = Guildbook.DebugFrame.ScrollBar:GetValue()
-        Guildbook.DebugFrame.ScrollBar:SetValue(s - delta)
+        local s = Guildbook.DebuggerWindow.ScrollBar:GetValue()
+        Guildbook.DebuggerWindow.ScrollBar:SetValue(s - delta)
     end)
-    Guildbook.DebugFrame.Listview[i] = f
+    Guildbook.DebuggerWindow.Listview[i] = f
 end
 
-Guildbook.DebugFrame.ScrollBar = CreateFrame('SLIDER', 'GuildbookDebugFrameScrollBar', Guildbook.DebugFrame, "UIPanelScrollBarTemplate")
-Guildbook.DebugFrame.ScrollBar:SetPoint('TOPLEFT', Guildbook.DebugFrame, 'TOPRIGHT', -24, -44)
-Guildbook.DebugFrame.ScrollBar:SetPoint('BOTTOMRIGHT', Guildbook.DebugFrame, 'BOTTOMRIGHT', -8, 26)
-Guildbook.DebugFrame.ScrollBar:EnableMouse(true)
-Guildbook.DebugFrame.ScrollBar:SetValueStep(1)
-Guildbook.DebugFrame.ScrollBar:SetValue(1)
-Guildbook.DebugFrame.ScrollBar:SetMinMaxValues(1, 1)
-Guildbook.DebugFrame.ScrollBar:SetScript('OnValueChanged', function(self)
+Guildbook.DebuggerWindow.ScrollBar = CreateFrame('SLIDER', 'GuildbookDebugFrameScrollBar', Guildbook.DebuggerWindow, "UIPanelScrollBarTemplate")
+Guildbook.DebuggerWindow.ScrollBar:SetPoint('TOPLEFT', Guildbook.DebuggerWindow, 'TOPRIGHT', -24, -44)
+Guildbook.DebuggerWindow.ScrollBar:SetPoint('BOTTOMRIGHT', Guildbook.DebuggerWindow, 'BOTTOMRIGHT', -8, 26)
+Guildbook.DebuggerWindow.ScrollBar:EnableMouse(true)
+Guildbook.DebuggerWindow.ScrollBar:SetValueStep(1)
+Guildbook.DebuggerWindow.ScrollBar:SetValue(1)
+Guildbook.DebuggerWindow.ScrollBar:SetMinMaxValues(1, 1)
+Guildbook.DebuggerWindow.ScrollBar:SetScript('OnValueChanged', function(self)
     if Guildbook.DebugLog then
         local scrollPos = math.floor(self:GetValue())
         if scrollPos == 0 then
@@ -169,9 +171,9 @@ Guildbook.DebugFrame.ScrollBar:SetScript('OnValueChanged', function(self)
         end
         for i = 1, 20 do
             if Guildbook.DebugLog[(i - 1) + scrollPos] then
-                Guildbook.DebugFrame.Listview[i]:Hide()
-                Guildbook.DebugFrame.Listview[i].msg = Guildbook.DebugLog[(i - 1) + scrollPos]
-                Guildbook.DebugFrame.Listview[i]:Show()
+                Guildbook.DebuggerWindow.Listview[i]:Hide()
+                Guildbook.DebuggerWindow.Listview[i].msg = Guildbook.DebugLog[(i - 1) + scrollPos]
+                Guildbook.DebuggerWindow.Listview[i]:Show()
             end
         end
     end
@@ -264,6 +266,8 @@ function Guildbook:Init()
         end
     end)
 
+
+    ------- this section will be adjusted when player profiles move in to profiles tab fully
     GuildbookOptionsMainSpecDD_Init()
     GuildbookOptionsOffSpecDD_Init()
 
@@ -277,9 +281,9 @@ function Guildbook:Init()
         GuildbookOptionsOffSpecIsPvpSpecCB:SetChecked(GUILDBOOK_CHARACTER['OffSpecIsPvP'])
         GuildbookOptionsDebugCB:SetChecked(GUILDBOOK_GLOBAL['Debug'])
         if GUILDBOOK_GLOBAL['Debug'] == true then
-            Guildbook.DebugFrame:Show()
+            Guildbook.DebuggerWindow:Show()
         else
-            Guildbook.DebugFrame:Hide()
+            Guildbook.DebuggerWindow:Hide()
         end
         GuildbookOptionsShowMinimapButton:SetChecked(GUILDBOOK_GLOBAL['ShowMinimapButton'])
 
@@ -314,6 +318,7 @@ function Guildbook:Init()
         Guildbook:RequestGuildCalendarDeletedEvents()
     end)
 
+    -- this enables us to prevent character model capturing until the player is fully loaded
     Guildbook.LoadTime = GetTime()
     DEBUG('func', 'init', tostring('Load time '..date("%T")))
 end
@@ -322,19 +327,26 @@ end
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- functions
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+--- return the players guild name if they belong to 1
 function Guildbook:GetGuildName()
-    local guildName = false
     if IsInGuild() and GetGuildInfo("player") then
         local guildName, _, _, _ = GetGuildInfo('player')
         return guildName
     end
 end
 
+
+--- print a message
+-- @param msg string the message to print
 function Guildbook:PrintMessage(msg)
     print(string.format('[%sGuildbook|r] %s', Guildbook.FONT_COLOUR, msg))
 end
 
-function Guildbook:ScanCharacterContainers()
+
+--- scans the players bags and bank for guild bank sharing
+--- creates a table in the character saved vars with scan time so we can check which data is newest
+function Guildbook:ScanPlayerContainers()
     if BankFrame:IsVisible() then
         local guid = UnitGUID('player')
         if not self.PlayerMixin then
@@ -411,11 +423,14 @@ function Guildbook:ScanCharacterContainers()
                 }
             }
             self:Transmit(bankUpdate, 'GUILD', sender, 'BULK')
-            --DEBUG('comms_out', 'ScanCharacterContainers', 'sending guild bank data due to new commit')
+            --DEBUG('comms_out', 'ScanPlayerContainers', 'sending guild bank data due to new commit')
         end
     end
 end
 
+
+--- scan the players trade skills
+--- this is used to get data about the players professions, recipes and reagents
 function Guildbook:ScanTradeSkill()
     local prof = GetTradeSkillLine()
     GUILDBOOK_CHARACTER[prof] = {}
@@ -445,6 +460,9 @@ function Guildbook:ScanTradeSkill()
     end
 end
 
+
+--- scan the players enchanting recipes, enchanting works a little differently 
+--- this is used to get data about the players professions, recipes and reagents
 function Guildbook:ScanCraftSkills_Enchanting()
     local currentCraftingWindow = GetCraftSkillLine(1)
     if currentCraftingWindow == 'Enchanting' then
@@ -481,7 +499,10 @@ function Guildbook:ScanCraftSkills_Enchanting()
 end
 
 
---- scan the characters current guild cache and check for any characters with name/class/spec data not matching guid data
+--- scan the characters current guild cache
+-- this will check name and class against the return values from PlayerMixin using guid, sometimes players create multipole characters before settling on a class
+-- we also check the player entries for profression errors, talents table and spec data
+-- any entries not found the current guild roster will be removed (=nil)
 function Guildbook:CleanUpGuildRosterData(guild, msg)
     if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[guild] then
         Guildbook:PrintMessage(msg)
@@ -584,6 +605,11 @@ function Guildbook:CleanUpCharacterSettings()
     end
 end
 
+
+--- scan the players professions
+-- get the name of any professions the player has, the profession level
+-- also check the secondary professions fishing, cooking, first aid
+-- this will update the character saved var which is then read when a request comes in
 function Guildbook.GetProfessionData()
     local myCharacter = { Fishing = 0, Cooking = 0, FirstAid = 0, Prof1 = '-', Prof1Level = 0, Prof2 = '-', Prof2Level = 0 }
     for s = 1, GetNumSkillLines() do
@@ -596,6 +622,7 @@ function Guildbook.GetProfessionData()
             myCharacter.FirstAid = level
         else
             for k, prof in pairs(Guildbook.Data.Profession) do
+                -- using GetEnglish to cover non english clients checking against addon lookup tables
                 if prof.Name == Guildbook.GetEnglish[locale][skill] then
                     if myCharacter.Prof1 == '-' then
                         myCharacter.Prof1 = Guildbook.GetEnglish[locale][skill]
@@ -620,33 +647,42 @@ function Guildbook.GetProfessionData()
     end
 end
 
---- talent scanning for tbc new feature
+
 -- https://wow.gamepedia.com/API_GetActiveTalentGroup -- dual spec api for wrath
+
+--- get the players current talents
+-- as there is no dual spec for now we just default to using talents[1] and updating Talents.Current
+-- when dual spec arrives we will have to adjust this
 function Guildbook:GetCharacterTalentInfo()
-    local talents = {
-        [1] = {},
-        [2] = {},
-    }
-    for tabIndex = 1, GetNumTalentTabs() do
-        local spec, texture, pointsSpent, fileName = GetTalentTabInfo(tabIndex)
-        for talentIndex = 1, GetNumTalents(tabIndex) do
-            local name, iconTexture, row, column, rank, maxRank, isExceptional, available = GetTalentInfo(tabIndex, talentIndex)
-            table.insert(talents[1], {
-                Tab = tabIndex,
-                Row = row,
-                Col = column,
-                Rank = rank,
-                MxRnk = maxRank,
-                Icon = iconTexture,
-                Name = name,
-            })
-            --DEBUG('func', 'GetCharacterTalentInfo', string.format("Tab %s: %s %s points", tabIndex, name, rank))
+    if GUILDBOOK_CHARACTER then
+        if not GUILDBOOK_CHARACTER['Talents'] then
+            GUILDBOOK_CHARACTER['Talents'] = {
+                [1] = {},
+                [2] = {},  
+            }
+        end
+        -- will need dual spec set up for wrath
+        for tabIndex = 1, GetNumTalentTabs() do
+            local spec, texture, pointsSpent, fileName = GetTalentTabInfo(tabIndex)
+            for talentIndex = 1, GetNumTalents(tabIndex) do
+                local name, iconTexture, row, column, rank, maxRank, isExceptional, available = GetTalentInfo(tabIndex, talentIndex)
+                table.insert(GUILDBOOK_CHARACTER['Talents'][1], {
+                    Tab = tabIndex,
+                    Row = row,
+                    Col = column,
+                    Rank = rank,
+                    MxRnk = maxRank,
+                    Icon = iconTexture,
+                    Name = name,
+                })
+                --DEBUG('func', 'GetCharacterTalentInfo', string.format("Tab %s: %s %s points", tabIndex, name, rank))
+            end
         end
     end
-    return talents
 end
 
 
+--- not used at the moment
 function Guildbook.GetInstanceInfo()
     local t = {}
     if GetNumSavedInstances() > 0 then
@@ -658,6 +694,8 @@ function Guildbook.GetInstanceInfo()
     return t
 end
 
+
+--- check the players current gear and calculate the mean item level
 function Guildbook.GetItemLevel()
     local character, itemLevel, itemCount = {}, 0, 0
 	for k, slot in ipairs(Guildbook.Data.InventorySlots) do
@@ -668,6 +706,7 @@ function Guildbook.GetItemLevel()
 			itemCount = itemCount + 1
 		end
     end
+    -- due to an error with LibSerialize which is now fixed we make sure we return a number
     if math.floor(itemLevel/itemCount) > 0 then
         return math.floor(itemLevel/itemCount)
     else
@@ -675,18 +714,21 @@ function Guildbook.GetItemLevel()
     end
 end
 
+
+--- get the players currently equipped gear
 function Guildbook.GetCharacterInventory()
-    local character, itemlevel, itemCount = {}, 0, 0
-    for k, slot in ipairs(Guildbook.Data.InventorySlots) do
-        --print(slot.Name)
-		character[slot.Name] = GetInventoryItemLink('player', GetInventorySlotInfo(slot.Name))
-    end	
     if GUILDBOOK_CHARACTER then
-        GUILDBOOK_CHARACTER['Inventory'] = {
-            Current = character,
-        }
+        if not GUILDBOOK_CHARACTER['Inventory'] then
+            GUILDBOOK_CHARACTER['Inventory'] = {
+                Current = {}
+            }
+        end
+        for k, slot in ipairs(Guildbook.Data.InventorySlots) do
+            local link = GetInventoryItemLink('player', GetInventorySlotInfo(slot.Name)) or false
+            GUILDBOOK_CHARACTER['Inventory'].Current[slot.Name] = link
+            DEBUG('func', 'GetCharacterInventory', string.format("added %s at slot %s", link or 'false', slot.Name))
+        end
     end
-    return character
 end
 
 
@@ -776,53 +818,96 @@ end
 function Guildbook:SendTalentInfoRequest(target, spec)
     local request = {
         type = "TALENT_INFO_REQUEST",
-        payload = spec, -- dual spec future feature
+        payload = spec, -- dual spec future feature, maybe just return all talents data?
     }
     self:Transmit(request, "WHISPER", target, "NORMAL")
-    --DEBUG('comms_out', 'SendTalentInfoRequest', string.format('sent request for talents from %s', target))
 end
 
 function Guildbook:OnTalentInfoRequest(request, distribution, sender)
     if distribution ~= "WHISPER" then
         return
     end
-    local tal = Guildbook:GetCharacterTalentInfo()
-        if tal then
+    Guildbook:GetCharacterTalentInfo()
+    if GUILDBOOK_CHARACTER and GUILDBOOK_CHARACTER['Talents'] then
         local response = {
             type = "TALENT_INFO_RESPONSE",
-            payload = tal,
+            payload = {
+                guid = UnitGUID('player'),
+                talents = GUILDBOOK_CHARACTER['Talents'],
+            }
         }
         -- send to all online players
         --self:Transmit(response, distribution, sender, "BULK")
         self:Transmit(response, 'GUILD', nil, "BULK")
     else
-        DEBUG('err', 'OnTalentInfoRequest', string.format('unable to send talents, requested from %s', sender))
+        DEBUG('error', 'OnTalentInfoRequest', string.format('unable to send talents, requested from %s', sender))
     end
 end
 
 function Guildbook:OnTalentInfoReceived(data, distribution, sender)
-    --DEBUG('comms_in', 'OnTalentInfoReceived', string.format("received talent data from %s", sender))
-    if distribution ~= "WHISPER" then
-        --return
+    if distribution ~= "GUILD" then
+        return
     end
-    if type(data.payload) == 'table' then
-        C_Timer.After(Guildbook.COMMS_DELAY, function()
-            local guildName = Guildbook:GetGuildName()
-            if guildName and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
-                for guid, character in pairs(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName]) do
-                    if character.Name == sender then
-                        character.Talents = {
-                            [1] = data.payload[1],
-                            [2] = data.payload[2]
-                        }
-                        DEBUG('func', 'OnTalentInfoReceived', string.format('updated %s talents', sender))
-                    end
-                end
-            end
-        end)
+    if not data.payload.guid then
+        return
+    end
+    C_Timer.After(Guildbook.COMMS_DELAY, function()
+        local guildName = Guildbook:GetGuildName()
+        if guildName and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
+            GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.guid].Talents = data.payload.talents
+            DEBUG('func', 'OnTalentInfoReceived', string.format('updated %s talents', sender))
+        end
+    end)
+end
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- inventory comms
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+function Guildbook:SendInventoryRequest(target)
+    local request = {
+        type = 'INVENTORY_REQUEST',
+        payload = 'Current', -- do we cover for different builds, pve, pvp, dual spec etc
+    }
+    self:Transmit(request, 'WHISPER', target, 'NORMAL')
+end
+
+
+function Guildbook:OnCharacterInventoryRequest(data, distribution, sender)
+    if distribution ~= 'WHISPER' then
+        return
+    end
+    self:GetCharacterInventory()
+    if GUILDBOOK_CHARACTER and GUILDBOOK_CHARACTER['Inventory'] then
+        local response = {
+            type = 'INVENTORY_RESPONSE',
+            payload = {
+                guid = UnitGUID('player'),
+                inventory = GUILDBOOK_CHARACTER['Inventory'], --send it all for now
+            }
+        }
+        -- send to everyone?
+        self:Transmit(response, 'GUILD', nil, 'BULK')
     end
 end
 
+
+function Guildbook:OnCharacterInventoryReceived(data, distribution, sender)
+    if distribution ~= 'GUILD' then
+        return
+    end
+    if not data.payload.guid then
+        return
+    end
+    C_Timer.After(Guildbook.COMMS_DELAY, function()
+        local guildName = Guildbook:GetGuildName()
+        if guildName and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
+            GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.guid].Inventory = data.payload.inventory
+            DEBUG('func', 'OnCharacterInventoryReceived', string.format('updated %s inventory', sender))
+        end
+    end)
+end
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- tradeskills comms
@@ -883,7 +968,7 @@ function Guildbook:CharacterDataRequest(target)
     --DEBUG('comms_out', 'CharacterDataRequest', string.format("sent character data request to %s", target))
 end
 
--- limited to reduce chat spam 
+-- limited to reduce chat spam, such as power levelling a profession etc
 local characterStatsDelay = 30.0
 local characterStatsLastSent = GetTime()
 local characterStatsQueued = false
@@ -911,6 +996,8 @@ function Guildbook:CharacterStats_OnChanged()
     end
 end
 
+
+--- i need to remove the inventory and set up a new comms for it 
 function Guildbook:GetCharacterDataPayload()
     local guid = UnitGUID('player')
     local level = UnitLevel('player')
@@ -948,7 +1035,7 @@ function Guildbook:GetCharacterDataPayload()
                 Fishing = GUILDBOOK_CHARACTER["Fishing"],
                 FirstAid = GUILDBOOK_CHARACTER["FirstAid"],
 
-                CurrentEquipment = GUILDBOOK_CHARACTER['Inventory'].Current
+                --CurrentEquipment = GUILDBOOK_CHARACTER['Inventory'].Current
             }
         }
         return response
@@ -995,10 +1082,12 @@ function Guildbook:OnCharacterDataReceived(data, distribution, sender)
                 GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID][v] = data.payload[v]
             end
         end
-        if not GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].Inventory then
-            GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].Inventory = {}
-        end
-        GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].Inventory.Current = data.payload.CurrentEquipment
+
+        -- if not GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].Inventory then
+        --     GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].Inventory = {}
+        -- end
+        -- GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].Inventory.Current = data.payload.CurrentEquipment
+
         DEBUG('func', 'OnCharacterDataReceived', string.format('OnCharacterDataReceived > sender=%s', data.payload.Name))
         C_Timer.After(Guildbook.COMMS_DELAY, function()
             Guildbook:UpdateGuildMemberDetailFrame(data.payload.GUID)
@@ -1352,19 +1441,6 @@ function Guildbook:ADDON_LOADED(...)
     end
 end
 
-function Guildbook:TRADE_SKILL_UPDATE()
-    C_Timer.After(1, function()
-        DEBUG('func', 'TRADE_SKILL_UPDATE', 'scanning skills')
-        self:ScanTradeSkill()
-    end)
-end
-
-function Guildbook:CRAFT_UPDATE()
-    C_Timer.After(1, function()
-        DEBUG('func', 'CRAFT_UPDATE', 'scanning skills enchanting')
-        self:ScanCraftSkills_Enchanting()
-    end)
-end
 
 function Guildbook:PLAYER_ENTERING_WORLD()
     self:ModBlizzUI()
@@ -1375,8 +1451,120 @@ function Guildbook:PLAYER_ENTERING_WORLD()
     self:SetupGuildMemberDetailframe()
     --self:SetupSoftReserveFrame()
     self:SetupProfilesFrame()
+    self:SetupChatFrame()
     self.EventFrame:UnregisterEvent('PLAYER_ENTERING_WORLD')
+
+    --LoadAddOn("Blizzard_DebugTools")
+
+    self.player = {
+        faction = nil,
+        race = nil,
+    }
+    C_Timer.After(2.0, function()
+        if not Guildbook.PlayerMixin then
+            Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(UnitGUID('player'))
+        else
+            Guildbook.PlayerMixin:SetGUID(UnitGUID('player'))
+        end
+        if Guildbook.PlayerMixin:IsValid() then
+            local name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
+            -- double check mixin
+            if not name then
+                return
+            end
+            local raceID = C_PlayerInfo.GetRace(Guildbook.PlayerMixin)
+            self.player.race = C_CreatureInfo.GetRaceInfo(raceID).clientFileString:upper()
+            self.player.faction = C_CreatureInfo.GetFactionInfo(raceID).groupTag
+        end
+        --DevTools_Dump(self.player)
+    end)
 end
+
+
+function Guildbook:TRADE_SKILL_UPDATE()
+    C_Timer.After(1, function()
+        DEBUG('func', 'TRADE_SKILL_UPDATE', 'scanning skills')
+        self:ScanTradeSkill()
+    end)
+end
+
+
+function Guildbook:CRAFT_UPDATE()
+    C_Timer.After(1, function()
+        DEBUG('func', 'CRAFT_UPDATE', 'scanning skills enchanting')
+        self:ScanCraftSkills_Enchanting()
+    end)
+end
+
+
+function Guildbook:UPDATE_MOUSEOVER_UNIT()
+    -- delay any model loading while players addons sort themselves out
+    if Guildbook.LoadTime + 8.0 > GetTime() then
+        return
+    end
+    local guid = UnitGUID('mouseover')
+    if guid and guid:find('Player') then
+        if not Guildbook.PlayerMixin then
+            Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
+        else
+            Guildbook.PlayerMixin:SetGUID(guid)
+        end
+        if Guildbook.PlayerMixin:IsValid() then
+            local name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
+            -- double check mixin
+            if not name then
+                return
+            end
+            --local _, class, _ = C_PlayerInfo.GetClass(Guildbook.PlayerMixin)
+            local sex = C_PlayerInfo.GetSex(Guildbook.PlayerMixin)
+            if sex == 0 then
+                sex = 'MALE'
+            else
+                sex = 'FEMALE'
+            end
+            local raceID = C_PlayerInfo.GetRace(Guildbook.PlayerMixin)
+            local race = C_CreatureInfo.GetRaceInfo(raceID).clientFileString:upper()
+            local faction = C_CreatureInfo.GetFactionInfo(raceID).groupTag
+            if race and self.player.faction == C_CreatureInfo.GetFactionInfo(raceID).groupTag then
+                if self.GuildFrame.ProfilesFrame.DetailsTab:IsVisible() then
+                    self.GuildFrame.ProfilesFrame.DetailsTab:AddModelFrame('mouseover', race, sex)
+                end
+            end
+        end
+    end
+end
+
+
+function Guildbook:CHAT_MSG_GUILD(...)
+    local sender = select(5, ...)
+    local msg = select(1, ...)
+    local guid = select(12, ...)
+    if not Guildbook.PlayerMixin then
+        Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
+    else
+        Guildbook.PlayerMixin:SetGUID(guid)
+    end
+    if Guildbook.PlayerMixin:IsValid() then
+        local _, class, _ = C_PlayerInfo.GetClass(self.PlayerMixin)
+        if class then
+            if not Guildbook.GuildChatLog then
+                Guildbook.GuildChatLog = {}
+            end
+            self:AddGuildChatMessage(Guildbook.GuildChatLog, string.format("%s [%s%s|r]: %s", date("%T"), Guildbook.Data.Class[class].FontColour, sender, msg))
+        end
+    end
+end
+
+
+function Guildbook:PLAYER_TALENT_UPDATE(...)
+
+end
+
+
+function Guildbook:PLAYER_EQUIPMENT_CHANGED(...)
+
+end
+
 
 function Guildbook:RAID_ROSTER_UPDATE()
     DEBUG('func', 'RAID_ROSTER_UPDATE', 'Raid roster update event')
@@ -1418,11 +1606,13 @@ function Guildbook:GUILD_ROSTER_UPDATE(...)
     end
 end
 
+
 function Guildbook:PLAYER_LEVEL_UP()
     C_Timer.After(3, function()
         Guildbook:CharacterStats_OnChanged()
     end)
 end
+
 
 function Guildbook:SKILL_LINES_CHANGED()
     C_Timer.After(3, function()
@@ -1435,20 +1625,12 @@ function Guildbook:BANKFRAME_OPENED()
     for i = 1, GetNumGuildMembers() do
         local _, _, _, _, _, _, publicNote, _, _, _, _, _, _, _, _, _, GUID = GetGuildRosterInfo(i)
         if publicNote:lower():find('guildbank') and GUID == UnitGUID('player') then
-            self:ScanCharacterContainers()
+            self:ScanPlayerContainers()
         end
     end
 end
 
 --- handle comms
--- would really like to improve this section, set up better queuing system
--- for now we will use a defined time delay and just cancel and requests before time delay expires
-local tradeDelay, bankDelay = 10, 10
--- this is used to set up a timed delay if none exists, a very basic queue idea
-local tradeDelayRequestQueued = false
--- store request times
-local lastTradeSkillRequest = {}
-local lastGuildBankRequest = {}
 function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
     if prefix ~= addonName then 
         return 
@@ -1467,33 +1649,8 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
     end
     DEBUG('comms_in', 'ON_COMMS_RECEIVED', string.format("%s from %s", data.type, sender))
 
-    -- due to the volume of data that could be sent from tradeskills there is a basic queue/delay system to minimize chat spam
     if data.type == "TRADESKILLS_REQUEST" then
         self:OnTradeSkillsRequested(data, distribution, sender)
-        -- if not lastTradeSkillRequest[sender] then
-        --     lastTradeSkillRequest[sender] = {}
-        --     lastTradeSkillRequest[sender][data.payload] = -math.huge
-        --     --lastTradeSkillRequest[sender] = -math.huge
-        -- end
-        -- if (lastTradeSkillRequest[sender][data.payload] + tradeDelay) < GetTime() then -- has enough time past (confusing but were checking if the last request + delay time has passed, if its still in future then dotn send)
-        --     self:OnTradeSkillsRequested(data, distribution, sender)
-        --     lastTradeSkillRequest[sender][data.payload] = GetTime()
-        -- else
-        --     local remaining = string.format("%.1d", (lastTradeSkillRequest[sender][data.payload] + tradeDelay - GetTime()))
-        --     Guildbook:PrintMessage(string.format('profession requested within %ss, this request has been queued and will be sent in %s seconds', tradeDelay, remaining))
-        --     -- if there is nothing queued then create timer
-        --     if tradeDelayRequestQueued == false then
-        --         C_Timer.After(math.floor(tonumber(remaining)), function()
-        --             Guildbook:PrintMessage(string.format("sending queued tradeskill request to %s", sender))
-        --             self:OnTradeSkillsRequested(data, distribution, sender)
-        --             -- reset queue check
-        --             tradeDelayRequestQueued = false
-        --         end)
-        --         tradeDelayRequestQueued = true
-        --     else
-        --         Guildbook:PrintMessage(string.format("there is already a tradeskill request queued, time remaining %s seconds", remaining))
-        --     end
-        -- end
 
     elseif data.type == "TRADESKILLS_RESPONSE" then
         self:OnTradeSkillsReceived(data, distribution, sender);
@@ -1504,6 +1661,22 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
     elseif data.type == 'CHARACTER_DATA_RESPONSE' then
         self:OnCharacterDataReceived(data, distribution, sender)
 
+    elseif data.type == 'TALENT_INFO_REQUEST' then
+        self:OnTalentInfoRequest(data, distribution, sender)
+
+    elseif data.type == 'TALENT_INFO_RESPONSE' then
+        self:OnTalentInfoReceived(data, distribution, sender)
+
+    elseif data.type == 'INVENTORY_REQUEST' then
+        self:OnCharacterInventoryRequest(data, distribution, sender)
+
+    elseif data.type == 'INVENTORY_RESPONSE' then
+        self:OnCharacterInventoryReceived(data, distribution, sender)
+
+
+
+        
+--- these will be removed slowly as we potentially move into TBC
 --==================================
     elseif data.type == 'GUILD_BANK_COMMIT_REQUEST' then
         self:OnGuildBankCommitRequested(data, distribution, sender)
@@ -1524,6 +1697,12 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
         self:OnRaidSoftReserveReceived(data, distribution, sender)
 --==================================
 
+
+
+
+
+
+--- these need better naming should decide before 4.x is released?
     elseif data.type == 'GUILD_CALENDAR_EVENT_CREATED' then
         self:OnGuildCalendarEventCreated(data, distribution, sender)
 
@@ -1545,49 +1724,11 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
     elseif data.type == 'GUILD_CALENDAR_EVENTS_DELETED_REQUESTED' then
         self:SendGuildCalendarDeletedEvents()
 
-    elseif data.type == 'TALENT_INFO_REQUEST' then
-        self:OnTalentInfoRequest(data, distribution, sender)
-
-    elseif data.type == 'TALENT_INFO_RESPONSE' then
-        self:OnTalentInfoReceived(data, distribution, sender)
 
     end
 end
 
-function Guildbook:UPDATE_MOUSEOVER_UNIT()
-    -- delay any model loading while players addons sort themselves out
-    if Guildbook.LoadTime + 5.0 > GetTime() then
-        return
-    end
-    local guid = UnitGUID('mouseover')
-    if guid and guid:find('Player') then
-        if not Guildbook.PlayerMixin then
-            Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
-        else
-            Guildbook.PlayerMixin:SetGUID(guid)
-        end
-        if Guildbook.PlayerMixin:IsValid() then
-            name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
-            -- double check mixin
-            if not name then
-                return
-            end
-            --local _, class, _ = C_PlayerInfo.GetClass(Guildbook.PlayerMixin)
-            local sex = C_PlayerInfo.GetSex(Guildbook.PlayerMixin)
-            if sex == 0 then
-                sex = 'MALE'
-            else
-                sex = 'FEMALE'
-            end
-            local race = C_CreatureInfo.GetRaceInfo(C_PlayerInfo.GetRace(Guildbook.PlayerMixin)).clientFileString:upper()
-            if race then
-                if self.GuildFrame.ProfilesFrame.DetailsTab:IsVisible() then
-                    self.GuildFrame.ProfilesFrame.DetailsTab:AddModelFrame('mouseover', race, sex)
-                end
-            end
-        end
-    end
-end
+
 
 --set up event listener
 Guildbook.EventFrame = CreateFrame('FRAME', 'GuildbookEventFrame', UIParent)
@@ -1600,7 +1741,10 @@ Guildbook.EventFrame:RegisterEvent('TRADE_SKILL_UPDATE')
 Guildbook.EventFrame:RegisterEvent('CRAFT_UPDATE')
 Guildbook.EventFrame:RegisterEvent('RAID_ROSTER_UPDATE')
 Guildbook.EventFrame:RegisterEvent('BANKFRAME_OPENED')
+Guildbook.EventFrame:RegisterEvent('CHAT_MSG_GUILD')
 Guildbook.EventFrame:RegisterEvent('UPDATE_MOUSEOVER_UNIT')
+--Guildbook.EventFrame:RegisterEvent('PLAYER_TALENT_UPDATE')
+Guildbook.EventFrame:RegisterEvent('PLAYER_EQUIPMENT_CHANGED')
 Guildbook.EventFrame:SetScript('OnEvent', function(self, event, ...)
     --DEBUG( event, ' ')
     Guildbook[event](Guildbook, ...)

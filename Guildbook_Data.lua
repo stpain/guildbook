@@ -816,6 +816,23 @@ Guildbook.CalendarWorldEvents = {
 	},
 }
 
+Guildbook.Data.Factions = {
+    ['Alliance'] = {
+        'HUMAN',
+        'NIGHTELF',
+        'GNOME',
+        'DWARF',
+        'DRAENEI'
+    },
+    ['Horde'] = {
+        'BLOODELF',
+        'ORC',
+        'TROLL',
+        'SCOURGE',
+        'TAUREN',
+    },
+}
+
 Guildbook.RaceBackgrounds = {
     ['BLOODELF'] = { 
         IconID = 131921, 
@@ -840,10 +857,6 @@ Guildbook.RaceBackgrounds = {
     ['NIGHTELF'] = { 
         IconID = 131993, 
         FileName = 'interface/glues/models/ui_nightelf/ui_nightelf.m2',
-        x = -218.6,
-        y = -54.2,
-        z = -5.8,
-        r = 0.18,
     },
     ['ORC'] = { 
         IconID = 132003, 

@@ -33,9 +33,9 @@ function GuildbookOptionsDebugCB_OnClick(self)
         self:SetChecked(GUILDBOOK_GLOBAL['Debug'])
     end
     if self:GetChecked() == true then
-        Guildbook.DebugFrame:Show()
+        Guildbook.DebuggerWindow:Show()
     else
-        Guildbook.DebugFrame:Hide()
+        Guildbook.DebuggerWindow:Hide()
     end
 end
 

@@ -53,6 +53,10 @@ StaticPopupDialogs['GuildbookResetCharacter'] = {
     button2 = 'Cancel',
     OnAccept = function(self)
         wipe(GUILDBOOK_CHARACTER)
+        local guildName = Guildbook:GetGuildName()
+        if guildName then
+            GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][UnitGUID('player')] = nil
+        end
         GUILDBOOK_CHARACTER = Guildbook.Data.DefaultCharacterSettings
         UIDropDownMenu_SetText(GuildbookOptionsMainSpecDD, '')
         UIDropDownMenu_SetText(GuildbookOptionsOffSpecDD, '')      
