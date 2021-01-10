@@ -164,6 +164,7 @@ function Guildbook:ModBlizzUI()
                     Guildbook:CharacterDataRequest(name)
                     Guildbook.DEBUG('comms_out', 'GuildFrameButton'..i..':OnClick', 'sent character data request to '..name)
                 end
+                Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(GUID, nil)
             end
         end)
         _G['GuildFrameButton'..i]:HookScript('OnShow', function(self, button)

@@ -1499,15 +1499,6 @@ function Guildbook:SetupProfilesFrame()
                     Guildbook:SendInventoryRequest(character.Name)
                     C_Timer.After(Guildbook.COMMS_DELAY, function()
                         self:LoadCharacterInventory()
-                        -- if character.Inventory and character.Inventory.Current then
-                        --     for slot, link in pairs(character.Inventory.Current) do
-                        --         if link ~= false and slot ~= 'TABARDSLOT' then
-                        --             --DEBUG('func', 'LoadCharacterDetails', 'equipping '..slot..' '..link)
-                        --             self.DetailsTab.Overlay.InvIcons[slot].item = link
-                        --             self.DetailsTab.Overlay.InvIcons[slot]:Show()
-                        --         end
-                        --     end
-                        -- end
                     end)
 
                     -- fetch talent data
@@ -1551,11 +1542,8 @@ function Guildbook:SetupProfilesFrame()
                     -- 3d model stuff (experimental)
                     if self.DetailsTab.CharacterModels[race] and self.DetailsTab.CharacterModels[race][sex] then
                         self.DetailsTab.CharacterModels[race][sex]:Undress()
-                        -- self.DetailsTab.Overlay.LoadingBar:SetValue(100)
-                        -- self.DetailsTab.Overlay.LoadingBar.finish = GetTime() + 3
                         C_Timer.After(0.0, function()
                             self.DetailsTab.CharacterModels[race][sex]:Show()
-                            --self.DetailsTab.Overlay.LoadingBar:Show()
                         end)
                         if character.Inventory and character.Inventory.Current then
                             C_Timer.After(0.1, function()
@@ -1563,17 +1551,16 @@ function Guildbook:SetupProfilesFrame()
                                     if link ~= false and slot ~= 'TABARDSLOT' then
                                         self.DetailsTab.CharacterModels[race][sex]:TryOn(link)
                                     end
-                                    --self.DetailsTab.CharacterModels[race][sex]:UndressSlot(GetInventorySlotInfo("TABARDSLOT"))
                                 end
                             end)
+
+                            -- it seems an issue when fetching data from saved vars, probably comms taking a while, so make the call again to grab anything not updated
                             C_Timer.After(3.0, function()
                                 for slot, link in pairs(character.Inventory.Current) do
                                     if link ~= false and slot ~= 'TABARDSLOT' then
                                         self.DetailsTab.CharacterModels[race][sex]:TryOn(link)
                                     end
-                                    --self.DetailsTab.CharacterModels[race][sex]:UndressSlot(GetInventorySlotInfo("TABARDSLOT"))
                                 end
-                                --self.DetailsTab.Overlay.LoadingBar:Hide()
                             end)
                         end
                     end
@@ -1611,44 +1598,6 @@ function Guildbook:SetupProfilesFrame()
                             self.DetailsTab.Overlay.InfoPanel[k].Level:SetText(character[v.key])
                         end
                     end
-
-                    -- -- as there is potentially a large amount of data to send/receive we will stagger the calls
-                    -- -- request order = talents, professions
-
-                    -- -- send request for latest data - this could be made a manual operation but will leave as auto for now
-                    -- -- load talents without checking saved vars, comms delay here is short
-                    -- Guildbook:SendTalentInfoRequest(character.Name, 1)
-                    -- C_Timer.After(0.5, function()
-                    --     self:LoadCharacterTalents(character.Talents[1])
-                    --     DEBUG('func', 'LoadCharacterDetails', 'loading talents from file')
-                    -- end)
-
-                    -- -- professions
-                    -- -- load prof data from saved var file if it exists first, the comms delay here is noticable
-                    -- if character['Profession1'] ~= '-' then
-                    --     local prof1 = character['Profession1']
-                    --     if character[prof1] and next(character[prof1]) then
-                    --         self.ProfessionsTab:SetRecipesListviewData(prof1, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container, character[prof1], recipeFilter)
-                    --     end
-                    --     C_Timer.After(1.0, function()
-                    --         Guildbook:SendTradeSkillsRequest(character.Name, prof1)
-                    --     end)
-                    --     C_Timer.After(1.5, function()
-                    --         Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:SetRecipesListviewData(prof1, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container, character[prof1], recipeFilter)
-                    --     end)
-                    -- end
-                    -- if character['Profession2'] ~= '-' then
-                    --     local prof2 = character['Profession2']
-                    --     if character[prof2] and next(character[prof2]) then
-                    --         self.ProfessionsTab:SetRecipesListviewData(prof2, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container, character[prof2], recipeFilter)
-                    --     end
-                    --     C_Timer.After(1.5, function()
-                    --         Guildbook:SendTradeSkillsRequest(character.Name, prof2)
-                    --     end)
-                    --     C_Timer.After(2.0, function()
-                    --         Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:SetRecipesListviewData(prof2, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container, character[prof2], recipeFilter)
-                    --     end)
-                    -- end
                 end
             else
                 DEBUG('func', 'ProfilesFrame:LoadCharacterDetails', 'mixin error')
