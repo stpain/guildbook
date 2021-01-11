@@ -348,14 +348,18 @@ function Guildbook:CreateTooltipPanel(name, parent, anchor, x, y, w, h, headerTe
     f.header:SetPoint('TOP', 0, -10)
     f.header:SetText(headerText)
     f.header:SetFont("Fonts\\FRIZQT__.TTF", 14)
-    f.header:SetTextColor(1,1,1,1)
+    --f.header:SetTextColor(1,1,1,1)
     return f
 end
 
 
 function Guildbook:TrimNumber(num)
-    local trimmed = string.format("%.2f", num)
-    return tonumber(trimmed)
+    if type(num) == 'number' then
+        local trimmed = string.format("%.2f", num)
+        return tonumber(trimmed)
+    else
+        return 1
+    end
 end
 
 local spellSchools = {
@@ -375,36 +379,111 @@ local statIDs = {
 }
 function Guildbook:GetCharacterStats()
     if GUILDBOOK_CHARACTER then
-        if not GUILDBOOK_CHARACTER['PaperDollStats'] then
-            GUILDBOOK_CHARACTER['PaperDollStats'] = {}
-        end
 
-        GUILDBOOK_CHARACTER['PaperDollStats'].Block = self:TrimNumber(GetBlockChance())
+        GUILDBOOK_CHARACTER['PaperDollStats'] = {}
+      
+
+        local numSkills = GetNumSkillLines();
+        local skillIndex = 0;
+        local currentHeader = nil;
+    
+        for i = 1, numSkills do
+            local skillName = select(1, GetSkillLineInfo(i));
+            local isHeader = select(2, GetSkillLineInfo(i));
+    
+            if isHeader ~= nil and isHeader then
+                currentHeader = skillName;
+            else
+                if (currentHeader == "Weapon Skills" and skillName == 'Defense') then
+                    skillIndex = i;
+                    break;
+                end
+            end
+        end
+    
+        local baseDef, modDef;
+        if (skillIndex > 0) then
+            baseDef = select(4, GetSkillLineInfo(skillIndex));
+            modDef = select(6, GetSkillLineInfo(skillIndex));
+        else
+            baseDef, modDef = UnitDefense('player')
+        end
+    
+        local posBuff = 0;
+        local negBuff = 0;
+        if ( modDef > 0 ) then
+            posBuff = modDef;
+        elseif ( modDef < 0 ) then
+            negBuff = modDef;
+        end
+        GUILDBOOK_CHARACTER['PaperDollStats'].Defence = {
+            Base = self:TrimNumber(baseDef),
+            Mod = self:TrimNumber(modDef),
+        }
+
+        local baseArmor, effectiveArmor, armr, posBuff, negBuff = UnitArmor('player');
+        GUILDBOOK_CHARACTER['PaperDollStats'].Armor = self:TrimNumber(baseArmor)
+
+        --GUILDBOOK_CHARACTER['PaperDollStats'].Block = self:TrimNumber(GetBlockChance())
+        GUILDBOOK_CHARACTER['PaperDollStats'].Block = self:TrimNumber(GetBlockChance());
+        GUILDBOOK_CHARACTER['PaperDollStats'].Parry = self:TrimNumber(GetParryChance());
         GUILDBOOK_CHARACTER['PaperDollStats'].ShieldBlock = self:TrimNumber(GetShieldBlock());
-        GUILDBOOK_CHARACTER['PaperDollStats'].MeleeCrit = self:TrimNumber(GetCritChance());
         GUILDBOOK_CHARACTER['PaperDollStats'].Dodge = self:TrimNumber(GetDodgeChance());
         --local expertise, offhandExpertise, rangedExpertise = GetExpertise();
         --local base, casting = GetManaRegen();
-        GUILDBOOK_CHARACTER['PaperDollStats'].Parry = self:TrimNumber(GetParryChance());
-        GUILDBOOK_CHARACTER['PaperDollStats'].RangedCrit = self:TrimNumber(GetRangedCritChance());
+        GUILDBOOK_CHARACTER['PaperDollStats'].SpellHit = self:TrimNumber(GetSpellHitModifier());
+        GUILDBOOK_CHARACTER['PaperDollStats'].MeleeHit = self:TrimNumber(GetHitModifier());
 
-        GUILDBOOK_CHARACTER['PaperDollStats'].SpellDamage = {}
-        GUILDBOOK_CHARACTER['PaperDollStats'].SpellCrit = {}
+        GUILDBOOK_CHARACTER['PaperDollStats'].RangedCrit = self:TrimNumber(GetRangedCritChance());
+        GUILDBOOK_CHARACTER['PaperDollStats'].MeleeCrit = self:TrimNumber(GetCritChance());
+
+        -- GUILDBOOK_CHARACTER['PaperDollStats'].SpellDamage = {}
+        -- GUILDBOOK_CHARACTER['PaperDollStats'].SpellCrit = {}
         for id, school in pairs(spellSchools) do
-            GUILDBOOK_CHARACTER['PaperDollStats'].SpellDamage[school] = self:TrimNumber(GetSpellBonusDamage(id));        
-            GUILDBOOK_CHARACTER['PaperDollStats'].SpellCrit[school] = self:TrimNumber(GetSpellCritChance(id));
+            GUILDBOOK_CHARACTER['PaperDollStats']['SpellDmg'..school] = self:TrimNumber(GetSpellBonusDamage(id));        
+            GUILDBOOK_CHARACTER['PaperDollStats']['SpellCrit'..school] = self:TrimNumber(GetSpellCritChance(id));
         end
 
         GUILDBOOK_CHARACTER['PaperDollStats'].HealingBonus = self:TrimNumber(GetSpellBonusHealing());
 
-        GUILDBOOK_CHARACTER['PaperDollStats'].SpellHit = self:TrimNumber(GetSpellHitModifier());
-        GUILDBOOK_CHARACTER['PaperDollStats'].MeleeHit = self:TrimNumber(GetHitModifier())
+        local lowDmg, hiDmg, offlowDmg, offhiDmg, posBuff, negBuff, percentmod = UnitDamage("player");
+        local mainSpeed, offSpeed = UnitAttackSpeed("player");
+        local mlow = (lowDmg + posBuff + negBuff) * percentmod
+        local mhigh = (hiDmg + posBuff + negBuff) * percentmod
+        local olow = (offlowDmg + posBuff + negBuff) * percentmod
+        local ohigh = (offhiDmg + posBuff + negBuff) * percentmod
+        if mainSpeed < 1 then mainSpeed = 1 end
+        if offSpeed and offSpeed < 1 then 
+            offSpeed = 1
+        else
+            offSpeed = 1
+        end
+        if mlow < 1 then mlow = 1 end
+        if mhigh < 1 then mhigh = 1 end
+        if olow < 1 then olow = 1 end
+        if ohigh < 1 then ohigh = 1 end
+        GUILDBOOK_CHARACTER['PaperDollStats'].MeleeDmgMH = self:TrimNumber((mlow + mhigh) / 2.0)
+        GUILDBOOK_CHARACTER['PaperDollStats'].MeleeDmgOH = self:TrimNumber((olow + ohigh) / 2.0)
+        GUILDBOOK_CHARACTER['PaperDollStats'].MeleeDpsMH = self:TrimNumber(((mlow + mhigh) / 2.0) / mainSpeed)
+        GUILDBOOK_CHARACTER['PaperDollStats'].MeleeDpsOH = self:TrimNumber(((olow + ohigh) / 2.0) / offSpeed)
 
+        local speed, lowDmg, hiDmg, posBuff, negBuff, percent = UnitRangedDamage("player");
+        local low = (lowDmg + posBuff + negBuff) * percent
+        local high = (hiDmg + posBuff + negBuff) * percent
+        if speed < 1 then speed = 1 end
+        if low < 1 then low = 1 end
+        if high < 1 then high = 1 end
+        local dmg = (low + high) / 2.0
+        GUILDBOOK_CHARACTER['PaperDollStats'].RangedDmg = self:TrimNumber(dmg)
+        GUILDBOOK_CHARACTER['PaperDollStats'].RangedDps = self:TrimNumber(dmg/speed)
+
+        local base, posBuff, negBuff = UnitAttackPower('player')
+        GUILDBOOK_CHARACTER['PaperDollStats'].AttackPower = self:TrimNumber(base + posBuff + negBuff)
 
         for k, stat in pairs(statIDs) do
-            local _, value, _, _ = UnitStat("player", k);
-            GUILDBOOK_CHARACTER['PaperDollStats'][stat] = self:TrimNumber(value)
-            --DEBUG('func', 'GetCharacterStats', string.format("%s = %s", stat, value))
+            local a, b, c, d = UnitStat("player", k);
+            GUILDBOOK_CHARACTER['PaperDollStats'][stat] = self:TrimNumber(b)
+            DEBUG('func', 'GetCharacterStats', string.format("%s = %s", stat, b))
         end
 
         for k, v in pairs(GUILDBOOK_CHARACTER['PaperDollStats']) do
@@ -417,17 +496,7 @@ function Guildbook:GetCharacterStats()
                 end
             end
         end
-
-        -- local ap = 0
-        -- for k, stat in pairs(statIDs) do
-        --     local _, value, _, _ = UnitStat("player", k);
-        --     print(k, stat, value)
-        --     ap = ap + GetAttackPowerForStat(k, value)
-        -- end
-        -- print(ap)
-
     end
-
 end
 
 --- return the players guild name if they belong to 1

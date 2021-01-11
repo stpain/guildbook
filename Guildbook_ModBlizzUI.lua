@@ -167,7 +167,7 @@ function Guildbook:ModBlizzUI()
                 Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(GUID, nil)
                 --GuildMemberDetailFrame:Show()
 
-                Guildbook.GuildMemberDetailFrame.Portrait.Portrait:SetTexture(130903)
+                --Guildbook.GuildMemberDetailFrame.Portrait.Portrait:SetTexture(130903)
             end
         end)
         _G['GuildFrameButton'..i]:HookScript('OnShow', function(self, button)

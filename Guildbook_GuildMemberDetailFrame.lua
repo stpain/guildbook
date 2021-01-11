@@ -28,22 +28,22 @@ local addonName, Guildbook = ...
 local L = Guildbook.Locales
 local DEBUG = Guildbook.DEBUG
 
-PortraitMixin = {}
+-- PortraitMixin = {}
 
-function PortraitMixin:SetPortraitIcon(iconFileID)
-	if (iconFileID == nil or iconFileID == 0) then
-		-- unknown icon file ID; use the default silhouette portrait
-		self.Portrait:SetTexture("Interface\\Garrison\\Portraits\\FollowerPortrait_NoPortrait");
-	else
-		self.Portrait:SetTexture(iconFileID);
-	end
-end
+-- function PortraitMixin:SetPortraitIcon(iconFileID)
+-- 	if (iconFileID == nil or iconFileID == 0) then
+-- 		-- unknown icon file ID; use the default silhouette portrait
+-- 		self.Portrait:SetTexture("Interface\\Garrison\\Portraits\\FollowerPortrait_NoPortrait");
+-- 	else
+-- 		self.Portrait:SetTexture(iconFileID);
+-- 	end
+-- end
 
-function Guildbook:CreatePortrait(name, parent, anchor, x, y)
-    local f = CreateFrame('FRAME', name, parent, "PortraitTemplate")
-    f:SetPoint(anchor, x, y)
-    return f
-end
+-- function Guildbook:CreatePortrait(name, parent, anchor, x, y)
+--     local f = CreateFrame('FRAME', name, parent, "PortraitTemplate")
+--     f:SetPoint(anchor, x, y)
+--     return f
+-- end
 
 
 Guildbook.GuildMemberDetailFrame = {
@@ -120,7 +120,7 @@ end
 
 function Guildbook:SetupGuildMemberDetailframe()
 
-    self.GuildMemberDetailFrame.Portrait = Guildbook:CreatePortrait('Portrait', GuildMemberDetailFrame, 'TOPRIGHT', -50, -50, 90, 90)
+    --self.GuildMemberDetailFrame.Portrait = Guildbook:CreatePortrait('Portrait', GuildMemberDetailFrame, 'TOPRIGHT', -50, -50, 90, 90)
 
     for k, label in pairs(self.GuildMemberDetailFrame.Labels) do
         label:SetText(L[k])

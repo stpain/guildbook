@@ -1583,10 +1583,14 @@ function Guildbook:SetupProfilesFrame()
                     self.TalentsTab.Tab3.background:SetTexture(Guildbook.Data.TalentBackgrounds[Guildbook.Data.Talents[character.Class][3]])
 
                     -- update base stats panel
-                    for k, v in ipairs(self.DetailsTab.Overlay.StatsPanel.labels) do
-                        self.DetailsTab.Overlay.StatsPanel[k].Level:SetText('-')
-                        self.DetailsTab.Overlay.StatsPanel[k].Level:SetText(character.PaperDollStats[v.key])
-                        DEBUG('func', 'LoadCharacter', v.key..character.PaperDollStats[v.key])
+                    for k, v in ipairs(self.DetailsTab.Overlay.AttributesPanel.labels) do
+                        self.DetailsTab.Overlay.AttributesPanel[k].Level:SetText('-')
+                        if character.PaperDollStats then
+                            self.DetailsTab.Overlay.AttributesPanel[k].Level:SetText(character.PaperDollStats[v.key])
+                            DEBUG('func', 'LoadCharacter', v.key..character.PaperDollStats[v.key])
+
+
+                        end
                     end
 
                     -- update prof panel
@@ -1605,6 +1609,20 @@ function Guildbook:SetupProfilesFrame()
                             self.DetailsTab.Overlay.ProfessionsPanel[k].Level:SetText(character[v.key])
                         end
                     end
+
+
+                    -- update stats panel
+                    for k, v in ipairs(self.DetailsTab.Overlay.CombatStatsPanel.labels) do
+                        --if self.DetailsTab.Overlay.CombatStatsPanel[k].Header then
+                            if character.PaperDollStats and character.PaperDollStats[v.key] then
+                                self.DetailsTab.Overlay.CombatStatsPanel[k].Level:SetText(character.PaperDollStats[v.key])
+                            elseif self.DetailsTab.Overlay.CombatStatsPanel[k].Header then
+                                local r,g,b = unpack(Guildbook.Data.Class[character.Class].RGB)
+                                self.DetailsTab.Overlay.CombatStatsPanel[k].Header:SetTextColor(r, g, b, 1)
+                            end
+                        --end
+                    end
+
                 end
             else
                 DEBUG('func', 'ProfilesFrame:LoadCharacterDetails', 'mixin error')
@@ -1893,8 +1911,8 @@ function Guildbook:SetupProfilesFrame()
     -- prof info
     -- spec, talent points 1/1/1
 
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.StatsPanel = Guildbook:CreateTooltipPanel("GuildbookGuildFrameProfilesFrameDetailsFrameStatsPanel", self.GuildFrame.ProfilesFrame.DetailsTab.Overlay, 'TOPLEFT', 20, -20, 190, 140, 'Base Stats')
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.StatsPanel.labels = {
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.AttributesPanel = Guildbook:CreateTooltipPanel("GuildbookGuildFrameProfilesFrameDetailsFrameAttributesPanel", self.GuildFrame.ProfilesFrame.DetailsTab.Overlay, 'TOPLEFT', 20, -20, 190, 140, 'Attributes')
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.AttributesPanel.labels = {
         {
             key = 'Strength',
             label = 'Strength',
@@ -1921,18 +1939,18 @@ function Guildbook:SetupProfilesFrame()
             offset = -100.0,
         },
     }
-    for k, v in ipairs(self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.StatsPanel.labels) do
-        local label = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.StatsPanel:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
+    for k, v in ipairs(self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.AttributesPanel.labels) do
+        local label = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.AttributesPanel:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
         label:SetPoint('TOPLEFT', 12, v.offset - 12)
         label:SetText(v.label)
         label:SetTextColor(1,1,1,1)
 
-        local level = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.StatsPanel:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
+        local level = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.AttributesPanel:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
         level:SetPoint('TOPLEFT', 142, v.offset - 12)
         level:SetText(108)
         level:SetTextColor(1,1,1,1)
 
-        self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.StatsPanel[k] = { Label = label, Level = level, }
+        self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.AttributesPanel[k] = { Label = label, Level = level, }
     end
 
     self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.ProfessionsPanel = Guildbook:CreateTooltipPanel("GuildbookGuildFrameProfilesFrameDetailsFrameProfessionsPanel", self.GuildFrame.ProfilesFrame.DetailsTab.Overlay, 'BOTTOMLEFT', 20, 20, 190, 140, 'Professions')
@@ -1979,6 +1997,199 @@ function Guildbook:SetupProfilesFrame()
         icon:SetSize(16, 16)
         self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.ProfessionsPanel[k] = { Label = label, Level = level, Icon = icon }
     end
+
+
+
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.CombatStatsPanel = Guildbook:CreateTooltipPanel("GuildbookGuildFrameProfilesFrameDetailsFrameCombatStatsPanel", self.GuildFrame.ProfilesFrame.DetailsTab.Overlay, 'TOPRIGHT', -20, -20, 190, 300, 'Stats')
+    
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.CombatStatsPanel.ScrollFrame = CreateFrame("ScrollFrame", "GuildbookGuildFrameProfilesFrameDetailsFrameCombatStatsPanelScrollFrame", self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.CombatStatsPanel, "UIPanelScrollFrameTemplate")
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.CombatStatsPanel.ScrollFrame:SetPoint("TOPLEFT", 2, -30)
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.CombatStatsPanel.ScrollFrame:SetPoint("BOTTOMRIGHT", -30, 6)
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.CombatStatsPanel.ScrollFrame:SetScript("OnMouseWheel", function(self, delta)
+        local newValue = self:GetVerticalScroll() - (delta * 20)
+        if (newValue < 0) then
+            newValue = 0;
+        elseif (newValue > self:GetVerticalScrollRange()) then
+            newValue = self:GetVerticalScrollRange()
+        end
+        self:SetVerticalScroll(newValue)
+    end)
+    local combatScrollChild = CreateFrame("Frame", "GuildbookGuildFrameProfilesFrameDetailsFrameCombatStatsPanelScrollFrameChild", self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.CombatStatsPanel.ScrollFrame)
+    combatScrollChild:SetPoint("TOPLEFT", 0, 0)
+    combatScrollChild:SetPoint("BOTTOMRIGHT", 0, 6)
+    combatScrollChild:SetSize(190, 506)
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.CombatStatsPanel.ScrollFrame:SetScrollChild(combatScrollChild)
+    
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.CombatStatsPanel.labels = {
+        {
+            key = 'header',
+            label = 'Defenses', --..Guildbook.Data.RoleIcons.Tank.FontStringIconLARGE,
+        },
+        {
+            key = 'Armor',
+            label = 'Armor',
+        },
+        {
+            key = 'Defense',
+            label = 'Defense',
+        },
+        {
+            key = 'Dodge',
+            label = 'Dodge',
+        },
+        {
+            key = 'Parry',
+            label = 'Parry',
+        },
+        {
+            key = 'Block',
+            label = 'Block',
+        },
+        {
+            key = 'header',
+            label = 'Melee', --..Guildbook.Data.RoleIcons.Melee.FontStringIconLARGE,
+        },
+        {
+            key = 'MeleeHit',
+            label = 'Hit chance',
+        },
+        {
+            key = 'MeleeCrit',
+            label = 'Crit chance',
+        },
+        {
+            key = 'MeleeDmgMH',
+            label = 'Main hand dmg',
+        },
+        {
+            key = 'MeleeDpsMH',
+            label = 'Main hand dps',
+        },
+        {
+            key = 'MeleeDmgOH',
+            label = 'Off hand dmg',
+        },
+        {
+            key = 'MeleeDpsOH',
+            label = 'Off hand dps',
+        },
+        {
+            key = 'header',
+            label = 'Ranged',
+        },
+        {
+            key = 'MeleeHit', --ranged and melee share hit % ?
+            label = 'Hit chance',
+        },
+        {
+            key = 'RangedCrit',
+            label = 'Crit chance',
+        },
+        {
+            key = 'RangedDmg',
+            label = 'Ranged dmg',
+        },
+        {
+            key = 'RangedDps',
+            label = 'Ranged dps',
+        },
+        {
+            key = 'header',
+            label = 'Spells',
+        },
+        {
+            key = 'HealingBonus',
+            label = 'Bonus healing',
+        },
+        {
+            key = 'SpellHit',
+            label = 'Hit chance',
+        },
+        {
+            key = 'SpellDmgHoly',
+            label = 'Holy',
+        },
+        {
+            key = 'SpellDmgFire',
+            label = 'Fire',
+        },
+        {
+            key = 'SpellDmgFrost',
+            label = 'Frost',
+        },
+        {
+            key = 'SpellDmgArcane',
+            label = 'Arcane',
+        },
+        {
+            key = 'SpellDmgShadow',
+            label = 'Shadow',
+        },
+        {
+            key = 'SpellDmgNature',
+            label = 'Nature',
+        },
+        {
+            key = 'header',
+            label = 'Spell Crit',
+        },
+        {
+            key = 'SpellCritHoly',
+            label = 'Holy',
+        },
+        {
+            key = 'SpellCritFire',
+            label = 'Fire',
+        },
+        {
+            key = 'SpellCritFrost',
+            label = 'Frost',
+        },
+        {
+            key = 'SpellCritArcane',
+            label = 'Arcane',
+        },
+        {
+            key = 'SpellCritShadow',
+            label = 'Shadow',
+        },
+        {
+            key = 'SpellCritNature',
+            label = 'Nature',
+        },
+
+    }
+
+
+    for k, v in ipairs(self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.CombatStatsPanel.labels) do
+        if v.key == 'header' then
+            local header = combatScrollChild:CreateFontString(nil, 'OVERLAY', 'GameFontNormalSmall')
+            header:SetPoint('TOP', 0, ((k-1) * -16))-- v.offset - 12)
+            header:SetText(v.label)
+            --header:SetTextColor(1,1,1,1)
+            self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.CombatStatsPanel[k] = { Header = header, }
+            --local Level = false
+        else
+            local label = combatScrollChild:CreateFontString(nil, 'OVERLAY', 'GameFontNormalSmall')
+            label:SetPoint('TOPLEFT', 8, ((k-1) * -16))-- v.offset - 12)
+            label:SetText(v.label)
+            label:SetTextColor(1,1,1,1)
+    
+            local level = combatScrollChild:CreateFontString(nil, 'OVERLAY', 'GameFontNormalSmall')
+            level:SetPoint('TOPLEFT', 108, ((k-1) * -16))-- v.offset - 12)
+            level:SetText(105)
+            level:SetTextColor(1,1,1,1)
+            self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.CombatStatsPanel[k] = { Label = label, Level = level, }
+        end
+
+        --self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.CombatStatsPanel[k] = { Label = label, Level = level, }
+    end
+
+
+
+
+
+
     
 
     -- equipment listview
