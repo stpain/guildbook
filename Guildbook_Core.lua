@@ -51,9 +51,12 @@ SlashCmdList['GUILDBOOK'] = function(msg)
     if msg == '-help' then
         print(':(')
 
-
+    elseif msg == '-stats' then
+        --local base, casting = GetManaRegen();
+        Guildbook:GetCharacterStats()
     end
 end
+
 
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -328,6 +331,105 @@ end
 -- functions
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+
+function Guildbook:CreateTooltipPanel(name, parent, anchor, x, y, w, h, headerText) --, headerFont, headerFontSize)
+    local f = CreateFrame('FRAME', anme, parent)
+    f:SetPoint(anchor, x, y)
+    f:SetSize(w, h)
+    f.background = f:CreateTexture("$parentBackground", 'BACKGROUND')
+    f.background:SetPoint('TOPLEFT', 3, -3)
+    f.background:SetPoint('BOTTOMRIGHT', -3, 3)
+    f.background:SetColorTexture(0,0,0,0.6)
+    f:SetBackdrop({
+        edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+        edgeSize = 16,
+    })
+    f.header = f:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
+    f.header:SetPoint('TOP', 0, -10)
+    f.header:SetText(headerText)
+    f.header:SetFont("Fonts\\FRIZQT__.TTF", 14)
+    f.header:SetTextColor(1,1,1,1)
+    return f
+end
+
+
+function Guildbook:TrimNumber(num)
+    local trimmed = string.format("%.2f", num)
+    return tonumber(trimmed)
+end
+
+local spellSchools = {
+    [2] = 'Holy',
+    [3] = 'Fire',
+    [4] = 'Nature',
+    [5] = 'Frost',
+    [6] = 'Shadow',
+    [7] = 'Arcane',
+}
+local statIDs = {
+    [1] = 'Strength',
+    [2] = 'Agility',
+    [3] = 'Stamina',
+    [4] = 'Intellect',
+    [5] = 'Spirit',
+}
+function Guildbook:GetCharacterStats()
+    if GUILDBOOK_CHARACTER then
+        if not GUILDBOOK_CHARACTER['PaperDollStats'] then
+            GUILDBOOK_CHARACTER['PaperDollStats'] = {}
+        end
+
+        GUILDBOOK_CHARACTER['PaperDollStats'].Block = self:TrimNumber(GetBlockChance())
+        GUILDBOOK_CHARACTER['PaperDollStats'].ShieldBlock = self:TrimNumber(GetShieldBlock());
+        GUILDBOOK_CHARACTER['PaperDollStats'].MeleeCrit = self:TrimNumber(GetCritChance());
+        GUILDBOOK_CHARACTER['PaperDollStats'].Dodge = self:TrimNumber(GetDodgeChance());
+        --local expertise, offhandExpertise, rangedExpertise = GetExpertise();
+        --local base, casting = GetManaRegen();
+        GUILDBOOK_CHARACTER['PaperDollStats'].Parry = self:TrimNumber(GetParryChance());
+        GUILDBOOK_CHARACTER['PaperDollStats'].RangedCrit = self:TrimNumber(GetRangedCritChance());
+
+        GUILDBOOK_CHARACTER['PaperDollStats'].SpellDamage = {}
+        GUILDBOOK_CHARACTER['PaperDollStats'].SpellCrit = {}
+        for id, school in pairs(spellSchools) do
+            GUILDBOOK_CHARACTER['PaperDollStats'].SpellDamage[school] = self:TrimNumber(GetSpellBonusDamage(id));        
+            GUILDBOOK_CHARACTER['PaperDollStats'].SpellCrit[school] = self:TrimNumber(GetSpellCritChance(id));
+        end
+
+        GUILDBOOK_CHARACTER['PaperDollStats'].HealingBonus = self:TrimNumber(GetSpellBonusHealing());
+
+        GUILDBOOK_CHARACTER['PaperDollStats'].SpellHit = self:TrimNumber(GetSpellHitModifier());
+        GUILDBOOK_CHARACTER['PaperDollStats'].MeleeHit = self:TrimNumber(GetHitModifier())
+
+
+        for k, stat in pairs(statIDs) do
+            local _, value, _, _ = UnitStat("player", k);
+            GUILDBOOK_CHARACTER['PaperDollStats'][stat] = self:TrimNumber(value)
+            --DEBUG('func', 'GetCharacterStats', string.format("%s = %s", stat, value))
+        end
+
+        for k, v in pairs(GUILDBOOK_CHARACTER['PaperDollStats']) do
+            if type(v) ~= 'table' then
+                DEBUG('func', 'GetCharacterStats', string.format("%s = %s", k, string.format("%.2f", v)))
+            else
+                for x, y in pairs(v) do
+                    local trimmed = string.format("%.2f", y)
+                    DEBUG('func', 'GetCharacterStats', string.format("%s = %s", x, string.format("%.2f", y)))
+                end
+            end
+        end
+
+        -- local ap = 0
+        -- for k, stat in pairs(statIDs) do
+        --     local _, value, _, _ = UnitStat("player", k);
+        --     print(k, stat, value)
+        --     ap = ap + GetAttackPowerForStat(k, value)
+        -- end
+        -- print(ap)
+
+    end
+
+end
+
 --- return the players guild name if they belong to 1
 function Guildbook:GetGuildName()
     if IsInGuild() and GetGuildInfo("player") then
@@ -529,14 +631,13 @@ function Guildbook:CleanUpGuildRosterData(guild, msg)
                     local _, class, _ = C_PlayerInfo.GetClass(self.PlayerMixin)
                     local name = C_PlayerInfo.GetName(self.PlayerMixin)
                     if name and class then
-                        if info.Class ~= class then
-                            DEBUG('func', 'CleanUpGuildRosterData', name..' has error with class, updating class to mixin value')
+                        if not info.Class or (info.Class ~= class) then
                             info.Class = class
+                            DEBUG('func', 'CleanUpGuildRosterData', name..' has error with class, updating class to mixin value')
                         end
-                        if info.Name ~= name then
-                            DEBUG('func', 'CleanUpGuildRosterData', info.Name..' has error with name, updating name to mixin value')
+                        if not info.Name or (info.Name ~= name) then
                             info.Name = name
-                            --print(info.Name, name)
+                            DEBUG('func', 'CleanUpGuildRosterData', info.Name..' has error with name, updating name to mixin value')
                         end
                         local ms = false
                         if info.MainSpec ~= '-' then
@@ -1004,6 +1105,7 @@ function Guildbook:GetCharacterDataPayload()
     local ilvl = self:GetItemLevel()
     self.GetProfessionData()
     self.GetCharacterInventory()
+    self:GetCharacterStats()
     if not self.PlayerMixin then
         self.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
     else
@@ -1035,6 +1137,7 @@ function Guildbook:GetCharacterDataPayload()
                 Fishing = GUILDBOOK_CHARACTER["Fishing"],
                 FirstAid = GUILDBOOK_CHARACTER["FirstAid"],
 
+                CharStats = GUILDBOOK_CHARACTER['PaperDollStats']
                 --CurrentEquipment = GUILDBOOK_CHARACTER['Inventory'].Current
             }
         }
@@ -1081,6 +1184,10 @@ function Guildbook:OnCharacterDataReceived(data, distribution, sender)
             if data.payload[v] then
                 GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID][v] = data.payload[v]
             end
+        end
+        if data.payload.CharStats then
+            DEBUG('func', 'OnCharacterDataReceived', sender..' has sent base stats')
+            GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].PaperDollStats = data.payload.CharStats
         end
 
         -- if not GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].Inventory then

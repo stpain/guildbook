@@ -1566,7 +1566,7 @@ function Guildbook:SetupProfilesFrame()
                     end
 
                     -- load race portrait
-                    self.DetailsTab.Overlay.portrait:SetTexture(raceTexture)
+                    --self.DetailsTab.Overlay.portrait:SetTexture(raceTexture)
 
                     -- load class icon
                     self.DetailsTab.Overlay.class:SetTexture(Guildbook.Data.Class[character.Class].IconID)
@@ -1582,20 +1582,27 @@ function Guildbook:SetupProfilesFrame()
                     self.TalentsTab.Tab2.background:SetTexture(Guildbook.Data.TalentBackgrounds[Guildbook.Data.Talents[character.Class][2]])
                     self.TalentsTab.Tab3.background:SetTexture(Guildbook.Data.TalentBackgrounds[Guildbook.Data.Talents[character.Class][3]])
 
-                    -- update info panel
-                    for k, v in ipairs(self.DetailsTab.Overlay.InfoPanel.labels) do
-                        self.DetailsTab.Overlay.InfoPanel[k].Level:SetText('-')
-                        self.DetailsTab.Overlay.InfoPanel[k].Icon:SetTexture(nil)
+                    -- update base stats panel
+                    for k, v in ipairs(self.DetailsTab.Overlay.StatsPanel.labels) do
+                        self.DetailsTab.Overlay.StatsPanel[k].Level:SetText('-')
+                        self.DetailsTab.Overlay.StatsPanel[k].Level:SetText(character.PaperDollStats[v.key])
+                        DEBUG('func', 'LoadCharacter', v.key..character.PaperDollStats[v.key])
+                    end
+
+                    -- update prof panel
+                    for k, v in ipairs(self.DetailsTab.Overlay.ProfessionsPanel.labels) do
+                        self.DetailsTab.Overlay.ProfessionsPanel[k].Level:SetText('-')
+                        self.DetailsTab.Overlay.ProfessionsPanel[k].Icon:SetTexture(nil)
                         if v.key:find('Profession') then
                             DEBUG('func', 'LoadCharacter', v.key..character[v.key])
                             if character[v.key] then
-                                self.DetailsTab.Overlay.InfoPanel[k].Label:SetText(character[v.key])
-                                self.DetailsTab.Overlay.InfoPanel[k].Level:SetText(character[v.key..'Level'])
-                                self.DetailsTab.Overlay.InfoPanel[k].Icon:SetTexture(Guildbook.Data.Profession[character[v.key]].IconID)
+                                self.DetailsTab.Overlay.ProfessionsPanel[k].Label:SetText(character[v.key])
+                                self.DetailsTab.Overlay.ProfessionsPanel[k].Level:SetText(character[v.key..'Level'])
+                                self.DetailsTab.Overlay.ProfessionsPanel[k].Icon:SetTexture(Guildbook.Data.Profession[character[v.key]].IconID)
                             end
                         else
-                            self.DetailsTab.Overlay.InfoPanel[k].Icon:SetTexture(Guildbook.Data.Profession[v.key].IconID)
-                            self.DetailsTab.Overlay.InfoPanel[k].Level:SetText(character[v.key])
+                            self.DetailsTab.Overlay.ProfessionsPanel[k].Icon:SetTexture(Guildbook.Data.Profession[v.key].IconID)
+                            self.DetailsTab.Overlay.ProfessionsPanel[k].Level:SetText(character[v.key])
                         end
                     end
                 end
@@ -1855,14 +1862,16 @@ function Guildbook:SetupProfilesFrame()
     self.GuildFrame.ProfilesFrame.DetailsTab.Overlay:SetAllPoints(self.GuildFrame.ProfilesFrame.DetailsTab)
     self.GuildFrame.ProfilesFrame.DetailsTab.Overlay:SetFrameLevel(599)
 
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.portraitBackground = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay:CreateTexture('$parentPortrait', 'BACKGROUND')
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.portraitBackground:SetPoint('TOPLEFT', -33, 33)
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.portraitBackground:SetSize(220, 220)
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.portraitBackground:SetTexture(652158)
 
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.portrait = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay:CreateTexture('$parentPortrait', 'OVERLAY')
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.portrait:SetPoint('TOPLEFT', 30, -27)
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.portrait:SetSize(90, 90)
+
+    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.portraitBackground = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay:CreateTexture('$parentPortrait', 'BACKGROUND')
+    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.portraitBackground:SetPoint('TOPLEFT', -33, 33)
+    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.portraitBackground:SetSize(220, 220)
+    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.portraitBackground:SetTexture(652158)
+
+    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.portrait = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay:CreateTexture('$parentPortrait', 'OVERLAY')
+    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.portrait:SetPoint('TOPLEFT', 30, -27)
+    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.portrait:SetSize(90, 90)
 
     self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.class = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay:CreateTexture('$parentClass', 'OVERLAY')
     self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.class:SetPoint('TOPLEFT', Guildbook.GuildFrame.ProfilesFrame.DetailsTab.Overlay.portrait, 'BOTTOMLEFT', -5.0, -15.0)
@@ -1884,24 +1893,50 @@ function Guildbook:SetupProfilesFrame()
     -- prof info
     -- spec, talent points 1/1/1
 
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoPanel = CreateFrame('FRAME', "GuildbookGuildFrameProfilesFrameDetailsFrameAboutFrame", self.GuildFrame.ProfilesFrame.DetailsTab.Overlay)
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoPanel:SetPoint('BOTTOMLEFT', 20, 20)
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoPanel:SetSize(190, 140)
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoPanel.background = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoPanel:CreateTexture("$parentBackground", 'BACKGROUND')
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoPanel.background:SetPoint('TOPLEFT', 3, -3)
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoPanel.background:SetPoint('BOTTOMRIGHT', -3, 3)
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoPanel.background:SetColorTexture(0,0,0,0.6)
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoPanel:SetBackdrop({
-        edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-        edgeSize = 16,
-    })
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoPanel.header = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoPanel:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoPanel.header:SetPoint('TOP', 0, -10)
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoPanel.header:SetText('Professions')
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoPanel.header:SetFont("Fonts\\FRIZQT__.TTF", 14)
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoPanel.header:SetTextColor(1,1,1,1)
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.StatsPanel = Guildbook:CreateTooltipPanel("GuildbookGuildFrameProfilesFrameDetailsFrameStatsPanel", self.GuildFrame.ProfilesFrame.DetailsTab.Overlay, 'TOPLEFT', 20, -20, 190, 140, 'Base Stats')
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.StatsPanel.labels = {
+        {
+            key = 'Strength',
+            label = 'Strength',
+            offset = -20.0,
+        },
+        {
+            key = 'Agility',
+            label = 'Agility',
+            offset = -40.0,
+        },
+        {
+            key = 'Stamina',
+            label = 'Stamina',
+            offset = -60.0,
+        },
+        {
+            key = 'Intellect',
+            label = 'Intellect',
+            offset = -80.0,
+        },
+        {
+            key = 'Spirit',
+            label = 'Spirit',
+            offset = -100.0,
+        },
+    }
+    for k, v in ipairs(self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.StatsPanel.labels) do
+        local label = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.StatsPanel:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
+        label:SetPoint('TOPLEFT', 12, v.offset - 12)
+        label:SetText(v.label)
+        label:SetTextColor(1,1,1,1)
 
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoPanel.labels = {
+        local level = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.StatsPanel:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
+        level:SetPoint('TOPLEFT', 142, v.offset - 12)
+        level:SetText(108)
+        level:SetTextColor(1,1,1,1)
+
+        self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.StatsPanel[k] = { Label = label, Level = level, }
+    end
+
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.ProfessionsPanel = Guildbook:CreateTooltipPanel("GuildbookGuildFrameProfilesFrameDetailsFrameProfessionsPanel", self.GuildFrame.ProfilesFrame.DetailsTab.Overlay, 'BOTTOMLEFT', 20, 20, 190, 140, 'Professions')
+    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.ProfessionsPanel.labels = {
         {
             key = 'Profession1',
             label = 'Profession1',
@@ -1928,21 +1963,21 @@ function Guildbook:SetupProfilesFrame()
             offset = -100.0,
         },
     }
-    for k, v in ipairs(self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoPanel.labels) do
-        local label = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoPanel:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
+    for k, v in ipairs(self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.ProfessionsPanel.labels) do
+        local label = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.ProfessionsPanel:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
         label:SetPoint('TOPLEFT', 32, v.offset - 12)
         label:SetText(v.label)
         label:SetTextColor(1,1,1,1)
 
-        local level = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoPanel:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
+        local level = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.ProfessionsPanel:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
         level:SetPoint('TOPLEFT', 142, v.offset - 12)
         level:SetText(v.label)
         level:SetTextColor(1,1,1,1)
 
-        local icon = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoPanel:CreateTexture(nil, 'ARTWORK')
+        local icon = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.ProfessionsPanel:CreateTexture(nil, 'ARTWORK')
         icon:SetPoint('TOPLEFT', 12, v.offset - 12)
         icon:SetSize(16, 16)
-        self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InfoPanel[k] = { Label = label, Level = level, Icon = icon }
+        self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.ProfessionsPanel[k] = { Label = label, Level = level, Icon = icon }
     end
     
 
