@@ -1687,7 +1687,7 @@ function Guildbook:SetupProfilesFrame()
     --self.GuildFrame.ProfilesFrame.HomeButton:SetSize(60, 30)
     self.GuildFrame.ProfilesFrame.HomeButton:SetText('Guild Bank')
     self.GuildFrame.ProfilesFrame.HomeButton:SetID(4)
-    self.GuildFrame.ProfilesFrame.HomeButton:SetScript('OnClick', function(self)
+    self.GuildFrame.ProfilesFrame.HomeButton:SetScript('OnClick', function(self, button)
         PanelTemplates_SetTab(Guildbook.GuildFrame.ProfilesFrame, 4)
         -- --Guildbook.GuildFrame.ProfilesFrame.HomeTab:Show()
         Guildbook.GuildFrame.ProfilesFrame.DetailsTab:Hide()
@@ -1707,6 +1707,11 @@ function Guildbook:SetupProfilesFrame()
     self.GuildFrame.ProfilesFrame.HomeTab:SetPoint('TOPLEFT', self.GuildFrame.ProfilesFrame, 'TOPLEFT', 2, -2)
     self.GuildFrame.ProfilesFrame.HomeTab:SetPoint('BOTTOMRIGHT', self.GuildFrame.ProfilesFrame, 'BOTTOMRIGHT', -2, 2)
     self.GuildFrame.ProfilesFrame.HomeTab:Hide()
+
+    
+
+
+
     
     self.GuildFrame.ProfilesFrame.DetailsButton = CreateFrame('BUTTON', '$parentTab1', Guildbook.GuildFrame.ProfilesFrame, 'OptionsFrameTabButtonTemplate')
     self.GuildFrame.ProfilesFrame.DetailsButton:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.ProfilesFrame, 'TOPRIGHT', -255, 0)

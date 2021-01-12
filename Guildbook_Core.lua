@@ -298,6 +298,9 @@ function Guildbook:Init()
             GuildbookOptionsAttunementKeysNAXX:SetChecked(GUILDBOOK_CHARACTER['AttunementsKeys']['NAXX'])
         end
 
+        if not GUILDBOOK_GLOBAL['CommsDelay'] then
+            GUILDBOOK_GLOBAL['CommsDelay'] = 0.2
+        end
         Guildbook.CommsDelaySlider:SetValue(GUILDBOOK_GLOBAL['CommsDelay'])
     end
 
