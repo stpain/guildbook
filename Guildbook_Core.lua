@@ -54,6 +54,10 @@ SlashCmdList['GUILDBOOK'] = function(msg)
     elseif msg == '-stats' then
         --local base, casting = GetManaRegen();
         Guildbook:GetCharacterStats()
+
+    elseif msg == '-alts' then
+        Guildbook:GetCharactersAlts(UnitGUID('player'))
+
     end
 end
 
@@ -334,6 +338,23 @@ end
 -- functions
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+function Guildbook:GetCharactersAlts(guid)
+    local guildName = self:GetGuildName()
+    if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] then
+        local main = GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Name
+        local alts = {}
+        for g, c in pairs(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName]) do
+            if c.MainCharacter == main then
+                local charString = string.format("%s%s|r %s", Guildbook.Data.Class[c.Class].FontColour, c.Name, Guildbook.Data.Class[c.Class].FontStringIconSMALL)
+                table.insert(alts, charString)
+                DEBUG('func', 'GetCharacterAlts', string.format("found %s as an alt for %s", c.Name, main))
+            end
+        end
+        if next(alts) then
+            return alts
+        end
+    end
+end
 
 function Guildbook:CreateTooltipPanel(name, parent, anchor, x, y, w, h, headerText) --, headerFont, headerFontSize)
     local f = CreateFrame('FRAME', anme, parent)

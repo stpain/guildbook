@@ -836,6 +836,9 @@ function Guildbook:SetupGuildCalendarFrame()
     self.GuildFrame.GuildCalendarFrame.EventFrame.HeaderText = self.GuildFrame.GuildCalendarFrame.EventFrame:CreateFontString('$parentHeader', 'OVERLAY', 'GameFontNormal')
     self.GuildFrame.GuildCalendarFrame.EventFrame.HeaderText:SetPoint('TOP', 0, -16)
 
+    self.GuildFrame.GuildCalendarFrame.EventFrame.OwnerText = self.GuildFrame.GuildCalendarFrame.EventFrame:CreateFontString('$parentOwner', 'OVERLAY', 'GameFontNormal')
+    self.GuildFrame.GuildCalendarFrame.EventFrame.OwnerText:SetPoint('TOP', 0, -36)
+
     self.GuildFrame.GuildCalendarFrame.EventFrame.CreateEventButton = CreateFrame('BUTTON', 'GuildbookGuildFrameGuildCalendarFrameEventFrameCreateEventButton', self.GuildFrame.GuildCalendarFrame.EventFrame, "UIPanelButtonTemplate")
     self.GuildFrame.GuildCalendarFrame.EventFrame.CreateEventButton:SetPoint('BOTTOMLEFT', 10, 10)
     self.GuildFrame.GuildCalendarFrame.EventFrame.CreateEventButton:SetSize(115, 22)
@@ -1110,6 +1113,19 @@ function Guildbook:SetupGuildCalendarFrame()
             self.HeaderText:SetText(string.format('%s/%s/%s', self.date.day, self.date.month, self.date.year))
         end
         if self.event then
+            if not Guildbook.PlayerMixin then
+                Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(self.event.owner)
+            else
+                Guildbook.PlayerMixin:SetGUID(self.event.owner)
+            end
+            if Guildbook.PlayerMixin:IsValid() then
+                local name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
+                if not name then
+                    self.OwnerText:SetText(' ')
+                else
+                    self.OwnerText:SetText(name)
+                end
+            end
             self.EventTitleEditbox:SetText(self.event.title)
             self.EventTitleEditbox:Disable()
             self.EventDescriptionEditbox:SetText(self.event.desc)
@@ -1125,6 +1141,7 @@ function Guildbook:SetupGuildCalendarFrame()
                 self.CreateEventButton:Disable()
             end
         else
+            self.OwnerText:SetText(' ')
             if self.enabled == true then
                 self.CreateEventButton:Enable()
             else
@@ -1222,6 +1239,7 @@ function Guildbook:SetupGuildCalendarFrame()
                 UIDropDownMenu_SetText(Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTypeDropdown, 'Event')
                 print('|cffffffffEvent created!|r')
                 Guildbook:SendGuildCalendarEvent(event)
+                SendChatMessage(string.format("|cff0070DEGuildbook|r: Event created, check out %s in the calendar!", title), 'GUILD')
                 self:GetParent():MonthChanged()
             end
         else
@@ -2182,7 +2200,7 @@ function Guildbook:SetupProfilesFrame()
     
             local level = combatScrollChild:CreateFontString(nil, 'OVERLAY', 'GameFontNormalSmall')
             level:SetPoint('TOPLEFT', 108, ((k-1) * -16))-- v.offset - 12)
-            level:SetText(105)
+            level:SetText('-')
             level:SetTextColor(1,1,1,1)
             self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.CombatStatsPanel[k] = { Label = label, Level = level, }
         end
