@@ -198,6 +198,8 @@ function Guildbook:Init()
     self.ContextMenu_DropDown = CreateFrame("Frame", "GuildbookContextMenu", UIParent, "UIDropDownMenuTemplate")
     self.ContextMenu = {}
 
+    --self.CharacterTooltip = self:CreateTooltipPanel('GuildbookCharacterTooltip', UIParent, anchor, 0, 0, w, h, headerText)
+
     AceComm:Embed(self)
     self:RegisterComm('Guildbook', 'ON_COMMS_RECEIVED')
 
@@ -274,6 +276,32 @@ function Guildbook:Init()
     end)
 
 
+    -- hook the tooltip for characters
+    GameTooltip:HookScript('OnTooltipSetUnit', function(self)
+        local _, unit = self:GetUnit()
+        local guid = unit and UnitGUID(unit) or nil
+        if guid and guid:find('Player') then        
+            if Guildbook:IsCharacterInGuild(guid) then
+                local guildName = Guildbook:GetGuildName()
+                local character = GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid]
+                local r, g, b = unpack(Guildbook.Data.Class[character.Class].RGB)
+                self:AddLine('Guildbook:', 0.00, 0.44, 0.87, 1)
+                --add info to tooltip
+                --_G['GameTooltipTextLeft1']:SetText(Guildbook.Data.Class[character.Class].FontColour..character.Name..'|r')
+                self:AddDoubleLine(L['Main'], character.MainCharacter, r, g, b, 1, 1, 1, 1, 1)
+                if character.MainSpec then
+                    self:AddLine(Guildbook.Data.SpecFontStringIconSMALL[character.Class][character.MainSpec]..' '..character.MainSpec, 1,1,1,1)
+                end
+                if character.OffSpec ~= '-' then
+                    self:AddLine(Guildbook.Data.SpecFontStringIconSMALL[character.Class][character.OffSpec]..' '..character.OffSpec, 1,1,1,1)
+                end
+
+                --self:AddTexture(Guildbook.Data.Class[character.Class].Icon,{width = 36, height = 36})
+            end
+        end
+    end)
+
+
     ------- this section will be adjusted when player profiles move in to profiles tab fully
     GuildbookOptionsMainSpecDD_Init()
     GuildbookOptionsOffSpecDD_Init()
@@ -337,6 +365,21 @@ end
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- functions
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+function Guildbook:IsCharacterInGuild(guid)
+    if guid:find('Player') then
+        local guildName = Guildbook:GetGuildName()
+        if guildName and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
+            if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] then
+                return true
+            else
+                return false
+            end
+        end
+    end
+end
+
 
 function Guildbook:GetCharactersAlts(guid)
     local guildName = self:GetGuildName()
@@ -847,20 +890,19 @@ end
 --- get the players current talents
 -- as there is no dual spec for now we just default to using talents[1] and updating Talents.Current
 -- when dual spec arrives we will have to adjust this
-function Guildbook:GetCharacterTalentInfo()
+function Guildbook:GetCharacterTalentInfo(dualSpec)
     if GUILDBOOK_CHARACTER then
         if not GUILDBOOK_CHARACTER['Talents'] then
-            GUILDBOOK_CHARACTER['Talents'] = {
-                [1] = {},
-                [2] = {},  
-            }
+            GUILDBOOK_CHARACTER['Talents'] = {}
         end
+        wipe(GUILDBOOK_CHARACTER['Talents'])
+        GUILDBOOK_CHARACTER['Talents'][dualSpec] = {}
         -- will need dual spec set up for wrath
         for tabIndex = 1, GetNumTalentTabs() do
             local spec, texture, pointsSpent, fileName = GetTalentTabInfo(tabIndex)
             for talentIndex = 1, GetNumTalents(tabIndex) do
                 local name, iconTexture, row, column, rank, maxRank, isExceptional, available = GetTalentInfo(tabIndex, talentIndex)
-                table.insert(GUILDBOOK_CHARACTER['Talents'][1], {
+                table.insert(GUILDBOOK_CHARACTER['Talents'][dualSpec], {
                     Tab = tabIndex,
                     Row = row,
                     Col = column,
@@ -1021,7 +1063,7 @@ function Guildbook:OnTalentInfoRequest(request, distribution, sender)
     if distribution ~= "WHISPER" then
         return
     end
-    Guildbook:GetCharacterTalentInfo()
+    Guildbook:GetCharacterTalentInfo('primary')
     if GUILDBOOK_CHARACTER and GUILDBOOK_CHARACTER['Talents'] then
         local response = {
             type = "TALENT_INFO_RESPONSE",
@@ -1048,6 +1090,7 @@ function Guildbook:OnTalentInfoReceived(data, distribution, sender)
     C_Timer.After(Guildbook.COMMS_DELAY, function()
         local guildName = Guildbook:GetGuildName()
         if guildName and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
+            wipe(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.guid].Talents)
             GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.guid].Talents = data.payload.talents
             DEBUG('func', 'OnTalentInfoReceived', string.format('updated %s talents', sender))
         end
@@ -1698,6 +1741,7 @@ end
 
 
 function Guildbook:UPDATE_MOUSEOVER_UNIT()
+
     -- delay any model loading while players addons sort themselves out
     if Guildbook.LoadTime + 8.0 > GetTime() then
         return

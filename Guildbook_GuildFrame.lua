@@ -1524,8 +1524,8 @@ function Guildbook:SetupProfilesFrame()
                         Guildbook:SendTalentInfoRequest(character.Name, 1)
                     end)
                     C_Timer.After(0.2 + Guildbook.COMMS_DELAY, function()
-                        if character.Talents and character.Talents[1] and next(character.Talents[1]) then
-                            self:LoadCharacterTalents(character.Talents[1])
+                        if character.Talents and character.Talents['primary'] and next(character.Talents['primary']) then
+                            self:LoadCharacterTalents(character.Talents['primary'])
                             DEBUG('func', 'LoadCharacterDetails', 'loading talents from file')
                         end
                     end)
