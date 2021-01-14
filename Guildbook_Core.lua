@@ -520,19 +520,24 @@ function Guildbook:GetCharacterStats()
         local olow = (offlowDmg + posBuff + negBuff) * percentmod
         local ohigh = (offhiDmg + posBuff + negBuff) * percentmod
         if mainSpeed < 1 then mainSpeed = 1 end
-        if offSpeed and offSpeed < 1 then 
-            offSpeed = 1
-        else
-            offSpeed = 1
-        end
         if mlow < 1 then mlow = 1 end
         if mhigh < 1 then mhigh = 1 end
         if olow < 1 then olow = 1 end
         if ohigh < 1 then ohigh = 1 end
+
+        if offSpeed then
+            if offSpeed < 1 then 
+                offSpeed = 1
+            end
+            GUILDBOOK_CHARACTER['PaperDollStats'].MeleeDmgOH = self:TrimNumber((olow + ohigh) / 2.0)
+            GUILDBOOK_CHARACTER['PaperDollStats'].MeleeDpsOH = self:TrimNumber(((olow + ohigh) / 2.0) / offSpeed)
+        else
+            --offSpeed = 1
+            GUILDBOOK_CHARACTER['PaperDollStats'].MeleeDmgOH = self:TrimNumber(0)
+            GUILDBOOK_CHARACTER['PaperDollStats'].MeleeDpsOH = self:TrimNumber(0)
+        end
         GUILDBOOK_CHARACTER['PaperDollStats'].MeleeDmgMH = self:TrimNumber((mlow + mhigh) / 2.0)
-        GUILDBOOK_CHARACTER['PaperDollStats'].MeleeDmgOH = self:TrimNumber((olow + ohigh) / 2.0)
         GUILDBOOK_CHARACTER['PaperDollStats'].MeleeDpsMH = self:TrimNumber(((mlow + mhigh) / 2.0) / mainSpeed)
-        GUILDBOOK_CHARACTER['PaperDollStats'].MeleeDpsOH = self:TrimNumber(((olow + ohigh) / 2.0) / offSpeed)
 
         local speed, lowDmg, hiDmg, posBuff, negBuff, percent = UnitRangedDamage("player");
         local low = (lowDmg + posBuff + negBuff) * percent
@@ -1274,7 +1279,6 @@ function Guildbook:GetCharacterDataPayload()
                 FirstAid = GUILDBOOK_CHARACTER["FirstAid"],
 
                 CharStats = GUILDBOOK_CHARACTER['PaperDollStats']
-                --CurrentEquipment = GUILDBOOK_CHARACTER['Inventory'].Current
             }
         }
         return response
@@ -1782,6 +1786,9 @@ end
 function Guildbook:CHAT_MSG_GUILD(...)
     local sender = select(5, ...)
     local msg = select(1, ...)
+    if not msg then
+        return
+    end
     local guid = select(12, ...)
     if not Guildbook.PlayerMixin then
         Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(guid)

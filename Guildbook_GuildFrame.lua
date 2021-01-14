@@ -473,6 +473,30 @@ function Guildbook:SetupGuildCalendarFrame()
                 Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 1
             end,
         },
+        {
+            text = 'ZG',
+            notCheckable = true,
+            func = function()
+                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetText('ZG')
+                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 1
+            end,
+        },
+        {
+            text = 'AQ20',
+            notCheckable = true,
+            func = function()
+                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetText('AQ20')
+                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 1
+            end,
+        },
+        {
+            text = 'AQ40',
+            notCheckable = true,
+            func = function()
+                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetText('AQ40')
+                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 1
+            end,
+        },
     }
 
     local eventTypes = {
@@ -1126,6 +1150,7 @@ function Guildbook:SetupGuildCalendarFrame()
                     self.OwnerText:SetText(name)
                 end
             end
+            self.HeaderText:SetText(string.format('%s/%s/%s', self.event.date.day, self.event.date.month, self.event.date.year))
             self.EventTitleEditbox:SetText(self.event.title)
             self.EventTitleEditbox:Disable()
             self.EventDescriptionEditbox:SetText(self.event.desc)
@@ -1478,6 +1503,7 @@ function Guildbook:SetupProfilesFrame()
         self:HideInventoryIcons()
         self.DetailsTab:HideCharacterModels()
         self.ProfessionsTab:ClearReagentsListview()
+        self:ClearCharacter()
         self.ProfessionsTab:ClearRecipesListview(Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container)
         self.ProfessionsTab:ClearRecipesListview(Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container)
         if not Guildbook.PlayerMixin then
@@ -1511,19 +1537,26 @@ function Guildbook:SetupProfilesFrame()
                     self.DetailsTab:ShowModelViewer(race)
 
                     -- as there is potentially a large amount of data to send/receive we will stagger the calls
-                    -- request order = inventory, talents, professions
+                    -- request order = character data, inventory, talents, professions
+
+                    -- fetch character stats and basic info
+                    Guildbook:CharacterDataRequest(character.Name)
 
                     -- fetch inventory data
-                    Guildbook:SendInventoryRequest(character.Name)
-                    C_Timer.After(Guildbook.COMMS_DELAY, function()
+                    C_Timer.After(0.2, function()
+                        Guildbook:SendInventoryRequest(character.Name)
+                    end)
+                    -- not sure why but the inv icons didnt show/hide properly without a longer delay
+                    self:LoadCharacterInventory()
+                    C_Timer.After(1.2 + Guildbook.COMMS_DELAY, function()
                         self:LoadCharacterInventory()
                     end)
 
                     -- fetch talent data
-                    C_Timer.After(0.2, function()
-                        Guildbook:SendTalentInfoRequest(character.Name, 1)
+                    C_Timer.After(0.4, function()
+                        Guildbook:SendTalentInfoRequest(character.Name, 'primary')
                     end)
-                    C_Timer.After(0.2 + Guildbook.COMMS_DELAY, function()
+                    C_Timer.After(0.4 + Guildbook.COMMS_DELAY, function()
                         if character.Talents and character.Talents['primary'] and next(character.Talents['primary']) then
                             self:LoadCharacterTalents(character.Talents['primary'])
                             DEBUG('func', 'LoadCharacterDetails', 'loading talents from file')
@@ -1537,10 +1570,10 @@ function Guildbook:SetupProfilesFrame()
                         if character[prof1] and next(character[prof1]) then
                             self.ProfessionsTab:SetRecipesListviewData(prof1, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container, character[prof1], recipeFilter)
                         end
-                        C_Timer.After(0.4, function()
+                        C_Timer.After(0.6, function()
                             Guildbook:SendTradeSkillsRequest(character.Name, prof1)
                         end)
-                        C_Timer.After(0.4 + Guildbook.COMMS_DELAY, function()
+                        C_Timer.After(0.6 + Guildbook.COMMS_DELAY, function()
                             Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:SetRecipesListviewData(prof1, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container, character[prof1], recipeFilter)
                         end)
                     end
@@ -1549,10 +1582,10 @@ function Guildbook:SetupProfilesFrame()
                         if character[prof2] and next(character[prof2]) then
                             self.ProfessionsTab:SetRecipesListviewData(prof2, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container, character[prof2], recipeFilter)
                         end
-                        C_Timer.After(0.6, function()
+                        C_Timer.After(0.8, function()
                             Guildbook:SendTradeSkillsRequest(character.Name, prof2)
                         end)
-                        C_Timer.After(0.6 + Guildbook.COMMS_DELAY, function()
+                        C_Timer.After(0.8 + Guildbook.COMMS_DELAY, function()
                             Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:SetRecipesListviewData(prof2, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container, character[prof2], recipeFilter)
                         end)
                     end
@@ -1587,8 +1620,8 @@ function Guildbook:SetupProfilesFrame()
                     --self.DetailsTab.Overlay.portrait:SetTexture(raceTexture)
 
                     -- load class icon
-                    self.DetailsTab.Overlay.class:SetTexture(Guildbook.Data.Class[character.Class].IconID)
-                    self.DetailsTab.Overlay.classText:SetText(string.format("%s%s", character.Class:sub(1,1), character.Class:sub(2):lower()))
+                    --self.DetailsTab.Overlay.class:SetTexture(Guildbook.Data.Class[character.Class].IconID)
+                    --self.DetailsTab.Overlay.classText:SetText(string.format("%s%s", character.Class:sub(1,1), character.Class:sub(2):lower()))
 
                     -- set name and colour
                     self.DetailsTab.Overlay.name:SetText(character.Name)
@@ -1600,47 +1633,51 @@ function Guildbook:SetupProfilesFrame()
                     self.TalentsTab.Tab2.background:SetTexture(Guildbook.Data.TalentBackgrounds[Guildbook.Data.Talents[character.Class][2]])
                     self.TalentsTab.Tab3.background:SetTexture(Guildbook.Data.TalentBackgrounds[Guildbook.Data.Talents[character.Class][3]])
 
-                    -- update base stats panel
-                    for k, v in ipairs(self.DetailsTab.Overlay.AttributesPanel.labels) do
-                        self.DetailsTab.Overlay.AttributesPanel[k].Level:SetText('-')
-                        if character.PaperDollStats then
-                            self.DetailsTab.Overlay.AttributesPanel[k].Level:SetText(character.PaperDollStats[v.key])
-                            DEBUG('func', 'LoadCharacter', v.key..character.PaperDollStats[v.key])
+                    C_Timer.After(Guildbook.COMMS_DELAY, function()
+                        -- update base stats panel
+                        for k, v in ipairs(self.DetailsTab.Overlay.AttributesPanel.labels) do
+                            self.DetailsTab.Overlay.AttributesPanel[k].Level:SetText('-')
+                            if character.PaperDollStats then
+                                self.DetailsTab.Overlay.AttributesPanel[k].Level:SetText(character.PaperDollStats[v.key])
+                                DEBUG('func', 'LoadCharacter', v.key..character.PaperDollStats[v.key])
 
 
-                        end
-                    end
-
-                    -- update prof panel
-                    for k, v in ipairs(self.DetailsTab.Overlay.ProfessionsPanel.labels) do
-                        self.DetailsTab.Overlay.ProfessionsPanel[k].Level:SetText('-')
-                        self.DetailsTab.Overlay.ProfessionsPanel[k].Icon:SetTexture(nil)
-                        if v.key:find('Profession') then
-                            DEBUG('func', 'LoadCharacter', v.key..character[v.key])
-                            if character[v.key] then
-                                self.DetailsTab.Overlay.ProfessionsPanel[k].Label:SetText(character[v.key])
-                                self.DetailsTab.Overlay.ProfessionsPanel[k].Level:SetText(character[v.key..'Level'])
-                                self.DetailsTab.Overlay.ProfessionsPanel[k].Icon:SetTexture(Guildbook.Data.Profession[character[v.key]].IconID)
                             end
-                        else
-                            self.DetailsTab.Overlay.ProfessionsPanel[k].Icon:SetTexture(Guildbook.Data.Profession[v.key].IconID)
-                            self.DetailsTab.Overlay.ProfessionsPanel[k].Level:SetText(character[v.key])
                         end
-                    end
 
-
-                    -- update stats panel
-                    for k, v in ipairs(self.DetailsTab.Overlay.CombatStatsPanel.labels) do
-                        --if self.DetailsTab.Overlay.CombatStatsPanel[k].Header then
-                            if character.PaperDollStats and character.PaperDollStats[v.key] then
-                                self.DetailsTab.Overlay.CombatStatsPanel[k].Level:SetText(character.PaperDollStats[v.key])
-                            elseif self.DetailsTab.Overlay.CombatStatsPanel[k].Header then
-                                local r,g,b = unpack(Guildbook.Data.Class[character.Class].RGB)
-                                self.DetailsTab.Overlay.CombatStatsPanel[k].Header:SetTextColor(r, g, b, 1)
+                        -- update prof panel
+                        for k, v in ipairs(self.DetailsTab.Overlay.ProfessionsPanel.labels) do
+                            self.DetailsTab.Overlay.ProfessionsPanel[k].Level:SetText('-')
+                            self.DetailsTab.Overlay.ProfessionsPanel[k].Icon:SetTexture(nil)
+                            if v.key:find('Profession') then
+                                DEBUG('func', 'LoadCharacter', v.key..character[v.key])
+                                if character[v.key] then
+                                    self.DetailsTab.Overlay.ProfessionsPanel[k].Label:SetText(character[v.key])
+                                    self.DetailsTab.Overlay.ProfessionsPanel[k].Level:SetText(character[v.key..'Level'])
+                                    self.DetailsTab.Overlay.ProfessionsPanel[k].Icon:SetTexture(Guildbook.Data.Profession[character[v.key]].IconID)
+                                end
+                            else
+                                self.DetailsTab.Overlay.ProfessionsPanel[k].Icon:SetTexture(Guildbook.Data.Profession[v.key].IconID)
+                                self.DetailsTab.Overlay.ProfessionsPanel[k].Level:SetText(character[v.key])
                             end
-                        --end
-                    end
+                        end
 
+
+                        -- update stats panel
+                        for k, v in ipairs(self.DetailsTab.Overlay.CombatStatsPanel.labels) do
+                            if self.DetailsTab.Overlay.CombatStatsPanel[k].Level then
+                                self.DetailsTab.Overlay.CombatStatsPanel[k].Level:SetText('-')
+                            end
+                            --if self.DetailsTab.Overlay.CombatStatsPanel[k].Header then
+                                if character.PaperDollStats and character.PaperDollStats[v.key] then
+                                    self.DetailsTab.Overlay.CombatStatsPanel[k].Level:SetText(character.PaperDollStats[v.key])
+                                elseif self.DetailsTab.Overlay.CombatStatsPanel[k].Header then
+                                    local r,g,b = unpack(Guildbook.Data.Class[character.Class].RGB)
+                                    self.DetailsTab.Overlay.CombatStatsPanel[k].Header:SetTextColor(r, g, b, 1)
+                                end
+                            --end
+                        end
+                    end)
                 end
             else
                 DEBUG('func', 'ProfilesFrame:LoadCharacterDetails', 'mixin error')
@@ -1650,6 +1687,19 @@ function Guildbook:SetupProfilesFrame()
     end
 
     function self.GuildFrame.ProfilesFrame:LoadCharacterInventory()
+        -- if self.selectedGUID then
+        --     if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'][Guildbook:GetGuildName()] and GUILDBOOK_GLOBAL['GuildRosterCache'][Guildbook:GetGuildName()][self.selectedGUID] then
+        --         local character = GUILDBOOK_GLOBAL['GuildRosterCache'][Guildbook:GetGuildName()][self.selectedGUID]
+        --         if character.Inventory and character.Inventory.Current then
+        --             for slot, link in pairs(character.Inventory.Current) do
+        --                 if link ~= false and slot ~= 'TABARDSLOT' then
+        --                     self.DetailsTab.Overlay.InvIcons[slot].item = link
+        --                     self.DetailsTab.Overlay.InvIcons[slot]:Show()
+        --                 end
+        --             end
+        --         end
+        --     end
+        -- end
         if self.character then
             if self.character.Inventory and self.character.Inventory.Current then
                 for slot, link in pairs(self.character.Inventory.Current) do
@@ -1662,7 +1712,21 @@ function Guildbook:SetupProfilesFrame()
         end
     end
 
+    function self.GuildFrame.ProfilesFrame:ClearCharacter()
+        for k, v in ipairs(self.DetailsTab.Overlay.CombatStatsPanel.labels) do
+            if self.DetailsTab.Overlay.CombatStatsPanel[k].Level then
+                self.DetailsTab.Overlay.CombatStatsPanel[k].Level:SetText('-')
+            end
+        end
+        for k, v in ipairs(self.DetailsTab.Overlay.ProfessionsPanel.labels) do
+            self.DetailsTab.Overlay.ProfessionsPanel[k].Level:SetText('-')
+            self.DetailsTab.Overlay.ProfessionsPanel[k].Icon:SetTexture(nil)
+        end
+        for k, v in ipairs(self.DetailsTab.Overlay.AttributesPanel.labels) do
+            self.DetailsTab.Overlay.AttributesPanel[k].Level:SetText('-')
+        end
 
+    end
 
     function self.GuildFrame.ProfilesFrame:LoadCharacterTalents(talents)
         if type(talents) == 'table' then
@@ -2240,10 +2304,13 @@ function Guildbook:SetupProfilesFrame()
                 local itemID, itemType, itemSubType, itemEquipLoc, icon, itemClassID, itemSubClassID = GetItemInfoInstant(self.item)
                 self.icon:SetTexture(icon)
                 self.link = self.item
+            else
+                self:Hide()
             end
         end)
         f:SetScript('OnHide', function(self)
             self.item = nil
+            --self.icon:SetTexture(nil)
         end)
         f:SetScript('OnEnter', function(self)
             self:SetSize(40, 40)
@@ -2272,6 +2339,7 @@ function Guildbook:SetupProfilesFrame()
 
     function self.GuildFrame.ProfilesFrame:HideInventoryIcons()
         for k, v in ipairs(Guildbook.Data.InventorySlots) do
+            self.DetailsTab.Overlay.InvIcons[v.Name].item = nil
             self.DetailsTab.Overlay.InvIcons[v.Name]:Hide()
         end
     end
