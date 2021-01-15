@@ -375,18 +375,11 @@ function Guildbook:ModBlizzUI()
     end)
     
     self.GuildFrame.Frames = {
-        -- ['StatsFrame'] = { Text = 'Statistics', Width = 76.0, OffsetY = -79.0 },
-        -- ['TradeSkillFrame'] = { Text = 'Professions', Width = 85.0, OffsetY = -166.0 },
-         ['GuildBankFrame'] = { Text = 'Guild Bank', Width = 85.0, OffsetY = -253.0 },            -- kept for classic version
-        -- ['ProfilesFrame'] = { Text = 'Profiles', Width = 85.0, OffsetY = -253.0 },
-        -- ['GuildCalendarFrame'] = { Text = 'Calendar', Width = 75.0, OffsetY = -330.0 },
-        -- ['SoftReserveFrame'] = { Text = 'Soft Res', Width = 70.0, OffsetY = -402.0 },
-
-        -- comment this out and uncomment above table for old UI
-        ['ChatFrame'] = { Text = 'Chat', Width = 97.0, OffsetY = -100.0 },
-        ['StatsFrame'] = { Text = 'Statistics', Width = 97.0, OffsetY = -200.0 },
-        ['ProfilesFrame'] = { Text = 'Profiles', Width = 97.0, OffsetY = -300.0 },
-        ['GuildCalendarFrame'] = { Text = 'Calendar', Width = 97.0, OffsetY = -400.0 },
+        ['GuildBankFrame'] = { Text = 'GuildBank', Width = 77.0, OffsetY = -80.0 },
+        ['ChatFrame'] = { Text = 'Chat', Width = 77.0, OffsetY = -160.0 },
+        ['StatsFrame'] = { Text = 'Statistics', Width = 77.0, OffsetY = -240.0 },
+        ['ProfilesFrame'] = { Text = 'Profiles', Width = 77.0, OffsetY = -320.0 },
+        ['GuildCalendarFrame'] = { Text = 'Calendar', Width = 77.0, OffsetY = -400.0 },
     }
 
     for frame, button in pairs(self.GuildFrame.Frames) do
@@ -415,10 +408,7 @@ function Guildbook:ModBlizzUI()
             toggleGuildFrames(frame)
         end)
 
-        -- hack
-        if button.Text == 'Guild Bank' then
-            self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:Hide()
-        end
+
 
     end
 

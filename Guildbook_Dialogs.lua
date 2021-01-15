@@ -44,7 +44,7 @@ StaticPopupDialogs['GuildbookDeleteGuild'] = {
     whileDead = true,
     hideOnEscape = false,
     preferredIndex = 3,
-    showAlert = 1,    
+    showAlert = 1,
 }
 
 StaticPopupDialogs['GuildbookResetCharacter'] = {
@@ -59,7 +59,7 @@ StaticPopupDialogs['GuildbookResetCharacter'] = {
         end
         GUILDBOOK_CHARACTER = Guildbook.Data.DefaultCharacterSettings
         UIDropDownMenu_SetText(GuildbookOptionsMainSpecDD, '')
-        UIDropDownMenu_SetText(GuildbookOptionsOffSpecDD, '')      
+        UIDropDownMenu_SetText(GuildbookOptionsOffSpecDD, '')
         ReloadUI()
     end,
     OnCancel = function(self)
@@ -69,7 +69,7 @@ StaticPopupDialogs['GuildbookResetCharacter'] = {
     whileDead = true,
     hideOnEscape = false,
     preferredIndex = 3,
-    showAlert = 1,    
+    showAlert = 1,
 }
 
 StaticPopupDialogs['GuildbookResetGlobalSettings'] = {
@@ -89,7 +89,7 @@ StaticPopupDialogs['GuildbookResetGlobalSettings'] = {
     whileDead = true,
     hideOnEscape = false,
     preferredIndex = 3,
-    showAlert = 1,    
+    showAlert = 1,
 }
 
 StaticPopupDialogs['GuildbookGatheringDatabaseEditObject'] = {
@@ -124,11 +124,11 @@ StaticPopupDialogs['GuildbookGatheringDatabaseEditObject'] = {
     whileDead = true,
     hideOnEscape = false,
     preferredIndex = 3,
-    showAlert = 1,    
+    showAlert = 1,
 }
 
 StaticPopupDialogs['GuildbookUpdates'] = {
-    text = 'Version: %s\n\n%s',  
+    text = 'Version: %s\n\n%s',
     button1 = 'OK',
     hasEditBox = true,
     OnAccept = function(self)
@@ -143,11 +143,11 @@ StaticPopupDialogs['GuildbookUpdates'] = {
         self.editBox:HighlightText()
     end,
     OnHide = function(self)
-        self.icon:SetTexture("Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew")
+        --self.icon:SetTexture("Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew")
     end,
     timeout = 0,
     whileDead = true,
     hideOnEscape = false,
     preferredIndex = 3,
-    showAlert = 1,    
+    showAlert = 1,
 }

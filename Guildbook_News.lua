@@ -157,4 +157,17 @@ More features to be added soon, but need to level my hunter!
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [4.1] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+-
+
+|cff0070DEUpdates|r:
+Guild Bank button is now back on the main row at the bottom of the UI, very sorry for any confusion or distruption caused by the recent changes.
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }

@@ -29,7 +29,7 @@ local LibSerialize = LibStub:GetLibrary("LibSerialize")
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 --variables
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
-local build = 4.0
+local build = 4.1
 local locale = GetLocale()
 local L = Guildbook.Locales
 
@@ -366,35 +366,47 @@ end
 -- functions
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
-function Guildbook:IsCharacterInGuild(guid)
-    if guid:find('Player') then
-        local guildName = Guildbook:GetGuildName()
-        if guildName and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
-            if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] then
-                return true
-            else
-                return false
-            end
-        end
+function Guildbook:CreateGuildRosterCache(guild)
+    if not GUILDBOOK_GLOBAL then
+        GUILDBOOK_GLOBAL = {}
+    end
+    if not GUILDBOOK_GLOBAL['GuildRosterCache'] then
+        GUILDBOOK_GLOBAL['GuildRosterCache'] = {}
+    end
+    if not GUILDBOOK_GLOBAL['GuildRosterCache'][guild] then
+        GUILDBOOK_GLOBAL['GuildRosterCache'][guild] = {}
     end
 end
 
+local helperIcons = 1
+function Guildbook:CreateHelperIcon(parent, relTo, anchor, relPoint, x, y, tooltiptext)
+    local f = CreateFrame('FRAME', tostring('GuildbookHelperIcons'..helperIcons), parent)
+    f:SetPoint(relTo, anchor, relPoint, x, y)
+    f:SetSize(20, 20)
+    f.texture = f:CreateTexture('$parentTexture', 'ARTWORK')
+    f.texture:SetAllPoints(f)
+    f.texture:SetTexture(374216)
+    f:SetScript('OnEnter', function(self)
+        GameTooltip:SetOwner(self, 'ANCHOR_BOTTOMRIGHT')
+        GameTooltip:AddLine(tooltiptext)
+        GameTooltip:Show()
+    end)
+    f:SetScript('OnLeave', function(self)
+        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+    end)
+    helperIcons = helperIcons + 1
+    return f
+end
 
-function Guildbook:GetCharactersAlts(guid)
-    local guildName = self:GetGuildName()
-    if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] then
-        local main = GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Name
-        local alts = {}
-        for g, c in pairs(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName]) do
-            if c.MainCharacter == main then
-                local charString = string.format("%s%s|r %s", Guildbook.Data.Class[c.Class].FontColour, c.Name, Guildbook.Data.Class[c.Class].FontStringIconSMALL)
-                table.insert(alts, charString)
-                DEBUG('func', 'GetCharacterAlts', string.format("found %s as an alt for %s", c.Name, main))
-            end
-        end
-        if next(alts) then
-            return alts
+
+function Guildbook:UpdateListviewSelectedTextures(listview)
+    for k, button in ipairs(listview) do
+        if button.data and button.data.Selected == true then
+            button:GetHighlightTexture():SetVertexColor(1, 1, 0);
+            button:LockHighlight()
+        else
+            button:GetHighlightTexture():SetVertexColor(0.196, 0.388, 0.8);
+            button:UnlockHighlight();
         end
     end
 end
@@ -570,6 +582,39 @@ function Guildbook:GetCharacterStats()
         end
     end
 end
+
+function Guildbook:IsCharacterInGuild(guid)
+    if guid:find('Player') then
+        local guildName = Guildbook:GetGuildName()
+        if guildName and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
+            if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] then
+                return true
+            else
+                return false
+            end
+        end
+    end
+end
+
+
+function Guildbook:GetCharactersAlts(guid)
+    local guildName = self:GetGuildName()
+    if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] then
+        local main = GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Name
+        local alts = {}
+        for g, c in pairs(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName]) do
+            if c.MainCharacter == main then
+                local charString = string.format("%s%s|r %s", Guildbook.Data.Class[c.Class].FontColour, c.Name, Guildbook.Data.Class[c.Class].FontStringIconSMALL)
+                table.insert(alts, charString)
+                DEBUG('func', 'GetCharacterAlts', string.format("found %s as an alt for %s", c.Name, main))
+            end
+        end
+        if next(alts) then
+            return alts
+        end
+    end
+end
+
 
 --- return the players guild name if they belong to 1
 function Guildbook:GetGuildName()
@@ -989,38 +1034,73 @@ function Guildbook:IsGuildMemberOnline(player)
     return online
 end
 
-local helperIcons = 1
-function Guildbook:CreateHelperIcon(parent, relTo, anchor, relPoint, x, y, tooltiptext)
-    local f = CreateFrame('FRAME', tostring('GuildbookHelperIcons'..helperIcons), parent)
-    f:SetPoint(relTo, anchor, relPoint, x, y)
-    f:SetSize(20, 20)
-    f.texture = f:CreateTexture('$parentTexture', 'ARTWORK')
-    f.texture:SetAllPoints(f)
-    f.texture:SetTexture(374216)
-    f:SetScript('OnEnter', function(self)
-        GameTooltip:SetOwner(self, 'ANCHOR_BOTTOMRIGHT')
-        GameTooltip:AddLine(tooltiptext)
-        GameTooltip:Show()
-    end)
-    f:SetScript('OnLeave', function(self)
-        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-    end)
-    helperIcons = helperIcons + 1
-    return f
-end
 
 
-function Guildbook:UpdateListviewSelectedTextures(listview)
-    for k, button in ipairs(listview) do
-        if button.data and button.data.Selected == true then
-            button:GetHighlightTexture():SetVertexColor(1, 1, 0);
-            button:LockHighlight()
-        else
-            button:GetHighlightTexture():SetVertexColor(0.196, 0.388, 0.8);
-            button:UnlockHighlight();
-        end
+function Guildbook:GetCharacterDataPayload()
+    local guid = UnitGUID('player')
+    local level = UnitLevel('player')
+    local ilvl = self:GetItemLevel()
+    self.GetProfessionData()
+    self.GetCharacterInventory()
+    self:GetCharacterStats()
+    if not self.PlayerMixin then
+        self.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
+    else
+        self.PlayerMixin:SetGUID(guid)
+    end
+    if self.PlayerMixin:IsValid() then
+        local _, class, _ = C_PlayerInfo.GetClass(self.PlayerMixin)
+        local name = C_PlayerInfo.GetName(self.PlayerMixin)
+        local response = {
+            type = 'CHARACTER_DATA_RESPONSE',
+            payload = {
+                GUID = guid,
+                Level = level,
+                ItemLevel = ilvl,
+                Class = class,
+                Name = name,
+                Profession1Level = GUILDBOOK_CHARACTER["Profession1Level"],
+                OffSpec = GUILDBOOK_CHARACTER["OffSpec"],
+                Profession1 = GUILDBOOK_CHARACTER["Profession1"],
+                MainCharacter = GUILDBOOK_CHARACTER["MainCharacter"],
+                MainSpec = GUILDBOOK_CHARACTER["MainSpec"],
+                MainSpecIsPvP = GUILDBOOK_CHARACTER["MainSpecIsPvP"],
+                Profession2Level = GUILDBOOK_CHARACTER["Profession2Level"],
+                Profession2 = GUILDBOOK_CHARACTER["Profession2"],
+                AttunementsKeys = GUILDBOOK_CHARACTER["AttunementsKeys"],
+                Availability = GUILDBOOK_CHARACTER["Availability"],
+                OffSpecIsPvP = GUILDBOOK_CHARACTER["OffSpecIsPvP"],
+                Cooking = GUILDBOOK_CHARACTER["Cooking"],
+                Fishing = GUILDBOOK_CHARACTER["Fishing"],
+                FirstAid = GUILDBOOK_CHARACTER["FirstAid"],
+
+                CharStats = GUILDBOOK_CHARACTER['PaperDollStats']
+            }
+        }
+        return response
     end
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- comms
@@ -1239,51 +1319,8 @@ function Guildbook:CharacterStats_OnChanged()
 end
 
 
---- i need to remove the inventory and set up a new comms for it 
-function Guildbook:GetCharacterDataPayload()
-    local guid = UnitGUID('player')
-    local level = UnitLevel('player')
-    local ilvl = self:GetItemLevel()
-    self.GetProfessionData()
-    self.GetCharacterInventory()
-    self:GetCharacterStats()
-    if not self.PlayerMixin then
-        self.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
-    else
-        self.PlayerMixin:SetGUID(guid)
-    end
-    if self.PlayerMixin:IsValid() then
-        local _, class, _ = C_PlayerInfo.GetClass(self.PlayerMixin)
-        local name = C_PlayerInfo.GetName(self.PlayerMixin)
-        local response = {
-            type = 'CHARACTER_DATA_RESPONSE',
-            payload = {
-                GUID = guid,
-                Level = level,
-                ItemLevel = ilvl,
-                Class = class,
-                Name = name,
-                Profession1Level = GUILDBOOK_CHARACTER["Profession1Level"],
-                OffSpec = GUILDBOOK_CHARACTER["OffSpec"],
-                Profession1 = GUILDBOOK_CHARACTER["Profession1"],
-                MainCharacter = GUILDBOOK_CHARACTER["MainCharacter"],
-                MainSpec = GUILDBOOK_CHARACTER["MainSpec"],
-                MainSpecIsPvP = GUILDBOOK_CHARACTER["MainSpecIsPvP"],
-                Profession2Level = GUILDBOOK_CHARACTER["Profession2Level"],
-                Profession2 = GUILDBOOK_CHARACTER["Profession2"],
-                AttunementsKeys = GUILDBOOK_CHARACTER["AttunementsKeys"],
-                Availability = GUILDBOOK_CHARACTER["Availability"],
-                OffSpecIsPvP = GUILDBOOK_CHARACTER["OffSpecIsPvP"],
-                Cooking = GUILDBOOK_CHARACTER["Cooking"],
-                Fishing = GUILDBOOK_CHARACTER["Fishing"],
-                FirstAid = GUILDBOOK_CHARACTER["FirstAid"],
+ 
 
-                CharStats = GUILDBOOK_CHARACTER['PaperDollStats']
-            }
-        }
-        return response
-    end
-end
 
 function Guildbook:OnCharacterDataRequested(request, distribution, sender)
     if distribution ~= 'WHISPER' then
@@ -1774,8 +1811,8 @@ function Guildbook:UPDATE_MOUSEOVER_UNIT()
             local race = C_CreatureInfo.GetRaceInfo(raceID).clientFileString:upper()
             local faction = C_CreatureInfo.GetFactionInfo(raceID).groupTag
             if race and self.player.faction == C_CreatureInfo.GetFactionInfo(raceID).groupTag then
-                if self.GuildFrame.ProfilesFrame.DetailsTab:IsVisible() then
-                    self.GuildFrame.ProfilesFrame.DetailsTab:AddModelFrame('mouseover', race, sex)
+                if self.GuildFrame.ProfilesFrame.PaperdollTab:IsVisible() then
+                    self.GuildFrame.ProfilesFrame.PaperdollTab:AddModelFrame('mouseover', race, sex)
                 end
             end
         end

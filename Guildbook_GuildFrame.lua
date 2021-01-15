@@ -1264,7 +1264,7 @@ function Guildbook:SetupGuildCalendarFrame()
                 UIDropDownMenu_SetText(Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTypeDropdown, 'Event')
                 print('|cffffffffEvent created!|r')
                 Guildbook:SendGuildCalendarEvent(event)
-                SendChatMessage(string.format("|cff0070DEGuildbook|r: Event created, check out %s in the calendar!", title), 'GUILD')
+                --SendChatMessage(string.format("|cff0070DEGuildbook|r: Event created, check out %s in the calendar!", title), 'GUILD')
                 self:GetParent():MonthChanged()
             end
         else
@@ -1324,14 +1324,14 @@ function Guildbook:SetupProfilesFrame()
         if not self.selectedGUID then
             DEBUG('func', 'ProfilesFrame:OnShow', 'no guid, loading player data')
             self:LoadCharacterDetails(UnitGUID('player'), nil)
-            self.DetailsTab:Show()
+            self.PaperdollTab:Show()
             GuildMemberDetailFrame:Hide()
         end
     end)
 
     function self.GuildFrame.ProfilesFrame:ToggleTabs(id, frame)
         PanelTemplates_SetTab(Guildbook.GuildFrame.ProfilesFrame, id)
-        self.DetailsTab:Hide()
+        self.PaperdollTab:Hide()
         self.ProfessionsTab:Hide()
         self.TalentsTab:Hide()
         self:HideTalentGrid()
@@ -1446,7 +1446,7 @@ function Guildbook:SetupProfilesFrame()
                                 func = function()
                                     Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(info.GUID, nil)
                                     Guildbook.GuildFrame.ProfilesFrame.SearchBox:ClearFocus()
-                                    Guildbook.GuildFrame.ProfilesFrame:ToggleTabs(1, self.DetailsTab)
+                                    Guildbook.GuildFrame.ProfilesFrame:ToggleTabs(1, self.PaperdollTab)
                                 end,
                             })
                         end
@@ -1492,7 +1492,7 @@ function Guildbook:SetupProfilesFrame()
         end
     end
 
-    -- function self.GuildFrame.ProfilesFrame.DetailsTab:ForceCharacterModelUpdate(model)
+    -- function self.GuildFrame.ProfilesFrame.PaperdollTab:ForceCharacterModelUpdate(model)
 
     -- end
 
@@ -1501,7 +1501,7 @@ function Guildbook:SetupProfilesFrame()
         self.selectedGUID = guid -- so we can reload data between tabs, not perfect but need to set up a binding system
         self:HideTalentGrid()
         self:HideInventoryIcons()
-        self.DetailsTab:HideCharacterModels()
+        self.PaperdollTab:HideCharacterModels()
         self.ProfessionsTab:ClearReagentsListview()
         self:ClearCharacter()
         self.ProfessionsTab:ClearRecipesListview(Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container)
@@ -1534,7 +1534,7 @@ function Guildbook:SetupProfilesFrame()
                 if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] then
                     local character = GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid]
                     self.character = GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid]
-                    self.DetailsTab:ShowModelViewer(race)
+                    self.PaperdollTab:ShowModelViewer(race)
 
                     -- as there is potentially a large amount of data to send/receive we will stagger the calls
                     -- request order = character data, inventory, talents, professions
@@ -1591,16 +1591,16 @@ function Guildbook:SetupProfilesFrame()
                     end
 
                     -- 3d model stuff (experimental)
-                    if self.DetailsTab.CharacterModels[race] and self.DetailsTab.CharacterModels[race][sex] then
-                        self.DetailsTab.CharacterModels[race][sex]:Undress()
+                    if self.PaperdollTab.CharacterModels[race] and self.PaperdollTab.CharacterModels[race][sex] then
+                        self.PaperdollTab.CharacterModels[race][sex]:Undress()
                         C_Timer.After(0.0, function()
-                            self.DetailsTab.CharacterModels[race][sex]:Show()
+                            self.PaperdollTab.CharacterModels[race][sex]:Show()
                         end)
                         if character.Inventory and character.Inventory.Current then
                             C_Timer.After(0.1, function()
                                 for slot, link in pairs(character.Inventory.Current) do
                                     if link ~= false and slot ~= 'TABARDSLOT' then
-                                        self.DetailsTab.CharacterModels[race][sex]:TryOn(link)
+                                        self.PaperdollTab.CharacterModels[race][sex]:TryOn(link)
                                     end
                                 end
                             end)
@@ -1609,7 +1609,7 @@ function Guildbook:SetupProfilesFrame()
                             C_Timer.After(3.0, function()
                                 for slot, link in pairs(character.Inventory.Current) do
                                     if link ~= false and slot ~= 'TABARDSLOT' then
-                                        self.DetailsTab.CharacterModels[race][sex]:TryOn(link)
+                                        self.PaperdollTab.CharacterModels[race][sex]:TryOn(link)
                                     end
                                 end
                             end)
@@ -1617,16 +1617,16 @@ function Guildbook:SetupProfilesFrame()
                     end
 
                     -- load race portrait
-                    --self.DetailsTab.Overlay.portrait:SetTexture(raceTexture)
+                    --self.PaperdollTab.Overlay.portrait:SetTexture(raceTexture)
 
                     -- load class icon
-                    --self.DetailsTab.Overlay.class:SetTexture(Guildbook.Data.Class[character.Class].IconID)
-                    --self.DetailsTab.Overlay.classText:SetText(string.format("%s%s", character.Class:sub(1,1), character.Class:sub(2):lower()))
+                    --self.PaperdollTab.Overlay.class:SetTexture(Guildbook.Data.Class[character.Class].IconID)
+                    --self.PaperdollTab.Overlay.classText:SetText(string.format("%s%s", character.Class:sub(1,1), character.Class:sub(2):lower()))
 
                     -- set name and colour
-                    self.DetailsTab.Overlay.name:SetText(character.Name)
+                    self.PaperdollTab.Overlay.name:SetText(character.Name)
                     local r, g, b = unpack(Guildbook.Data.Class[character.Class].RGB)
-                    self.DetailsTab.Overlay.name:SetTextColor(r, g, b, 1)
+                    self.PaperdollTab.Overlay.name:SetTextColor(r, g, b, 1)
 
                     -- set talent backgrounds
                     self.TalentsTab.Tab1.background:SetTexture(Guildbook.Data.TalentBackgrounds[Guildbook.Data.Talents[character.Class][1]])
@@ -1635,10 +1635,10 @@ function Guildbook:SetupProfilesFrame()
 
                     C_Timer.After(Guildbook.COMMS_DELAY, function()
                         -- update base stats panel
-                        for k, v in ipairs(self.DetailsTab.Overlay.AttributesPanel.labels) do
-                            self.DetailsTab.Overlay.AttributesPanel[k].Level:SetText('-')
+                        for k, v in ipairs(self.PaperdollTab.Overlay.AttributesPanel.labels) do
+                            self.PaperdollTab.Overlay.AttributesPanel[k].Level:SetText('-')
                             if character.PaperDollStats then
-                                self.DetailsTab.Overlay.AttributesPanel[k].Level:SetText(character.PaperDollStats[v.key])
+                                self.PaperdollTab.Overlay.AttributesPanel[k].Level:SetText(character.PaperDollStats[v.key])
                                 DEBUG('func', 'LoadCharacter', v.key..character.PaperDollStats[v.key])
 
 
@@ -1646,34 +1646,34 @@ function Guildbook:SetupProfilesFrame()
                         end
 
                         -- update prof panel
-                        for k, v in ipairs(self.DetailsTab.Overlay.ProfessionsPanel.labels) do
-                            self.DetailsTab.Overlay.ProfessionsPanel[k].Level:SetText('-')
-                            self.DetailsTab.Overlay.ProfessionsPanel[k].Icon:SetTexture(nil)
+                        for k, v in ipairs(self.PaperdollTab.Overlay.ProfessionsPanel.labels) do
+                            self.PaperdollTab.Overlay.ProfessionsPanel[k].Level:SetText('-')
+                            self.PaperdollTab.Overlay.ProfessionsPanel[k].Icon:SetTexture(nil)
                             if v.key:find('Profession') then
                                 DEBUG('func', 'LoadCharacter', v.key..character[v.key])
                                 if character[v.key] then
-                                    self.DetailsTab.Overlay.ProfessionsPanel[k].Label:SetText(character[v.key])
-                                    self.DetailsTab.Overlay.ProfessionsPanel[k].Level:SetText(character[v.key..'Level'])
-                                    self.DetailsTab.Overlay.ProfessionsPanel[k].Icon:SetTexture(Guildbook.Data.Profession[character[v.key]].IconID)
+                                    self.PaperdollTab.Overlay.ProfessionsPanel[k].Label:SetText(character[v.key])
+                                    self.PaperdollTab.Overlay.ProfessionsPanel[k].Level:SetText(character[v.key..'Level'])
+                                    self.PaperdollTab.Overlay.ProfessionsPanel[k].Icon:SetTexture(Guildbook.Data.Profession[character[v.key]].IconID)
                                 end
                             else
-                                self.DetailsTab.Overlay.ProfessionsPanel[k].Icon:SetTexture(Guildbook.Data.Profession[v.key].IconID)
-                                self.DetailsTab.Overlay.ProfessionsPanel[k].Level:SetText(character[v.key])
+                                self.PaperdollTab.Overlay.ProfessionsPanel[k].Icon:SetTexture(Guildbook.Data.Profession[v.key].IconID)
+                                self.PaperdollTab.Overlay.ProfessionsPanel[k].Level:SetText(character[v.key])
                             end
                         end
 
 
                         -- update stats panel
-                        for k, v in ipairs(self.DetailsTab.Overlay.CombatStatsPanel.labels) do
-                            if self.DetailsTab.Overlay.CombatStatsPanel[k].Level then
-                                self.DetailsTab.Overlay.CombatStatsPanel[k].Level:SetText('-')
+                        for k, v in ipairs(self.PaperdollTab.Overlay.CombatStatsPanel.labels) do
+                            if self.PaperdollTab.Overlay.CombatStatsPanel[k].Level then
+                                self.PaperdollTab.Overlay.CombatStatsPanel[k].Level:SetText('-')
                             end
-                            --if self.DetailsTab.Overlay.CombatStatsPanel[k].Header then
+                            --if self.PaperdollTab.Overlay.CombatStatsPanel[k].Header then
                                 if character.PaperDollStats and character.PaperDollStats[v.key] then
-                                    self.DetailsTab.Overlay.CombatStatsPanel[k].Level:SetText(character.PaperDollStats[v.key])
-                                elseif self.DetailsTab.Overlay.CombatStatsPanel[k].Header then
+                                    self.PaperdollTab.Overlay.CombatStatsPanel[k].Level:SetText(character.PaperDollStats[v.key])
+                                elseif self.PaperdollTab.Overlay.CombatStatsPanel[k].Header then
                                     local r,g,b = unpack(Guildbook.Data.Class[character.Class].RGB)
-                                    self.DetailsTab.Overlay.CombatStatsPanel[k].Header:SetTextColor(r, g, b, 1)
+                                    self.PaperdollTab.Overlay.CombatStatsPanel[k].Header:SetTextColor(r, g, b, 1)
                                 end
                             --end
                         end
@@ -1693,8 +1693,8 @@ function Guildbook:SetupProfilesFrame()
         --         if character.Inventory and character.Inventory.Current then
         --             for slot, link in pairs(character.Inventory.Current) do
         --                 if link ~= false and slot ~= 'TABARDSLOT' then
-        --                     self.DetailsTab.Overlay.InvIcons[slot].item = link
-        --                     self.DetailsTab.Overlay.InvIcons[slot]:Show()
+        --                     self.PaperdollTab.Overlay.InvIcons[slot].item = link
+        --                     self.PaperdollTab.Overlay.InvIcons[slot]:Show()
         --                 end
         --             end
         --         end
@@ -1704,8 +1704,8 @@ function Guildbook:SetupProfilesFrame()
             if self.character.Inventory and self.character.Inventory.Current then
                 for slot, link in pairs(self.character.Inventory.Current) do
                     if link ~= false and slot ~= 'TABARDSLOT' then
-                        self.DetailsTab.Overlay.InvIcons[slot].item = link
-                        self.DetailsTab.Overlay.InvIcons[slot]:Show()
+                        self.PaperdollTab.Overlay.InvIcons[slot].item = link
+                        self.PaperdollTab.Overlay.InvIcons[slot]:Show()
                     end
                 end
             end
@@ -1713,17 +1713,17 @@ function Guildbook:SetupProfilesFrame()
     end
 
     function self.GuildFrame.ProfilesFrame:ClearCharacter()
-        for k, v in ipairs(self.DetailsTab.Overlay.CombatStatsPanel.labels) do
-            if self.DetailsTab.Overlay.CombatStatsPanel[k].Level then
-                self.DetailsTab.Overlay.CombatStatsPanel[k].Level:SetText('-')
+        for k, v in ipairs(self.PaperdollTab.Overlay.CombatStatsPanel.labels) do
+            if self.PaperdollTab.Overlay.CombatStatsPanel[k].Level then
+                self.PaperdollTab.Overlay.CombatStatsPanel[k].Level:SetText('-')
             end
         end
-        for k, v in ipairs(self.DetailsTab.Overlay.ProfessionsPanel.labels) do
-            self.DetailsTab.Overlay.ProfessionsPanel[k].Level:SetText('-')
-            self.DetailsTab.Overlay.ProfessionsPanel[k].Icon:SetTexture(nil)
+        for k, v in ipairs(self.PaperdollTab.Overlay.ProfessionsPanel.labels) do
+            self.PaperdollTab.Overlay.ProfessionsPanel[k].Level:SetText('-')
+            self.PaperdollTab.Overlay.ProfessionsPanel[k].Icon:SetTexture(nil)
         end
-        for k, v in ipairs(self.DetailsTab.Overlay.AttributesPanel.labels) do
-            self.DetailsTab.Overlay.AttributesPanel[k].Level:SetText('-')
+        for k, v in ipairs(self.PaperdollTab.Overlay.AttributesPanel.labels) do
+            self.PaperdollTab.Overlay.AttributesPanel[k].Level:SetText('-')
         end
 
     end
@@ -1767,42 +1767,211 @@ function Guildbook:SetupProfilesFrame()
     self.GuildFrame.ProfilesFrame.HomeButton = CreateFrame('BUTTON', '$parentTab4', Guildbook.GuildFrame.ProfilesFrame, 'OptionsFrameTabButtonTemplate')
     self.GuildFrame.ProfilesFrame.HomeButton:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.ProfilesFrame, 'TOPLEFT', 50, 0)
     --self.GuildFrame.ProfilesFrame.HomeButton:SetSize(60, 30)
-    self.GuildFrame.ProfilesFrame.HomeButton:SetText('Guild Bank')
+    self.GuildFrame.ProfilesFrame.HomeButton:SetText('Home')
     self.GuildFrame.ProfilesFrame.HomeButton:SetID(4)
     self.GuildFrame.ProfilesFrame.HomeButton:SetScript('OnClick', function(self, button)
         PanelTemplates_SetTab(Guildbook.GuildFrame.ProfilesFrame, 4)
-        -- --Guildbook.GuildFrame.ProfilesFrame.HomeTab:Show()
-        Guildbook.GuildFrame.ProfilesFrame.DetailsTab:Hide()
+        Guildbook.GuildFrame.ProfilesFrame.PaperdollTab:Hide()
         Guildbook.GuildFrame.ProfilesFrame.TalentsTab:Hide()
         Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:Hide()
 
-        -- --for now just load the player, will add editing in time
-        -- Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(UnitGUID('player'), nil)
-        -- Guildbook.GuildFrame.ProfilesFrame.DetailsTab:Show()
-        -- PanelTemplates_SetTab(Guildbook.GuildFrame.ProfilesFrame, 4)
-
-        --temp fix till tbc
-        Guildbook.GuildFrame.GuildBankFrame:Show()
+        Guildbook.GuildFrame.ProfilesFrame.HomeTab:Show()
     end)
+
+
+
 
     self.GuildFrame.ProfilesFrame.HomeTab = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameHomeTab', self.GuildFrame.ProfilesFrame)
     self.GuildFrame.ProfilesFrame.HomeTab:SetPoint('TOPLEFT', self.GuildFrame.ProfilesFrame, 'TOPLEFT', 2, -2)
     self.GuildFrame.ProfilesFrame.HomeTab:SetPoint('BOTTOMRIGHT', self.GuildFrame.ProfilesFrame, 'BOTTOMRIGHT', -2, 2)
     self.GuildFrame.ProfilesFrame.HomeTab:Hide()
+    self.GuildFrame.ProfilesFrame.HomeTab:SetScript('OnShow', function(self)
+        if self:GetParent().character then
+            local character = self:GetParent().character
+
+            if character.MainCharacter then
+                self.MainCharacterEditbox:SetText(character.MainCharacter)
+            end
+            if character.MainSpec then
+                UIDropDownMenu_SetText(self.MainSpecDropdown, character.MainSpec)
+            end
+            if character.OffSpec then
+                UIDropDownMenu_SetText(self.OffSpecDropdown, character.OffSpec)
+            end
+            --if character.MainSpecIsPvP then
+                self.MainSpecIsPvPCheckbox:SetChecked(character.MainSpecIsPvP)
+            --end
+            --if character.OffSpecIsPvP then
+                self.OffSpecIsPvPCheckbox:SetChecked(character.OffSpecIsPvP)
+            --end
+        end
+    end)
+
+
+    local homeTabHeader = self.GuildFrame.ProfilesFrame.HomeTab:CreateFontString(nil, 'OVERLAY', 'GameFontNormalLarge')
+    homeTabHeader:SetPoint('TOPLEFT', 16, -16)
+    homeTabHeader:SetText(L['Profile'])
+
+
+    local mainSpecHeader = self.GuildFrame.ProfilesFrame.HomeTab:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
+    mainSpecHeader:SetPoint('TOPLEFT', 16, -48)
+    mainSpecHeader:SetSize(80, 20)
+    mainSpecHeader:SetJustifyH('LEFT')
+    mainSpecHeader:SetText(L['MainSpec'])
+
+    self.GuildFrame.ProfilesFrame.HomeTab.MainSpecDropdown = CreateFrame('FRAME', "GuildbookGuildFrameProfilesFrameHomeTabMainSpecDropdown", self.GuildFrame.ProfilesFrame.HomeTab, "UIDropDownMenuTemplate")
+    self.GuildFrame.ProfilesFrame.HomeTab.MainSpecDropdown:SetPoint('LEFT', mainSpecHeader, 'RIGHT', 26, 0)
+    UIDropDownMenu_SetWidth(self.GuildFrame.ProfilesFrame.HomeTab.MainSpecDropdown, 100)
+    UIDropDownMenu_SetText(self.GuildFrame.ProfilesFrame.HomeTab.MainSpecDropdown, L['MainSpec'])
+    _G['GuildbookGuildFrameProfilesFrameHomeTabMainSpecDropdownButton']:SetScript('OnClick', function(self)
+        local specs = {}
+        local _, class, _ = UnitClass('player')
+        for i, spec in pairs(Guildbook.Data.Class[class].Specializations) do
+            table.insert(specs, {
+                text = tostring(Guildbook.Data.SpecFontStringIconSMALL[class][spec]..'  '..L[spec]),
+                isTitle = false,
+                notCheckable = true,
+                func = function()
+                    UIDropDownMenu_SetText(Guildbook.GuildFrame.ProfilesFrame.HomeTab.MainSpecDropdown, L[spec])
+                    -- should this be stored as a local name?
+                    GUILDBOOK_CHARACTER['MainSpec'] = tostring(spec)
+                    local guildName = Guildbook:GetGuildName()
+                    if guildName then
+                        -- this will just check and create tables if not exists
+                        Guildbook:CreateGuildRosterCache(guildName)
+                        if not GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][UnitGUID('player')] then
+                            GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][UnitGUID('player')] = {}
+                        end
+                        GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][UnitGUID('player')].MainSpec = tostring(spec)
+                    end
+                end,
+            })
+        end
+        table.insert(specs, {
+            text = L['Cancel'],
+            isTitle = false,
+            notCheckable = true,
+            func = function()
+                CloseDropDownMenus()
+            end,
+        })
+        EasyMenu(specs, Guildbook.GuildFrame.ProfilesFrame.HomeTab.MainSpecDropdown, Guildbook.GuildFrame.ProfilesFrame.HomeTab.MainSpecDropdown, 10, 10, 'NONE')
+    end)
+
+
+    self.GuildFrame.ProfilesFrame.HomeTab.MainSpecIsPvPCheckbox = CreateFrame('CheckButton', 'GuildbookGuildFrameProfilesFrameHomeTabMainSpecPvPCheckbox', self.GuildFrame.ProfilesFrame.HomeTab, "ChatConfigCheckButtonTemplate")
+    self.GuildFrame.ProfilesFrame.HomeTab.MainSpecIsPvPCheckbox:SetPoint('LEFT', Guildbook.GuildFrame.ProfilesFrame.HomeTab.MainSpecDropdown, 'RIGHT', 6, 0)
+    _G['GuildbookGuildFrameProfilesFrameHomeTabMainSpecPvPCheckboxText']:SetText(L['IsPvpSpec'])
+    self.GuildFrame.ProfilesFrame.HomeTab.MainSpecIsPvPCheckbox:SetScript('OnClick', function(self)
+        if not GUILDBOOK_CHARACTER then
+            GUILDBOOK_CHARACTER = {}
+        end
+        GUILDBOOK_CHARACTER['MainSpecIsPvP'] = self:GetChecked()
+    end)
+
+
+    local offSpecHeader = self.GuildFrame.ProfilesFrame.HomeTab:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
+    offSpecHeader:SetPoint('TOPLEFT', 16, -80)
+    offSpecHeader:SetSize(80, 20)
+    offSpecHeader:SetJustifyH('LEFT')
+    offSpecHeader:SetText(L['OffSpec'])
+
+    self.GuildFrame.ProfilesFrame.HomeTab.OffSpecDropdown = CreateFrame('FRAME', "GuildbookGuildFrameProfilesFrameHomeTabOffSpecDropdown", self.GuildFrame.ProfilesFrame.HomeTab, "UIDropDownMenuTemplate")
+    self.GuildFrame.ProfilesFrame.HomeTab.OffSpecDropdown:SetPoint('LEFT', offSpecHeader, 'RIGHT', 26, 0)
+    UIDropDownMenu_SetWidth(self.GuildFrame.ProfilesFrame.HomeTab.OffSpecDropdown, 100)
+    UIDropDownMenu_SetText(self.GuildFrame.ProfilesFrame.HomeTab.OffSpecDropdown, L['OffSpec'])
+    _G['GuildbookGuildFrameProfilesFrameHomeTabOffSpecDropdownButton']:SetScript('OnClick', function(self)
+        local specs = {}
+        local _, class, _ = UnitClass('player')
+        for i, spec in pairs(Guildbook.Data.Class[class].Specializations) do
+            table.insert(specs, {
+                text = tostring(Guildbook.Data.SpecFontStringIconSMALL[class][spec]..'  '..L[spec]),
+                isTitle = false,
+                notCheckable = true,
+                func = function()
+                    UIDropDownMenu_SetText(Guildbook.GuildFrame.ProfilesFrame.HomeTab.OffSpecDropdown, L[spec])
+                    -- should this be stored as a local name?
+                    GUILDBOOK_CHARACTER['OffSpec'] = tostring(spec)
+                    local guildName = Guildbook:GetGuildName()
+                    if guildName then
+                        -- this will just check and create tables if not exists
+                        Guildbook:CreateGuildRosterCache(guildName)
+                        if not GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][UnitGUID('player')] then
+                            GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][UnitGUID('player')] = {}
+                        end
+                        GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][UnitGUID('player')].OffSpec = tostring(spec)
+                    end
+                end,
+            })
+        end
+        table.insert(specs, {
+            text = L['Cancel'],
+            isTitle = false,
+            notCheckable = true,
+            func = function()
+                CloseDropDownMenus()
+            end,
+        })
+        EasyMenu(specs, Guildbook.GuildFrame.ProfilesFrame.HomeTab.OffSpecDropdown, Guildbook.GuildFrame.ProfilesFrame.HomeTab.OffSpecDropdown, 10, 10, 'NONE')
+    end)
+
+    self.GuildFrame.ProfilesFrame.HomeTab.OffSpecIsPvPCheckbox = CreateFrame('CheckButton', 'GuildbookGuildFrameProfilesFrameHomeTabOffSpecPvPCheckbox', self.GuildFrame.ProfilesFrame.HomeTab, "ChatConfigCheckButtonTemplate")
+    self.GuildFrame.ProfilesFrame.HomeTab.OffSpecIsPvPCheckbox:SetPoint('LEFT', Guildbook.GuildFrame.ProfilesFrame.HomeTab.OffSpecDropdown, 'RIGHT', 6, 0)
+    _G['GuildbookGuildFrameProfilesFrameHomeTabOffSpecPvPCheckboxText']:SetText(L['IsPvpSpec'])
+    self.GuildFrame.ProfilesFrame.HomeTab.OffSpecIsPvPCheckbox:SetScript('OnClick', function(self)
+        if not GUILDBOOK_CHARACTER then
+            GUILDBOOK_CHARACTER = {}
+        end
+        GUILDBOOK_CHARACTER['OffSpecIsPvP'] = self:GetChecked()
+    end)
+
+
+    local mainCharacterHeader = self.GuildFrame.ProfilesFrame.HomeTab:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
+    mainCharacterHeader:SetPoint('TOPLEFT', 16, -112)
+    mainCharacterHeader:SetSize(100, 20)
+    mainCharacterHeader:SetJustifyH('LEFT')
+    mainCharacterHeader:SetText(L['MainCharacterNameInputDesc'])
+
+    self.GuildFrame.ProfilesFrame.HomeTab.MainCharacterEditbox = CreateFrame('EDITBOX', 'GuildbookGuildFrameProfilesFrameHomeTabMainCharacterEditbox', self.GuildFrame.ProfilesFrame.HomeTab, "InputBoxTemplate")
+    self.GuildFrame.ProfilesFrame.HomeTab.MainCharacterEditbox:SetPoint('LEFT', mainCharacterHeader, 'RIGHT', 26, 0)
+    self.GuildFrame.ProfilesFrame.HomeTab.MainCharacterEditbox:SetSize(200, 22)
+    self.GuildFrame.ProfilesFrame.HomeTab.MainCharacterEditbox:ClearFocus()
+    self.GuildFrame.ProfilesFrame.HomeTab.MainCharacterEditbox:SetAutoFocus(false)
+    self.GuildFrame.ProfilesFrame.HomeTab.MainCharacterEditbox:SetMaxLetters(15)
+
+    self.GuildFrame.ProfilesFrame.HomeTab.MainCharacterEditbox:SetScript('OnTextChanged', function(self)
+        if GUILDBOOK_CHARACTER then
+            if string.len(self:GetText()) > 0 then
+                GUILDBOOK_CHARACTER['MainCharacter'] = tostring(self:GetText())
+            else
+                GUILDBOOK_CHARACTER['MainCharacter'] = '-'
+            end
+        end
+    end)
+
+
+    local days = {
+
+    }
+
+
+
+
+
+
+
+
+
 
     
-
-
-
-    
-    self.GuildFrame.ProfilesFrame.DetailsButton = CreateFrame('BUTTON', '$parentTab1', Guildbook.GuildFrame.ProfilesFrame, 'OptionsFrameTabButtonTemplate')
-    self.GuildFrame.ProfilesFrame.DetailsButton:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.ProfilesFrame, 'TOPRIGHT', -255, 0)
-    --self.GuildFrame.ProfilesFrame.DetailsButton:SetSize(60, 30)
-    self.GuildFrame.ProfilesFrame.DetailsButton:SetText('Details')
-    self.GuildFrame.ProfilesFrame.DetailsButton:SetID(1)
-    self.GuildFrame.ProfilesFrame.DetailsButton:SetScript('OnClick', function(self)
+    self.GuildFrame.ProfilesFrame.PaperdollButton = CreateFrame('BUTTON', '$parentTab1', Guildbook.GuildFrame.ProfilesFrame, 'OptionsFrameTabButtonTemplate')
+    self.GuildFrame.ProfilesFrame.PaperdollButton:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.ProfilesFrame, 'TOPRIGHT', -255, 0)
+    --self.GuildFrame.ProfilesFrame.PaperdollButton:SetSize(60, 30)
+    self.GuildFrame.ProfilesFrame.PaperdollButton:SetText('Details')
+    self.GuildFrame.ProfilesFrame.PaperdollButton:SetID(1)
+    self.GuildFrame.ProfilesFrame.PaperdollButton:SetScript('OnClick', function(self)
         PanelTemplates_SetTab(Guildbook.GuildFrame.ProfilesFrame, 1)
-        Guildbook.GuildFrame.ProfilesFrame.DetailsTab:Show()
+        Guildbook.GuildFrame.ProfilesFrame.PaperdollTab:Show()
         Guildbook.GuildFrame.ProfilesFrame.TalentsTab:Hide()
         Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:Hide()
 
@@ -1810,23 +1979,21 @@ function Guildbook:SetupProfilesFrame()
             self:GetParent():LoadCharacterInventory()
         end
 
-        -- remove this for tbc
-        Guildbook.GuildFrame.GuildBankFrame:Hide()
+        Guildbook.GuildFrame.ProfilesFrame.HomeTab:Hide()
     end)
 
     self.GuildFrame.ProfilesFrame.TalentButton = CreateFrame('BUTTON', '$parentTab2', Guildbook.GuildFrame.ProfilesFrame, 'OptionsFrameTabButtonTemplate')
-    self.GuildFrame.ProfilesFrame.TalentButton:SetPoint('LEFT', Guildbook.GuildFrame.ProfilesFrame.DetailsButton, 'RIGHT', -16, 0)
+    self.GuildFrame.ProfilesFrame.TalentButton:SetPoint('LEFT', Guildbook.GuildFrame.ProfilesFrame.PaperdollButton, 'RIGHT', -16, 0)
     --self.GuildFrame.ProfilesFrame.TalentButton:SetSize(60, 30)
     self.GuildFrame.ProfilesFrame.TalentButton:SetText('Talents')
     self.GuildFrame.ProfilesFrame.TalentButton:SetID(2)
     self.GuildFrame.ProfilesFrame.TalentButton:SetScript('OnClick', function(self)
         PanelTemplates_SetTab(Guildbook.GuildFrame.ProfilesFrame, 2)
-        Guildbook.GuildFrame.ProfilesFrame.DetailsTab:Hide()
+        Guildbook.GuildFrame.ProfilesFrame.PaperdollTab:Hide()
         Guildbook.GuildFrame.ProfilesFrame.TalentsTab:Show()
         Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:Hide()
         
-        -- remove this for tbc
-        Guildbook.GuildFrame.GuildBankFrame:Hide()
+        Guildbook.GuildFrame.ProfilesFrame.HomeTab:Hide()
     end)
 
     self.GuildFrame.ProfilesFrame.ProfessionsButton = CreateFrame('BUTTON', '$parentTab3', Guildbook.GuildFrame.ProfilesFrame, 'OptionsFrameTabButtonTemplate')
@@ -1836,20 +2003,19 @@ function Guildbook:SetupProfilesFrame()
     self.GuildFrame.ProfilesFrame.ProfessionsButton:SetID(3)
     self.GuildFrame.ProfilesFrame.ProfessionsButton:SetScript('OnClick', function(self)
         PanelTemplates_SetTab(Guildbook.GuildFrame.ProfilesFrame, 3)
-        Guildbook.GuildFrame.ProfilesFrame.DetailsTab:Hide()
+        Guildbook.GuildFrame.ProfilesFrame.PaperdollTab:Hide()
         Guildbook.GuildFrame.ProfilesFrame.TalentsTab:Hide()
         Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:Show()
         
-        -- remove this for tbc
-        Guildbook.GuildFrame.GuildBankFrame:Hide()
+        Guildbook.GuildFrame.ProfilesFrame.HomeTab:Hide()
     end)
 
-    self.GuildFrame.ProfilesFrame.DetailsTab = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameDetailsTab', self.GuildFrame.ProfilesFrame)
-    self.GuildFrame.ProfilesFrame.DetailsTab:SetPoint('TOPLEFT', self.GuildFrame.ProfilesFrame, 'TOPLEFT', 2, -2)
-    self.GuildFrame.ProfilesFrame.DetailsTab:SetPoint('BOTTOMRIGHT', self.GuildFrame.ProfilesFrame, 'BOTTOMRIGHT', -2, 2)
-    self.GuildFrame.ProfilesFrame.DetailsTab:Hide()
+    self.GuildFrame.ProfilesFrame.PaperdollTab = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFramePaperdollTab', self.GuildFrame.ProfilesFrame)
+    self.GuildFrame.ProfilesFrame.PaperdollTab:SetPoint('TOPLEFT', self.GuildFrame.ProfilesFrame, 'TOPLEFT', 2, -2)
+    self.GuildFrame.ProfilesFrame.PaperdollTab:SetPoint('BOTTOMRIGHT', self.GuildFrame.ProfilesFrame, 'BOTTOMRIGHT', -2, 2)
+    self.GuildFrame.ProfilesFrame.PaperdollTab:Hide()
 
-    self.GuildFrame.ProfilesFrame.DetailsTab.ModelViewers = {}
+    self.GuildFrame.ProfilesFrame.PaperdollTab.ModelViewers = {}
     if not Guildbook.PlayerMixin then
         Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(UnitGUID('player'))
     else
@@ -1858,7 +2024,7 @@ function Guildbook:SetupProfilesFrame()
     if Guildbook.PlayerMixin:IsValid() then
         local faction = C_CreatureInfo.GetFactionInfo(C_PlayerInfo.GetRace(Guildbook.PlayerMixin)).groupTag
         for _, race in pairs(Guildbook.Data.Factions[faction]) do
-            local f = CreateFrame('Model', 'GuildbookGuildFrameProfilesFrameModelViewer'..race, self.GuildFrame.ProfilesFrame.DetailsTab)
+            local f = CreateFrame('Model', 'GuildbookGuildFrameProfilesFrameModelViewer'..race, self.GuildFrame.ProfilesFrame.PaperdollTab)
             --f:SetFrameStrata('LOW')
             --f:SetFrameLevel(0)
             f:SetPoint('TOPLEFT', 2, -2)
@@ -1866,19 +2032,19 @@ function Guildbook:SetupProfilesFrame()
             f:SetModel(Guildbook.RaceBackgrounds[race].FileName)
             f:SetModelAlpha(0.9)
             f:Hide()
-            self.GuildFrame.ProfilesFrame.DetailsTab.ModelViewers[race] = f
+            self.GuildFrame.ProfilesFrame.PaperdollTab.ModelViewers[race] = f
         end
     end
 
-    function self.GuildFrame.ProfilesFrame.DetailsTab:ShowModelViewer(model)
+    function self.GuildFrame.ProfilesFrame.PaperdollTab:ShowModelViewer(model)
         for k, v in pairs(self.ModelViewers) do
             v:Hide()
         end
         self.ModelViewers[model]:Show()
     end
 
-    self.GuildFrame.ProfilesFrame.DetailsTab.CharacterModels = {}
-    function self.GuildFrame.ProfilesFrame.DetailsTab:AddModelFrame(target, race, gender)
+    self.GuildFrame.ProfilesFrame.PaperdollTab.CharacterModels = {}
+    function self.GuildFrame.ProfilesFrame.PaperdollTab:AddModelFrame(target, race, gender)
         --self:HideCharacterModels()
         if not self.CharacterModels[race] then
             self.CharacterModels[race] = {}
@@ -1886,7 +2052,7 @@ function Guildbook:SetupProfilesFrame()
         if not self.CharacterModels[race][gender] then
             -- FriendsFrame:Show()
             -- FriendsFrameTab3:Click()
-            local f = CreateFrame('DressUpModel', 'GuildbookGuildFrameProfilesFrameModelViewer'..race..gender, Guildbook.GuildFrame.ProfilesFrame.DetailsTab)
+            local f = CreateFrame('DressUpModel', 'GuildbookGuildFrameProfilesFrameModelViewer'..race..gender, Guildbook.GuildFrame.ProfilesFrame.PaperdollTab)
             f:SetPoint('CENTER', 0, 0)
             f:SetSize(400, 340)
             if race == 'GNOME' or race == 'DWARF' then
@@ -1905,7 +2071,7 @@ function Guildbook:SetupProfilesFrame()
                 f:Undress()
                 f:SetRotation(0.2)
                 f:Hide()
-                Guildbook.GuildFrame.ProfilesFrame.DetailsTab.CharacterModels[race][gender] = f
+                Guildbook.GuildFrame.ProfilesFrame.PaperdollTab.CharacterModels[race][gender] = f
                 if Guildbook.GuildFrame.ProfilesFrame.selectedGUID then
                     Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(Guildbook.GuildFrame.ProfilesFrame.selectedGUID, nil)
                 end
@@ -1954,7 +2120,7 @@ function Guildbook:SetupProfilesFrame()
         end
     end
 
-    function self.GuildFrame.ProfilesFrame.DetailsTab:HideCharacterModels()
+    function self.GuildFrame.ProfilesFrame.PaperdollTab:HideCharacterModels()
         for race, genders in pairs(self.CharacterModels) do
             for k, v in pairs(genders) do
                 v:Hide()
@@ -1963,33 +2129,33 @@ function Guildbook:SetupProfilesFrame()
     end
 
 
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameDetailsTabOverlay', self.GuildFrame.ProfilesFrame.DetailsTab)
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay:SetAllPoints(self.GuildFrame.ProfilesFrame.DetailsTab)
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay:SetFrameLevel(599)
+    self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFramePaperdollTabOverlay', self.GuildFrame.ProfilesFrame.PaperdollTab)
+    self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay:SetAllPoints(self.GuildFrame.ProfilesFrame.PaperdollTab)
+    self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay:SetFrameLevel(599)
 
 
 
-    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.portraitBackground = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay:CreateTexture('$parentPortrait', 'BACKGROUND')
-    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.portraitBackground:SetPoint('TOPLEFT', -33, 33)
-    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.portraitBackground:SetSize(220, 220)
-    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.portraitBackground:SetTexture(652158)
+    -- self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.portraitBackground = self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay:CreateTexture('$parentPortrait', 'BACKGROUND')
+    -- self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.portraitBackground:SetPoint('TOPLEFT', -33, 33)
+    -- self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.portraitBackground:SetSize(220, 220)
+    -- self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.portraitBackground:SetTexture(652158)
 
-    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.portrait = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay:CreateTexture('$parentPortrait', 'OVERLAY')
-    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.portrait:SetPoint('TOPLEFT', 30, -27)
-    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.portrait:SetSize(90, 90)
+    -- self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.portrait = self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay:CreateTexture('$parentPortrait', 'OVERLAY')
+    -- self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.portrait:SetPoint('TOPLEFT', 30, -27)
+    -- self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.portrait:SetSize(90, 90)
 
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.class = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay:CreateTexture('$parentClass', 'OVERLAY')
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.class:SetPoint('TOPLEFT', Guildbook.GuildFrame.ProfilesFrame.DetailsTab.Overlay.portrait, 'BOTTOMLEFT', -5.0, -15.0)
-    --self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.class:SetPoint('TOPRIGHT', Guildbook.GuildFrame.ProfilesFrame.DetailsTab.Overlay.portrait, 'BOTTOMRIGHT', 0, 0)
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.class:SetSize(25, 25)
+    self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.class = self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay:CreateTexture('$parentClass', 'OVERLAY')
+    self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.class:SetPoint('TOPLEFT', Guildbook.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.portrait, 'BOTTOMLEFT', -5.0, -15.0)
+    --self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.class:SetPoint('TOPRIGHT', Guildbook.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.portrait, 'BOTTOMRIGHT', 0, 0)
+    self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.class:SetSize(25, 25)
 
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.classText = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay:CreateFontString('$parentName', 'OVERLAY', 'GameFontNormalLarge')
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.classText:SetPoint('LEFT', Guildbook.GuildFrame.ProfilesFrame.DetailsTab.Overlay.class,'RIGHT', 8, 0)
-    --self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.classText:SetFont("Fonts\\FRIZQT__.TTF", 24, 'OUTLINE')
+    self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.classText = self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay:CreateFontString('$parentName', 'OVERLAY', 'GameFontNormalLarge')
+    self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.classText:SetPoint('LEFT', Guildbook.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.class,'RIGHT', 8, 0)
+    --self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.classText:SetFont("Fonts\\FRIZQT__.TTF", 24, 'OUTLINE')
 
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.name = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay:CreateFontString('$parentName', 'OVERLAY', 'GameFontNormalLarge')
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.name:SetPoint('TOP', 0, -24)
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.name:SetFont("Fonts\\FRIZQT__.TTF", 24, 'OUTLINE')
+    self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.name = self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay:CreateFontString('$parentName', 'OVERLAY', 'GameFontNormalLarge')
+    self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.name:SetPoint('TOP', 0, -24)
+    self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.name:SetFont("Fonts\\FRIZQT__.TTF", 24, 'OUTLINE')
 
     -- zone/location
     -- guidl rank
@@ -1998,8 +2164,8 @@ function Guildbook:SetupProfilesFrame()
     -- prof info
     -- spec, talent points 1/1/1
 
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.AttributesPanel = Guildbook:CreateTooltipPanel("GuildbookGuildFrameProfilesFrameDetailsFrameAttributesPanel", self.GuildFrame.ProfilesFrame.DetailsTab.Overlay, 'TOPLEFT', 20, -20, 190, 140, 'Attributes')
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.AttributesPanel.labels = {
+    self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.AttributesPanel = Guildbook:CreateTooltipPanel("GuildbookGuildFrameProfilesFramePaperdollFrameAttributesPanel", self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay, 'TOPLEFT', 20, -20, 190, 140, 'Attributes')
+    self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.AttributesPanel.labels = {
         {
             key = 'Strength',
             label = 'Strength',
@@ -2026,22 +2192,22 @@ function Guildbook:SetupProfilesFrame()
             offset = -100.0,
         },
     }
-    for k, v in ipairs(self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.AttributesPanel.labels) do
-        local label = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.AttributesPanel:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
+    for k, v in ipairs(self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.AttributesPanel.labels) do
+        local label = self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.AttributesPanel:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
         label:SetPoint('TOPLEFT', 12, v.offset - 12)
         label:SetText(v.label)
         label:SetTextColor(1,1,1,1)
 
-        local level = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.AttributesPanel:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
+        local level = self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.AttributesPanel:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
         level:SetPoint('TOPLEFT', 142, v.offset - 12)
         level:SetText(108)
         level:SetTextColor(1,1,1,1)
 
-        self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.AttributesPanel[k] = { Label = label, Level = level, }
+        self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.AttributesPanel[k] = { Label = label, Level = level, }
     end
 
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.ProfessionsPanel = Guildbook:CreateTooltipPanel("GuildbookGuildFrameProfilesFrameDetailsFrameProfessionsPanel", self.GuildFrame.ProfilesFrame.DetailsTab.Overlay, 'BOTTOMLEFT', 20, 20, 190, 140, 'Professions')
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.ProfessionsPanel.labels = {
+    self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.ProfessionsPanel = Guildbook:CreateTooltipPanel("GuildbookGuildFrameProfilesFramePaperdollFrameProfessionsPanel", self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay, 'BOTTOMLEFT', 20, 20, 190, 140, 'Professions')
+    self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.ProfessionsPanel.labels = {
         {
             key = 'Profession1',
             label = 'Profession1',
@@ -2068,31 +2234,31 @@ function Guildbook:SetupProfilesFrame()
             offset = -100.0,
         },
     }
-    for k, v in ipairs(self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.ProfessionsPanel.labels) do
-        local label = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.ProfessionsPanel:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
+    for k, v in ipairs(self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.ProfessionsPanel.labels) do
+        local label = self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.ProfessionsPanel:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
         label:SetPoint('TOPLEFT', 32, v.offset - 12)
         label:SetText(v.label)
         label:SetTextColor(1,1,1,1)
 
-        local level = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.ProfessionsPanel:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
+        local level = self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.ProfessionsPanel:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
         level:SetPoint('TOPLEFT', 142, v.offset - 12)
         level:SetText(v.label)
         level:SetTextColor(1,1,1,1)
 
-        local icon = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.ProfessionsPanel:CreateTexture(nil, 'ARTWORK')
+        local icon = self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.ProfessionsPanel:CreateTexture(nil, 'ARTWORK')
         icon:SetPoint('TOPLEFT', 12, v.offset - 12)
         icon:SetSize(16, 16)
-        self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.ProfessionsPanel[k] = { Label = label, Level = level, Icon = icon }
+        self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.ProfessionsPanel[k] = { Label = label, Level = level, Icon = icon }
     end
 
 
 
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.CombatStatsPanel = Guildbook:CreateTooltipPanel("GuildbookGuildFrameProfilesFrameDetailsFrameCombatStatsPanel", self.GuildFrame.ProfilesFrame.DetailsTab.Overlay, 'TOPRIGHT', -20, -20, 190, 300, 'Stats')
+    self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.CombatStatsPanel = Guildbook:CreateTooltipPanel("GuildbookGuildFrameProfilesFramePaperdollFrameCombatStatsPanel", self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay, 'TOPRIGHT', -20, -20, 190, 300, 'Stats')
     
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.CombatStatsPanel.ScrollFrame = CreateFrame("ScrollFrame", "GuildbookGuildFrameProfilesFrameDetailsFrameCombatStatsPanelScrollFrame", self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.CombatStatsPanel, "UIPanelScrollFrameTemplate")
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.CombatStatsPanel.ScrollFrame:SetPoint("TOPLEFT", 2, -30)
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.CombatStatsPanel.ScrollFrame:SetPoint("BOTTOMRIGHT", -30, 6)
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.CombatStatsPanel.ScrollFrame:SetScript("OnMouseWheel", function(self, delta)
+    self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.CombatStatsPanel.ScrollFrame = CreateFrame("ScrollFrame", "GuildbookGuildFrameProfilesFramePaperdollFrameCombatStatsPanelScrollFrame", self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.CombatStatsPanel, "UIPanelScrollFrameTemplate")
+    self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.CombatStatsPanel.ScrollFrame:SetPoint("TOPLEFT", 2, -30)
+    self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.CombatStatsPanel.ScrollFrame:SetPoint("BOTTOMRIGHT", -30, 6)
+    self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.CombatStatsPanel.ScrollFrame:SetScript("OnMouseWheel", function(self, delta)
         local newValue = self:GetVerticalScroll() - (delta * 20)
         if (newValue < 0) then
             newValue = 0;
@@ -2101,13 +2267,13 @@ function Guildbook:SetupProfilesFrame()
         end
         self:SetVerticalScroll(newValue)
     end)
-    local combatScrollChild = CreateFrame("Frame", "GuildbookGuildFrameProfilesFrameDetailsFrameCombatStatsPanelScrollFrameChild", self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.CombatStatsPanel.ScrollFrame)
+    local combatScrollChild = CreateFrame("Frame", "GuildbookGuildFrameProfilesFramePaperdollFrameCombatStatsPanelScrollFrameChild", self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.CombatStatsPanel.ScrollFrame)
     combatScrollChild:SetPoint("TOPLEFT", 0, 0)
     combatScrollChild:SetPoint("BOTTOMRIGHT", 0, 6)
     combatScrollChild:SetSize(190, 506)
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.CombatStatsPanel.ScrollFrame:SetScrollChild(combatScrollChild)
+    self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.CombatStatsPanel.ScrollFrame:SetScrollChild(combatScrollChild)
     
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.CombatStatsPanel.labels = {
+    self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.CombatStatsPanel.labels = {
         {
             key = 'header',
             label = 'Defenses', --..Guildbook.Data.RoleIcons.Tank.FontStringIconLARGE,
@@ -2248,13 +2414,13 @@ function Guildbook:SetupProfilesFrame()
     }
 
 
-    for k, v in ipairs(self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.CombatStatsPanel.labels) do
+    for k, v in ipairs(self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.CombatStatsPanel.labels) do
         if v.key == 'header' then
             local header = combatScrollChild:CreateFontString(nil, 'OVERLAY', 'GameFontNormalSmall')
             header:SetPoint('TOP', 0, ((k-1) * -16))-- v.offset - 12)
             header:SetText(v.label)
             --header:SetTextColor(1,1,1,1)
-            self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.CombatStatsPanel[k] = { Header = header, }
+            self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.CombatStatsPanel[k] = { Header = header, }
             --local Level = false
         else
             local label = combatScrollChild:CreateFontString(nil, 'OVERLAY', 'GameFontNormalSmall')
@@ -2266,10 +2432,10 @@ function Guildbook:SetupProfilesFrame()
             level:SetPoint('TOPLEFT', 108, ((k-1) * -16))-- v.offset - 12)
             level:SetText('-')
             level:SetTextColor(1,1,1,1)
-            self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.CombatStatsPanel[k] = { Label = label, Level = level, }
+            self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.CombatStatsPanel[k] = { Label = label, Level = level, }
         end
 
-        --self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.CombatStatsPanel[k] = { Label = label, Level = level, }
+        --self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.CombatStatsPanel[k] = { Label = label, Level = level, }
     end
 
 
@@ -2280,12 +2446,12 @@ function Guildbook:SetupProfilesFrame()
     
 
     -- equipment listview
-    self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InvIcons = {}
+    self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.InvIcons = {}
     for k, v in ipairs(Guildbook.Data.InventorySlots) do
 
-        local f = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameDetailsTabInventorySlot'..v.Name, self.GuildFrame.ProfilesFrame.DetailsTab.Overlay)
+        local f = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFramePaperdollTabInventorySlot'..v.Name, self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay)
         f:SetSize(25, 25)
-        f:SetPoint('CENTER', Guildbook.GuildFrame.ProfilesFrame.DetailsTab.Overlay, 'CENTER', v.offsetX - 100, v.offsetY)
+        f:SetPoint('CENTER', Guildbook.GuildFrame.ProfilesFrame.PaperdollTab.Overlay, 'CENTER', v.offsetX - 100, v.offsetY)
 
         f.background = f:CreateTexture(nil, 'BACKGROUND')
         f.background:SetPoint('TOPLEFT', -19, 19)
@@ -2333,36 +2499,36 @@ function Guildbook:SetupProfilesFrame()
             GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
         end)
         
-        self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.InvIcons[v.Name] = f
+        self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.InvIcons[v.Name] = f
     end
 
 
     function self.GuildFrame.ProfilesFrame:HideInventoryIcons()
         for k, v in ipairs(Guildbook.Data.InventorySlots) do
-            self.DetailsTab.Overlay.InvIcons[v.Name].item = nil
-            self.DetailsTab.Overlay.InvIcons[v.Name]:Hide()
+            self.PaperdollTab.Overlay.InvIcons[v.Name].item = nil
+            self.PaperdollTab.Overlay.InvIcons[v.Name]:Hide()
         end
     end
 
 
-    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar = CreateFrame('StatusBar', 'GuildbookGuildFrameProfilesFrameDetailsTabLoadingBar', self.GuildFrame.ProfilesFrame.DetailsTab.Overlay)
-    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar:SetPoint('CENTER', 0, 0)
-    -- --self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar:SetPoint('TOPRIGHT', GuildFrame, 'BOTTOMRIGHT', 0, -4)
-    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar:SetSize(150, 16)
-    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
-    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar:GetStatusBarTexture():SetHorizTile(false)
-    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar:SetStatusBarColor(0.53, 0.53, 0.93, 1.0)
-    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar:SetMinMaxValues(1, 100)
-    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar:SetValue(50)
-    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar:SetOrientation('HORIZONTAL')
-    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar:SetFrameStrata('DIALOG')
-    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar:SetScript('OnShow', function(self)
+    -- self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.LoadingBar = CreateFrame('StatusBar', 'GuildbookGuildFrameProfilesFramePaperdollTabLoadingBar', self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay)
+    -- self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.LoadingBar:SetPoint('CENTER', 0, 0)
+    -- --self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.LoadingBar:SetPoint('TOPRIGHT', GuildFrame, 'BOTTOMRIGHT', 0, -4)
+    -- self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.LoadingBar:SetSize(150, 16)
+    -- self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.LoadingBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
+    -- self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.LoadingBar:GetStatusBarTexture():SetHorizTile(false)
+    -- self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.LoadingBar:SetStatusBarColor(0.53, 0.53, 0.93, 1.0)
+    -- self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.LoadingBar:SetMinMaxValues(1, 100)
+    -- self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.LoadingBar:SetValue(50)
+    -- self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.LoadingBar:SetOrientation('HORIZONTAL')
+    -- self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.LoadingBar:SetFrameStrata('DIALOG')
+    -- self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.LoadingBar:SetScript('OnShow', function(self)
 
     -- end)
-    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar:SetScript('OnHide', function(self)
+    -- self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.LoadingBar:SetScript('OnHide', function(self)
     --     self:SetValue(1)
     -- end)
-    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar:SetScript('OnUpdate', function(self)
+    -- self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.LoadingBar:SetScript('OnUpdate', function(self)
     --     if self.finish then
     --         local remaining = self.finish - GetTime()
     --         if remaining > 0 then
@@ -2370,11 +2536,11 @@ function Guildbook:SetupProfilesFrame()
     --         end
     --     end
     -- end)
-    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar.background = self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar:CreateTexture(nil, 'OVERLAY')
-    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar.background:SetPoint('TOPLEFT', -25, 15)
-    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar.background:SetPoint('BOTTOMRIGHT', 25, -15)
-    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar.background:SetTexture(130874)
-    -- self.GuildFrame.ProfilesFrame.DetailsTab.Overlay.LoadingBar:Hide()
+    -- self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.LoadingBar.background = self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.LoadingBar:CreateTexture(nil, 'OVERLAY')
+    -- self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.LoadingBar.background:SetPoint('TOPLEFT', -25, 15)
+    -- self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.LoadingBar.background:SetPoint('BOTTOMRIGHT', 25, -15)
+    -- self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.LoadingBar.background:SetTexture(130874)
+    -- self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.LoadingBar:Hide()
 
 
 
