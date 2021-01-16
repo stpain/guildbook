@@ -77,6 +77,8 @@ L['RaidRoster'] = 'Raid Roster |cffffffff(Right click player for more options)|r
 L['Cancel'] = 'Cancel'
 L['GuildBank'] = 'Guild Bank'
 
+--below values not added to locales yet
+
 
 --------------------------------------------------------------------------------------------
 -- help text tooltips
@@ -177,22 +179,121 @@ L['Shadow'] = 'Shadow'
 
 
 
-
-
-
-
-
-
-
-
-
-
 local locale = GetLocale()
 --USE THIS TO CREATE LOCALES - SWAP 'deDE' FOR THE COUNTRY/LANGUAGE YOU ARE TRANSLATING INTO
 if locale == "deDE" then
+    L['CharacterName'] = 'Data Recipient'
+    L['OptionsHeader'] = 'Guildbook allows players to share more detail about their characters with guild members. Use the options below your to set spec/alt information for your character.'
+    L['Summary'] = 'Summary'
+    L['SummaryHeader'] = 'Guild Summary'
+    L['Roster'] = 'Roster'
+    L['CharacterLevel'] = 'Character Level'
+    L['Name'] = 'Name'
+    L['Roles'] = 'Roles'
+    L['Tank'] = 'Tank'
+    L['Melee'] = 'Melee'
+    L['Ranged'] = 'Ranged'
+    L['Healer'] = 'Healer'
+    L['ClassRoleSummary'] = 'Class & Role Summary'
+    L['RoleChart'] = 'Roles (Online Members)'
+    L['ClassChart'] = 'Classes (All Members)'
+    L['Online'] = 'Online'
+    L['Offline'] = 'Offline'
+    L['SearchFor'] = 'Search...'
+    L['Info'] = 'Info'
+    L['Specializations'] = 'Specializations'
+    L['ItemLevel'] = 'Item Level'
+    L['MainSpec'] = 'Main Spec'
+    L['Main'] = 'Main:'
+    L['Rank'] = 'Rank'
+    L['Note'] = 'Note'
+    L['OffSpec'] = 'Off Spec:'
+    L['IsPvpSpec'] = '  PVP'
+    L['Class'] = 'Class'
+    L['FirstAid'] = 'First Aid'
+    L['Fishing'] = 'Fishing'
+    L['Cooking'] = 'Cooking'
+    L['Professions'] = 'Professions'
+    L['Profession1'] = 'Profession 1'
+    L['Profession2'] = 'Profession 2'
+    L['Profiles'] = 'Profiles'
+    L['Profile'] = 'Profile'
+    L['Chat'] = 'Chat'
+    L['Statistics'] = 'Statistics'
+    L['Calendar'] = 'Calendar'
+    L['GuildBank'] = 'Guild Bank'
+    L['EditCharacterInfo'] = 'Information about your character should be displayed below, update your specializations and if this is an alt provide your main character name.\nClick confirm to share with guild.'
+    L['SaveCharacterData'] = 'Confirm'
+    L['MainCharacterNameInputDesc'] = 'Main character'
+    L['MainCharacter'] = 'Main Character'
+    L['Gems'] = 'Gems'
+    L['Enchants'] = 'Enchants'
+    L['ilvl'] = 'ilvl'
+    L['Guild Information'] = 'Guild Information'
+    L['ClassRolesSummary'] = 'Class & Role Summary'
+    L['RaidRoster'] = 'Raid Roster |cffffffff(Right click player for more options)|r'
+    L['Cancel'] = 'Cancel'
+    L['GuildBank'] = 'Guild Bank'
 
 
-elseif locale == '' then
+
+
+elseif locale == 'frFR' then
+    L['CharacterName'] = 'Data Recipient'
+    L['OptionsHeader'] = 'Guildbook allows players to share more detail about their characters with guild members. Use the options below your to set spec/alt information for your character.'
+    L['Summary'] = 'Summary'
+    L['SummaryHeader'] = 'Guild Summary'
+    L['Roster'] = 'Roster'
+    L['CharacterLevel'] = 'Character Level'
+    L['Name'] = 'Name'
+    L['Roles'] = 'Roles'
+    L['Tank'] = 'Tank'
+    L['Melee'] = 'Melee'
+    L['Ranged'] = 'Ranged'
+    L['Healer'] = 'Healer'
+    L['ClassRoleSummary'] = 'Class & Role Summary'
+    L['RoleChart'] = 'Roles (Online Members)'
+    L['ClassChart'] = 'Classes (All Members)'
+    L['Online'] = 'Online'
+    L['Offline'] = 'Offline'
+    L['SearchFor'] = 'Search...'
+    L['Info'] = 'Info'
+    L['Specializations'] = 'Specializations'
+    L['ItemLevel'] = 'Item Level'
+    L['MainSpec'] = 'Main Spec'
+    L['Main'] = 'Main:'
+    L['Rank'] = 'Rank'
+    L['Note'] = 'Note'
+    L['OffSpec'] = 'Off Spec:'
+    L['IsPvpSpec'] = '  PVP'
+    L['Class'] = 'Class'
+    L['FirstAid'] = 'First Aid'
+    L['Fishing'] = 'Fishing'
+    L['Cooking'] = 'Cooking'
+    L['Professions'] = 'Professions'
+    L['Profession1'] = 'Profession 1'
+    L['Profession2'] = 'Profession 2'
+    L['Profiles'] = 'Profiles'
+    L['Profile'] = 'Profile'
+    L['Chat'] = 'Chat'
+    L['Statistics'] = 'Statistics'
+    L['Calendar'] = 'Calendar'
+    L['GuildBank'] = 'Guild Bank'
+    L['EditCharacterInfo'] = 'Information about your character should be displayed below, update your specializations and if this is an alt provide your main character name.\nClick confirm to share with guild.'
+    L['SaveCharacterData'] = 'Confirm'
+    L['MainCharacterNameInputDesc'] = 'Main character'
+    L['MainCharacter'] = 'Main Character'
+    L['Gems'] = 'Gems'
+    L['Enchants'] = 'Enchants'
+    L['ilvl'] = 'ilvl'
+    L['Guild Information'] = 'Guild Information'
+    L['ClassRolesSummary'] = 'Class & Role Summary'
+    L['RaidRoster'] = 'Raid Roster |cffffffff(Right click player for more options)|r'
+    L['Cancel'] = 'Cancel'
+    L['GuildBank'] = 'Guild Bank'
+
+
+
 
 
 end
@@ -227,7 +328,6 @@ Guildbook.GetEnglish = {
         ["Ingenieurskunst"] = "Engineering",
         --['Inscription'] = 'Inscription',
         --['Jewelcrafting'] = 'Jewelcrafting',
-        ["Lederverarbeitung"] = "Leatherworking",
         ["Schneiderei"] = "Tailoring",
         ["Lederverarbeitung"] = "Leatherworking",
         ["Kräuterkunde"] = "Herbalism",
@@ -237,4 +337,21 @@ Guildbook.GetEnglish = {
         ['Angeln'] = 'Fishing',
         ['Kochkunst'] = 'Cooking',
     },
+    -- any errors this is a good place to start to resolve them
+    ['frFR'] = {
+        ["Alchimie"] = "Alchemy",
+        ["Forge"] = "Blacksmithing",
+        ["Enchantement"] = "Enchanting",
+        ["Ingénierie"] = "Engineering",
+        --['Inscription'] = 'Inscription',
+        --['Jewelcrafting'] = 'Jewelcrafting',
+        ["Couturier"] = "Tailoring",
+        ["Travail du cuir"] = "Leatherworking",
+        ["Herboristerie"] = "Herbalism",
+        ["Dépecage"] = "Skinning",
+        ["Minage"] = "Mining",
+        ['Secourisme'] = 'First Aid',
+        ['Pêche'] = 'Fishing',
+        ['Cuisine'] = 'Cooking',
+    }
 }

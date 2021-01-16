@@ -402,6 +402,27 @@ end
 
 function Guildbook:SetupGuildCalendarFrame()
 
+    self.GuildFrame.GuildCalendarFrame.PushEvents = CreateFrame('BUTTON', 'GuildbookGuildInfoFrameGuildCalendarFramePushEvents', Guildbook.GuildFrame.GuildCalendarFrame, 'UIPanelButtonTemplate')
+    self.GuildFrame.GuildCalendarFrame.PushEvents:SetPoint('TOPRIGHT', -16, -16)
+    self.GuildFrame.GuildCalendarFrame.PushEvents:SetText('Push Events')
+    self.GuildFrame.GuildCalendarFrame.PushEvents:SetSize(120, 20)
+    self.GuildFrame.GuildCalendarFrame.PushEvents:SetScript('OnClick', function(self)
+        GUILDBOOK_GLOBAL['LastCalendarTransmit'] = GetServerTime()
+        Guildbook:SendGuildCalendarEvents()
+        GUILDBOOK_GLOBAL['LastCalendarDeletedTransmit'] = GetServerTime()
+        Guildbook:SendGuildCalendarDeletedEvents()
+    end)
+
+    self.GuildFrame.GuildCalendarFrame.RequestEvents = CreateFrame('BUTTON', 'GuildbookGuildInfoFrameGuildCalendarFrameRequestEvents', Guildbook.GuildFrame.GuildCalendarFrame, 'UIPanelButtonTemplate')
+    self.GuildFrame.GuildCalendarFrame.RequestEvents:SetPoint('TOPRIGHT', -16, -46)
+    self.GuildFrame.GuildCalendarFrame.RequestEvents:SetText('Request Events')
+    self.GuildFrame.GuildCalendarFrame.RequestEvents:SetSize(120, 20)
+    self.GuildFrame.GuildCalendarFrame.RequestEvents:SetScript('OnClick', function(self)
+        GUILDBOOK_GLOBAL['LastCalendarTransmit'] = GetServerTime()
+        Guildbook:RequestGuildCalendarEvents()
+        Guildbook:RequestGuildCalendarDeletedEvents()
+    end)
+
     self.GuildFrame.GuildCalendarFrame.helpIcon = Guildbook:CreateHelperIcon(self.GuildFrame.GuildCalendarFrame, 'BOTTOMRIGHT', Guildbook.GuildFrame.GuildCalendarFrame, 'TOPRIGHT', -2, 2, L['calendarHelpText'])
 
     self.GuildFrame.GuildCalendarFrame.date = date('*t')
@@ -453,6 +474,11 @@ function Guildbook:SetupGuildCalendarFrame()
         [12] = 31.0,
     }
     -- make quick calculation to see if leap year?
+
+    --131827 bwl loading screen
+    --131818 aq20
+    --131819 aq40
+    --131851 mc
 
 
     -- event icons, icon id starts from 136320
@@ -902,7 +928,7 @@ function Guildbook:SetupGuildCalendarFrame()
     end)
 
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox = CreateFrame('EDITBOX', 'GuildbookGuildFrameGuildCalendarFrameEventFrameEventTitleEditbox', self.GuildFrame.GuildCalendarFrame.EventFrame, "InputBoxTemplate")
-    self.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetPoint('TOPLEFT', 26, -70)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetPoint('TOPLEFT', 26, -65)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetSize(100, 22)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:ClearFocus()
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetAutoFocus(false)
@@ -938,6 +964,18 @@ function Guildbook:SetupGuildCalendarFrame()
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox.header = self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox:CreateFontString('$parentHeader', 'OVERLAY', 'GameFontNormalSmall')
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox.header:SetPoint('BOTTOMLEFT', self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox, 'TOPLEFT', -4, 8)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox.header:SetText('Description')
+
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent.UpdateButton = CreateFrame('BUTTON', 'GuildbookGuildFrameGuildCalendarFrameEventFrameEventDescriptionFrameUpdateButton', Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent, 'UIPanelButtonTemplate')
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent.UpdateButton:SetPoint('BOTTOMRIGHT', Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent, 'TOPRIGHT', 0, 2)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent.UpdateButton:SetSize(70, 20)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent.UpdateButton:SetNormalFontObject(GameFontNormalSmall)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent.UpdateButton:SetHighlightFontObject(GameFontNormalSmall)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent.UpdateButton:SetDisabledFontObject(GameFontNormalSmall)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent.UpdateButton:SetText('Update')
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent.UpdateButton:SetScript('OnClick', function(self)
+        Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:UpdateEvent()
+        Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox:ClearFocus()
+    end)
 
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent = CreateFrame('FRAME', 'GuildbookGuildFrameGuildCalendarFrameEventFrameEventAttendeesListviewParent', self.GuildFrame.GuildCalendarFrame.EventFrame)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent:SetPoint('TOPLEFT', 20, -250)
@@ -1075,22 +1113,49 @@ function Guildbook:SetupGuildCalendarFrame()
         if self.event and next(self.event.attend) then            
             local i = 0
             for guid, info in pairs(self.event.attend) do
-                i = i + 1
-                if not Guildbook.PlayerMixin then
-                    Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
-                else
-                    Guildbook.PlayerMixin:SetGUID(guid)
-                end
-                if Guildbook.PlayerMixin:IsValid() then
-                    local _, class, _ = C_PlayerInfo.GetClass(Guildbook.PlayerMixin)
-                    --local name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
-                    if class then
-                        local count = tonumber(self.ClassTabs[class].text:GetText())
-                        self.ClassTabs[class].text:SetText(count + 1)
-                        self.ClassTabs[class].icon:SetVertexColor(1,1,1)
+                -- dont update if the player is declining
+                if info.Status ~= 0 then
+                    i = i + 1
+                    if not Guildbook.PlayerMixin then
+                        Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
+                    else
+                        Guildbook.PlayerMixin:SetGUID(guid)
+                    end
+                    if Guildbook.PlayerMixin:IsValid() then
+                        local _, class, _ = C_PlayerInfo.GetClass(Guildbook.PlayerMixin)
+                        --local name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
+                        if class then
+                            local count = tonumber(self.ClassTabs[class].text:GetText())
+                            self.ClassTabs[class].text:SetText(count + 1)
+                            self.ClassTabs[class].icon:SetVertexColor(1,1,1)
+                        end
                     end
                 end
             end
+        end
+    end
+
+
+
+    function self.GuildFrame.GuildCalendarFrame.EventFrame:UpdateEvent()
+        if self.event then
+            local event = self.event
+            local title = self.EventTitleEditbox:GetText()
+            if title:len() == 0 then
+                title = '-'
+            end
+            local description = self.EventDescriptionEditbox:GetText()
+            if description:len() == 0 then
+                description = '-'
+            end
+
+            local owner = event.owner
+            local created = event.created
+
+            event.title = title
+            event.desc = description
+
+            Guildbook:PushEventUpdate(event)
         end
     end
 
@@ -1103,20 +1168,22 @@ function Guildbook:SetupGuildCalendarFrame()
         if self.event and next(self.event.attend) then            
             local i = 0
             for guid, info in pairs(self.event.attend) do
-                i = i + 1
-                if not Guildbook.PlayerMixin then
-                    Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
-                else
-                    Guildbook.PlayerMixin:SetGUID(guid)
-                end
-                if Guildbook.PlayerMixin:IsValid() then
-                    local _, class, _ = C_PlayerInfo.GetClass(Guildbook.PlayerMixin)
-                    local name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
-                    if name and class then
-                        local count = tonumber(self.ClassTabs[class].text:GetText())
-                        if i > ((scroll * 10) - 10) and i <= (scroll * 10) then
-                            self.AttendingListview[i].character:SetText(Guildbook.Data.Class[class].FontColour..name)
-                            self.AttendingListview[i].status:SetText(status[info.Status])
+                if info.Status ~= 0 then
+                    i = i + 1
+                    if not Guildbook.PlayerMixin then
+                        Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
+                    else
+                        Guildbook.PlayerMixin:SetGUID(guid)
+                    end
+                    if Guildbook.PlayerMixin:IsValid() then
+                        local _, class, _ = C_PlayerInfo.GetClass(Guildbook.PlayerMixin)
+                        local name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
+                        if name and class then
+                            local count = tonumber(self.ClassTabs[class].text:GetText())
+                            if i > ((scroll * 10) - 10) and i <= (scroll * 10) then
+                                self.AttendingListview[i].character:SetText(Guildbook.Data.Class[class].FontColour..name)
+                                self.AttendingListview[i].status:SetText(status[info.Status])
+                            end
                         end
                     end
                 end
@@ -1154,7 +1221,15 @@ function Guildbook:SetupGuildCalendarFrame()
             self.EventTitleEditbox:SetText(self.event.title)
             self.EventTitleEditbox:Disable()
             self.EventDescriptionEditbox:SetText(self.event.desc)
-            self.EventDescriptionEditbox:Disable()
+
+            if self.event.owner == UnitGUID('player') then
+                self.EventDescriptionEditbox:Enable()
+                self.EventDescriptionEditboxParent.UpdateButton:Show()
+            else
+                self.EventDescriptionEditbox:Disable()
+                self.EventDescriptionEditboxParent.UpdateButton:Hide()
+            end
+
             self.CreateEventButton:Disable()
             self.AttendEventButton_Confirm:Enable()
             self.AttendEventButton_Tentative:Enable()
@@ -1786,24 +1861,25 @@ function Guildbook:SetupProfilesFrame()
     self.GuildFrame.ProfilesFrame.HomeTab:SetPoint('BOTTOMRIGHT', self.GuildFrame.ProfilesFrame, 'BOTTOMRIGHT', -2, 2)
     self.GuildFrame.ProfilesFrame.HomeTab:Hide()
     self.GuildFrame.ProfilesFrame.HomeTab:SetScript('OnShow', function(self)
-        if self:GetParent().character then
-            local character = self:GetParent().character
+        if GUILDBOOK_CHARACTER then
 
-            if character.MainCharacter then
-                self.MainCharacterEditbox:SetText(character.MainCharacter)
+            if GUILDBOOK_CHARACTER.MainCharacter then
+                self.MainCharacterEditbox:SetText(GUILDBOOK_CHARACTER.MainCharacter)
+            else
+                self.MainCharacterEditbox:SetText('-')
             end
-            if character.MainSpec then
-                UIDropDownMenu_SetText(self.MainSpecDropdown, character.MainSpec)
+            if GUILDBOOK_CHARACTER.MainSpec then
+                UIDropDownMenu_SetText(self.MainSpecDropdown, GUILDBOOK_CHARACTER.MainSpec)
             end
-            if character.OffSpec then
-                UIDropDownMenu_SetText(self.OffSpecDropdown, character.OffSpec)
+            if GUILDBOOK_CHARACTER.OffSpec then
+                UIDropDownMenu_SetText(self.OffSpecDropdown, GUILDBOOK_CHARACTER.OffSpec)
             end
-            --if character.MainSpecIsPvP then
-                self.MainSpecIsPvPCheckbox:SetChecked(character.MainSpecIsPvP)
-            --end
-            --if character.OffSpecIsPvP then
-                self.OffSpecIsPvPCheckbox:SetChecked(character.OffSpecIsPvP)
-            --end
+
+            self.MainSpecIsPvPCheckbox:SetChecked(false)
+            self.OffSpecIsPvPCheckbox:SetChecked(false)
+
+            self.MainSpecIsPvPCheckbox:SetChecked(GUILDBOOK_CHARACTER.MainSpecIsPvP)
+            self.OffSpecIsPvPCheckbox:SetChecked(GUILDBOOK_CHARACTER.OffSpecIsPvP)
         end
     end)
 
@@ -1934,11 +2010,10 @@ function Guildbook:SetupProfilesFrame()
 
     self.GuildFrame.ProfilesFrame.HomeTab.MainCharacterEditbox = CreateFrame('EDITBOX', 'GuildbookGuildFrameProfilesFrameHomeTabMainCharacterEditbox', self.GuildFrame.ProfilesFrame.HomeTab, "InputBoxTemplate")
     self.GuildFrame.ProfilesFrame.HomeTab.MainCharacterEditbox:SetPoint('LEFT', mainCharacterHeader, 'RIGHT', 26, 0)
-    self.GuildFrame.ProfilesFrame.HomeTab.MainCharacterEditbox:SetSize(200, 22)
+    self.GuildFrame.ProfilesFrame.HomeTab.MainCharacterEditbox:SetSize(168, 22)
     self.GuildFrame.ProfilesFrame.HomeTab.MainCharacterEditbox:ClearFocus()
     self.GuildFrame.ProfilesFrame.HomeTab.MainCharacterEditbox:SetAutoFocus(false)
     self.GuildFrame.ProfilesFrame.HomeTab.MainCharacterEditbox:SetMaxLetters(15)
-
     self.GuildFrame.ProfilesFrame.HomeTab.MainCharacterEditbox:SetScript('OnTextChanged', function(self)
         if GUILDBOOK_CHARACTER then
             if string.len(self:GetText()) > 0 then
@@ -1946,6 +2021,16 @@ function Guildbook:SetupProfilesFrame()
             else
                 GUILDBOOK_CHARACTER['MainCharacter'] = '-'
             end
+        end
+    end)
+    self.GuildFrame.ProfilesFrame.HomeTab.MainCharacterEditbox.sendButton = CreateFrame('BUTTON', 'GuildbookGuildFrameProfilesFrameHomeTabMainCharacterEditboxSendButton', self.GuildFrame.ProfilesFrame.HomeTab.MainCharacterEditbox, 'UIPanelButtonTemplate')
+    self.GuildFrame.ProfilesFrame.HomeTab.MainCharacterEditbox.sendButton:SetPoint('LEFT', Guildbook.GuildFrame.ProfilesFrame.HomeTab.MainCharacterEditbox, 'RIGHT', 2, 0)
+    self.GuildFrame.ProfilesFrame.HomeTab.MainCharacterEditbox.sendButton:SetSize(30, 22)
+    self.GuildFrame.ProfilesFrame.HomeTab.MainCharacterEditbox.sendButton:SetText('OK')
+    self.GuildFrame.ProfilesFrame.HomeTab.MainCharacterEditbox.sendButton:SetScript('OnClick', function(self)
+        if string.len(self:GetParent():GetText()) > 0 then
+            Guildbook:SendCharacterUpdate('MainCharacter', self:GetParent():GetText())
+            self:GetParent():ClearFocus()
         end
     end)
 
@@ -2052,7 +2137,7 @@ function Guildbook:SetupProfilesFrame()
         if not self.CharacterModels[race][gender] then
             -- FriendsFrame:Show()
             -- FriendsFrameTab3:Click()
-            local f = CreateFrame('DressUpModel', 'GuildbookGuildFrameProfilesFrameModelViewer'..race..gender, Guildbook.GuildFrame.ProfilesFrame.PaperdollTab)
+            local f = CreateFrame('DressUpModel', 'GuildbookGuildFrameProfilesFrameCharacterModels'..race..gender, Guildbook.GuildFrame.ProfilesFrame.PaperdollTab)
             f:SetPoint('CENTER', 0, 0)
             f:SetSize(400, 340)
             if race == 'GNOME' or race == 'DWARF' then
@@ -2067,11 +2152,12 @@ function Guildbook:SetupProfilesFrame()
             f.rotationCursorStart = 0.0
             f:Undress()
             f:SetKeepModelOnHide(true)
+            Guildbook.GuildFrame.ProfilesFrame.PaperdollTab.CharacterModels[race][gender] = f
             C_Timer.After(0.05, function()
                 f:Undress()
                 f:SetRotation(0.2)
                 f:Hide()
-                Guildbook.GuildFrame.ProfilesFrame.PaperdollTab.CharacterModels[race][gender] = f
+--                Guildbook.GuildFrame.ProfilesFrame.PaperdollTab.CharacterModels[race][gender] = f
                 if Guildbook.GuildFrame.ProfilesFrame.selectedGUID then
                     Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(Guildbook.GuildFrame.ProfilesFrame.selectedGUID, nil)
                 end
@@ -2497,6 +2583,16 @@ function Guildbook:SetupProfilesFrame()
             self.background:SetPoint('TOPLEFT', -19, 19)
             self.background:SetPoint('BOTTOMRIGHT', 19, -19)
             GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+        end)
+        f:SetScript('OnMouseDown', function(self)
+            if self.link then
+                if IsShiftKeyDown() then
+                    HandleModifiedItemClick(self.link)
+                end
+                if IsControlKeyDown() then
+                    DressUpItemLink(self.link)
+                end
+            end
         end)
         
         self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.InvIcons[v.Name] = f
@@ -3086,12 +3182,10 @@ function Guildbook:SetupProfilesFrame()
         end)
         f:SetScript('OnMouseDown', function(self)
             if self.link then
-                print('got link')
                 if IsShiftKeyDown() then
                     HandleModifiedItemClick(self.link)
                 end
                 if IsControlKeyDown() then
-                    print('ctrl')
                     DressUpItemLink(self.link)
                 end
             end

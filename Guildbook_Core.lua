@@ -29,7 +29,7 @@ local LibSerialize = LibStub:GetLibrary("LibSerialize")
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 --variables
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
-local build = 4.1
+local build = 4.11
 local locale = GetLocale()
 local L = Guildbook.Locales
 
@@ -365,6 +365,17 @@ end
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- functions
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+function Guildbook:GetLocaleFromEnglish(locale, english)
+    if Guildbook.GetEnglish[locale] and next(Guildbook.GetEnglish[locale]) then
+        for k, v in pairs(Guildbook.GetEnglish[locale]) do
+            if v == english then
+                return k
+            end
+        end
+    end
+end
+
 
 function Guildbook:CreateGuildRosterCache(guild)
     if not GUILDBOOK_GLOBAL then
@@ -721,31 +732,34 @@ end
 --- this is used to get data about the players professions, recipes and reagents
 function Guildbook:ScanTradeSkill()
     local prof = GetTradeSkillLine()
-    GUILDBOOK_CHARACTER[prof] = {}
-    for i = 1, GetNumTradeSkills() do
-        local name, type, _, _, _, _ = GetTradeSkillInfo(i)
-        if (name and type ~= "header") then
-            local itemLink = GetTradeSkillItemLink(i)
-            local itemID = select(1, GetItemInfoInstant(itemLink))
-            local itemName = select(1, GetItemInfo(itemID))
-            DEBUG('func', 'ScanTradeSkill', string.format('|cff0070DETrade item|r: %s, with ID: %s', name, itemID))
-            if itemName and itemID then
-                GUILDBOOK_CHARACTER[prof][itemID] = {}
-            end
-            local numReagents = GetTradeSkillNumReagents(i);
-            if numReagents > 0 then
-                for j = 1, numReagents, 1 do
-                    local reagentName, reagentTexture, reagentCount, playerReagentCount = GetTradeSkillReagentInfo(i, j)
-                    local reagentLink = GetTradeSkillReagentItemLink(i, j)
-                    local reagentID = select(1, GetItemInfoInstant(reagentLink))
-                    if reagentName and reagentID and reagentCount then
-                        DEBUG('func', 'ScanTradeSkill', string.format('    Reagent name: %s, with ID: %s, Needed: %s', reagentName, reagentID, reagentCount))
-                        GUILDBOOK_CHARACTER[prof][itemID][reagentID] = reagentCount
+    --local profLocale = Guildbook:GetLocaleFromEnglish(locale, prof)
+    --if profLocale then
+        GUILDBOOK_CHARACTER[prof] = {}
+        for i = 1, GetNumTradeSkills() do
+            local name, type, _, _, _, _ = GetTradeSkillInfo(i)
+            if (name and type ~= "header") then
+                local itemLink = GetTradeSkillItemLink(i)
+                local itemID = select(1, GetItemInfoInstant(itemLink))
+                local itemName = select(1, GetItemInfo(itemID))
+                DEBUG('func', 'ScanTradeSkill', string.format('|cff0070DETrade item|r: %s, with ID: %s', name, itemID))
+                if itemName and itemID then
+                    GUILDBOOK_CHARACTER[prof][itemID] = {}
+                end
+                local numReagents = GetTradeSkillNumReagents(i);
+                if numReagents > 0 then
+                    for j = 1, numReagents, 1 do
+                        local reagentName, reagentTexture, reagentCount, playerReagentCount = GetTradeSkillReagentInfo(i, j)
+                        local reagentLink = GetTradeSkillReagentItemLink(i, j)
+                        local reagentID = select(1, GetItemInfoInstant(reagentLink))
+                        if reagentName and reagentID and reagentCount then
+                            DEBUG('func', 'ScanTradeSkill', string.format('    Reagent name: %s, with ID: %s, Needed: %s', reagentName, reagentID, reagentCount))
+                            GUILDBOOK_CHARACTER[prof][itemID][reagentID] = reagentCount
+                        end
                     end
                 end
             end
         end
-    end
+    --end
 end
 
 
@@ -753,7 +767,8 @@ end
 --- this is used to get data about the players professions, recipes and reagents
 function Guildbook:ScanCraftSkills_Enchanting()
     local currentCraftingWindow = GetCraftSkillLine(1)
-    if currentCraftingWindow == 'Enchanting' then
+    local craftLocale = Guildbook:GetLocaleFromEnglish(locale, 'Enchanting')
+    if craftLocale == currentCraftingWindow then
         GUILDBOOK_CHARACTER['Enchanting'] = {}
         for i = 1, GetNumCrafts() do
             local name, _, type, _, _, _, _ = GetCraftInfo(i)
@@ -898,6 +913,10 @@ end
 -- also check the secondary professions fishing, cooking, first aid
 -- this will update the character saved var which is then read when a request comes in
 function Guildbook.GetProfessionData()
+    if not Guildbook.GetEnglish[locale] then
+        Print('Guildbook needs your help with some translations')
+        return
+    end
     local myCharacter = { Fishing = 0, Cooking = 0, FirstAid = 0, Prof1 = '-', Prof1Level = 0, Prof2 = '-', Prof2Level = 0 }
     for s = 1, GetNumSkillLines() do
         local skill, _, _, level, _, _, _, _, _, _, _, _, _ = GetSkillLineInfo(s)
@@ -1319,7 +1338,34 @@ function Guildbook:CharacterStats_OnChanged()
 end
 
 
+function Guildbook:SendCharacterUpdate(key, value)
+    local response = {
+        type = 'CHARACTER_DATA_UPDATE',
+        payload = {
+            guid = UnitGUID('player'),
+            -- badly named key/value fields
+            k = key,
+            v = value,
+        }
+    }
+    self:Transmit(response, 'GUILD', nil, 'NORMAL')
+    DEBUG('func', 'SendCharacterUpdate', string.format("character update, %s = %s", key, value))
+end
  
+
+function Guildbook:OnCharacterDataUpdateReceived(data, distribution, sender)
+    if distribution ~= 'GUILD' then
+        return
+    end
+    local guildName = self:GetGuildName()
+    if guildName then
+        self:CreateGuildRosterCache(guildName)
+        if GUILDBOOK_GLOBAL.GuildRosterCache[guildName][data.payload.guid] then
+            GUILDBOOK_GLOBAL.GuildRosterCache[guildName][data.payload.guid][data.payload.k] = data.payload.v
+            DEBUG('func', 'OnCharacterDataUpdateReceived', string.format("updated %s, %s to %s", sender, data.payload.k, data.payload.v))
+        end
+    end
+end
 
 
 function Guildbook:OnCharacterDataRequested(request, distribution, sender)
@@ -1477,7 +1523,7 @@ end
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 local calDelay = 120.0
 
-function Guildbook:RequestGuildCalendarDeletedEvents(event)
+function Guildbook:RequestGuildCalendarDeletedEvents()
     local calendarEvents = {
         type = 'GUILD_CALENDAR_EVENTS_DELETED_REQUESTED',
         payload = '-',
@@ -1486,7 +1532,7 @@ function Guildbook:RequestGuildCalendarDeletedEvents(event)
     --DEBUG('comms_out', 'RequestGuildCalendarDeletedEvents', 'Sending calendar events deleted request')
 end
 
-function Guildbook:RequestGuildCalendarEvents(event)
+function Guildbook:RequestGuildCalendarEvents()
     local calendarEventsDeleted = {
         type = 'GUILD_CALENDAR_EVENTS_REQUESTED',
         payload = '-',
@@ -1666,6 +1712,36 @@ function Guildbook:OnGuildCalendarEventsDeleted(data, distribution, sender)
     end
     self.GuildFrame.GuildCalendarFrame.EventFrame:RemoveDeletedEvents()
 end
+
+
+function Guildbook:PushEventUpdate(event)
+    local response = {
+        type = 'GUILD_CALENDAR_EVENT_UPDATE',
+        payload = event,
+    }
+    self:Transmit(response, 'GUILD', nil, 'NORMAL')
+end
+
+
+function Guildbook:OnGuildCalendarEventUpdated(data, distribution, sender)
+    if distribution ~= 'GUILD' then
+        return
+    end
+    local guildName = Guildbook:GetGuildName()
+    if guildName and GUILDBOOK_GLOBAL['Calendar'][guildName] then
+        for _, event in ipairs(GUILDBOOK_GLOBAL['Calendar'][guildName]) do
+            if event.owner == data.payload.owner and event.created == data.payload.created then
+                event.title = data.payload.title
+                event.desc = data.payload.desc
+            end
+        end
+    end
+    DEBUG('func', 'OnGuildCalendarEventUpdated', string.format("%s has updated the event %s", sender, data.payload.title))
+end
+
+
+
+
 
 -- TODO: add script for when a player drops a prof
 -- SkillDetailStatusBarUnlearnButton:HookScript('OnClick', function()
@@ -1949,6 +2025,9 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
     elseif data.type == 'CHARACTER_DATA_RESPONSE' then
         self:OnCharacterDataReceived(data, distribution, sender)
 
+    elseif data.type == 'CHARACTER_DATA_UPDATE' then
+        self:OnCharacterDataUpdateReceived(data, distribution, sender)
+
     elseif data.type == 'TALENT_INFO_REQUEST' then
         self:OnTalentInfoRequest(data, distribution, sender)
 
@@ -2012,6 +2091,8 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
     elseif data.type == 'GUILD_CALENDAR_EVENTS_DELETED_REQUESTED' then
         self:SendGuildCalendarDeletedEvents()
 
+    elseif data.type == 'GUILD_CALENDAR_EVENT_UPDATE' then
+        self:OnGuildCalendarEventUpdated(data, distribution, sender)
 
     end
 end

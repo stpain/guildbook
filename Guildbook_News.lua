@@ -170,4 +170,21 @@ Guild Bank button is now back on the main row at the bottom of the UI, very sorr
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [4.11] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+Working on some locale updates, if the addon breaks revert to a previous version and please submit a bug, thanks.
+
+|cff0070DEUpdates|r:
+Calendar events can now have their titles and descriptions edited by the event owner.
+The 'Push' and 'Request' buttons in the calendar have been added to help cover any times where events fail to sync (most likely due to a timing restriction).
+Event attendee listview and class tabs no longer show declined players.
+
+Some translations have been added for the professions, more are needed!
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }
