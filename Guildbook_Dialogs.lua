@@ -27,6 +27,23 @@ local DEBUG = Guildbook.DEBUG
 local PRINT = Guildbook.PRINT
 
 
+StaticPopupDialogs['Error'] = {
+    text = '|cffC41F3BError|r: %s',
+    button1 = 'Yes',
+    --button2 = 'Cancel',
+    OnAccept = function(self, data)
+
+    end,
+    OnCancel = function(self)
+
+    end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = false,
+    preferredIndex = 3,
+    showAlert = 1,
+}
+
 StaticPopupDialogs['GuildbookDeleteGuild'] = {
     text = 'Delete all data for %s',
     button1 = 'Yes',
@@ -93,7 +110,7 @@ StaticPopupDialogs['GuildbookResetGlobalSettings'] = {
 }
 
 StaticPopupDialogs['GuildbookGatheringDatabaseEditObject'] = {
-    text = '|cffC41F3BUPDATING THESE VALUES MAY CORRUPT THE GATHERING DATABASE!\n\nTHEY SHOULD ONLY BE CHANGED IF THE ADDON HAS COLLECTED DATA IN ERROR AND YOU KNOW THE CORRECT VALUE|r\n\nUpdate gathering object\'s field %s with current value %s',
+    text = '-',
     button1 = 'Update',
     button2 = 'Cancel',
     hasEditBox = true,

@@ -187,4 +187,18 @@ Some translations have been added for the professions, more are needed!
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [4.12] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+Fixed a calendar bug with event attending not syncing, please report if this isnt resolved, thanks.
+
+|cff0070DEUpdates|r:
+Added textures to raid events in calendar, textures are loaded depending on the event title, use the event dropdown to get the correct titles.
+Added most fixed dateworld events.
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }

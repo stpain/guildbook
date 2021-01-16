@@ -475,10 +475,22 @@ function Guildbook:SetupGuildCalendarFrame()
     }
     -- make quick calculation to see if leap year?
 
-    --131827 bwl loading screen
-    --131818 aq20
-    --131819 aq40
-    --131851 mc
+-- for tbc
+    -- Magtheridon’s Lair – Hellfire Citadel – Hellfire Peninsula
+    -- Serpentshrine Cavern – Coilfang Reservoir – Zangarmarsh
+    -- Tempest Keep – The Eye – Netherstorm
+    -- Gruul’s Lair – Blade’s Edge Mountains
+    -- The Battle for Mount Hyjal – Caverns of Time – Tanaris Desert
+    -- Black Temple – Shadowmoon Valley
+    -- Sunwell Plateau – Isle of Quel’Danas
+
+    local raidTextures = {
+        ['MC'] = 131851,
+        ['BWL'] = 131827,
+        ['AQ20'] = 131818,
+        ['AQ40'] = 131819,
+        ['NAXX'] = 131854,
+    }
 
 
     -- event icons, icon id starts from 136320
@@ -500,7 +512,7 @@ function Guildbook:SetupGuildCalendarFrame()
             end,
         },
         {
-            text = 'ZG',
+            text = 'Zul\'Gurub',
             notCheckable = true,
             func = function()
                 Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetText('ZG')
@@ -508,7 +520,7 @@ function Guildbook:SetupGuildCalendarFrame()
             end,
         },
         {
-            text = 'AQ20',
+            text = 'The Ruins of Ahn\'Qiraj',
             notCheckable = true,
             func = function()
                 Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetText('AQ20')
@@ -516,10 +528,18 @@ function Guildbook:SetupGuildCalendarFrame()
             end,
         },
         {
-            text = 'AQ40',
+            text = 'The Temple of Ahn\'Qiraj',
             notCheckable = true,
             func = function()
                 Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetText('AQ40')
+                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 1
+            end,
+        },
+        {
+            text = 'Naxxramas',
+            notCheckable = true,
+            func = function()
+                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetText('NAXX')
                 Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 1
             end,
         },
@@ -689,10 +709,13 @@ function Guildbook:SetupGuildCalendarFrame()
             f.background:SetTexture(235428)
             f.background:SetTexCoord(texLeft, texRight, texTop, texBottom)
 
-            f.guildEventTexture = f:CreateTexture('$parentBackground', 'BACKGROUND')
-            f.guildEventTexture:SetAllPoints()
-            --f.guildEventTexture:SetTexture(135805)
-            --f.guildEventTexture:SetTexCoord(0.0, 0.71, 0.0, 0.71)
+            f.currentDayTexture = f:CreateTexture('$parentCurrentDayTexture', 'BACKGROUND')
+            f.currentDayTexture:SetPoint('TOPLEFT', -15, 15)
+            f.currentDayTexture:SetPoint('BOTTOMRIGHT', 16, -10)
+            f.currentDayTexture:SetTexture(235433)
+            f.currentDayTexture:SetTexCoord(0.05, 0.55, 0.05, 0.55)
+            f.currentDayTexture:SetAlpha(0.7)
+            f.currentDayTexture:Hide()
 
             f.worldEventTexture = f:CreateTexture('$parentBackground', 'ARTWORK')
             f.worldEventTexture:SetPoint('TOPLEFT', 0, 0)
@@ -700,13 +723,11 @@ function Guildbook:SetupGuildCalendarFrame()
             f.worldEventTexture:SetTexture(235448)
             f.worldEventTexture:SetTexCoord(0.0, 0.71, 0.0, 0.71)
 
-            f.currentDayTexture = f:CreateTexture('$parentCurrentDayTexture', 'OVERLAY')
-            f.currentDayTexture:SetPoint('TOPLEFT', -15, 15)
-            f.currentDayTexture:SetPoint('BOTTOMRIGHT', 16, -10)
-            f.currentDayTexture:SetTexture(235433)
-            f.currentDayTexture:SetTexCoord(0.05, 0.55, 0.05, 0.55)
-            f.currentDayTexture:SetAlpha(0.7)
-            f.currentDayTexture:Hide()
+            -- set this as top layer so its clear there is an event
+            f.guildEventTexture = f:CreateTexture('$parentBackground', 'OVERLAY')
+            f.guildEventTexture:SetAllPoints()
+            --f.guildEventTexture:SetTexture(135805)
+            --f.guildEventTexture:SetTexCoord(0.0, 0.71, 0.0, 0.71)
 
             for e = 1, 3 do
                 f['eventButton'..e] = CreateFrame('BUTTON', tostring('GuildbookGuildFrameGuildCalendarFrameWeek'..week..'Day'..day..'Button'..e), f)
@@ -732,6 +753,7 @@ function Guildbook:SetupGuildCalendarFrame()
             f.date = {}
             f.data = {} -- used ?
             f.events = {}
+            f.worldEvents = {}
 
             f.dateText = f:CreateFontString('$parentDateText', 'OVERLAY', 'GameFontNormalSmall')
             f.dateText:SetPoint('TOPLEFT', 3, -3)
@@ -739,8 +761,16 @@ function Guildbook:SetupGuildCalendarFrame()
 
             f:SetScript('OnEnter', function(self)
                 GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
+                --if self.worldEvents and next(self.worldEvents) then
+                    GameTooltip:AddLine(L['Events'])
+                --end
                 if f.dmf ~= false then
-                    GameTooltip:AddLine('Darkmoon Faire '..f.dmf)
+                    GameTooltip:AddLine('|cffffffffDarkmoon Faire - '..f.dmf)
+                end
+                if self.worldEvents then
+                    for event, _ in pairs(self.worldEvents) do
+                        GameTooltip:AddLine('|cffffffff'..event)
+                    end
                 end
                 if self.events then
                     for k, v in ipairs(self.events) do
@@ -754,6 +784,8 @@ function Guildbook:SetupGuildCalendarFrame()
             end)
 
             f:SetScript('OnShow', function(self)
+                f.guildEventTexture:SetTexture(nil)
+                f.guildEventTexture:Hide()
                 for i = 1, 3 do
                     f['eventButton'..i]:Hide()
                     f['eventButton'..i]:SetText('')
@@ -764,6 +796,15 @@ function Guildbook:SetupGuildCalendarFrame()
                         f['eventButton'..k]:Show()
                         f['eventButton'..k]:SetText('|cffffffff'..event.title)
                         f['eventButton'..k].event = event
+
+                        -- for now find a raid to add the texture
+                        if event.type == 1 then
+                            if raidTextures[event.title] then
+                                f.guildEventTexture:SetTexture(raidTextures[event.title])
+                                f.guildEventTexture:Show()
+                            end
+                        end
+
                     end
                 end
             end)
@@ -787,19 +828,19 @@ function Guildbook:SetupGuildCalendarFrame()
         end
     end
 
-    function self.GuildFrame.GuildCalendarFrame:GetWorldEventsForDay(day, month)
-        local worldEvent = {}
-        for worldEvent, info in pairs(Guildbook.CalendarWorldEvents) do
-            if worldEvent ~= 'Darkmoon Faire' then
-                if info.Start.day == day and info.Start.month == month then
+    -- function self.GuildFrame.GuildCalendarFrame:GetWorldEventsForDay(day, month)
+    --     local worldEvent = {}
+    --     for worldEvent, info in pairs(Guildbook.CalendarWorldEvents) do
+    --         if worldEvent ~= 'Darkmoon Faire' then
+    --             if info.Start.day == day and info.Start.month == month then
 
-                end
-                if info.End.day == day and info.End.month == month then
+    --             end
+    --             if info.End.day == day and info.End.month == month then
 
-                end
-            end
-        end
-    end
+    --             end
+    --         end
+    --     end
+    -- end
 
 
     function self.GuildFrame.GuildCalendarFrame:MonthChanged()
@@ -816,6 +857,7 @@ function Guildbook:SetupGuildCalendarFrame()
         local d, nm = 1, 1
         for i, day in ipairs(Guildbook.GuildFrame.GuildCalendarFrame.MonthView) do
             day.events = nil
+            wipe(day.worldEvents)
             day.dmf = false
             day:Disable()
             day.dateText:SetText(' ')
@@ -855,6 +897,84 @@ function Guildbook:SetupGuildCalendarFrame()
                     day.worldEventTexture:SetTexture(Guildbook.CalendarWorldEvents['Darkmoon Faire'][dmf]['End'])
                     day.dmf = dmf
                 end
+
+                for eventName, event in pairs(Guildbook.CalendarWorldEvents) do
+                    if eventName ~= 'Darkmoon Faire' then
+                        if (event.Start.month == self.date.month) and (event.Start.day == d) then
+                            day.worldEventTexture:SetTexture(event.Texture.Start)
+                            if not day.worldEvents[eventName] then
+                                day.worldEvents[eventName] = true
+                            end
+                        end
+                        if (event.End.month == self.date.month) and (event.End.day == d) then
+                            day.worldEventTexture:SetTexture(event.Texture.End)
+                            if not day.worldEvents[eventName] then
+                                day.worldEvents[eventName] = true
+                            end
+                        end
+
+                        -- events in the same month
+                        if (event.Start.month == self.date.month) and (event.Start.month == event.End.month) then
+                            if d > event.Start.day and d < event.End.day then
+                                day.worldEventTexture:SetTexture(event.Texture.OnGoing)
+                                if not day.worldEvents[eventName] then
+                                    day.worldEvents[eventName] = true
+                                end
+                            end
+                        end
+
+                        -- events that cover 2 months
+                        if (event.Start.month == self.date.month) and (event.Start.month < event.End.month) then
+                            if d > event.Start.day then
+                                day.worldEventTexture:SetTexture(event.Texture.OnGoing)
+                                if not day.worldEvents[eventName] then
+                                    day.worldEvents[eventName] = true
+                                end
+                            end
+                        end
+                        if (event.End.month == self.date.month) and (event.Start.month < event.End.month) then
+                            if d < event.End.day then
+                                day.worldEventTexture:SetTexture(event.Texture.OnGoing)
+                                if not day.worldEvents[eventName] then
+                                    day.worldEvents[eventName] = true
+                                end
+                            end
+                        end
+                    end
+                    -- special case for christmas as it covers 2 years
+                    if eventName == 'Feast of Winter Veil' then
+                        if self.date.month == 12 then
+                            if d == event.Start.day then
+                                day.worldEventTexture:SetTexture(event.Texture.Start)
+                                if not day.worldEvents[eventName] then
+                                    day.worldEvents[eventName] = true
+                                end
+                            end
+                            if d > event.Start.day then
+                                day.worldEventTexture:SetTexture(event.Texture.OnGoing)
+                                if not day.worldEvents[eventName] then
+                                    day.worldEvents[eventName] = true
+                                end
+                            end
+                        end
+                        if self.date.month == 1 then
+                            if d == event.End.day then
+                                day.worldEventTexture:SetTexture(event.Texture.End)
+                                if not day.worldEvents[eventName] then
+                                    day.worldEvents[eventName] = true
+                                end
+                            end
+                            if d < event.End.day then
+                                day.worldEventTexture:SetTexture(event.Texture.OnGoing)
+                                if not day.worldEvents[eventName] then
+                                    day.worldEvents[eventName] = true
+                                end
+                            end
+                        end
+                        day.worldEventTexture:SetTexCoord(0.0, 0.71, 0.0, 0.55)
+                    end
+                end
+
                 day.events = self:GetEventsForDate(day.date)
                 day:Show()
                 d = d + 1
@@ -1409,6 +1529,7 @@ function Guildbook:SetupProfilesFrame()
         self.PaperdollTab:Hide()
         self.ProfessionsTab:Hide()
         self.TalentsTab:Hide()
+        self.HomeTab:Hide()
         self:HideTalentGrid()
         frame:Show()
     end
@@ -1438,6 +1559,7 @@ function Guildbook:SetupProfilesFrame()
             wipe(searchResults)
             wipe(characterResults)
             wipe(recipeResults)
+            wipe(professionResults)
             local guildName = Guildbook:GetGuildName()
             -- local match = false
             if guildName then
@@ -1451,9 +1573,21 @@ function Guildbook:SetupProfilesFrame()
                     if Guildbook.PlayerMixin:IsValid() then
                         characterName = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
                     end
+                    if not characterName then
+                        return
+                    end
                     -- search professions for recipe item match
                     if character.Profession1 ~= '-' then
                         local prof = tostring(character.Profession1)
+                        if prof:lower():find(text:lower()) then
+                            if not professionResults[prof] then
+                                professionResults[prof] = {}
+                            end
+                            table.insert(professionResults[prof], {
+                                GUID = guid,
+                                Name = characterName,
+                            })
+                        end
                         if character[prof] then
                             for itemID, reagents in pairs(character[prof]) do
                                 local itemName
@@ -1477,6 +1611,15 @@ function Guildbook:SetupProfilesFrame()
                     end
                     if character.Profession2 ~= '-' then
                         local prof = tostring(character.Profession2)
+                        if prof:lower():find(text:lower()) then
+                            if not professionResults[prof] then
+                                professionResults[prof] = {}
+                            end
+                            table.insert(professionResults[prof], {
+                                GUID = guid,
+                                Name = characterName,
+                            })
+                        end
                         if character[prof] then
                             for itemID, reagents in pairs(character[prof]) do
                                 local itemName
@@ -1523,6 +1666,36 @@ function Guildbook:SetupProfilesFrame()
                                     Guildbook.GuildFrame.ProfilesFrame.SearchBox:ClearFocus()
                                     Guildbook.GuildFrame.ProfilesFrame:ToggleTabs(1, self.PaperdollTab)
                                 end,
+                            })
+                        end
+                    end
+                    table.insert(searchResults, {
+                        text = 'Professions',
+                        isTitle = true,
+                        notCheckable = true,
+                    })
+                    if next(professionResults) then
+                        for prof, characters in pairs(professionResults) do
+                            local characterList = {}
+                            for k, info in ipairs(characters) do
+                                table.insert(characterList, {
+                                    text = info.Name,
+                                    notCheckable = true,
+                                    func = function()
+                                        Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(info.GUID, nil)
+                                        Guildbook.GuildFrame.ProfilesFrame.SearchBox:ClearFocus()
+                                        Guildbook.GuildFrame.ProfilesFrame:ToggleTabs(3, self.ProfessionsTab)
+                                    end,
+                                })
+                            end
+                            table.insert(searchResults, {
+                                text = prof,
+                                notCheckable = true,
+                                func = function()
+                                    Guildbook.GuildFrame.ProfilesFrame.SearchBox:ClearFocus()
+                                end,
+                                hasArrow = true,
+                                menuList = characterList
                             })
                         end
                     end
@@ -2306,17 +2479,17 @@ function Guildbook:SetupProfilesFrame()
         },
         {
             key = 'Cooking',
-            label = 'Cooking',
+            label = L['Cooking'],
             offset = -60.0,
         },
         {
             key = 'Fishing',
-            label = 'Fishing',
+            label = L['Fishing'],
             offset = -80.0,
         },
         {
             key = 'FirstAid',
-            label = 'First Aid',
+            label = L['First Aid'],
             offset = -100.0,
         },
     }
@@ -2328,7 +2501,7 @@ function Guildbook:SetupProfilesFrame()
 
         local level = self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.ProfessionsPanel:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
         level:SetPoint('TOPLEFT', 142, v.offset - 12)
-        level:SetText(v.label)
+        level:SetText('-')
         level:SetTextColor(1,1,1,1)
 
         local icon = self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.ProfessionsPanel:CreateTexture(nil, 'ARTWORK')
@@ -3059,7 +3232,7 @@ function Guildbook:SetupProfilesFrame()
     function self.GuildFrame.ProfilesFrame.ProfessionsTab:SetRecipesListviewData(profession, listview, data, filter)
         self:ClearRecipesListview(listview)
         --self:ClearReagentsListview()
-        listview.header:SetText(profession..'   '..Guildbook.Data.Profession[profession].FontStringIconSMALL)
+        listview.header:SetText(L[profession]..'   '..Guildbook.Data.Profession[profession].FontStringIconSMALL)
         if data and type(data) == 'table' and next(data) then
             local k = 1
             for itemID, reagents in pairs(data) do

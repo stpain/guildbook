@@ -43,6 +43,9 @@ Guildbook.Data.DefaultCharacterSettings = {
     Profession1Level = 0,
     Profession2 = '-',
     Profession2Level = 0,
+    Fishing = 0,
+    Cooking = 0,
+    FirstAid = 0,
     MainCharacter = '-',
     Availability = {
         Monday = nil,
@@ -799,19 +802,79 @@ Guildbook.CalendarWorldEvents = {
 			['End'] = 235466,
 		}
 	},
+	['Childrens Week'] = {
+		['Start'] = { 
+			day = 1, 
+			month = 5,
+		},
+		['End'] = { 
+			day = 7, 
+			month = 5,
+		},
+		['Texture'] = {
+			['Start'] = 235445,
+			['OnGoing'] = 235444,
+			['End'] = 235443,
+		}
+	},
+	['Midsummer Fire Festival'] = {
+		['Start'] = { 
+			day = 21, 
+			month = 6,
+		},
+		['End'] = { 
+			day = 5, 
+			month = 7,
+		},
+		['Texture'] = {
+			['Start'] = 235474,
+			['OnGoing'] = 235473,
+			['End'] = 235472,
+		}
+	},
+	['Harvest Festival'] = {
+		['Start'] = { 
+			day = 27, 
+			month = 9,
+		},
+		['End'] = { 
+			day = 4, 
+			month = 10,
+		},
+		['Texture'] = {
+			['Start'] = 235465,
+			['OnGoing'] = 235464,
+			['End'] = 235463,
+		}
+	},
 	['Hallows End'] = {
 		['Start'] = { 
 			day = 18, 
 			month = 10,
 		},
 		['End'] = { 
-			day = 21, 
+			day = 2, 
 			month = 11,
 		},
 		['Texture'] = {
-			['Start'] = 235468,
-			['OnGoing'] = 235467,
-			['End'] = 235466,
+			['Start'] = 235462,
+			['OnGoing'] = 235461,
+			['End'] = 235460,
+		}
+	},
+	['Feast of Winter Veil'] = {
+		['Start'] = { 
+			day = 15, 
+			month = 12,
+		},
+		['End'] = { 
+			day = 2, 
+			month = 1,
+		},
+		['Texture'] = {
+			['Start'] = 235485,
+			['OnGoing'] = 235484,
+			['End'] = 235482,
 		}
 	},
 }

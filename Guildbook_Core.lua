@@ -29,7 +29,7 @@ local LibSerialize = LibStub:GetLibrary("LibSerialize")
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 --variables
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
-local build = 4.11
+local build = 4.12
 local locale = GetLocale()
 local L = Guildbook.Locales
 
@@ -53,7 +53,8 @@ SlashCmdList['GUILDBOOK'] = function(msg)
 
     elseif msg == '-stats' then
         --local base, casting = GetManaRegen();
-        Guildbook:GetCharacterStats()
+        --Guildbook:GetCharacterStats()
+        Guildbook.GetInstanceInfo()
 
     elseif msg == '-alts' then
         Guildbook:GetCharactersAlts(UnitGUID('player'))
@@ -767,8 +768,9 @@ end
 --- this is used to get data about the players professions, recipes and reagents
 function Guildbook:ScanCraftSkills_Enchanting()
     local currentCraftingWindow = GetCraftSkillLine(1)
-    local craftLocale = Guildbook:GetLocaleFromEnglish(locale, 'Enchanting')
-    if craftLocale == currentCraftingWindow then
+    --local craftLocale = Guildbook:GetLocaleFromEnglish(locale, 'Enchanting')
+    --if craftLocale == currentCraftingWindow then
+    if L['Enchanting'] == currentCraftingWindow then
         GUILDBOOK_CHARACTER['Enchanting'] = {}
         for i = 1, GetNumCrafts() do
             local name, _, type, _, _, _, _ = GetCraftInfo(i)
@@ -798,6 +800,8 @@ function Guildbook:ScanCraftSkills_Enchanting()
                 end
             end
         end
+    else
+        StaticPopup_Show('Error', 'Guildbook is missing the translation for this profession!')
     end
 end
 
@@ -913,28 +917,34 @@ end
 -- also check the secondary professions fishing, cooking, first aid
 -- this will update the character saved var which is then read when a request comes in
 function Guildbook.GetProfessionData()
-    if not Guildbook.GetEnglish[locale] then
-        Print('Guildbook needs your help with some translations')
+    if not Guildbook.AvailableLocales[locale] then
+        StaticPopup_Show('Error', 'Guildbook is missing the translations for your locale, unable to scan professions.')
         return
     end
     local myCharacter = { Fishing = 0, Cooking = 0, FirstAid = 0, Prof1 = '-', Prof1Level = 0, Prof2 = '-', Prof2Level = 0 }
     for s = 1, GetNumSkillLines() do
         local skill, _, _, level, _, _, _, _, _, _, _, _, _ = GetSkillLineInfo(s)
-        if Guildbook.GetEnglish[locale][skill] == 'Fishing' then 
+        --if Guildbook.GetEnglish[locale][skill] == 'Fishing' then 
+        if L['Fishing'] == skill then 
             myCharacter.Fishing = level
-        elseif Guildbook.GetEnglish[locale][skill] == 'Cooking' then
+        --elseif Guildbook.GetEnglish[locale][skill] == 'Cooking' then
+        elseif L['Cooking'] == skill then
             myCharacter.Cooking = level
-        elseif Guildbook.GetEnglish[locale][skill] == 'First Aid' then
+        --elseif Guildbook.GetEnglish[locale][skill] == 'First Aid' then
+        elseif L['First Aid'] == skill then
             myCharacter.FirstAid = level
         else
             for k, prof in pairs(Guildbook.Data.Profession) do
                 -- using GetEnglish to cover non english clients checking against addon lookup tables
-                if prof.Name == Guildbook.GetEnglish[locale][skill] then
+                --if prof.Name == Guildbook.GetEnglish[locale][skill] then
+                if prof.Name == Guildbook.GetEnglish[skill] then
                     if myCharacter.Prof1 == '-' then
-                        myCharacter.Prof1 = Guildbook.GetEnglish[locale][skill]
+                        --myCharacter.Prof1 = Guildbook.GetEnglish[locale][skill]
+                        myCharacter.Prof1 = Guildbook.GetEnglish[skill]
                         myCharacter.Prof1Level = level
                     elseif myCharacter.Prof2 == '-' then
-                        myCharacter.Prof2 = Guildbook.GetEnglish[locale][skill]
+                        --myCharacter.Prof2 = Guildbook.GetEnglish[locale][skill]
+                        myCharacter.Prof2 = Guildbook.GetEnglish[skill]
                         myCharacter.Prof2Level = level
                     end
                 end
@@ -994,6 +1004,8 @@ function Guildbook.GetInstanceInfo()
         for i = 1, GetNumSavedInstances() do
             local name, id, reset, difficulty, locked, extended, instanceIDMostSig, isRaid, maxPlayers, difficultyName, numEncounters, encounterProgress = GetSavedInstanceInfo(i)
             tinsert(t, { Name = name, ID = id, Resets = date('*t', tonumber(GetTime() + reset)) })
+            local msg = string.format("name=%s, id=%s, reset=%s, difficulty=%s, locked=%s, numEncounters=%s", tostring(name), tostring(id), tostring(reset), tostring(difficulty), tostring(locked), tostring(numEncounters))
+            print(msg)
         end
     end
     return t
@@ -1403,6 +1415,8 @@ function Guildbook:OnCharacterDataReceived(data, distribution, sender)
         GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].AttunementsKeys = data.payload.AttunementsKeys
         GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].Availability = data.payload.Availability
         GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].OffSpecIsPvP = data.payload.OffSpecIsPvP
+
+        -- this data is stored using english names as keys
         for k, v in ipairs({'Cooking', 'Fishing', 'FirstAid'}) do
             if data.payload[v] then
                 GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID][v] = data.payload[v]
@@ -1657,27 +1671,62 @@ end
 
 function Guildbook:OnGuildCalendarEventsReceived(data, distribution, sender)
     local guildName = Guildbook:GetGuildName()
+    local today = date('*t')
+    local monthStart = date('*t', time(today))
     if guildName and GUILDBOOK_GLOBAL['Calendar'][guildName] then
-        for k, event in ipairs(data.payload) do
-            DEBUG('func', 'OnGuildCalendarEventsReceived', string.format('Received event: %s', event.title))
+        -- loop the events sent to us
+        for k, recievedEvent in ipairs(data.payload) do
+            DEBUG('func', 'OnGuildCalendarEventsReceived', string.format('Received event: %s', recievedEvent.title))
             local exists = false
-            for _, e in pairs(GUILDBOOK_GLOBAL['Calendar'][guildName]) do
-                if e.created == event.created and e.owner == event.owner then
+            -- loop our db for a match
+            for _, dbEvent in pairs(GUILDBOOK_GLOBAL['Calendar'][guildName]) do
+                if dbEvent.created == recievedEvent.created and dbEvent.owner == recievedEvent.owner then
                     exists = true
                     DEBUG('func', 'OnGuildCalendarEventsReceived', 'event exists!')
-                    -- check and update attend
-                    for guid, info in pairs(e.attend) do
-                        if tonumber(info.Updated) < event.attend[guid].Updated then
-                            info.Status = event.attend[guid].Status
-                            info.Updated = event.attend[guid].Updated
-                            DEBUG('func', 'OnGuildCalendarEventsReceived', 'Updated attend status for event: '..event.title)
+                    -- loop the db events for attending guid
+                    for guid, info in pairs(dbEvent.attend) do
+                        local name = '-'
+                        if not Guildbook.PlayerMixin then
+                            Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
+                        else
+                            Guildbook.PlayerMixin:SetGUID(guid)
+                        end
+                        if Guildbook.PlayerMixin:IsValid() then
+                            name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
+                        end
+                        -- is there a matching guid 
+                        if recievedEvent.attend and recievedEvent.attend[guid] then
+                            if tonumber(info.Updated) < tonumber(recievedEvent.attend[guid].Updated) then
+                                info.Status = recievedEvent.attend[guid].Status
+                                info.Updated = recievedEvent.attend[guid].Updated
+                                DEBUG('func', 'OnGuildCalendarEventsReceived', string.format("updated %s attend status for %s", name, dbEvent.title))
+                            end
+                        else
+                            DEBUG('func', 'OnGuildCalendarEventsReceived', string.format("%s wasn't in the sent event attending data", name))
+                        end
+                    end
+                    -- loop the recieved event attending table and add any missing players
+                    for guid, info in pairs(recievedEvent.attend) do
+                        local name = '-'
+                        if not Guildbook.PlayerMixin then
+                            Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
+                        else
+                            Guildbook.PlayerMixin:SetGUID(guid)
+                        end
+                        if Guildbook.PlayerMixin:IsValid() then
+                            name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
+                        end
+                        if not dbEvent.attend[guid] then
+                            dbEvent.attend[guid].Updated = GetServerTime()
+                            dbEvent.attend[guid].Status = info.Status
+                            DEBUG('func', 'OnGuildCalendarEventsReceived', string.format("added %s attend status for %s", name, dbEvent.title))
                         end
                     end
                 end
             end
             if exists == false then
-                table.insert(GUILDBOOK_GLOBAL['Calendar'][guildName], event)
-                DEBUG('func', 'OnGuildCalendarEventsReceived', string.format('This event is a new event, adding to db: %s', event.title))
+                table.insert(GUILDBOOK_GLOBAL['Calendar'][guildName], recievedEvent)
+                DEBUG('func', 'OnGuildCalendarEventsReceived', string.format('This event is a new event, adding to db: %s', recievedEvent.title))
             end
         end
     end
