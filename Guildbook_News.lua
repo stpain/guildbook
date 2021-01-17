@@ -201,4 +201,17 @@ Added most fixed dateworld events.
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [4.13] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+Sorry quick fix for an issue with an API not returning a value
+
+|cff0070DEUpdates|r:
+
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }

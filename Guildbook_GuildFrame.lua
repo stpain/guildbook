@@ -709,25 +709,25 @@ function Guildbook:SetupGuildCalendarFrame()
             f.background:SetTexture(235428)
             f.background:SetTexCoord(texLeft, texRight, texTop, texBottom)
 
-            f.currentDayTexture = f:CreateTexture('$parentCurrentDayTexture', 'BACKGROUND')
-            f.currentDayTexture:SetPoint('TOPLEFT', -15, 15)
-            f.currentDayTexture:SetPoint('BOTTOMRIGHT', 16, -10)
-            f.currentDayTexture:SetTexture(235433)
-            f.currentDayTexture:SetTexCoord(0.05, 0.55, 0.05, 0.55)
-            f.currentDayTexture:SetAlpha(0.7)
-            f.currentDayTexture:Hide()
-
-            f.worldEventTexture = f:CreateTexture('$parentBackground', 'ARTWORK')
+            f.worldEventTexture = f:CreateTexture('$parentBackground', 'BACKGROUND')
             f.worldEventTexture:SetPoint('TOPLEFT', 0, 0)
             f.worldEventTexture:SetPoint('BOTTOMRIGHT', 0, 0)
             f.worldEventTexture:SetTexture(235448)
             f.worldEventTexture:SetTexCoord(0.0, 0.71, 0.0, 0.71)
 
             -- set this as top layer so its clear there is an event
-            f.guildEventTexture = f:CreateTexture('$parentBackground', 'OVERLAY')
-            f.guildEventTexture:SetAllPoints()
-            --f.guildEventTexture:SetTexture(135805)
-            --f.guildEventTexture:SetTexCoord(0.0, 0.71, 0.0, 0.71)
+            f.guildEventTexture = f:CreateTexture('$parentBackground', 'ARTWORK')
+            f.guildEventTexture:SetAllPoints(f)
+            f.guildEventTexture:SetAlpha(0.9)
+            --f.guildEventTexture:SetTexCoord(0.0, 1.0, 0.20, 0.8)
+
+            f.currentDayTexture = f:CreateTexture('$parentCurrentDayTexture', 'OVERLAY')
+            f.currentDayTexture:SetPoint('TOPLEFT', -15, 15)
+            f.currentDayTexture:SetPoint('BOTTOMRIGHT', 16, -10)
+            f.currentDayTexture:SetTexture(235433)
+            f.currentDayTexture:SetTexCoord(0.05, 0.55, 0.05, 0.55)
+            f.currentDayTexture:SetAlpha(0.7)
+            f.currentDayTexture:Hide()
 
             for e = 1, 3 do
                 f['eventButton'..e] = CreateFrame('BUTTON', tostring('GuildbookGuildFrameGuildCalendarFrameWeek'..week..'Day'..day..'Button'..e), f)

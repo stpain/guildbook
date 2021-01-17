@@ -29,7 +29,7 @@ local LibSerialize = LibStub:GetLibrary("LibSerialize")
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 --variables
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
-local build = 4.12
+local build = 4.13
 local locale = GetLocale()
 local L = Guildbook.Locales
 
@@ -1655,7 +1655,7 @@ function Guildbook:SendGuildCalendarEvents()
             for k, event in pairs(GUILDBOOK_GLOBAL['Calendar'][guildName]) do
                 if event.date.month >= today.month and event.date.year >= today.year and event.date.month <= future.month and event.date.year <= future.year then
                     table.insert(events, event)
-                    DEBUG('func', 'SendGuildCalendarEvents', string.format('Added event: %s to comms table', event.title))
+                    DEBUG('func', 'SendGuildCalendarEvents', string.format('Added event: %s to transmit table', event.title))
                 end
             end
             local calendarEvents = {
@@ -1685,7 +1685,7 @@ function Guildbook:OnGuildCalendarEventsReceived(data, distribution, sender)
                     DEBUG('func', 'OnGuildCalendarEventsReceived', 'event exists!')
                     -- loop the db events for attending guid
                     for guid, info in pairs(dbEvent.attend) do
-                        local name = '-'
+                        local name;
                         if not Guildbook.PlayerMixin then
                             Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
                         else
@@ -1693,6 +1693,9 @@ function Guildbook:OnGuildCalendarEventsReceived(data, distribution, sender)
                         end
                         if Guildbook.PlayerMixin:IsValid() then
                             name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
+                        end
+                        if not name then
+                            name = '[unknown name]'
                         end
                         -- is there a matching guid 
                         if recievedEvent.attend and recievedEvent.attend[guid] then

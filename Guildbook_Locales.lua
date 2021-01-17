@@ -394,7 +394,7 @@ elseif locale == 'frFR' then
     --professions
     L['Alchemy'] = "Alchimie"
     L["Blacksmithing"] = "Forge"
-    L["Enchanting"] = "Enchantment"
+    L["Enchanting"] = "Enchantement"
     L["Engineering"] = "Ingénierie"
     --['Inscription'] = 'Inscription',
     --['Jewelcrafting'] = 'Jewelcrafting',
