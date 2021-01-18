@@ -709,7 +709,7 @@ function Guildbook:SetupGuildCalendarFrame()
             f.background:SetTexture(235428)
             f.background:SetTexCoord(texLeft, texRight, texTop, texBottom)
 
-            f.worldEventTexture = f:CreateTexture('$parentBackground', 'BACKGROUND')
+            f.worldEventTexture = f:CreateTexture('$parentBackground', 'BORDER')
             f.worldEventTexture:SetPoint('TOPLEFT', 0, 0)
             f.worldEventTexture:SetPoint('BOTTOMRIGHT', 0, 0)
             f.worldEventTexture:SetTexture(235448)
@@ -1791,20 +1791,20 @@ function Guildbook:SetupProfilesFrame()
                     Guildbook:CharacterDataRequest(character.Name)
 
                     -- fetch inventory data
-                    C_Timer.After(0.2, function()
+                    C_Timer.After(0.5, function()
                         Guildbook:SendInventoryRequest(character.Name)
                     end)
                     -- not sure why but the inv icons didnt show/hide properly without a longer delay
                     self:LoadCharacterInventory()
-                    C_Timer.After(1.2 + Guildbook.COMMS_DELAY, function()
+                    C_Timer.After(1.5 + Guildbook.COMMS_DELAY, function()
                         self:LoadCharacterInventory()
                     end)
 
                     -- fetch talent data
-                    C_Timer.After(0.4, function()
+                    C_Timer.After(1.0, function()
                         Guildbook:SendTalentInfoRequest(character.Name, 'primary')
                     end)
-                    C_Timer.After(0.4 + Guildbook.COMMS_DELAY, function()
+                    C_Timer.After(2.0 + Guildbook.COMMS_DELAY, function()
                         if character.Talents and character.Talents['primary'] and next(character.Talents['primary']) then
                             self:LoadCharacterTalents(character.Talents['primary'])
                             DEBUG('func', 'LoadCharacterDetails', 'loading talents from file')
@@ -1818,10 +1818,10 @@ function Guildbook:SetupProfilesFrame()
                         if character[prof1] and next(character[prof1]) then
                             self.ProfessionsTab:SetRecipesListviewData(prof1, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container, character[prof1], recipeFilter)
                         end
-                        C_Timer.After(0.6, function()
+                        C_Timer.After(1.5, function()
                             Guildbook:SendTradeSkillsRequest(character.Name, prof1)
                         end)
-                        C_Timer.After(0.6 + Guildbook.COMMS_DELAY, function()
+                        C_Timer.After(2.5 + Guildbook.COMMS_DELAY, function()
                             Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:SetRecipesListviewData(prof1, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container, character[prof1], recipeFilter)
                         end)
                     end
@@ -1830,39 +1830,40 @@ function Guildbook:SetupProfilesFrame()
                         if character[prof2] and next(character[prof2]) then
                             self.ProfessionsTab:SetRecipesListviewData(prof2, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container, character[prof2], recipeFilter)
                         end
-                        C_Timer.After(0.8, function()
+                        C_Timer.After(2.0, function()
                             Guildbook:SendTradeSkillsRequest(character.Name, prof2)
                         end)
-                        C_Timer.After(0.8 + Guildbook.COMMS_DELAY, function()
+                        C_Timer.After(3.0 + Guildbook.COMMS_DELAY, function()
                             Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab:SetRecipesListviewData(prof2, Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container, character[prof2], recipeFilter)
                         end)
                     end
 
                     -- 3d model stuff (experimental)
-                    if self.PaperdollTab.CharacterModels[race] and self.PaperdollTab.CharacterModels[race][sex] then
-                        self.PaperdollTab.CharacterModels[race][sex]:Undress()
-                        C_Timer.After(0.0, function()
-                            self.PaperdollTab.CharacterModels[race][sex]:Show()
-                        end)
-                        if character.Inventory and character.Inventory.Current then
-                            C_Timer.After(0.1, function()
-                                for slot, link in pairs(character.Inventory.Current) do
-                                    if link ~= false and slot ~= 'TABARDSLOT' then
-                                        self.PaperdollTab.CharacterModels[race][sex]:TryOn(link)
-                                    end
-                                end
-                            end)
+                    self:LoadCharacterModel(race, sex)
+                    -- if self.PaperdollTab.CharacterModels[race] and self.PaperdollTab.CharacterModels[race][sex] then
+                    --     self.PaperdollTab.CharacterModels[race][sex]:Undress()
+                    --     C_Timer.After(0.0, function()
+                    --         self.PaperdollTab.CharacterModels[race][sex]:Show()
+                    --     end)
+                    --     if character.Inventory and character.Inventory.Current then
+                    --         C_Timer.After(0.1, function()
+                    --             for slot, link in pairs(character.Inventory.Current) do
+                    --                 if link ~= false and slot ~= 'TABARDSLOT' then
+                    --                     self.PaperdollTab.CharacterModels[race][sex]:TryOn(link)
+                    --                 end
+                    --             end
+                    --         end)
 
-                            -- it seems an issue when fetching data from saved vars, probably comms taking a while, so make the call again to grab anything not updated
-                            C_Timer.After(3.0, function()
-                                for slot, link in pairs(character.Inventory.Current) do
-                                    if link ~= false and slot ~= 'TABARDSLOT' then
-                                        self.PaperdollTab.CharacterModels[race][sex]:TryOn(link)
-                                    end
-                                end
-                            end)
-                        end
-                    end
+                    --         -- it seems an issue when fetching data from saved vars, probably comms taking a while, so make the call again to grab anything not updated
+                    --         C_Timer.After(3.0, function()
+                    --             for slot, link in pairs(character.Inventory.Current) do
+                    --                 if link ~= false and slot ~= 'TABARDSLOT' then
+                    --                     self.PaperdollTab.CharacterModels[race][sex]:TryOn(link)
+                    --                 end
+                    --             end
+                    --         end)
+                    --     end
+                    -- end
 
                     -- load race portrait
                     --self.PaperdollTab.Overlay.portrait:SetTexture(raceTexture)
@@ -1881,11 +1882,11 @@ function Guildbook:SetupProfilesFrame()
                     self.TalentsTab.Tab2.background:SetTexture(Guildbook.Data.TalentBackgrounds[Guildbook.Data.Talents[character.Class][2]])
                     self.TalentsTab.Tab3.background:SetTexture(Guildbook.Data.TalentBackgrounds[Guildbook.Data.Talents[character.Class][3]])
 
-                    C_Timer.After(Guildbook.COMMS_DELAY, function()
+                    C_Timer.After(1.0 + Guildbook.COMMS_DELAY, function()
                         -- update base stats panel
                         for k, v in ipairs(self.PaperdollTab.Overlay.AttributesPanel.labels) do
                             self.PaperdollTab.Overlay.AttributesPanel[k].Level:SetText('-')
-                            if character.PaperDollStats then
+                            if character.PaperDollStats and character.PaperDollStats[v.key] then
                                 self.PaperdollTab.Overlay.AttributesPanel[k].Level:SetText(character.PaperDollStats[v.key])
                                 DEBUG('func', 'LoadCharacter', v.key..character.PaperDollStats[v.key])
 
@@ -1932,6 +1933,35 @@ function Guildbook:SetupProfilesFrame()
             end
         end
         CloseDropDownMenus()
+    end
+
+    function self.GuildFrame.ProfilesFrame:LoadCharacterModel(race, sex)
+        if self.character then
+            if self.PaperdollTab.CharacterModels[race] and self.PaperdollTab.CharacterModels[race][sex] then
+                self.PaperdollTab.CharacterModels[race][sex]:Undress()
+                C_Timer.After(0.0, function()
+                    self.PaperdollTab.CharacterModels[race][sex]:Show()
+                end)
+                if self.character.Inventory and self.character.Inventory.Current then
+                    C_Timer.After(0.1, function()
+                        for slot, link in pairs(self.character.Inventory.Current) do
+                            if link ~= false and slot ~= 'TABARDSLOT' then
+                                self.PaperdollTab.CharacterModels[race][sex]:TryOn(link)
+                            end
+                        end
+                    end)
+
+                    -- it seems an issue when fetching data from saved vars, probably comms taking a while, so make the call again to grab anything not updated
+                    C_Timer.After(3.0, function()
+                        for slot, link in pairs(self.character.Inventory.Current) do
+                            if link ~= false and slot ~= 'TABARDSLOT' then
+                                self.PaperdollTab.CharacterModels[race][sex]:TryOn(link)
+                            end
+                        end
+                    end)
+                end
+            end
+        end
     end
 
     function self.GuildFrame.ProfilesFrame:LoadCharacterInventory()

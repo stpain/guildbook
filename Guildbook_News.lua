@@ -214,4 +214,19 @@ Sorry quick fix for an issue with an API not returning a value
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [4.14] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+Calendar sync fixes, after deleting my saved variables file I found a bug which has now been fixed.
+Fix error where table didnt exist.
+Adjusted the comms/ui delay on profiles and seems better.
+
+|cff0070DEUpdates|r:
+Removed the old options for character profile, its all now in profiles
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }

@@ -29,7 +29,7 @@ local LibSerialize = LibStub:GetLibrary("LibSerialize")
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 --variables
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
-local build = 4.13
+local build = 4.14
 local locale = GetLocale()
 local L = Guildbook.Locales
 
@@ -304,17 +304,9 @@ function Guildbook:Init()
 
 
     ------- this section will be adjusted when player profiles move in to profiles tab fully
-    GuildbookOptionsMainSpecDD_Init()
-    GuildbookOptionsOffSpecDD_Init()
-
     --the OnShow event doesnt fire for the first time the options frame is shown? set the values here
     -- these are all xml define widgets - REMOVE at some point?
     if GUILDBOOK_CHARACTER and GUILDBOOK_GLOBAL then
-        UIDropDownMenu_SetText(GuildbookOptionsMainSpecDD, GUILDBOOK_CHARACTER['MainSpec'])
-        UIDropDownMenu_SetText(GuildbookOptionsOffSpecDD, GUILDBOOK_CHARACTER['OffSpec'])
-        GuildbookOptionsMainCharacterNameInputBox:SetText(GUILDBOOK_CHARACTER['MainCharacter'])
-        GuildbookOptionsMainSpecIsPvpSpecCB:SetChecked(GUILDBOOK_CHARACTER['MainSpecIsPvP'])
-        GuildbookOptionsOffSpecIsPvpSpecCB:SetChecked(GUILDBOOK_CHARACTER['OffSpecIsPvP'])
         GuildbookOptionsDebugCB:SetChecked(GUILDBOOK_GLOBAL['Debug'])
         if GUILDBOOK_GLOBAL['Debug'] == true then
             Guildbook.DebuggerWindow:Show()
@@ -322,14 +314,6 @@ function Guildbook:Init()
             Guildbook.DebuggerWindow:Hide()
         end
         GuildbookOptionsShowMinimapButton:SetChecked(GUILDBOOK_GLOBAL['ShowMinimapButton'])
-
-        if GUILDBOOK_CHARACTER['AttunementsKeys'] then
-            GuildbookOptionsAttunementKeysUBRS:SetChecked(GUILDBOOK_CHARACTER['AttunementsKeys']['UBRS'])
-            GuildbookOptionsAttunementKeysMC:SetChecked(GUILDBOOK_CHARACTER['AttunementsKeys']['MC'])
-            GuildbookOptionsAttunementKeysONY:SetChecked(GUILDBOOK_CHARACTER['AttunementsKeys']['ONY'])
-            GuildbookOptionsAttunementKeysBWL:SetChecked(GUILDBOOK_CHARACTER['AttunementsKeys']['BWL'])
-            GuildbookOptionsAttunementKeysNAXX:SetChecked(GUILDBOOK_CHARACTER['AttunementsKeys']['NAXX'])
-        end
 
         if not GUILDBOOK_GLOBAL['CommsDelay'] then
             GUILDBOOK_GLOBAL['CommsDelay'] = 0.2
@@ -360,6 +344,8 @@ function Guildbook:Init()
     -- this enables us to prevent character model capturing until the player is fully loaded
     Guildbook.LoadTime = GetTime()
     DEBUG('func', 'init', tostring('Load time '..date("%T")))
+
+    self:MakeFrameMoveable(FriendsFrame)
 end
 
 
@@ -375,6 +361,15 @@ function Guildbook:GetLocaleFromEnglish(locale, english)
             end
         end
     end
+end
+
+
+function Guildbook:MakeFrameMoveable(frame)
+    frame:SetMovable(true)
+    frame:EnableMouse(true)
+    frame:RegisterForDrag("LeftButton")
+    frame:SetScript("OnDragStart", frame.StartMoving)
+    frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
 end
 
 
@@ -895,6 +890,14 @@ function Guildbook:CleanUpGuildRosterData(guild, msg)
                             }
                             DEBUG('func', 'CleanUpGuildRosterData', string.format('added talent tables to %s', name))
                         end
+                        if not info.PaperDollStats then
+                            info.PaperDollStats = {}
+                            DEBUG('func', 'CleanUpGuildRosterData', string.format('added paper doll stats tables to %s', name))
+                        end
+                        if info.UNKNOWN then
+                            info.UNKNOWN = nil
+                            DEBUG('func', 'CleanUpGuildRosterData', string.format('removed table UNKNOWN from %s', name))
+                        end
                     end
                 end
             end
@@ -902,14 +905,6 @@ function Guildbook:CleanUpGuildRosterData(guild, msg)
     end
 end
 
--- dont really need this but might be useful
-function Guildbook:CleanUpCharacterSettings()
-    if GUILDBOOK_CHARACTER then
-        if GUILDBOOK_CHARACTER['UNKNOWN'] then
-            GUILDBOOK_CHARACTER['UNKNOWN'] = nil
-        end
-    end
-end
 
 
 --- scan the players professions
@@ -1205,8 +1200,10 @@ function Guildbook:OnTalentInfoReceived(data, distribution, sender)
     end
     C_Timer.After(Guildbook.COMMS_DELAY, function()
         local guildName = Guildbook:GetGuildName()
-        if guildName and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
-            wipe(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.guid].Talents)
+        if guildName and GUILDBOOK_GLOBAL['GuildRosterCache'] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
+            if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.guid].Talents then
+                wipe(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.guid].Talents)
+            end
             GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.guid].Talents = data.payload.talents
             DEBUG('func', 'OnTalentInfoReceived', string.format('updated %s talents', sender))
         end
@@ -1618,7 +1615,10 @@ function Guildbook:OnGuildCalendarEventAttendReceived(data, distribution, sender
         end
     end
     --C_Timer.After(1, function()
+    if Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:IsVisible() then
         Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:UpdateAttending()
+        Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:UpdateClassTabs()
+    end
     --end)
 end
 
@@ -1673,6 +1673,14 @@ function Guildbook:OnGuildCalendarEventsReceived(data, distribution, sender)
     local guildName = Guildbook:GetGuildName()
     local today = date('*t')
     local monthStart = date('*t', time(today))
+    if not GUILDBOOK_GLOBAL['Calendar'] then
+        GUILDBOOK_GLOBAL['Calendar'] = {}
+    end
+    if guildName then
+        if not GUILDBOOK_GLOBAL['Calendar'][guildName] then
+            GUILDBOOK_GLOBAL['Calendar'][guildName] = {}
+        end
+    end
     if guildName and GUILDBOOK_GLOBAL['Calendar'][guildName] then
         -- loop the events sent to us
         for k, recievedEvent in ipairs(data.payload) do
@@ -1732,6 +1740,9 @@ function Guildbook:OnGuildCalendarEventsReceived(data, distribution, sender)
                 DEBUG('func', 'OnGuildCalendarEventsReceived', string.format('This event is a new event, adding to db: %s', recievedEvent.title))
             end
         end
+    end
+    if Guildbook.GuildFrame.GuildCalendarFrame:IsVisible() then
+        Guildbook.GuildFrame.GuildCalendarFrame:MonthChanged()
     end
 end
 

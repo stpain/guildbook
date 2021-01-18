@@ -39,16 +39,16 @@ function GuildbookOptionsDebugCB_OnClick(self)
     end
 end
 
-function GuildbookOptionsAttunementKeysCB_OnClick(self, instance)
-    if GUILDBOOK_CHARACTER and GUILDBOOK_GLOBAL then
-        if not GUILDBOOK_CHARACTER['AttunementsKeys'] then
-            GUILDBOOK_CHARACTER['AttunementsKeys'] = Guildbook.Data.DefaultCharacterSettings.AttunementsKeys
-        end
-        GUILDBOOK_CHARACTER['AttunementsKeys'][instance] = self:GetChecked()
-        self:SetChecked(GUILDBOOK_CHARACTER['AttunementsKeys'][instance])
-        DEBUG(' ', 'set instance: '..instance..' attunement key as: '..tostring(self:GetChecked()))
-    end
-end
+-- function GuildbookOptionsAttunementKeysCB_OnClick(self, instance)
+--     if GUILDBOOK_CHARACTER and GUILDBOOK_GLOBAL then
+--         if not GUILDBOOK_CHARACTER['AttunementsKeys'] then
+--             GUILDBOOK_CHARACTER['AttunementsKeys'] = Guildbook.Data.DefaultCharacterSettings.AttunementsKeys
+--         end
+--         GUILDBOOK_CHARACTER['AttunementsKeys'][instance] = self:GetChecked()
+--         self:SetChecked(GUILDBOOK_CHARACTER['AttunementsKeys'][instance])
+--         DEBUG(' ', 'set instance: '..instance..' attunement key as: '..tostring(self:GetChecked()))
+--     end
+-- end
 
 function GuildbookOptionsShowMinimapButton_OnClick(self)
     if GUILDBOOK_CHARACTER and GUILDBOOK_GLOBAL then
@@ -70,10 +70,6 @@ function GuildbookOptionsRosterHealthCheck_OnClick()
 end
 
 function GuildbookOptions_OnLoad(self)
-    GuildbookOptionsHeader:SetText(L['OptionsHeader'])
-    GuildbookOptionsCharacterMainSpec:SetText(L['MainSpec'])
-    GuildbookOptionsCharacterOffSpec:SetText(L['OffSpec'])
-    GuildbookOptionsMainCharacterNameInputDesc:SetText(L['MainCharacterNameInputDesc'])
 
     local deleteGuildDropdown = CreateFrame('FRAME', 'GuildbookDeleteGuildDropDown', GuildbookOptions, "UIDropDownMenuTemplate")
     deleteGuildDropdown:SetPoint('BOTTOMRIGHT', _G['GuildbookOptionsRosterHealthCheck'], 'BOTTOMRIGHT', 10, 40.0)
@@ -103,13 +99,13 @@ function GuildbookOptions_OnLoad(self)
     Guildbook.CommsDelaySlider:SetValueStep(0.1)
     Guildbook.CommsDelaySlider:SetValue(1)
     Guildbook.CommsDelaySlider:SetMinMaxValues(0.1,4.0)
-    _G[Guildbook.CommsDelaySlider:GetName()..'Low']:SetText('0.1')
-    _G[Guildbook.CommsDelaySlider:GetName()..'High']:SetText('4.0')
+    _G[Guildbook.CommsDelaySlider:GetName()..'Low']:SetText('0.5')
+    _G[Guildbook.CommsDelaySlider:GetName()..'High']:SetText('4.4')
     Guildbook.CommsDelaySlider:SetScript('OnValueChanged', function(self)
         Guildbook.COMMS_DELAY = self:GetValue()
-        _G[Guildbook.CommsDelaySlider:GetName()..'Text']:SetText(string.format("%.2f", self:GetValue()))
+        _G[Guildbook.CommsDelaySlider:GetName()..'Text']:SetText(string.format("%.2f", self:GetValue() + 0.4))
         if GUILDBOOK_GLOBAL then
-            GUILDBOOK_GLOBAL['CommsDelay'] = self:GetValue()
+            GUILDBOOK_GLOBAL['CommsDelay'] = self:GetValue() -- there is a hidden delay in the loading process of character data so this is a slight lie
         end
     end)
     Guildbook.CommsDelaySlider.tooltipText = 'Adjust the delay between the comms traffic and the UI refreshing'
@@ -123,90 +119,4 @@ function GuildbookOptions_OnLoad(self)
     end)
 end
 
-function GuildbookOptionsMainSpecIsPvpSpecCB_OnClick(self)
-    if GUILDBOOK_CHARACTER and GUILDBOOK_GLOBAL then
-        GUILDBOOK_CHARACTER['MainSpecIsPvP'] = self:GetChecked()
-    end
-end
-
-function GuildbookOptionsOffSpecIsPvpSpecCB_OnClick(self)
-    if GUILDBOOK_CHARACTER and GUILDBOOK_GLOBAL then
-        GUILDBOOK_CHARACTER['OffSpecIsPvP'] = self:GetChecked()
-    end
-end
-
-function GuildbookOptionsMainCharacterNameInputBox_OnTextChanged(self)
-    if GUILDBOOK_CHARACTER and GUILDBOOK_GLOBAL then
-        if string.len(self:GetText()) > 0 then
-            GUILDBOOK_CHARACTER['MainCharacter'] = tostring(self:GetText())
-        else
-            GUILDBOOK_CHARACTER['MainCharacter'] = '-'
-        end
-    end
-end
-
-function GuildbookOptionsMainCharacterNameInputBox_OnEnterPressed(self)
-    self:ClearFocus()
-end
-
-function GuildbookOptionsMainSpecDD_Init()
-    if GUILDBOOK_CHARACTER and GUILDBOOK_GLOBAL then
-        UIDropDownMenu_Initialize(GuildbookOptionsMainSpecDD, function(self, level, menuList)
-            local info = UIDropDownMenu_CreateInfo()
-            local _, class, _ = UnitClass('player')
-            for i, spec in pairs(Guildbook.Data.Class[class].Specializations) do
-                info.text = tostring(Guildbook.Data.SpecFontStringIconSMALL[class][spec]..'  '..L[spec])
-                info.hasArrow = false
-                info.keepShownOnClick = false
-                info.func = function() 
-                    UIDropDownMenu_SetText(GuildbookOptionsMainSpecDD, L[spec]) 
-                    GUILDBOOK_CHARACTER['MainSpec'] = tostring(spec)
-                    local guildName = Guildbook:GetGuildName()
-                    if guildName and GUILDBOOK_GLOBAL.GuildRosterCache[guildName] then
-                        if not GUILDBOOK_GLOBAL.GuildRosterCache[guildName] then
-                            GUILDBOOK_GLOBAL.GuildRosterCache[guildName] = {
-                                [UnitGUID('player')] = {}
-                            }
-                        end
-                        if not GUILDBOOK_GLOBAL.GuildRosterCache[guildName][UnitGUID('player')] then
-                            GUILDBOOK_GLOBAL.GuildRosterCache[guildName][UnitGUID('player')] = {}
-                        end
-                        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][UnitGUID('player')].MainSpec = tostring(spec)
-                    end
-                end
-                UIDropDownMenu_AddButton(info)
-            end
-        end)
-    end
-end
-function GuildbookOptionsOffSpecDD_Init()
-    if GUILDBOOK_CHARACTER and GUILDBOOK_GLOBAL then
-        UIDropDownMenu_Initialize(GuildbookOptionsOffSpecDD, function(self, level, menuList)
-            local info = UIDropDownMenu_CreateInfo()
-            local _, class, _ = UnitClass('player')
-            for i, spec in pairs(Guildbook.Data.Class[class].Specializations) do
-                info.text = tostring(Guildbook.Data.SpecFontStringIconSMALL[class][spec]..'  '..L[spec])
-                info.hasArrow = false
-                info.keepShownOnClick = false
-                info.func = function() 
-                    UIDropDownMenu_SetText(GuildbookOptionsOffSpecDD, L[spec]) 
-                    GUILDBOOK_CHARACTER['OffSpec'] = tostring(spec)
-                    local guildName = Guildbook:GetGuildName()
-                    if guildName then
-                        if not GUILDBOOK_GLOBAL.GuildRosterCache[guildName] then
-                            GUILDBOOK_GLOBAL.GuildRosterCache[guildName] = {
-                                [UnitGUID('player')] = {}
-                            }
-                        end
-                        if not GUILDBOOK_GLOBAL.GuildRosterCache[guildName][UnitGUID('player')] then
-                            GUILDBOOK_GLOBAL.GuildRosterCache[guildName][UnitGUID('player')] = {}
-                        end
-                        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][UnitGUID('player')].OffSpec = tostring(spec)
-                    end
-                end
-                UIDropDownMenu_AddButton(info)
-            end
-        end)
-    end
-end
 
