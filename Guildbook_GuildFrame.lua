@@ -1840,30 +1840,6 @@ function Guildbook:SetupProfilesFrame()
 
                     -- 3d model stuff (experimental)
                     self:LoadCharacterModel(race, sex)
-                    -- if self.PaperdollTab.CharacterModels[race] and self.PaperdollTab.CharacterModels[race][sex] then
-                    --     self.PaperdollTab.CharacterModels[race][sex]:Undress()
-                    --     C_Timer.After(0.0, function()
-                    --         self.PaperdollTab.CharacterModels[race][sex]:Show()
-                    --     end)
-                    --     if character.Inventory and character.Inventory.Current then
-                    --         C_Timer.After(0.1, function()
-                    --             for slot, link in pairs(character.Inventory.Current) do
-                    --                 if link ~= false and slot ~= 'TABARDSLOT' then
-                    --                     self.PaperdollTab.CharacterModels[race][sex]:TryOn(link)
-                    --                 end
-                    --             end
-                    --         end)
-
-                    --         -- it seems an issue when fetching data from saved vars, probably comms taking a while, so make the call again to grab anything not updated
-                    --         C_Timer.After(3.0, function()
-                    --             for slot, link in pairs(character.Inventory.Current) do
-                    --                 if link ~= false and slot ~= 'TABARDSLOT' then
-                    --                     self.PaperdollTab.CharacterModels[race][sex]:TryOn(link)
-                    --                 end
-                    --             end
-                    --         end)
-                    --     end
-                    -- end
 
                     -- load race portrait
                     --self.PaperdollTab.Overlay.portrait:SetTexture(raceTexture)
@@ -1889,8 +1865,6 @@ function Guildbook:SetupProfilesFrame()
                             if character.PaperDollStats and character.PaperDollStats[v.key] then
                                 self.PaperdollTab.Overlay.AttributesPanel[k].Level:SetText(character.PaperDollStats[v.key])
                                 DEBUG('func', 'LoadCharacter', v.key..character.PaperDollStats[v.key])
-
-
                             end
                         end
 

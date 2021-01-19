@@ -727,9 +727,9 @@ end
 --- scan the players trade skills
 --- this is used to get data about the players professions, recipes and reagents
 function Guildbook:ScanTradeSkill()
-    local prof = GetTradeSkillLine()
-    --local profLocale = Guildbook:GetLocaleFromEnglish(locale, prof)
-    --if profLocale then
+    local prof = GetTradeSkillLine() -- this returns local name
+    if Guildbook.GetEnglish(prof) then
+        prof = Guildbook.GetEnglish(prof) --convert to english, this is a lookup table
         GUILDBOOK_CHARACTER[prof] = {}
         for i = 1, GetNumTradeSkills() do
             local name, type, _, _, _, _ = GetTradeSkillInfo(i)
@@ -755,7 +755,7 @@ function Guildbook:ScanTradeSkill()
                 end
             end
         end
-    --end
+    end
 end
 
 
@@ -763,9 +763,7 @@ end
 --- this is used to get data about the players professions, recipes and reagents
 function Guildbook:ScanCraftSkills_Enchanting()
     local currentCraftingWindow = GetCraftSkillLine(1)
-    --local craftLocale = Guildbook:GetLocaleFromEnglish(locale, 'Enchanting')
-    --if craftLocale == currentCraftingWindow then
-    if L['Enchanting'] == currentCraftingWindow then
+    if L['Enchanting'] == currentCraftingWindow then -- check we have enchanting open
         GUILDBOOK_CHARACTER['Enchanting'] = {}
         for i = 1, GetNumCrafts() do
             local name, _, type, _, _, _, _ = GetCraftInfo(i)
@@ -2161,6 +2159,13 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
 end
 
 
+function Guildbook:UNIT_SPELLCAST_SUCCEEDED(...)
+    local unit = select(1, ...)
+    local spellID = select(3, ...)
+
+    print(unit, spellID)
+end
+
 
 --set up event listener
 Guildbook.EventFrame = CreateFrame('FRAME', 'GuildbookEventFrame', UIParent)
@@ -2175,6 +2180,7 @@ Guildbook.EventFrame:RegisterEvent('RAID_ROSTER_UPDATE')
 Guildbook.EventFrame:RegisterEvent('BANKFRAME_OPENED')
 Guildbook.EventFrame:RegisterEvent('CHAT_MSG_GUILD')
 Guildbook.EventFrame:RegisterEvent('UPDATE_MOUSEOVER_UNIT')
+Guildbook.EventFrame:RegisterEvent('UNIT_SPELLCAST_SUCCEEDED')
 --Guildbook.EventFrame:RegisterEvent('PLAYER_TALENT_UPDATE')
 Guildbook.EventFrame:RegisterEvent('PLAYER_EQUIPMENT_CHANGED')
 Guildbook.EventFrame:SetScript('OnEvent', function(self, event, ...)
