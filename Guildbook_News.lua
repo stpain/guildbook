@@ -242,4 +242,18 @@ Added the ZG texture to calendar
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    -- forgot to bump the toc, same news as 415
+    [4.16] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+More calendar fixes, sorry for any issues you've been having, these bugs don't show themselves well when testing solo.
+
+|cff0070DEUpdates|r:
+Added the ZG texture to calendar
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }
