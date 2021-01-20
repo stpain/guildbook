@@ -1726,6 +1726,7 @@ function Guildbook:OnGuildCalendarEventsReceived(data, distribution, sender)
                             name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
                         end
                         if not dbEvent.attend[guid] then
+                            dbEvent.attend[guid] = {}
                             dbEvent.attend[guid].Updated = GetServerTime()
                             dbEvent.attend[guid].Status = info.Status
                             DEBUG('func', 'OnGuildCalendarEventsReceived', string.format("added %s attend status for %s", name, dbEvent.title))
