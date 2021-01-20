@@ -29,7 +29,7 @@ local LibSerialize = LibStub:GetLibrary("LibSerialize")
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 --variables
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
-local build = 4.14
+local build = 4.15
 local locale = GetLocale()
 local L = Guildbook.Locales
 
@@ -653,18 +653,12 @@ function Guildbook:ScanPlayerContainers()
             local name = C_PlayerInfo.GetName(self.PlayerMixin)
 
             if not GUILDBOOK_CHARACTER['GuildBank'] then
-                GUILDBOOK_CHARACTER['GuildBank'] = {
-                    [name] = {
-                        Data = {},
-                        Commit = GetServerTime(),
-                    }
-                }
-            else
-                GUILDBOOK_CHARACTER['GuildBank'][name] = {
-                    Commit = GetServerTime(),
-                    Data = {},
-                }
+                GUILDBOOK_CHARACTER['GuildBank'] = {}
             end
+            GUILDBOOK_CHARACTER['GuildBank'][name] = {
+                Commit = GetServerTime(),
+                Data = {},
+            }
 
             -- player bags
             for bag = 0, 4 do
@@ -1464,18 +1458,18 @@ end
 
 function Guildbook:OnGuildBankCommitReceived(data, distribution, sender)
     if distribution == 'WHISPER' then
-        --DEBUG('comms_in', 'OnGuildBankCommitReceived', string.format('Received a commit for bank character %s from %s - commit time: %s', data.payload.Character, sender, data.payload.Commit))
+        DEBUG('comms_in', 'OnGuildBankCommitReceived', string.format('Received a commit for bank character %s from %s - commit time: %s', data.payload.Character, sender, data.payload.Commit))
         if Guildbook.GuildBankCommit['Commit'] == nil then
             Guildbook.GuildBankCommit['Commit'] = data.payload.Commit
             Guildbook.GuildBankCommit['Character'] = sender
             Guildbook.GuildBankCommit['BankCharacter'] = data.payload.Character
-            --DEBUG('comms_in', 'OnGuildBankCommitReceived', string.format('First response added to temp table, %s->%s', sender, data.payload.Commit))
+            DEBUG('comms_in', 'OnGuildBankCommitReceived', string.format('First response added to temp table, %s->%s', sender, data.payload.Commit))
         else
             if tonumber(data.payload.Commit) > tonumber(Guildbook.GuildBankCommit['Commit']) then
                 Guildbook.GuildBankCommit['Commit'] = data.payload.Commit
                 Guildbook.GuildBankCommit['Character'] = sender
                 Guildbook.GuildBankCommit['BankCharacter'] = data.payload.Character
-                --DEBUG('comms_in', 'OnGuildBankCommitReceived', string.format('Response commit is newer than temp table commit, updating info - %s->%s', sender, data.payload.Commit))
+                DEBUG('comms_in', 'OnGuildBankCommitReceived', string.format('Response commit is newer than temp table commit, updating info - %s->%s', sender, data.payload.Commit))
             end
         end
     end
@@ -1488,7 +1482,7 @@ function Guildbook:SendGuildBankDataRequest()
             payload = Guildbook.GuildBankCommit['BankCharacter']
         }
         self:Transmit(request, 'WHISPER', Guildbook.GuildBankCommit['Character'], 'NORMAL')
-        --DEBUG('comms_out', 'SendGuildBankDataRequest', string.format('Sending request for guild bank data to %s for bank character %s', Guildbook.GuildBankCommit['Character'], Guildbook.GuildBankCommit['BankCharacter']))
+        DEBUG('comms_out', 'SendGuildBankDataRequest', string.format('Sending request for guild bank data to %s for bank character %s', Guildbook.GuildBankCommit['Character'], Guildbook.GuildBankCommit['BankCharacter']))
     end
 end
 

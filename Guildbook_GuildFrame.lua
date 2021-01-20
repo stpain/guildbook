@@ -490,6 +490,7 @@ function Guildbook:SetupGuildCalendarFrame()
         ['AQ20'] = 131818,
         ['AQ40'] = 131819,
         ['NAXX'] = 131854,
+        ['ZG'] = 131886,
     }
 
 
@@ -806,6 +807,10 @@ function Guildbook:SetupGuildCalendarFrame()
                         end
 
                     end
+                else
+                    for i = 1, 3 do
+                        f['eventButton'..i]:Hide()
+                    end
                 end
             end)
             
@@ -856,12 +861,16 @@ function Guildbook:SetupGuildCalendarFrame()
         end
         local d, nm = 1, 1
         for i, day in ipairs(Guildbook.GuildFrame.GuildCalendarFrame.MonthView) do
-            day.events = nil
+            for b = 1, 3 do
+                day['eventButton'..b]:Hide()
+            end
+            wipe(day.events)
             wipe(day.worldEvents)
             day.dmf = false
             day:Disable()
             day.dateText:SetText(' ')
             day.worldEventTexture:SetTexture(nil)
+            day.guildEventTexture:SetTexture(nil)
             if i < monthStart then
                 day.dateText:SetText((daysInLastMonth - monthStart + 2) + (i - 1))
                 day.dateText:SetTextColor(0.5, 0.5, 0.5, 1)
