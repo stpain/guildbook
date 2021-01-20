@@ -728,8 +728,8 @@ end
 --- this is used to get data about the players professions, recipes and reagents
 function Guildbook:ScanTradeSkill()
     local prof = GetTradeSkillLine() -- this returns local name
-    if Guildbook.GetEnglish(prof) then
-        prof = Guildbook.GetEnglish(prof) --convert to english, this is a lookup table
+    if Guildbook.GetEnglish[prof] then
+        prof = Guildbook.GetEnglish[prof] --convert to english, this is a lookup table
         GUILDBOOK_CHARACTER[prof] = {}
         for i = 1, GetNumTradeSkills() do
             local name, type, _, _, _, _ = GetTradeSkillInfo(i)
@@ -2163,7 +2163,9 @@ function Guildbook:UNIT_SPELLCAST_SUCCEEDED(...)
     local unit = select(1, ...)
     local spellID = select(3, ...)
 
-    print(unit, spellID)
+    if unit == 'player' then
+        --print(unit, spellID)
+    end
 end
 
 

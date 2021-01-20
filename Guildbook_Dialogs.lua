@@ -75,8 +75,6 @@ StaticPopupDialogs['GuildbookResetCharacter'] = {
             GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][UnitGUID('player')] = nil
         end
         GUILDBOOK_CHARACTER = Guildbook.Data.DefaultCharacterSettings
-        UIDropDownMenu_SetText(GuildbookOptionsMainSpecDD, '')
-        UIDropDownMenu_SetText(GuildbookOptionsOffSpecDD, '')
         ReloadUI()
     end,
     OnCancel = function(self)
