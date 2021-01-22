@@ -279,6 +279,9 @@ function Guildbook:Init()
 
     -- hook the tooltip for characters
     GameTooltip:HookScript('OnTooltipSetUnit', function(self)
+        if GUILDBOOK_GLOBAL['TooltipInfo'] == false then
+            return
+        end
         local _, unit = self:GetUnit()
         local guid = unit and UnitGUID(unit) or nil
         if guid and guid:find('Player') then        
@@ -288,15 +291,23 @@ function Guildbook:Init()
                 local r, g, b = unpack(Guildbook.Data.Class[character.Class].RGB)
                 self:AddLine('Guildbook:', 0.00, 0.44, 0.87, 1)
                 --add info to tooltip
-                --_G['GameTooltipTextLeft1']:SetText(Guildbook.Data.Class[character.Class].FontColour..character.Name..'|r')
-                self:AddDoubleLine(L['Main'], character.MainCharacter, r, g, b, 1, 1, 1, 1, 1)
-                if character.MainSpec then
-                    self:AddLine(Guildbook.Data.SpecFontStringIconSMALL[character.Class][character.MainSpec]..' '..character.MainSpec, 1,1,1,1)
+                if GUILDBOOK_GLOBAL['TooltipInfoMainCharacter'] == true then
+                    self:AddDoubleLine(L['Main'], character.MainCharacter, r, g, b, 1, 1, 1, 1, 1)
                 end
-                if character.OffSpec ~= '-' then
-                    self:AddLine(Guildbook.Data.SpecFontStringIconSMALL[character.Class][character.OffSpec]..' '..character.OffSpec, 1,1,1,1)
+                if GUILDBOOK_GLOBAL['TooltipInfoMainSpec'] == true then
+                    if character.MainSpec then
+                        self:AddLine(Guildbook.Data.SpecFontStringIconSMALL[character.Class][character.MainSpec]..' '..character.MainSpec, 1,1,1,1)
+                        --self:AddLine(Guildbook.Data.SpecFontStringIconSMALL[character.Class][character.OffSpec]..' '..character.OffSpec, 1,1,1,1)
+                    end
                 end
-
+                if GUILDBOOK_GLOBAL['TooltipInfoProfessions'] == true then
+                    if character.Profession1 ~= '-' then
+                        self:AddDoubleLine(Guildbook.Data.Profession[character.Profession1].FontStringIconSMALL..' '..character.Profession1, character.Profession1Level, 1,1,1,1,1,1,1,1)
+                    end
+                    if character.Profession2 ~= '-' then
+                        self:AddDoubleLine(Guildbook.Data.Profession[character.Profession2].FontStringIconSMALL..' '..character.Profession2, character.Profession2Level, 1,1,1,1,1,1,1,1)
+                    end
+                end
                 --self:AddTexture(Guildbook.Data.Class[character.Class].Icon,{width = 36, height = 36})
             end
         end
@@ -319,6 +330,37 @@ function Guildbook:Init()
             GUILDBOOK_GLOBAL['CommsDelay'] = 0.2
         end
         Guildbook.CommsDelaySlider:SetValue(GUILDBOOK_GLOBAL['CommsDelay'])
+
+        if not GUILDBOOK_GLOBAL['TooltipInfo'] then
+            GUILDBOOK_GLOBAL['TooltipInfo'] = false
+        end
+        GuildbookOptionsTooltipInfo:SetChecked(GUILDBOOK_GLOBAL['TooltipInfo'])
+
+        if not GUILDBOOK_GLOBAL['TooltipInfoMainSpec'] then
+            GUILDBOOK_GLOBAL['TooltipInfoMainSpec'] = false
+        end
+        GuildbookOptionsTooltipInfoMainSpec:SetChecked(GUILDBOOK_GLOBAL['TooltipInfoMainSpec'])
+
+        if not GUILDBOOK_GLOBAL['TooltipInfoProfessions'] then
+            GUILDBOOK_GLOBAL['TooltipInfoProfessions'] = false
+        end
+        GuildbookOptionsTooltipInfoProfessions:SetChecked(GUILDBOOK_GLOBAL['TooltipInfoProfessions'])
+
+        if not GUILDBOOK_GLOBAL['TooltipInfoMainCharacter'] then
+            GUILDBOOK_GLOBAL['TooltipInfoMainCharacter'] = false
+        end
+        GuildbookOptionsTooltipInfoMainCharacter:SetChecked(GUILDBOOK_GLOBAL['TooltipInfoMainCharacter'])
+
+        if GUILDBOOK_GLOBAL['TooltipInfo'] == false then
+            GuildbookOptionsTooltipInfoMainSpec:Disable()
+            GuildbookOptionsTooltipInfoProfessions:Disable()
+            GuildbookOptionsTooltipInfoMainCharacter:Disable()
+        else
+            GuildbookOptionsTooltipInfoMainSpec:Enable()
+            GuildbookOptionsTooltipInfoProfessions:Enable()
+            GuildbookOptionsTooltipInfoMainCharacter:Enable()
+        end
+
     end
 
     -- stagger some start up calls to prevent chat spam, use 3s interval

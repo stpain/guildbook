@@ -71,7 +71,7 @@ StaticPopupDialogs['GuildbookResetCharacter'] = {
     OnAccept = function(self)
         wipe(GUILDBOOK_CHARACTER)
         local guildName = Guildbook:GetGuildName()
-        if guildName then
+        if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
             GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][UnitGUID('player')] = nil
         end
         GUILDBOOK_CHARACTER = Guildbook.Data.DefaultCharacterSettings
@@ -88,7 +88,7 @@ StaticPopupDialogs['GuildbookResetCharacter'] = {
 }
 
 StaticPopupDialogs['GuildbookResetGlobalSettings'] = {
-    text = 'Reset global settings to default values?',
+    text = 'Reset global settings to default values? \n\nThis will delete all data about all guilds you are a member of.',
     button1 = 'Reset',
     button2 = 'Cancel',
     OnAccept = function(self)

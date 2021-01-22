@@ -62,6 +62,44 @@ function GuildbookOptionsShowMinimapButton_OnClick(self)
     end
 end
 
+function GuildbookOptionsTooltipInfo_OnClick(self)
+    if not GUILDBOOK_GLOBAL then
+        return
+    end
+    GUILDBOOK_GLOBAL['TooltipInfo'] = self:GetChecked()
+    if GUILDBOOK_GLOBAL['TooltipInfo'] == false then
+        GuildbookOptionsTooltipInfoMainSpec:Disable()
+        GuildbookOptionsTooltipInfoMainSpecText:SetTextColor(0.5, 0.5, 0.5, 0.5)
+        GuildbookOptionsTooltipInfoProfessions:Disable()
+        GuildbookOptionsTooltipInfoMainCharacter:Disable()
+    else
+        GuildbookOptionsTooltipInfoMainSpec:Enable()
+        GuildbookOptionsTooltipInfoProfessions:Enable()
+        GuildbookOptionsTooltipInfoMainCharacter:Enable()
+    end
+end
+
+function GuildbookOptionsTooltipInfoMainSpec_OnClick(self)
+    if not GUILDBOOK_GLOBAL then
+        return
+    end
+    GUILDBOOK_GLOBAL['TooltipInfoMainSpec'] = self:GetChecked()
+end
+
+function GuildbookOptionsTooltipInfoProfessions_OnClick(self)
+    if not GUILDBOOK_GLOBAL then
+        return
+    end
+    GUILDBOOK_GLOBAL['TooltipInfoProfessions'] = self:GetChecked()
+end
+
+function GuildbookOptionsTooltipInfoMainCharacter_OnClick(self)
+    if not GUILDBOOK_GLOBAL then
+        return
+    end
+    GUILDBOOK_GLOBAL['TooltipInfoMainCharacter'] = self:GetChecked()
+end
+
 function GuildbookOptionsRosterHealthCheck_OnClick()
     local guildName = Guildbook:GetGuildName()
     if guildName then
@@ -71,8 +109,15 @@ end
 
 function GuildbookOptions_OnLoad(self)
 
+    local version = GetAddOnMetadata('Guildbook', "Version")
+
+    GuildbookOptionsTitle:SetText('Guildbook')
+    GuildbookOptionsAbout:SetText(L['OptionsAbout'])
+    GuildbookOptionsVersion:SetText(L['Version']..' '..version)
+    GuildbookOptionsAuthor:SetText(L['Author'])
+
     local deleteGuildDropdown = CreateFrame('FRAME', 'GuildbookDeleteGuildDropDown', GuildbookOptions, "UIDropDownMenuTemplate")
-    deleteGuildDropdown:SetPoint('BOTTOMRIGHT', _G['GuildbookOptionsRosterHealthCheck'], 'BOTTOMRIGHT', 10, 40.0)
+    deleteGuildDropdown:SetPoint('LEFT', _G['GuildbookOptionsRosterHealthCheck'], 'RIGHT', 40, 0)
     UIDropDownMenu_SetWidth(deleteGuildDropdown, 180)
     UIDropDownMenu_SetText(deleteGuildDropdown, 'Delete Guild')
     _G['GuildbookDeleteGuildDropDownButton']:SetScript('OnClick', function()
@@ -87,13 +132,13 @@ function GuildbookOptions_OnLoad(self)
                     end
                 })
             end
-            EasyMenu(t, deleteGuildDropdown, deleteGuildDropdown, 10, 10, 'NONE')
+            EasyMenu(t, deleteGuildDropdown, deleteGuildDropdown, 10, 10, 'NONE', 3)
         end
     end)
 
     Guildbook.CommsDelaySlider = CreateFrame('SLIDER', 'CommsDelay', self, "OptionsSliderTemplate")
     Guildbook.CommsDelaySlider:SetOrientation('HORIZONTAL')
-    Guildbook.CommsDelaySlider:SetPoint('BOTTOM', -50, 20)
+    Guildbook.CommsDelaySlider:SetPoint('LEFT', _G['GuildbookOptionsDebugCB'], 'RIGHT', 100, 0)
     Guildbook.CommsDelaySlider:SetSize(140, 16)
     Guildbook.CommsDelaySlider:EnableMouse(true)
     Guildbook.CommsDelaySlider:SetValueStep(0.1)

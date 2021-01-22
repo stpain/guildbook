@@ -38,7 +38,9 @@ local L = {}
 
 -- buttons, labels and texts
 L['CharacterName'] = 'Data Recipient'
-L['OptionsHeader'] = 'Guildbook allows players to share more detail about their characters with guild members. Use the options below your to set spec/alt information for your character.'
+L['OptionsAbout'] = 'Guildbook options and about.'
+L['Version'] = 'Version'
+L['Author'] = 'Author: |cffffffffstpain (|r|cffF58CBACopperbolts|r, |cffABD473Windstalker|r |cffffffffand|r |cff0070DEKylanda|r|cffffffff)|r'
 L['Summary'] = 'Summary'
 L['SummaryHeader'] = 'Guild Summary'
 L['Roster'] = 'Roster'
@@ -216,7 +218,7 @@ if locale == "deDE" then
 
     -- buttons, labels and texts
     L['CharacterName'] = 'Data Recipient'
-    L['OptionsHeader'] = 'Guildbook allows players to share more detail about their characters with guild members. Use the options below your to set spec/alt information for your character.'
+    L['OptionsAbout'] = 'Guildbook allows players to share more detail about their characters with guild members. Use the options below your to set spec/alt information for your character.'
     L['Summary'] = 'Summary'
     L['SummaryHeader'] = 'Guild Summary'
     L['Roster'] = 'Roster'
@@ -339,7 +341,7 @@ elseif locale == 'frFR' then
 
     -- buttons, labels and texts
     L['CharacterName'] = 'Data Recipient'
-    L['OptionsHeader'] = 'Guildbook allows players to share more detail about their characters with guild members. Use the options below your to set spec/alt information for your character.'
+    L['OptionsAbout'] = 'Guildbook allows players to share more detail about their characters with guild members. Use the options below your to set spec/alt information for your character.'
     L['Summary'] = 'Summary'
     L['SummaryHeader'] = 'Guild Summary'
     L['Roster'] = 'Roster'
