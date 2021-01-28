@@ -315,6 +315,91 @@ the copyright holders.
 
 
 
+    <!--
+    this is taken straight from blizzard, i have prepended the names with Guildbook_
+    much easier to just add a newer feature into the older game than code a custom button to do the same OnClick func
+    -->
+    <Button name="Guildbook_GameTimeFrame" parent="Minimap">
+		<Size>
+			<AbsDimension x="40" y="40"/>
+		</Size>
+		<Anchors>
+			<Anchor point="TOPRIGHT">
+				<Offset>
+					<AbsDimension x="20" y="-2"/>
+				</Offset>
+			</Anchor>
+		</Anchors>
+		<HitRectInsets>
+			<AbsInset left="6" right="0" top="5" bottom="10"/>
+		</HitRectInsets>
+		<Layers>
+			<Layer level="ARTWORK">
+				<!--
+				GameTimeTexture is the old day/night icon and is currently ALWAYS hidden, it is still here in case we want it back at some point
+				-->
+				<Texture name="Guildbook_GameTimeTexture" file="Interface\Minimap\UI-TOD-Indicator" hidden="true"/>
+				<Texture name="Guildbook_GameTimeCalendarInvitesTexture" file="Interface\Calendar\EventNotification" hidden="true">
+					<Size x="28" y="32"/>
+					<Anchors>
+						<Anchor point="CENTER">
+							<Offset x="0" y="1"/>
+						</Anchor>
+					</Anchors>
+					<TexCoords left="0.03125" right="0.6484375" top="0.03125" bottom="0.8671875"/>
+				</Texture>
+				<Texture name="Guildbook_GameTimeCalendarInvitesGlow" file="Interface\Calendar\EventNotificationGlow" hidden="true" alphaMode="ADD">
+					<Size>
+						<AbsDimension x="48" y="48"/>
+					</Size>
+					<Anchors>
+						<Anchor point="CENTER">
+							<Offset x="0" y="2"/>
+						</Anchor>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<Texture name="Guildbook_GameTimeCalendarEventAlarmTexture" file="Interface\Calendar\UI-Calendar-Button-Glow" alphaMode="ADD" hidden="true">
+					<Size x="64" y="64"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<!-- <OnLoad function="GameTimeFrame_OnLoad"/> -->
+			<OnShow>
+
+			</OnShow>
+			<!-- <OnEnter function="GameTimeFrame_OnEnter"/>
+			<OnLeave function="GameTooltip_Hide"/>
+			<OnEvent function="GameTimeFrame_OnEvent"/>
+			<OnUpdate function="GameTimeFrame_OnUpdate"/>
+			<OnClick function="GameTimeFrame_OnClick"/> -->
+		</Scripts>
+		<ButtonText>
+			<Anchors>
+				<Anchor point="CENTER">
+					<Offset>
+						<AbsDimension x="-1" y="-1"/>
+					</Offset>
+				</Anchor>
+			</Anchors>
+		</ButtonText>
+		<NormalFont style="GameFontBlack"/>
+		<NormalTexture file="Interface\Calendar\UI-Calendar-Button">
+			<TexCoords left="0.0" right="0.390625" top="0.0" bottom="0.78125"/>
+		</NormalTexture>
+		<PushedTexture file="Interface\Calendar\UI-Calendar-Button">
+			<TexCoords left="0.5" right="0.890625" top="0.0" bottom="0.78125"/>
+		</PushedTexture>
+		<HighlightTexture alphaMode="ADD" file="Interface\Minimap\UI-Minimap-ZoomButton-Highlight"/>
+	</Button>
+
+
+
 
 
 

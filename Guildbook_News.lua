@@ -256,4 +256,19 @@ Added the ZG texture to calendar
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [4.17] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+-
+
+|cff0070DEUpdates|r:
+Improved the calendar a bit more and added the minimap calendar button.
+Added raid lockouts to the calendar UI.
+Added attunements to the profile home tab.
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }

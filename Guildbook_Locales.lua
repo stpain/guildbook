@@ -65,7 +65,7 @@ L['Main'] = 'Main:'
 L['Rank'] = 'Rank'
 L['Note'] = 'Note'
 L['OffSpec'] = 'Off Spec:'
-L['IsPvpSpec'] = '  PVP'
+L['IsPvpSpec'] = ' PVP'
 L['Class'] = 'Class'
 L['FirstAid'] = 'First Aid'
 L['Fishing'] = 'Fishing'
@@ -93,6 +93,7 @@ L['Cancel'] = 'Cancel'
 L['GuildBank'] = 'Guild Bank'
 L['Events'] = 'Events'
 L['WorldEvents'] = 'World Events'
+L['Attunements'] = 'Attunements'
 
 --professions
 L['Alchemy'] = 'Alchemy'
@@ -156,7 +157,19 @@ L['Holy'] = 'Holy'
 L['Discipline'] = 'Discipline'
 L['Shadow'] = 'Shadow'
 
-
+--date time
+L['January'] = 'January'
+L['February'] = 'February'
+L['March'] = 'March'
+L['April'] = 'April'
+L['May'] = 'May'
+L['June'] = 'June'
+L['July'] = 'July'
+L['August'] = 'August'
+L['September'] = 'September'
+L['October'] = 'October'
+L['November'] = 'November'
+L['December'] = 'December'
 --------------------------------------------------------------------------------------------
 -- help text tooltips
 --------------------------------------------------------------------------------------------

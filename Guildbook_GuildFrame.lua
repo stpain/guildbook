@@ -402,26 +402,26 @@ end
 
 function Guildbook:SetupGuildCalendarFrame()
 
-    self.GuildFrame.GuildCalendarFrame.PushEvents = CreateFrame('BUTTON', 'GuildbookGuildInfoFrameGuildCalendarFramePushEvents', Guildbook.GuildFrame.GuildCalendarFrame, 'UIPanelButtonTemplate')
-    self.GuildFrame.GuildCalendarFrame.PushEvents:SetPoint('TOPRIGHT', -16, -16)
-    self.GuildFrame.GuildCalendarFrame.PushEvents:SetText('Push Events')
-    self.GuildFrame.GuildCalendarFrame.PushEvents:SetSize(120, 20)
-    self.GuildFrame.GuildCalendarFrame.PushEvents:SetScript('OnClick', function(self)
-        GUILDBOOK_GLOBAL['LastCalendarTransmit'] = GetServerTime()
-        Guildbook:SendGuildCalendarEvents()
-        GUILDBOOK_GLOBAL['LastCalendarDeletedTransmit'] = GetServerTime()
-        Guildbook:SendGuildCalendarDeletedEvents()
-    end)
+    -- self.GuildFrame.GuildCalendarFrame.PushEvents = CreateFrame('BUTTON', 'GuildbookGuildInfoFrameGuildCalendarFramePushEvents', Guildbook.GuildFrame.GuildCalendarFrame, 'UIPanelButtonTemplate')
+    -- self.GuildFrame.GuildCalendarFrame.PushEvents:SetPoint('TOPRIGHT', -16, -16)
+    -- self.GuildFrame.GuildCalendarFrame.PushEvents:SetText('Push Events')
+    -- self.GuildFrame.GuildCalendarFrame.PushEvents:SetSize(120, 20)
+    -- self.GuildFrame.GuildCalendarFrame.PushEvents:SetScript('OnClick', function(self)
+    --     GUILDBOOK_GLOBAL['LastCalendarTransmit'] = GetServerTime()
+    --     Guildbook:SendGuildCalendarEvents()
+    --     GUILDBOOK_GLOBAL['LastCalendarDeletedTransmit'] = GetServerTime()
+    --     Guildbook:SendGuildCalendarDeletedEvents()
+    -- end)
 
-    self.GuildFrame.GuildCalendarFrame.RequestEvents = CreateFrame('BUTTON', 'GuildbookGuildInfoFrameGuildCalendarFrameRequestEvents', Guildbook.GuildFrame.GuildCalendarFrame, 'UIPanelButtonTemplate')
-    self.GuildFrame.GuildCalendarFrame.RequestEvents:SetPoint('TOPRIGHT', -16, -46)
-    self.GuildFrame.GuildCalendarFrame.RequestEvents:SetText('Request Events')
-    self.GuildFrame.GuildCalendarFrame.RequestEvents:SetSize(120, 20)
-    self.GuildFrame.GuildCalendarFrame.RequestEvents:SetScript('OnClick', function(self)
-        GUILDBOOK_GLOBAL['LastCalendarTransmit'] = GetServerTime()
-        Guildbook:RequestGuildCalendarEvents()
-        Guildbook:RequestGuildCalendarDeletedEvents()
-    end)
+    -- self.GuildFrame.GuildCalendarFrame.RequestEvents = CreateFrame('BUTTON', 'GuildbookGuildInfoFrameGuildCalendarFrameRequestEvents', Guildbook.GuildFrame.GuildCalendarFrame, 'UIPanelButtonTemplate')
+    -- self.GuildFrame.GuildCalendarFrame.RequestEvents:SetPoint('TOPRIGHT', -16, -46)
+    -- self.GuildFrame.GuildCalendarFrame.RequestEvents:SetText('Request Events')
+    -- self.GuildFrame.GuildCalendarFrame.RequestEvents:SetSize(120, 20)
+    -- self.GuildFrame.GuildCalendarFrame.RequestEvents:SetScript('OnClick', function(self)
+    --     GUILDBOOK_GLOBAL['LastCalendarTransmit'] = GetServerTime()
+    --     Guildbook:RequestGuildCalendarEvents()
+    --     Guildbook:RequestGuildCalendarDeletedEvents()
+    -- end)
 
     self.GuildFrame.GuildCalendarFrame.helpIcon = Guildbook:CreateHelperIcon(self.GuildFrame.GuildCalendarFrame, 'BOTTOMRIGHT', Guildbook.GuildFrame.GuildCalendarFrame, 'TOPRIGHT', -2, 2, L['calendarHelpText'])
 
@@ -485,12 +485,19 @@ function Guildbook:SetupGuildCalendarFrame()
     -- Sunwell Plateau – Isle of Quel’Danas
 
     local raidTextures = {
-        ['MC'] = 131851,
-        ['BWL'] = 131827,
-        ['AQ20'] = 131818,
-        ['AQ40'] = 131819,
-        ['NAXX'] = 131854,
-        ['ZG'] = 131886,
+        --['MC'] = 131851,
+        ['MC'] = 136346,
+        --['BWL'] = 131827,
+        ['BWL'] = 136329,
+        --['AQ20'] = 131818,
+        ['AQ20'] = 136320,
+        --['AQ40'] = 131819,
+        ['AQ40'] = 136321,
+        --['NAXX'] = 131854,
+        ['NAXX'] = 136347,
+        --['ZG'] = 131886,
+        ['ZG'] = 136369,
+        ['ONY'] = 329121,
     }
 
 
@@ -502,6 +509,7 @@ function Guildbook:SetupGuildCalendarFrame()
             func = function()
                 Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetText('MC')
                 Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 1
+                CloseDropDownMenus()
             end,
         },
         {
@@ -510,6 +518,16 @@ function Guildbook:SetupGuildCalendarFrame()
             func = function()
                 Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetText('BWL')
                 Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 1
+                CloseDropDownMenus()
+            end,
+        },
+        {
+            text = 'Onyxia',
+            notCheckable = true,
+            func = function()
+                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetText('ONY')
+                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 1
+                CloseDropDownMenus()
             end,
         },
         {
@@ -518,6 +536,7 @@ function Guildbook:SetupGuildCalendarFrame()
             func = function()
                 Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetText('ZG')
                 Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 1
+                CloseDropDownMenus()
             end,
         },
         {
@@ -526,6 +545,7 @@ function Guildbook:SetupGuildCalendarFrame()
             func = function()
                 Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetText('AQ20')
                 Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 1
+                CloseDropDownMenus()
             end,
         },
         {
@@ -534,6 +554,7 @@ function Guildbook:SetupGuildCalendarFrame()
             func = function()
                 Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetText('AQ40')
                 Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 1
+                CloseDropDownMenus()
             end,
         },
         {
@@ -542,6 +563,7 @@ function Guildbook:SetupGuildCalendarFrame()
             func = function()
                 Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetText('NAXX')
                 Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 1
+                CloseDropDownMenus()
             end,
         },
     }
@@ -664,9 +686,19 @@ function Guildbook:SetupGuildCalendarFrame()
         self:GetParent():MonthChanged()
     end)
 
+    self.GuildFrame.GuildCalendarFrame.InstanceInfoFrame = CreateFrame('FRAME', 'GuildbookGuildFrameGuildCalendarFrameInstanceInfoFrame', Guildbook.GuildFrame.GuildCalendarFrame)
+    self.GuildFrame.GuildCalendarFrame.InstanceInfoFrame:SetPoint('TOPRIGHT', -6, -6)
+    self.GuildFrame.GuildCalendarFrame.InstanceInfoFrame:SetPoint('BOTTOMRIGHT', -6, 6)
+    self.GuildFrame.GuildCalendarFrame.InstanceInfoFrame:SetWidth(300)
+    self.GuildFrame.GuildCalendarFrame.InstanceInfoFrame.header = self.GuildFrame.GuildCalendarFrame.InstanceInfoFrame:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
+    self.GuildFrame.GuildCalendarFrame.InstanceInfoFrame.header:SetPoint('TOP', 0, -4)
+    self.GuildFrame.GuildCalendarFrame.InstanceInfoFrame.header:SetText('Instance locks')
+    self.GuildFrame.GuildCalendarFrame.InstanceInfoFrame.rows = {}
+
+
     self.GuildFrame.GuildCalendarFrame.CalendarParent = CreateFrame('FRAME', 'GuildbookGuildFrameGuildCalendarFrameParent', Guildbook.GuildFrame.GuildCalendarFrame)
-    self.GuildFrame.GuildCalendarFrame.CalendarParent:SetPoint('TOP', 0, -23)
-    self.GuildFrame.GuildCalendarFrame.CalendarParent:SetPoint('BOTTOM', 0, 0)
+    self.GuildFrame.GuildCalendarFrame.CalendarParent:SetPoint('TOPLEFT', 6, -23)
+    self.GuildFrame.GuildCalendarFrame.CalendarParent:SetPoint('BOTTOMLEFT', 6, 0)
     self.GuildFrame.GuildCalendarFrame.CalendarParent:SetWidth(490)
 
     -- draw days
@@ -710,6 +742,12 @@ function Guildbook:SetupGuildCalendarFrame()
             f.background:SetTexture(235428)
             f.background:SetTexCoord(texLeft, texRight, texTop, texBottom)
 
+            f.overlay = f:CreateTexture('$parentBackground', 'BACKGROUND')
+            f.overlay:SetPoint('TOPLEFT', 0, 0)
+            f.overlay:SetPoint('BOTTOMRIGHT', 0, 0)
+            f.overlay:SetColorTexture(0,0,0,0.6)
+            f.overlay:Hide()
+
             f.worldEventTexture = f:CreateTexture('$parentBackground', 'BORDER')
             f.worldEventTexture:SetPoint('TOPLEFT', 0, 0)
             f.worldEventTexture:SetPoint('BOTTOMRIGHT', 0, 0)
@@ -719,6 +757,8 @@ function Guildbook:SetupGuildCalendarFrame()
             -- set this as top layer so its clear there is an event
             f.guildEventTexture = f:CreateTexture('$parentBackground', 'ARTWORK')
             f.guildEventTexture:SetAllPoints(f)
+            -- f.guildEventTexture:SetPoint('TOPLEFT', 1, -1)
+            -- f.guildEventTexture:SetPoint('BOTTOMRIGHT', -1, 1)
             f.guildEventTexture:SetAlpha(0.9)
             --f.guildEventTexture:SetTexCoord(0.0, 1.0, 0.20, 0.8)
 
@@ -871,18 +911,20 @@ function Guildbook:SetupGuildCalendarFrame()
             day.dateText:SetText(' ')
             day.worldEventTexture:SetTexture(nil)
             day.guildEventTexture:SetTexture(nil)
+            if d == today.day and self.date.month == today.month then
+                day.currentDayTexture:Show()
+            else
+                day.currentDayTexture:Hide()
+            end
             if i < monthStart then
                 day.dateText:SetText((daysInLastMonth - monthStart + 2) + (i - 1))
                 day.dateText:SetTextColor(0.5, 0.5, 0.5, 1)
+                day.overlay:Show()
             end
             if i >= monthStart and d <= daysInMonth then
-                if d == today.day and self.date.month == today.month then
-                    day.currentDayTexture:Show()
-                else
-                    day.currentDayTexture:Hide()
-                end
                 day.dateText:SetText(d)
                 day.dateText:SetTextColor(1,1,1,1)
+                day.overlay:Hide()
                 day:Enable()
                 day.date = {
                     day = d,
@@ -991,6 +1033,7 @@ function Guildbook:SetupGuildCalendarFrame()
             if i > (daysInMonth + (monthStart - 1)) then
                 day.dateText:SetText(nm)
                 day.dateText:SetTextColor(0.5, 0.5, 0.5, 1)
+                day.overlay:Show()
                 nm = nm + 1
             end
         end
@@ -1052,6 +1095,7 @@ function Guildbook:SetupGuildCalendarFrame()
     self.GuildFrame.GuildCalendarFrame.EventFrame.CancelButton:SetNormalTexture(130832)
     self.GuildFrame.GuildCalendarFrame.EventFrame.CancelButton:GetNormalTexture():SetTexCoord(0.1, 0.9, 0.1, 0.85)
     self.GuildFrame.GuildCalendarFrame.EventFrame.CancelButton:SetHighlightTexture(130831)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.CancelButton:GetHighlightTexture(130831):SetTexCoord(0.1, 0.9, 0.1, 0.85)
     self.GuildFrame.GuildCalendarFrame.EventFrame.CancelButton:SetScript('OnClick', function(self)
         self:GetParent():Hide()
     end)
@@ -1107,7 +1151,7 @@ function Guildbook:SetupGuildCalendarFrame()
     end)
 
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent = CreateFrame('FRAME', 'GuildbookGuildFrameGuildCalendarFrameEventFrameEventAttendeesListviewParent', self.GuildFrame.GuildCalendarFrame.EventFrame)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent:SetPoint('TOPLEFT', 20, -250)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent:SetPoint('TOPLEFT', 20, -260)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent:SetSize(206, 120)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent:EnableMouse(true)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent:SetBackdrop({
@@ -1493,9 +1537,46 @@ function Guildbook:SetupGuildCalendarFrame()
         return events
     end
 
+
+    function self.GuildFrame.GuildCalendarFrame:UpdateInstanceInfo()
+        local info = Guildbook.GetInstanceInfo()
+        if info and next(info) then
+            --table.sort()
+            for k, raid in ipairs(info) do
+                --local dateObj = date('*t', tonumber(GetTime() + raid.Resets))
+                if not self.InstanceInfoFrame.rows[k] then
+                    local f = CreateFrame('FRAME', 'GuildbookGuildFrameGuildCalendarFrameinstanceInfoRow'..k, self.InstanceInfoFrame)
+                    f:SetPoint('TOP', 0, ((k-1) * -20) - 20)
+                    f:SetSize(300, 20)
+
+                    f.progress = f:CreateFontString(nil, 'OVERLAY', 'GameFontNormalSmall')
+                    f.progress:SetPoint('LEFT', 180, 0)                
+                    f.progress:SetText(raid.Progress..'/'..raid.Encounters)
+
+                    f.raid = f:CreateFontString(nil, 'OVERLAY', 'GameFontNormalSmall')
+                    f.raid:SetPoint('LEFT', 10, 0)
+                    f.raid:SetText(raid.Name)
+
+                    f.unlocks = f:CreateFontString(nil, 'OVERLAY', 'GameFontNormalSmall')
+                    f.unlocks:SetPoint('LEFT', 220, 0)                    
+                    f.unlocks:SetText(SecondsToTime(raid.Resets))
+
+                    self.InstanceInfoFrame.rows[k] = f
+                else
+                    self.InstanceInfoFrame.rows[k].progress:SetText(raid.Progress..'/'..raid.Encounters)
+                    self.InstanceInfoFrame.rows[k].raid:SetText(raid.Name)
+                    self.InstanceInfoFrame.rows[k].unlocks:SetText(SecondsToTime(raid.Resets))
+                end
+            end
+        end
+    end
+
+
     self.GuildFrame.GuildCalendarFrame:SetScript('OnShow', function(self)
         self:MonthChanged()
         --FriendsFrame:SetHeight(FRIENDS_FRAME_HEIGHT + 90)
+
+        self:UpdateInstanceInfo()
     end)
 
     self.GuildFrame.GuildCalendarFrame:SetScript('OnHide', function(self)
@@ -2066,6 +2147,12 @@ function Guildbook:SetupProfilesFrame()
 
             self.MainSpecIsPvPCheckbox:SetChecked(GUILDBOOK_CHARACTER.MainSpecIsPvP)
             self.OffSpecIsPvPCheckbox:SetChecked(GUILDBOOK_CHARACTER.OffSpecIsPvP)
+
+            if GUILDBOOK_CHARACTER.AttunementsKeys then
+                for raid, v in pairs(GUILDBOOK_CHARACTER.AttunementsKeys) do
+                    self.AttunementCheckboxes[raid]:SetChecked(v)
+                end
+            end
         end
     end)
 
@@ -2220,13 +2307,39 @@ function Guildbook:SetupProfilesFrame()
         end
     end)
 
+    local attunementsHeader = self.GuildFrame.ProfilesFrame.HomeTab:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
+    attunementsHeader:SetPoint('TOPLEFT', 16, -144)
+    attunementsHeader:SetSize(100, 20)
+    attunementsHeader:SetJustifyH('LEFT')
+    attunementsHeader:SetText(L['Attunements'])
 
-    local days = {
-
+    local raids = {
+        Classic = {
+            { key = "UBRS", name = 'Upper Blackrock Spire', }, 
+            { key = 'MC', name = 'Molten Core', },               
+            { key = "ONY", name = 'Onyxia', },  
+            { key = "BWL", name = 'Blackwing lair', },
+            { key = "NAXX", name = 'Naxxramas', }, 
+        }
     }
 
-
-
+    self.GuildFrame.ProfilesFrame.HomeTab.AttunementCheckboxes = {}
+    for k, raid in ipairs(raids.Classic) do
+        local f = CreateFrame('CheckButton', 'GuildbookGuildFrameProfilesFrameHomeTabAttunement'..raid.key, self.GuildFrame.ProfilesFrame.HomeTab, "ChatConfigCheckButtonTemplate")
+        f:SetPoint('TOPLEFT', 16, (k * -20) - 144)
+        _G[f:GetName()..'Text']:SetText(' '..raid.name)
+        f:SetScript('OnClick', function(self)
+            if GUILDBOOK_CHARACTER and GUILDBOOK_GLOBAL then
+                if not GUILDBOOK_CHARACTER['AttunementsKeys'] then
+                    GUILDBOOK_CHARACTER['AttunementsKeys'] = Guildbook.Data.DefaultCharacterSettings.AttunementsKeys
+                end
+                GUILDBOOK_CHARACTER['AttunementsKeys'][raid.key] = self:GetChecked()
+                self:SetChecked(GUILDBOOK_CHARACTER['AttunementsKeys'][raid.key])
+                DEBUG('func', 'Profiles attunements checkbox click', 'set instance: '..raid.key..' attunement key as: '..tostring(self:GetChecked()))
+            end
+        end)
+        self.GuildFrame.ProfilesFrame.HomeTab.AttunementCheckboxes[raid.key] = f
+    end
 
 
 

@@ -29,7 +29,7 @@ local LibSerialize = LibStub:GetLibrary("LibSerialize")
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 --variables
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
-local build = 4.16
+local build = 4.17
 local locale = GetLocale()
 local L = Guildbook.Locales
 
@@ -196,6 +196,8 @@ function Guildbook:Init()
     
     local version = GetAddOnMetadata('Guildbook', "Version")
 
+    self.ELVUI_LOADED = IsAddOnLoaded('ElvUI') and true or false
+
     self.ContextMenu_DropDown = CreateFrame("Frame", "GuildbookContextMenu", UIParent, "UIDropDownMenuTemplate")
     self.ContextMenu = {}
 
@@ -255,7 +257,11 @@ function Guildbook:Init()
                     InterfaceOptionsFrame_OpenToCategory(addonName)
                 end
             elseif button == 'RightButton' then
-                ToggleFriendsFrame(3)
+                if IsShiftKeyDown() then
+                    FriendsFrame:Show()
+                else
+                    ToggleFriendsFrame(3)
+                end
             end
         end,
         OnTooltipShow = function(tooltip)
@@ -277,7 +283,35 @@ function Guildbook:Init()
     end)
 
 
-    -- hook the tooltip for characters
+    -- set up the calendar icon button on the minimap
+    if self.ELVUI_LOADED == false then
+        GameTimeFrame:Hide()
+        --local today = date('*t')
+        Guildbook_GameTimeFrame:SetText(date('*t').day)
+        C_Timer.NewTicker(1, function()
+            Guildbook_GameTimeFrame:SetText(date('*t').day)
+        end)
+
+        Guildbook_GameTimeFrame:SetScript('OnClick', function(self)
+            FriendsFrame:Show()
+            --this may change ??? doubtful
+            FriendsFrameTab3:Click()
+            Guildbook.GuildFrame['GuildbookGuildFrameGuildCalendarFrameButton']:Click()
+        end)
+        Guildbook_GameTimeFrame:SetScript('OnEnter', function(self)
+            GameTooltip:SetOwner(self, 'ANCHOR_LEFT')
+            local now = date('*t')
+            GameTooltip:AddLine('Guildbook')
+            GameTooltip:AddLine(string.format("%s %s", L[Guildbook.Data.Months[now.month]], now.day), 1,1,1,1)
+            GameTooltip:Show()
+        end)
+        Guildbook_GameTimeFrame:SetScript('OnLeave', function(self)
+            GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+        end)
+    end
+
+
+    -- hook the tooltip for guild characters
     GameTooltip:HookScript('OnTooltipSetUnit', function(self)
         if GUILDBOOK_GLOBAL['TooltipInfo'] == false then
             return
@@ -287,12 +321,15 @@ function Guildbook:Init()
         if guid and guid:find('Player') then        
             if Guildbook:IsCharacterInGuild(guid) then
                 local guildName = Guildbook:GetGuildName()
+                if not guildName then
+                    return
+                end
                 local character = GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid]
                 local r, g, b = unpack(Guildbook.Data.Class[character.Class].RGB)
                 self:AddLine('Guildbook:', 0.00, 0.44, 0.87, 1)
                 --add info to tooltip
                 if GUILDBOOK_GLOBAL['TooltipInfoMainCharacter'] == true then
-                    self:AddDoubleLine(L['Main'], character.MainCharacter, r, g, b, 1, 1, 1, 1, 1)
+                    self:AddDoubleLine(L['Main'], character.MainCharacter, 1, 1, 1, 1, 1, 1, 1, 1)
                 end
                 if GUILDBOOK_GLOBAL['TooltipInfoMainSpec'] == true then
                     if character.MainSpec then
@@ -919,8 +956,8 @@ function Guildbook:CleanUpGuildRosterData(guild, msg)
                         end
                         if not info.Talents then
                             info.Talents = {
-                                [1] = {},
-                                [2] = {},
+                                ['primary'] = {},
+                                ['secondary'] = {},
                             }
                             DEBUG('func', 'CleanUpGuildRosterData', string.format('added talent tables to %s', name))
                         end
@@ -998,19 +1035,19 @@ end
 --- get the players current talents
 -- as there is no dual spec for now we just default to using talents[1] and updating Talents.Current
 -- when dual spec arrives we will have to adjust this
-function Guildbook:GetCharacterTalentInfo(dualSpec)
+function Guildbook:GetCharacterTalentInfo(activeTalents)
     if GUILDBOOK_CHARACTER then
         if not GUILDBOOK_CHARACTER['Talents'] then
             GUILDBOOK_CHARACTER['Talents'] = {}
         end
         wipe(GUILDBOOK_CHARACTER['Talents'])
-        GUILDBOOK_CHARACTER['Talents'][dualSpec] = {}
+        GUILDBOOK_CHARACTER['Talents'][activeTalents] = {}
         -- will need dual spec set up for wrath
         for tabIndex = 1, GetNumTalentTabs() do
             local spec, texture, pointsSpent, fileName = GetTalentTabInfo(tabIndex)
             for talentIndex = 1, GetNumTalents(tabIndex) do
                 local name, iconTexture, row, column, rank, maxRank, isExceptional, available = GetTalentInfo(tabIndex, talentIndex)
-                table.insert(GUILDBOOK_CHARACTER['Talents'][dualSpec], {
+                table.insert(GUILDBOOK_CHARACTER['Talents'][activeTalents], {
                     Tab = tabIndex,
                     Row = row,
                     Col = column,
@@ -1032,9 +1069,9 @@ function Guildbook.GetInstanceInfo()
     if GetNumSavedInstances() > 0 then
         for i = 1, GetNumSavedInstances() do
             local name, id, reset, difficulty, locked, extended, instanceIDMostSig, isRaid, maxPlayers, difficultyName, numEncounters, encounterProgress = GetSavedInstanceInfo(i)
-            tinsert(t, { Name = name, ID = id, Resets = date('*t', tonumber(GetTime() + reset)) })
+            tinsert(t, { Name = name, ID = id, Resets = reset, Encounters = numEncounters, Progress = encounterProgress })
             local msg = string.format("name=%s, id=%s, reset=%s, difficulty=%s, locked=%s, numEncounters=%s", tostring(name), tostring(id), tostring(reset), tostring(difficulty), tostring(locked), tostring(numEncounters))
-            print(msg)
+            --print(msg)
         end
     end
     return t
@@ -1808,7 +1845,11 @@ function Guildbook:OnGuildCalendarEventsDeleted(data, distribution, sender)
             end
         end
     end
-    self.GuildFrame.GuildCalendarFrame.EventFrame:RemoveDeletedEvents()
+    C_Timer.After(0.5, function()
+        if Guildbook.GuildFrame and Guildbook.GuildFrame.GuildCalendarFrame then
+            Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:RemoveDeletedEvents()
+        end
+    end)
 end
 
 

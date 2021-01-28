@@ -27,6 +27,21 @@ local addonName, Guildbook = ...
 
 Guildbook.Data = {}
 
+Guildbook.Data.Months = {
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+}
+
 Guildbook.Data.DefaultGlobalSettings = {
     Debug = false,
     ShowMinimapButton = true,

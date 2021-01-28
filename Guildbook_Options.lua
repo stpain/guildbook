@@ -138,7 +138,7 @@ function GuildbookOptions_OnLoad(self)
 
     Guildbook.CommsDelaySlider = CreateFrame('SLIDER', 'CommsDelay', self, "OptionsSliderTemplate")
     Guildbook.CommsDelaySlider:SetOrientation('HORIZONTAL')
-    Guildbook.CommsDelaySlider:SetPoint('LEFT', _G['GuildbookOptionsDebugCB'], 'RIGHT', 100, 0)
+    Guildbook.CommsDelaySlider:SetPoint('LEFT', _G['GuildbookOptionsDebugCB'], 'RIGHT', 180, 0)
     Guildbook.CommsDelaySlider:SetSize(140, 16)
     Guildbook.CommsDelaySlider:EnableMouse(true)
     Guildbook.CommsDelaySlider:SetValueStep(0.1)
