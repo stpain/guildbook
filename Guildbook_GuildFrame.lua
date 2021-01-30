@@ -485,23 +485,17 @@ function Guildbook:SetupGuildCalendarFrame()
     -- Sunwell Plateau – Isle of Quel’Danas
 
     local raidTextures = {
-        --['MC'] = 131851,
         ['MC'] = 136346,
-        --['BWL'] = 131827,
         ['BWL'] = 136329,
-        --['AQ20'] = 131818,
         ['AQ20'] = 136320,
-        --['AQ40'] = 131819,
         ['AQ40'] = 136321,
-        --['NAXX'] = 131854,
         ['NAXX'] = 136347,
-        --['ZG'] = 131886,
         ['ZG'] = 136369,
         ['ONY'] = 329121,
     }
 
 
-    -- event icons, icon id starts from 136320
+    -- this table is the dropdown menu sub menu for raids, it will automatically fill the event title which is used to set the raid texture on the calendar days
     local eventsRaids = {
         {
             text = 'Molten Core',
@@ -568,6 +562,7 @@ function Guildbook:SetupGuildCalendarFrame()
         },
     }
 
+    -- this table is the drodown menu for the event type dropdown widget in the event pop out frame
     local eventTypes = {
         { 
             text = 'Dungeon', 
@@ -720,8 +715,9 @@ function Guildbook:SetupGuildCalendarFrame()
         f.text:SetText(weekdays[i])
     end
 
+    -- setup the calendar, each day is a frame added to this table
     self.GuildFrame.GuildCalendarFrame.MonthView = {}
-    local i, d = 1, 1
+    local i = 1
     for week = 1, 6 do
         for day = 1, 7 do
             local f = CreateFrame('BUTTON', tostring('GuildbookGuildFrameGuildCalendarFrameWeek'..week..'Day'..day), Guildbook.GuildFrame.GuildCalendarFrame.CalendarParent)
@@ -742,26 +738,30 @@ function Guildbook:SetupGuildCalendarFrame()
             f.background:SetTexture(235428)
             f.background:SetTexCoord(texLeft, texRight, texTop, texBottom)
 
-            f.overlay = f:CreateTexture('$parentBackground', 'BACKGROUND')
+            -- add the dark shading for days not in month
+            f.overlay = f:CreateTexture('$parentBackground', 'OVERLAY')
             f.overlay:SetPoint('TOPLEFT', 0, 0)
             f.overlay:SetPoint('BOTTOMRIGHT', 0, 0)
             f.overlay:SetColorTexture(0,0,0,0.6)
             f.overlay:Hide()
 
+            -- add a texture to use for world events
             f.worldEventTexture = f:CreateTexture('$parentBackground', 'BORDER')
             f.worldEventTexture:SetPoint('TOPLEFT', 0, 0)
             f.worldEventTexture:SetPoint('BOTTOMRIGHT', 0, 0)
             f.worldEventTexture:SetTexture(235448)
             f.worldEventTexture:SetTexCoord(0.0, 0.71, 0.0, 0.71)
 
+            -- add a texture to use for guild events
             -- set this as top layer so its clear there is an event
             f.guildEventTexture = f:CreateTexture('$parentBackground', 'ARTWORK')
             f.guildEventTexture:SetAllPoints(f)
             -- f.guildEventTexture:SetPoint('TOPLEFT', 1, -1)
             -- f.guildEventTexture:SetPoint('BOTTOMRIGHT', -1, 1)
-            f.guildEventTexture:SetAlpha(0.9)
+            f.guildEventTexture:SetAlpha(0.8)
             --f.guildEventTexture:SetTexCoord(0.0, 1.0, 0.20, 0.8)
 
+            -- add the current day border texture
             f.currentDayTexture = f:CreateTexture('$parentCurrentDayTexture', 'OVERLAY')
             f.currentDayTexture:SetPoint('TOPLEFT', -15, 15)
             f.currentDayTexture:SetPoint('BOTTOMRIGHT', 16, -10)
@@ -770,6 +770,7 @@ function Guildbook:SetupGuildCalendarFrame()
             f.currentDayTexture:SetAlpha(0.7)
             f.currentDayTexture:Hide()
 
+            -- add 3 buttons to the day, 4 buttons would take over most of the day and 4 events scheduled for 1 day is less likely however it could be made into 4 if requested
             for e = 1, 3 do
                 f['eventButton'..e] = CreateFrame('BUTTON', tostring('GuildbookGuildFrameGuildCalendarFrameWeek'..week..'Day'..day..'Button'..e), f)
                 f['eventButton'..e]:SetPoint('BOTTOMLEFT', f, 'BOTTOMLEFT', 1, ((e - 1) * 10) + 3)
@@ -859,6 +860,8 @@ function Guildbook:SetupGuildCalendarFrame()
                     Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:Hide()
                     Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.date = self.date
                     Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.event = nil
+
+                    -- disable the frame if 3 events exist already
                     if #self.events > 2.0 then
                         Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.enabled = false
                     else
@@ -888,8 +891,8 @@ function Guildbook:SetupGuildCalendarFrame()
     -- end
 
 
+    -- this function will update the calendar day frames and check for events
     function self.GuildFrame.GuildCalendarFrame:MonthChanged()
-        local today = date("*t")
         self.Header:SetText(monthNames[self.date.month]..' '..self.date.year)
         local monthStart = self:GetMonthStart(self.date.month, self.date.year)
         local daysInMonth = self:GetDaysInMonth(self.date.month, self.date.year)
@@ -899,7 +902,7 @@ function Guildbook:SetupGuildCalendarFrame()
         else
             daysInLastMonth = self:GetDaysInMonth(self.date.month - 1, self.date.year)
         end
-        local d, nm = 1, 1
+        local thisMonthDay, nextMonthDay = 1, 1
         for i, day in ipairs(Guildbook.GuildFrame.GuildCalendarFrame.MonthView) do
             for b = 1, 3 do
                 day['eventButton'..b]:Hide()
@@ -911,23 +914,28 @@ function Guildbook:SetupGuildCalendarFrame()
             day.dateText:SetText(' ')
             day.worldEventTexture:SetTexture(nil)
             day.guildEventTexture:SetTexture(nil)
-            if d == today.day and self.date.month == today.month then
+            local today = date("*t")
+            if thisMonthDay == today.day and self.date.month == today.month then
                 day.currentDayTexture:Show()
             else
                 day.currentDayTexture:Hide()
             end
+
+            -- setup days in previous month
             if i < monthStart then
                 day.dateText:SetText((daysInLastMonth - monthStart + 2) + (i - 1))
                 day.dateText:SetTextColor(0.5, 0.5, 0.5, 1)
                 day.overlay:Show()
             end
-            if i >= monthStart and d <= daysInMonth then
-                day.dateText:SetText(d)
+
+            -- setup current months days
+            if i >= monthStart and thisMonthDay <= daysInMonth then
+                day.dateText:SetText(thisMonthDay)
                 day.dateText:SetTextColor(1,1,1,1)
                 day.overlay:Hide()
                 day:Enable()
                 day.date = {
-                    day = d,
+                    day = thisMonthDay,
                     month = self.date.month,
                     year = self.date.year,
                 }
@@ -951,13 +959,13 @@ function Guildbook:SetupGuildCalendarFrame()
 
                 for eventName, event in pairs(Guildbook.CalendarWorldEvents) do
                     if eventName ~= 'Darkmoon Faire' then
-                        if (event.Start.month == self.date.month) and (event.Start.day == d) then
+                        if (event.Start.month == self.date.month) and (event.Start.day == thisMonthDay) then
                             day.worldEventTexture:SetTexture(event.Texture.Start)
                             if not day.worldEvents[eventName] then
                                 day.worldEvents[eventName] = true
                             end
                         end
-                        if (event.End.month == self.date.month) and (event.End.day == d) then
+                        if (event.End.month == self.date.month) and (event.End.day == thisMonthDay) then
                             day.worldEventTexture:SetTexture(event.Texture.End)
                             if not day.worldEvents[eventName] then
                                 day.worldEvents[eventName] = true
@@ -966,7 +974,7 @@ function Guildbook:SetupGuildCalendarFrame()
 
                         -- events in the same month
                         if (event.Start.month == self.date.month) and (event.Start.month == event.End.month) then
-                            if d > event.Start.day and d < event.End.day then
+                            if thisMonthDay > event.Start.day and thisMonthDay < event.End.day then
                                 day.worldEventTexture:SetTexture(event.Texture.OnGoing)
                                 if not day.worldEvents[eventName] then
                                     day.worldEvents[eventName] = true
@@ -976,7 +984,7 @@ function Guildbook:SetupGuildCalendarFrame()
 
                         -- events that cover 2 months
                         if (event.Start.month == self.date.month) and (event.Start.month < event.End.month) then
-                            if d > event.Start.day then
+                            if thisMonthDay > event.Start.day then
                                 day.worldEventTexture:SetTexture(event.Texture.OnGoing)
                                 if not day.worldEvents[eventName] then
                                     day.worldEvents[eventName] = true
@@ -984,7 +992,7 @@ function Guildbook:SetupGuildCalendarFrame()
                             end
                         end
                         if (event.End.month == self.date.month) and (event.Start.month < event.End.month) then
-                            if d < event.End.day then
+                            if thisMonthDay < event.End.day then
                                 day.worldEventTexture:SetTexture(event.Texture.OnGoing)
                                 if not day.worldEvents[eventName] then
                                     day.worldEvents[eventName] = true
@@ -995,13 +1003,13 @@ function Guildbook:SetupGuildCalendarFrame()
                     -- special case for christmas as it covers 2 years
                     if eventName == 'Feast of Winter Veil' then
                         if self.date.month == 12 then
-                            if d == event.Start.day then
+                            if thisMonthDay == event.Start.day then
                                 day.worldEventTexture:SetTexture(event.Texture.Start)
                                 if not day.worldEvents[eventName] then
                                     day.worldEvents[eventName] = true
                                 end
                             end
-                            if d > event.Start.day then
+                            if thisMonthDay > event.Start.day then
                                 day.worldEventTexture:SetTexture(event.Texture.OnGoing)
                                 if not day.worldEvents[eventName] then
                                     day.worldEvents[eventName] = true
@@ -1009,13 +1017,13 @@ function Guildbook:SetupGuildCalendarFrame()
                             end
                         end
                         if self.date.month == 1 then
-                            if d == event.End.day then
+                            if thisMonthDay == event.End.day then
                                 day.worldEventTexture:SetTexture(event.Texture.End)
                                 if not day.worldEvents[eventName] then
                                     day.worldEvents[eventName] = true
                                 end
                             end
-                            if d < event.End.day then
+                            if thisMonthDay < event.End.day then
                                 day.worldEventTexture:SetTexture(event.Texture.OnGoing)
                                 if not day.worldEvents[eventName] then
                                     day.worldEvents[eventName] = true
@@ -1028,13 +1036,15 @@ function Guildbook:SetupGuildCalendarFrame()
 
                 day.events = self:GetEventsForDate(day.date)
                 day:Show()
-                d = d + 1
+                thisMonthDay = thisMonthDay + 1
             end
+
+            -- setup days in following month
             if i > (daysInMonth + (monthStart - 1)) then
-                day.dateText:SetText(nm)
+                day.dateText:SetText(nextMonthDay)
                 day.dateText:SetTextColor(0.5, 0.5, 0.5, 1)
                 day.overlay:Show()
-                nm = nm + 1
+                nextMonthDay = nextMonthDay + 1
             end
         end
     end
@@ -1364,10 +1374,14 @@ function Guildbook:SetupGuildCalendarFrame()
         end
     end
 
-    self.GuildFrame.GuildCalendarFrame.EventFrame:SetScript('OnShow', function(self)
-        self.CancelEventButton:Disable()
-    end)
+    -- self.GuildFrame.GuildCalendarFrame.EventFrame:SetScript('OnShow', function(self)
+    --     self.CancelEventButton:Disable()
+    -- end)
 
+
+    -- setup the event frame pop out
+    -- if no event show an enabled frame with no data
+    -- otherwise show event info
     self.GuildFrame.GuildCalendarFrame.EventFrame:SetScript('OnShow', function(self)
         self:ResetClassCounts()
         self:UpdateClassTabs()
@@ -1541,7 +1555,9 @@ function Guildbook:SetupGuildCalendarFrame()
     function self.GuildFrame.GuildCalendarFrame:UpdateInstanceInfo()
         local info = Guildbook.GetInstanceInfo()
         if info and next(info) then
-            --table.sort()
+            if #info > 1 then
+                table.sort(info, function(a, b) return a.Resets < b.Resets end)
+            end
             for k, raid in ipairs(info) do
                 --local dateObj = date('*t', tonumber(GetTime() + raid.Resets))
                 if not self.InstanceInfoFrame.rows[k] then
@@ -1628,13 +1644,14 @@ function Guildbook:SetupProfilesFrame()
     local characterResults, professionResults, specResults, recipeResults = {}, {}, {}, {}
     self.GuildFrame.ProfilesFrame.SearchBox = CreateFrame('EDITBOX', 'GuildbookGuildFrameProfilesFrameSearchBox', self.GuildFrame.ProfilesFrame, "InputBoxTemplate")
     --self.GuildFrame.ProfilesFrame.SearchBox:SetPoint('LEFT', Guildbook.GuildFrame.ProfilesFrame.SearchProfessionCheckbox, 'RIGHT', 100, 0)
-    self.GuildFrame.ProfilesFrame.SearchBox:SetPoint('TOP', -50, 22)
-    self.GuildFrame.ProfilesFrame.SearchBox:SetSize(300, 22)
+    self.GuildFrame.ProfilesFrame.SearchBox:SetPoint('TOP', -70, 22)
+    self.GuildFrame.ProfilesFrame.SearchBox:SetSize(280, 22)
     self.GuildFrame.ProfilesFrame.SearchBox:ClearFocus()
     self.GuildFrame.ProfilesFrame.SearchBox:SetAutoFocus(false)
     self.GuildFrame.ProfilesFrame.SearchBox:SetMaxLetters(15)
     self.GuildFrame.ProfilesFrame.SearchBox:SetText('Search for...')
     self.GuildFrame.ProfilesFrame.SearchBox:SetScript('OnEditFocusGained', function(self)
+        --print('got focus')
         if self:GetText() == 'Search for...' then
             self:SetText('')
         else
@@ -1645,7 +1662,9 @@ function Guildbook:SetupProfilesFrame()
         Guildbook.GuildFrame.ProfilesFrame:SearchText_OnChanged(self:GetText())
     end)
     function self.GuildFrame.ProfilesFrame:SearchText_OnChanged(text)
+        print('searching')
         if text:len() > 1 then
+            print('searching with text')
             wipe(searchResults)
             wipe(characterResults)
             wipe(recipeResults)
@@ -2109,7 +2128,7 @@ function Guildbook:SetupProfilesFrame()
     self.GuildFrame.ProfilesFrame.HomeButton = CreateFrame('BUTTON', '$parentTab4', Guildbook.GuildFrame.ProfilesFrame, 'OptionsFrameTabButtonTemplate')
     self.GuildFrame.ProfilesFrame.HomeButton:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.ProfilesFrame, 'TOPLEFT', 50, 0)
     --self.GuildFrame.ProfilesFrame.HomeButton:SetSize(60, 30)
-    self.GuildFrame.ProfilesFrame.HomeButton:SetText('Home')
+    self.GuildFrame.ProfilesFrame.HomeButton:SetText(L['Home'])
     self.GuildFrame.ProfilesFrame.HomeButton:SetID(4)
     self.GuildFrame.ProfilesFrame.HomeButton:SetScript('OnClick', function(self, button)
         PanelTemplates_SetTab(Guildbook.GuildFrame.ProfilesFrame, 4)
@@ -2313,6 +2332,8 @@ function Guildbook:SetupProfilesFrame()
     attunementsHeader:SetJustifyH('LEFT')
     attunementsHeader:SetText(L['Attunements'])
 
+    --local attunementsParent = Guildbook:CreateTooltipPanel('GuildbookGuildFrameProfilesFrameHomeTabAttunementsParent', self.GuildFrame.ProfilesFrame.HomeTab, 'BOTTOMLEFT', 16, 16, 300, 150, nil)
+
     local raids = {
         Classic = {
             { key = "UBRS", name = 'Upper Blackrock Spire', }, 
@@ -2349,9 +2370,9 @@ function Guildbook:SetupProfilesFrame()
 
     
     self.GuildFrame.ProfilesFrame.PaperdollButton = CreateFrame('BUTTON', '$parentTab1', Guildbook.GuildFrame.ProfilesFrame, 'OptionsFrameTabButtonTemplate')
-    self.GuildFrame.ProfilesFrame.PaperdollButton:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.ProfilesFrame, 'TOPRIGHT', -255, 0)
+    self.GuildFrame.ProfilesFrame.PaperdollButton:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.ProfilesFrame, 'TOPRIGHT', -260, 0)
     --self.GuildFrame.ProfilesFrame.PaperdollButton:SetSize(60, 30)
-    self.GuildFrame.ProfilesFrame.PaperdollButton:SetText('Details')
+    self.GuildFrame.ProfilesFrame.PaperdollButton:SetText('Character')
     self.GuildFrame.ProfilesFrame.PaperdollButton:SetID(1)
     self.GuildFrame.ProfilesFrame.PaperdollButton:SetScript('OnClick', function(self)
         PanelTemplates_SetTab(Guildbook.GuildFrame.ProfilesFrame, 1)
@@ -3412,7 +3433,7 @@ function Guildbook:SetupProfilesFrame()
     self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewRows = {}
     self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent = CreateFrame('FRAME', 'GuildbookGuildFrameReagentsListviewParent', self.GuildFrame.ProfilesFrame.ProfessionsTab)
     self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container, 'BOTTOMRIGHT', 28, 0)
-    self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent:SetSize(264, 300)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent:SetSize(250, 300)
     self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.background = self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent:CreateTexture('$parentBackground', 'BACKGROND')
     self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.background:SetAllPoints(Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent)
     self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.background:SetColorTexture(0.2,0.2,0.2,0.2)

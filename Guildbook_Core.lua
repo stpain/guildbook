@@ -282,11 +282,18 @@ function Guildbook:Init()
         end
     end)
 
+    --ToggleFriendsFrame:HookScript()
+    hooksecurefunc(FriendsFrame, 'Show', function(...)
+        for k, v in pairs(...) do
+            if k == 'selectedTab' and v == 3 then
+                Guildbook:ToggleGuildFrame('none')
+            end
+        end
+    end)
 
     -- set up the calendar icon button on the minimap
     if self.ELVUI_LOADED == false then
         GameTimeFrame:Hide()
-        --local today = date('*t')
         Guildbook_GameTimeFrame:SetText(date('*t').day)
         C_Timer.NewTicker(1, function()
             Guildbook_GameTimeFrame:SetText(date('*t').day)
@@ -297,12 +304,31 @@ function Guildbook:Init()
             --this may change ??? doubtful
             FriendsFrameTab3:Click()
             Guildbook.GuildFrame['GuildbookGuildFrameGuildCalendarFrameButton']:Click()
+
+            -- not sure why but 
+            if FriendsFrame:IsVisible() then
+                return
+            else
+                FriendsFrame:Show()
+                FriendsFrameTab3:Click()
+                Guildbook.GuildFrame['GuildbookGuildFrameGuildCalendarFrameButton']:Click()
+            end
         end)
+
         Guildbook_GameTimeFrame:SetScript('OnEnter', function(self)
             GameTooltip:SetOwner(self, 'ANCHOR_LEFT')
             local now = date('*t')
             GameTooltip:AddLine('Guildbook')
-            GameTooltip:AddLine(string.format("%s %s", L[Guildbook.Data.Months[now.month]], now.day), 1,1,1,1)
+            GameTooltip:AddLine(string.format("%s %s %s", now.day, L[Guildbook.Data.Months[now.month]], now.year), 1,1,1,1)
+            GameTooltip:AddLine(' ')
+            GameTooltip:AddLine(L['Events'])
+            -- get events for next 7 days
+            local upcomingEvents = Guildbook:GetCalendarEvents(time(now), 7)
+            if upcomingEvents and next(upcomingEvents) then
+                for k, event in ipairs(upcomingEvents) do
+                    GameTooltip:AddDoubleLine(event.title, string.format("%s %s",event.date.day, string.sub(L[Guildbook.Data.Months[event.date.month]], 1, 3)), 1,1,1,1,1,1,1,1)
+                end
+            end
             GameTooltip:Show()
         end)
         Guildbook_GameTimeFrame:SetScript('OnLeave', function(self)
@@ -509,11 +535,13 @@ function Guildbook:CreateTooltipPanel(name, parent, anchor, x, y, w, h, headerTe
         edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
         edgeSize = 16,
     })
-    f.header = f:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
-    f.header:SetPoint('TOP', 0, -10)
-    f.header:SetText(headerText)
-    f.header:SetFont("Fonts\\FRIZQT__.TTF", 14)
-    --f.header:SetTextColor(1,1,1,1)
+    if headerText then
+        f.header = f:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
+        f.header:SetPoint('TOP', 0, -10)
+        f.header:SetText(headerText)
+        f.header:SetFont("Fonts\\FRIZQT__.TTF", 14)
+        --f.header:SetTextColor(1,1,1,1)
+    end
     return f
 end
 
@@ -525,6 +553,26 @@ function Guildbook:TrimNumber(num)
     else
         return 1
     end
+end
+
+function Guildbook:GetCalendarEvents(start, duration)
+    local guildName = Guildbook:GetGuildName()
+    if not guildName then
+        return
+    end
+    local events = {}
+    local finish = (time(today) + (60*60*24*duration))
+    if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['Calendar'] and GUILDBOOK_GLOBAL['Calendar'][guildName] then
+        for k, event in pairs(GUILDBOOK_GLOBAL['Calendar'][guildName]) do
+            --local eventTimeStamp = time(event.date)
+                if time(event.date) >= start and time(event.date) <= finish then
+                    table.insert(events, event)
+                    DEBUG('func', 'Guildbook:GetCalendarEvents', 'found: '..event.title)
+                end
+            --end
+        end
+    end
+    return events
 end
 
 local spellSchools = {

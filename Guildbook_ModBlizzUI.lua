@@ -342,7 +342,7 @@ function Guildbook:ModBlizzUI()
         end
     end)
 
-    local function toggleGuildFrames(frame)
+    function Guildbook:ToggleGuildFrame(frame)
         for f, _ in pairs(Guildbook.GuildFrame.Frames) do
             _G['GuildbookGuildFrame'..f]:Hide()
         end
@@ -371,7 +371,7 @@ function Guildbook:ModBlizzUI()
     self.GuildFrame.RosterButton:SetHighlightFontObject(GameFontNormalSmall)
     self.GuildFrame.RosterButton:SetScript('OnClick', function(self)
         GuildRoster()
-        toggleGuildFrames('none')
+        Guildbook:ToggleGuildFrame('none')
     end)
     
     self.GuildFrame.Frames = {
@@ -405,7 +405,7 @@ function Guildbook:ModBlizzUI()
         self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetNormalFontObject(GameFontNormalSmall)
         self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetHighlightFontObject(GameFontNormalSmall)
         self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetScript('OnClick', function(self)
-            toggleGuildFrames(frame)
+            Guildbook:ToggleGuildFrame(frame)
         end)
 
 
