@@ -1662,9 +1662,9 @@ function Guildbook:SetupProfilesFrame()
         Guildbook.GuildFrame.ProfilesFrame:SearchText_OnChanged(self:GetText())
     end)
     function self.GuildFrame.ProfilesFrame:SearchText_OnChanged(text)
-        print('searching')
+        --print('searching')
         if text:len() > 1 then
-            print('searching with text')
+            --print('searching with text')
             wipe(searchResults)
             wipe(characterResults)
             wipe(recipeResults)
@@ -3641,6 +3641,9 @@ end
 
 
 function Guildbook:AddGuildChatMessage(channel, msg)
+    if not Guildbook.GuildFrame.ChatFrame then
+        return
+    end
     for i = 1, 20 do
         Guildbook.GuildFrame.ChatFrame.Listview[i]:Hide()
     end
