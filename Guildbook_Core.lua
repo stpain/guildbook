@@ -29,7 +29,8 @@ local LibSerialize = LibStub:GetLibrary("LibSerialize")
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 --variables
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
-local build = 4.19
+-- this used to match the toc but for simplicity i've made it just an integer
+local build = 5
 local locale = GetLocale()
 local L = Guildbook.Locales
 
@@ -51,13 +52,8 @@ SlashCmdList['GUILDBOOK'] = function(msg)
     if msg == '-help' then
         print(':(')
 
-    elseif msg == '-stats' then
-        --local base, casting = GetManaRegen();
-        --Guildbook:GetCharacterStats()
-        Guildbook.GetInstanceInfo()
-
     elseif msg == '-alts' then
-        Guildbook:GetCharactersAlts(UnitGUID('player'))
+        --Guildbook:GetCharactersAlts(UnitGUID('player'))
 
     end
 end
@@ -926,7 +922,9 @@ end
 -- any entries not found the current guild roster will be removed (=nil)
 function Guildbook:CleanUpGuildRosterData(guild, msg)
     if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[guild] then
-        Guildbook:PrintMessage(msg)
+        if msg then
+            Guildbook:PrintMessage(msg)
+        end
         local currentGUIDs = {}
         local totalMembers, onlineMembers, _ = GetNumGuildMembers()
         GUILDBOOK_GLOBAL['RosterExcel'] = {}
@@ -934,6 +932,7 @@ function Guildbook:CleanUpGuildRosterData(guild, msg)
             local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, guid = GetGuildRosterInfo(i)
             --local name, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, guid = GetGuildRosterInfo(i)
             currentGUIDs[guid] = true
+            name = Ambiguate(name, 'none')
             table.insert(GUILDBOOK_GLOBAL['RosterExcel'], string.format("%s,%s,%s,%s,%s", name, class, rankName, level, publicNote))
         end
         local removedCharacters = 0
@@ -943,6 +942,10 @@ function Guildbook:CleanUpGuildRosterData(guild, msg)
                 removedCharacters = removedCharacters + 1
                 --Guildbook:PrintMessage(string.format('removed %s from roster cache', info.Name))
             else
+                if info.Name and info.Name:find('-') then
+                    info.Name = Ambiguate(info.Name, 'none')
+                    DEBUG('func', 'CleanUpGuildRosterData', name..' has error with name, removing realm from name')
+                end
                 if not self.PlayerMixin then
                     self.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
                 else
@@ -952,6 +955,7 @@ function Guildbook:CleanUpGuildRosterData(guild, msg)
                     local _, class, _ = C_PlayerInfo.GetClass(self.PlayerMixin)
                     local name = C_PlayerInfo.GetName(self.PlayerMixin)
                     if name and class then
+                        name = Ambiguate(name, 'none')
                         if not info.Class or (info.Class ~= class) then
                             info.Class = class
                             DEBUG('func', 'CleanUpGuildRosterData', name..' has error with class, updating class to mixin value')
@@ -992,7 +996,7 @@ function Guildbook:CleanUpGuildRosterData(guild, msg)
                             for k, v in pairs(info) do
                                 if k == prof then
                                     if info.Profession1 == prof or info.Profession2 == prof then
-                                        DEBUG('func', 'CleanUpGuildRosterData', string.format('%s matches prof1 or prof2 keeping data', prof))
+                                        --DEBUG('func', 'CleanUpGuildRosterData', string.format('%s matches prof1 or prof2 keeping data', prof))
                                     else
                                         if prof == 'Cooking' or prof == 'Fishing' or prof == 'FirstAid' then
 
@@ -1023,7 +1027,9 @@ function Guildbook:CleanUpGuildRosterData(guild, msg)
                 end
             end
         end
-        Guildbook:PrintMessage(string.format('removed %s characters from roster cache', removedCharacters))
+        if msg then
+            Guildbook:PrintMessage(string.format('removed %s characters from roster cache', removedCharacters))
+        end
     end
 end
 
@@ -2136,6 +2142,7 @@ function Guildbook:GUILD_ROSTER_UPDATE(...)
             local totalMembers, onlineMembers, _ = GetNumGuildMembers()
             for i = 1, totalMembers do
                 local name, _, _, level, _, _, _, _, _, _, class, _, _, _, _, _, guid = GetGuildRosterInfo(i)
+                --print(name, Ambiguate(name, 'none'))
                 if not GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] then
                     GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] = {
                         ['MainSpec'] = '-',
@@ -2148,14 +2155,15 @@ function Guildbook:GUILD_ROSTER_UPDATE(...)
                         ['Profession2Level'] = 0,
                         ['MainCharacter'] = '-',
                     }
-                    GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Name = name
+                    GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Name = Ambiguate(name, 'none')
                     GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Level = level
                     GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Class = class
+                    DEBUG('func', 'GUILD_ROSTER_UPDATE', string.format("added %s to cache", Ambiguate(name, 'none')))
                 end
             end
-            -- C_Timer.After(3, function()
-            --     Guildbook:CleanUpGuildRosterData(guildName, 'checking guild data...[2]')
-            -- end)
+            C_Timer.After(3, function()
+                Guildbook:CleanUpGuildRosterData(guildName, nil)
+            end)
         end
     end
 end
