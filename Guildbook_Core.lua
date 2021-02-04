@@ -29,7 +29,7 @@ local LibSerialize = LibStub:GetLibrary("LibSerialize")
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 --variables
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
-local build = 4.18
+local build = 4.19
 local locale = GetLocale()
 local L = Guildbook.Locales
 
@@ -936,10 +936,12 @@ function Guildbook:CleanUpGuildRosterData(guild, msg)
             currentGUIDs[guid] = true
             table.insert(GUILDBOOK_GLOBAL['RosterExcel'], string.format("%s,%s,%s,%s,%s", name, class, rankName, level, publicNote))
         end
+        local removedCharacters = 0
         for guid, info in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[guild]) do
             if not currentGUIDs[guid] then
                 GUILDBOOK_GLOBAL.GuildRosterCache[guild][guid] = nil
-                Guildbook:PrintMessage(string.format('removed %s from roster cache', info.Name))
+                removedCharacters = removedCharacters + 1
+                --Guildbook:PrintMessage(string.format('removed %s from roster cache', info.Name))
             else
                 if not self.PlayerMixin then
                     self.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
@@ -1021,6 +1023,7 @@ function Guildbook:CleanUpGuildRosterData(guild, msg)
                 end
             end
         end
+        Guildbook:PrintMessage(string.format('removed %s characters from roster cache', removedCharacters))
     end
 end
 

@@ -2168,8 +2168,8 @@ function Guildbook:SetupProfilesFrame()
             self.OffSpecIsPvPCheckbox:SetChecked(GUILDBOOK_CHARACTER.OffSpecIsPvP)
 
             if GUILDBOOK_CHARACTER.AttunementsKeys then
-                for raid, v in pairs(GUILDBOOK_CHARACTER.AttunementsKeys) do
-                    self.AttunementCheckboxes[raid]:SetChecked(v)
+                for raid, boolean in pairs(GUILDBOOK_CHARACTER.AttunementsKeys) do
+                    self.AttunementCheckboxes[raid]:SetChecked(boolean)
                 end
             end
         end

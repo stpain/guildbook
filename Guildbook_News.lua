@@ -286,4 +286,19 @@ Players Guild hotkey now opens to roster to mimic default Blizzar behaviour.
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [4.19] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+-
+
+|cff0070DEUpdates|r:
+More calendar tweeks, fixed the shaded texture days not in current month.
+Added events to the tooltip for the calendar minimap button.
+Players Guild hotkey now opens to roster to mimic default Blizzar behaviour.
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }
