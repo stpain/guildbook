@@ -314,4 +314,17 @@ added more checks to player names containing realm name, this could cause issues
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [6] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+fixed error in guild cache clean up
+
+|cff0070DEUpdates|r:
+-
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }

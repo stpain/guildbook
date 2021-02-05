@@ -30,7 +30,7 @@ local LibSerialize = LibStub:GetLibrary("LibSerialize")
 --variables
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- this used to match the toc but for simplicity i've made it just an integer
-local build = 5
+local build = 6
 local locale = GetLocale()
 local L = Guildbook.Locales
 
@@ -929,22 +929,22 @@ function Guildbook:CleanUpGuildRosterData(guild, msg)
         local totalMembers, onlineMembers, _ = GetNumGuildMembers()
         GUILDBOOK_GLOBAL['RosterExcel'] = {}
         for i = 1, totalMembers do
-            local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, guid = GetGuildRosterInfo(i)
-            --local name, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, guid = GetGuildRosterInfo(i)
+            --local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, guid = GetGuildRosterInfo(i)
+            local name, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, guid = GetGuildRosterInfo(i)
             currentGUIDs[guid] = true
             name = Ambiguate(name, 'none')
-            table.insert(GUILDBOOK_GLOBAL['RosterExcel'], string.format("%s,%s,%s,%s,%s", name, class, rankName, level, publicNote))
+            --table.insert(GUILDBOOK_GLOBAL['RosterExcel'], string.format("%s,%s,%s,%s,%s", name, class, rankName, level, publicNote))
         end
         local removedCharacters = 0
         for guid, info in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[guild]) do
-            if not currentGUIDs[guid] then
+            if currentGUIDs[guid] == nil then
                 GUILDBOOK_GLOBAL.GuildRosterCache[guild][guid] = nil
                 removedCharacters = removedCharacters + 1
-                --Guildbook:PrintMessage(string.format('removed %s from roster cache', info.Name))
+                DEBUG('func', 'CleanUpGuildRosterData', string.format('removed %s from roster cache', info.Name))
             else
                 if info.Name and info.Name:find('-') then
                     info.Name = Ambiguate(info.Name, 'none')
-                    DEBUG('func', 'CleanUpGuildRosterData', name..' has error with name, removing realm from name')
+                    DEBUG('func', 'CleanUpGuildRosterData', info.Name..' has error with name, removing realm from name')
                 end
                 if not self.PlayerMixin then
                     self.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
