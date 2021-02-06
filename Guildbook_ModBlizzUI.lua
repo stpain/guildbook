@@ -156,15 +156,15 @@ function Guildbook:ModBlizzUI()
         -- hook the click event
         _G['GuildFrameButton'..i]:HookScript('OnClick', function(self, button)
             if (button == 'LeftButton') and (GuildMemberDetailFrame:IsVisible()) then
-                local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, GUID = GetGuildRosterInfo(GetGuildRosterSelection())
+                local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, guid = GetGuildRosterInfo(GetGuildRosterSelection())
                 if isOnline then
-                    Guildbook:UpdateGuildMemberDetailFrameLabels()
+                    Guildbook:UpdateGuildMemberDetailFrameLabels(guid)
                     Guildbook:ClearGuildMemberDetailFrame()
                     Guildbook.GuildMemberDetailFrame.CurrentMemberGUID = nil
                     Guildbook:CharacterDataRequest(name)
                     Guildbook.DEBUG('comms_out', 'GuildFrameButton'..i..':OnClick', 'sent character data request to '..name)
                 end
-                Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(GUID, nil)
+                Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(guid, nil)
                 --GuildMemberDetailFrame:Show()
 
                 --Guildbook.GuildMemberDetailFrame.Portrait.Portrait:SetTexture(130903)
@@ -322,18 +322,15 @@ function Guildbook:ModBlizzUI()
             -- loop local cache and update columns
             local guildName = Guildbook:GetGuildName()
             if guildName then
-                if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache and GUILDBOOK_GLOBAL.GuildRosterCache[guildName] and next(GUILDBOOK_GLOBAL.GuildRosterCache[guildName]) then
-                    if GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID] then
-                        local ms, os = GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]['MainSpec'], GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]['OffSpec']
-                        local prof1 = GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]['Profession1']
-                        local prof2 = GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]['Profession2']
-                        button.GuildbookColumnMainSpec:SetText(ms)
-                        --button.GuildbookColumnMainSpec:SetText(string.format('%s %s', self.Data.SpecFontStringIconSMALL[GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]['Class']][ms], ms))
-                        button.GuildbookColumnProfession1:SetText(prof1)
-                        button.GuildbookColumnProfession2:SetText(prof2)
-                        -- button.GuildbookColumnProfession1:SetText(string.format('%s %s', self.Data.Profession[prof1].FontStringIconSMALL, prof1))
-                        -- button.GuildbookColumnProfession2:SetText(string.format('%s %s', self.Data.Profession[prof2].FontStringIconSMALL, prof2))
-                    end
+                if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache and GUILDBOOK_GLOBAL.GuildRosterCache[guildName] and GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID] then
+                    local character = GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]
+                    button.GuildbookColumnMainSpec:SetText(character.MainSpec)
+                    button.GuildbookColumnProfession1:SetText(character.Profession1)
+                    button.GuildbookColumnProfession2:SetText(character.Profession2)
+                else
+                    button.GuildbookColumnMainSpec:SetText('-')
+                    button.GuildbookColumnProfession1:SetText('-')
+                    button.GuildbookColumnProfession2:SetText('-')           
                 end
             end
             if (GuildFrameLFGButton:GetChecked() == false) and(i > numOnline) then

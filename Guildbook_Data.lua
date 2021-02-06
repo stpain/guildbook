@@ -80,6 +80,14 @@ Guildbook.Data.DefaultCharacterSettings = {
     },
     CalendarEvents = {},
     GuildBank = {},
+    Talents = {
+        primary = {},
+
+    },
+    PaperDollStats = {},
+    Inventory = {
+        Current = {},
+    }
 }
 
 Guildbook.Data.RaceIcons = {

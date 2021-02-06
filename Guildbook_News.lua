@@ -327,4 +327,17 @@ fixed error in guild cache clean up
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [7] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+more bug fixing on the clean up function, was having issues where guild member data was being wiped - should be fixed
+
+|cff0070DEUpdates|r:
+started working on the detail frame, the popout window, going to slowly redesign it
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }

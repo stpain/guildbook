@@ -30,7 +30,7 @@ local LibSerialize = LibStub:GetLibrary("LibSerialize")
 --variables
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- this used to match the toc but for simplicity i've made it just an integer
-local build = 6
+local build = 7
 local locale = GetLocale()
 local L = Guildbook.Locales
 
@@ -287,6 +287,17 @@ function Guildbook:Init()
         end
     end)
 
+    --ToggleFriendsFrame:HookScript()
+    local guildRosterCacheChecked = 0
+    hooksecurefunc(GuildFrame, 'Show', function(...)
+        C_Timer.After(2, function()
+            if GetTime() > (guildRosterCacheChecked + 30) then
+                Guildbook:CleanUpGuildRosterData(Guildbook:GetGuildName(), 'checking guild data')
+                guildRosterCacheChecked = GetTime()
+            end
+        end)
+    end)
+
     -- set up the calendar icon button on the minimap
     if self.ELVUI_LOADED == false then
         GameTimeFrame:Hide()
@@ -427,18 +438,15 @@ function Guildbook:Init()
         Guildbook:CharacterStats_OnChanged()
     end)
     C_Timer.After(6, function()
-        Guildbook:CleanUpGuildRosterData(Guildbook:GetGuildName(), 'checking guild data')
-    end)
-    C_Timer.After(9, function()
         Guildbook:SendGuildCalendarEvents()
     end)
-    C_Timer.After(12, function()
+    C_Timer.After(9, function()
         Guildbook:SendGuildCalendarDeletedEvents()
     end)
-    C_Timer.After(15, function()
+    C_Timer.After(12, function()
         Guildbook:RequestGuildCalendarEvents()
     end)
-    C_Timer.After(18, function()
+    C_Timer.After(15, function()
         Guildbook:RequestGuildCalendarDeletedEvents()
     end)
 
@@ -911,7 +919,7 @@ function Guildbook:ScanCraftSkills_Enchanting()
             end
         end
     else
-        StaticPopup_Show('Error', 'Guildbook is missing the translation for this profession!')
+        --StaticPopup_Show('Error', 'Guildbook is missing the translation for this profession!')
     end
 end
 
@@ -936,12 +944,9 @@ function Guildbook:CleanUpGuildRosterData(guild, msg)
             --table.insert(GUILDBOOK_GLOBAL['RosterExcel'], string.format("%s,%s,%s,%s,%s", name, class, rankName, level, publicNote))
         end
         local removedCharacters = 0
+        local guidsToRemove = {}
         for guid, info in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[guild]) do
-            if currentGUIDs[guid] == nil then
-                GUILDBOOK_GLOBAL.GuildRosterCache[guild][guid] = nil
-                removedCharacters = removedCharacters + 1
-                DEBUG('func', 'CleanUpGuildRosterData', string.format('removed %s from roster cache', info.Name))
-            else
+            if currentGUIDs[guid] then
                 if info.Name and info.Name:find('-') then
                     info.Name = Ambiguate(info.Name, 'none')
                     DEBUG('func', 'CleanUpGuildRosterData', info.Name..' has error with name, removing realm from name')
@@ -1025,11 +1030,21 @@ function Guildbook:CleanUpGuildRosterData(guild, msg)
                         end
                     end
                 end
+            else
+                table.insert(guidsToRemove, guid)
+                DEBUG('func', 'CleanUpGuildRosterData', string.format('removed %s from roster cache', info.Name))
             end
         end
-        if msg then
-            Guildbook:PrintMessage(string.format('removed %s characters from roster cache', removedCharacters))
-        end
+        C_Timer.After(3, function()
+            if guidsToRemove and next(guidsToRemove) then
+                for k, guid in ipairs(guidsToRemove) do
+                    GUILDBOOK_GLOBAL.GuildRosterCache[guild][guid] = nil
+                end
+                if msg then
+                    Guildbook:PrintMessage(string.format('removed %s characters from roster cache', #guidsToRemove))
+                end
+            end
+        end)
     end
 end
 
@@ -1041,7 +1056,7 @@ end
 -- this will update the character saved var which is then read when a request comes in
 function Guildbook.GetProfessionData()
     if not Guildbook.AvailableLocales[locale] then
-        StaticPopup_Show('Error', 'Guildbook is missing the translations for your locale, unable to scan professions.')
+        --StaticPopup_Show('Error', 'Guildbook is missing the translations for your locale, unable to scan professions.')
         return
     end
     local myCharacter = { Fishing = 0, Cooking = 0, FirstAid = 0, Prof1 = '-', Prof1Level = 0, Prof2 = '-', Prof2Level = 0 }
@@ -1558,9 +1573,9 @@ function Guildbook:OnCharacterDataReceived(data, distribution, sender)
         -- GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].Inventory.Current = data.payload.CurrentEquipment
 
         DEBUG('func', 'OnCharacterDataReceived', string.format('OnCharacterDataReceived > sender=%s', data.payload.Name))
-        C_Timer.After(Guildbook.COMMS_DELAY, function()
-            Guildbook:UpdateGuildMemberDetailFrame(data.payload.GUID)
-        end)        
+        -- C_Timer.After(Guildbook.COMMS_DELAY, function()
+        --     Guildbook:UpdateGuildMemberDetailFrame(data.payload.GUID)
+        -- end)        
     end
 end
 
@@ -2144,26 +2159,17 @@ function Guildbook:GUILD_ROSTER_UPDATE(...)
                 local name, _, _, level, _, _, _, _, _, _, class, _, _, _, _, _, guid = GetGuildRosterInfo(i)
                 --print(name, Ambiguate(name, 'none'))
                 if not GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] then
-                    GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] = {
-                        ['MainSpec'] = '-',
-                        ['OffSpec'] = '-',
-                        ['MainSpecIsPvP'] = false,
-                        ['OffSpecIsPvP'] = false,
-                        ['Profession1'] = '-',
-                        ['Profession1Level'] = 0,
-                        ['Profession2'] = '-',
-                        ['Profession2Level'] = 0,
-                        ['MainCharacter'] = '-',
-                    }
+                    --GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] = Guildbook.Data.DefaultCharacterSettings
+                    GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] = {}
                     GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Name = Ambiguate(name, 'none')
                     GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Level = level
                     GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Class = class
                     DEBUG('func', 'GUILD_ROSTER_UPDATE', string.format("added %s to cache", Ambiguate(name, 'none')))
                 end
             end
-            C_Timer.After(3, function()
-                Guildbook:CleanUpGuildRosterData(guildName, nil)
-            end)
+            -- C_Timer.After(3, function()
+            --     Guildbook:CleanUpGuildRosterData(guildName, nil)
+            -- end)
         end
     end
 end

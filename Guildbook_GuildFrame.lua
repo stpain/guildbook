@@ -1982,8 +1982,8 @@ function Guildbook:SetupProfilesFrame()
                             self.PaperdollTab.Overlay.ProfessionsPanel[k].Level:SetText('-')
                             self.PaperdollTab.Overlay.ProfessionsPanel[k].Icon:SetTexture(nil)
                             if v.key:find('Profession') then
-                                DEBUG('func', 'LoadCharacter', v.key..character[v.key])
                                 if character[v.key] then
+                                    DEBUG('func', 'LoadCharacter', v.key..character[v.key])
                                     self.PaperdollTab.Overlay.ProfessionsPanel[k].Label:SetText(character[v.key])
                                     self.PaperdollTab.Overlay.ProfessionsPanel[k].Level:SetText(character[v.key..'Level'])
                                     self.PaperdollTab.Overlay.ProfessionsPanel[k].Icon:SetTexture(Guildbook.Data.Profession[character[v.key]].IconID)
@@ -2149,6 +2149,10 @@ function Guildbook:SetupProfilesFrame()
     self.GuildFrame.ProfilesFrame.HomeTab:SetScript('OnShow', function(self)
         if GUILDBOOK_CHARACTER then
 
+            self.CharacterName:SetText(Ambiguate(UnitName('player'), 'none'))
+            local _, class, _ = UnitClass('player')
+            self.CharacterName:SetTextColor(RAID_CLASS_COLORS[class].r, RAID_CLASS_COLORS[class].g, RAID_CLASS_COLORS[class].b, 1)
+
             if GUILDBOOK_CHARACTER.MainCharacter then
                 self.MainCharacterEditbox:SetText(GUILDBOOK_CHARACTER.MainCharacter)
             else
@@ -2178,8 +2182,13 @@ function Guildbook:SetupProfilesFrame()
 
     local homeTabHeader = self.GuildFrame.ProfilesFrame.HomeTab:CreateFontString(nil, 'OVERLAY', 'GameFontNormalLarge')
     homeTabHeader:SetPoint('TOPLEFT', 16, -16)
+    homeTabHeader:SetWidth(80)
+    homeTabHeader:SetJustifyH('LEFT')
     homeTabHeader:SetText(L['Profile'])
 
+    self.GuildFrame.ProfilesFrame.HomeTab.CharacterName = self.GuildFrame.ProfilesFrame.HomeTab:CreateFontString(nil, 'OVERLAY', 'GameFontNormalLarge')
+    self.GuildFrame.ProfilesFrame.HomeTab.CharacterName:SetPoint('LEFT', homeTabHeader, 'RIGHT', 44, 0)
+    self.GuildFrame.ProfilesFrame.HomeTab.CharacterName:SetText(' ')
 
     local mainSpecHeader = self.GuildFrame.ProfilesFrame.HomeTab:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
     mainSpecHeader:SetPoint('TOPLEFT', 16, -48)
@@ -3377,6 +3386,9 @@ function Guildbook:SetupProfilesFrame()
     end
 
     function self.GuildFrame.ProfilesFrame.ProfessionsTab:SetRecipesListviewData(profession, listview, data, filter)
+        if not profession then
+            return
+        end
         self:ClearRecipesListview(listview)
         --self:ClearReagentsListview()
         listview.header:SetText(L[profession]..'   '..Guildbook.Data.Profession[profession].FontStringIconSMALL)
