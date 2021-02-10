@@ -340,4 +340,17 @@ started working on the detail frame, the popout window, going to slowly redesign
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [8] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+
+
+|cff0070DEUpdates|r:
+added new attunement widget the guild member detail frame
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }

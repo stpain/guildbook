@@ -2044,6 +2044,8 @@ function Guildbook:SetupProfilesFrame()
                     end)
                 end
             end
+        else
+
         end
     end
 
@@ -2457,6 +2459,7 @@ function Guildbook:SetupProfilesFrame()
         self.ModelViewers[model]:Show()
     end
 
+    --125045
     self.GuildFrame.ProfilesFrame.PaperdollTab.CharacterModels = {}
     function self.GuildFrame.ProfilesFrame.PaperdollTab:AddModelFrame(target, race, gender)
         --self:HideCharacterModels()

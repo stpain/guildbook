@@ -30,7 +30,7 @@ local LibSerialize = LibStub:GetLibrary("LibSerialize")
 --variables
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- this used to match the toc but for simplicity i've made it just an integer
-local build = 7
+local build = 8
 local locale = GetLocale()
 local L = Guildbook.Locales
 
@@ -528,7 +528,7 @@ function Guildbook:UpdateListviewSelectedTextures(listview)
 end
 
 function Guildbook:CreateTooltipPanel(name, parent, anchor, x, y, w, h, headerText) --, headerFont, headerFontSize)
-    local f = CreateFrame('FRAME', anme, parent)
+    local f = CreateFrame('FRAME', name, parent)
     f:SetPoint(anchor, x, y)
     f:SetSize(w, h)
     f.background = f:CreateTexture("$parentBackground", 'BACKGROUND')
@@ -1573,9 +1573,9 @@ function Guildbook:OnCharacterDataReceived(data, distribution, sender)
         -- GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID].Inventory.Current = data.payload.CurrentEquipment
 
         DEBUG('func', 'OnCharacterDataReceived', string.format('OnCharacterDataReceived > sender=%s', data.payload.Name))
-        -- C_Timer.After(Guildbook.COMMS_DELAY, function()
-        --     Guildbook:UpdateGuildMemberDetailFrame(data.payload.GUID)
-        -- end)        
+        C_Timer.After(Guildbook.COMMS_DELAY, function()
+            Guildbook:UpdateGuildMemberDetailFrame(data.payload.GUID)
+        end)        
     end
 end
 

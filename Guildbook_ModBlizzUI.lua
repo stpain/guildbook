@@ -156,11 +156,10 @@ function Guildbook:ModBlizzUI()
         -- hook the click event
         _G['GuildFrameButton'..i]:HookScript('OnClick', function(self, button)
             if (button == 'LeftButton') and (GuildMemberDetailFrame:IsVisible()) then
+                Guildbook:ClearGuildMemberDetailFrame()
                 local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, guid = GetGuildRosterInfo(GetGuildRosterSelection())
                 if isOnline then
                     Guildbook:UpdateGuildMemberDetailFrameLabels(guid)
-                    Guildbook:ClearGuildMemberDetailFrame()
-                    Guildbook.GuildMemberDetailFrame.CurrentMemberGUID = nil
                     Guildbook:CharacterDataRequest(name)
                     Guildbook.DEBUG('comms_out', 'GuildFrameButton'..i..':OnClick', 'sent character data request to '..name)
                 end
