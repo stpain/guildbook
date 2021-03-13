@@ -57,7 +57,85 @@ Guildbook.GuildFrame = {
     ColumnMarginX = 1.0,
 }
 
+function Guildbook:ForceCalendarButton(parent, s, anchor, x, y)
+    Guildbook.GameTimeFrame:SetParent(parent)
+    Guildbook.GameTimeFrame:SetSize(s, s)
+    Guildbook.GameTimeFrame:SetPoint(anchor, x, y)
+    Guildbook.GameTimeFrame:SetNormalTexture("Interface\\Calendar\\UI-Calendar-Button")
+    Guildbook.GameTimeFrame:GetNormalTexture():SetTexCoord(0.0, 0.390625, 0.0, 0.78125)
+    Guildbook.GameTimeFrame:SetPushedTexture("Interface\\Calendar\\UI-Calendar-Button")
+    Guildbook.GameTimeFrame:GetPushedTexture():SetTexCoord(0.5, 0.890625, 0.0, 0.78125)
+    Guildbook.GameTimeFrame:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight", "ADD")
+    Guildbook.GameTimeFrame:SetHitRectInsets(6, 0, 5, 10)
+end
+
 function Guildbook:ModBlizzUI()
+
+    GameTimeFrame:Hide()
+    -- a lua calendar button which i can force into any pos regardless of other addons :p
+    Guildbook.GameTimeFrame = CreateFrame('BUTTON')
+    Guildbook.GameTimeFrame:SetParent(Minimap)
+    Guildbook.GameTimeFrame:SetSize(40, 40)
+    Guildbook.GameTimeFrame:SetPoint('TOPRIGHT', 20, -2)
+    Guildbook.GameTimeFrame:SetNormalTexture("Interface\\Calendar\\UI-Calendar-Button")
+    Guildbook.GameTimeFrame:GetNormalTexture():SetTexCoord(0.0, 0.390625, 0.0, 0.78125)
+    Guildbook.GameTimeFrame:SetPushedTexture("Interface\\Calendar\\UI-Calendar-Button")
+    Guildbook.GameTimeFrame:GetPushedTexture():SetTexCoord(0.5, 0.890625, 0.0, 0.78125)
+    Guildbook.GameTimeFrame:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight", "ADD")
+    Guildbook.GameTimeFrame:SetHitRectInsets(6, 0, 5, 10)
+
+    Guildbook.GameTimeFrame.Text = Guildbook.GameTimeFrame:CreateFontString(nil, 'OVERLAY', 'GameFontBlack')
+    Guildbook.GameTimeFrame.Text:SetPoint('CENTER', -1, -1)
+
+    Guildbook.GameTimeFrame.Text:SetText(date('*t').day)
+    C_Timer.NewTicker(1, function()
+        Guildbook.GameTimeFrame.Text:SetText(date('*t').day)
+
+        -- force the button back to default settings
+        --Guildbook:ForceCalendarButton(Minimap, 40, 'TOPRIGHT', 20, -2)
+    end)
+
+    Guildbook.GameTimeFrame:SetScript('OnClick', function(self)
+        FriendsFrame:Show()
+        --this may change ??? doubtful
+        FriendsFrameTab3:Click()
+        if Guildbook.GuildFrame['GuildbookGuildFrameGuildCalendarFrameButton'] then
+            Guildbook.GuildFrame['GuildbookGuildFrameGuildCalendarFrameButton']:Click()
+        end
+
+        -- not sure why but 
+        if FriendsFrame:IsVisible() then
+            return
+        else
+            FriendsFrame:Show()
+            FriendsFrameTab3:Click()
+            if Guildbook.GuildFrame['GuildbookGuildFrameGuildCalendarFrameButton'] then
+                Guildbook.GuildFrame['GuildbookGuildFrameGuildCalendarFrameButton']:Click()
+            end
+        end
+    end)
+
+    Guildbook.GameTimeFrame:SetScript('OnEnter', function(self)
+        GameTooltip:SetOwner(self, 'ANCHOR_LEFT')
+        local now = date('*t')
+        GameTooltip:AddLine('Guildbook')
+        GameTooltip:AddLine(string.format("%s %s %s", now.day, L[Guildbook.Data.Months[now.month]], now.year), 1,1,1,1)
+        GameTooltip:AddLine(' ')
+        GameTooltip:AddLine(L['Events'])
+        -- get events for next 7 days
+        local upcomingEvents = Guildbook:GetCalendarEvents(time(now), 7)
+        if upcomingEvents and next(upcomingEvents) then
+            for k, event in ipairs(upcomingEvents) do
+                GameTooltip:AddDoubleLine(event.title, string.format("%s %s",event.date.day, string.sub(L[Guildbook.Data.Months[event.date.month]], 1, 3)), 1,1,1,1,1,1,1,1)
+            end
+        end
+        GameTooltip:Show()
+    end)
+    Guildbook.GameTimeFrame:SetScript('OnLeave', function(self)
+        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+    end)
+
+
 
     -- experimental stuff
     GuildMemberDetailFrame:SetWidth(GUILD_MEMBER_DETAIL_FRAME_WIDTH + 120)
@@ -340,7 +418,9 @@ function Guildbook:ModBlizzUI()
 
     function Guildbook:ToggleGuildFrame(frame)
         for f, _ in pairs(Guildbook.GuildFrame.Frames) do
-            _G['GuildbookGuildFrame'..f]:Hide()
+            if _G['GuildbookGuildFrame'..f] then
+                _G['GuildbookGuildFrame'..f]:Hide()
+            end
         end
         if frame == 'none' then
             for i = 1, 13 do
@@ -378,7 +458,7 @@ function Guildbook:ModBlizzUI()
         ['GuildCalendarFrame'] = { Text = 'Calendar', Width = 77.0, OffsetY = -400.0 },
     }
 
-    for frame, button in pairs(self.GuildFrame.Frames) do
+    local function setupModule(frame, button)
         self.GuildFrame[frame] = CreateFrame('FRAME', tostring('GuildbookGuildFrame'..frame), GuildFrame)
         self.GuildFrame[frame]:SetBackdrop({
             edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
@@ -403,9 +483,40 @@ function Guildbook:ModBlizzUI()
         self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetScript('OnClick', function(self)
             Guildbook:ToggleGuildFrame(frame)
         end)
+    end
 
+    for frame, button in pairs(self.GuildFrame.Frames) do
+        if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.Modules then
+            if GUILDBOOK_GLOBAL.Modules[frame] == true then
+                setupModule(frame, button)
+            else
+                print(string.format("%s has not been setup", frame))
+            end
+        end
+        -- self.GuildFrame[frame] = CreateFrame('FRAME', tostring('GuildbookGuildFrame'..frame), GuildFrame)
+        -- self.GuildFrame[frame]:SetBackdrop({
+        --     edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+        --     edgeSize = 16,
+        --     bgFile = "interface/framegeneral/ui-background-marble",
+        --     tile = true,
+        --     tileEdge = false,
+        --     tileSize = 300,
+        --     insets = { left = 4, right = 4, top = 4, bottom = 4 }
+        -- })
+        -- self.GuildFrame[frame]:SetPoint('TOPLEFT', GuildFrame, 'TOPLEFT', 2.00, -55.0)
+        -- self.GuildFrame[frame]:SetPoint('BOTTOMRIGHT', GuildFrame, 'BOTTOMRIGHT', -4.00, 25.0)      
+        -- self.GuildFrame[frame]:SetFrameLevel(6)
+        -- self.GuildFrame[frame]:Hide()
 
-
+        -- self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')] = CreateFrame('BUTTON', tostring('GuildbookGuildFrame'..frame..'Button'), GuildFrame, "UIPanelButtonTemplate")
+        -- self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetPoint('LEFT', Guildbook.GuildFrame.RosterButton, 'LEFT', button.OffsetY, 0)
+        -- self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetSize(button.Width, GuildFrameGuildInformationButton:GetHeight())
+        -- self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetText(L[button.Text])
+        -- self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetNormalFontObject(GameFontNormalSmall)
+        -- self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetHighlightFontObject(GameFontNormalSmall)
+        -- self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetScript('OnClick', function(self)
+        --     Guildbook:ToggleGuildFrame(frame)
+        -- end)
     end
 
     self.ScanGuildBankButton = CreateFrame('BUTTON', 'GuildbookBankFrameScanBankButton', BankFrame)

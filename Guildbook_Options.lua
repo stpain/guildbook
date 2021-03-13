@@ -62,6 +62,56 @@ function GuildbookOptionsShowMinimapButton_OnClick(self)
     end
 end
 
+function GuildbookOptionsLoadChatModule_OnClick(self)
+    if not GUILDBOOK_GLOBAL then
+        return
+    end
+    if not GUILDBOOK_GLOBAL.Modules then
+        GUILDBOOK_GLOBAL.Modules = {}
+    end
+    GUILDBOOK_GLOBAL.Modules["ChatFrame"] = self:GetChecked()
+end
+
+function GuildbookOptionsLoadStatsModule_OnClick(self)
+    if not GUILDBOOK_GLOBAL then
+        return
+    end
+    if not GUILDBOOK_GLOBAL.Modules then
+        GUILDBOOK_GLOBAL.Modules = {}
+    end
+    GUILDBOOK_GLOBAL.Modules["StatsFrame"] = self:GetChecked()
+end
+
+function GuildbookOptionsLoadCalendarModule_OnClick(self)
+    if not GUILDBOOK_GLOBAL then
+        return
+    end
+    if not GUILDBOOK_GLOBAL.Modules then
+        GUILDBOOK_GLOBAL.Modules = {}
+    end
+    GUILDBOOK_GLOBAL.Modules["GuildCalendarFrame"] = self:GetChecked()
+end
+
+function GuildbookOptionsLoadGuildBankModule_OnClick(self)
+    if not GUILDBOOK_GLOBAL then
+        return
+    end
+    if not GUILDBOOK_GLOBAL.Modules then
+        GUILDBOOK_GLOBAL.Modules = {}
+    end
+    GUILDBOOK_GLOBAL.Modules["GuildBankFrame"] = self:GetChecked()
+end
+
+function GuildbookOptionsLoadProfilesModule_OnClick(self)
+    if not GUILDBOOK_GLOBAL then
+        return
+    end
+    if not GUILDBOOK_GLOBAL.Modules then
+        GUILDBOOK_GLOBAL.Modules = {}
+    end
+    GUILDBOOK_GLOBAL.Modules["ProfilesFrame"] = self:GetChecked()
+end
+
 function GuildbookOptionsTooltipInfo_OnClick(self)
     if not GUILDBOOK_GLOBAL then
         return
@@ -162,6 +212,7 @@ function GuildbookOptions_OnLoad(self)
             self:SetValue(1)
         end
     end)
+
 end
 
 

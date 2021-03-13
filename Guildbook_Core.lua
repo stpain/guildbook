@@ -43,6 +43,7 @@ Guildbook.GuildBankCommit = {
 }
 Guildbook.NUM_TALENT_ROWS = 7.0
 Guildbook.COMMS_DELAY = 0.0
+Guildbook.ELVUI_LOADED = false
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 --slash commands
@@ -192,7 +193,7 @@ function Guildbook:Init()
     
     local version = GetAddOnMetadata('Guildbook', "Version")
 
-    self.ELVUI_LOADED = IsAddOnLoaded('ElvUI') and true or false
+    self.ELVUI_LOADED = IsAddOnLoaded('ElvUI')
 
     self.ContextMenu_DropDown = CreateFrame("Frame", "GuildbookContextMenu", UIParent, "UIDropDownMenuTemplate")
     self.ContextMenu = {}
@@ -238,6 +239,17 @@ function Guildbook:Init()
     end
     if not GUILDBOOK_GLOBAL['LastCalendarDeletedTransmit'] then
         GUILDBOOK_GLOBAL['LastCalendarDeletedTransmit'] = GetServerTime()
+    end
+
+    -- added later again again!
+    if not GUILDBOOK_GLOBAL.Modules then
+        GUILDBOOK_GLOBAL.Modules = {
+            ['GuildBankFrame'] = true,
+            ['ChatFrame'] = true,
+            ['StatsFrame'] = true,
+            ['ProfilesFrame'] = true,
+            ['GuildCalendarFrame'] = true,
+        }
     end
 
     local ldb = LibStub("LibDataBroker-1.1")
@@ -297,52 +309,6 @@ function Guildbook:Init()
             end
         end)
     end)
-
-    -- set up the calendar icon button on the minimap
-    if self.ELVUI_LOADED == false then
-        GameTimeFrame:Hide()
-        Guildbook_GameTimeFrame:SetText(date('*t').day)
-        C_Timer.NewTicker(1, function()
-            Guildbook_GameTimeFrame:SetText(date('*t').day)
-        end)
-
-        Guildbook_GameTimeFrame:SetScript('OnClick', function(self)
-            FriendsFrame:Show()
-            --this may change ??? doubtful
-            FriendsFrameTab3:Click()
-            Guildbook.GuildFrame['GuildbookGuildFrameGuildCalendarFrameButton']:Click()
-
-            -- not sure why but 
-            if FriendsFrame:IsVisible() then
-                return
-            else
-                FriendsFrame:Show()
-                FriendsFrameTab3:Click()
-                Guildbook.GuildFrame['GuildbookGuildFrameGuildCalendarFrameButton']:Click()
-            end
-        end)
-
-        Guildbook_GameTimeFrame:SetScript('OnEnter', function(self)
-            GameTooltip:SetOwner(self, 'ANCHOR_LEFT')
-            local now = date('*t')
-            GameTooltip:AddLine('Guildbook')
-            GameTooltip:AddLine(string.format("%s %s %s", now.day, L[Guildbook.Data.Months[now.month]], now.year), 1,1,1,1)
-            GameTooltip:AddLine(' ')
-            GameTooltip:AddLine(L['Events'])
-            -- get events for next 7 days
-            local upcomingEvents = Guildbook:GetCalendarEvents(time(now), 7)
-            if upcomingEvents and next(upcomingEvents) then
-                for k, event in ipairs(upcomingEvents) do
-                    GameTooltip:AddDoubleLine(event.title, string.format("%s %s",event.date.day, string.sub(L[Guildbook.Data.Months[event.date.month]], 1, 3)), 1,1,1,1,1,1,1,1)
-                end
-            end
-            GameTooltip:Show()
-        end)
-        Guildbook_GameTimeFrame:SetScript('OnLeave', function(self)
-            GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-        end)
-    end
-
 
     -- hook the tooltip for guild characters
     GameTooltip:HookScript('OnTooltipSetUnit', function(self)
@@ -430,6 +396,12 @@ function Guildbook:Init()
             GuildbookOptionsTooltipInfoProfessions:Enable()
             GuildbookOptionsTooltipInfoMainCharacter:Enable()
         end
+
+        GuildbookOptionsLoadCalendarModule:SetChecked(GUILDBOOK_GLOBAL.Modules["GuildCalendarFrame"])
+        GuildbookOptionsLoadChatModule:SetChecked(GUILDBOOK_GLOBAL.Modules["ChatFrame"])
+        GuildbookOptionsLoadStatsModule:SetChecked(GUILDBOOK_GLOBAL.Modules["StatsFrame"])
+        GuildbookOptionsLoadProfilesModule:SetChecked(GUILDBOOK_GLOBAL.Modules["ProfilesFrame"])
+        GuildbookOptionsLoadGuildBankModule:SetChecked(GUILDBOOK_GLOBAL.Modules["GuildBankFrame"])
 
     end
 
@@ -782,6 +754,10 @@ function Guildbook:ScanPlayerContainers()
         end
         if self.PlayerMixin:IsValid() then
             local name = C_PlayerInfo.GetName(self.PlayerMixin)
+            if not name then 
+                return 
+            end
+            name = Ambiguate(name, 'none')
 
             if not GUILDBOOK_CHARACTER['GuildBank'] then
                 GUILDBOOK_CHARACTER['GuildBank'] = {}
@@ -1583,12 +1559,16 @@ end
 -- guild bank comms
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function Guildbook:SendGuildBankCommitRequest(bankCharacter)
+    DEBUG('func', 'SendGuildBankCommitRequest', 'clearing data from temp table')
+    Guildbook.GuildBankCommit['Commit'] = nil
+    Guildbook.GuildBankCommit['Character'] = nil
+    Guildbook.GuildBankCommit['BankCharacter'] = nil
     local request = {
         type = 'GUILD_BANK_COMMIT_REQUEST',
         payload = bankCharacter,
     }
+    DEBUG('comms_out', 'SendGuildBankCommitRequest', string.format('SendGuildBankCommitRequest > character=%s', bankCharacter))
     self:Transmit(request, 'GUILD', nil, 'NORMAL')
-    --DEBUG('comms_out', 'SendGuildBankCommitRequest', string.format('SendGuildBankCommitRequest > character=%s', bankCharacter))
 end
 
 function Guildbook:OnGuildBankCommitRequested(data, distribution, sender)
@@ -1601,8 +1581,8 @@ function Guildbook:OnGuildBankCommitRequested(data, distribution, sender)
                     Character = data.payload
                 }
             }
+            DEBUG('comms_out', 'OnGuildBankCommitRequested', string.format('character=%s, commit=%s', data.payload, GUILDBOOK_CHARACTER['GuildBank'][data.payload].Commit))
             self:Transmit(response, 'WHISPER', sender, 'NORMAL')
-            --DEBUG('comms_out', 'OnGuildBankCommitRequested', string.format('character=%s, commit=%s', data.payload, GUILDBOOK_CHARACTER['GuildBank'][data.payload].Commit))
         end
     end
 end
@@ -1648,7 +1628,7 @@ function Guildbook:OnGuildBankDataRequested(data, distribution, sender)
             }
         }
         self:Transmit(response, 'WHISPER', sender, 'BULK')
-        --DEBUG('comms_out', 'OnGuildBankDataRequested', 'Sending guild bank data to: '..sender..' as requested')
+        DEBUG('comms_out', 'OnGuildBankDataRequested', string.format('%s has requested bank data, sending data for bank character %s', sender, data.payload))
     end
 end
 
@@ -2014,15 +1994,28 @@ end
 
 
 function Guildbook:PLAYER_ENTERING_WORLD()
-    self:ModBlizzUI()
-    self:SetupStatsFrame()
-    --self:SetupTradeSkillFrame()
-    self:SetupGuildBankFrame()
-    self:SetupGuildCalendarFrame()
+
     self:SetupGuildMemberDetailframe()
-    --self:SetupSoftReserveFrame()
-    self:SetupProfilesFrame()
-    self:SetupChatFrame()
+    self:ModBlizzUI()
+
+    if GUILDBOOK_GLOBAL.Modules then
+        if GUILDBOOK_GLOBAL.Modules["GuildBankFrame"] == true then
+            self:SetupGuildBankFrame()
+        end
+        if GUILDBOOK_GLOBAL.Modules["ChatFrame"] == true then
+            self:SetupChatFrame()
+        end
+        if GUILDBOOK_GLOBAL.Modules["StatsFrame"] == true then
+            self:SetupStatsFrame()
+        end
+        if GUILDBOOK_GLOBAL.Modules["ProfilesFrame"] == true then
+            self:SetupProfilesFrame()
+        end
+        if GUILDBOOK_GLOBAL.Modules["GuildCalendarFrame"] == true then
+            self:SetupGuildCalendarFrame()
+        end
+    end
+
     self.EventFrame:UnregisterEvent('PLAYER_ENTERING_WORLD')
 
     --LoadAddOn("Blizzard_DebugTools")
@@ -2218,30 +2211,57 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
     DEBUG('comms_in', 'ON_COMMS_RECEIVED', string.format("%s from %s", data.type, sender))
 
     if data.type == "TRADESKILLS_REQUEST" then
+        if not Guildbook.GuildFrame.ProfilesFrame then
+            return
+        end
         self:OnTradeSkillsRequested(data, distribution, sender)
 
     elseif data.type == "TRADESKILLS_RESPONSE" then
+        if not Guildbook.GuildFrame.ProfilesFrame then
+            return
+        end
         self:OnTradeSkillsReceived(data, distribution, sender);
 
     elseif data.type == 'CHARACTER_DATA_REQUEST' then
+        if not Guildbook.GuildFrame.ProfilesFrame then
+            return
+        end
         self:OnCharacterDataRequested(data, distribution, sender)
 
     elseif data.type == 'CHARACTER_DATA_RESPONSE' then
+        if not Guildbook.GuildFrame.ProfilesFrame then
+            return
+        end
         self:OnCharacterDataReceived(data, distribution, sender)
 
     elseif data.type == 'CHARACTER_DATA_UPDATE' then
+        if not Guildbook.GuildFrame.ProfilesFrame then
+            return
+        end
         self:OnCharacterDataUpdateReceived(data, distribution, sender)
 
     elseif data.type == 'TALENT_INFO_REQUEST' then
+        if not Guildbook.GuildFrame.ProfilesFrame then
+            return
+        end
         self:OnTalentInfoRequest(data, distribution, sender)
 
     elseif data.type == 'TALENT_INFO_RESPONSE' then
+        if not Guildbook.GuildFrame.ProfilesFrame then
+            return
+        end
         self:OnTalentInfoReceived(data, distribution, sender)
 
     elseif data.type == 'INVENTORY_REQUEST' then
+        if not Guildbook.GuildFrame.ProfilesFrame then
+            return
+        end
         self:OnCharacterInventoryRequest(data, distribution, sender)
 
     elseif data.type == 'INVENTORY_RESPONSE' then
+        if not Guildbook.GuildFrame.ProfilesFrame then
+            return
+        end
         self:OnCharacterInventoryReceived(data, distribution, sender)
 
 
@@ -2250,15 +2270,27 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
 --- these will be removed slowly as we potentially move into TBC
 --==================================
     elseif data.type == 'GUILD_BANK_COMMIT_REQUEST' then
+        if not Guildbook.GuildFrame.GuildBankFrame then
+            return
+        end
         self:OnGuildBankCommitRequested(data, distribution, sender)
 
     elseif data.type == 'GUILD_BANK_COMMIT_RESPONSE' then
+        if not Guildbook.GuildFrame.GuildBankFrame then
+            return
+        end
         self:OnGuildBankCommitReceived(data, distribution, sender)
 
     elseif data.type == 'GUILD_BANK_DATA_REQUEST' then
+        if not Guildbook.GuildFrame.GuildBankFrame then
+            return
+        end
         self:OnGuildBankDataRequested(data, distribution, sender)
 
     elseif data.type == 'GUILD_BANK_DATA_RESPONSE' then
+        if not Guildbook.GuildFrame.GuildBankFrame then
+            return
+        end
         self:OnGuildBankDataReceived(data, distribution, sender)
 
     elseif data.type == 'RAID_SOFT_RESERVES_REQUEST' then
@@ -2272,32 +2304,55 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
 
 
 
-
+    
 --- these need better naming should decide before 4.x is released?
     elseif data.type == 'GUILD_CALENDAR_EVENT_CREATED' then
+        if not Guildbook.GuildFrame.GuildCalendarFrame then
+            return
+        end
         self:OnGuildCalendarEventCreated(data, distribution, sender)
 
     elseif data.type == 'GUILD_CALENDAR_EVENTS' then
+        if not Guildbook.GuildFrame.GuildCalendarFrame then
+            return
+        end
         self:OnGuildCalendarEventsReceived(data, distribution, sender)
 
     elseif data.type == 'GUILD_CALENDAR_EVENT_DELETED' then
+        if not Guildbook.GuildFrame.GuildCalendarFrame then
+            return
+        end
         self:OnGuildCalendarEventDeleted(data, distribution, sender)
 
     elseif data.type == 'GUILD_CALENDAR_DELETED_EVENTS' then
+        if not Guildbook.GuildFrame.GuildCalendarFrame then
+            return
+        end
         self:OnGuildCalendarEventsDeleted(data, distribution, sender)
 
     elseif data.type == 'GUILD_CALENDAR_EVENT_ATTEND' then
+        if not Guildbook.GuildFrame.GuildCalendarFrame then
+            return
+        end
         self:OnGuildCalendarEventAttendReceived(data, distribution, sender)
 
     elseif data.type == 'GUILD_CALENDAR_EVENTS_REQUESTED' then
+        if not Guildbook.GuildFrame.GuildCalendarFrame then
+            return
+        end
         self:SendGuildCalendarEvents()
 
     elseif data.type == 'GUILD_CALENDAR_EVENTS_DELETED_REQUESTED' then
+        if not Guildbook.GuildFrame.GuildCalendarFrame then
+            return
+        end
         self:SendGuildCalendarDeletedEvents()
 
     elseif data.type == 'GUILD_CALENDAR_EVENT_UPDATE' then
+        if not Guildbook.GuildFrame.GuildCalendarFrame then
+            return
+        end
         self:OnGuildCalendarEventUpdated(data, distribution, sender)
-
     end
 end
 

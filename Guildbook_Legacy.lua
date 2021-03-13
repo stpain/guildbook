@@ -302,7 +302,18 @@ end
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function Guildbook:SetupGuildBankFrame()
 
-    --self.GuildFrame.GuildBankFrame.helpIcon = Guildbook:CreateHelperIcon(self.GuildFrame.GuildBankFrame, 'BOTTOMRIGHT', Guildbook.GuildFrame.GuildBankFrame, 'TOPRIGHT', -2, 2, 'Bank')
+    local helpText = [[
+Guild Bank
+
+|cffffffff To use the Guild Bank, add the word 'Guildbank' to 
+the character being used as the bank. Multiple bank characters
+are supported.
+|r
+
+|cff00BFF3 |r
+    ]]
+
+    self.GuildFrame.GuildBankFrame.helpIcon = Guildbook:CreateHelperIcon(self.GuildFrame.GuildBankFrame, 'BOTTOMRIGHT', Guildbook.GuildFrame.GuildBankFrame, 'TOPRIGHT', -2, 2, 'Bank')
 
     self.GuildFrame.GuildBankFrame.bankCharacter = nil
 
@@ -336,9 +347,11 @@ function Guildbook:SetupGuildBankFrame()
             local gbc = {}
             local totalMembers, onlineMembers, _ = GetNumGuildMembers()
             for i = 1, totalMembers do
-                local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, guid = GetGuildRosterInfo(i)
+                local name, _, _, _, _, _, publicNote, _, isOnline, _, _, _, _, _, _, _, guid = GetGuildRosterInfo(i)
                 if publicNote:lower():find('guildbank') then
-                    table.insert(gbc, name:match("^(.-)%-"))
+                    --table.insert(gbc, name:match("^(.-)%-"))
+                    name = Ambiguate(name, 'none')
+                    table.insert(gbc, name)
                 end
             end
             local info = UIDropDownMenu_CreateInfo()
@@ -347,10 +360,6 @@ function Guildbook:SetupGuildBankFrame()
                 info.hasArrow = false
                 info.keepShownOnClick = false
                 info.func = function()
-                    Guildbook.GuildBankCommit = {
-                        Commit = nil,
-                        Character = nil,
-                    }
                     Guildbook.GuildFrame.GuildBankFrame.bankCharacter = p
                     Guildbook.GuildFrame.GuildBankFrame.ResetSlots()
                     Guildbook:SendGuildBankCommitRequest(p)
