@@ -44,6 +44,20 @@ StaticPopupDialogs['Error'] = {
     showAlert = 1,
 }
 
+StaticPopupDialogs['Reload'] = {
+    text = 'Settings have changed and a UI reload is required!',
+    button1 = 'Reload UI',
+    --button2 = 'Cancel',
+    OnAccept = function(self)
+        ReloadUI()
+    end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = false,
+    preferredIndex = 3,
+    showAlert = 1,
+}
+
 StaticPopupDialogs['GuildbookDeleteGuild'] = {
     text = 'Delete all data for %s',
     button1 = 'Yes',

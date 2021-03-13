@@ -76,6 +76,14 @@ the copyright holders.
                         </Anchor>
                     </Anchors>
                 </FontString>                 
+                <FontString name="$parentGeneralOptionsWarningText" text="" inherits="GameFontNormalLarge">
+                    <FontHeight val="16"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativePoint="RIGHT" relativeTo="GuildbookOptionsGeneralOptions">
+                            <offset x="16" y="0"/>
+                        </Anchor>
+                    </Anchors>
+                </FontString>                 
                 <FontString name="$parentDevOptions" text="Dev options" inherits="GameFontNormal">
                     <FontHeight val="11"/>
                     <Anchors>

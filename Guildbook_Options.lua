@@ -62,6 +62,11 @@ function GuildbookOptionsShowMinimapButton_OnClick(self)
     end
 end
 
+local function setWarningText(txt)
+    GuildbookOptionsGeneralOptionsWarningText:SetText('|cffC41F3B'..txt)
+    StaticPopup_Show('Reload')
+end
+
 function GuildbookOptionsLoadChatModule_OnClick(self)
     if not GUILDBOOK_GLOBAL then
         return
@@ -70,6 +75,7 @@ function GuildbookOptionsLoadChatModule_OnClick(self)
         GUILDBOOK_GLOBAL.Modules = {}
     end
     GUILDBOOK_GLOBAL.Modules["ChatFrame"] = self:GetChecked()
+    setWarningText('changes made require a UI reload')
 end
 
 function GuildbookOptionsLoadStatsModule_OnClick(self)
@@ -80,6 +86,7 @@ function GuildbookOptionsLoadStatsModule_OnClick(self)
         GUILDBOOK_GLOBAL.Modules = {}
     end
     GUILDBOOK_GLOBAL.Modules["StatsFrame"] = self:GetChecked()
+    setWarningText('changes made require a UI reload')
 end
 
 function GuildbookOptionsLoadCalendarModule_OnClick(self)
@@ -90,6 +97,7 @@ function GuildbookOptionsLoadCalendarModule_OnClick(self)
         GUILDBOOK_GLOBAL.Modules = {}
     end
     GUILDBOOK_GLOBAL.Modules["GuildCalendarFrame"] = self:GetChecked()
+    setWarningText('changes made require a UI reload')
 end
 
 function GuildbookOptionsLoadGuildBankModule_OnClick(self)
@@ -100,6 +108,7 @@ function GuildbookOptionsLoadGuildBankModule_OnClick(self)
         GUILDBOOK_GLOBAL.Modules = {}
     end
     GUILDBOOK_GLOBAL.Modules["GuildBankFrame"] = self:GetChecked()
+    setWarningText('changes made require a UI reload')
 end
 
 function GuildbookOptionsLoadProfilesModule_OnClick(self)
@@ -110,6 +119,7 @@ function GuildbookOptionsLoadProfilesModule_OnClick(self)
         GUILDBOOK_GLOBAL.Modules = {}
     end
     GUILDBOOK_GLOBAL.Modules["ProfilesFrame"] = self:GetChecked()
+    setWarningText('changes made require a UI reload')
 end
 
 function GuildbookOptionsTooltipInfo_OnClick(self)
