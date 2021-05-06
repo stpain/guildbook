@@ -353,4 +353,17 @@ added new attunement widget the guild member detail frame
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [9] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+
+
+|cff0070DEUpdates|r:
+set up the check box to show if the character is online when searching
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }
