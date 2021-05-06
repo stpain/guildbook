@@ -337,10 +337,10 @@ function Guildbook:Init()
                     end
                 end
                 if GUILDBOOK_GLOBAL['TooltipInfoProfessions'] == true then
-                    if character.Profession1 ~= '-' then
+                    if character.Profession1 ~= '-' and Guildbook.Data.Profession[character.Profession1] then
                         self:AddDoubleLine(Guildbook.Data.Profession[character.Profession1].FontStringIconSMALL..' '..character.Profession1, character.Profession1Level, 1,1,1,1,1,1,1,1)
                     end
-                    if character.Profession2 ~= '-' then
+                    if character.Profession2 ~= '-' and Guildbook.Data.Profession[character.Profession2] then
                         self:AddDoubleLine(Guildbook.Data.Profession[character.Profession2].FontStringIconSMALL..' '..character.Profession2, character.Profession2Level, 1,1,1,1,1,1,1,1)
                     end
                 end
@@ -1173,6 +1173,7 @@ function Guildbook:IsGuildMemberOnline(player)
             --DEBUG('func', 'IsGuildMemberOnline', string.format("player %s is online %s", name, tostring(isOnline)))
             if Ambiguate(name, 'none') == Ambiguate(player, 'none') then
                 online = isOnline
+                --print("found", name, "is online")
             end
         end
     end

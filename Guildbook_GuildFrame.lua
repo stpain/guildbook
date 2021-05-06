@@ -332,6 +332,7 @@ function Guildbook:SetupStatsFrame()
     -- func: loop the client guild roster cache and fetch spec data, we will use the character spec to determine role using the lookup table in Guildbook_Data
     -- when wrath comes along consider the DK specs>role data
     function self.GuildFrame.StatsFrame:GetClassRoleFromCache()
+        GuildRoster()
         local guildName = Guildbook:GetGuildName()
         if guildName then
             if GUILDBOOK_GLOBAL then
@@ -347,7 +348,7 @@ function Guildbook:SetupStatsFrame()
                         Melee = { DRUID = 0, SHAMAN = 0, PALADIN = 0, WARRIOR = 0, ROGUE = 0, DEATHKNIGHT = 0 }
                     }
                     for guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[guildName]) do
-                        if character.MainSpec ~= '-' then
+                        if character.Class and character.Level and character.MainSpec ~= '-' then
                             if character.Level and tonumber(character.Level) >= self.MinLevelSlider:GetValue() then
                                 self.Roles[Guildbook.Data.SpecToRole[character.Class][character.MainSpec]][character.Class] = self.Roles[Guildbook.Data.SpecToRole[character.Class][character.MainSpec]][character.Class] + 1
                             end
@@ -1661,6 +1662,8 @@ function Guildbook:SetupProfilesFrame()
     self.GuildFrame.ProfilesFrame.SearchBox:SetScript('OnTextChanged', function(self)
         Guildbook.GuildFrame.ProfilesFrame:SearchText_OnChanged(self:GetText())
     end)
+    local onlineIcon = Guildbook.Data.StatusIconStringsSMALL.Online
+    local offlineIcon = Guildbook.Data.StatusIconStringsSMALL.Offline
     function self.GuildFrame.ProfilesFrame:SearchText_OnChanged(text)
         --print('searching')
         if text:len() > 1 then
@@ -1674,6 +1677,8 @@ function Guildbook:SetupProfilesFrame()
             if guildName then
                 local characterName
                 for guid, character in pairs(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName]) do
+                    local online = Guildbook:IsGuildMemberOnline(character.Name)
+                    DEBUG('func', 'profile search', text.." "..character.Name.." "..tostring(online))
                     if not Guildbook.PlayerMixin then
                         Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
                     else
@@ -1695,6 +1700,7 @@ function Guildbook:SetupProfilesFrame()
                             table.insert(professionResults[prof], {
                                 GUID = guid,
                                 Name = characterName,
+                                Online = online,
                             })
                         end
                         if character[prof] then
@@ -1712,6 +1718,7 @@ function Guildbook:SetupProfilesFrame()
                                     table.insert(recipeResults[itemName], {
                                         GUID = guid,
                                         Name = characterName,
+                                        Online = online,
                                     })
                                     --DEBUG('func', 'ProfilesFrame:SearchText_OnChanged', itemName..'-'..characterName..' inserted')
                                 end
@@ -1727,6 +1734,7 @@ function Guildbook:SetupProfilesFrame()
                             table.insert(professionResults[prof], {
                                 GUID = guid,
                                 Name = characterName,
+                                Online = online,
                             })
                         end
                         if character[prof] then
@@ -1744,6 +1752,7 @@ function Guildbook:SetupProfilesFrame()
                                     table.insert(recipeResults[itemName], {
                                         GUID = guid,
                                         Name = characterName,
+                                        Online = online,
                                     })
                                     --DEBUG('func', 'ProfilesFrame:SearchText_OnChanged', itemName..'-'..characterName..' inserted')
                                 end
@@ -1755,6 +1764,7 @@ function Guildbook:SetupProfilesFrame()
                         table.insert(characterResults, {
                             GUID = guid,
                             Name = characterName,
+                            Online = online,
                         })
                     end
 
@@ -1769,7 +1779,8 @@ function Guildbook:SetupProfilesFrame()
                         for k, info in ipairs(characterResults) do
                             table.insert(searchResults, {
                                 text = info.Name,
-                                notCheckable = true,
+                                checked = info.Online,
+                                --notCheckable = true,
                                 func = function()
                                     Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(info.GUID, nil)
                                     Guildbook.GuildFrame.ProfilesFrame.SearchBox:ClearFocus()
@@ -1789,7 +1800,8 @@ function Guildbook:SetupProfilesFrame()
                             for k, info in ipairs(characters) do
                                 table.insert(characterList, {
                                     text = info.Name,
-                                    notCheckable = true,
+                                    checked = info.Online,
+                                    --notCheckable = true,
                                     func = function()
                                         Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(info.GUID, nil)
                                         Guildbook.GuildFrame.ProfilesFrame.SearchBox:ClearFocus()
@@ -1819,7 +1831,8 @@ function Guildbook:SetupProfilesFrame()
                             for k, info in ipairs(characters) do
                                 table.insert(characterList, {
                                     text = info.Name,
-                                    notCheckable = true,
+                                    checked = info.Online,
+                                    --notCheckable = true,
                                     func = function()
                                         Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(info.GUID, itemName)
                                         Guildbook.GuildFrame.ProfilesFrame.SearchBox:ClearFocus()
@@ -3402,6 +3415,7 @@ function Guildbook:SetupProfilesFrame()
                 local rarity = false
                 local icon = false
                 local enchant = false
+                local name;
                 if profession == 'Enchanting' then
                     link = select(1, GetSpellLink(itemID))
                     rarity = select(3, GetItemInfo(link)) or 1
