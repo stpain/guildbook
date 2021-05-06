@@ -366,4 +366,17 @@ set up the check box to show if the character is online when searching
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [10] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+
+
+|cff0070DEUpdates|r:
+As a quick fix for the laggy search function i've added a search button, normally the function would run as you type but its causing lag and it irritated me.
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }
