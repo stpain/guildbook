@@ -30,7 +30,7 @@ local LibSerialize = LibStub:GetLibrary("LibSerialize")
 --variables
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- this used to match the toc but for simplicity i've made it just an integer
-local build = 10;
+local build = 11;
 local locale = GetLocale()
 local L = Guildbook.Locales
 
@@ -270,6 +270,10 @@ function Guildbook:Init()
                 else
                     ToggleFriendsFrame(3)
                 end
+            elseif button == "MiddleButton" then
+                if GuildbookUI then
+                    GuildbookUI:Show()
+                end
             end
         end,
         OnTooltipShow = function(tooltip)
@@ -434,16 +438,22 @@ end
 -- functions
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-function Guildbook:GetLocaleFromEnglish(locale, english)
-    if Guildbook.GetEnglish[locale] and next(Guildbook.GetEnglish[locale]) then
-        for k, v in pairs(Guildbook.GetEnglish[locale]) do
-            if v == english then
-                return k
-            end
+function Guildbook:GetEnglishProf(prof)
+    for id, name in pairs(self.ProfessionNames[locale]) do
+        if name == prof then
+            --print("found", prof, "returning", self.ProfessionNames.enUS[id])
+            return self.ProfessionNames.enUS[id]
         end
     end
 end
 
+function Guildbook:CreateFrame(_type, _name, _parent, _inherits)
+ --BackdropTemplateMixin and "BackdropTemplate"
+    if not _type and not _name and not _parent and not _inherits then
+        return
+    end
+    
+end
 
 function Guildbook:MakeFrameMoveable(frame)
     frame:SetMovable(true)
@@ -742,6 +752,7 @@ function Guildbook:PrintMessage(msg)
 end
 
 
+
 --- scans the players bags and bank for guild bank sharing
 --- creates a table in the character saved vars with scan time so we can check which data is newest
 function Guildbook:ScanPlayerContainers()
@@ -1038,27 +1049,26 @@ function Guildbook.GetProfessionData()
     local myCharacter = { Fishing = 0, Cooking = 0, FirstAid = 0, Prof1 = '-', Prof1Level = 0, Prof2 = '-', Prof2Level = 0 }
     for s = 1, GetNumSkillLines() do
         local skill, _, _, level, _, _, _, _, _, _, _, _, _ = GetSkillLineInfo(s)
-        --if Guildbook.GetEnglish[locale][skill] == 'Fishing' then 
-        if L['Fishing'] == skill then 
+        if Guildbook:GetEnglishProf(skill) == 'Fishing' then 
+        --if L['Fishing'] == skill then 
             myCharacter.Fishing = level
-        --elseif Guildbook.GetEnglish[locale][skill] == 'Cooking' then
-        elseif L['Cooking'] == skill then
+        elseif Guildbook:GetEnglishProf(skill) == 'Cooking' then
+        --elseif L['Cooking'] == skill then
             myCharacter.Cooking = level
-        --elseif Guildbook.GetEnglish[locale][skill] == 'First Aid' then
-        elseif L['First Aid'] == skill then
+        elseif Guildbook:GetEnglishProf(skill) == 'First Aid' then
+        --elseif L['First Aid'] == skill then
             myCharacter.FirstAid = level
         else
             for k, prof in pairs(Guildbook.Data.Profession) do
-                -- using GetEnglish to cover non english clients checking against addon lookup tables
-                --if prof.Name == Guildbook.GetEnglish[locale][skill] then
-                if prof.Name == Guildbook.GetEnglish[skill] then
+                if prof.Name == Guildbook:GetEnglishProf(skill) then
+                --if prof.Name == Guildbook.GetEnglish[skill] then
                     if myCharacter.Prof1 == '-' then
-                        --myCharacter.Prof1 = Guildbook.GetEnglish[locale][skill]
-                        myCharacter.Prof1 = Guildbook.GetEnglish[skill]
+                        myCharacter.Prof1 = Guildbook:GetEnglishProf(skill)
+                        --myCharacter.Prof1 = Guildbook.GetEnglish[skill]
                         myCharacter.Prof1Level = level
                     elseif myCharacter.Prof2 == '-' then
-                        --myCharacter.Prof2 = Guildbook.GetEnglish[locale][skill]
-                        myCharacter.Prof2 = Guildbook.GetEnglish[skill]
+                        myCharacter.Prof2 = Guildbook:GetEnglishProf(skill)
+                        --myCharacter.Prof2 = Guildbook.GetEnglish[skill]
                         myCharacter.Prof2Level = level
                     end
                 end
@@ -1165,19 +1175,21 @@ end
 
 function Guildbook:IsGuildMemberOnline(player)
     local online = false
+    local zone;
     local guildName = Guildbook:GetGuildName()
     if guildName then
         local totalMembers, onlineMembers, _ = GetNumGuildMembers()
         for i = 1, totalMembers do
-            local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, GUID = GetGuildRosterInfo(i)
+            local name, rankName, rankIndex, level, classDisplayName, _zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, GUID = GetGuildRosterInfo(i)
             --DEBUG('func', 'IsGuildMemberOnline', string.format("player %s is online %s", name, tostring(isOnline)))
             if Ambiguate(name, 'none') == Ambiguate(player, 'none') then
                 online = isOnline
+                zone = _zone
                 --print("found", name, "is online")
             end
         end
     end
-    return online
+    return online, zone
 end
 
 
@@ -1252,6 +1264,9 @@ end
 -- comms
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function Guildbook:Transmit(data, channel, target, priority)
+    if not self:GetGuildName() then
+        return;
+    end
     if target ~= nil then
         --local name = Ambiguate(target, 'none')
         if self:IsGuildMemberOnline(target) == false then

@@ -379,4 +379,17 @@ As a quick fix for the laggy search function i've added a search button, normall
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [11] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+
+
+|cff0070DEUpdates|r:
+Added more profession locales
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }
