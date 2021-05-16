@@ -404,7 +404,7 @@ are supported.
         local x = ((column - 1) * slotWidth) + 205
         for row = 1, 7 do            
             local y = ((row -1) * -slotWidth) - 30
-            local f = CreateFrame('FRAME', tostring('GuildbookGuildFrameGuildBankFrameCol'..column..'Row'..row), self.GuildFrame.GuildBankFrame)
+            local f = CreateFrame('FRAME', tostring('GuildbookGuildFrameGuildBankFrameCol'..column..'Row'..row), self.GuildFrame.GuildBankFrame, BackdropTemplateMixin and "BackdropTemplate")
             f:SetSize(slotWidth, slotWidth)
             f:SetPoint('TOPLEFT', Guildbook.GuildFrame.GuildBankFrame, 'TOPLEFT', x, y)
             f:SetBackdrop({

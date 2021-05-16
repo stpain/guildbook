@@ -1,0 +1,893 @@
+<UI xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI-Retail.xsd">
+    
+    <FontFamily name="Acme14" inherits="GameFontNormal" virtual="true">
+        <Member alphabet="roman">
+            <Font font="Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf" height="14" outline="NORMAL"/>
+        </Member>
+        <Member alphabet="russian">
+            <Font font="Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf" height="14" outline="NORMAL"/>
+        </Member>
+        <Member alphabet="korean">
+            <Font font="Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf" height="14" outline="NORMAL"/>
+        </Member>
+        <Member alphabet="simplifiedchinese">
+            <Font font="Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf" height="14" outline="NORMAL"/>
+        </Member>
+        <Member alphabet="traditionalchinese">
+            <Font font="Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf" height="14" outline="NORMAL"/>
+        </Member>
+    </FontFamily>
+
+    <FontFamily name="Acme" inherits="GameFontNormal" virtual="true">
+        <Member alphabet="roman">
+            <Font font="Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf" height="20" outline="NORMAL"/>
+        </Member>
+        <Member alphabet="russian">
+            <Font font="Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf" height="20" outline="NORMAL"/>
+        </Member>
+        <Member alphabet="korean">
+            <Font font="Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf" height="20" outline="NORMAL"/>
+        </Member>
+        <Member alphabet="simplifiedchinese">
+            <Font font="Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf" height="20" outline="NORMAL"/>
+        </Member>
+        <Member alphabet="traditionalchinese">
+            <Font font="Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf" height="20" outline="NORMAL"/>
+        </Member>
+    </FontFamily>
+
+    <Frame name="GuildbookMenuFlyoutItem" mixin="GuildbookMenuFlyoutItemMixin" virtual="true" enableMouse="true" useParentLevel="true">
+        <Size x="45" y="45"/>
+        <Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="Background" useAtlasSize="false">
+                    <Size x="35" y="35"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+			</Layer>
+			<Layer level="HIGHLIGHT">
+				<Texture parentKey="Highlight" atlas="GarrMission_CurrentEncounter-Glow" useAtlasSize="true">
+				<!-- <Texture parentKey="Highlight" atlas="GarrMission_CurrentEncounter-SpikeyGlow" useAtlasSize="true"> -->
+				<!-- <Texture parentKey="Highlight" atlas="Relic-Holy-TraitBG" useAtlasSize="true"> -->
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+			</Layer>
+			<Layer level="BORDER">
+				<Texture parentKey="Border" atlas="GarrMission_PortraitRing_Enemy" useAtlasSize="false" setAllPoints="true"/> 
+			</Layer>
+        </Layers>
+        <Scripts>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnMouseDown method="OnMouseDown"/>
+            <OnMouseUp method="OnMouseUp"/>
+        </Scripts>
+    </Frame>
+
+    <Frame name="GuildbookListviewItem" mixin="GuildbookListviewItemMixin" virtual="true" enableMouse="true">
+        <Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="Background" atlas="PetList-ButtonBackground" useAtlasSize="false" setAllPoints="true"/>
+			</Layer>
+			<Layer level="HIGHLIGHT">
+				<Texture parentKey="Highlight" atlas="PetList-ButtonHighlight" useAtlasSize="false" setAllPoints="true"/>
+			</Layer>
+            <Layer level="OVERLAY">
+				<Texture parentKey="Icon">
+					<!-- <TexCoords left="0.0" right="0.46875" top="0.0" bottom="0.96875" /> -->
+					<Size x="30" y="30"/>				
+					<Anchors>
+						<Anchor point="LEFT" x="3" y="0"/>
+					</Anchors>
+				</Texture>
+				<FontString parentKey="Text" inherits="GameFontNormal">
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Icon" x="5" y="0"/>
+					</Anchors>
+					<Color r="1" g="1" b="1"/>
+				</FontString>
+            </Layer>
+        </Layers>
+
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnMouseDown method="OnMouseDown"/>
+            <OnMouseUp method="OnMouseUp"/>
+        </Scripts>
+    </Frame>
+                        <!-- <Texture atlas="socialqueuing-icon-group"> -->
+                        <!-- <Texture atlas="auctionhouse-ui-filter-redx"> -->
+                        <!-- <Texture atlas="transmog-icon-remove"> -->
+                        <!-- transmog-icon-chat -->
+    <Frame name="GuildbookSmallHighlightButton" mixin="GuildbookButtonMixin" virtual="true" enableMouse="true">
+        <Size x="25" y="25"/>
+        <Layers>
+            <Layer level="HIGHLIGHT">
+                <Texture atlas="Forge-ColorSwatchHighlight">
+                    <Size x="25" y="25"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnMouseDown method="OnMouseDown"/>
+            <OnMouseUp method="OnMouseUp"/>
+            <OnEnter>
+                if self.tooltipText then
+                    GameTooltip:SetOwner(self, 'ANCHOR_TOPRIGHT')
+                    GameTooltip:AddLine(self.tooltipText, 1,1,1,1)
+                    GameTooltip:Show()
+                end
+            </OnEnter>
+        </Scripts>
+	</Frame>
+
+    <Frame name="GuildbookRosterListviewItem" mixin="GuildbookRosterListviewItemMixin" virtual="true" enableMouse="true">
+        <Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="Background" atlas="Talent-Background" useAtlasSize="false" setAllPoints="true"/>
+			</Layer>
+			<Layer level="HIGHLIGHT">
+				<Texture parentKey="Highlight" atlas="GarrMission_ListGlow-Highlight" useAtlasSize="false" setAllPoints="true"/>
+			</Layer>
+            <Layer level="OVERLAY">
+				<Texture parentKey="ClassIcon">
+					<Size x="23" y="23"/>				
+					<Anchors>
+						<Anchor point="LEFT" x="3" y="0"/>
+					</Anchors>
+				</Texture>
+				<FontString parentKey="Name" inherits="Acme14" justifyH="LEFT">
+                    <Size x="108" y="22"/>
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.ClassIcon" x="7" y="0"/>
+					</Anchors>
+					<Color r="1" g="1" b="1"/>
+				</FontString>
+				<FontString parentKey="Level" inherits="Acme14" justifyH="CENTER">
+                    <Size x="30" y="22"/>
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Name" x="5" y="0"/>
+					</Anchors>
+					<Color r="1" g="1" b="1"/>
+				</FontString>
+				<Texture parentKey="MainSpecIcon">
+                    <Size x="25" y="25"/>
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Level" x="5" y="0"/> -->
+					</Anchors>
+				</Texture>
+				<FontString parentKey="MainSpec" inherits="Acme14" justifyH="LEFT">
+                    <Size x="100" y="22"/>
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.MainSpecIcon" x="5" y="0"/>
+					</Anchors>
+					<Color r="1" g="1" b="1"/>
+				</FontString>
+				<Texture parentKey="Prof1">
+                    <Size x="25" y="25"/>
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.MainSpec" x="5" y="0"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="Prof2">
+                    <Size x="25" y="25"/>
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Prof1" x="5" y="0"/>
+					</Anchors>
+				</Texture>
+				<FontString parentKey="Location" inherits="Acme14" justifyH="LEFT">
+                    <Size x="110" y="22"/>
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Prof2" x="10" y="0"/>
+					</Anchors>
+					<Color r="1" g="1" b="1"/>
+				</FontString>
+				<FontString parentKey="Rank" inherits="Acme14" justifyH="LEFT">
+                    <Size x="110" y="22"/>
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Location" x="5" y="0"/>
+					</Anchors>
+					<Color r="1" g="1" b="1"/>
+				</FontString>
+				<FontString parentKey="PublicNote" inherits="Acme14" justifyH="LEFT">
+                    <Size x="110" y="22"/>
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Rank" x="5" y="0"/>
+					</Anchors>
+					<Color r="1" g="1" b="1"/>
+				</FontString>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Frame parentKey="inviteToGroup" inherits="GuildbookSmallHighlightButton" enableMouse="true">
+                <Size x="25" y="25"/>
+                <Anchors>
+                    <Anchor point="RIGHT" x="0" y="0"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture atlas="communities-icon-addchannelplus">
+                            <Size x="25" y="25"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <KeyValues>
+                    <KeyValue key="tooltipText" value="Invite to group"/>
+                </KeyValues>
+                <Scripts>   
+                    <OnMouseDown>
+                        GuildbookButtonMixin.OnMouseDown(self)
+                        self:GetParent():GetParent():GetParent():RowInviteToGroup_OnMouseDown(self:GetParent())
+                    </OnMouseDown>
+                </Scripts>
+            </Frame>
+            <Frame parentKey="openChat" inherits="GuildbookSmallHighlightButton" enableMouse="true">
+                <Size x="25" y="25"/>
+                <Anchors>
+                    <Anchor point="RIGHT" x="-26" y="0"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture atlas="socialqueuing-icon-group">
+                            <Size x="25" y="25"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <KeyValues>
+                    <KeyValue key="tooltipText" value="Open chat"/>
+                </KeyValues>
+                <Scripts>   
+                    <OnMouseDown>
+                        GuildbookButtonMixin.OnMouseDown(self)
+                        self:GetParent():GetParent():GetParent():RowOpenToChat_OnMouseDown(self:GetParent())
+                    </OnMouseDown>
+                </Scripts>
+            </Frame>
+        </Frames>
+
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnMouseDown method="OnMouseDown"/>
+            <OnMouseUp method="OnMouseUp"/>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+        </Scripts>
+    </Frame>
+
+    <Frame name="GuildbookCharacterListviewItem" mixin="GuildbookCharacterListviewItemMixin" virtual="true" enableMouse="true">
+        <Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="Background" atlas="PetList-ButtonBackground" useAtlasSize="false" setAllPoints="true"/>
+			</Layer>
+			<Layer level="HIGHLIGHT">
+				<Texture parentKey="Highlight" atlas="PetList-ButtonHighlight" useAtlasSize="false" setAllPoints="true"/>
+			</Layer>
+            <Layer level="OVERLAY">
+				<Texture parentKey="Icon">
+					<!-- <TexCoords left="0.0" right="0.46875" top="0.0" bottom="0.96875" /> -->
+					<Size x="35" y="35"/>				
+					<Anchors>
+						<Anchor point="LEFT" x="8" y="0"/>
+					</Anchors>
+				</Texture>
+				<FontString parentKey="Name" inherits="GameFontNormal">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" relativeKey="$parent.Icon" x="10" y="-1"/>
+					</Anchors>
+					<Color r="1" g="1" b="1"/>
+				</FontString>
+				<FontString parentKey="Zone" inherits="GameFontNormal" justifyH="LEFT">
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" relativeKey="$parent.Icon" x="10" y="1"/>
+					</Anchors>
+					<Color r="1" g="1" b="1"/>
+				</FontString>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Frame parentKey="sendMessage" enableMouse="true" hidden="true">
+                <Size x="20" y="20"/>				
+                <Anchors>
+                    <Anchor point="TOPRIGHT" x="-2" y="-2"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="Background" file="interface/gossipframe/petitiongossipicon" setAllPoints="true"/>
+                    </Layer>
+                    <Layer level="HIGHLIGHT">
+                        <Texture parentKey="Highlight" file="interface/chatframe/ui-chaticon-blinkhilight" setAllPoints="true"/>
+                    </Layer>
+                </Layers>
+                <Scripts>
+                    <OnMouseDown>
+                        self:GetParent():SendMessage_OnMouseDown()
+                    </OnMouseDown>
+                    <OnMouseUp>
+                        self:GetParent():SendMessage_OnMouseUp()
+                    </OnMouseUp>
+                    <OnEnter>
+                        self:GetParent():SendMessage_OnEnter()
+                    </OnEnter>
+                    <OnLeave>
+                        self:GetParent():SendMessage_OnLeave()
+                    </OnLeave>
+                </Scripts>
+            </Frame>
+        </Frames>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnMouseDown method="OnMouseDown"/>
+            <OnMouseUp method="OnMouseUp"/>
+        </Scripts>
+    </Frame>
+
+    <Frame name="GuildbookItemIconFrame" mixin="GuildbookItemIconFrameMixin" virtual="true">
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="icon" setAllPoints="true">
+                     <Anchors>
+                        <!-- <Anchor point="TOPLEFT" x="1" y="-1"/>
+                        <Anchor point="BOTTOMRIGHT" x="-1" y="1"/> -->
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="BACKGROUND" textureSubLevel="1">
+                <Texture parentKey="greenBorder" atlas="loottab-set-itemborder-green" hidden="true">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="-4" y="4"/>
+                        <Anchor point="BOTTOMRIGHT" x="4" y="-4"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="BACKGROUND" textureSubLevel="1">
+                <Texture parentKey="orangeBorder" atlas="loottab-set-itemborder-orange" hidden="true">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="-4" y="4"/>
+                        <Anchor point="BOTTOMRIGHT" x="4" y="-4"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="BACKGROUND" textureSubLevel="1">
+                <Texture parentKey="purpleBorder" atlas="loottab-set-itemborder-purple" hidden="true">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="-4" y="4"/>
+                        <Anchor point="BOTTOMRIGHT" x="4" y="-4"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <FontString parentKey="count" inherits="GameFontNormal">
+                    <Color r="1" g="1" b="1"/>
+                    <Anchors>
+                        <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+        </Scripts>
+    </Frame>
+    
+    <Frame name="GuildbookRecipeListviewItem" mixin="GuildbookRecipeListviewItemMixin" virtual="true" enableMouse="true">
+        <Layers>
+			<Layer level="BACKGROUND">
+				<!-- <Texture parentKey="Background" atlas="friendslist-categorybutton" useAtlasSize="false" setAllPoints="true"/> -->
+				<!-- <Texture parentKey="Background" atlas="Garr_MissionList-CostBG" useAtlasSize="false" setAllPoints="true"/> -->
+				<!-- <Texture parentKey="Background" atlas="GarrMission_FollowerListButton" useAtlasSize="false" setAllPoints="true"/> -->
+				<!-- <Texture parentKey="Background" atlas="_search-rowbg" useAtlasSize="false" setAllPoints="true"/> -->
+				<Texture parentKey="Background" atlas="Talent-Background" useAtlasSize="false" setAllPoints="true"/>
+			</Layer>
+			<Layer level="HIGHLIGHT">
+				<Texture parentKey="Highlight" atlas="GarrMission_ListGlow-Highlight" useAtlasSize="false" setAllPoints="true"/>
+			</Layer>
+			<Layer level="BORDER" textureSubLevel="1"> 
+				<Texture parentKey="Selected" atlas="GarrMission_ListGlow-Select" useAtlasSize="false" setAllPoints="true" hidden="true"/>
+			</Layer>
+            <Layer level="OVERLAY">
+				<FontString parentKey="Text" inherits="GameFontNormal">
+					<Anchors>
+						<Anchor point="LEFT" x="5" y="0"/>
+					</Anchors>
+				</FontString>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Frame parentKey="reagentIcon1" parentArray="reagentIcons" inherits="GuildbookItemIconFrame">
+                <Size x="20" y="20"/>
+                <Anchors>
+                    <Anchor point="RIGHT" x="-5" y="0"/>
+                </Anchors>
+            </Frame>
+            <Frame parentKey="reagentIcon2" parentArray="reagentIcons" inherits="GuildbookItemIconFrame">
+                <Size x="20" y="20"/>
+                <Anchors>
+                    <Anchor point="RIGHT" x="-29" y="0"/>
+                </Anchors>
+            </Frame>
+            <Frame parentKey="reagentIcon3" parentArray="reagentIcons" inherits="GuildbookItemIconFrame">
+                <Size x="20" y="20"/>
+                <Anchors>
+                    <Anchor point="RIGHT" x="-53" y="0"/>
+                </Anchors>
+            </Frame>
+            <Frame parentKey="reagentIcon4" parentArray="reagentIcons" inherits="GuildbookItemIconFrame">
+                <Size x="20" y="20"/>
+                <Anchors>
+                    <Anchor point="RIGHT" x="-77" y="0"/>
+                </Anchors>
+            </Frame>
+            <Frame parentKey="reagentIcon5" parentArray="reagentIcons" inherits="GuildbookItemIconFrame">
+                <Size x="20" y="20"/>
+                <Anchors>
+                    <Anchor point="RIGHT" x="-101" y="0"/>
+                </Anchors>
+            </Frame>
+            <Frame parentKey="reagentIcon6" parentArray="reagentIcons" inherits="GuildbookItemIconFrame">
+                <Size x="20" y="20"/>
+                <Anchors>
+                    <Anchor point="RIGHT" x="-125" y="0"/>
+                </Anchors>
+            </Frame>
+        </Frames>
+
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnMouseDown method="OnMouseDown"/>
+            <OnMouseUp method="OnMouseUp"/>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+        </Scripts>
+    </Frame>
+    
+    <Frame name="GuildbookChatBubble" virtual="true">
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="Icon">
+                    <Size x="44" y="44"/>
+                    <Anchors>
+                        <Anchor point="RIGHT" x="-5" y="0"/>
+                    </Anchors>
+                </Texture>
+                <Texture parentKey="Background" setAllPoints="true">
+                    <Color r="0.1" g="0.5" b="0.3" a="0.1"/>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+				<FontString parentKey="Message" inherits="GameFontNormal" justifyH="LEFT" justifyV="CENTER">
+					<Color r="1" g="1" b="1"/>
+				</FontString>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnMouseDown>
+                self:GetParent():ChatBubble_OnMouseDown(self)
+            </OnMouseDown>
+        </Scripts>
+    </Frame>
+    
+    <Frame name="GuildbookUI" mixin="GuildbookMixin" parent="UIParent" inherits="PortraitFrameTemplate" enableMouse="true" movable="true" >
+        <Size x="920" y="510"/>
+        <Anchors>
+            <Anchor point="CENTER" x="0" y="0"/>
+        </Anchors>
+
+        <!-- <Layers>
+            <Layer level="OVERLAY">
+                <Texture atlas="warboard-header-alliance" useAtlasSize="true">
+                    <Anchors>
+                        <Anchor point="TOP" x="0" y="200"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers> -->
+
+        <Frames>
+            <Frame parentKey="portraitButton">
+                <Size x="50" y="50"/>
+                <Anchors>
+                    <Anchor point="CENTER" relativePoint="CENTER" relativeTo="GuildbookUIPortraitFrame" x="0" y="0"/>
+                </Anchors>
+            </Frame>
+
+            <Frame parentKey="menu" hidden="false"> 
+                <Size x="80" y="260"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="GuildbookUI" x="0" y="-50"/>
+                </Anchors>
+                <Layers>
+                    <Layer>
+                        <!-- <Texture atlas="Capacitance-Blacksmithing-BG" setAllPoints="true"> -->
+                        <Texture atlas="transmog-wardrobe-border-collected" setAllPoints="true">
+                            <!-- legionmission-complete-background-paladin  -->
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Frames>
+                    <Frame parentKey="profiles" inherits="GuildbookMenuFlyoutItem" hidden="false">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" x="15" y="-15"/>
+                        </Anchors>
+                        <KeyValues>
+                            <KeyValue key="tooltipText" value="Profiles" type="string"/>
+                        </KeyValues>
+                    </Frame>
+                    <Frame parentKey="tradeskills" inherits="GuildbookMenuFlyoutItem" hidden="false">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" x="15" y="-70"/>
+                        </Anchors>
+                        <KeyValues>
+                            <KeyValue key="tooltipText" value="Tradeskills" type="string"/>
+                        </KeyValues>
+                    </Frame>
+                    <Frame parentKey="chat" inherits="GuildbookMenuFlyoutItem" hidden="false">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" x="15" y="-125"/>
+                        </Anchors>
+                        <KeyValues>
+                            <KeyValue key="tooltipText" value="Chat" type="string"/>
+                        </KeyValues>
+                    </Frame>
+                    <Frame parentKey="roster" inherits="GuildbookMenuFlyoutItem" hidden="false">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" x="15" y="-180"/>
+                        </Anchors>
+                        <KeyValues>
+                            <KeyValue key="tooltipText" value="Roster" type="string"/>
+                        </KeyValues>
+                    </Frame>
+                </Frames>
+            </Frame>
+
+            <Frame parentKey="profiles" parentArray="frames" setAllPoints="true">
+                <Frames>
+                    <Frame>
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT" x="0" y="0"/>
+                            <Anchor point="TOPRIGHT" x="-1" y="-55"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer>
+                                <Texture atlas="legionmission-complete-background-shaman" setAllPoints="true" alpha="0.4">
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                    </Frame>
+                </Frames>
+            </Frame>
+
+            <Frame parentKey="tradeskills" parentArray="frames" setAllPoints="true" hidden="true">
+                <Frames>
+                    <Frame parentKey="professionListview" mixin="GuildbookProfessionListviewMixin">
+                        <Size x="175" y="410"/>
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT" x="5" y="5"/>
+                        </Anchors>
+
+                        <Scripts>
+                            <OnLoad method="OnLoad"/>
+                            <OnShow method="OnShow"/>
+                        </Scripts>
+                    </Frame>
+
+                    <Frame parentKey="recipesListview" mixin="GuildbookRecipesListviewMixin" enableMouse="true">
+                        <Size x="490" y="410"/>
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT" x="185" y="5"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer>
+                                <!-- <Texture atlas="insetshadow" useAtlasSize="false" setAllPoints="true"/> -->
+                            </Layer>
+                        </Layers>
+                        <Frames>
+                            <Slider parentKey="scrollBar" inherits="UIPanelScrollBarTemplate" orientation="VERTICAL">
+                                <Anchors>
+                                    <Anchor point="TOPRIGHT" x="16" y="-16"/>
+                                    <Anchor point="BOTTOMRIGHT" x="16" y="16"/>
+                                </Anchors>
+                                <Scripts>
+                                    <OnValueChanged>
+                                        self:GetParent():ScrollBar_OnValueChanged()
+                                    </OnValueChanged>
+                                </Scripts>
+                            </Slider>
+                        </Frames>
+                        <Scripts>
+                            <OnLoad method="OnLoad"/>
+                            <OnMouseWheel method="OnMouseWheel"/>
+                        </Scripts>
+                    </Frame>
+
+                    <Frame parentKey="charactersListview" mixin="GuildbookCharactersListviewMixin">
+                        <Size x="200" y="410"/>
+                        <Anchors>
+                            <Anchor point="BOTTOMRIGHT" x="-25" y="5"/>
+                        </Anchors>
+                        <Frames>
+                            <Slider parentKey="scrollBar" inherits="UIPanelScrollBarTemplate" orientation="VERTICAL">
+                                <Anchors>
+                                    <Anchor point="TOPRIGHT" x="16" y="-16"/>
+                                    <Anchor point="BOTTOMRIGHT" x="16" y="16"/>
+                                </Anchors>
+                                <Scripts>
+                                    <OnValueChanged>
+                                        self:GetParent():ScrollBar_OnValueChanged()
+                                    </OnValueChanged>
+                                </Scripts>
+                            </Slider>
+                        </Frames>
+                        <Scripts>
+                            <OnLoad method="OnLoad"/>
+                            <!-- <OnMouseWheel method="OnMouseWheel"/> -->
+                        </Scripts>
+                    </Frame>
+
+                    <Frame parentKey="ribbon">
+                        <Size y="30"/>
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" relativeKey="$parent.professionListview" x="0" y="2"/>
+                            <Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT" relativeKey="$parent.charactersListview" x="0" y="2"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <FontString parentKey="professionListviewHeader" inherits="Acme" text="Professions">
+                                    <Color r="1" g="1" b="1"/>
+                                    <Anchors>
+                                        <Anchor point="LEFT" x="5" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="recipeListviewHeader" inherits="Acme" text="Recipes">
+                                    <Color r="1" g="1" b="1"/>
+                                    <Anchors>
+                                        <Anchor point="LEFT" x="185" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="charactersListviewHeader" inherits="Acme" text="Characters">
+                                    <Color r="1" g="1" b="1"/>
+                                    <Anchors>
+                                        <Anchor point="LEFT" x="695" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                    </Frame>
+                </Frames>
+            </Frame>
+
+            <Frame parentKey="chat" mixin="GuildbookChatsMixin" parentArray="frames" setAllPoints="true" hidden="true">
+
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <FontString parentKey="currentChat" inherits="Acme" text=" No channel" justifyH="CENTER">
+                            <Size x="190" y="20"/>
+                            <Anchors>
+                                <Anchor point="BOTTOMLEFT" x="5" y="5"/>
+                            </Anchors>
+                            <Color r="1" g="1" b="1"/>
+                        </FontString>
+                    </Layer>
+                </Layers>
+
+                <Frames>
+                    <Frame parentKey="chatsListview" mixin="GuildbookChatsListviewMixin">
+                        <Size x="200" y="410"/>
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT" x="5" y="25"/>
+                        </Anchors>
+                        <Frames>
+                            <Slider parentKey="scrollBar" inherits="UIPanelScrollBarTemplate" orientation="VERTICAL">
+                                <Anchors>
+                                    <Anchor point="TOPRIGHT" x="16" y="-16"/>
+                                    <Anchor point="BOTTOMRIGHT" x="16" y="16"/>
+                                </Anchors>
+                                <Scripts>
+                                    <OnValueChanged>
+                                        self:GetParent():ChatsListviewScrollBar_OnValueChanged(self)
+                                    </OnValueChanged>
+                                </Scripts>
+                            </Slider>
+                        </Frames>
+                    </Frame>
+                    <Frame parentKey="chatContent" mixin="GuildbookChatContentMixin">
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" relativeKey="$parent.chatsListview" x="20" y="0"/>
+                            <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" relativeKey="$parent.chatsListview" x="20" y="0"/>
+                            <Anchor point="RIGHT" x="-25" y="0"/>
+                        </Anchors>
+                        <Frames>
+                            <Slider parentKey="scrollBar" inherits="UIPanelScrollBarTemplate" orientation="VERTICAL">
+                                <Anchors>
+                                    <Anchor point="TOPRIGHT" x="16" y="-16"/>
+                                    <Anchor point="BOTTOMRIGHT" x="16" y="16"/>
+                                </Anchors>
+                                <Scripts>
+                                    <OnValueChanged>
+                                        self:GetParent():ChatContentScrollBar_OnValueChanged()
+                                    </OnValueChanged>
+                                </Scripts>
+                            </Slider>
+                        </Frames>
+                    </Frame>
+
+                    <EditBox parentKey="chatInput" inherits="InputBoxTemplate" autoFocus="false">
+                        <Size y="20"/>
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeKey="$parent.chatContent" x="5" y="0"/>
+                            <Anchor point="TOPRIGHT" relativePoint="BOTTOMRIGHT" relativeKey="$parent.chatContent" x="-5" y="0"/>
+                        </Anchors>
+                        <Scripts>
+                            <OnEnterPressed>
+                                self:GetParent():ChatInput_OnEnterPressed(self)
+                            </OnEnterPressed>
+                        </Scripts>
+                    </EditBox>
+                </Frames>
+
+                <Scripts>
+                    <OnLoad method="OnLoad"/>
+                    <OnShow method="OnShow"/>
+                </Scripts>
+            </Frame>
+
+
+            <Frame parentKey="roster" mixin="GuildbookRosterMixin" parentArray="frames" setAllPoints="true" hidden="true">
+                <Frames>
+                    <Frame parentKey="refresh" inherits="GuildbookSmallHighlightButton" enableMouse="true">
+                        <Size x="35" y="35"/>
+                        <Anchors>
+                            <Anchor point="TOPRIGHT" x="-10" y="-30"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture atlas="characterundelete-RestoreButton">
+                                    <Size x="35" y="35"/>
+                                    <Anchors>
+                                        <Anchor point="CENTER"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                        <KeyValues>
+                            <KeyValue key="tooltipText" value="Refresh roster"/>
+                        </KeyValues>
+                        <Scripts>   
+                            <OnMouseDown>
+                                self:GetParent():ParseGuildRoster()
+                            </OnMouseDown>
+                        </Scripts>
+                    </Frame>
+                    <Button parentKey="sortClass" parentArray="sortButtons" inherits="UIPanelButtonTemplate">
+                        <Size x="35" y="24"/>
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT" x="6" y="415"/>
+                        </Anchors>
+                        <KeyValues>
+                            <KeyValue key="sort" value="class" type="string"/>
+                        </KeyValues>
+                    </Button>
+                    <Button parentKey="sortName" parentArray="sortButtons" inherits="UIPanelButtonTemplate">
+                        <Size x="113" y="24"/>
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT" x="40" y="415"/>
+                        </Anchors>
+                        <KeyValues>
+                            <KeyValue key="sort" value="name" type="string"/>
+                        </KeyValues>
+                    </Button>
+                    <Button parentKey="sortLevel" parentArray="sortButtons" inherits="UIPanelButtonTemplate">
+                        <Size x="40" y="24"/>
+                        <Anchors>
+                            <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.sortName" x="-1" y="0"/>
+                        </Anchors>
+                        <KeyValues>
+                            <KeyValue key="sort" value="level" type="string"/>
+                        </KeyValues>
+                    </Button>
+                    <Button parentKey="sortMainSpec" parentArray="sortButtons" inherits="UIPanelButtonTemplate">
+                        <Size x="130" y="24"/>
+                        <Anchors>
+                            <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.sortLevel" x="-1" y="0"/>
+                        </Anchors>
+                        <KeyValues>
+                            <KeyValue key="sort" value="mainSpec" type="string"/>
+                        </KeyValues>
+                    </Button>
+                    <Button parentKey="sortProf" parentArray="sortButtons" inherits="UIPanelButtonTemplate">
+                        <Size x="70" y="24"/>
+                        <Anchors>
+                            <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.sortMainSpec" x="-1" y="0"/>
+                        </Anchors>
+                        <KeyValues>
+                            <KeyValue key="sort" value="prof1" type="string"/>
+                        </KeyValues>
+                    </Button>
+                    <Button parentKey="sortLocation" parentArray="sortButtons" inherits="UIPanelButtonTemplate">
+                        <Size x="115" y="24"/>
+                        <Anchors>
+                            <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.sortProf" x="-1" y="0"/>
+                        </Anchors>
+                        <KeyValues>
+                            <KeyValue key="sort" value="location" type="string"/>
+                        </KeyValues>
+                    </Button>
+                    <Button parentKey="sortRankName" parentArray="sortButtons" inherits="UIPanelButtonTemplate">
+                        <Size x="115" y="24"/>
+                        <Anchors>
+                            <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.sortLocation" x="-1" y="0"/>
+                        </Anchors>
+                        <KeyValues>
+                            <KeyValue key="sort" value="rankName" type="string"/>
+                        </KeyValues>
+                    </Button>
+                    <Button parentKey="sortPublicNote" parentArray="sortButtons" inherits="UIPanelButtonTemplate">
+                        <Size x="115" y="24"/>
+                        <Anchors>
+                            <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.sortRankName" x="-1" y="0"/>
+                        </Anchors>
+                        <KeyValues>
+                            <KeyValue key="sort" value="publicNote" type="string"/>
+                        </KeyValues>
+                    </Button>
+                    <Frame parentKey="memberListview">
+                        <Size x="890" y="410"/>
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT" x="5" y="5"/>
+                        </Anchors>
+                        <Frames>
+                            <Slider parentKey="scrollBar" inherits="UIPanelScrollBarTemplate" orientation="VERTICAL">
+                                <Anchors>
+                                    <Anchor point="TOPRIGHT" x="16" y="-16"/>
+                                    <Anchor point="BOTTOMRIGHT" x="16" y="16"/>
+                                </Anchors>
+                                <Scripts>
+                                    <OnValueChanged>
+                                        self:GetParent():GetParent():RosterListviewScrollBar_OnValueChanged()
+                                    </OnValueChanged>
+                                </Scripts>
+                            </Slider>
+                        </Frames>
+                        <Scripts>
+                            <OnMouseWheel>
+                                self:GetParent():OnMouseWheel(delta)
+                            </OnMouseWheel>
+                        </Scripts>
+                    </Frame>
+                </Frames>
+
+                <Scripts>
+                    <OnLoad method="OnLoad"/>
+                    <OnShow method="OnShow"/>
+                </Scripts>
+            </Frame>
+
+        </Frames>
+
+        <Scripts>
+            <OnShow method="OnShow"/>
+            <OnLoad method="OnLoad"/>
+            <OnDragStart>
+                self:StartMoving()
+            </OnDragStart>
+            <OnDragStop>
+                self:StopMovingOrSizing()
+            </OnDragStop>
+        </Scripts>
+        
+    </Frame>
+
+</UI>

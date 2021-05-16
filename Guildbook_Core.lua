@@ -452,7 +452,8 @@ function Guildbook:CreateFrame(_type, _name, _parent, _inherits)
     if not _type and not _name and not _parent and not _inherits then
         return
     end
-    
+    local f = CreateFrame(_type, _name, _parent, BackdropTemplateMixin and tostring(_inherits..", BackdropTemplate"))
+    return f;
 end
 
 function Guildbook:MakeFrameMoveable(frame)
@@ -517,10 +518,10 @@ function Guildbook:CreateTooltipPanel(name, parent, anchor, x, y, w, h, headerTe
     f.background:SetPoint('TOPLEFT', 3, -3)
     f.background:SetPoint('BOTTOMRIGHT', -3, 3)
     f.background:SetColorTexture(0,0,0,0.6)
-    f:SetBackdrop({
-        edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-        edgeSize = 16,
-    })
+    -- f:SetBackdrop({
+    --     edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+    --     edgeSize = 16,
+    -- })
     if headerText then
         f.header = f:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
         f.header:SetPoint('TOP', 0, -10)
@@ -947,6 +948,17 @@ function Guildbook:CleanUpGuildRosterData(guild, msg)
                     local _, class, _ = C_PlayerInfo.GetClass(self.PlayerMixin)
                     local name = C_PlayerInfo.GetName(self.PlayerMixin)
                     if name and class then
+                        local raceID = C_PlayerInfo.GetRace(self.PlayerMixin)
+                        local race = C_CreatureInfo.GetRaceInfo(raceID).clientFileString:upper()
+                        local sex = (C_PlayerInfo.GetSex(self.PlayerMixin) == 1 and "FEMALE" or "MALE")
+                        if not info.Race then
+                            info.Race = race
+                            DEBUG('func', 'CleanUpGuildRosterData', 'updated '..name..' race info')
+                        end
+                        if not info.Gender then
+                            info.Gender = sex
+                            DEBUG('func', 'CleanUpGuildRosterData', 'updated '..name..' gender info')
+                        end
                         name = Ambiguate(name, 'none')
                         if not info.Class or (info.Class ~= class) then
                             info.Class = class
@@ -1190,6 +1202,25 @@ function Guildbook:IsGuildMemberOnline(player)
         end
     end
     return online, zone
+end
+
+
+function Guildbook:GetGuildMemberRankNotes(player)
+    local rankName, publicNote, officerNote
+    local guildName = Guildbook:GetGuildName()
+    if guildName then
+        local totalMembers, onlineMembers, _ = GetNumGuildMembers()
+        for i = 1, totalMembers do
+            local name, _rankName, rankIndex, level, classDisplayName, _zone, _publicNote, _officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, GUID = GetGuildRosterInfo(i)
+            --DEBUG('func', 'IsGuildMemberOnline', string.format("player %s is online %s", name, tostring(isOnline)))
+            if Ambiguate(name, 'none') == Ambiguate(player, 'none') then
+                publicNote = _publicNote
+                officerNote = _officerNote
+                rankName = _rankName
+            end
+        end
+    end
+    return rankName, publicNote, officerNote
 end
 
 
@@ -2135,6 +2166,40 @@ function Guildbook:CHAT_MSG_GUILD(...)
                 Guildbook.GuildChatLog = {}
             end
             self:AddGuildChatMessage(Guildbook.GuildChatLog, string.format("%s [%s%s|r]: %s", date("%T"), Guildbook.Data.Class[class].FontColour, sender, msg))
+            GuildbookUI.chat:AddGuildChatMessage({
+                formattedMessage = string.format("%s [%s%s|r]: %s", date("%T"), Guildbook.Data.Class[class].FontColour, sender, msg),
+                sender = sender,
+                target = "guild",
+                message = msg,
+                chatID = guid,
+                senderGUID = guid,
+            })
+        end
+    end
+end
+
+
+function Guildbook:CHAT_MSG_WHISPER(...)
+    local msg = select(1, ...)
+    local sender = select(2, ...)
+    sender = Ambiguate(sender, "none")
+    local guid = select(12, ...) -- sender guid
+    if not Guildbook.PlayerMixin then
+        Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
+    else
+        Guildbook.PlayerMixin:SetGUID(guid)
+    end
+    if Guildbook.PlayerMixin:IsValid() then
+        local _, class, _ = C_PlayerInfo.GetClass(self.PlayerMixin)
+        if class then
+            GuildbookUI.chat:AddChatMessage({
+                formattedMessage = string.format("%s [%s%s|r]: %s", date("%T"), Guildbook.Data.Class[class].FontColour, sender, msg),
+                sender = sender,
+                target = Ambiguate(UnitName("player"), "none"),
+                message = msg,
+                chatID = guid,
+                senderGUID = guid,
+            })
         end
     end
 end
@@ -2176,9 +2241,9 @@ function Guildbook:GUILD_ROSTER_UPDATE(...)
                     DEBUG('func', 'GUILD_ROSTER_UPDATE', string.format("added %s to cache", Ambiguate(name, 'none')))
                 end
             end
-            -- C_Timer.After(3, function()
-            --     Guildbook:CleanUpGuildRosterData(guildName, nil)
-            -- end)
+            C_Timer.After(1, function()
+                Guildbook:CleanUpGuildRosterData(guildName, nil)
+            end)
         end
     end
 end
@@ -2395,6 +2460,7 @@ Guildbook.EventFrame:RegisterEvent('CRAFT_UPDATE')
 Guildbook.EventFrame:RegisterEvent('RAID_ROSTER_UPDATE')
 Guildbook.EventFrame:RegisterEvent('BANKFRAME_OPENED')
 Guildbook.EventFrame:RegisterEvent('CHAT_MSG_GUILD')
+Guildbook.EventFrame:RegisterEvent('CHAT_MSG_WHISPER')
 Guildbook.EventFrame:RegisterEvent('UPDATE_MOUSEOVER_UNIT')
 Guildbook.EventFrame:RegisterEvent('UNIT_SPELLCAST_SUCCEEDED')
 --Guildbook.EventFrame:RegisterEvent('PLAYER_TALENT_UPDATE')

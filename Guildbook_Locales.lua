@@ -96,6 +96,15 @@ L['GuildBank'] = 'Guild Bank'
 L['Events'] = 'Events'
 L['WorldEvents'] = 'World Events'
 L['Attunements'] = 'Attunements'
+L["Guild"] = "Guild"
+L["name"] = "Name"
+L["level"] = "Level"
+L["mainSpec"] = "Main Spec"
+L["prof1"] = "Trade"
+L["location"] = "Location"
+L["rankName"] = "Rank"
+L["publicNote"] = "Public Note"
+L["class"] = "Class"
 
 --professions
 L['Alchemy'] = 'Alchemy'

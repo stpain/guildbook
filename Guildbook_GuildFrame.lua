@@ -75,7 +75,7 @@ function Guildbook:SetupStatsFrame()
     self.GuildFrame.StatsFrame.MinLevelSlider_Text:SetFont("Fonts\\FRIZQT__.TTF", 12)
 
     -- parent frame for the role pie charts, border/background currently unused but left here for future changes if any
-    self.GuildFrame.StatsFrame.RoleFrame = CreateFrame('FRAME', 'GuildbookGuildFrameStatsFrameRoleFrame', self.GuildFrame.StatsFrame)
+    self.GuildFrame.StatsFrame.RoleFrame = CreateFrame('FRAME', 'GuildbookGuildFrameStatsFrameRoleFrame', self.GuildFrame.StatsFrame, BackdropTemplateMixin and "BackdropTemplate")
     self.GuildFrame.StatsFrame.RoleFrame:SetPoint('TOPLEFT', self.GuildFrame.StatsFrame, 'TOPLEFT', 10, -10)
     self.GuildFrame.StatsFrame.RoleFrame:SetSize(450, 160)
     -- self.GuildFrame.StatsFrame.RoleFrame:SetBackdrop({
@@ -126,7 +126,7 @@ function Guildbook:SetupStatsFrame()
     self.GuildFrame.StatsFrame.RoleHeader:SetFont("Fonts\\FRIZQT__.TTF", 12)
 
     -- profession parent frame
-    self.GuildFrame.StatsFrame.ProfessionFrame = CreateFrame('FRAME', 'GuildbookGuildFrameStatsFrameProfessionFrame', self.GuildFrame.StatsFrame)
+    self.GuildFrame.StatsFrame.ProfessionFrame = CreateFrame('FRAME', 'GuildbookGuildFrameStatsFrameProfessionFrame', self.GuildFrame.StatsFrame, BackdropTemplateMixin and "BackdropTemplate")
     self.GuildFrame.StatsFrame.ProfessionFrame:SetPoint('TOPLEFT', self.GuildFrame.StatsFrame.RoleFrame, 'BOTTOMLEFT', 0, -10)
     self.GuildFrame.StatsFrame.ProfessionFrame:SetPoint('TOPRIGHT', self.GuildFrame.StatsFrame.RoleFrame, 'BOTTOMRIGHT', 0, -10)
     self.GuildFrame.StatsFrame.ProfessionFrame:SetPoint('BOTTOM', self.GuildFrame.StatsFrame, 'BOTTOM', 0, 10)
@@ -156,7 +156,7 @@ function Guildbook:SetupStatsFrame()
     -- profession table, this holds the profession widget so they can be looped and updated by profession
     self.GuildFrame.StatsFrame.Professions = {}
     for k, prof in pairs(Guildbook.GuildFrame.StatsFrame.ProfessionCount) do
-        local f = CreateFrame('FRAME', tostring('$parent'..prof.Name), Guildbook.GuildFrame.StatsFrame.ProfessionFrame)
+        local f = CreateFrame('FRAME', tostring('$parent'..prof.Name), Guildbook.GuildFrame.StatsFrame.ProfessionFrame, BackdropTemplateMixin and "BackdropTemplate")
         f:SetPoint('BOTTOMLEFT', ((k-1) * 55) + 5, 15)
         f:SetSize(55, 25)
         f.icon = f:CreateTexture(tostring('$parentIcon'..prof.Name), 'ARTWORK')
@@ -246,7 +246,7 @@ function Guildbook:SetupStatsFrame()
     }
 
     -- class count parent frame
-    self.GuildFrame.StatsFrame.ClassFrame = CreateFrame('FRAME', 'GuildbookGuildFrameStatsFrameClassFrame', self.GuildFrame.StatsFrame)
+    self.GuildFrame.StatsFrame.ClassFrame = CreateFrame('FRAME', 'GuildbookGuildFrameStatsFrameClassFrame', self.GuildFrame.StatsFrame, BackdropTemplateMixin and "BackdropTemplate")
     self.GuildFrame.StatsFrame.ClassFrame:SetPoint('TOPLEFT', self.GuildFrame.StatsFrame.RoleFrame, 'TOPRIGHT', 10, 0)
     self.GuildFrame.StatsFrame.ClassFrame:SetPoint('BOTTOMLEFT', self.GuildFrame.StatsFrame.ProfessionFrame, 'BOTTOMRIGHT', 20, 0)
     self.GuildFrame.StatsFrame.ClassFrame:SetPoint('RIGHT', self.GuildFrame.StatsFrame, 'RIGHT', -10, 0)
@@ -652,7 +652,7 @@ function Guildbook:SetupGuildCalendarFrame()
     self.GuildFrame.GuildCalendarFrame.Header:SetTextColor(1,1,1,1)
     self.GuildFrame.GuildCalendarFrame.Header:SetFont("Fonts\\FRIZQT__.TTF", 12)
 
-    self.GuildFrame.GuildCalendarFrame.NextMonthButton = CreateFrame('BUTTON', 'GuildbookGuildFrameGuildCalendarFrameNextMonthButton', self.GuildFrame.GuildCalendarFrame) --, "UIPanelButtonTemplate")
+    self.GuildFrame.GuildCalendarFrame.NextMonthButton = CreateFrame('BUTTON', 'GuildbookGuildFrameGuildCalendarFrameNextMonthButton', self.GuildFrame.GuildCalendarFrame, BackdropTemplateMixin and "BackdropTemplate") --, "UIPanelButtonTemplate")
     self.GuildFrame.GuildCalendarFrame.NextMonthButton:SetPoint('TOP', 90, 25)
     self.GuildFrame.GuildCalendarFrame.NextMonthButton:SetSize(30, 30)
     self.GuildFrame.GuildCalendarFrame.NextMonthButton:SetNormalTexture(130866)
@@ -667,7 +667,7 @@ function Guildbook:SetupGuildCalendarFrame()
         self:GetParent():MonthChanged()
     end)
 
-    self.GuildFrame.GuildCalendarFrame.PrevMonthButton = CreateFrame('BUTTON', 'GuildbookGuildFrameGuildCalendarFramePrevMonthButton', self.GuildFrame.GuildCalendarFrame) --, "UIPanelButtonTemplate")
+    self.GuildFrame.GuildCalendarFrame.PrevMonthButton = CreateFrame('BUTTON', 'GuildbookGuildFrameGuildCalendarFramePrevMonthButton', self.GuildFrame.GuildCalendarFrame, BackdropTemplateMixin and "BackdropTemplate") --, "UIPanelButtonTemplate")
     self.GuildFrame.GuildCalendarFrame.PrevMonthButton:SetPoint('TOP', -90, 25)
     self.GuildFrame.GuildCalendarFrame.PrevMonthButton:SetSize(30, 30)
     self.GuildFrame.GuildCalendarFrame.PrevMonthButton:SetNormalTexture(130869)
@@ -682,7 +682,7 @@ function Guildbook:SetupGuildCalendarFrame()
         self:GetParent():MonthChanged()
     end)
 
-    self.GuildFrame.GuildCalendarFrame.InstanceInfoFrame = CreateFrame('FRAME', 'GuildbookGuildFrameGuildCalendarFrameInstanceInfoFrame', Guildbook.GuildFrame.GuildCalendarFrame)
+    self.GuildFrame.GuildCalendarFrame.InstanceInfoFrame = CreateFrame('FRAME', 'GuildbookGuildFrameGuildCalendarFrameInstanceInfoFrame', Guildbook.GuildFrame.GuildCalendarFrame, BackdropTemplateMixin and "BackdropTemplate")
     self.GuildFrame.GuildCalendarFrame.InstanceInfoFrame:SetPoint('TOPRIGHT', -6, -6)
     self.GuildFrame.GuildCalendarFrame.InstanceInfoFrame:SetPoint('BOTTOMRIGHT', -6, 6)
     self.GuildFrame.GuildCalendarFrame.InstanceInfoFrame:SetWidth(300)
@@ -692,7 +692,7 @@ function Guildbook:SetupGuildCalendarFrame()
     self.GuildFrame.GuildCalendarFrame.InstanceInfoFrame.rows = {}
 
 
-    self.GuildFrame.GuildCalendarFrame.CalendarParent = CreateFrame('FRAME', 'GuildbookGuildFrameGuildCalendarFrameParent', Guildbook.GuildFrame.GuildCalendarFrame)
+    self.GuildFrame.GuildCalendarFrame.CalendarParent = CreateFrame('FRAME', 'GuildbookGuildFrameGuildCalendarFrameParent', Guildbook.GuildFrame.GuildCalendarFrame, BackdropTemplateMixin and "BackdropTemplate")
     self.GuildFrame.GuildCalendarFrame.CalendarParent:SetPoint('TOPLEFT', 6, -23)
     self.GuildFrame.GuildCalendarFrame.CalendarParent:SetPoint('BOTTOMLEFT', 6, 0)
     self.GuildFrame.GuildCalendarFrame.CalendarParent:SetWidth(490)
@@ -703,7 +703,7 @@ function Guildbook:SetupGuildCalendarFrame()
     local dayW, dayH = 70, 53
 
     for i = 1, 7 do
-        local f = CreateFrame('FRAME', 'GuildbookGuildFrameGuildCalendarFrameDayHeaders'..i, Guildbook.GuildFrame.GuildCalendarFrame)
+        local f = CreateFrame('FRAME', 'GuildbookGuildFrameGuildCalendarFrameDayHeaders'..i, Guildbook.GuildFrame.GuildCalendarFrame, BackdropTemplateMixin and "BackdropTemplate")
         f:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.GuildCalendarFrame.CalendarParent, 'TOPLEFT', (i - 1) * dayW, 1)
         f:SetSize(dayW, 18)
         f.background = f:CreateTexture('$parentBackground', 'BACKGROUND')
@@ -721,7 +721,7 @@ function Guildbook:SetupGuildCalendarFrame()
     local i = 1
     for week = 1, 6 do
         for day = 1, 7 do
-            local f = CreateFrame('BUTTON', tostring('GuildbookGuildFrameGuildCalendarFrameWeek'..week..'Day'..day), Guildbook.GuildFrame.GuildCalendarFrame.CalendarParent)
+            local f = CreateFrame('BUTTON', tostring('GuildbookGuildFrameGuildCalendarFrameWeek'..week..'Day'..day), Guildbook.GuildFrame.GuildCalendarFrame.CalendarParent, BackdropTemplateMixin and "BackdropTemplate")
             f:SetPoint('TOPLEFT', ((day - 1) * dayW), ((week - 1) * dayH) * -1)
             f:SetSize(dayW, dayH)
             f:SetHighlightTexture(235438)
@@ -773,7 +773,7 @@ function Guildbook:SetupGuildCalendarFrame()
 
             -- add 3 buttons to the day, 4 buttons would take over most of the day and 4 events scheduled for 1 day is less likely however it could be made into 4 if requested
             for e = 1, 3 do
-                f['eventButton'..e] = CreateFrame('BUTTON', tostring('GuildbookGuildFrameGuildCalendarFrameWeek'..week..'Day'..day..'Button'..e), f)
+                f['eventButton'..e] = CreateFrame('BUTTON', tostring('GuildbookGuildFrameGuildCalendarFrameWeek'..week..'Day'..day..'Button'..e), f, BackdropTemplateMixin and "BackdropTemplate")
                 f['eventButton'..e]:SetPoint('BOTTOMLEFT', f, 'BOTTOMLEFT', 1, ((e - 1) * 10) + 3)
                 f['eventButton'..e]:SetPoint('BOTTOMRIGHT', f, 'BOTTOMRIGHT', -1, ((e - 1) * 10) + 3)
                 f['eventButton'..e]:SetHeight(10)
@@ -1050,7 +1050,7 @@ function Guildbook:SetupGuildCalendarFrame()
         end
     end
 
-    self.GuildFrame.GuildCalendarFrame.EventFrame = CreateFrame('FRAME', 'GuildbookGuildFrameGuildCalendarFrameEventFrame', self.GuildFrame.GuildCalendarFrame) --, "UIPanelDialogTemplate")
+    self.GuildFrame.GuildCalendarFrame.EventFrame = CreateFrame('FRAME', 'GuildbookGuildFrameGuildCalendarFrameEventFrame', self.GuildFrame.GuildCalendarFrame, BackdropTemplateMixin and "BackdropTemplate") --, "UIPanelDialogTemplate")
     self.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('TOPLEFT', GuildFrame, 'TOPRIGHT', 4, 0)
     self.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('BOTTOMRIGHT', GuildFrame, 'BOTTOMRIGHT', 254, 0)
     self.GuildFrame.GuildCalendarFrame.EventFrame:SetBackdrop({
@@ -1129,14 +1129,14 @@ function Guildbook:SetupGuildCalendarFrame()
         EasyMenu(eventTypes, Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTypeDropdown, Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTypeDropdown, 10, 10, 'NONE')
     end)
 
-    self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent = CreateFrame('FRAME', 'GuildbookGuildFrameGuildCalendarFrameEventFrameEventDescriptionEditboxParent', self.GuildFrame.GuildCalendarFrame.EventFrame)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent = CreateFrame('FRAME', 'GuildbookGuildFrameGuildCalendarFrameEventFrameEventDescriptionEditboxParent', self.GuildFrame.GuildCalendarFrame.EventFrame, BackdropTemplateMixin and "BackdropTemplate")
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent:SetPoint('TOPLEFT', 20, -120)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent:SetSize(206, 80)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent:SetBackdrop({
         edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
         edgeSize = 16,
     })
-    self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox = CreateFrame('EDITBOX', 'GuildbookGuildFrameGuildCalendarFrameEventFrameEventDescriptionEditbox', self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent) --, "InputBoxTemplate")
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox = CreateFrame('EDITBOX', 'GuildbookGuildFrameGuildCalendarFrameEventFrameEventDescriptionEditbox', self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent, BackdropTemplateMixin and "BackdropTemplate") --, "InputBoxTemplate")
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox:SetPoint('TOP', Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent, 'TOP', 0, -8)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox:SetPoint('BOTTOM', Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent, 'BOTTOM', 0, 8)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox:SetWidth(186)
@@ -1161,7 +1161,7 @@ function Guildbook:SetupGuildCalendarFrame()
         Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox:ClearFocus()
     end)
 
-    self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent = CreateFrame('FRAME', 'GuildbookGuildFrameGuildCalendarFrameEventFrameEventAttendeesListviewParent', self.GuildFrame.GuildCalendarFrame.EventFrame)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent = CreateFrame('FRAME', 'GuildbookGuildFrameGuildCalendarFrameEventFrameEventAttendeesListviewParent', self.GuildFrame.GuildCalendarFrame.EventFrame, BackdropTemplateMixin and "BackdropTemplate")
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent:SetPoint('TOPLEFT', 20, -260)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent:SetSize(206, 120)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent:EnableMouse(true)
@@ -1253,7 +1253,7 @@ function Guildbook:SetupGuildCalendarFrame()
     }
     for i = 1, 9 do 
         local class = Guildbook.Data.Class[classes[i]]
-        local f = CreateFrame('BUTTON', tostring('GuildbookGuildFrameGuildCalendarFrameEventFrameClassTab'..classes[i]), self.GuildFrame.GuildCalendarFrame.EventFrame)
+        local f = CreateFrame('BUTTON', tostring('GuildbookGuildFrameGuildCalendarFrameEventFrameClassTab'..classes[i]), self.GuildFrame.GuildCalendarFrame.EventFrame, BackdropTemplateMixin and "BackdropTemplate")
         f:SetPoint('TOPLEFT', self.GuildFrame.GuildCalendarFrame.EventFrame, 'TOPRIGHT', -4, (i * -32) + 10)
         f:SetSize(40, 40)
         -- tab border texture
@@ -1562,7 +1562,7 @@ function Guildbook:SetupGuildCalendarFrame()
             for k, raid in ipairs(info) do
                 --local dateObj = date('*t', tonumber(GetTime() + raid.Resets))
                 if not self.InstanceInfoFrame.rows[k] then
-                    local f = CreateFrame('FRAME', 'GuildbookGuildFrameGuildCalendarFrameinstanceInfoRow'..k, self.InstanceInfoFrame)
+                    local f = CreateFrame('FRAME', 'GuildbookGuildFrameGuildCalendarFrameinstanceInfoRow'..k, self.InstanceInfoFrame, BackdropTemplateMixin and "BackdropTemplate")
                     f:SetPoint('TOP', 0, ((k-1) * -20) - 20)
                     f:SetSize(300, 20)
 
@@ -2165,7 +2165,7 @@ function Guildbook:SetupProfilesFrame()
 
 
 
-    self.GuildFrame.ProfilesFrame.HomeTab = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameHomeTab', self.GuildFrame.ProfilesFrame)
+    self.GuildFrame.ProfilesFrame.HomeTab = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameHomeTab', self.GuildFrame.ProfilesFrame, BackdropTemplateMixin and "BackdropTemplate")
     self.GuildFrame.ProfilesFrame.HomeTab:SetPoint('TOPLEFT', self.GuildFrame.ProfilesFrame, 'TOPLEFT', 2, -2)
     self.GuildFrame.ProfilesFrame.HomeTab:SetPoint('BOTTOMRIGHT', self.GuildFrame.ProfilesFrame, 'BOTTOMRIGHT', -2, 2)
     self.GuildFrame.ProfilesFrame.HomeTab:Hide()
@@ -2461,7 +2461,7 @@ function Guildbook:SetupProfilesFrame()
     if Guildbook.PlayerMixin:IsValid() then
         local faction = C_CreatureInfo.GetFactionInfo(C_PlayerInfo.GetRace(Guildbook.PlayerMixin)).groupTag
         for _, race in pairs(Guildbook.Data.Factions[faction]) do
-            local f = CreateFrame('Model', 'GuildbookGuildFrameProfilesFrameModelViewer'..race, self.GuildFrame.ProfilesFrame.PaperdollTab)
+            local f = CreateFrame('Model', 'GuildbookGuildFrameProfilesFrameModelViewer'..race, self.GuildFrame.ProfilesFrame.PaperdollTab, BackdropTemplateMixin and "BackdropTemplate")
             --f:SetFrameStrata('LOW')
             --f:SetFrameLevel(0)
             f:SetPoint('TOPLEFT', 2, -2)
@@ -2490,7 +2490,7 @@ function Guildbook:SetupProfilesFrame()
         if not self.CharacterModels[race][gender] then
             -- FriendsFrame:Show()
             -- FriendsFrameTab3:Click()
-            local f = CreateFrame('DressUpModel', 'GuildbookGuildFrameProfilesFrameCharacterModels'..race..gender, Guildbook.GuildFrame.ProfilesFrame.PaperdollTab)
+            local f = CreateFrame('DressUpModel', 'GuildbookGuildFrameProfilesFrameCharacterModels'..race..gender, Guildbook.GuildFrame.ProfilesFrame.PaperdollTab, BackdropTemplateMixin and "BackdropTemplate")
             f:SetPoint('CENTER', 0, 0)
             f:SetSize(400, 340)
             if race == 'GNOME' or race == 'DWARF' then
@@ -2568,7 +2568,7 @@ function Guildbook:SetupProfilesFrame()
     end
 
 
-    self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFramePaperdollTabOverlay', self.GuildFrame.ProfilesFrame.PaperdollTab)
+    self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFramePaperdollTabOverlay', self.GuildFrame.ProfilesFrame.PaperdollTab, BackdropTemplateMixin and "BackdropTemplate")
     self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay:SetAllPoints(self.GuildFrame.ProfilesFrame.PaperdollTab)
     self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay:SetFrameLevel(599)
 
@@ -2706,7 +2706,7 @@ function Guildbook:SetupProfilesFrame()
         end
         self:SetVerticalScroll(newValue)
     end)
-    local combatScrollChild = CreateFrame("Frame", "GuildbookGuildFrameProfilesFramePaperdollFrameCombatStatsPanelScrollFrameChild", self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.CombatStatsPanel.ScrollFrame)
+    local combatScrollChild = CreateFrame("Frame", "GuildbookGuildFrameProfilesFramePaperdollFrameCombatStatsPanelScrollFrameChild", self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.CombatStatsPanel.ScrollFrame, BackdropTemplateMixin and "BackdropTemplate")
     combatScrollChild:SetPoint("TOPLEFT", 0, 0)
     combatScrollChild:SetPoint("BOTTOMRIGHT", 0, 6)
     combatScrollChild:SetSize(190, 506)
@@ -2888,7 +2888,7 @@ function Guildbook:SetupProfilesFrame()
     self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay.InvIcons = {}
     for k, v in ipairs(Guildbook.Data.InventorySlots) do
 
-        local f = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFramePaperdollTabInventorySlot'..v.Name, self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay)
+        local f = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFramePaperdollTabInventorySlot'..v.Name, self.GuildFrame.ProfilesFrame.PaperdollTab.Overlay, BackdropTemplateMixin and "BackdropTemplate")
         f:SetSize(25, 25)
         f:SetPoint('CENTER', Guildbook.GuildFrame.ProfilesFrame.PaperdollTab.Overlay, 'CENTER', v.offsetX - 100, v.offsetY)
 
@@ -2993,7 +2993,7 @@ function Guildbook:SetupProfilesFrame()
 
 
 
-    self.GuildFrame.ProfilesFrame.TalentsTab = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameTalentsTab', self.GuildFrame.ProfilesFrame)
+    self.GuildFrame.ProfilesFrame.TalentsTab = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameTalentsTab', self.GuildFrame.ProfilesFrame, BackdropTemplateMixin and "BackdropTemplate")
     self.GuildFrame.ProfilesFrame.TalentsTab:SetPoint('TOPLEFT', self.GuildFrame.ProfilesFrame, 'TOPLEFT', 2, -2)
     self.GuildFrame.ProfilesFrame.TalentsTab:SetPoint('BOTTOMRIGHT', self.GuildFrame.ProfilesFrame, 'BOTTOMRIGHT', -2, 2)
     self.GuildFrame.ProfilesFrame.TalentsTab:Hide()
@@ -3010,7 +3010,7 @@ function Guildbook:SetupProfilesFrame()
         end
         self:SetVerticalScroll(newValue)
     end)
-    local scrollChild = CreateFrame("Frame", nil, self.GuildFrame.ProfilesFrame.TalentsTab.ScrollFrame)
+    local scrollChild = CreateFrame("Frame", nil, self.GuildFrame.ProfilesFrame.TalentsTab.ScrollFrame, BackdropTemplateMixin and "BackdropTemplate")
     scrollChild:SetPoint("TOPLEFT", 0, 0)
     scrollChild:SetSize(771, (Guildbook.NUM_TALENT_ROWS * 59) + 19)
     self.GuildFrame.ProfilesFrame.TalentsTab.ScrollFrame:SetScrollChild(scrollChild)
@@ -3024,7 +3024,7 @@ function Guildbook:SetupProfilesFrame()
         for row = 1, Guildbook.NUM_TALENT_ROWS do
             self.GuildFrame.ProfilesFrame.TalentsTab.TalentGrid[spec][row] = {}
             for col = 1, 4 do
-                local f = CreateFrame('FRAME', tostring('GuildbookGuildFrameProfilesFrameTalentsTabScrollFrameTalent'..spec..row..col), scrollChild)
+                local f = CreateFrame('FRAME', tostring('GuildbookGuildFrameProfilesFrameTalentsTabScrollFrameTalent'..spec..row..col), scrollChild, BackdropTemplateMixin and "BackdropTemplate")
                 f:SetSize(40, 40)
                 f:SetPoint('TOPLEFT', (colPoints[col] + ((spec - 1) * 257.0)), rowPoints[row] * -1)
 
@@ -3090,21 +3090,21 @@ function Guildbook:SetupProfilesFrame()
     -- remove these frames
     local w, h = 257.0, 335.0
     local l, r, u, d = 0, 0.56, 0, 0.61
-    self.GuildFrame.ProfilesFrame.TalentsTab.Tab1 = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameTalentsTab_1', self.GuildFrame.ProfilesFrame.TalentsTab)
+    self.GuildFrame.ProfilesFrame.TalentsTab.Tab1 = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameTalentsTab_1', self.GuildFrame.ProfilesFrame.TalentsTab, BackdropTemplateMixin and "BackdropTemplate")
     self.GuildFrame.ProfilesFrame.TalentsTab.Tab1:SetPoint('TOPLEFT', Guildbook.GuildFrame.ProfilesFrame.TalentsTab, 'TOPLEFT', 2, -2)
     self.GuildFrame.ProfilesFrame.TalentsTab.Tab1:SetSize(w, h)
     self.GuildFrame.ProfilesFrame.TalentsTab.Tab1.background = self.GuildFrame.ProfilesFrame.TalentsTab.Tab1:CreateTexture('$parentBackground', 'ARTWORK')
     self.GuildFrame.ProfilesFrame.TalentsTab.Tab1.background:SetAllPoints(Guildbook.GuildFrame.ProfilesFrame.TalentsTab.Tab1)
     self.GuildFrame.ProfilesFrame.TalentsTab.Tab1.background:SetTexCoord(l, r, u, d)
 
-    self.GuildFrame.ProfilesFrame.TalentsTab.Tab2 = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameTalentsTab_2', self.GuildFrame.ProfilesFrame.TalentsTab)
+    self.GuildFrame.ProfilesFrame.TalentsTab.Tab2 = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameTalentsTab_2', self.GuildFrame.ProfilesFrame.TalentsTab, BackdropTemplateMixin and "BackdropTemplate")
     self.GuildFrame.ProfilesFrame.TalentsTab.Tab2:SetPoint('LEFT', Guildbook.GuildFrame.ProfilesFrame.TalentsTab.Tab1, 'RIGHT', 0, 0)
     self.GuildFrame.ProfilesFrame.TalentsTab.Tab2:SetSize(w, h)
     self.GuildFrame.ProfilesFrame.TalentsTab.Tab2.background = self.GuildFrame.ProfilesFrame.TalentsTab.Tab2:CreateTexture('$parentBackground', 'ARTWORK')
     self.GuildFrame.ProfilesFrame.TalentsTab.Tab2.background:SetAllPoints(Guildbook.GuildFrame.ProfilesFrame.TalentsTab.Tab2)
     self.GuildFrame.ProfilesFrame.TalentsTab.Tab2.background:SetTexCoord(l, r, u, d)
 
-    self.GuildFrame.ProfilesFrame.TalentsTab.Tab3 = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameTalentsTab_3', self.GuildFrame.ProfilesFrame.TalentsTab)
+    self.GuildFrame.ProfilesFrame.TalentsTab.Tab3 = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameTalentsTab_3', self.GuildFrame.ProfilesFrame.TalentsTab, BackdropTemplateMixin and "BackdropTemplate")
     self.GuildFrame.ProfilesFrame.TalentsTab.Tab3:SetPoint('LEFT', Guildbook.GuildFrame.ProfilesFrame.TalentsTab.Tab2, 'RIGHT', 0, 0)
     self.GuildFrame.ProfilesFrame.TalentsTab.Tab3:SetSize(w, h)
     self.GuildFrame.ProfilesFrame.TalentsTab.Tab3.background = self.GuildFrame.ProfilesFrame.TalentsTab.Tab3:CreateTexture('$parentBackground', 'ARTWORK')
@@ -3116,7 +3116,7 @@ function Guildbook:SetupProfilesFrame()
 
 
 
-    self.GuildFrame.ProfilesFrame.ProfessionsTab = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameProfessionsTab', self.GuildFrame.ProfilesFrame)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab = CreateFrame('FRAME', 'GuildbookGuildFrameProfilesFrameProfessionsTab', self.GuildFrame.ProfilesFrame, BackdropTemplateMixin and "BackdropTemplate")
     self.GuildFrame.ProfilesFrame.ProfessionsTab:SetPoint('TOPLEFT', self.GuildFrame.ProfilesFrame, 'TOPLEFT', 2, -2)
     self.GuildFrame.ProfilesFrame.ProfessionsTab:SetPoint('BOTTOMRIGHT', self.GuildFrame.ProfilesFrame, 'BOTTOMRIGHT', -2, 2)
     self.GuildFrame.ProfilesFrame.ProfessionsTab:Hide()
@@ -3133,7 +3133,7 @@ function Guildbook:SetupProfilesFrame()
     self.GuildFrame.ProfilesFrame.ProfessionsTab.TopBorder:SetTexCoord(0.1, 1.0, 0.0, 0.3)
     self.GuildFrame.ProfilesFrame.ProfessionsTab.TopBorder:SetVertexColor(0.5,0.5,0.5,1)
 
-    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container = CreateFrame('FRAME', nil, self.GuildFrame.ProfilesFrame.ProfessionsTab)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container = CreateFrame('FRAME', nil, self.GuildFrame.ProfilesFrame.ProfessionsTab, BackdropTemplateMixin and "BackdropTemplate")
     self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container:SetPoint('TOPLEFT', Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab, 'TOPLEFT', 2, -37)
     self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container:SetPoint('BOTTOMRIGHT', Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab, 'BOTTOMLEFT', 250, 2)
     self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container:SetSize(250, 210)
@@ -3174,7 +3174,7 @@ function Guildbook:SetupProfilesFrame()
     end)
 
     for i = 1, 15 do
-        local f = CreateFrame('BUTTON', tostring('GuildbookGuildFrameProfileFrameProfTabProf1'..i), self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container)
+        local f = CreateFrame('BUTTON', tostring('GuildbookGuildFrameProfileFrameProfTabProf1'..i), self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container, BackdropTemplateMixin and "BackdropTemplate")
         f:SetPoint('TOPLEFT', Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession1Container, 'TOPLEFT', 0, (i - 1) * -20)
         f:SetSize(257, 19)
         f:SetEnabled(true)
@@ -3223,7 +3223,7 @@ function Guildbook:SetupProfilesFrame()
     end
 
 
-    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container = CreateFrame('FRAME', nil, self.GuildFrame.ProfilesFrame.ProfessionsTab)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container = CreateFrame('FRAME', nil, self.GuildFrame.ProfilesFrame.ProfessionsTab, BackdropTemplateMixin and "BackdropTemplate")
     self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container:SetPoint('TOPLEFT', Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab, 'TOPLEFT', 277, -37)
     self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab, 'BOTTOMLEFT', 277, 2)
     self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container:SetSize(250, 210)
@@ -3264,7 +3264,7 @@ function Guildbook:SetupProfilesFrame()
     end)
 
     for i = 1, 15 do
-        local f = CreateFrame('BUTTON', tostring('GuildbookGuildFrameProfileFrameProfTabProf2'..i), self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container)
+        local f = CreateFrame('BUTTON', tostring('GuildbookGuildFrameProfileFrameProfTabProf2'..i), self.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container, BackdropTemplateMixin and "BackdropTemplate")
         f:SetPoint('TOPLEFT', Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container, 'TOPLEFT', 0, (i - 1) * -20)
         f:SetSize(257, 19)
         f:SetEnabled(true)
@@ -3468,14 +3468,14 @@ function Guildbook:SetupProfilesFrame()
 
     -- reagents
     self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewRows = {}
-    self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent = CreateFrame('FRAME', 'GuildbookGuildFrameReagentsListviewParent', self.GuildFrame.ProfilesFrame.ProfessionsTab)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent = CreateFrame('FRAME', 'GuildbookGuildFrameReagentsListviewParent', self.GuildFrame.ProfilesFrame.ProfessionsTab, BackdropTemplateMixin and "BackdropTemplate")
     self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent:SetPoint('BOTTOMLEFT', Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.Profession2Container, 'BOTTOMRIGHT', 28, 0)
     self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent:SetSize(250, 300)
     self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.background = self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent:CreateTexture('$parentBackground', 'BACKGROND')
     self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.background:SetAllPoints(Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent)
     self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.background:SetColorTexture(0.2,0.2,0.2,0.2)
 
-    self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItem = CreateFrame('FRAME', 'GuildbookGuildFrameReagentsListviewParentRecipeItem', self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent)
+    self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItem = CreateFrame('FRAME', 'GuildbookGuildFrameReagentsListviewParentRecipeItem', self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent, BackdropTemplateMixin and "BackdropTemplate")
     self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItem:SetPoint('TOPLEFT', 4, -4)
     self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItem:SetSize(200, 25)
     self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItem:EnableMouse(true)
@@ -3513,7 +3513,7 @@ function Guildbook:SetupProfilesFrame()
     self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItemName:SetPoint('TOPLEFT', self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent.recipeItemIcon, 'TOPRIGHT', 4, -4)
 
     for i = 1, 10 do
-        local f = CreateFrame('FRAME', tostring('GuildbookGuildFrameRecipesListviewRow'..i), self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent)
+        local f = CreateFrame('FRAME', tostring('GuildbookGuildFrameRecipesListviewRow'..i), self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent, BackdropTemplateMixin and "BackdropTemplate")
         f:SetPoint('TOPLEFT', Guildbook.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent, 'TOPLEFT', 4, ((i - 1) * -22) - 35)
         f:SetSize(self.GuildFrame.ProfilesFrame.ProfessionsTab.ReagentsListviewParent:GetWidth(), 20)
         f:EnableMouse(true)
@@ -3620,7 +3620,7 @@ function Guildbook:SetupChatFrame()
 
     self.GuildFrame.ChatFrame.Listview = {}
     for i = 1, 20 do
-        local f = CreateFrame('BUTTON', tostring('GuildbookGuildFrameChatFrameRow'..i), self.GuildFrame.ChatFrame)
+        local f = CreateFrame('BUTTON', tostring('GuildbookGuildFrameChatFrameRow'..i), self.GuildFrame.ChatFrame, BackdropTemplateMixin and "BackdropTemplate")
         f:SetPoint('TOPLEFT', Guildbook.GuildFrame.ChatFrame, 'TOPLEFT', 8, (i * -rowHeight))
         f:SetPoint('TOPRIGHT', Guildbook.GuildFrame.ChatFrame, 'TOPRIGHT', -8, (i * -rowHeight))
         f:SetHeight(rowHeight)
@@ -3704,6 +3704,7 @@ function Guildbook:AddGuildChatMessage(channel, msg)
     for i = 1, 20 do
         Guildbook.GuildFrame.ChatFrame.Listview[i]:Show()
     end
+
 end
 
 

@@ -31,7 +31,7 @@ Guildbook_Dialogs.lua
 Guildbook_Options.lua
 Guildbook_Options.xml
 
-#Guildbook.lua
-#Guildbook.xml
+Guildbook.lua
+Guildbook.xml
 
-#TextureViewer.lua
+TextureViewer.lua

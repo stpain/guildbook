@@ -459,7 +459,7 @@ function Guildbook:ModBlizzUI()
     }
 
     local function setupModule(frame, button)
-        self.GuildFrame[frame] = CreateFrame('FRAME', tostring('GuildbookGuildFrame'..frame), GuildFrame)
+        self.GuildFrame[frame] = CreateFrame('FRAME', tostring('GuildbookGuildFrame'..frame), GuildFrame, BackdropTemplateMixin and "BackdropTemplate")
         self.GuildFrame[frame]:SetBackdrop({
             edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
             edgeSize = 16,

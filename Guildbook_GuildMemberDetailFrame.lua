@@ -148,8 +148,8 @@ function Guildbook:SetupGuildMemberDetailframe()
 
     --375502
     self.GuildMemberDetailFrame.AttunementsFrame = self:CreateTooltipPanel('GuildbookGuildMemberDetailFrameAttunementFrame', GuildMemberDetailFrame, 'BOTTOMLEFT', 16, 33, 120, 110, L['Attunements'])
-    self.GuildMemberDetailFrame.AttunementsFrame:SetBackdropColor(0.5, 0.5, 0.5, 0)
-    self.GuildMemberDetailFrame.AttunementsFrame:SetBackdropBorderColor(0.5, 0.5, 0.5, 0.5)
+    -- self.GuildMemberDetailFrame.AttunementsFrame:SetBackdropColor(0.5, 0.5, 0.5, 0)
+    -- self.GuildMemberDetailFrame.AttunementsFrame:SetBackdropBorderColor(0.5, 0.5, 0.5, 0.5)
     self.GuildMemberDetailFrame.AttunementsFrame.header:ClearAllPoints()
     self.GuildMemberDetailFrame.AttunementsFrame.header:SetFont("Fonts\\FRIZQT__.TTF", 10)
     self.GuildMemberDetailFrame.AttunementsFrame.header:SetPoint('BOTTOMLEFT', 'GuildbookGuildMemberDetailFrameAttunementFrame', 'TOPLEFT', 3, 2)
