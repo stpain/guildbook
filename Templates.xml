@@ -1,0 +1,135 @@
+<UI>
+
+
+	<Frame name="GuildbookDropdown" mixin="GuildbookDropdownMixin" virtual="true" enableMouse="true">
+		<Size x="108" y="30"/>
+        <Anchors>
+            <Anchor point="CENTER" x="0" y="0"/>
+        </Anchors>
+        <Layers>
+            <Layer level="BACKGROUND">
+				<!-- <Texture parentKey="Background" atlas="groupfinder-button-cover-down" setAllPoints="true" useAtlasSize="false"> -->
+				<Texture parentKey="Background" file="Interface/AuctionFrame/AuctionHouse" setAllPoints="true" useAtlasSize="false">
+                    <TexCoords left="0.0009765625" right="0.2666015625" top="0.857421875" bottom="0.940" />
+					<Size x="108" y="26"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" x="0" y="-2"/>
+					</Anchors>
+				</Texture>
+            </Layer>
+			<Layer level="ARTWORK">
+				<FontString parentKey="Text" inherits="GameFontNormalSmall" text="testing">
+					<Color r="1" g="1" b="1"/>
+					<!-- <Size x="" y=""/> -->
+					<Anchors>
+						<Anchor point="LEFT" x="8" y="0"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame parentKey="Button" mixin="GuildbookDropdownButtonMixin" enableMouse="true">
+				<Size x="27" y="26"/>
+				<Anchors>
+					<Anchor point="TOPRIGHT" x="-4" y="-2"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture parentKey="ButtonHighlight" atlas="transmog-frame-highlighted-small" useAtlasSize="false" hidden="true">
+							<Size x="23" y="22"/>
+							<Anchors>
+								<Anchor point="RIGHT" x="0" y="0"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+					<Layer level="ARTWORK">
+						<Texture parentKey="ButtonUp" atlas="auctionhouse-ui-dropdown-arrow-up" useAtlasSize="false">
+							<Size x="23" y="22"/>
+							<Anchors>
+								<Anchor point="RIGHT" x="0" y="0"/>
+							</Anchors>
+						</Texture>
+						<Texture parentKey="ButtonDown" atlas="auctionhouse-ui-dropdown-arrow-down" useAtlasSize="false" hidden="true">
+							<Size x="23" y="22"/>
+							<Anchors>
+								<Anchor point="RIGHT" x="0" y="0"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnEnter method="OnEnter"/>
+					<OnLeave method="OnLeave"/>
+					<OnMouseDown method="OnMouseDown"/>
+					<OnMouseUp method="OnMouseUp"/>
+				</Scripts>
+			</Frame>
+			<Frame parentKey="Flyout" mixin="GuildbookDropdownFlyoutMixin" hidden="true">
+				<Size x="100" y="275"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" x="2" y="-28"/>
+				</Anchors>
+				<!-- <Layers>
+					<Layer level="BORDER">
+						<Texture parentKey="Background" atlas="auctionhouse-background-buy-commodities-market" useAtlasSize="false"> 
+							<Anchors>
+								<Anchor point="TOPLEFT" x="-1" y="1"/>
+								<Anchor point="BOTTOMRIGHT" x="1" y="-1"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers> -->
+				<Scripts>
+					<OnShow method="OnShow"/>
+					<OnLeave method="OnLeave"/>
+				</Scripts>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnShow method="OnShow"/>
+		</Scripts>
+	</Frame>
+
+
+	<Frame name="GuildbookDropDownFrame" mixin="GuildbookDropDownFrameMixin" virtual="true">
+        <Size x="100" y="275"/>
+        <Anchors>
+            <Anchor point="CENTER" x="0" y="0"/>
+        </Anchors>
+        <Layers>
+            <Layer level="BORDER">
+                <Texture parentKey="Background" atlas="auctionhouse-background-summarylist" useAtlasSize="false" setAllPoints="true"/>
+            </Layer>
+        </Layers>
+    </Frame>
+
+
+	<Frame name="GuildbookDropDownButton" mixin="GuildbookDropDownFlyoutButtonMixin" virtual="true" enableMouse="true">
+        <Size x="50" y="22"/>
+        <Anchors>
+            <Anchor point="CENTER" x="0" y="0"/>
+        </Anchors>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture atlas="GarrMission_FollowerListButton" useAtlasSize="false" setAllPoints="true"/>
+			</Layer>
+			<Layer level="HIGHLIGHT">
+                <Texture atlas="GarrMission_FollowerListButton-Highlight" useAtlasSize="false"/>
+            </Layer>
+            <Layer level="ARTWORK">
+                <FontString parentKey="Text" inherits="GameFontNormal_NoShadow" justifyH="LEFT">
+                	<Anchors>
+                		<Anchor point="LEFT" x="2" y="0"/>
+                	</Anchors>
+                	<Color r="1" g="1" b="1"/>
+                </FontString>
+            </Layer>
+        </Layers>
+		<Scripts>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnMouseDown method="OnMouseDown"/>
+		</Scripts>
+    </Frame>
+
+</UI>

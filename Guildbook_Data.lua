@@ -784,6 +784,31 @@ Guildbook.Data.InventorySlots = {
     { Name = 'RANGEDSLOT', Angle = 0.9, offsetX = 100.0, offsetY = -135.0 },
 }
 
+Guildbook.Data.InventorySlotNames = {
+    { Name = 'HEADSLOT'},
+    { Name = 'NECKSLOT'},
+    { Name = 'SHOULDERSLOT'},
+    { Name = 'BACKSLOT'},
+    { Name = 'CHESTSLOT'},
+    { Name = 'SHIRTSLOT'},
+    { Name = 'TABARDSLOT'},
+    { Name = 'WRISTSLOT'},
+
+    { Name = 'MAINHANDSLOT'},
+    { Name = 'RANGEDSLOT'},
+
+    { Name = 'HANDSSLOT'},
+    { Name = 'WAISTSLOT'},
+    { Name = 'LEGSSLOT'},
+    { Name = 'FEETSLOT'},
+    { Name = 'FINGER0SLOT'},
+    { Name = 'FINGER1SLOT'},
+    { Name = 'TRINKET0SLOT'},
+    { Name = 'TRINKET1SLOT'},
+
+    { Name = 'SECONDARYHANDSLOT'},
+}
+
 Guildbook.Data.ProfessionDescriptions = {
     Alchemy = 'Mix potions, elixirs, flasks, oils and other alchemical substances into vials using herbs and other reagents. Your concoctions can restore health and mana, enhance attributes, or provide any number of other useful (or not-so-useful) effects. High level alchemists can also transmute essences and metals into other essences and metals. Alchemists can specialize as a Master of Potions, Master of Elixirs, or a Master of Transmutation.',
     Blacksmithing = 'Smith various melee weapons, mail and plate armor, and other useful trade goods like skeleton keys, shield-spikes and weapon chains to prevent disarming. Blacksmiths can also make various stones to provide temporary physical buffs to weapons.',

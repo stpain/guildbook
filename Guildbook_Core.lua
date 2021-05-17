@@ -2141,6 +2141,7 @@ function Guildbook:UPDATE_MOUSEOVER_UNIT()
                 if self.GuildFrame.ProfilesFrame.PaperdollTab:IsVisible() then
                     self.GuildFrame.ProfilesFrame.PaperdollTab:AddModelFrame('mouseover', race, sex)
                 end
+                GuildbookUI.profiles:AddCharacterModelFrame('mouseover', race, sex)
             end
         end
     end

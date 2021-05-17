@@ -116,6 +116,8 @@
             </Layer>
         </Layers>
         <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnShow method="OnShow"/>
             <OnMouseDown method="OnMouseDown"/>
             <OnMouseUp method="OnMouseUp"/>
             <OnEnter>
@@ -253,6 +255,31 @@
                     <OnMouseDown>
                         GuildbookButtonMixin.OnMouseDown(self)
                         self:GetParent():GetParent():GetParent():RowOpenToChat_OnMouseDown(self:GetParent())
+                    </OnMouseDown>
+                </Scripts>
+            </Frame>
+            <Frame parentKey="openProfile" inherits="GuildbookSmallHighlightButton" enableMouse="true">
+                <Size x="25" y="25"/>
+                <Anchors>
+                    <Anchor point="RIGHT" x="-52" y="0"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture atlas="groupfinder-waitdot" useAtlasSize="true">
+                            <Size x="25" y="25"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <KeyValues>
+                    <KeyValue key="tooltipText" value="Open profile"/>
+                </KeyValues>
+                <Scripts>   
+                    <OnMouseDown>
+                        GuildbookButtonMixin.OnMouseDown(self)
+                        self:GetParent():GetParent():GetParent():RowOpenProfile_OnMouseDown(self:GetParent())
                     </OnMouseDown>
                 </Scripts>
             </Frame>
@@ -464,7 +491,7 @@
                     </Anchors>
                 </Texture>
                 <Texture parentKey="Background" setAllPoints="true">
-                    <Color r="0.1" g="0.5" b="0.3" a="0.1"/>
+                    <Color r="0.1" g="0.1" b="0.1" a="0.4"/>
                 </Texture>
             </Layer>
             <Layer level="OVERLAY">
@@ -480,6 +507,57 @@
         </Scripts>
     </Frame>
     
+    <Frame name="GuildbookItemIconLinkFrame" virtual="true">
+        <Size x="230" y="30"/>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="Icon" atlas="transmog-icon-remove">
+                    <Size x="30" y="30"/>
+                    <Anchors>
+                        <Anchor point="LEFT" x="10" y="0"/>
+                    </Anchors>
+                </Texture>
+                <FontString parentKey="Link" inherits="Acme14">
+                    <Anchors>
+                        <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Icon" x="10" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Animations>
+            <AnimationGroup parentKey="anim" setToFinalAlpha="true">
+                <Alpha parentKey="fadeIn" duration="0.8" fromAlpha="0" toAlpha="1"/>
+            </AnimationGroup>
+        </Animations>
+        <Scripts>
+            <OnEnter>
+                if self.link then
+                    GameTooltip:SetOwner(self, 'ANCHOR_TOPRIGHT')
+                    GameTooltip:SetHyperlink(self.link)
+                    GameTooltip:Show()
+                end
+            </OnEnter>
+            <OnLeave>
+                GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+            </OnLeave>
+        </Scripts>
+    </Frame>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     <Frame name="GuildbookUI" mixin="GuildbookMixin" parent="UIParent" inherits="PortraitFrameTemplate" enableMouse="true" movable="true" >
         <Size x="920" y="510"/>
         <Anchors>
@@ -497,6 +575,13 @@
         </Layers> -->
 
         <Frames>
+
+            <!-- <Frame parentKey="dropdown" inherits="GuildbookDropdown">
+                <Anchors>
+                    <Anchor point="TOP" x="0" y="50"/>
+                </Anchors>
+            </Frame> -->
+
             <Frame parentKey="portraitButton">
                 <Size x="50" y="50"/>
                 <Anchors>
@@ -553,21 +638,248 @@
                 </Frames>
             </Frame>
 
-            <Frame parentKey="profiles" parentArray="frames" setAllPoints="true">
+            <Frame parentKey="profiles" parentArray="frames" mixin="GuildbookProfilesMixin" setAllPoints="true" useParentLevel="true">
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="background" atlas="legionmission-complete-background-paladin" setAllPoints="true" alpha="0.4">
+                            <Anchors>
+                                <Anchor point="BOTTOMLEFT" x="0" y="0"/>
+                                <Anchor point="TOPRIGHT" x="-1" y="-25"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
                 <Frames>
-                    <Frame>
+                    <Frame parentKey="sidePane" useParentLevel="true">
+                        <Size x="240"/>
                         <Anchors>
+                            <Anchor point="TOPLEFT" x="0" y="-25"/>
                             <Anchor point="BOTTOMLEFT" x="0" y="0"/>
-                            <Anchor point="TOPRIGHT" x="-1" y="-55"/>
                         </Anchors>
                         <Layers>
-                            <Layer>
-                                <Texture atlas="legionmission-complete-background-shaman" setAllPoints="true" alpha="0.4">
+                            <Layer level="BACKGROUND" textureSubLevel="1">
+                                <Texture parentKey="background" atlas="transmog-background-race-human" setAllPoints="true" alpha="1">
+                                    <!-- <Color r="0" g="0" b="0"/> -->
                                 </Texture>
                             </Layer>
+                            <Layer level="ARTWORK">
+                                <!-- <Texture parentKey="avatar" atlas="raceicon-draenei-female" setAllPoints="true">
+                                    <Size x="30" y="30"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="20" y="-260"/>
+                                    </Anchors>
+                                </Texture> -->
+                                <FontString parentKey="name" inherits="Acme" text="-">
+                                    <Size x="160" y="25"/>
+                                    <Anchors>
+                                        <Anchor point="TOP" x="0" y="-310"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="mainCharacter" inherits="Acme14" text="-">
+                                    <Size x="200" y="20"/>
+                                    <Anchors>
+                                        <Anchor point="TOP" relativePoint="BOTTOM" relativeKey="$parent.name" x="0" y="-2"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="spec" inherits="Acme14" text="-">
+                                    <Size x="200" y="25"/>
+                                    <Anchors>
+                                        <Anchor point="TOP" relativePoint="BOTTOM" relativeKey="$parent.mainCharacter" x="0" y="-10"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
                         </Layers>
+
+
+
                     </Frame>
+
+                    <ScrollFrame parentKey="contentPane" inherits="UIPanelScrollFrameTemplate">
+                        <!-- <Size x="240" y="350"/> -->
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" relativeKey="$parent.sidePane" x="5" y="-5"/>
+                            <Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" relativeKey="$parent.sidePane" x="5" y="5"/>
+                            <Anchor point="RIGHT" x="-30" y="0"/>
+                        </Anchors>
+                        <ScrollChild>
+                            <Frame parentKey="scrollChild">
+                                <Anchors>
+                                    <Anchor point="LEFT" x="0" y="0"/>
+                                    <Anchor point="RIGHT" x="0" y="0"/>
+                                </Anchors>
+                                <Frames>
+                                    <Frame parentKey="inventory">
+                                        <Size y="350"/>
+                                        <Anchors>
+                                            <Anchor point="TOPLEFT" x="0" y="0"/>
+                                            <Anchor point="TOPRIGHT" x="0" y="0"/>
+                                        </Anchors>
+                                        <Layers>
+                                            <Layer level="ARTWORK">
+                                                <FontString inherits="Acme" text="Inventory">
+                                                    <Anchors>
+                                                        <Anchor point="TOP" x="20" y="-5"/>
+                                                    </Anchors>
+                                                </FontString>
+                                            </Layer>
+                                        </Layers>
+                                        <Frames>
+                                            <Frame parentKey="HEADSLOT" inherits="GuildbookItemIconLinkFrame">
+                                                <Anchors>
+                                                    <Anchor point="TOPLEFT" x="10" y="-40"/>
+                                                </Anchors>
+                                            </Frame>
+                                            <Frame parentKey="NECKSLOT" inherits="GuildbookItemIconLinkFrame">
+                                                <Anchors>
+                                                    <Anchor point="TOPLEFT" x="10" y="-70"/>
+                                                </Anchors>
+                                            </Frame>
+                                            <Frame parentKey="SHOULDERSLOT" inherits="GuildbookItemIconLinkFrame">
+                                                <Anchors>
+                                                    <Anchor point="TOPLEFT" x="10" y="-100"/>
+                                                </Anchors>
+                                            </Frame>
+                                            <Frame parentKey="BACKSLOT" inherits="GuildbookItemIconLinkFrame">
+                                                <Anchors>
+                                                    <Anchor point="TOPLEFT" x="10" y="-130"/>
+                                                </Anchors>
+                                            </Frame>
+                                            <Frame parentKey="CHESTSLOT" inherits="GuildbookItemIconLinkFrame">
+                                                <Anchors>
+                                                    <Anchor point="TOPLEFT" x="10" y="-160"/>
+                                                </Anchors>
+                                            </Frame>
+                                            <Frame parentKey="SHIRTSLOT" inherits="GuildbookItemIconLinkFrame">
+                                                <Anchors>
+                                                    <Anchor point="TOPLEFT" x="10" y="-190"/>
+                                                </Anchors>
+                                            </Frame>
+                                            <Frame parentKey="TABARDSLOT" inherits="GuildbookItemIconLinkFrame">
+                                                <Anchors>
+                                                    <Anchor point="TOPLEFT" x="10" y="-220"/>
+                                                </Anchors>
+                                            </Frame>
+                                            <Frame parentKey="WRISTSLOT" inherits="GuildbookItemIconLinkFrame">
+                                                <Anchors>
+                                                    <Anchor point="TOPLEFT" x="10" y="-250"/>
+                                                </Anchors>
+                                            </Frame>
+
+                                            <!-- column 2 -->
+                                            <Frame parentKey="HANDSSLOT" inherits="GuildbookItemIconLinkFrame">
+                                                <Anchors>
+                                                    <Anchor point="TOPLEFT" x="335" y="-40"/>
+                                                </Anchors>
+                                            </Frame>
+                                            <Frame parentKey="WAISTSLOT" inherits="GuildbookItemIconLinkFrame">
+                                                <Anchors>
+                                                    <Anchor point="TOPLEFT" x="335" y="-70"/>
+                                                </Anchors>
+                                            </Frame>
+                                            <Frame parentKey="LEGSSLOT" inherits="GuildbookItemIconLinkFrame">
+                                                <Anchors>
+                                                    <Anchor point="TOPLEFT" x="335" y="-100"/>
+                                                </Anchors>
+                                            </Frame>
+                                            <Frame parentKey="FEETSLOT" inherits="GuildbookItemIconLinkFrame">
+                                                <Anchors>
+                                                    <Anchor point="TOPLEFT" x="335" y="-130"/>
+                                                </Anchors>
+                                            </Frame>
+                                            <Frame parentKey="FINGER0SLOT" inherits="GuildbookItemIconLinkFrame">
+                                                <Anchors>
+                                                    <Anchor point="TOPLEFT" x="335" y="-160"/>
+                                                </Anchors>
+                                            </Frame>
+                                            <Frame parentKey="FINGER1SLOT" inherits="GuildbookItemIconLinkFrame">
+                                                <Anchors>
+                                                    <Anchor point="TOPLEFT" x="335" y="-190"/>
+                                                </Anchors>
+                                            </Frame>
+                                            <Frame parentKey="TRINKET0SLOT" inherits="GuildbookItemIconLinkFrame">
+                                                <Anchors>
+                                                    <Anchor point="TOPLEFT" x="335" y="-220"/>
+                                                </Anchors>
+                                            </Frame>
+                                            <Frame parentKey="TRINKET1SLOT" inherits="GuildbookItemIconLinkFrame">
+                                                <Anchors>
+                                                    <Anchor point="TOPLEFT" x="335" y="-250"/>
+                                                </Anchors>
+                                            </Frame>
+
+                                            <!-- weapons -->
+                                            <Frame parentKey="MAINHANDSLOT" inherits="GuildbookItemIconLinkFrame">
+                                                <Anchors>
+                                                    <Anchor point="TOPLEFT" x="10" y="-280"/>
+                                                </Anchors>
+                                            </Frame>
+                                            <Frame parentKey="SECONDARYHANDSLOT" inherits="GuildbookItemIconLinkFrame">
+                                                <Anchors>
+                                                    <Anchor point="TOPLEFT" x="335" y="-280"/>
+                                                </Anchors>
+                                            </Frame>
+                                            <Frame parentKey="RANGEDSLOT" inherits="GuildbookItemIconLinkFrame">
+                                                <Anchors>
+                                                    <Anchor point="TOPLEFT" x="10" y="-310"/>
+                                                </Anchors>
+                                            </Frame>
+                                        </Frames>
+                                    </Frame>
+
+                                    <Frame parentKey="talents">
+                                        <Size y="390"/>
+                                        <Anchors>
+                                            <Anchor point="TOPLEFT" x="0" y="-350"/>
+                                            <Anchor point="TOPRIGHT" x="0" y="-350"/>
+                                        </Anchors>
+                                        <Layers>
+                                            <Layer level="ARTWORK">
+                                                <FontString inherits="Acme" text="Talents">
+                                                    <Anchors>
+                                                        <Anchor point="TOP" x="20" y="-5"/>
+                                                    </Anchors>
+                                                </FontString>
+                                            </Layer>
+                                            <Layer level="BACKGROUND" >
+                                                <Texture parentKey="tree1">
+                                                    <TexCoords left="0.0" right="0.556640625" top="0.0" bottom="0.611328125"/>
+                                                    <Size x="217"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOPLEFT" x="0" y="-34"/>
+                                                        <Anchor point="BOTTOMLEFT" x="0" y="0"/>
+                                                    </Anchors>
+                                                </Texture>
+                                                <Texture parentKey="tree2">
+                                                    <TexCoords left="0.0" right="0.556640625" top="0.0" bottom="0.611328125"/>
+                                                    <Size x="217"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOPLEFT" x="217" y="-34"/>
+                                                        <Anchor point="BOTTOMLEFT" x="217" y="0"/>
+                                                    </Anchors>
+                                                </Texture>
+                                                <Texture parentKey="tree3">
+                                                    <TexCoords left="0.0" right="0.556640625" top="0.0" bottom="0.611328125"/>
+                                                    <Size x="217"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOPLEFT" x="434" y="-34"/>
+                                                        <Anchor point="BOTTOMLEFT" x="434" y="0"/>
+                                                    </Anchors>
+                                                </Texture>
+                                            </Layer>
+                                        </Layers>
+                                    </Frame>
+                                </Frames>
+                            </Frame>
+                        </ScrollChild>
+                    </ScrollFrame>
+
                 </Frames>
+
+                <Scripts>
+                    <OnLoad method="OnLoad"/>
+                    <OnShow method="OnShow"/>
+                    <OnHide method="OnHide"/>
+                </Scripts>
             </Frame>
 
             <Frame parentKey="tradeskills" parentArray="frames" setAllPoints="true" hidden="true">
@@ -709,6 +1021,11 @@
                             <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" relativeKey="$parent.chatsListview" x="20" y="0"/>
                             <Anchor point="RIGHT" x="-25" y="0"/>
                         </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture atlas="ClassHall_InfoBoxMission-BackgroundTile" setAllPoints="true" alpha="0.5"/>
+                            </Layer>
+                        </Layers>
                         <Frames>
                             <Slider parentKey="scrollBar" inherits="UIPanelScrollBarTemplate" orientation="VERTICAL">
                                 <Anchors>
@@ -722,6 +1039,9 @@
                                 </Scripts>
                             </Slider>
                         </Frames>
+                        <Scripts>
+                            <OnMouseWheel method="OnMouseWheel"/>
+                        </Scripts>
                     </Frame>
 
                     <EditBox parentKey="chatInput" inherits="InputBoxTemplate" autoFocus="false">
@@ -879,6 +1199,7 @@
 
         <Scripts>
             <OnShow method="OnShow"/>
+            <OnHide method="OnHide"/>
             <OnLoad method="OnLoad"/>
             <OnDragStart>
                 self:StartMoving()

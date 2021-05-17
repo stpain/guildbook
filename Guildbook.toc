@@ -31,6 +31,9 @@ Guildbook_Dialogs.lua
 Guildbook_Options.lua
 Guildbook_Options.xml
 
+Templates.lua
+Templates.xml
+
 Guildbook.lua
 Guildbook.xml
 

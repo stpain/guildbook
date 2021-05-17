@@ -3,10 +3,19 @@
 local _, gb = ...
 
 local L = gb.Locales
+local DEBUG = gb.DEBUG
 
 local GUILD_NAME;
 
 GuildbookButtonMixin = {}
+
+function GuildbookButtonMixin:OnLoad()
+    self.anchor = AnchorUtil.CreateAnchor(self:GetPoint());
+end
+
+function GuildbookButtonMixin:OnShow()
+    self.anchor:SetPoint(self);
+end
 
 function GuildbookButtonMixin:OnMouseDown()
     self:AdjustPointsOffset(-1,-1)
@@ -452,8 +461,21 @@ local function navigateTo(frame)
     frame:Show()
 end
 
+function GuildbookMixin:OnHide()
+    self.menu:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -50)
+    self.menu.isOut = false;
+end
+
 function GuildbookMixin:OnShow()
     GUILD_NAME = gb:GetGuildName()
+
+    C_Timer.After(0.25, function()
+        if self.menu.isOut == false then
+            self.agMenuOut:Play()
+        else
+            self.agMenuIn:Play()
+        end
+    end)
 
     scanPlayerBags()
 end
@@ -463,37 +485,37 @@ function GuildbookMixin:OnLoad()
     SetPortraitToTexture(GuildbookUIPortrait,134068)
     GuildbookUITitleText:SetText("v0.0.1")
 
-    --GuildbookUIPortrait:SetLevel(self:GetFrameLevel()+10)
-
     self.menu.isOut = false;
 
-    local agMenuOut = self.menu:CreateAnimationGroup()
-    local menuOut = agMenuOut:CreateAnimation("Translation")
-    menuOut:SetOffset(-70, 0)
-    menuOut:SetDuration(0.3)
-    menuOut:SetScript("OnFinished", function()
+    self.agMenuOut = self.menu:CreateAnimationGroup()
+    self.menuOut = self.agMenuOut:CreateAnimation("Translation")
+    self.menuOut:SetOffset(-70, 0)
+    self.menuOut:SetDuration(0.3)
+    self.menuOut:SetScript("OnFinished", function()
         self.menu:SetPoint("TOPLEFT", self, "TOPLEFT", -70, -50)
         self.menu.isOut = true;
     end)
-    local agMenuIn = self.menu:CreateAnimationGroup()
-    local menuIn = agMenuIn:CreateAnimation("Translation")
-    menuIn:SetOffset(70, 0)
-    menuIn:SetDuration(0.3)
-    menuIn:SetScript("OnFinished", function()
+    self.agMenuIn = self.menu:CreateAnimationGroup()
+    self.menuIn = self.agMenuIn:CreateAnimation("Translation")
+    self.menuIn:SetOffset(70, 0)
+    self.menuIn:SetDuration(0.3)
+    self.menuIn:SetScript("OnFinished", function()
         self.menu:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -50)
         self.menu.isOut = false;
     end)
 
     self.portraitButton:SetScript("OnMouseDown", function()
         if self.menu.isOut == false then
-            agMenuOut:Play()
+            self.agMenuOut:Play()
         else
-            agMenuIn:Play()
+            self.agMenuIn:Play()
         end
     end)
 
     self.menu:SetFrameLevel(self:GetFrameLevel() - 1)
-    self.menu.profiles.Background:SetTexture(1067386)
+    self.menu.profiles.Background:SetAtlas("GarrMission_MissionIcon-Recruit")
+    local x = self.menu.profiles.Background:GetWidth()
+    self.menu.profiles.Background:SetSize(x*1.45, x*1.45)
     self.menu.profiles.func = function()
         navigateTo(self.profiles)
         -- gb.GuildFrame.ProfilesFrame:ClearAllPoints()
@@ -502,6 +524,17 @@ function GuildbookMixin:OnLoad()
         -- gb.GuildFrame.ProfilesFrame:SetPoint("BOTTOMRIGHT", 0, 0)
         -- gb.GuildFrame.ProfilesFrame:SetHeight(450)
         -- gb.GuildFrame.ProfilesFrame:Show()
+        -- gb.GuildFrame.ProfilesFrame.PaperdollTab:ClearAllPoints()
+        -- gb.GuildFrame.ProfilesFrame.PaperdollTab:SetParent(self.profiles.contentPane.scrollChild)
+        -- gb.GuildFrame.ProfilesFrame.PaperdollTab:SetPoint("TOP", 0, -10)
+        -- gb.GuildFrame.ProfilesFrame.PaperdollTab:SetSize(650, 400)
+        -- gb.GuildFrame.ProfilesFrame.PaperdollTab:Show()
+        -- gb.GuildFrame.ProfilesFrame.TalentsTab:ClearAllPoints()
+        -- gb.GuildFrame.ProfilesFrame.TalentsTab:SetParent(self.profiles.contentPane.scrollChild)
+        -- gb.GuildFrame.ProfilesFrame.TalentsTab:SetSize(650, 400)
+        -- gb.GuildFrame.ProfilesFrame.TalentsTab:SetScale(0.8)
+        -- gb.GuildFrame.ProfilesFrame.TalentsTab:SetPoint("TOP", -60, -410)
+        -- gb.GuildFrame.ProfilesFrame.TalentsTab:Show()
     end
     self.menu.tradeskills.Background:SetAtlas("Mobile-Blacksmithing")
     self.menu.tradeskills.func = function()
@@ -516,6 +549,23 @@ function GuildbookMixin:OnLoad()
         navigateTo(self.roster)
     end
 
+
+    self.profiles.contentPane.scrollChild:SetSize(650, 480)
+
+    -- self.dropdown.menu = {
+    --     {
+    --         text = "test 1",
+    --         func = function() print(1) end,
+    --     },
+    --     {
+    --         text = "test 2",
+    --         func = function() print(2) end,
+    --     },
+    --     {
+    --         text = "test 3",
+    --         func = function() print(3) end,
+    --     },
+    -- }
 end
 
 
@@ -843,10 +893,10 @@ GuildbookRosterMixin.roster = {}
 local NUM_ROSTER_ROWS = 14;
 
 function GuildbookRosterMixin:OnLoad()
-    local animDur, animDelay = 0.75, 0.01
+    local animDur = 0.8
     for i = 1, 14 do
         local f = CreateFrame("FRAME", "GuildbookUiCharactersListview"..i, self.memberListview, "GuildbookRosterListviewItem")
-        --f:SetPoint("TOPLEFT", 5, ((i-2)*-29)-2)
+        f:SetPoint("TOPLEFT", 5, ((i-1)*-29)-2)
         --f:SetPoint("TOPLEFT", 5, 0)
         f:SetSize(880, 29)
         --f:SetAlpha(1)
@@ -854,14 +904,14 @@ function GuildbookRosterMixin:OnLoad()
 
         f.rowAnim = f:CreateAnimationGroup()
         f.rowAnim:SetToFinalAlpha(true)
-        local trans = f.rowAnim:CreateAnimation("Translation")
-        trans:SetOffset(0, ((i-1)*-29))
-        trans:SetDuration(animDur)
-        trans:SetStartDelay(animDelay*0.5)
-        trans:SetSmoothing("OUT")
-        trans:SetScript("OnFinished", function()
-            f:SetPoint("TOPLEFT", f:GetParent(), "TOPLEFT", 5, ((i-1)*-29)-2)
-        end)
+        -- local trans = f.rowAnim:CreateAnimation("Translation")
+        -- trans:SetOffset(0, ((i-1)*-29))
+        -- trans:SetDuration(animDur)
+        -- trans:SetStartDelay(animDelay*0.5)
+        -- trans:SetSmoothing("OUT")
+        -- trans:SetScript("OnFinished", function()
+        --     f:SetPoint("TOPLEFT", f:GetParent(), "TOPLEFT", 5, ((i-1)*-29)-2)
+        -- end)
         --trans:SetOrder(1)
 
         -- local scaler = f.rowAnim:CreateAnimation("Scale")
@@ -879,11 +929,12 @@ function GuildbookRosterMixin:OnLoad()
         -- scaler:SetScript("OnUpdate", smoothScale)
         --scaler:SetOrder(2)
 
+        local x = ((i-14) *-1) * 0.025
         local fade = f.rowAnim:CreateAnimation("Alpha")
         fade:SetFromAlpha(0)
         fade:SetToAlpha(1)
         fade:SetDuration(animDur)
-        fade:SetStartDelay(animDelay*0.5)
+        fade:SetStartDelay((x^x) - 0.65)
         fade:SetSmoothing("OUT")
         --fade:SetOrder(3)
 
@@ -945,7 +996,7 @@ end
 function GuildbookRosterMixin:PlayRowAnim()
     for i, row in ipairs(self.rows) do
         row:Hide()
-        row:SetPoint("TOPLEFT", 5, -2)
+        --row:SetPoint("TOPLEFT", 5, -2)
         row:SetAlpha(0)
         row:Show()
         row.rowAnim:Play()
@@ -1095,6 +1146,13 @@ function GuildbookRosterMixin:RowOpenToChat_OnMouseDown(row)
     GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
 end
 
+function GuildbookRosterMixin:RowOpenProfile_OnMouseDown(row)
+    if GUILD_NAME then
+        self:GetParent().profiles.character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][row.character.guid]
+    end
+    navigateTo(self:GetParent().profiles)
+end
+
 
 GuildbookChatsMixin = {}
 GuildbookChatsMixin.chat = "guild"; -- use as default
@@ -1134,7 +1192,7 @@ function GuildbookChatsMixin:OnLoad()
     for i = 1, NUM_MESSAGES_ROWS do
         local f = CreateFrame("FRAME", "GuildbookUiChatsListview"..i, self.chatContent, "GuildbookChatBubble")
         f:SetPoint("TOP", 0, ((i-1)*-45)-2)
-        f:SetSize(450, 44)
+        f:SetSize(150, 44)
         f:Hide()
         f.Message:SetSize(400, 44)
         f.Message:SetNonSpaceWrap(true)
@@ -1144,6 +1202,24 @@ function GuildbookChatsMixin:OnLoad()
         f.mask:SetPoint("RIGHT", -2, 0)
         f.mask:SetTexture("Interface/CHARACTERFRAME/TempPortraitAlphaMask", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
         f.Icon:AddMaskTexture(f.mask)
+
+        f.rowAnimFadeIn = f:CreateAnimationGroup()
+        f.rowAnimFadeIn:SetToFinalAlpha(true)
+        local fadeIn = f.rowAnimFadeIn:CreateAnimation("Alpha")
+        fadeIn:SetFromAlpha(0)
+        fadeIn:SetToAlpha(1)
+        fadeIn:SetDuration(0.3)
+        fadeIn:SetStartDelay(0)
+        fadeIn:SetSmoothing("OUT")
+
+        f.rowAnimFadeOut = f:CreateAnimationGroup()
+        f.rowAnimFadeOut:SetToFinalAlpha(true)
+        local fadeOut = f.rowAnimFadeOut:CreateAnimation("Alpha")
+        fadeOut:SetFromAlpha(1)
+        fadeOut:SetToAlpha(0)
+        fadeOut:SetDuration(0.1)
+        fadeOut:SetStartDelay(0)
+        fadeOut:SetSmoothing("OUT")
 
         self.chatContent.rows[i] = f
     end
@@ -1292,7 +1368,7 @@ function GuildbookChatsListviewMixin:ChatsListviewScrollBar_OnValueChanged(scrol
                     self:GetParent():SetChatContent(chatID, self.target)
                 end
             else
-                print(i, chatID, "no chat")
+                --print(i, chatID, "no chat")
             end
         end
     end
@@ -1305,7 +1381,7 @@ GuildbookChatContentMixin.messages = {}
 
 function GuildbookChatContentMixin:ClearRows()
     for i = 1, 9 do
-        self.rows[i]:Hide()
+        --self.rows[i]:Hide()
         self.rows[i].Message:SetText("")
         self.rows[i].Icon:SetTexture(nil)
     end
@@ -1335,6 +1411,11 @@ function GuildbookChatContentMixin:ForceChatContentUpdate()
     end)
 end
 
+function GuildbookChatContentMixin:OnMouseWheel(delta)
+    local x = self.scrollBar:GetValue()
+    self.scrollBar:SetValue(x - delta)
+end
+
 function GuildbookChatContentMixin:ChatContentScrollBar_OnValueChanged()
     if not self.messages then
         return;
@@ -1344,12 +1425,17 @@ function GuildbookChatContentMixin:ChatContentScrollBar_OnValueChanged()
     end
     local scrollPos = math.floor(self.scrollBar:GetValue())
     for i = 1, 9 do
-        self.rows[i]:Hide()
+        --self.rows[i].rowAnimFadeOut:Play()
+        --self.rows[i]:Hide()
         self.rows[i].Message:SetText("")
         self.rows[i].Icon:SetTexture(nil)
         if self.messages[i+scrollPos-1] then
             local msg = self.messages[i+scrollPos-1]
             self.rows[i]:Show()
+            if #self.messages > 9 and next(self.messages, i+scrollPos-1) == nil then
+                self.rows[i]:SetAlpha(0)
+                self.rows[i].rowAnimFadeIn:Play()
+            end
             self.rows[i].Message:SetText(msg.formattedMessage)
 
             self.rows[i].sender = msg.sender
@@ -1358,10 +1444,28 @@ function GuildbookChatContentMixin:ChatContentScrollBar_OnValueChanged()
 
             if GUILD_NAME and GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][msg.senderGUID] then
                 local character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][msg.senderGUID]
-                self.rows[i].Icon:SetAtlas(string.format("raceicon-%s-%s", character.Race:lower(), character.Gender:lower()))
+                if character.Race and character.Gender then
+                    self.rows[i].Icon:SetAtlas(string.format("raceicon-%s-%s", character.Race:lower(), character.Gender:lower()))
+                else
+                    self.rows[i].Icon:SetTexture(1067180)
+                end
             else
-                self.rows[i].Icon:SetTexture(1067180)
+                if not gb.PlayerMixin then
+                    gb.PlayerMixin = PlayerLocation:CreateFromGUID(msg.senderGUID)
+                else
+                    gb.PlayerMixin:SetGUID(msg.senderGUID)
+                end
+                if gb.PlayerMixin:IsValid() then
+                    --local _, class, _ = C_PlayerInfo.GetClass(self.PlayerMixin)
+                    local raceID = C_PlayerInfo.GetRace(gb.PlayerMixin)
+                    local race = C_CreatureInfo.GetRaceInfo(raceID).clientFileString:upper()
+                    local gender = (C_PlayerInfo.GetSex(gb.PlayerMixin) == 1 and "FEMALE" or "MALE")
+                    self.rows[i].Icon:SetAtlas(string.format("raceicon-%s-%s", race:lower(), gender:lower()))
+                end
             end
+
+            self.rows[i]:SetWidth(300)
+            self.rows[i].Message:SetWidth(250)
 
             if Ambiguate(msg.sender, "none") == Ambiguate(UnitName("player"), "none") then
                 --print("we have a message from ourself", msg.sender, msg.message)
@@ -1389,8 +1493,8 @@ function GuildbookChatContentMixin:ChatContentScrollBar_OnValueChanged()
             C_Timer.After(0.1, function()
                 for x = 1, 10 do
                     if self.rows[i].Message:IsTruncated() then
-                        self.rows[i]:SetWidth(self.rows[i]:GetWidth() * 1.01)
-                        self.rows[i].Message:SetWidth(self.rows[i].Message:GetWidth()*1.01)
+                        self.rows[i]:SetWidth(self.rows[i]:GetWidth() * 1.05)
+                        self.rows[i].Message:SetWidth(self.rows[i].Message:GetWidth()*1.05)
                     end
                 end
                 -- while self.rows[i].Message:IsTruncated() do
@@ -1408,5 +1512,355 @@ function GuildbookChatContentMixin:ChatContentScrollBar_OnValueChanged()
                 -- end
             end)
         end
+    end
+end
+
+
+
+
+GuildbookProfilesMixin = {}
+GuildbookProfilesMixin.character = nil;
+GuildbookProfilesMixin.characterModels = {}
+GuildbookProfilesMixin.NUM_TALENT_ROWS = 7.0
+
+function GuildbookProfilesMixin:OnLoad()
+    self:CreateTalentUI()
+
+    self.defaultModel = CreateFrame('PlayerModel', "GuildbookProfilesdefaultModel", self.sidePane, BackdropTemplateMixin and "BackdropTemplate")
+    self.defaultModel:SetPoint('TOP', 0, 0)
+    self.defaultModel:SetSize(240, 300)
+    self.defaultModel:SetModel("interface/buttons/talktomequestion_white.m2")
+    self.defaultModel:SetPosition(0,0,0)
+    self.defaultModel:SetKeepModelOnHide(true)
+
+    -- set the delay on animations
+    for k, slot in ipairs(gb.Data.InventorySlotNames) do
+        local x = ((k-#gb.Data.InventorySlotNames) *-1) * 0.025
+        self.contentPane.scrollChild.inventory[slot.Name].anim.fadeIn:SetStartDelay((x^x) - 0.6)
+    end
+end
+
+
+function GuildbookProfilesMixin:OnHide()
+    if not self.character then
+        return
+    end
+    for _, slot in ipairs(gb.Data.InventorySlotNames) do
+        self.contentPane.scrollChild.inventory[slot.Name].Icon:SetAtlas("transmog-icon-remove")
+        self.contentPane.scrollChild.inventory[slot.Name].Link:SetText("")
+    end
+end
+
+
+function GuildbookProfilesMixin:OnShow()
+    self:LoadCharacter()
+end
+
+function GuildbookProfilesMixin:LoadCharacter()
+    self:HideCharacterModels()
+    if self.character then
+        self:LoadTalents("primary")
+        self:LoadInventory()
+        if self.character.Inventory and self.character.Inventory.Current and next(self.character.Inventory.Current) and self.character.Race and self.character.Gender and self.characterModels[self.character.Race:upper()] and self.characterModels[self.character.Race:upper()][self.character.Gender:upper()] then
+            self.defaultModel:Hide()
+            self.characterModels[self.character.Race:upper()][self.character.Gender:upper()]:Show()
+        else
+            self.defaultModel:Show()
+        end
+        self.background:SetAtlas("legionmission-complete-background-"..(self.character.Class:lower()))
+        self.sidePane.background:SetAtlas("transmog-background-race-"..(self.character.Race:lower()))
+        self.sidePane.name:SetText(self.character.Name)
+        if self.character.MainSpec then
+            self.sidePane.spec:SetText(self.character.MainSpec)
+        end
+        if self.character.MainCharacter then
+            self.sidePane.mainCharacter:SetText("["..self.character.MainCharacter.."]")
+        end
+    else
+        self.defaultModel:Show()
+    end    
+end
+
+function GuildbookProfilesMixin:HideCharacterModels()
+    for a, g in pairs(self.characterModels) do
+        for b, m in pairs(g) do
+            m:Hide()
+        end
+    end
+end
+
+--creature/flameleviathan/flameleviathan.m2
+
+function GuildbookProfilesMixin:AddCharacterModelFrame(target, race, gender)
+    local shown = self:GetParent():IsVisible()
+    self:GetParent():SetAlpha(0)
+    self:GetParent():Show()
+    if not self.characterModels[race] then
+        self.characterModels[race] = {}
+    end
+    if not self.characterModels[race][gender] then
+        local f = CreateFrame('DressUpModel', "GuildbookProfilesCharacterModel"..race..gender, self.sidePane, BackdropTemplateMixin and "BackdropTemplate")
+        f:SetFrameLevel(6)
+        f:SetPoint('TOP', 0, 0)
+        f:SetSize(240, 300)
+        if race == 'GNOME' or race == 'DWARF' then
+            f:SetPosition(0.0, 0.0, -0.02)
+        else
+            f:SetPosition(0.0, 0.0, -0.04)
+        end
+        f.portraitZoom = 0.0
+        f:SetPortraitZoom(f.portraitZoom)
+        f:SetRotation(0.0)
+        f:SetUnit(target)
+        f.rotation = 0.61
+        f.rotationCursorStart = 0.0
+        f:Undress()
+        f:SetKeepModelOnHide(true)
+
+
+
+        f.anim = f:CreateAnimationGroup()
+        f.anim:SetToFinalAlpha(true)
+        local fade = f.anim:CreateAnimation("Alpha")
+        fade:SetFromAlpha(0)
+        fade:SetToAlpha(1)
+        fade:SetDuration(0.75)
+        fade:SetStartDelay(0.5)
+        fade:SetSmoothing("OUT")
+
+        C_Timer.After(0.05, function()
+            f:Undress()
+            f:SetRotation(0.2)
+        end)
+        f:EnableMouse(true)
+
+        f:SetScript('OnShow', function(self)
+            --print("SHOWING MODEL", race, gender)
+            self.anim:Play()
+            DEBUG('func', 'CharacterModel_OnShow', 'showing model '..race..' '..gender)
+            C_Timer.After(0.1, function()
+                self:SetRotation(0.1)
+                self:SetPosition(0.0, 0.0, -0.04)
+            end)
+        end)
+
+        f:SetScript('OnHide', function(self)
+            self:SetAlpha(0)
+        end)
+
+        -- borrow straight from blizz but is buggy
+        f:SetScript('OnMouseDown', function(self, button)
+            if ( not button or button == "LeftButton" ) then
+                self.mouseDown = true;
+                self.rotationCursorStart = GetCursorPosition();
+            end
+        end)
+        f:SetScript('OnMouseUp', function(self, button)
+            if ( not button or button == "LeftButton" ) then
+                self.mouseDown = false;
+            end
+        end)
+        f:SetScript('OnMouseWheel', function(self, delta)
+            self.portraitZoom = self.portraitZoom + (delta/10)
+            self:SetPortraitZoom(self.portraitZoom)
+            --f:SetPosition(0.0, 0.0, (-0.1 + (delta/10)))
+        end)
+
+        f:SetScript('OnUpdate', function(self)
+            if (self.mouseDown) then
+                if ( self.rotationCursorStart ) then
+                    local x = GetCursorPosition();
+                    local diff = (x - self.rotationCursorStart) * 0.05;
+                    self.rotationCursorStart = GetCursorPosition();
+                    self.rotation = self.rotation + diff;
+                    if ( self.rotation < 0 ) then
+                        self.rotation = self.rotation + (2 * PI);
+                    end
+                    if ( self.rotation > (2 * PI) ) then
+                        self.rotation = self.rotation - (2 * PI);
+                    end
+                    self:SetRotation(self.rotation, false);
+                end
+            end
+        end)
+
+        f:Hide()
+
+        self.characterModels[race][gender] = f
+    else
+        DEBUG('func', 'CreateCharacterModel', race..' '..gender..' exists')
+        if not self.sidePane:IsVisible() then
+            self:LoadCharacterModel()
+        end
+    end
+    self:GetParent():SetAlpha(1)
+    if not shown then
+        self:GetParent():Hide()
+    end
+end
+
+
+function GuildbookProfilesMixin:LoadCharacterModel()
+    if self.character then
+        if self.characterModels[self.character.Race:upper()] and self.characterModels[self.character.Race:upper()][self.character.Gender:upper()] then
+            self.characterModels[self.character.Race:upper()][self.character.Gender:upper()]:Undress()
+            C_Timer.After(0.0, function()
+                self.characterModels[self.character.Race:upper()][self.character.Gender:upper()]:Show()
+            end)
+            if self.character.Inventory and self.character.Inventory.Current then
+                C_Timer.After(0.1, function()
+                    for slot, link in pairs(self.character.Inventory.Current) do
+                        if link ~= false and slot ~= 'TABARDSLOT' then
+                            self.characterModels[self.character.Race:upper()][self.character.Gender:upper()]:TryOn(link)
+                        end
+                    end
+                end)
+
+                -- it seems an issue when fetching data from saved vars, probably comms taking a while, so make the call again to grab anything not updated
+                C_Timer.After(3.0, function()
+                    for slot, link in pairs(self.character.Inventory.Current) do
+                        if link ~= false and slot ~= 'TABARDSLOT' then
+                            self.characterModels[self.character.Race:upper()][self.character.Gender:upper()]:TryOn(link)
+                        end
+                    end
+                end)
+            end
+        end
+    else
+
+    end
+end
+
+
+function GuildbookProfilesMixin:CreateTalentUI()
+    -- create talent grid
+    self.contentPane.scrollChild.talents.talentTree = {}
+    local colPoints = { 19.0, 78.0, 137.0, 196.0 }
+    local rowPoints = { 19.0, 78.0, 137.0, 196.0, 255.0, 314.0, 373.0, 432.0, 491.0, 550.0, 609.0 } --257
+    for spec = 1, 3 do
+        self.contentPane.scrollChild.talents.talentTree[spec] = {}
+        for row = 1, self.NUM_TALENT_ROWS do
+            self.contentPane.scrollChild.talents.talentTree[spec][row] = {}
+            for col = 1, 4 do
+                local f = CreateFrame('FRAME', tostring('GuildbookProfilesTalents'..spec..row..col), self.contentPane.scrollChild.talents, BackdropTemplateMixin and "BackdropTemplate")
+                f:SetSize(28, 28)
+                f:SetPoint('TOPLEFT', 3+((colPoints[col] * 0.83) + ((spec - 1) * 217)), ((rowPoints[row] * 0.83) * -1) - 34)
+
+                -- background texture inc border
+                f.border = f:CreateTexture('$parentborder', 'BORDER')
+                f.border:SetPoint('TOPLEFT', -7, 7)
+                f.border:SetPoint('BOTTOMRIGHT', 7, -7)
+                f.border:SetAtlas("orderhalltalents-spellborder")
+                -- talent icon texture
+                f.Icon = f:CreateTexture('$parentIcon', 'BACKGROUND')
+                f.Icon:SetPoint('TOPLEFT', -2,2)
+                f.Icon:SetPoint('BOTTOMRIGHT', 2,-2)
+                -- talent points texture
+                f.pointsBackground = f:CreateTexture('$parentPointsBackground', 'ARTWORK')
+                f.pointsBackground:SetTexture(136960)
+                f.pointsBackground:SetPoint('BOTTOMRIGHT', 16, -16)
+                -- talents points font string
+                f.Points = f:CreateFontString('$parentPointsText', 'OVERLAY', 'GameFontNormalSmall')
+                f.Points:SetPoint('CENTER', f.pointsBackground, 'CENTER', 1, 0)
+
+                f:SetScript('OnEnter', function(self)
+                    if self.name then
+                        GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
+                        --GameTooltip:SetSpellByID(self.spellID)
+                        GameTooltip:AddLine(self.name)
+                        GameTooltip:AddLine(string.format("|cffffffff%s / %s|r", self.rank, self.maxRank))
+                        GameTooltip:Show()
+                    else
+                        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+                    end
+                end)
+                f:SetScript('OnLeave', function(self)
+                    GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+                end)
+
+
+                self.contentPane.scrollChild.talents.talentTree[spec][row][col] = f
+            end
+        end
+    end
+end
+
+
+function GuildbookProfilesMixin:HideTalentIcons()
+    for tab = 1, 3 do
+        for col = 1, 4 do
+            for row = 1, self.NUM_TALENT_ROWS do
+                self.contentPane.scrollChild.talents.talentTree[tab][row][col]:Hide()
+            end
+        end
+    end
+    
+end
+
+function GuildbookProfilesMixin:LoadTalents(spec)
+    if self.character and self.character.Talents then
+        if self.character.Talents[spec] then
+            self:HideTalentIcons()
+            DEBUG('func', 'ProfilesFrame:Load Talents', 'loading character talents')
+            for k, info in ipairs(self.character.Talents[spec]) do
+                --print(info.Name, info.Rank, info.MaxRank, info.Icon, info.Tab, info.Row, info.Col)
+                if self.contentPane.scrollChild.talents.talentTree[info.Tab] and self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row] then
+                    self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col]:Show()
+                    self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].Icon:SetTexture(info.Icon)
+                    --self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].talentIndex = info.TalentIndex
+                    self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].name = info.Name
+                    self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].rank = info.Rank
+                    self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].maxRank = info.MxRnk
+                    --self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].Points:SetText(info.Rank) --string.format("%s / %s", info.Rank, info.MxRnk))
+                    self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].Points:Show()
+                    self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].pointsBackground:Show()
+
+                    if info.Rank > 0 then
+                        self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].Icon:SetDesaturated(false)
+                        if info.Rank < info.MxRnk then
+                            self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].Points:SetText('|cff40BF40'..info.Rank)
+                            self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].border:SetAtlas("orderhalltalents-spellborder-green")
+                        else
+                            self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].Points:SetText('|cffFFFF00'..info.Rank)
+                            self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].border:SetAtlas("orderhalltalents-spellborder-yellow")
+                        end
+                    else
+                        self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].Icon:SetDesaturated(true)
+                        self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].border:SetAtlas("orderhalltalents-spellborder")
+                        self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].Points:Hide()
+                        self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].pointsBackground:Hide()
+                    end
+                else
+
+                end
+            end
+            self.contentPane.scrollChild.talents.tree1:SetTexture(gb.Data.TalentBackgrounds[gb.Data.Talents[self.character.Class:upper()][1]])
+            self.contentPane.scrollChild.talents.tree1:SetAlpha(0.6)
+            self.contentPane.scrollChild.talents.tree2:SetTexture(gb.Data.TalentBackgrounds[gb.Data.Talents[self.character.Class:upper()][2]])
+            self.contentPane.scrollChild.talents.tree2:SetAlpha(0.6)
+            self.contentPane.scrollChild.talents.tree3:SetTexture(gb.Data.TalentBackgrounds[gb.Data.Talents[self.character.Class:upper()][3]])
+            self.contentPane.scrollChild.talents.tree3:SetAlpha(0.6)
+        end
+    end
+end
+
+
+function GuildbookProfilesMixin:LoadInventory()
+    if self.character.Inventory and self.character.Inventory.Current then
+        for slot, link in pairs(self.character.Inventory.Current) do
+            if link ~= false then
+                local _, _, _, _, icon, _, _ = GetItemInfoInstant(link)
+                self.contentPane.scrollChild.inventory[slot]:SetAlpha(0)
+                self.contentPane.scrollChild.inventory[slot].Icon:SetTexture(icon)
+                self.contentPane.scrollChild.inventory[slot].Link:SetText(link)
+                self.contentPane.scrollChild.inventory[slot].link = link;
+            else
+                self.contentPane.scrollChild.inventory[slot].Icon:SetAtlas("transmog-icon-remove")
+                self.contentPane.scrollChild.inventory[slot].Link:SetText("")
+                self.contentPane.scrollChild.inventory[slot].link = nil;
+            end
+            self.contentPane.scrollChild.inventory[slot].anim:Play()
+        end
+        self:LoadCharacterModel()
     end
 end
