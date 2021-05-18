@@ -1469,27 +1469,28 @@ function GuildbookChatContentMixin:ChatContentScrollBar_OnValueChanged()
 
             if Ambiguate(msg.sender, "none") == Ambiguate(UnitName("player"), "none") then
                 --print("we have a message from ourself", msg.sender, msg.message)
+                self.rows[i]:ClearAllPoints()
+                self.rows[i]:SetPoint("TOPRIGHT", 0, (i-1) * -45)
                 self.rows[i].Icon:ClearAllPoints()
                 self.rows[i].Icon:SetPoint("RIGHT", 0, 0)
                 self.rows[i].Message:ClearAllPoints()
                 self.rows[i].Message:SetPoint("LEFT", 0, 0)
-                self.rows[i].Message:SetJustifyH("RIGHT")
+                --self.rows[i].Message:SetJustifyH("RIGHT")
                 self.rows[i].mask:ClearAllPoints()
                 self.rows[i].mask:SetPoint("RIGHT", -2, 0)
-                self.rows[i]:ClearAllPoints()
-                self.rows[i]:SetPoint("TOPRIGHT", 0, (i-1) * -45)
             else
                 --print("we have a message NOT from ourself", msg.sender, msg.message)
+                self.rows[i]:ClearAllPoints()
+                self.rows[i]:SetPoint("TOPLEFT", 0, (i-1) * -45)
                 self.rows[i].Icon:ClearAllPoints()
                 self.rows[i].Icon:SetPoint("LEFT", 0, 0)
                 self.rows[i].Message:ClearAllPoints()
                 self.rows[i].Message:SetPoint("LEFT", 50, 0)
-                self.rows[i].Message:SetJustifyH("LEFT")
+                --self.rows[i].Message:SetJustifyH("LEFT")
                 self.rows[i].mask:ClearAllPoints()
                 self.rows[i].mask:SetPoint("LEFT", 2, 0)
-                self.rows[i]:ClearAllPoints()
-                self.rows[i]:SetPoint("TOPLEFT", 0, (i-1) * -45)
             end
+
             C_Timer.After(0.1, function()
                 for x = 1, 10 do
                     if self.rows[i].Message:IsTruncated() then
@@ -1497,19 +1498,6 @@ function GuildbookChatContentMixin:ChatContentScrollBar_OnValueChanged()
                         self.rows[i].Message:SetWidth(self.rows[i].Message:GetWidth()*1.05)
                     end
                 end
-                -- while self.rows[i].Message:IsTruncated() do
-                --     local w = self.rows[i].Message:GetWidth()
-                --     self.rows[i].Message:SetWidth(w)
-                --     self.rows[i]:SetWidth(w + 50)
-                --     -- local w, h = self.rows[i].Message:GetWidth(), 45 -- self.rows[i].Message:GetHeight()
-                --     -- if w > 600 then
-                --     --     self.rows[i].Message:SetSize(w, h) -- * 1.1)
-                --     --     self.rows[i]:SetSize(w + 50, h) -- + 10)
-                --     -- else
-                --     --     self.rows[i].Message:SetSize(w * 1.1, h)
-                --     --     self.rows[i]:SetSize(w + 50, h) -- + 10)
-                --     -- end
-                -- end
             end)
         end
     end
@@ -1522,9 +1510,52 @@ GuildbookProfilesMixin = {}
 GuildbookProfilesMixin.character = nil;
 GuildbookProfilesMixin.characterModels = {}
 GuildbookProfilesMixin.NUM_TALENT_ROWS = 7.0
+GuildbookProfilesMixin.characterStats = {
+    ["attributes"] = {
+        { key = "Strength", displayName = "Strength", },
+        { key = "Agility", displayName = "Agility", },
+        { key = "Stamina", displayName = "Stamina", },
+        { key = "Intellect", displayName = "Intellect", },
+        { key = "Spirit", displayName = "Spirit", },
+    },
+    ["defence"] = {
+        { key = "Armor", displayName = "Armor", },
+        { key = "Defence", displayName = "Defense", },
+        { key = "Dodge", displayName = "Dodge", },
+        { key = "Parry", displayName = "Parry", },
+        { key = "Block", displayName = "Block", },
+    },
+    ["melee"] = {
+        { key = "MeleeHit", displayName = "Hit chance", },
+        { key = "MeleeCrit", displayName = "Crit chance", },
+        { key = "MeleeDmgMH", displayName = "Main hand damage", },
+        { key = "MeleeDmgOH", displayName = "Off hand damage", },
+        { key = "MeleeDpsMH", displayName = "Main hand dps", },
+        { key = "MeleeDpsOH", displayName = "Off hand dps", },
+    },
+    ["ranged"] = {
+        { key = "MeleeHit", displayName = "Hit chance", },
+        { key = "RangedCrit", displayName = "Crit chance", },
+        { key = "RangedDmg", displayName = "Damage", },
+        { key = "RangedDps", displayName = "Dps", },
+    },
+    ["spells"] = {
+        { key = "SpellHit", displayName = "Hit chance", },
+        { key = "HealingBonus", displayName = "Healing bonus", },
+        { key = "SpellDmgHoly", displayName = "Holy", },
+        { key = "SpellDmgFrost", displayName = "Frost", },
+        { key = "SpellDmgShadow", displayName = "Shadow", },
+        { key = "SpellDmgArcane", displayName = "Arcane", },
+        { key = "SpellDmgFire", displayName = "Fire", },
+        { key = "SpellDmgNature", displayName = "Nature", },
+    }
+}
+
+
 
 function GuildbookProfilesMixin:OnLoad()
     self:CreateTalentUI()
+    self:CreateStatsUI()
 
     self.defaultModel = CreateFrame('PlayerModel', "GuildbookProfilesdefaultModel", self.sidePane, BackdropTemplateMixin and "BackdropTemplate")
     self.defaultModel:SetPoint('TOP', 0, 0)
@@ -1538,6 +1569,7 @@ function GuildbookProfilesMixin:OnLoad()
         local x = ((k-#gb.Data.InventorySlotNames) *-1) * 0.025
         self.contentPane.scrollChild.inventory[slot.Name].anim.fadeIn:SetStartDelay((x^x) - 0.6)
     end
+
 end
 
 
@@ -1561,6 +1593,7 @@ function GuildbookProfilesMixin:LoadCharacter()
     if self.character then
         self:LoadTalents("primary")
         self:LoadInventory()
+        self:LoadStats()
         if self.character.Inventory and self.character.Inventory.Current and next(self.character.Inventory.Current) and self.character.Race and self.character.Gender and self.characterModels[self.character.Race:upper()] and self.characterModels[self.character.Race:upper()][self.character.Gender:upper()] then
             self.defaultModel:Hide()
             self.characterModels[self.character.Race:upper()][self.character.Gender:upper()]:Show()
@@ -1575,6 +1608,8 @@ function GuildbookProfilesMixin:LoadCharacter()
         end
         if self.character.MainCharacter then
             self.sidePane.mainCharacter:SetText("["..self.character.MainCharacter.."]")
+        else
+            self.sidePane.mainCharacter:SetText("-")
         end
     else
         self.defaultModel:Show()
@@ -1690,7 +1725,7 @@ function GuildbookProfilesMixin:AddCharacterModelFrame(target, race, gender)
     else
         DEBUG('func', 'CreateCharacterModel', race..' '..gender..' exists')
         if not self.sidePane:IsVisible() then
-            self:LoadCharacterModel()
+            self:LoadCharacterModelItems()
         end
     end
     self:GetParent():SetAlpha(1)
@@ -1700,7 +1735,7 @@ function GuildbookProfilesMixin:AddCharacterModelFrame(target, race, gender)
 end
 
 
-function GuildbookProfilesMixin:LoadCharacterModel()
+function GuildbookProfilesMixin:LoadCharacterModelItems()
     if self.character then
         if self.characterModels[self.character.Race:upper()] and self.characterModels[self.character.Race:upper()][self.character.Gender:upper()] then
             self.characterModels[self.character.Race:upper()][self.character.Gender:upper()]:Undress()
@@ -1715,19 +1750,55 @@ function GuildbookProfilesMixin:LoadCharacterModel()
                         end
                     end
                 end)
-
-                -- it seems an issue when fetching data from saved vars, probably comms taking a while, so make the call again to grab anything not updated
-                C_Timer.After(3.0, function()
-                    for slot, link in pairs(self.character.Inventory.Current) do
-                        if link ~= false and slot ~= 'TABARDSLOT' then
-                            self.characterModels[self.character.Race:upper()][self.character.Gender:upper()]:TryOn(link)
-                        end
-                    end
-                end)
             end
         end
     else
 
+    end
+end
+
+
+function GuildbookProfilesMixin:CreateStatsUI()
+    for k, group in pairs(self.characterStats) do
+        for i, stat in ipairs(group) do
+            if self.contentPane.scrollChild.stats[k] then
+                local f = self.contentPane.scrollChild.stats[k]
+                f.header:SetText(k:sub(1,1):upper()..k:sub(2))
+                f[stat.key.."Label"] = f:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+                f[stat.key.."Label"]:SetPoint("TOPLEFT", 0, (i * -22) - 12)
+                f[stat.key.."Label"]:SetText(stat.displayName)
+                f[stat.key.."Label"]:SetTextColor(1,1,1,1)
+
+                f[stat.key] = f:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+                f[stat.key]:SetPoint("TOPRIGHT", 0, (i * -22) - 12)
+                f[stat.key]:SetTextColor(1,1,1,1)
+            end
+        end
+    end
+end
+
+
+function GuildbookProfilesMixin:LoadStats()
+    if not self.character then
+        return;
+    end
+    if self.character.PaperDollStats then
+        for k, group in pairs(self.characterStats) do
+            for i, stat in ipairs(group) do
+                if self.contentPane.scrollChild.stats[k] then
+                    local f = self.contentPane.scrollChild.stats[k]
+                    f[stat.key]:SetText("")
+                    if self.character.PaperDollStats[stat.key] then
+                        if stat.key == "Defence" and self.character.PaperDollStats[stat.key].Base and self.character.PaperDollStats[stat.key].Mod then
+                            local def = self.character.PaperDollStats[stat.key].Base + self.character.PaperDollStats[stat.key].Mod
+                            f[stat.key]:SetText(def)
+                        else
+                            f[stat.key]:SetText(self.character.PaperDollStats[stat.key])
+                        end
+                    end
+                end
+            end
+        end
     end
 end
 
@@ -1861,6 +1932,7 @@ function GuildbookProfilesMixin:LoadInventory()
             end
             self.contentPane.scrollChild.inventory[slot].anim:Play()
         end
-        self:LoadCharacterModel()
+        self:LoadCharacterModelItems()
     end
 end
+

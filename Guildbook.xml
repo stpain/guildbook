@@ -543,10 +543,29 @@
         </Scripts>
     </Frame>
 
+    <Frame name="GuildbookStatsGroup" virtual="true">
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture atlas="UI-Character-Info-Title">
+                    <Size y="30"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="0" y="0"/>
+                        <Anchor point="TOPRIGHT" x="0" y="0"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <FontString parentKey="header" inherits="Acme14" text="stat group">
+                    <Anchors>
+                        <Anchor point="TOP" x="0" y="-7"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+    </Frame>
 
 
-
-
+<!-- AdventureMapLabel-Large  BossBanner-BgBanner-Bottom challenges-timerbg -->
 
 
 
@@ -708,6 +727,7 @@
                                     <Anchor point="RIGHT" x="0" y="0"/>
                                 </Anchors>
                                 <Frames>
+
                                     <Frame parentKey="inventory">
                                         <Size y="350"/>
                                         <Anchors>
@@ -718,7 +738,7 @@
                                             <Layer level="ARTWORK">
                                                 <FontString inherits="Acme" text="Inventory">
                                                     <Anchors>
-                                                        <Anchor point="TOP" x="20" y="-5"/>
+                                                        <Anchor point="TOP" x="0" y="-5"/>
                                                     </Anchors>
                                                 </FontString>
                                             </Layer>
@@ -826,17 +846,72 @@
                                         </Frames>
                                     </Frame>
 
-                                    <Frame parentKey="talents">
-                                        <Size y="390"/>
+                                    <Frame parentKey="stats">
+                                        <Size y="400"/>
                                         <Anchors>
                                             <Anchor point="TOPLEFT" x="0" y="-350"/>
                                             <Anchor point="TOPRIGHT" x="0" y="-350"/>
                                         </Anchors>
                                         <Layers>
                                             <Layer level="ARTWORK">
+                                                <FontString inherits="Acme" text="Stats">
+                                                    <Anchors>
+                                                        <Anchor point="TOP" x="0" y="-5"/>
+                                                    </Anchors>
+                                                </FontString>
+                                            </Layer>
+                                        </Layers>
+                                        <Frames>
+                                            <Frame parentKey="attributes" inherits="GuildbookStatsGroup">
+                                                <Size x="180" y="150"/>
+                                                <Anchors>
+                                                    <Anchor point="TOP" x="-200" y="-35"/>
+                                                </Anchors>
+                                            </Frame>
+                                            <Frame parentKey="defence" inherits="GuildbookStatsGroup">
+                                                <Size x="180" y="150"/>
+                                                <Anchors>
+                                                    <Anchor point="TOP" x="0" y="-35"/>
+                                                </Anchors>
+                                            </Frame>
+                                            <Frame parentKey="spells" inherits="GuildbookStatsGroup">
+                                                <Size x="180" y="150"/>
+                                                <Anchors>
+                                                    <Anchor point="TOP" x="200" y="-35"/>
+                                                </Anchors>
+                                            </Frame>
+                                            <Frame parentKey="melee" inherits="GuildbookStatsGroup">
+                                                <Size x="180" y="150"/>
+                                                <Anchors>
+                                                    <Anchor point="TOP" x="-200" y="-215"/>
+                                                </Anchors>
+                                            </Frame>
+                                            <Frame parentKey="ranged" inherits="GuildbookStatsGroup">
+                                                <Size x="180" y="150"/>
+                                                <Anchors>
+                                                    <Anchor point="TOP" x="0" y="-215"/>
+                                                </Anchors>
+                                            </Frame>
+                                            <!-- <Frame inherits="GuildbookStatsGroup">
+                                                <Size x="180" y="150"/>
+                                                <Anchors>
+                                                    <Anchor point="TOP" x="200" y="-215"/>
+                                                </Anchors>
+                                            </Frame> -->
+                                        </Frames>
+                                    </Frame>
+
+                                    <Frame parentKey="talents">
+                                        <Size y="390"/>
+                                        <Anchors>
+                                            <Anchor point="TOPLEFT" x="0" y="-750"/>
+                                            <Anchor point="TOPRIGHT" x="0" y="-750"/>
+                                        </Anchors>
+                                        <Layers>
+                                            <Layer level="ARTWORK">
                                                 <FontString inherits="Acme" text="Talents">
                                                     <Anchors>
-                                                        <Anchor point="TOP" x="20" y="-5"/>
+                                                        <Anchor point="TOP" x="0" y="-5"/>
                                                     </Anchors>
                                                 </FontString>
                                             </Layer>
