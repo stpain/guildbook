@@ -10,11 +10,15 @@ local GUILD_NAME;
 GuildbookButtonMixin = {}
 
 function GuildbookButtonMixin:OnLoad()
-    self.anchor = AnchorUtil.CreateAnchor(self:GetPoint());
+    --self.anchor = AnchorUtil.CreateAnchor(self:GetPoint());
+
+    self.point, self.relativeTo, self.relativePoint, self.xOfs, self.yOfs = self:GetPoint()
 end
 
 function GuildbookButtonMixin:OnShow()
-    self.anchor:SetPoint(self);
+    --self.anchor:SetPoint(self);
+
+    self:SetPoint(self.point, self.relativeTo, self.relativePoint, self.xOfs, self.yOfs)
 end
 
 function GuildbookButtonMixin:OnMouseDown()
@@ -762,8 +766,10 @@ function GuildbookRecipesListviewMixin:OnLoad()
             end
             local characters = getPlayersWithRecipe(f.recipeID)
             GuildbookCharactersListviewMixin:ClearRows()
-            for k, character in ipairs(characters) do
-                GuildbookCharactersListviewMixin.rows[k]:SetCharacter(character, f.link)
+            if characters and next(characters) ~= nil then
+                for k, character in ipairs(characters) do
+                    GuildbookCharactersListviewMixin.rows[k]:SetCharacter(character, f.link)
+                end
             end
         end
         self.rows[row] = f
@@ -965,7 +971,7 @@ function GuildbookRosterMixin:ParseGuildRoster()
         local name, _rankName, _, _, _, _zone, _publicNote, _officerNote, _isOnline, _, _, achievementPoints, _, _, _, _, GUID = GetGuildRosterInfo(i)
         name = Ambiguate(name, 'none')
         self.characterStatus[GUID] = {
-            isOnline = _isOnline,
+            isOnline = _isOnline  and _isOnline or false,
             zone = _zone,
             publicNote = _publicNote,
             officerNote = _officerNote,
@@ -1509,7 +1515,7 @@ end
 GuildbookProfilesMixin = {}
 GuildbookProfilesMixin.character = nil;
 GuildbookProfilesMixin.characterModels = {}
-GuildbookProfilesMixin.NUM_TALENT_ROWS = 7.0
+GuildbookProfilesMixin.NUM_TALENT_ROWS = 9.0
 GuildbookProfilesMixin.characterStats = {
     ["attributes"] = {
         { key = "Strength", displayName = "Strength", },
@@ -1526,6 +1532,7 @@ GuildbookProfilesMixin.characterStats = {
         { key = "Block", displayName = "Block", },
     },
     ["melee"] = {
+        { key = "Expertise", displayName = "Expertise", },
         { key = "MeleeHit", displayName = "Hit chance", },
         { key = "MeleeCrit", displayName = "Crit chance", },
         { key = "MeleeDmgMH", displayName = "Main hand damage", },
@@ -1540,6 +1547,8 @@ GuildbookProfilesMixin.characterStats = {
         { key = "RangedDps", displayName = "Dps", },
     },
     ["spells"] = {
+        { key = "Haste", displayName = "Haste", },
+        { key = "ManaRegen", displayName = "Mana regen", },
         { key = "SpellHit", displayName = "Hit chance", },
         { key = "HealingBonus", displayName = "Healing bonus", },
         { key = "SpellDmgHoly", displayName = "Holy", },
@@ -1577,40 +1586,64 @@ function GuildbookProfilesMixin:OnHide()
     if not self.character then
         return
     end
+    self:HideInventoryIcons()
+end
+
+function GuildbookProfilesMixin:HideInventoryIcons()
     for _, slot in ipairs(gb.Data.InventorySlotNames) do
         self.contentPane.scrollChild.inventory[slot.Name].Icon:SetAtlas("transmog-icon-remove")
         self.contentPane.scrollChild.inventory[slot.Name].Link:SetText("")
+        self.contentPane.scrollChild.inventory[slot.Name]:SetAlpha(0)
     end
 end
 
-
 function GuildbookProfilesMixin:OnShow()
     self:LoadCharacter()
+
+
+    GUILD_NAME = gb:GetGuildName()
 end
 
 function GuildbookProfilesMixin:LoadCharacter()
     self:HideCharacterModels()
+    self:HideInventoryIcons()
     if self.character then
-        self:LoadTalents("primary")
-        self:LoadInventory()
-        self:LoadStats()
-        if self.character.Inventory and self.character.Inventory.Current and next(self.character.Inventory.Current) and self.character.Race and self.character.Gender and self.characterModels[self.character.Race:upper()] and self.characterModels[self.character.Race:upper()][self.character.Gender:upper()] then
-            self.defaultModel:Hide()
-            self.characterModels[self.character.Race:upper()][self.character.Gender:upper()]:Show()
-        else
-            self.defaultModel:Show()
+
+        -- this area will need to be monitored and maybe adjusted to work nicely with chat throttles etc
+        gb:CharacterDataRequest(self.character.Name)
+        gb:SendInventoryRequest(self.character.Name)
+        gb:SendTalentInfoRequest(self.character.Name, 'primary')
+        if self.character.Profession1 then
+            gb:SendTradeSkillsRequest(self.character.Name, self.character.Profession1)
         end
-        self.background:SetAtlas("legionmission-complete-background-"..(self.character.Class:lower()))
-        self.sidePane.background:SetAtlas("transmog-background-race-"..(self.character.Race:lower()))
-        self.sidePane.name:SetText(self.character.Name)
-        if self.character.MainSpec then
-            self.sidePane.spec:SetText(self.character.MainSpec)
+        if self.character.Profession2 then
+            gb:SendTradeSkillsRequest(self.character.Name, self.character.Profession2)
         end
-        if self.character.MainCharacter then
-            self.sidePane.mainCharacter:SetText("["..self.character.MainCharacter.."]")
-        else
-            self.sidePane.mainCharacter:SetText("-")
-        end
+
+        print(self.character.prof1)
+
+        C_Timer.After(1, function()
+            self:LoadTalents("primary")
+            self:LoadInventory()
+            self:LoadStats()
+            if self.character.Inventory and self.character.Inventory.Current and next(self.character.Inventory.Current) and self.character.Race and self.character.Gender and self.characterModels[self.character.Race:upper()] and self.characterModels[self.character.Race:upper()][self.character.Gender:upper()] then
+                self.defaultModel:Hide()
+                self.characterModels[self.character.Race:upper()][self.character.Gender:upper()]:Show()
+            else
+                self.defaultModel:Show()
+            end
+            self.background:SetAtlas("legionmission-complete-background-"..(self.character.Class:lower()))
+            self.sidePane.background:SetAtlas("transmog-background-race-"..(self.character.Race:lower()))
+            self.sidePane.name:SetText(self.character.Name)
+            if self.character.MainSpec then
+                self.sidePane.spec:SetText(self.character.MainSpec)
+            end
+            if self.character.MainCharacter then
+                self.sidePane.mainCharacter:SetText("["..self.character.MainCharacter.."]")
+            else
+                self.sidePane.mainCharacter:SetText("-")
+            end
+        end)
     else
         self.defaultModel:Show()
     end    
@@ -1637,13 +1670,13 @@ function GuildbookProfilesMixin:AddCharacterModelFrame(target, race, gender)
         local f = CreateFrame('DressUpModel', "GuildbookProfilesCharacterModel"..race..gender, self.sidePane, BackdropTemplateMixin and "BackdropTemplate")
         f:SetFrameLevel(6)
         f:SetPoint('TOP', 0, 0)
-        f:SetSize(240, 300)
+        f:SetSize(240, 240)
         if race == 'GNOME' or race == 'DWARF' then
-            f:SetPosition(0.0, 0.0, -0.02)
+            f:SetPosition(0.0, 0.0, 0.15)
         else
-            f:SetPosition(0.0, 0.0, -0.04)
+            f:SetPosition(0.0, 0.0, 0.1)
         end
-        f.portraitZoom = 0.0
+        f.portraitZoom = 0.15
         f:SetPortraitZoom(f.portraitZoom)
         f:SetRotation(0.0)
         f:SetUnit(target)
@@ -1660,7 +1693,7 @@ function GuildbookProfilesMixin:AddCharacterModelFrame(target, race, gender)
         fade:SetFromAlpha(0)
         fade:SetToAlpha(1)
         fade:SetDuration(0.75)
-        fade:SetStartDelay(0.5)
+        fade:SetStartDelay(0.25)
         fade:SetSmoothing("OUT")
 
         C_Timer.After(0.05, function()

@@ -691,7 +691,7 @@
                                 <FontString parentKey="name" inherits="Acme" text="-">
                                     <Size x="160" y="25"/>
                                     <Anchors>
-                                        <Anchor point="TOP" x="0" y="-310"/>
+                                        <Anchor point="TOP" x="0" y="-250"/>
                                     </Anchors>
                                 </FontString>
                                 <FontString parentKey="mainCharacter" inherits="Acme14" text="-">
@@ -902,7 +902,7 @@
                                     </Frame>
 
                                     <Frame parentKey="talents">
-                                        <Size y="390"/>
+                                        <Size y="480"/>
                                         <Anchors>
                                             <Anchor point="TOPLEFT" x="0" y="-750"/>
                                             <Anchor point="TOPRIGHT" x="0" y="-750"/>
