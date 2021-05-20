@@ -30,7 +30,7 @@ local LibSerialize = LibStub:GetLibrary("LibSerialize")
 --variables
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- this used to match the toc but for simplicity i've made it just an integer
-local build = 11;
+local build = 12;
 local locale = GetLocale()
 local L = Guildbook.Locales
 

@@ -392,4 +392,27 @@ Added more profession locales
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [12] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+
+
+|cff0070DEUpdates|r:
+I've been working on a new UI for guildbook, for a few reasons 1 of which is to avoid issues with other addons.
+
+I'm still in the process of updating the code and moving things into the new UI, its mostly just the calendar to convert and update.
+
+If you have the minimap button you can middle click on it to open the new UI (click with the mouse scroll wheel) or use this slash command
+
+/run GuildbookUI:Show()
+
+Any feedback on the new UI is greatly appreciated, curseforge comments are a good place for this or 1 of the wow addon discords.
+
+Regards
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }
