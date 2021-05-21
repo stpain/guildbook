@@ -364,58 +364,58 @@ if locale == "deDE" then
 elseif locale == 'frFR' then
 
     -- buttons, labels and texts
-    L['CharacterName'] = 'Data Recipient'
-    L['OptionsAbout'] = 'Guildbook allows players to share more detail about their characters with guild members. Use the options below your to set spec/alt information for your character.'
-    L['Summary'] = 'Summary'
-    L['SummaryHeader'] = 'Guild Summary'
+    L['CharacterName'] = 'Destinataire des données'
+    L['OptionsAbout'] = 'Guildbook permet aux joueurs de partager les détails de leurs personnages avec les membres de guilde. Utilisez les options ci-dessous pour régler les informations de spécialisation et alt de votre personnage.'
+    L['Summary'] = 'Résumé'
+    L['SummaryHeader'] = 'Résumé de guilde'
     L['Roster'] = 'Roster'
-    L['CharacterLevel'] = 'Character Level'
-    L['Name'] = 'Name'
+    L['CharacterLevel'] = 'Niveau du personnage'
+    L['Name'] = 'Nom'
     L['Roles'] = 'Roles'
     L['Tank'] = 'Tank'
-    L['Melee'] = 'Melee'
-    L['Ranged'] = 'Ranged'
-    L['Healer'] = 'Healer'
-    L['ClassRoleSummary'] = 'Class & Role Summary'
-    L['RoleChart'] = 'Roles (Online Members)'
-    L['ClassChart'] = 'Classes (All Members)'
-    L['Online'] = 'Online'
-    L['Offline'] = 'Offline'
-    L['SearchFor'] = 'Search...'
+    L['Melee'] = 'Mêlée'
+    L['Ranged'] = 'Distance'
+    L['Healer'] = 'Soigneur'
+    L['ClassRoleSummary'] = 'Résumé de classe et role'
+    L['RoleChart'] = 'Roles (Members en ligne)'
+    L['ClassChart'] = 'Classes (Tous les membres)'
+    L['Online'] = 'En ligne'
+    L['Offline'] = 'Hors ligne'
+    L['SearchFor'] = 'Recherche...'
     L['Info'] = 'Info'
-    L['Specializations'] = 'Specializations'
+    L['Specializations'] = 'Spécialisations'
     L['ItemLevel'] = 'Item Level'
-    L['MainSpec'] = 'Main Spec'
-    L['Main'] = 'Main:'
-    L['Rank'] = 'Rank'
+    L['MainSpec'] = 'Spé principale'
+    L['Main'] = 'Principale:'
+    L['Rank'] = 'Rang'
     L['Note'] = 'Note'
-    L['OffSpec'] = 'Off Spec:'
-    L['IsPvpSpec'] = '  PVP'
-    L['Class'] = 'Class'
-    L['FirstAid'] = 'First Aid'
-    L['Fishing'] = 'Fishing'
-    L['Cooking'] = 'Cooking'
-    L['Professions'] = 'Professions'
-    L['Profession1'] = 'Profession 1'
-    L['Profession2'] = 'Profession 2'
+    L['OffSpec'] = 'Spé secondaire:'
+    L['IsPvpSpec'] = '  JcJ'
+    L['Class'] = 'Classe'
+    L['FirstAid'] = 'Secourisme'
+    L['Fishing'] = 'Pêche'
+    L['Cooking'] = 'Cuisine'
+    L['Professions'] = 'Métiers'
+    L['Profession1'] = 'Métier 1'
+    L['Profession2'] = 'Métier 2'
     L['Profiles'] = 'Profiles'
     L['Profile'] = 'Profile'
     L['Chat'] = 'Chat'
-    L['Statistics'] = 'Statistics'
-    L['Calendar'] = 'Calendar'
-    L['GuildBank'] = 'Guild Bank'
-    L['EditCharacterInfo'] = 'Information about your character should be displayed below, update your specializations and if this is an alt provide your main character name.\nClick confirm to share with guild.'
-    L['SaveCharacterData'] = 'Confirm'
-    L['MainCharacterNameInputDesc'] = 'Main character'
-    L['MainCharacter'] = 'Main Character'
-    L['Gems'] = 'Gems'
-    L['Enchants'] = 'Enchants'
+    L['Statistics'] = 'Statistiques'
+    L['Calendar'] = 'Calendrier'
+    L['GuildBank'] = 'Banque de guilde'
+    L['EditCharacterInfo'] = 'Les information à propos de votre personnage devrait être affiché ci-dessous, réglez votre spécialisation et votre personnage principale pour un alt.\nCliquez sur Confirme pour partager avec votre guilde.'
+    L['SaveCharacterData'] = 'Confirme'
+    L['MainCharacterNameInputDesc'] = 'Personnage principale'
+    L['MainCharacter'] = 'Personnage principale'
+    L['Gems'] = 'Gemmes'
+    L['Enchants'] = 'Enchantements'
     L['ilvl'] = 'ilvl'
-    L['Guild Information'] = 'Guild Information'
-    L['ClassRolesSummary'] = 'Class & Role Summary'
-    L['RaidRoster'] = 'Raid Roster |cffffffff(Right click player for more options)|r'
-    L['Cancel'] = 'Cancel'
-    L['GuildBank'] = 'Guild Bank'
+    L['Guild Information'] = 'Information de guilde'
+    L['ClassRolesSummary'] = 'Résumé de classes & roles'
+    L['RaidRoster'] = 'Raid Roster |cffffffff(Click droit sur un joueur pour les options)|r'
+    L['Cancel'] = 'Annulé'
+    L['GuildBank'] = 'Banque de guilde'
 
     --professions
     L['Alchemy'] = "Alchimie"
@@ -423,11 +423,11 @@ elseif locale == 'frFR' then
     L["Enchanting"] = "Enchantement"
     L["Engineering"] = "Ingénierie"
     --['Inscription'] = 'Inscription',
-    --['Jewelcrafting'] = 'Jewelcrafting',
-    L['Tailoring'] = "Couturier"
-    L['Leatheroworking'] = "Travail du cuir"
+    --['Jewelcrafting'] = 'Joaillerie',
+    L['Tailoring'] = "Couture"
+    L['Leatherworking'] = "Travail du cuir"
     L['Herbalism'] = "Herboristerie"
-    L['Skinning'] = "Dépecage"
+    L['Skinning'] = "Dépeçage"
     L['Mining'] = "Minage"
     L['First Aid'] = 'Secourisme'
     L['Fishing'] = 'Pêche'
@@ -435,48 +435,48 @@ elseif locale == 'frFR' then
     
     -- class and spec
     L['DEATHKNIGHT'] = 'Deathknight'
-    L['DRUID'] = 'Druid'
-    L['HUNTER'] = 'Hunter'
+    L['DRUID'] = 'Druide'
+    L['HUNTER'] = 'Chasseur'
     L['MAGE'] = 'Mage'
     L['PALADIN'] = 'Paladin'
-    L['PRIEST'] = 'Priest'
-    L['SHAMAN'] = 'Shaman'
-    L['ROGUE'] = 'Rogue'
-    L['WARLOCK'] = 'Warlock'
-    L['WARRIOR'] = 'Warrior'
+    L['PRIEST'] = 'Prêtre'
+    L['SHAMAN'] = 'Chaman'
+    L['ROGUE'] = 'Voleur'
+    L['WARLOCK'] = 'Démoniste'
+    L['WARRIOR'] = 'Guerrier'
     --mage/dk
     L['Arcane'] = 'Arcane'
-    L['Fire'] = 'Fire'
-    L['Frost'] = 'Frost'
+    L['Fire'] = 'Feu'
+    L['Frost'] = 'Givre'
     L['Blood'] = 'Blood'
     L['Unholy'] = 'Unholy'
     --druid/shaman
     L['Restoration'] = 'Restoration'
-    L['Enhancement'] = 'Enhancement'
-    L['Elemental'] = 'Elemental'
-    L['Cat'] = 'Cat'
-    L['Bear'] = 'Bear'
-    L['Balance'] = 'Balance'
+    L['Enhancement'] = 'Amélioration'
+    L['Elemental'] = 'Elémentaire'
+    L['Cat'] = 'Félin'
+    L['Bear'] = 'Ours'
+    L['Balance'] = 'Equilibre'
     --rogue
     L['Assassination'] = 'Assassination'
     L['Combat'] = 'Combat'
-    L['Subtlety'] = 'Subtlety'
+    L['Subtlety'] = 'Finesse'
     --hunter
-    L['Marksmanship'] = 'Marksmanship'
-    L['Beast Master'] = 'Beast Master'
-    L['Survival'] = 'Survival'
+    L['Marksmanship'] = 'Précision'
+    L['Beast Master'] = 'Maîtrise des bêtes'
+    L['Survival'] = 'Survie'
     --warlock
     L['Destruction'] = 'Destruction'
     L['Affliction'] = 'Affliction'
-    L['Demonology'] = 'Demonology'
+    L['Demonology'] = 'Démonologie'
     --warrior/paladin/priest
-    L['Fury'] = 'Fury'
-    L['Arms'] = 'Arms'
+    L['Fury'] = 'Fureur'
+    L['Arms'] = 'Armes'
     L['Protection'] = 'Protection'
-    L['Retribution'] = 'Retribution'
-    L['Holy'] = 'Holy'
+    L['Retribution'] = 'Vindicte'
+    L['Holy'] = 'Sacré'
     L['Discipline'] = 'Discipline'
-    L['Shadow'] = 'Shadow'
+    L['Shadow'] = 'Ombre'
 
 
 end
@@ -503,6 +503,7 @@ end
 
 Guildbook.ProfessionNames = {
 	enUS = {
+		[129] = "First Aid",
 		[164] = "Blacksmithing",
 		[165] = "Leatherworking",
 		[171] = "Alchemy",
@@ -518,6 +519,7 @@ Guildbook.ProfessionNames = {
 		[773] = "Inscription",
 	},
 	deDE = {
+		[129] = "Erste Hilfe",
 		[164] = "Schmiedekunst",
 		[165] = "Lederverarbeitung",
 		[171] = "Alchemie",
@@ -533,6 +535,7 @@ Guildbook.ProfessionNames = {
 		[773] = "Inschriftenkunde",
 	},
 	frFR = {
+		[129] = "Secourisme",
 		[164] = "Forge",
 		[165] = "Travail du cuir",
 		[171] = "Alchimie",
