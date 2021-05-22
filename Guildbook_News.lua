@@ -415,4 +415,22 @@ Regards
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [13] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+Worked on the tradeskills section, this was having issues so please report issues so i can look into anything.
+
+|cff0070DEUpdates|r:
+A few small updates, minimap button now focuses on the new UI.
+Started work on the profile ribbon menu, the search box does nothing at the moment.
+
+Sorry for it not being ready, i was caught out by the sudden news of pre patch.
+
+Regards
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }

@@ -120,13 +120,8 @@
             <OnShow method="OnShow"/>
             <OnMouseDown method="OnMouseDown"/>
             <OnMouseUp method="OnMouseUp"/>
-            <OnEnter>
-                if self.tooltipText then
-                    GameTooltip:SetOwner(self, 'ANCHOR_TOPRIGHT')
-                    GameTooltip:AddLine(self.tooltipText, 1,1,1,1)
-                    GameTooltip:Show()
-                end
-            </OnEnter>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
         </Scripts>
 	</Frame>
 
@@ -281,6 +276,10 @@
                         GuildbookButtonMixin.OnMouseDown(self)
                         self:GetParent():GetParent():GetParent():RowOpenProfile_OnMouseDown(self:GetParent())
                     </OnMouseDown>
+                    <OnMouseUp>
+                        GuildbookButtonMixin.OnMouseUp(self)
+                        self:GetParent():GetParent():GetParent():RowOpenProfile_OnMouseUp(self:GetParent())
+                    </OnMouseUp>
                 </Scripts>
             </Frame>
         </Frames>
@@ -491,7 +490,7 @@
                     </Anchors>
                 </Texture>
                 <Texture parentKey="Background" setAllPoints="true">
-                    <Color r="0.1" g="0.1" b="0.1" a="0.4"/>
+                    <Color r="0.1" g="0.1" b="0.1" a="0.0"/>
                 </Texture>
             </Layer>
             <Layer level="OVERLAY">
@@ -577,23 +576,64 @@
 
 
 
-    <Frame name="GuildbookUI" mixin="GuildbookMixin" parent="UIParent" inherits="PortraitFrameTemplate" enableMouse="true" movable="true" >
+    <Frame name="GuildbookUI" mixin="GuildbookMixin" parent="UIParent" inherits="PortraitFrameTemplate" frameStrata="HIGH" enableMouse="true" movable="true" hidden="true">
         <Size x="920" y="510"/>
         <Anchors>
             <Anchor point="CENTER" x="0" y="0"/>
         </Anchors>
 
-        <!-- <Layers>
+        <Layers>
             <Layer level="OVERLAY">
-                <Texture atlas="warboard-header-alliance" useAtlasSize="true">
+                <FontString parentKey="statusText" inherits="GameFontNormalSmall" justifyH="RIGHT" text="load text">
+                    <Size x="275" y="10"/>
                     <Anchors>
-                        <Anchor point="TOP" x="0" y="200"/>
+                        <Anchor point="TOPRIGHT" x="-65" y="-6"/>
                     </Anchors>
-                </Texture>
+                </FontString>
             </Layer>
-        </Layers> -->
+        </Layers>
 
         <Frames>
+
+            <StatusBar parentKey="statusBar" minValue="0" maxValue="1" defaultValue="0" orientation="HORIZONTAL">
+                <Size x="25" y="10"/>
+                <Anchors>
+                    <Anchor point="TOPRIGHT">
+                        <offset x="-35" y="-6"/>
+                    </Anchor>
+                </Anchors>
+                <BarTexture file="Interface\TargetingFrame\UI-StatusBar"/>
+                <BarColor r="1.0" g="0.82" b="0.0"/>
+            </StatusBar>
+
+            <!-- <Frame frameStrata="DIALOG">
+                <Size x="50" y="50"/>
+                <Anchors>
+                    <Anchor point="BOTTOMRIGHT" x="5" y="-5"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="DIALOG">
+                        <Texture parentKey="background" atlas="Talent-BottomRightCurlies" setAllPoints="true" alpha="0.4"/>
+                    </Layer>
+                </Layers>
+                <Scripts>
+                    <OnLoad>
+                        self:RegisterForDrag("LeftButton")
+                    </OnLoad>
+                    <OnDragStart>
+                        self:GetParent():StartSizing()
+                    </OnDragStart>
+                    <OnDragStop>
+                        self:GetParent():StopMovingOrSizing()
+                    </OnDragStop>
+                    <OnEnter>
+                        self:SetAlpha(1)
+                    </OnEnter>
+                    <OnLeave>
+                        self:SetAlpha(0.4)
+                    </OnLeave>
+                </Scripts>
+            </Frame> -->
 
             <!-- <Frame parentKey="dropdown" inherits="GuildbookDropdown">
                 <Anchors>
@@ -658,6 +698,14 @@
             </Frame>
 
             <Frame parentKey="profiles" parentArray="frames" mixin="GuildbookProfilesMixin" setAllPoints="true" useParentLevel="true">
+                <Animations>
+                    <AnimationGroup parentKey="fadeOut" setToFinalAlpha="true">
+                        <Alpha duration="0.1" fromAlpha="1" toAlpha="0"/>
+                    </AnimationGroup>
+                    <AnimationGroup parentKey="fadeIn" setToFinalAlpha="true">
+                        <Alpha duration="0.8" fromAlpha="0" toAlpha="1"/>
+                    </AnimationGroup>
+                </Animations>
                 <Layers>
                     <Layer level="BACKGROUND">
                         <Texture parentKey="background" atlas="legionmission-complete-background-paladin" setAllPoints="true" alpha="0.4">
@@ -670,6 +718,12 @@
                 </Layers>
                 <Frames>
                     <Frame parentKey="sidePane" useParentLevel="true">
+                        <!-- <Animations>
+                            <AnimationGroup parentKey="anim" setToFinalAlpha="true">
+                                <Alpha parentKey="fadeOut" duration="0.5" fromAlpha="1" toAlpha="0"/>
+                                <Alpha parentKey="fadeIn" startDelay="0.5" duration="0.8" fromAlpha="0" toAlpha="1"/>
+                            </AnimationGroup>
+                        </Animations> -->
                         <Size x="240"/>
                         <Anchors>
                             <Anchor point="TOPLEFT" x="0" y="-25"/>
@@ -713,15 +767,60 @@
 
                     </Frame>
 
+                    <Frame parentKey="ribbon">
+                        <Size y="20"/>
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" relativeKey="$parent.sidePane" x="5" y="-5"/>
+                            <Anchor point="RIGHT" x="-30" y="0"/>
+                        </Anchors>
+                        <Frames>
+                            <Frame parentKey="myProfile" inherits="GuildbookSmallHighlightButton" enableMouse="true">
+                                <Size x="20" y="20"/>
+                                <Anchors>
+                                    <Anchor point="RIGHT" x="-5" y="0"/>
+                                </Anchors>
+                                <Layers>
+                                    <Layer level="BACKGROUND">
+                                        <Texture atlas="groupfinder-waitdot" setAllPoints="true"/>
+                                    </Layer>
+                                </Layers>
+                                <KeyValues>
+                                    <KeyValue key="tooltipText" value="My profile"/>
+                                </KeyValues>
+                                <Scripts>   
+                                    <OnMouseDown>
+                                        GuildbookButtonMixin.OnMouseDown(self)
+                                        <!-- self:GetParent():GetParent():Hide()
+                                        self:GetParent():GetParent():Show() -->
+                                        self:GetParent():GetParent():LoadCharacter("player")
+                                    </OnMouseDown>
+                                </Scripts>
+                            </Frame>
+
+                            <EditBox parentKey="searchBox" inherits="InputBoxTemplate" autoFocus="false">
+                                <Size x="200" y="20"/>
+                                <Anchors>
+                                    <Anchor point="CENTER" x="0" y="0"/>
+                                </Anchors>
+                            </EditBox>
+                        </Frames>
+                    </Frame>
+
                     <ScrollFrame parentKey="contentPane" inherits="UIPanelScrollFrameTemplate">
                         <!-- <Size x="240" y="350"/> -->
                         <Anchors>
-                            <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" relativeKey="$parent.sidePane" x="5" y="-5"/>
+                            <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" relativeKey="$parent.sidePane" x="5" y="-25"/>
                             <Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" relativeKey="$parent.sidePane" x="5" y="5"/>
                             <Anchor point="RIGHT" x="-30" y="0"/>
                         </Anchors>
                         <ScrollChild>
                             <Frame parentKey="scrollChild">
+                                <!-- <Animations>
+                                    <AnimationGroup parentKey="anim" setToFinalAlpha="true">
+                                        <Alpha parentKey="fadeOut" startDelay="0.0" duration="0.5" fromAlpha="1" toAlpha="0"/>
+                                        <Alpha parentKey="fadeIn" startDelay="0.5" duration="0.8" fromAlpha="0" toAlpha="1"/>
+                                    </AnimationGroup>
+                                </Animations> -->
                                 <Anchors>
                                     <Anchor point="LEFT" x="0" y="0"/>
                                     <Anchor point="RIGHT" x="0" y="0"/>
@@ -1276,6 +1375,7 @@
             <OnShow method="OnShow"/>
             <OnHide method="OnHide"/>
             <OnLoad method="OnLoad"/>
+            <OnUpdate method="OnUpdate"/>
             <OnDragStart>
                 self:StartMoving()
             </OnDragStart>

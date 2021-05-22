@@ -7,6 +7,8 @@ local DEBUG = gb.DEBUG
 
 local GUILD_NAME;
 
+
+--- basic button mixin
 GuildbookButtonMixin = {}
 
 function GuildbookButtonMixin:OnLoad()
@@ -32,7 +34,22 @@ function GuildbookButtonMixin:OnMouseUp()
     end
 end
 
+function GuildbookButtonMixin:OnEnter()
+    if self.tooltipText then
+        GameTooltip:SetOwner(self, 'ANCHOR_LEFT')
+        GameTooltip:AddLine("|cffffffff"..self.tooltipText)
+        GameTooltip:Show()
+    else
+        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+    end
+end
 
+function GuildbookButtonMixin:OnLeave()
+    GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+end
+
+
+--- basic button with an icon and text area
 GuildbookListviewItemMixin = {}
 
 function GuildbookListviewItemMixin:OnLoad()
@@ -62,7 +79,26 @@ function GuildbookListviewItemMixin:OnMouseUp()
 end
 
 
---- this is the mixin for the slide out menu items
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- slide out menu
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 GuildbookMenuFlyoutItemMixin = {}
 
 function GuildbookMenuFlyoutItemMixin:OnMouseDown()
@@ -91,7 +127,26 @@ function GuildbookMenuFlyoutItemMixin:OnLeave()
 end
 
 
---- this is the mixin for the icons shown on the recipe listview items
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- tradeskill lisview reagents icons mixin
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 GuildbookItemIconFrameMixin = {}
 
 function GuildbookItemIconFrameMixin:OnEnter()
@@ -124,7 +179,26 @@ function GuildbookItemIconFrameMixin:SetItem(itemID)
 end
 
 
---- character listview mixin
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- tradeskill character listview
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 GuildbookCharacterListviewItemMixin = {}
 
 function GuildbookCharacterListviewItemMixin:OnLoad()
@@ -206,7 +280,26 @@ function GuildbookCharacterListviewItemMixin:SendMessage_OnMouseUp()
 end
 
 
---- recipe listview mixin
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- recipe listview
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 GuildbookRecipeListviewItemMixin = {}
 
 function GuildbookRecipeListviewItemMixin:OnLoad()
@@ -223,6 +316,7 @@ function GuildbookRecipeListviewItemMixin:OnEnter()
             GameTooltip:SetHyperlink(self.link)
         end
         GameTooltip:Show()
+        self:GetParent():GetParent().professionListview:SetAlpha(0.3)
     else
         GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
     end
@@ -230,6 +324,7 @@ end
 
 function GuildbookRecipeListviewItemMixin:OnLeave()
     GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+    self:GetParent():GetParent().professionListview:SetAlpha(1)
 end
 
 function GuildbookRecipeListviewItemMixin:OnMouseDown()
@@ -277,6 +372,26 @@ function GuildbookRecipeListviewItemMixin:SetItem(itemID)
 end
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- roster listview
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 GuildbookRosterListviewItemMixin = {}
 GuildbookRosterListviewItemMixin.tooltipIcon = CreateFrame("FRAME", "GuildbookRosterListviewItemTooltipIcon")
 GuildbookRosterListviewItemMixin.tooltipIcon:SetSize(24, 24)
@@ -290,6 +405,9 @@ GuildbookRosterListviewItemMixin.tooltipIcon.mask:SetTexture("Interface/CHARACTE
 GuildbookRosterListviewItemMixin.tooltipIcon.icon:AddMaskTexture(GuildbookRosterListviewItemMixin.tooltipIcon.mask)
 
 function GuildbookRosterListviewItemMixin:OnEnter()
+    if not self.character then
+        return;
+    end
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
     local rPerc, gPerc, bPerc, argbHex = GetClassColor(self.character.class:upper())
     GameTooltip_SetTitle(GameTooltip, self.Name:GetText().."\n\n|cffffffff"..L['level'].." "..self.Level:GetText(), CreateColor(rPerc, gPerc, bPerc), nil)
@@ -307,14 +425,19 @@ function GuildbookRosterListviewItemMixin:OnEnter()
     end
 
    -- GameTooltip:AddLine(" ")
-    GameTooltip:AddDoubleLine(L['rankName'], "|cffffffff"..self.Rank:GetText())
-    GameTooltip:AddLine(" ")
-    GameTooltip:AddDoubleLine(L['location'], "|cffffffff"..self.Location:GetText())
-    GameTooltip:AddLine(" ")
-    GameTooltip:AddDoubleLine(L['Professions'], "|cffffffff"..self.character.prof1)
+    -- GameTooltip:AddDoubleLine(L['rankName'], "|cffffffff"..self.Rank:GetText())
+    -- GameTooltip:AddLine(" ")
+    -- GameTooltip:AddDoubleLine(L['location'], "|cffffffff"..self.Location:GetText())
+    -- GameTooltip:AddLine(" ")
+    GameTooltip:AddDoubleLine(L['Professions'], "|cffffffff"..(self.character.prof1 or ""))
     --GameTooltip_ShowStatusBar(GameTooltip, 0, 300, 245)
     --GameTooltip_ShowProgressBar(GameTooltip, 0, 300, 245)
-    GameTooltip:AddDoubleLine(" ", "|cffffffff"..self.character.prof2)
+    GameTooltip:AddDoubleLine(" ", "|cffffffff"..(self.character.prof2 or ""))
+    if self.PublicNote:GetText() and #self.PublicNote:GetText() > 0 then
+        GameTooltip:AddLine(" ")
+        GameTooltip:AddDoubleLine(L['publicNote'], "|cffffffff"..self.PublicNote:GetText())
+    end
+
     GameTooltip:Show()
 end
 
@@ -399,11 +522,30 @@ function GuildbookRosterListviewItemMixin:OnMouseUp()
 end
 
 
---- addon main mixin
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- main mixin
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 GuildbookMixin = {}
 GuildbookMixin.selectedProfession = nil;
 GuildbookMixin.characterWithProfession = {}
-GuildbookMixin.containerItems = {}
+GuildbookMixin.playerContainerItems = {}
 
 local function scanPlayerBags()
     -- player bags
@@ -412,10 +554,10 @@ local function scanPlayerBags()
             local id = select(10, GetContainerItemInfo(bag, slot))
             local count = select(2, GetContainerItemInfo(bag, slot))
             if id and count then
-                if not GuildbookUI.containerItems[id] then
-                    GuildbookUI.containerItems[id] = count
+                if not GuildbookUI.playerContainerItems[id] then
+                    GuildbookUI.playerContainerItems[id] = count
                 else
-                    GuildbookUI.containerItems[id] = GuildbookUI.containerItems[id] + count
+                    GuildbookUI.playerContainerItems[id] = GuildbookUI.playerContainerItems[id] + count
                 end
             end
         end
@@ -424,16 +566,16 @@ end
 
 local function scanPlayerBanks(scanBags)
     -- clear all container data if its from the bank
-    wipe(GuildbookMixin.containerItems)
+    wipe(GuildbookMixin.playerContainerItems)
     -- main bank
     for slot = 1, 28 do
         local id = select(10, GetContainerItemInfo(-1, slot))
         local count = select(2, GetContainerItemInfo(-1, slot))
         if id and count then
-            if not GuildbookUI.containerItems[id] then
-                GuildbookUI.containerItems[id] = count
+            if not GuildbookUI.playerContainerItems[id] then
+                GuildbookUI.playerContainerItems[id] = count
             else
-                GuildbookUI.containerItems[id] = GuildbookUI.containerItems[id] + count
+                GuildbookUI.playerContainerItems[id] = GuildbookUI.playerContainerItems[id] + count
             end
         end
     end
@@ -444,10 +586,10 @@ local function scanPlayerBanks(scanBags)
             local id = select(10, GetContainerItemInfo(bag, slot))
             local count = select(2, GetContainerItemInfo(bag, slot))
             if id and count then
-                if not GuildbookUI.containerItems[id] then
-                    GuildbookUI.containerItems[id] = count
+                if not GuildbookUI.playerContainerItems[id] then
+                    GuildbookUI.playerContainerItems[id] = count
                 else
-                    GuildbookUI.containerItems[id] = GuildbookUI.containerItems[id] + count
+                    GuildbookUI.playerContainerItems[id] = GuildbookUI.playerContainerItems[id] + count
                 end
             end
         end
@@ -463,6 +605,11 @@ local function navigateTo(frame)
         f:Hide()
     end
     frame:Show()
+end
+
+function GuildbookMixin:OpenTo(frame)
+    navigateTo(self[frame])
+    self:Show()
 end
 
 function GuildbookMixin:OnHide()
@@ -482,12 +629,14 @@ function GuildbookMixin:OnShow()
     end)
 
     scanPlayerBags()
+
+
 end
 
 function GuildbookMixin:OnLoad()
     self:RegisterForDrag("LeftButton")
     SetPortraitToTexture(GuildbookUIPortrait,134068)
-    GuildbookUITitleText:SetText("v0.0.1")
+    --GuildbookUITitleText:SetText("v0.0.1")
 
     self.menu.isOut = false;
 
@@ -574,6 +723,39 @@ end
 
 
 
+function GuildbookMixin:OnUpdate()
+    if self.statusBar.active then
+        local remaining = 1 - ((self.statusBar.endTime - GetTime()) / self.statusBar.duration)
+        self.statusBar:SetValue(remaining)
+        if remaining > 0.9 then
+            self.statusBar.active = false;
+            self.statusBar:SetValue(0)
+            self.statusText:SetText(" ")
+        end
+    end
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- tradeskill mixin
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 GuildbookProfessionListviewMixin = {}
 GuildbookProfessionListviewMixin.recipesProcessed = 0;
 
@@ -676,28 +858,38 @@ function GuildbookProfessionListviewMixin:OnLoad()
         f:SetPoint("TOP", 0, ((i-1)*-45)-2)
         f:SetItem(prof)
         f.func = function()
-            wipe(GuildbookMixin.characterWithProfession)
-            GuildbookProfessionListviewMixin.recipesProcessed = 0;
-            GuildbookMixin.selectedProfession = prof.Name;
-            for guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME]) do
-                if character.Profession1 and character.Profession1 == prof.Name then
-                    table.insert(GuildbookMixin.characterWithProfession, guid)
-                elseif character.Profession2 and character.Profession2 == prof.Name then
-                    table.insert(GuildbookMixin.characterWithProfession, guid)
+            if GUILD_NAME then
+                wipe(GuildbookMixin.characterWithProfession)
+                GuildbookProfessionListviewMixin.recipesProcessed = 0;
+                GuildbookMixin.selectedProfession = prof.Name;
+                for guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME]) do
+                    if character.Profession1 and character.Profession1 == prof.Name then
+                        table.insert(GuildbookMixin.characterWithProfession, guid)
+                        --print("found", character.Name, "with prof", prof.Name)
+                    elseif character.Profession2 and character.Profession2 == prof.Name then
+                        table.insert(GuildbookMixin.characterWithProfession, guid)
+                        --print("found", character.Name, "with prof", prof.Name)
+                    end
                 end
-            end
-            scanPlayerBags()
-            if #GuildbookMixin.characterWithProfession > 0 then
-                wipe(GuildbookUI.tradeskills.recipesListview.recipes)
-                local recipes = {}
-                for k, guid in ipairs(GuildbookMixin.characterWithProfession) do
-                    local character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][guid]
-                    if character[prof.Name] and next(character[prof.Name]) then
-                        for itemID, reagents in pairs(character[prof.Name]) do
-                            if not recipes[itemID] then
-                                recipes[itemID] = true;
-                                addRecipe(prof.Name, itemID, reagents)
+                scanPlayerBags()
+                if #GuildbookMixin.characterWithProfession > 0 then
+                    wipe(GuildbookUI.tradeskills.recipesListview.recipes)
+                   -- print("wiping table")
+                    local recipes = {}
+                    for k, guid in ipairs(GuildbookMixin.characterWithProfession) do
+                        local character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][guid]
+                        --print(character.Name)
+                        if character[prof.Name]  then
+                            --print("looping character recipes")
+                            for itemID, reagents in pairs(character[prof.Name]) do
+                                if not recipes[itemID] then
+                                    recipes[itemID] = true;
+                                    addRecipe(prof.Name, itemID, reagents)
+                                    --print("adding recipe", itemID)
+                                end
                             end
+                        else
+                            --print("prof not found in character table")
                         end
                     end
                 end
@@ -713,9 +905,28 @@ end
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- tradeskill recipes listview
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 GuildbookRecipesListviewMixin = {}
 GuildbookRecipesListviewMixin.rows = {}
 GuildbookRecipesListviewMixin.recipes = {}
+local NUM_RECIPE_ROWS = 17
 
 local function getPlayersWithRecipe(recipeID)
     if not recipeID then
@@ -744,7 +955,6 @@ local function getPlayersWithRecipe(recipeID)
     return characters;
 end
 
-local NUM_RECIPE_ROWS = 17
 
 function GuildbookRecipesListviewMixin:OnLoad()
     for row = 1, NUM_RECIPE_ROWS do
@@ -841,10 +1051,10 @@ function GuildbookRecipesListviewMixin:ScrollBar_OnValueChanged()
                 local i = 1;
                 for reagentID, count in pairs(self.recipes[scrollPos + row].reagents) do
                     if self.rows[row].reagentIcons[i] then
-                        if GuildbookUI.containerItems[reagentID] then
-                            if GuildbookUI.containerItems[reagentID] >= count then
+                        if GuildbookUI.playerContainerItems[reagentID] then
+                            if GuildbookUI.playerContainerItems[reagentID] >= count then
                                 self.rows[row].reagentIcons[i].greenBorder:Show()
-                            elseif GuildbookUI.containerItems[reagentID] < count then
+                            elseif GuildbookUI.playerContainerItems[reagentID] < count then
                                 self.rows[row].reagentIcons[i].purpleBorder:Show()
                             end
                         else
@@ -866,6 +1076,26 @@ function GuildbookRecipesListviewMixin:OnMouseWheel(delta)
 end
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- tradeskill characters listview
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 GuildbookCharactersListviewMixin = {}
 GuildbookCharactersListviewMixin.rows = {}
 
@@ -893,6 +1123,25 @@ end
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- roster listview
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 GuildbookRosterMixin = {}
 GuildbookRosterMixin.rows = {}
 GuildbookRosterMixin.roster = {}
@@ -950,8 +1199,10 @@ function GuildbookRosterMixin:OnLoad()
     for _, button in pairs(self.sortButtons) do
         button:SetText(L[button.sort])
         button.order = true
-        button:SetScript("OnClick", function()            
-            self:SortRoster(button.sort, button.order)
+        button:SetScript("OnClick", function()
+            self.rosterSort = button.sort
+            self.rosterSortOrder = button.order
+            self:SortRoster()
             button.order = not button.order;
         end)
     end
@@ -959,12 +1210,13 @@ end
 
 function GuildbookRosterMixin:OnShow()
     GUILD_NAME = gb:GetGuildName()
-    if not self.roster[1] then
-        self:ParseGuildRoster()
-    end
+    GuildRoster()
+    --if not self.roster[1] then
+        self:ParseGuildRoster(true)
+    --end
 end
 
-function GuildbookRosterMixin:ParseGuildRoster()
+function GuildbookRosterMixin:ParseGuildRoster(playAnim)
     self.characterStatus = {}
     local totalMembers, _, _ = GetNumGuildMembers()
     for i = 1, totalMembers do
@@ -978,7 +1230,7 @@ function GuildbookRosterMixin:ParseGuildRoster()
             rankName = _rankName,
         }
         if i == totalMembers then
-            self:LoadCharacters()
+            self:LoadCharacters(playAnim)
         end
     end
 end
@@ -1009,7 +1261,7 @@ function GuildbookRosterMixin:PlayRowAnim()
     end
 end
 
-function GuildbookRosterMixin:LoadCharacters()
+function GuildbookRosterMixin:LoadCharacters(playAnim)
     if not GUILD_NAME then
         return;
     end
@@ -1027,33 +1279,37 @@ function GuildbookRosterMixin:LoadCharacters()
     local i = 1;
     for guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME]) do
         local _class = string.sub(character.Class, 1, 1):upper()..string.sub(character.Class, 2)
-        table.insert(self.roster, {
-            guid = guid,
-            class = _class,
-            race = character.Race,
-            gender = character.Gender,
-            name = character.Name,
-            level = character.Level,
-            mainSpec = character.MainSpec or "-",
-            prof1 = character.Profession1 or "-",
-            prof2 = character.Profession2 or "-",
-            selected = false,
-            isOnline = self.characterStatus[guid].isOnline,
-            location = self.characterStatus[guid].zone or "-",
-            rankName = self.characterStatus[guid].rankName,
-            publicNote = self.characterStatus[guid].publicNote,
-            officernote = self.characterStatus[guid].officerNote,
-        })
+        if self.characterStatus and self.characterStatus[guid] then
+            table.insert(self.roster, {
+                guid = guid,
+                class = _class,
+                race = character.Race,
+                gender = character.Gender,
+                name = character.Name,
+                level = character.Level,
+                mainSpec = character.MainSpec or "-",
+                prof1 = character.Profession1 or "-",
+                prof2 = character.Profession2 or "-",
+                selected = false,
+                isOnline = self.characterStatus[guid].isOnline,
+                location = self.characterStatus[guid].zone or "-",
+                rankName = self.characterStatus[guid].rankName,
+                publicNote = self.characterStatus[guid].publicNote,
+                officernote = self.characterStatus[guid].officerNote,
+            })
+        end
         if i == numChars then
-            self:ForceRosterListviewRefresh()
+            self:ForceRosterListviewRefresh(playAnim)
         else
             i = i + 1;
         end
     end
 end
 
-function GuildbookRosterMixin:ForceRosterListviewRefresh()
-    self:PlayRowAnim()
+function GuildbookRosterMixin:ForceRosterListviewRefresh(playAnim)
+    if playAnim then
+        self:PlayRowAnim()
+    end
     if self.roster and next(self.roster) then
         --this is to trigger a refresh by calling the scroll value changed func
         self.memberListview.scrollBar:SetMinMaxValues(1,2)
@@ -1063,13 +1319,17 @@ function GuildbookRosterMixin:ForceRosterListviewRefresh()
             self.memberListview.scrollBar:SetValue(2)
             self.memberListview.scrollBar:SetValue(1)
         end)
-        table.sort(self.roster, function(a,b)
-            if a.level == b.level then
-                return a.name < b.name
-            else
-                return a.level > b.level;
-            end
-        end)
+        if self.rosterSort and self.rosterSortOrder then
+            self:SortRoster(self.rosterSort, self.rosterSortOrder)
+        else
+            table.sort(self.roster, function(a,b)
+                if a.level == b.level then
+                    return a.name < b.name
+                else
+                    return a.level > b.level;
+                end
+            end)
+        end
         self.memberListview.scrollBar:SetMinMaxValues(1,(#self.roster>NUM_ROSTER_ROWS) and #self.roster-(NUM_ROSTER_ROWS-1) or 1)
         self.memberListview.scrollBar:SetValue(1)
     end
@@ -1099,8 +1359,10 @@ function GuildbookRosterMixin:OnMouseWheel(delta)
     self.memberListview.scrollBar:SetValue(x - delta)
 end
 
-function GuildbookRosterMixin:SortRoster(sort, order)
+function GuildbookRosterMixin:SortRoster()
     if self.roster and next(self.roster) then
+        local order = self.rosterSortOrder
+        local sort = self.rosterSort
         --this is to trigger a refresh by calling the scroll value changed func
         self.memberListview.scrollBar:SetMinMaxValues(1,2)
         self.memberListview.scrollBar:SetValue(2)
@@ -1154,12 +1416,39 @@ end
 
 function GuildbookRosterMixin:RowOpenProfile_OnMouseDown(row)
     if GUILD_NAME then
-        self:GetParent().profiles.character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][row.character.guid]
+        local character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][row.character.guid]
+        self:GetParent().profiles.character = character;
+        self:GetParent().profiles:LoadCharacter()
     end
+
+    GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+end
+
+function GuildbookRosterMixin:RowOpenProfile_OnMouseUp(row)
     navigateTo(self:GetParent().profiles)
 end
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- chats
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 GuildbookChatsMixin = {}
 GuildbookChatsMixin.chat = "guild"; -- use as default
 GuildbookChatsMixin.target = nil; -- use as default
@@ -1512,6 +1801,24 @@ end
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- profiles
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 GuildbookProfilesMixin = {}
 GuildbookProfilesMixin.character = nil;
 GuildbookProfilesMixin.characterModels = {}
@@ -1584,54 +1891,78 @@ end
 
 function GuildbookProfilesMixin:OnHide()
     if not self.character then
-        return
+        self:HideInventoryIcons()
+        self:HideTalentIcons()
+        self.background:SetTexture(nil)
+        self.sidePane.background:SetTexture(nil)
+        --self.fadeOut:Play()
     end
-    self:HideInventoryIcons()
 end
 
 function GuildbookProfilesMixin:HideInventoryIcons()
     for _, slot in ipairs(gb.Data.InventorySlotNames) do
         self.contentPane.scrollChild.inventory[slot.Name].Icon:SetAtlas("transmog-icon-remove")
         self.contentPane.scrollChild.inventory[slot.Name].Link:SetText("")
+        self.contentPane.scrollChild.inventory[slot.Name].link = nil;
         self.contentPane.scrollChild.inventory[slot.Name]:SetAlpha(0)
     end
 end
 
 function GuildbookProfilesMixin:OnShow()
-    self:LoadCharacter()
-
-
     GUILD_NAME = gb:GetGuildName()
+    if not GUILD_NAME then
+        return
+    end
+
+    --self:LoadCharacter()
 end
 
-function GuildbookProfilesMixin:LoadCharacter()
+function GuildbookProfilesMixin:LoadCharacter(player)
+    if player and player == "player" then
+        self.character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][UnitGUID("player")]
+    end
     self:HideCharacterModels()
     self:HideInventoryIcons()
+    self:HideTalentIcons()
     if self.character then
 
-        -- this area will need to be monitored and maybe adjusted to work nicely with chat throttles etc
+        self:GetParent().statusBar:SetValue(0)
+        self:GetParent().statusBar.duration = 1.0 + gb.COMMS_DELAY
+        self:GetParent().statusBar.endTime = GetTime() + self:GetParent().statusBar.duration
+        self:GetParent().statusBar.active = true
         gb:CharacterDataRequest(self.character.Name)
-        gb:SendInventoryRequest(self.character.Name)
-        gb:SendTalentInfoRequest(self.character.Name, 'primary')
-        if self.character.Profession1 then
-            gb:SendTradeSkillsRequest(self.character.Name, self.character.Profession1)
-        end
-        if self.character.Profession2 then
-            gb:SendTradeSkillsRequest(self.character.Name, self.character.Profession2)
-        end
+        C_Timer.After(0.2, function()
+            self:GetParent().statusText:SetText("requesting character data")
+            gb:SendInventoryRequest(self.character.Name)
+        end)
+        C_Timer.After(0.4, function()
+            self:GetParent().statusText:SetText("requesting talents")
+            gb:SendTalentInfoRequest(self.character.Name, 'primary')
+        end)
+        C_Timer.After(0.6, function()
+            if self.character.Profession1 then
+                self:GetParent().statusText:SetText("requesting profession 1")
+                gb:SendTradeSkillsRequest(self.character.Name, self.character.Profession1)
+            end
+        end)
+        C_Timer.After(0.8, function()
+            if self.character.Profession2 then
+                self:GetParent().statusText:SetText("requesting profession 2")
+                gb:SendTradeSkillsRequest(self.character.Name, self.character.Profession2)
+            end
+        end)
 
-        print(self.character.prof1)
-
-        C_Timer.After(1, function()
-            self:LoadTalents("primary")
-            self:LoadInventory()
-            self:LoadStats()
+        C_Timer.After(gb.COMMS_DELAY + 1.0, function()
+            --self:LoadTalents("primary")
+            --self:LoadInventory()
+            --self:LoadStats()
             if self.character.Inventory and self.character.Inventory.Current and next(self.character.Inventory.Current) and self.character.Race and self.character.Gender and self.characterModels[self.character.Race:upper()] and self.characterModels[self.character.Race:upper()][self.character.Gender:upper()] then
                 self.defaultModel:Hide()
                 self.characterModels[self.character.Race:upper()][self.character.Gender:upper()]:Show()
             else
                 self.defaultModel:Show()
             end
+            --self.fadeIn:Play()
             self.background:SetAtlas("legionmission-complete-background-"..(self.character.Class:lower()))
             self.sidePane.background:SetAtlas("transmog-background-race-"..(self.character.Race:lower()))
             self.sidePane.name:SetText(self.character.Name)
@@ -1898,13 +2229,18 @@ function GuildbookProfilesMixin:HideTalentIcons()
             end
         end
     end
-    
+    self.contentPane.scrollChild.talents.tree1:SetTexture(nil)
+    self.contentPane.scrollChild.talents.tree1:SetAlpha(0.6)
+    self.contentPane.scrollChild.talents.tree2:SetTexture(nil)
+    self.contentPane.scrollChild.talents.tree2:SetAlpha(0.6)
+    self.contentPane.scrollChild.talents.tree3:SetTexture(nil)
+    self.contentPane.scrollChild.talents.tree3:SetAlpha(0.6)
 end
 
 function GuildbookProfilesMixin:LoadTalents(spec)
+    self:HideTalentIcons()
     if self.character and self.character.Talents then
         if self.character.Talents[spec] then
-            self:HideTalentIcons()
             DEBUG('func', 'ProfilesFrame:Load Talents', 'loading character talents')
             for k, info in ipairs(self.character.Talents[spec]) do
                 --print(info.Name, info.Rank, info.MaxRank, info.Icon, info.Tab, info.Row, info.Col)
