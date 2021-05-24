@@ -293,6 +293,26 @@
         </Scripts>
     </Frame>
 
+    <Frame name="GuildbookAvatarFrame" mixin="GuildbookAvatarMixin" enableMouse="true" virtual="true">
+        <Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="Background"  setAllPoints="true"/>
+			</Layer>
+			<Layer level="HIGHLIGHT">
+				<Texture parentKey="Highlight" atlas="GarrMission_CurrentEncounter-Glow">
+                    <Anchors>
+						<Anchor point="TOPLEFT" x="-20" y="20"/>
+						<Anchor point="BOTTOMRIGHT" x="20" y="-20"/>
+					</Anchors>
+                </Texture>
+			</Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnMouseDown method="OnMouseDown"/>
+        </Scripts>
+    </Frame>
+
     <Frame name="GuildbookCharacterListviewItem" mixin="GuildbookCharacterListviewItemMixin" virtual="true" enableMouse="true">
         <Layers>
 			<Layer level="BACKGROUND">
@@ -773,6 +793,13 @@
                             <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" relativeKey="$parent.sidePane" x="5" y="-5"/>
                             <Anchor point="RIGHT" x="-30" y="0"/>
                         </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture setAllPoints="true">
+                                    <Color r="0" g="0" b="0" a="0.15"/>
+                                </Texture>
+                            </Layer>
+                        </Layers>
                         <Frames>
                             <Frame parentKey="myProfile" inherits="GuildbookSmallHighlightButton" enableMouse="true">
                                 <Size x="20" y="20"/>
@@ -806,6 +833,33 @@
                         </Frames>
                     </Frame>
 
+                    <Frame parentKey="avatarPicker" mixin="GuildbookAvatarPickerMixin" inherits="BasicFrameTemplate" hidden="true">
+                        <Size x="275"/>
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" relativeTo="GuildbookUI" x="5" y="0"/>
+                            <Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" relativeTo="GuildbookUI" x="5" y="0"/>
+                        </Anchors>
+                        <Scripts>
+                            <OnLoad method="OnLoad"/>
+                        </Scripts>
+                        <Frames>
+                            <Slider parentKey="scrollBar" inherits="UIPanelScrollBarTemplate" orientation="VERTICAL">
+                                <Anchors>
+                                    <Anchor point="TOPRIGHT" x="-6" y="-42"/>
+                                    <Anchor point="BOTTOMRIGHT" x="-6" y="20"/>
+                                </Anchors>
+                                <Scripts>
+                                    <OnValueChanged>
+                                        self:GetParent():ScrollBar_OnValueChanged()
+                                    </OnValueChanged>
+                                </Scripts>
+                            </Slider>
+                        </Frames>
+                        <Scripts>
+                            <OnMouseWheel method="OnMouseWheel"/>
+                        </Scripts>
+                    </Frame>
+
                     <ScrollFrame parentKey="contentPane" inherits="UIPanelScrollFrameTemplate">
                         <!-- <Size x="240" y="350"/> -->
                         <Anchors>
@@ -827,7 +881,159 @@
                                 </Anchors>
                                 <Frames>
 
-                                    <Frame parentKey="inventory">
+                                    <Frame parentKey="profile" parentArray="frames">
+                                        <Size y="200"/>
+                                        <Layers>
+                                            <Layer level="BACKGROUND">
+
+                                            </Layer>
+                                            <Layer level="OVERLAY">
+                                                <FontString inherits="Acme" parentArray="localStrings">
+                                                    <Anchors>
+                                                        <Anchor point="TOP" x="0" y="-5"/>
+                                                    </Anchors>
+                                                    <KeyValues>
+                                                        <KeyValue key="locale" value="PROFILE_TITLE" type="string"/>
+                                                    </KeyValues>
+                                                </FontString>
+
+                                                <FontString parentKey="realNameLabel" parentArray="localStrings" inherits="GameFontNormal" justifyH="LEFT">
+                                                    <Size x="75" y="25"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOPLEFT" x="20" y="-25"/>
+                                                    </Anchors>
+                                                    <KeyValues>
+                                                        <KeyValue key="locale" value="REAL_NAME" type="string"/>
+                                                    </KeyValues>
+                                                </FontString>
+                                                <FontString parentKey="realName" parentArray="displayStrings" inherits="GameFontNormal" justifyH="LEFT">
+                                                    <Size x="175" y="25"/>
+                                                    <Anchors>
+                                                        <Anchor relativeKey="$parent.realNameLabel" relativePoint="RIGHT" point="LEFT" x="20" y="0"/>
+                                                    </Anchors>
+                                                </FontString>
+
+                                                <FontString parentKey="avatarLabel" parentArray="localStrings" inherits="GameFontNormal" justifyH="LEFT">
+                                                    <Size x="75" y="25"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOPLEFT" x="355" y="-25"/>
+                                                    </Anchors>
+                                                    <KeyValues>
+                                                        <KeyValue key="locale" value="AVATAR" type="string"/>
+                                                    </KeyValues>
+                                                </FontString>
+
+                                                <FontString parentKey="realDobLabel" parentArray="localStrings" inherits="GameFontNormal" justifyH="LEFT">
+                                                    <Size x="75" y="25"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOPLEFT" x="20" y="-55"/>
+                                                    </Anchors>
+                                                    <KeyValues>
+                                                        <KeyValue key="locale" value="REAL_DOB" type="string"/>
+                                                    </KeyValues>
+                                                </FontString>
+                                                <FontString parentKey="realDob" parentArray="displayStrings" inherits="GameFontNormal" justifyH="LEFT">
+                                                    <Size x="175" y="25"/>
+                                                    <Anchors>
+                                                        <Anchor relativeKey="$parent.realDobLabel" relativePoint="RIGHT" point="LEFT" x="20" y="0"/>
+                                                    </Anchors>
+                                                </FontString>
+
+                                                <FontString parentKey="realBioLabel" parentArray="localStrings" inherits="GameFontNormal" justifyH="LEFT">
+                                                    <Size x="75" y="25"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOPLEFT" x="20" y="-85"/>
+                                                    </Anchors>
+                                                    <KeyValues>
+                                                        <KeyValue key="locale" value="REAL_BIO" type="string"/>
+                                                    </KeyValues>
+                                                </FontString>
+                                                <FontString parentKey="realBio" parentArray="displayStrings" inherits="GameFontNormal" justifyH="LEFT" justifyV="TOP">
+                                                    <Size x="230" y="90"/>
+                                                    <Anchors>
+                                                        <Anchor relativeKey="$parent.realBioLabel" relativePoint="TOPRIGHT" point="TOPLEFT" x="20" y="-6"/>
+                                                    </Anchors>
+                                                </FontString>
+                                            </Layer>
+                                        </Layers>
+                                        <Frames>
+                                            <Frame parentKey="edit" inherits="GuildbookSmallHighlightButton">
+                                                <Size x="20" y="20"/>
+                                                <Anchors>
+                                                    <Anchor point="TOPRIGHT" x="-5" y="--5"/>
+                                                </Anchors>
+                                                <Layers>
+                                                    <Layer level="BACKGROUND">
+                                                        <Texture atlas="AdventureMap-combatally-empty" setAllPoints="true"/>
+                                                    </Layer>
+                                                </Layers>
+                                                <KeyValues>
+                                                    <KeyValue key="tooltipText" value="Edit"/>
+                                                </KeyValues>
+                                                <Scripts>
+                                                    <OnLoad>
+                                                        self.editOpen = false;
+                                                    </OnLoad> 
+                                                    <OnMouseDown>
+                                                        self:GetParent():GetParent():GetParent():GetParent():Edit_OnMouseDown(self)
+                                                    </OnMouseDown>
+                                                </Scripts>
+                                            </Frame>
+
+                                            <EditBox parentKey="realNameInput" parentArray="displayEdit" inherits="InputBoxTemplate" autoFocus="false" hidden="true">
+                                                <Size x="150" y="20"/>
+                                                <Anchors>
+                                                    <Anchor relativeKey="$parent.realNameLabel" relativePoint="RIGHT" point="LEFT" x="20" y="0"/>
+                                                </Anchors>
+                                                <Scripts>
+                                                    <OnTextChanged>
+                                                        self:GetParent():GetParent():GetParent():GetParent():MyProfile_OnEditChanged("realName", self:GetText())
+                                                    </OnTextChanged>
+                                                </Scripts>
+                                            </EditBox>
+                                            <EditBox parentKey="realDobInput" parentArray="displayEdit" inherits="InputBoxTemplate" autoFocus="false" hidden="true">
+                                                <Size x="150" y="20"/>
+                                                <Anchors>
+                                                    <Anchor relativeKey="$parent.realDobLabel" relativePoint="RIGHT" point="LEFT" x="20" y="0"/>
+                                                </Anchors>
+                                                <Scripts>
+                                                    <OnTextChanged>
+                                                        self:GetParent():GetParent():GetParent():GetParent():MyProfile_OnEditChanged("realDob", self:GetText())
+                                                    </OnTextChanged>
+                                                </Scripts>
+                                            </EditBox>
+                                            <ScrollFrame parentKey="realBioInput" parentArray="displayEdit" inherits="InputScrollFrameTemplate" hidden="true">
+                                                <Size x="230" y="50"/>
+                                                <KeyValue key="maxLetters" value="200" type="number"/>
+                                                <KeyValue key="hideCharCount" value="false" type="boolean"/>
+                                                <Anchors>
+                                                    <Anchor relativeKey="$parent.realBioLabel" relativePoint="TOPRIGHT" point="TOPLEFT" x="20" y="-6"/>
+                                                </Anchors>
+                                            </ScrollFrame>
+
+                                            <Frame parentKey="avatar" inherits="GuildbookAvatarFrame">
+                                                <Size x="80" y="80"/>
+                                                <Anchors>
+                                                    <Anchor relativeKey="$parent.avatarLabel" relativePoint="TOPRIGHT" point="TOPLEFT" x="20" y="0"/>
+                                                </Anchors>
+                                                <Scripts>
+                                                    <OnEnter>
+                                                        self.Highlight:Hide()
+                                                    </OnEnter>
+                                                    <OnLeave>
+                                                        self.Highlight:Show()
+                                                    </OnLeave>
+                                                    <OnMouseDown>
+                                                        if self:GetParent().edit.editOpen == true then
+                                                            GuildbookUI.profiles.avatarPicker:Show()
+                                                        end
+                                                    </OnMouseDown>
+                                                </Scripts>
+                                            </Frame>
+                                        </Frames>
+                                    </Frame>
+
+                                    <Frame parentKey="inventory" parentArray="frames">
                                         <Size y="350"/>
                                         <Anchors>
                                             <Anchor point="TOPLEFT" x="0" y="0"/>
@@ -945,7 +1151,7 @@
                                         </Frames>
                                     </Frame>
 
-                                    <Frame parentKey="stats">
+                                    <Frame parentKey="stats" parentArray="frames">
                                         <Size y="400"/>
                                         <Anchors>
                                             <Anchor point="TOPLEFT" x="0" y="-350"/>
@@ -1000,7 +1206,7 @@
                                         </Frames>
                                     </Frame>
 
-                                    <Frame parentKey="talents">
+                                    <Frame parentKey="talents" parentArray="frames">
                                         <Size y="480"/>
                                         <Anchors>
                                             <Anchor point="TOPLEFT" x="0" y="-750"/>

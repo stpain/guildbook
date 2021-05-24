@@ -19,8 +19,9 @@ end
 
 function GuildbookButtonMixin:OnShow()
     --self.anchor:SetPoint(self);
-
-    self:SetPoint(self.point, self.relativeTo, self.relativePoint, self.xOfs, self.yOfs)
+    if self.point and self.relativeTo and self.relativePoint and self.xOfs and self.yOfs then
+        self:SetPoint(self.point, self.relativeTo, self.relativePoint, self.xOfs, self.yOfs)
+    end
 end
 
 function GuildbookButtonMixin:OnMouseDown()
@@ -438,6 +439,21 @@ function GuildbookRosterListviewItemMixin:OnEnter()
         GameTooltip:AddDoubleLine(L['publicNote'], "|cffffffff"..self.PublicNote:GetText())
     end
 
+    -- i contacted the author of attune to check it was ok to add their addon data 
+    if Attune_DB and Attune_DB.toons[self.character.name.."-"..GetRealmName()] then
+        GameTooltip:AddLine(" ")
+        GameTooltip:AddLine(L["attunements"])
+
+        local db = Attune_DB.toons[self.character.name.."-"..GetRealmName()]
+
+        for _, instance in ipairs(Attune_Data.attunes) do
+            if db.attuned[instance.ID] and type(db.attuned[instance.ID]) == "number" and instance.FACTION == "Both" or instance.FACTION == GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][self.character.guid].Faction then
+                local formatPercent = db.attuned[instance.ID] < 100 and "|cffff0000"..db.attuned[instance.ID].."%" or "|cff00ff00"..db.attuned[instance.ID].."%"
+                GameTooltip:AddDoubleLine("|cffffffff"..instance.NAME, formatPercent)
+            end
+        end
+    end
+
     GameTooltip:Show()
 end
 
@@ -525,6 +541,17 @@ end
 
 
 
+GuildbookAvatarMixin = {}
+
+function GuildbookAvatarMixin:OnLoad()
+
+end
+
+function GuildbookAvatarMixin:OnMouseDown()
+    if self.func then
+        self.func()
+    end
+end
 
 
 
@@ -719,6 +746,7 @@ function GuildbookMixin:OnLoad()
     --         func = function() print(3) end,
     --     },
     -- }
+
 end
 
 
@@ -738,7 +766,90 @@ end
 
 
 
+GuildbookAvatarPickerMixin = {}
 
+function GuildbookAvatarPickerMixin:OnLoad()
+    -- 1066622 blank icon
+
+    self.avatars = {}
+    for i = 1066003, 1066533 do
+        table.insert(self.avatars, {
+            fileID = i
+        })
+    end
+    for i = 1067178, 1067332 do
+        table.insert(self.avatars, {
+            fileID = i
+        })
+    end
+    for i = 1067334, 1067476 do
+        table.insert(self.avatars, {
+            fileID = i
+        })
+    end
+    for i = 1396616, 1396708 do
+        table.insert(self.avatars, {
+            fileID = i
+        })
+    end
+    for i = 1401832, 1401894 do
+        table.insert(self.avatars, {
+            fileID = i
+        })
+    end
+    for i = 1416162, 1416410 do
+        table.insert(self.avatars, {
+            fileID = i
+        })
+    end
+    for i = 1416417, 1416429 do
+        table.insert(self.avatars, {
+            fileID = i
+        })
+    end
+
+    self.gridview = {}
+    local i = 1;
+    for col = 0, 2 do
+        for row = 0, 5 do
+            local f = CreateFrame("FRAME", nil, self, "GuildbookAvatarFrame")
+            f:SetPoint("TOPLEFT", (col * 85) + 5, ((row * 80) * -1) - 25)
+            f:SetSize(70,70)
+            f:EnableMouse(true)
+            f.Background:SetTexture(self.avatars[i].fileID)
+            f.avatar = self.avatars[i]
+
+            f.func = function()
+                GuildbookUI.profiles.contentPane.scrollChild.profile.avatar.Background:SetTexture(f.avatar.fileID)
+                if not GUILDBOOK_CHARACTER then
+                    GUILDBOOK_CHARACTER = {}
+                end
+                if not GUILDBOOK_CHARACTER.profile then
+                    GUILDBOOK_CHARACTER.profile = {}
+                end
+                GUILDBOOK_CHARACTER.profile.avatar = f.avatar.fileID
+            end
+
+            self.gridview[i] = f;
+            i = i + 1;
+        end
+    end
+
+    self.scrollBar:SetMinMaxValues(1, #self.avatars-17)
+end
+
+function GuildbookAvatarPickerMixin:OnMouseWheel(delta)
+    local x = self.scrollBar:GetValue()
+    self.scrollBar:SetValue(x - delta)
+end
+
+function GuildbookAvatarPickerMixin:ScrollBar_OnValueChanged()
+    local scrollPos = math.floor(self.scrollBar:GetValue()) - 1;
+    for i, f in ipairs(self.gridview) do
+        f.avatar = self.avatars[i + scrollPos]
+        f.Background:SetTexture(self.avatars[i + scrollPos].fileID)
+    end
+end
 
 
 
@@ -1868,8 +1979,8 @@ GuildbookProfilesMixin.characterStats = {
 }
 
 
-
 function GuildbookProfilesMixin:OnLoad()
+
     self:CreateTalentUI()
     self:CreateStatsUI()
 
@@ -1886,6 +1997,15 @@ function GuildbookProfilesMixin:OnLoad()
         self.contentPane.scrollChild.inventory[slot.Name].anim.fadeIn:SetStartDelay((x^x) - 0.6)
     end
 
+    for _, fs in ipairs(self.contentPane.scrollChild.profile.localStrings) do
+        fs:SetText(L[fs.locale])
+    end
+
+    --self.contentPane.scrollChild.profile.realBioInput.EditBox:SetMaxLetters(200)
+    self.contentPane.scrollChild.profile.realBioInput.EditBox:SetScript("OnTextChanged", function(self)
+        GuildbookUI.profiles:MyProfile_OnEditChanged("realBio", self:GetText())
+    end)
+
 end
 
 
@@ -1896,6 +2016,13 @@ function GuildbookProfilesMixin:OnHide()
         self.background:SetTexture(nil)
         self.sidePane.background:SetTexture(nil)
         --self.fadeOut:Play()
+        self.contentPane.scrollChild.profile.edit:Hide()
+        for _, f in ipairs(self.contentPane.scrollChild.profile.displayEdit) do
+            f:SetShown(false)
+        end
+        for _, fs in ipairs(self.contentPane.scrollChild.profile.displayStrings) do
+            fs:SetShown(true)
+        end
     end
 end
 
@@ -1913,8 +2040,27 @@ function GuildbookProfilesMixin:OnShow()
     if not GUILD_NAME then
         return
     end
-
+    for k, f in ipairs(self.contentPane.scrollChild.frames) do
+        f:ClearAllPoints()
+        if k == 1 then
+            f:SetPoint("TOPLEFT", 0, -25)
+            f:SetPoint("TOPRIGHT", 0, -25)
+        else
+            f:SetPoint("TOPLEFT", self.contentPane.scrollChild.frames[k-1], "BOTTOMLEFT", 0, 0)
+            f:SetPoint("TOPRIGHT", self.contentPane.scrollChild.frames[k-1], "BOTTOMRIGHT", 0, 0)
+        end
+    end
     --self:LoadCharacter()
+end
+
+function GuildbookProfilesMixin:MyProfile_OnEditChanged(edit, text)
+    if not GUILDBOOK_CHARACTER then
+        return;
+    end
+    if not GUILDBOOK_CHARACTER.profile then
+        GUILDBOOK_CHARACTER.profile = {}
+    end
+    GUILDBOOK_CHARACTER.profile[edit] = text;
 end
 
 function GuildbookProfilesMixin:LoadCharacter(player)
@@ -1924,28 +2070,35 @@ function GuildbookProfilesMixin:LoadCharacter(player)
     self:HideCharacterModels()
     self:HideInventoryIcons()
     self:HideTalentIcons()
+    self:HideProfile()
     if self.character then
 
         self:GetParent().statusBar:SetValue(0)
         self:GetParent().statusBar.duration = 1.0 + gb.COMMS_DELAY
         self:GetParent().statusBar.endTime = GetTime() + self:GetParent().statusBar.duration
         self:GetParent().statusBar.active = true
-        gb:CharacterDataRequest(self.character.Name)
+
+        self:GetParent().statusText:SetText("requesting profile")
+        gb:SendProfileRequest(self.character.Name)
         C_Timer.After(0.2, function()
             self:GetParent().statusText:SetText("requesting character data")
-            gb:SendInventoryRequest(self.character.Name)
+            gb:CharacterDataRequest(self.character.Name)
         end)
         C_Timer.After(0.4, function()
+            self:GetParent().statusText:SetText("requesting inventory")
+            gb:SendInventoryRequest(self.character.Name)
+        end)
+        C_Timer.After(0.6, function()
             self:GetParent().statusText:SetText("requesting talents")
             gb:SendTalentInfoRequest(self.character.Name, 'primary')
         end)
-        C_Timer.After(0.6, function()
+        C_Timer.After(0.8, function()
             if self.character.Profession1 then
                 self:GetParent().statusText:SetText("requesting profession 1")
                 gb:SendTradeSkillsRequest(self.character.Name, self.character.Profession1)
             end
         end)
-        C_Timer.After(0.8, function()
+        C_Timer.After(1.0, function()
             if self.character.Profession2 then
                 self:GetParent().statusText:SetText("requesting profession 2")
                 gb:SendTradeSkillsRequest(self.character.Name, self.character.Profession2)
@@ -1953,6 +2106,17 @@ function GuildbookProfilesMixin:LoadCharacter(player)
         end)
 
         C_Timer.After(gb.COMMS_DELAY + 1.0, function()
+            if player and player == "player" then
+                self.contentPane.scrollChild.profile.edit:Show()
+            else
+                self.contentPane.scrollChild.profile.edit:Hide()
+                for _, f in ipairs(self.contentPane.scrollChild.profile.displayEdit) do
+                    f:SetShown(false)
+                end
+                for _, fs in ipairs(self.contentPane.scrollChild.profile.displayStrings) do
+                    fs:SetShown(true)
+                end
+            end
             --self:LoadTalents("primary")
             --self:LoadInventory()
             --self:LoadStats()
@@ -1978,6 +2142,70 @@ function GuildbookProfilesMixin:LoadCharacter(player)
     else
         self.defaultModel:Show()
     end    
+end
+
+function GuildbookProfilesMixin:Edit_OnMouseDown(self)
+    self.editOpen = not self.editOpen
+    if self.editOpen == true then
+        GuildbookUI.profiles.avatarPicker:Show()
+    else
+        GuildbookUI.profiles.avatarPicker:Hide()
+    end
+    GuildbookButtonMixin.OnMouseDown(self)
+    for _, f in ipairs(self:GetParent().displayEdit) do
+        f:SetShown(not f:IsVisible())
+    end
+    for _, fs in ipairs(self:GetParent().displayStrings) do
+        fs:SetShown(not fs:IsVisible())
+    end
+    if self.editOpen then
+        local rName = self:GetParent().realName:GetText()
+        local rDob = self:GetParent().realDob:GetText()
+        local rBio = self:GetParent().realBio:GetText()
+
+        self:GetParent().realNameInput:SetText(rName or "")
+        self:GetParent().realDobInput:SetText(rDob or "")
+        self:GetParent().realBioInput.EditBox:SetText(rBio or "")
+    else
+        local rName = self:GetParent().realNameInput:GetText()
+        local rDob = self:GetParent().realDobInput:GetText()
+        local rBio = self:GetParent().realBioInput.EditBox:GetText()
+
+        self:GetParent().realName:SetText(rName or "")
+        self:GetParent().realDob:SetText(rDob or "")
+        self:GetParent().realBio:SetText(rBio or "")
+    end
+end
+
+function GuildbookProfilesMixin:LoadProfile()
+    if not self.character then
+        return
+    end
+    if self.character.profile then
+        for k, v in pairs(self.character.profile) do
+            if k == "avatar" then
+                self.contentPane.scrollChild.profile[k].Background:SetTexture(v)
+                self.contentPane.scrollChild.profile[k]:Show()
+            else
+                if self.contentPane.scrollChild.profile[k] then
+                    self.contentPane.scrollChild.profile[k]:SetText(v)
+                else
+                    self.contentPane.scrollChild.profile[k]:SetText("-")
+                end
+            end
+        end
+    else
+        for _, fs in ipairs(self.contentPane.scrollChild.profile.displayStrings) do
+            fs:SetText("-")
+        end
+    end
+end
+
+function GuildbookProfilesMixin:HideProfile()
+    self.contentPane.scrollChild.profile.avatar.Background:SetTexture(nil)
+    for _, fs in ipairs(self.contentPane.scrollChild.profile.displayStrings) do
+        fs:SetText("")
+    end
 end
 
 function GuildbookProfilesMixin:HideCharacterModels()
@@ -2286,7 +2514,7 @@ end
 
 
 function GuildbookProfilesMixin:LoadInventory()
-    if self.character.Inventory and self.character.Inventory.Current then
+    if self.character and self.character.Inventory and self.character.Inventory.Current then
         for slot, link in pairs(self.character.Inventory.Current) do
             if link ~= false then
                 local _, _, _, _, icon, _, _ = GetItemInfoInstant(link)

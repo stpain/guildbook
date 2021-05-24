@@ -30,7 +30,7 @@ local LibSerialize = LibStub:GetLibrary("LibSerialize")
 --variables
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- this used to match the toc but for simplicity i've made it just an integer
-local build = 13;
+local build = 14;
 local locale = GetLocale()
 local L = Guildbook.Locales
 
@@ -1203,6 +1203,7 @@ function Guildbook.GetItemLevel()
 		character[slot.Name] = GetInventoryItemID('player', slot.Name)
 		if character[slot.Name] ~= nil then
 			local iName, iLink, iRarety, ilvl = GetItemInfo(character[slot.Name])
+            if not ilvl then ilvl = 0 end
 			itemLevel = itemLevel + ilvl
 			itemCount = itemCount + 1
 		end
@@ -1371,6 +1372,53 @@ function Guildbook:Transmit(data, channel, target, priority)
         DEBUG('comms_out', 'SendCommMessage', string.format("type: %s, channel: %s target: %s, prio: %s", data.type or 'nil', channel, (target or 'nil'), priority))
         self:SendCommMessage(addonName, encoded, channel, target, priority)
     end
+end
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- profile comms
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+function Guildbook:SendProfileRequest(target)
+    local request = {
+        type = "PROFILE_INFO_REQUEST",
+        payload = target,
+    }
+    self:Transmit(request, "WHISPER", target, "NORMAL")
+end
+
+
+function Guildbook:OnProfileRequest(request, distribution, sender)
+
+    if GUILDBOOK_CHARACTER and GUILDBOOK_CHARACTER.profile then
+        local response = {
+            type = "PROFILE_INFO_RESPONSE",
+            payload = {
+                guid = UnitGUID("player"),
+                profile = GUILDBOOK_CHARACTER.profile,
+            }
+        }
+        self:Transmit(response, "GUILD", nil, "BULK")
+    end
+end
+
+
+function Guildbook:OnProfileReponse(response, distribution, sender)
+    if distribution ~= "GUILD" then
+        return
+    end
+    if not response.payload.guid then
+        return
+    end
+    C_Timer.After(Guildbook.COMMS_DELAY, function()
+        local guildName = Guildbook:GetGuildName()
+        if guildName and GUILDBOOK_GLOBAL['GuildRosterCache'] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
+            if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][response.payload.guid] then
+                GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][response.payload.guid].profile = response.payload.profile;
+            end
+        end
+
+        GuildbookUI.statusText:SetText(string.format("received profile from %s", sender))
+        GuildbookUI.profiles:LoadProfile()
+    end)
 end
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2401,6 +2449,12 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
             return
         end
         self:OnCharacterDataUpdateReceived(data, distribution, sender)
+
+    elseif data.type == 'PROFILE_INFO_REQUEST' then
+        self:OnProfileRequest(data, distribution, sender)
+
+    elseif data.type == 'PROFILE_INFO_RESPONSE' then
+        self:OnProfileReponse(data, distribution, sender)
 
     elseif data.type == 'TALENT_INFO_REQUEST' then
         if not Guildbook.GuildFrame.ProfilesFrame then

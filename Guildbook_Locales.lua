@@ -101,7 +101,7 @@ L["Guild"] = "Guild"
 
 
 
--- the newer ui stuff
+-- roster listview and tooltip
 L["name"] = "Name"
 L["level"] = "Level"
 L["mainSpec"] = "Main Spec"
@@ -111,6 +111,13 @@ L["rankName"] = "Rank"
 L["publicNote"] = "Public Note"
 L["class"] = "Class"
 L["attunements"] = "Attunements"
+
+
+L["PROFILE_TITLE"] = "Profile"
+L["REAL_NAME"] = "Name"
+L["REAL_DOB"] = "Birthday"
+L["REAL_BIO"] = "Bio"
+L["AVATAR"] = "Avatar"
 
 
 

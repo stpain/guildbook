@@ -433,4 +433,21 @@ Regards
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [14] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+
+
+|cff0070DEUpdates|r:
+Attune!
+
+The roster tooltip will display data for players who have the Attune addon, its a great addon and well worth downloading.
+
+Also, profiles! Work in progress due to new character.
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }
