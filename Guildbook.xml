@@ -37,7 +37,7 @@
     </FontFamily>
 
     <Frame name="GuildbookMenuFlyoutItem" mixin="GuildbookMenuFlyoutItemMixin" virtual="true" enableMouse="true" useParentLevel="true">
-        <Size x="45" y="45"/>
+        <Size x="30" y="30"/>
         <Layers>
 			<Layer level="BACKGROUND">
 				<Texture parentKey="Background" useAtlasSize="false">
@@ -48,9 +48,9 @@
                 </Texture>
 			</Layer>
 			<Layer level="HIGHLIGHT">
-				<Texture parentKey="Highlight" atlas="GarrMission_CurrentEncounter-Glow" useAtlasSize="true">
+				<!-- <Texture parentKey="Highlight" atlas="GarrMission_CurrentEncounter-Glow" useAtlasSize="true"> -->
 				<!-- <Texture parentKey="Highlight" atlas="GarrMission_CurrentEncounter-SpikeyGlow" useAtlasSize="true"> -->
-				<!-- <Texture parentKey="Highlight" atlas="Relic-Holy-TraitBG" useAtlasSize="true"> -->
+				<Texture parentKey="Highlight" atlas="Darktrait-Glow" useAtlasSize="true">
                     <Anchors>
                         <Anchor point="CENTER"/>
                     </Anchors>
@@ -107,11 +107,11 @@
         <Size x="25" y="25"/>
         <Layers>
             <Layer level="HIGHLIGHT">
-                <Texture atlas="Forge-ColorSwatchHighlight">
-                    <Size x="25" y="25"/>
-                    <Anchors>
+                <Texture atlas="transmog-frame-pink" setAllPoints="true">
+                    <!-- <Size x="25" y="25"/> -->
+                    <!-- <Anchors>
                         <Anchor point="CENTER"/>
-                    </Anchors>
+                    </Anchors> -->
                 </Texture>
             </Layer>
         </Layers>
@@ -500,7 +500,7 @@
         </Scripts>
     </Frame>
     
-    <Frame name="GuildbookChatBubble" virtual="true">
+    <Frame name="GuildbookChatBubble" virtual="true" hyperlinksEnabled="true" enableMouse="true">
         <Layers>
             <Layer level="BACKGROUND">
                 <Texture parentKey="Icon">
@@ -523,6 +523,16 @@
             <OnMouseDown>
                 self:GetParent():ChatBubble_OnMouseDown(self)
             </OnMouseDown>
+            <OnHyperlinkEnter>
+                if link then
+                    GameTooltip:SetHyperlink(link)
+                    GameTooltip:Show()
+                end
+            </OnHyperlinkEnter>
+            <OnHyperlinkLeave>
+                GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+                GameTooltip:Hide()
+            </OnHyperlinkLeave>
         </Scripts>
     </Frame>
     
@@ -607,7 +617,7 @@
                 <FontString parentKey="statusText" inherits="GameFontNormalSmall" justifyH="RIGHT" text="load text">
                     <Size x="275" y="10"/>
                     <Anchors>
-                        <Anchor point="TOPRIGHT" x="-65" y="-6"/>
+                        <Anchor point="TOPRIGHT" x="-35" y="-6"/>
                     </Anchors>
                 </FontString>
             </Layer>
@@ -615,15 +625,16 @@
 
         <Frames>
 
-            <StatusBar parentKey="statusBar" minValue="0" maxValue="1" defaultValue="0" orientation="HORIZONTAL">
-                <Size x="25" y="10"/>
+            <StatusBar parentKey="statusBar" useParentLevel="true" minValue="0" maxValue="1" defaultValue="0" orientation="HORIZONTAL">
+                <Size y="30"/>
                 <Anchors>
-                    <Anchor point="TOPRIGHT">
-                        <offset x="-35" y="-6"/>
-                    </Anchor>
+                    <Anchor point="TOPLEFT"  x="0" y="-25"/> <!-- set this to -25 and remove the toright x value if using a full fill texture -->
+                    <Anchor point="TOPRIGHT" x="0" y="-25"/>
                 </Anchors>
                 <BarTexture file="Interface\TargetingFrame\UI-StatusBar"/>
-                <BarColor r="1.0" g="0.82" b="0.0"/>
+                <!-- <BarTexture atlas="_BattleSlotTitle-BG"/>> -->
+                <!-- <BarTexture atlas="Artifacts-Warlock-Header"/> -->
+                <BarColor r="0.859" g="0.128" b="0.593" a="0.15"/>
             </StatusBar>
 
             <!-- <Frame frameStrata="DIALOG">
@@ -668,56 +679,121 @@
                 </Anchors>
             </Frame>
 
-            <Frame parentKey="menu" hidden="false"> 
-                <Size x="80" y="260"/>
+            <Frame parentKey="ribbon" useParentLevel="true">
+                <Size y="30"/>
                 <Anchors>
-                    <Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="GuildbookUI" x="0" y="-50"/>
+                    <Anchor point="TOPLEFT"  x="0" y="-25"/>
+                    <Anchor point="TOPRIGHT" x="0" y="-25"/>
                 </Anchors>
                 <Layers>
-                    <Layer>
-                        <!-- <Texture atlas="Capacitance-Blacksmithing-BG" setAllPoints="true"> -->
-                        <Texture atlas="transmog-wardrobe-border-collected" setAllPoints="true">
-                            <!-- legionmission-complete-background-paladin  -->
+                    <Layer level="BACKGROUND" textureSubLevel="-1">
+                        <Texture setAllPoints="true">
+                            <Color r="0" g="0" b="0" a="0.6"/>
                         </Texture>
                     </Layer>
                 </Layers>
                 <Frames>
-                    <Frame parentKey="profiles" inherits="GuildbookMenuFlyoutItem" hidden="false">
+                    <Frame parentKey="profiles" inherits="GuildbookSmallHighlightButton" hidden="false">
                         <Anchors>
-                            <Anchor point="TOPLEFT" x="15" y="-15"/>
+                            <Anchor point="LEFT" x="60" y="0"/>
                         </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture atlas="GarrMission_MissionIcon-Recruit" setAllPoints="true"/>
+                            </Layer>
+                        </Layers>
                         <KeyValues>
                             <KeyValue key="tooltipText" value="Profiles" type="string"/>
                         </KeyValues>
                     </Frame>
-                    <Frame parentKey="tradeskills" inherits="GuildbookMenuFlyoutItem" hidden="false">
+                    <Frame parentKey="tradeskills" inherits="GuildbookSmallHighlightButton" hidden="false">
                         <Anchors>
-                            <Anchor point="TOPLEFT" x="15" y="-70"/>
+                            <Anchor point="LEFT" x="90" y="0"/>
                         </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture atlas="Mobile-Blacksmithing" setAllPoints="true"/>
+                            </Layer>
+                        </Layers>
                         <KeyValues>
                             <KeyValue key="tooltipText" value="Tradeskills" type="string"/>
                         </KeyValues>
                     </Frame>
-                    <Frame parentKey="chat" inherits="GuildbookMenuFlyoutItem" hidden="false">
+                    <Frame parentKey="chat" inherits="GuildbookSmallHighlightButton" hidden="false">
                         <Anchors>
-                            <Anchor point="TOPLEFT" x="15" y="-125"/>
+                            <Anchor point="LEFT" x="130" y="0"/>
                         </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture atlas="socialqueuing-icon-group" setAllPoints="true"/>
+                            </Layer>
+                        </Layers>
                         <KeyValues>
                             <KeyValue key="tooltipText" value="Chat" type="string"/>
                         </KeyValues>
                     </Frame>
-                    <Frame parentKey="roster" inherits="GuildbookMenuFlyoutItem" hidden="false">
+                    <Frame parentKey="roster" inherits="GuildbookSmallHighlightButton" hidden="false">
                         <Anchors>
-                            <Anchor point="TOPLEFT" x="15" y="-180"/>
+                            <Anchor point="LEFT" x="170" y="0"/>
                         </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture atlas="poi-workorders" setAllPoints="true"/>
+                            </Layer>
+                        </Layers>
                         <KeyValues>
                             <KeyValue key="tooltipText" value="Roster" type="string"/>
                         </KeyValues>
                     </Frame>
+                    <Frame parentKey="calendar" inherits="GuildbookSmallHighlightButton" hidden="false">
+                        <Anchors>
+                            <Anchor point="LEFT" x="210" y="0"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture atlas="groupfinder-waitdot" setAllPoints="true"/>
+                            </Layer>
+                        </Layers>
+                        <KeyValues>
+                            <KeyValue key="tooltipText" value="Calendar" type="string"/>
+                        </KeyValues>
+                    </Frame>
+
+                    <Frame parentKey="myProfile" inherits="GuildbookSmallHighlightButton" enableMouse="true">
+                        <Size x="25" y="25"/>
+                        <Anchors>
+                            <Anchor point="RIGHT" x="-5" y="0"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture atlas="groupfinder-waitdot" setAllPoints="true"/>
+                            </Layer>
+                        </Layers>
+                        <KeyValues>
+                            <KeyValue key="tooltipText" value="My profile"/>
+                        </KeyValues>
+                        <Scripts>   
+                            <OnMouseDown>
+                                GuildbookButtonMixin.OnMouseDown(self)
+                                self:GetParent():GetParent().profiles:LoadCharacter("player")
+                            </OnMouseDown>
+                        </Scripts>
+                    </Frame>
+
+                    <EditBox parentKey="searchBox" inherits="InputBoxTemplate" autoFocus="false">
+                        <Size x="200" y="20"/>
+                        <Anchors>
+                            <Anchor point="CENTER" x="0" y="0"/>
+                        </Anchors>
+                    </EditBox>
                 </Frames>
             </Frame>
 
-            <Frame parentKey="profiles" parentArray="frames" mixin="GuildbookProfilesMixin" setAllPoints="true" useParentLevel="true">
+            <Frame parentKey="profiles" parentArray="frames" mixin="GuildbookProfilesMixin" useParentLevel="true">
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="0" y="-30"/>
+                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                </Anchors>
                 <Animations>
                     <AnimationGroup parentKey="fadeOut" setToFinalAlpha="true">
                         <Alpha duration="0.1" fromAlpha="1" toAlpha="0"/>
@@ -768,16 +844,16 @@
                                         <Anchor point="TOP" x="0" y="-250"/>
                                     </Anchors>
                                 </FontString>
-                                <FontString parentKey="mainCharacter" inherits="Acme14" text="-">
+                                <!-- <FontString parentKey="mainCharacter" inherits="Acme14" text="-">
                                     <Size x="200" y="20"/>
                                     <Anchors>
                                         <Anchor point="TOP" relativePoint="BOTTOM" relativeKey="$parent.name" x="0" y="-2"/>
                                     </Anchors>
-                                </FontString>
+                                </FontString> -->
                                 <FontString parentKey="spec" inherits="Acme14" text="-">
                                     <Size x="200" y="25"/>
                                     <Anchors>
-                                        <Anchor point="TOP" relativePoint="BOTTOM" relativeKey="$parent.mainCharacter" x="0" y="-10"/>
+                                        <Anchor point="TOP" relativePoint="BOTTOM" relativeKey="$parent.name" x="0" y="-10"/>
                                     </Anchors>
                                 </FontString>
                             </Layer>
@@ -785,52 +861,6 @@
 
 
 
-                    </Frame>
-
-                    <Frame parentKey="ribbon">
-                        <Size y="20"/>
-                        <Anchors>
-                            <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" relativeKey="$parent.sidePane" x="5" y="-5"/>
-                            <Anchor point="RIGHT" x="-30" y="0"/>
-                        </Anchors>
-                        <Layers>
-                            <Layer level="BACKGROUND">
-                                <Texture setAllPoints="true">
-                                    <Color r="0" g="0" b="0" a="0.15"/>
-                                </Texture>
-                            </Layer>
-                        </Layers>
-                        <Frames>
-                            <Frame parentKey="myProfile" inherits="GuildbookSmallHighlightButton" enableMouse="true">
-                                <Size x="20" y="20"/>
-                                <Anchors>
-                                    <Anchor point="RIGHT" x="-5" y="0"/>
-                                </Anchors>
-                                <Layers>
-                                    <Layer level="BACKGROUND">
-                                        <Texture atlas="groupfinder-waitdot" setAllPoints="true"/>
-                                    </Layer>
-                                </Layers>
-                                <KeyValues>
-                                    <KeyValue key="tooltipText" value="My profile"/>
-                                </KeyValues>
-                                <Scripts>   
-                                    <OnMouseDown>
-                                        GuildbookButtonMixin.OnMouseDown(self)
-                                        <!-- self:GetParent():GetParent():Hide()
-                                        self:GetParent():GetParent():Show() -->
-                                        self:GetParent():GetParent():LoadCharacter("player")
-                                    </OnMouseDown>
-                                </Scripts>
-                            </Frame>
-
-                            <EditBox parentKey="searchBox" inherits="InputBoxTemplate" autoFocus="false">
-                                <Size x="200" y="20"/>
-                                <Anchors>
-                                    <Anchor point="CENTER" x="0" y="0"/>
-                                </Anchors>
-                            </EditBox>
-                        </Frames>
                     </Frame>
 
                     <Frame parentKey="avatarPicker" mixin="GuildbookAvatarPickerMixin" inherits="BasicFrameTemplate" hidden="true">
@@ -863,7 +893,7 @@
                     <ScrollFrame parentKey="contentPane" inherits="UIPanelScrollFrameTemplate">
                         <!-- <Size x="240" y="350"/> -->
                         <Anchors>
-                            <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" relativeKey="$parent.sidePane" x="5" y="-25"/>
+                            <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" relativeKey="$parent.sidePane" x="5" y="-5"/>
                             <Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" relativeKey="$parent.sidePane" x="5" y="5"/>
                             <Anchor point="RIGHT" x="-30" y="0"/>
                         </Anchors>
@@ -882,7 +912,7 @@
                                 <Frames>
 
                                     <Frame parentKey="profile" parentArray="frames">
-                                        <Size y="200"/>
+                                        <Size y="300"/>
                                         <Layers>
                                             <Layer level="BACKGROUND">
 
@@ -890,30 +920,30 @@
                                             <Layer level="OVERLAY">
                                                 <FontString inherits="Acme" parentArray="localStrings">
                                                     <Anchors>
-                                                        <Anchor point="TOP" x="0" y="-5"/>
+                                                        <Anchor point="TOP" x="0" y="0"/>
                                                     </Anchors>
                                                     <KeyValues>
                                                         <KeyValue key="locale" value="PROFILE_TITLE" type="string"/>
                                                     </KeyValues>
                                                 </FontString>
 
-                                                <FontString parentKey="realNameLabel" parentArray="localStrings" inherits="GameFontNormal" justifyH="LEFT">
+                                                <FontString parentKey="realNameLabel" parentArray="localStrings" inherits="Acme14" justifyH="LEFT">
                                                     <Size x="75" y="25"/>
                                                     <Anchors>
-                                                        <Anchor point="TOPLEFT" x="20" y="-25"/>
+                                                        <Anchor point="TOPLEFT" x="20" y="-20"/>
                                                     </Anchors>
                                                     <KeyValues>
                                                         <KeyValue key="locale" value="REAL_NAME" type="string"/>
                                                     </KeyValues>
                                                 </FontString>
-                                                <FontString parentKey="realName" parentArray="displayStrings" inherits="GameFontNormal" justifyH="LEFT">
+                                                <FontString parentKey="realName" parentArray="displayStrings" inherits="Acme14" justifyH="LEFT">
                                                     <Size x="175" y="25"/>
                                                     <Anchors>
                                                         <Anchor relativeKey="$parent.realNameLabel" relativePoint="RIGHT" point="LEFT" x="20" y="0"/>
                                                     </Anchors>
                                                 </FontString>
 
-                                                <FontString parentKey="avatarLabel" parentArray="localStrings" inherits="GameFontNormal" justifyH="LEFT">
+                                                <FontString parentKey="avatarLabel" parentArray="localStrings" inherits="Acme14" justifyH="LEFT">
                                                     <Size x="75" y="25"/>
                                                     <Anchors>
                                                         <Anchor point="TOPLEFT" x="355" y="-25"/>
@@ -923,35 +953,83 @@
                                                     </KeyValues>
                                                 </FontString>
 
-                                                <FontString parentKey="realDobLabel" parentArray="localStrings" inherits="GameFontNormal" justifyH="LEFT">
+                                                <FontString parentKey="mainSpecLabel" parentArray="localStrings" inherits="Acme14" justifyH="LEFT">
                                                     <Size x="75" y="25"/>
                                                     <Anchors>
-                                                        <Anchor point="TOPLEFT" x="20" y="-55"/>
+                                                        <Anchor relativeKey="$parent.avatarLabel" relativePoint="BOTTOMLEFT" point="TOPLEFT" x="0" y="-60"/>
+                                                    </Anchors>
+                                                    <KeyValues>
+                                                        <KeyValue key="locale" value="MAIN_SPEC" type="string"/>
+                                                    </KeyValues>
+                                                </FontString>
+                                                <FontString parentKey="mainSpec" parentArray="displayStrings" inherits="Acme14" justifyH="LEFT">
+                                                    <Size x="175" y="25"/>
+                                                    <Anchors>
+                                                        <Anchor relativeKey="$parent.mainSpecLabel" relativePoint="RIGHT" point="LEFT" x="20" y="0"/>
+                                                    </Anchors>
+                                                </FontString>
+
+                                                <FontString parentKey="offSpecLabel" parentArray="localStrings" inherits="Acme14" justifyH="LEFT">
+                                                    <Size x="75" y="25"/>
+                                                    <Anchors>
+                                                        <Anchor relativeKey="$parent.mainSpecLabel" relativePoint="BOTTOMLEFT" point="TOPLEFT" x="0" y="-30"/>
+                                                    </Anchors>
+                                                    <KeyValues>
+                                                        <KeyValue key="locale" value="OFF_SPEC" type="string"/>
+                                                    </KeyValues>
+                                                </FontString>
+                                                <FontString parentKey="offSpec" parentArray="displayStrings" inherits="Acme14" justifyH="LEFT">
+                                                    <Size x="175" y="25"/>
+                                                    <Anchors>
+                                                        <Anchor relativeKey="$parent.offSpecLabel" relativePoint="RIGHT" point="LEFT" x="20" y="0"/>
+                                                    </Anchors>
+                                                </FontString>
+
+                                                <FontString parentKey="realDobLabel" parentArray="localStrings" inherits="Acme14" justifyH="LEFT">
+                                                    <Size x="75" y="25"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOPLEFT" x="20" y="-45"/>
                                                     </Anchors>
                                                     <KeyValues>
                                                         <KeyValue key="locale" value="REAL_DOB" type="string"/>
                                                     </KeyValues>
                                                 </FontString>
-                                                <FontString parentKey="realDob" parentArray="displayStrings" inherits="GameFontNormal" justifyH="LEFT">
+                                                <FontString parentKey="realDob" parentArray="displayStrings" inherits="Acme14" justifyH="LEFT">
                                                     <Size x="175" y="25"/>
                                                     <Anchors>
                                                         <Anchor relativeKey="$parent.realDobLabel" relativePoint="RIGHT" point="LEFT" x="20" y="0"/>
                                                     </Anchors>
                                                 </FontString>
 
-                                                <FontString parentKey="realBioLabel" parentArray="localStrings" inherits="GameFontNormal" justifyH="LEFT">
+                                                <FontString parentKey="realBioLabel" parentArray="localStrings" inherits="Acme14" justifyH="LEFT">
                                                     <Size x="75" y="25"/>
                                                     <Anchors>
-                                                        <Anchor point="TOPLEFT" x="20" y="-85"/>
+                                                        <Anchor point="TOPLEFT" x="20" y="-70"/>
                                                     </Anchors>
                                                     <KeyValues>
                                                         <KeyValue key="locale" value="REAL_BIO" type="string"/>
                                                     </KeyValues>
                                                 </FontString>
-                                                <FontString parentKey="realBio" parentArray="displayStrings" inherits="GameFontNormal" justifyH="LEFT" justifyV="TOP">
+                                                <FontString parentKey="realBio" parentArray="displayStrings" inherits="Acme14" justifyH="LEFT" justifyV="TOP">
                                                     <Size x="230" y="90"/>
                                                     <Anchors>
                                                         <Anchor relativeKey="$parent.realBioLabel" relativePoint="TOPRIGHT" point="TOPLEFT" x="20" y="-6"/>
+                                                    </Anchors>
+                                                </FontString>
+
+                                                <FontString parentKey="mainCharacterLabel" parentArray="localStrings" inherits="Acme14" justifyH="LEFT">
+                                                    <Size x="75" y="30"/>
+                                                    <Anchors>
+                                                        <Anchor relativeKey="$parent.realBioLabel" relativePoint="BOTTOMLEFT" point="TOPLEFT" x="0" y="-80"/>
+                                                    </Anchors>
+                                                    <KeyValues>
+                                                        <KeyValue key="locale" value="MAIN_CHARACTER" type="string"/>
+                                                    </KeyValues>
+                                                </FontString>
+                                                <FontString parentKey="mainCharacter" parentArray="displayStrings" inherits="Acme14" justifyH="LEFT" justifyV="TOP">
+                                                    <Size x="230" y="25"/>
+                                                    <Anchors>
+                                                        <Anchor relativeKey="$parent.mainCharacterLabel" relativePoint="RIGHT" point="LEFT" x="20" y="0"/>
                                                     </Anchors>
                                                 </FontString>
                                             </Layer>
@@ -1003,7 +1081,7 @@
                                                 </Scripts>
                                             </EditBox>
                                             <ScrollFrame parentKey="realBioInput" parentArray="displayEdit" inherits="InputScrollFrameTemplate" hidden="true">
-                                                <Size x="230" y="50"/>
+                                                <Size x="220" y="50"/>
                                                 <KeyValue key="maxLetters" value="200" type="number"/>
                                                 <KeyValue key="hideCharCount" value="false" type="boolean"/>
                                                 <Anchors>
@@ -1029,6 +1107,26 @@
                                                         end
                                                     </OnMouseDown>
                                                 </Scripts>
+                                            </Frame>
+
+                                            <Frame parentKey="mainCharacterDropDown" parentArray="displayEdit" inherits="GuildbookDropdown" hidden="true">
+                                                <Size x="125" y="24"/>
+                                                <Anchors>
+                                                    <Anchor relativeKey="$parent.mainCharacterLabel" relativePoint="RIGHT" point="LEFT" x="20" y="0"/>
+                                                </Anchors>
+                                            </Frame>
+
+                                            <Frame parentKey="mainSpecDropDown" parentArray="displayEdit" inherits="GuildbookDropdown" hidden="true">
+                                                <Size x="100" y="24"/>
+                                                <Anchors>
+                                                    <Anchor relativeKey="$parent.mainSpecLabel" relativePoint="RIGHT" point="LEFT" x="20" y="0"/>
+                                                </Anchors>
+                                            </Frame>
+                                            <Frame parentKey="offSpecDropDown" parentArray="displayEdit" inherits="GuildbookDropdown" hidden="true">
+                                                <Size x="100" y="24"/>
+                                                <Anchors>
+                                                    <Anchor relativeKey="$parent.offSpecLabel" relativePoint="RIGHT" point="LEFT" x="20" y="0"/>
+                                                </Anchors>
                                             </Frame>
                                         </Frames>
                                     </Frame>
@@ -1262,7 +1360,18 @@
                 </Scripts>
             </Frame>
 
-            <Frame parentKey="tradeskills" parentArray="frames" setAllPoints="true" hidden="true">
+            <Frame parentKey="tradeskills" parentArray="frames" hidden="true">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.ribbon" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND" textureSubLevel="1">
+                        <Texture parentKey="background" atlas="Artifacts-Paladin-BG" setAllPoints="true" alpha="0.5">
+                            <!-- <Color r="0" g="0" b="0"/> -->
+                        </Texture>
+                    </Layer>
+                </Layers>
                 <Frames>
                     <Frame parentKey="professionListview" mixin="GuildbookProfessionListviewMixin">
                         <Size x="175" y="410"/>
@@ -1361,8 +1470,18 @@
                 </Frames>
             </Frame>
 
-            <Frame parentKey="chat" mixin="GuildbookChatsMixin" parentArray="frames" setAllPoints="true" hidden="true">
-
+            <Frame parentKey="chat" mixin="GuildbookChatsMixin" parentArray="frames" hidden="true">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.ribbon" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND" textureSubLevel="1">
+                        <Texture parentKey="background" atlas="Artifacts-Druid-BG" setAllPoints="true" alpha="0.5">
+                            <!-- <Color r="0" g="0" b="0"/> -->
+                        </Texture>
+                    </Layer>
+                </Layers>
                 <Layers>
                     <Layer level="OVERLAY">
                         <FontString parentKey="currentChat" inherits="Acme" text=" No channel" justifyH="CENTER">
@@ -1424,7 +1543,7 @@
                         </Scripts>
                     </Frame>
 
-                    <EditBox parentKey="chatInput" inherits="InputBoxTemplate" autoFocus="false">
+                    <EditBox parentKey="chatInput" inherits="InputBoxTemplate" autoFocus="false" hyperlinksEnabled="true">
                         <Size y="20"/>
                         <Anchors>
                             <Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeKey="$parent.chatContent" x="5" y="0"/>
@@ -1445,12 +1564,23 @@
             </Frame>
 
 
-            <Frame parentKey="roster" mixin="GuildbookRosterMixin" parentArray="frames" setAllPoints="true" hidden="true">
+            <Frame parentKey="roster" mixin="GuildbookRosterMixin" parentArray="frames" hidden="true">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.ribbon" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND" textureSubLevel="1">
+                        <Texture parentKey="background" atlas="Artifacts-PriestShadow-BG" setAllPoints="true" alpha="0.5">
+                            <!-- <Color r="0" g="0" b="0"/> -->
+                        </Texture>
+                    </Layer>
+                </Layers>
                 <Frames>
                     <Frame parentKey="refresh" inherits="GuildbookSmallHighlightButton" enableMouse="true">
                         <Size x="35" y="35"/>
                         <Anchors>
-                            <Anchor point="TOPRIGHT" x="-10" y="-30"/>
+                            <Anchor point="TOPRIGHT" x="-10" y="-10"/>
                         </Anchors>
                         <Layers>
                             <Layer level="BACKGROUND">
@@ -1573,6 +1703,20 @@
                     <OnLoad method="OnLoad"/>
                     <OnShow method="OnShow"/>
                 </Scripts>
+            </Frame>
+
+            <Frame parentKey="calendar" parentArray="frames" hidden="true">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.ribbon" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND" textureSubLevel="1">
+                        <Texture parentKey="background" atlas="ClassHall_InfoBoxMission-BackgroundTile" setAllPoints="true" alpha="0.5">
+                            <!-- <Color r="0" g="0" b="0"/> -->
+                        </Texture>
+                    </Layer>
+                </Layers>
             </Frame>
 
         </Frames>

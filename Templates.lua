@@ -42,6 +42,12 @@ function GuildbookDropdownMixin:GetFlyout()
     return self.Flyout
 end
 
+function GuildbookDropdownMixin:OnLoad()
+    self:SetSize(self:GetWidth(), self:GetHeight())
+    self.Background:SetSize(self:GetWidth(), self:GetHeight())
+    self.Button:SetHeight(self:GetHeight())
+end
+
 function GuildbookDropdownMixin:OnShow()
     --local width = self:GetWidth()
 end

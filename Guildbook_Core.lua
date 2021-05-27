@@ -30,7 +30,7 @@ local LibSerialize = LibStub:GetLibrary("LibSerialize")
 --variables
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- this used to match the toc but for simplicity i've made it just an integer
-local build = 14;
+local build = 15;
 local locale = GetLocale()
 local L = Guildbook.Locales
 
@@ -252,6 +252,16 @@ function Guildbook:Init()
         }
     end
 
+
+    -- added much later !!!
+    if not GUILDBOOK_GLOBAL["myCharacters"] then
+        GUILDBOOK_GLOBAL["myCharacters"] = {}
+    end
+    if not GUILDBOOK_GLOBAL["myCharacters"][UnitGUID("player")] then
+        GUILDBOOK_GLOBAL["myCharacters"][UnitGUID("player")] = false;
+    end
+
+
     local ldb = LibStub("LibDataBroker-1.1")
     self.MinimapButton = ldb:NewDataObject('GuildbookMinimapIcon', {
         type = "data source",
@@ -411,11 +421,11 @@ function Guildbook:Init()
             GuildbookOptionsTooltipInfoMainCharacter:Enable()
         end
 
-        GuildbookOptionsLoadCalendarModule:SetChecked(GUILDBOOK_GLOBAL.Modules["GuildCalendarFrame"])
-        GuildbookOptionsLoadChatModule:SetChecked(GUILDBOOK_GLOBAL.Modules["ChatFrame"])
-        GuildbookOptionsLoadStatsModule:SetChecked(GUILDBOOK_GLOBAL.Modules["StatsFrame"])
-        GuildbookOptionsLoadProfilesModule:SetChecked(GUILDBOOK_GLOBAL.Modules["ProfilesFrame"])
-        GuildbookOptionsLoadGuildBankModule:SetChecked(GUILDBOOK_GLOBAL.Modules["GuildBankFrame"])
+        -- GuildbookOptionsLoadCalendarModule:SetChecked(GUILDBOOK_GLOBAL.Modules["GuildCalendarFrame"])
+        -- GuildbookOptionsLoadChatModule:SetChecked(GUILDBOOK_GLOBAL.Modules["ChatFrame"])
+        -- GuildbookOptionsLoadStatsModule:SetChecked(GUILDBOOK_GLOBAL.Modules["StatsFrame"])
+        -- GuildbookOptionsLoadProfilesModule:SetChecked(GUILDBOOK_GLOBAL.Modules["ProfilesFrame"])
+        -- GuildbookOptionsLoadGuildBankModule:SetChecked(GUILDBOOK_GLOBAL.Modules["GuildBankFrame"])
 
     end
 
@@ -730,16 +740,16 @@ function Guildbook:GetCharacterStats()
         for k, stat in pairs(statIDs) do
             local a, b, c, d = UnitStat("player", k);
             GUILDBOOK_CHARACTER['PaperDollStats'][stat] = self:TrimNumber(b)
-            DEBUG('func', 'GetCharacterStats', string.format("%s = %s", stat, b))
+            --DEBUG('func', 'GetCharacterStats', string.format("%s = %s", stat, b))
         end
 
         for k, v in pairs(GUILDBOOK_CHARACTER['PaperDollStats']) do
             if type(v) ~= 'table' then
-                DEBUG('func', 'GetCharacterStats', string.format("%s = %s", k, string.format("%.2f", v)))
+                --DEBUG('func', 'GetCharacterStats', string.format("%s = %s", k, string.format("%.2f", v)))
             else
                 for x, y in pairs(v) do
                     local trimmed = string.format("%.2f", y)
-                    DEBUG('func', 'GetCharacterStats', string.format("%s = %s", x, string.format("%.2f", y)))
+                    --DEBUG('func', 'GetCharacterStats', string.format("%s = %s", x, string.format("%.2f", y)))
                 end
             end
         end
@@ -1228,7 +1238,7 @@ function Guildbook.GetCharacterInventory()
         for k, slot in ipairs(Guildbook.Data.InventorySlots) do
             local link = GetInventoryItemLink('player', GetInventorySlotInfo(slot.Name)) or false
             GUILDBOOK_CHARACTER['Inventory'].Current[slot.Name] = link
-            DEBUG('func', 'GetCharacterInventory', string.format("added %s at slot %s", link or 'false', slot.Name))
+            --DEBUG('func', 'GetCharacterInventory', string.format("added %s at slot %s", link or 'false', slot.Name))
         end
     end
 end
@@ -1417,7 +1427,7 @@ function Guildbook:OnProfileReponse(response, distribution, sender)
         end
 
         GuildbookUI.statusText:SetText(string.format("received profile from %s", sender))
-        GuildbookUI.profiles:LoadProfile()
+        --GuildbookUI.profiles:LoadProfile()
     end)
 end
 
@@ -1471,7 +1481,7 @@ function Guildbook:OnTalentInfoReceived(data, distribution, sender)
         end
 
         GuildbookUI.statusText:SetText(string.format("received talents from %s", sender))
-        GuildbookUI.profiles:LoadTalents("primary")
+        --GuildbookUI.profiles:LoadTalents("primary")
     end)
 end
 
@@ -1522,7 +1532,7 @@ function Guildbook:OnCharacterInventoryReceived(data, distribution, sender)
             DEBUG('func', 'OnCharacterInventoryReceived', string.format('updated %s inventory', sender))
         end
         GuildbookUI.statusText:SetText(string.format("received inventory from %s", sender))
-        GuildbookUI.profiles:LoadInventory()
+        --GuildbookUI.profiles:LoadInventory()
     end)
 end
 
@@ -1713,7 +1723,7 @@ function Guildbook:OnCharacterDataReceived(data, distribution, sender)
             Guildbook:UpdateGuildMemberDetailFrame(data.payload.GUID)
 
             GuildbookUI.statusText:SetText(string.format("received character data from %s", data.payload.Name))
-            GuildbookUI.profiles:LoadStats()
+            --GuildbookUI.profiles:LoadStats()
         end)
     end
 end
@@ -2166,13 +2176,13 @@ function Guildbook:PLAYER_ENTERING_WORLD()
             self:SetupGuildBankFrame()
         end
         if GUILDBOOK_GLOBAL.Modules["ChatFrame"] == true then
-            self:SetupChatFrame()
+            --self:SetupChatFrame()
         end
         if GUILDBOOK_GLOBAL.Modules["StatsFrame"] == true then
-            self:SetupStatsFrame()
+            --self:SetupStatsFrame()
         end
         if GUILDBOOK_GLOBAL.Modules["ProfilesFrame"] == true then
-            self:SetupProfilesFrame()
+            --self:SetupProfilesFrame()
         end
         if GUILDBOOK_GLOBAL.Modules["GuildCalendarFrame"] == true then
             self:SetupGuildCalendarFrame()
@@ -2259,9 +2269,9 @@ function Guildbook:UPDATE_MOUSEOVER_UNIT()
             local race = C_CreatureInfo.GetRaceInfo(raceID).clientFileString:upper()
             local faction = C_CreatureInfo.GetFactionInfo(raceID).groupTag
             if race and self.player.faction == C_CreatureInfo.GetFactionInfo(raceID).groupTag then
-                if self.GuildFrame.ProfilesFrame.PaperdollTab:IsVisible() then
-                    self.GuildFrame.ProfilesFrame.PaperdollTab:AddModelFrame('mouseover', race, sex)
-                end
+                -- if self.GuildFrame.ProfilesFrame.PaperdollTab:IsVisible() then
+                --     self.GuildFrame.ProfilesFrame.PaperdollTab:AddModelFrame('mouseover', race, sex)
+                -- end
                 GuildbookUI.profiles:AddCharacterModelFrame('mouseover', race, sex)
             end
         end
@@ -2287,7 +2297,7 @@ function Guildbook:CHAT_MSG_GUILD(...)
             if not Guildbook.GuildChatLog then
                 Guildbook.GuildChatLog = {}
             end
-            self:AddGuildChatMessage(Guildbook.GuildChatLog, string.format("%s [%s%s|r]: %s", date("%T"), Guildbook.Data.Class[class].FontColour, sender, msg))
+            --self:AddGuildChatMessage(Guildbook.GuildChatLog, string.format("%s [%s%s|r]: %s", date("%T"), Guildbook.Data.Class[class].FontColour, sender, msg))
             GuildbookUI.chat:AddGuildChatMessage({
                 formattedMessage = string.format("%s [%s%s|r]: %s", date("%T"), Guildbook.Data.Class[class].FontColour, sender, msg),
                 sender = sender,
@@ -2358,11 +2368,11 @@ function Guildbook:GUILD_ROSTER_UPDATE(...)
                     if not GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] then
                         --GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] = Guildbook.Data.DefaultCharacterSettings
                         GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] = {}
-                        GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Name = Ambiguate(name, 'none')
-                        GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Level = level
-                        GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Class = class
-                        DEBUG('func', 'GUILD_ROSTER_UPDATE', string.format("added %s to cache", Ambiguate(name, 'none')))
                     end
+                    GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Name = Ambiguate(name, 'none')
+                    GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Level = level
+                    GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Class = class
+                    --DEBUG('func', 'GUILD_ROSTER_UPDATE', string.format("added %s to cache", Ambiguate(name, 'none')))
                 end
                 C_Timer.After(0.5, function()
                     Guildbook:CleanUpGuildRosterData(guildName, nil)
@@ -2421,33 +2431,33 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
     DEBUG('comms_in', 'ON_COMMS_RECEIVED', string.format("%s from %s", data.type, sender))
 
     if data.type == "TRADESKILLS_REQUEST" then
-        if not Guildbook.GuildFrame.ProfilesFrame then
-            return
-        end
+        -- if not Guildbook.GuildFrame.ProfilesFrame then
+        --     return
+        -- end
         self:OnTradeSkillsRequested(data, distribution, sender)
 
     elseif data.type == "TRADESKILLS_RESPONSE" then
-        if not Guildbook.GuildFrame.ProfilesFrame then
-            return
-        end
+        -- if not Guildbook.GuildFrame.ProfilesFrame then
+        --     return
+        -- end
         self:OnTradeSkillsReceived(data, distribution, sender);
 
     elseif data.type == 'CHARACTER_DATA_REQUEST' then
-        if not Guildbook.GuildFrame.ProfilesFrame then
-            return
-        end
+        -- if not Guildbook.GuildFrame.ProfilesFrame then
+        --     return
+        -- end
         self:OnCharacterDataRequested(data, distribution, sender)
 
     elseif data.type == 'CHARACTER_DATA_RESPONSE' then
-        if not Guildbook.GuildFrame.ProfilesFrame then
-            return
-        end
+        -- if not Guildbook.GuildFrame.ProfilesFrame then
+        --     return
+        -- end
         self:OnCharacterDataReceived(data, distribution, sender)
 
     elseif data.type == 'CHARACTER_DATA_UPDATE' then
-        if not Guildbook.GuildFrame.ProfilesFrame then
-            return
-        end
+        -- if not Guildbook.GuildFrame.ProfilesFrame then
+        --     return
+        -- end
         self:OnCharacterDataUpdateReceived(data, distribution, sender)
 
     elseif data.type == 'PROFILE_INFO_REQUEST' then
@@ -2457,27 +2467,27 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
         self:OnProfileReponse(data, distribution, sender)
 
     elseif data.type == 'TALENT_INFO_REQUEST' then
-        if not Guildbook.GuildFrame.ProfilesFrame then
-            return
-        end
+        -- if not Guildbook.GuildFrame.ProfilesFrame then
+        --     return
+        -- end
         self:OnTalentInfoRequest(data, distribution, sender)
 
     elseif data.type == 'TALENT_INFO_RESPONSE' then
-        if not Guildbook.GuildFrame.ProfilesFrame then
-            return
-        end
+        -- if not Guildbook.GuildFrame.ProfilesFrame then
+        --     return
+        -- end
         self:OnTalentInfoReceived(data, distribution, sender)
 
     elseif data.type == 'INVENTORY_REQUEST' then
-        if not Guildbook.GuildFrame.ProfilesFrame then
-            return
-        end
+        -- if not Guildbook.GuildFrame.ProfilesFrame then
+        --     return
+        -- end
         self:OnCharacterInventoryRequest(data, distribution, sender)
 
     elseif data.type == 'INVENTORY_RESPONSE' then
-        if not Guildbook.GuildFrame.ProfilesFrame then
-            return
-        end
+        -- if not Guildbook.GuildFrame.ProfilesFrame then
+        --     return
+        -- end
         self:OnCharacterInventoryReceived(data, distribution, sender)
 
 

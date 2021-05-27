@@ -118,6 +118,9 @@ L["REAL_NAME"] = "Name"
 L["REAL_DOB"] = "Birthday"
 L["REAL_BIO"] = "Bio"
 L["AVATAR"] = "Avatar"
+L["MAIN_CHARACTER"] = "Main character"
+L["MAIN_SPEC"] = "Main spec"
+L["OFF_SPEC"] = "Off spec"
 
 
 

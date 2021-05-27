@@ -450,4 +450,21 @@ Also, profiles! Work in progress due to new character.
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [15] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+Roster level issue should now be resolved.
+
+|cff0070DEUpdates|r:
+Menu has been moved into the ribbon style menu, the button icons will becoem better thought out!
+
+Added some backgrounds to each section and move the profile info (main spec etc) into 'My profile', to set a main character you will need to log in with that character first!
+
+Removed older profile scripts.
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }

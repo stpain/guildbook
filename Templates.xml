@@ -2,7 +2,7 @@
 
 
 	<Frame name="GuildbookDropdown" mixin="GuildbookDropdownMixin" virtual="true" enableMouse="true">
-		<Size x="108" y="30"/>
+		<Size x="115" y="30"/>
         <Anchors>
             <Anchor point="CENTER" x="0" y="0"/>
         </Anchors>
@@ -11,14 +11,14 @@
 				<!-- <Texture parentKey="Background" atlas="groupfinder-button-cover-down" setAllPoints="true" useAtlasSize="false"> -->
 				<Texture parentKey="Background" file="Interface/AuctionFrame/AuctionHouse" setAllPoints="true" useAtlasSize="false">
                     <TexCoords left="0.0009765625" right="0.2666015625" top="0.857421875" bottom="0.940" />
-					<Size x="108" y="26"/>
+					<!-- <Size x="115" y="26"/> -->
 					<Anchors>
 						<Anchor point="TOPLEFT" x="0" y="-2"/>
 					</Anchors>
 				</Texture>
             </Layer>
 			<Layer level="ARTWORK">
-				<FontString parentKey="Text" inherits="GameFontNormalSmall" text="testing">
+				<FontString parentKey="Text" inherits="GameFontNormalSmall" >
 					<Color r="1" g="1" b="1"/>
 					<!-- <Size x="" y=""/> -->
 					<Anchors>
@@ -31,7 +31,7 @@
 			<Frame parentKey="Button" mixin="GuildbookDropdownButtonMixin" enableMouse="true">
 				<Size x="27" y="26"/>
 				<Anchors>
-					<Anchor point="TOPRIGHT" x="-4" y="-2"/>
+					<Anchor point="RIGHT" x="-4" y="-2"/>
 				</Anchors>
 				<Layers>
 					<Layer level="BACKGROUND">
@@ -86,6 +86,7 @@
 			</Frame>
 		</Frames>
 		<Scripts>
+			<OnLoad method="OnLoad"/>
 			<OnShow method="OnShow"/>
 		</Scripts>
 	</Frame>

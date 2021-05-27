@@ -226,7 +226,13 @@ function GuildbookCharacterListviewItemMixin:OnMouseUp()
 end
 
 function GuildbookCharacterListviewItemMixin:SetCharacter(character, link)
-    self.Icon:SetAtlas(string.format("raceicon-%s-%s", character.race:lower(), character.gender:lower()))
+    local race;
+    if character.race:lower() == "scourge" then
+        race = "undead";
+    else
+        race = character.race:lower()
+    end
+    self.Icon:SetAtlas(string.format("raceicon-%s-%s", race, character.gender:lower()))
     self.Name:SetText(character.name)
     if character.online == true then
         self.Name:SetTextColor(1,1,1,1)
@@ -414,7 +420,13 @@ function GuildbookRosterListviewItemMixin:OnEnter()
     GameTooltip_SetTitle(GameTooltip, self.Name:GetText().."\n\n|cffffffff"..L['level'].." "..self.Level:GetText(), CreateColor(rPerc, gPerc, bPerc), nil)
     if self.tooltipIcon then
         if self.character.race and self.character.gender then
-            self.tooltipIcon.icon:SetAtlas(string.format("raceicon-%s-%s", self.character.race:lower(), self.character.gender:lower()))
+            local race;
+            if self.character.race:lower() == "scourge" then
+                race = "undead";
+            else
+                race = self.character.race:lower()
+            end
+            self.tooltipIcon.icon:SetAtlas(string.format("raceicon-%s-%s", race, self.character.gender:lower()))
             GameTooltip_InsertFrame(GameTooltip, self.tooltipIcon)
             for k, frame in pairs(GameTooltip.insertedFrames) do
                 if frame:GetName() == "GuildbookRosterListviewItemTooltipIcon" then
@@ -640,20 +652,11 @@ function GuildbookMixin:OpenTo(frame)
 end
 
 function GuildbookMixin:OnHide()
-    self.menu:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -50)
-    self.menu.isOut = false;
+
 end
 
 function GuildbookMixin:OnShow()
     GUILD_NAME = gb:GetGuildName()
-
-    C_Timer.After(0.25, function()
-        if self.menu.isOut == false then
-            self.agMenuOut:Play()
-        else
-            self.agMenuIn:Play()
-        end
-    end)
 
     scanPlayerBags()
 
@@ -665,68 +668,32 @@ function GuildbookMixin:OnLoad()
     SetPortraitToTexture(GuildbookUIPortrait,134068)
     --GuildbookUITitleText:SetText("v0.0.1")
 
-    self.menu.isOut = false;
 
-    self.agMenuOut = self.menu:CreateAnimationGroup()
-    self.menuOut = self.agMenuOut:CreateAnimation("Translation")
-    self.menuOut:SetOffset(-70, 0)
-    self.menuOut:SetDuration(0.3)
-    self.menuOut:SetScript("OnFinished", function()
-        self.menu:SetPoint("TOPLEFT", self, "TOPLEFT", -70, -50)
-        self.menu.isOut = true;
-    end)
-    self.agMenuIn = self.menu:CreateAnimationGroup()
-    self.menuIn = self.agMenuIn:CreateAnimation("Translation")
-    self.menuIn:SetOffset(70, 0)
-    self.menuIn:SetDuration(0.3)
-    self.menuIn:SetScript("OnFinished", function()
-        self.menu:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -50)
-        self.menu.isOut = false;
-    end)
-
-    self.portraitButton:SetScript("OnMouseDown", function()
-        if self.menu.isOut == false then
-            self.agMenuOut:Play()
-        else
-            self.agMenuIn:Play()
-        end
-    end)
-
-    self.menu:SetFrameLevel(self:GetFrameLevel() - 1)
-    self.menu.profiles.Background:SetAtlas("GarrMission_MissionIcon-Recruit")
-    local x = self.menu.profiles.Background:GetWidth()
-    self.menu.profiles.Background:SetSize(x*1.45, x*1.45)
-    self.menu.profiles.func = function()
+    self.ribbon:SetFrameLevel(self:GetFrameLevel() - 1)
+    self.ribbon.profiles.func = function()
         navigateTo(self.profiles)
-        -- gb.GuildFrame.ProfilesFrame:ClearAllPoints()
-        -- gb.GuildFrame.ProfilesFrame:SetParent(self.profiles)
-        -- gb.GuildFrame.ProfilesFrame:SetPoint("BOTTOMLEFT", 0, 0)
-        -- gb.GuildFrame.ProfilesFrame:SetPoint("BOTTOMRIGHT", 0, 0)
-        -- gb.GuildFrame.ProfilesFrame:SetHeight(450)
-        -- gb.GuildFrame.ProfilesFrame:Show()
-        -- gb.GuildFrame.ProfilesFrame.PaperdollTab:ClearAllPoints()
-        -- gb.GuildFrame.ProfilesFrame.PaperdollTab:SetParent(self.profiles.contentPane.scrollChild)
-        -- gb.GuildFrame.ProfilesFrame.PaperdollTab:SetPoint("TOP", 0, -10)
-        -- gb.GuildFrame.ProfilesFrame.PaperdollTab:SetSize(650, 400)
-        -- gb.GuildFrame.ProfilesFrame.PaperdollTab:Show()
-        -- gb.GuildFrame.ProfilesFrame.TalentsTab:ClearAllPoints()
-        -- gb.GuildFrame.ProfilesFrame.TalentsTab:SetParent(self.profiles.contentPane.scrollChild)
-        -- gb.GuildFrame.ProfilesFrame.TalentsTab:SetSize(650, 400)
-        -- gb.GuildFrame.ProfilesFrame.TalentsTab:SetScale(0.8)
-        -- gb.GuildFrame.ProfilesFrame.TalentsTab:SetPoint("TOP", -60, -410)
-        -- gb.GuildFrame.ProfilesFrame.TalentsTab:Show()
     end
-    self.menu.tradeskills.Background:SetAtlas("Mobile-Blacksmithing")
-    self.menu.tradeskills.func = function()
+    self.ribbon.tradeskills.func = function()
         navigateTo(self.tradeskills)
     end
-    self.menu.chat.Background:SetAtlas("socialqueuing-icon-group")
-    self.menu.chat.func = function()
+    self.ribbon.chat.func = function()
         navigateTo(self.chat)
     end
-    self.menu.roster.Background:SetAtlas("poi-workorders")
-    self.menu.roster.func = function()
+    self.ribbon.roster.func = function()
         navigateTo(self.roster)
+    end
+    --self.ribbon.calendar.Background:SetAtlas("poi-workorders")
+    self.ribbon.calendar.func = function()
+        navigateTo(self.calendar)
+        gb.GuildFrame.GuildCalendarFrame:ClearAllPoints()
+        gb.GuildFrame.GuildCalendarFrame:SetParent(self.calendar)
+        gb.GuildFrame.GuildCalendarFrame:SetPoint("TOPLEFT", 0, -26)
+        gb.GuildFrame.GuildCalendarFrame:SetPoint("BOTTOMRIGHT", -2, 0)
+        gb.GuildFrame.GuildCalendarFrame:Show()
+
+        gb.GuildFrame.GuildCalendarFrame.EventFrame:ClearAllPoints()
+        gb.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('TOPLEFT', self.calendar, 'TOPRIGHT', 4, 0)
+        gb.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('BOTTOMRIGHT', self.calendar, 'BOTTOMRIGHT', 254, 0)
     end
 
 
@@ -1322,9 +1289,9 @@ end
 function GuildbookRosterMixin:OnShow()
     GUILD_NAME = gb:GetGuildName()
     GuildRoster()
-    --if not self.roster[1] then
+    C_Timer.After(0.5, function()
         self:ParseGuildRoster(true)
-    --end
+    end)
 end
 
 function GuildbookRosterMixin:ParseGuildRoster(playAnim)
@@ -1848,10 +1815,16 @@ function GuildbookChatContentMixin:ChatContentScrollBar_OnValueChanged()
 
             --print(i, msg.sender, msg.chatID)
 
+            local race;
             if GUILD_NAME and GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][msg.senderGUID] then
                 local character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][msg.senderGUID]
                 if character.Race and character.Gender then
-                    self.rows[i].Icon:SetAtlas(string.format("raceicon-%s-%s", character.Race:lower(), character.Gender:lower()))
+                    if character.Race:lower() == "scourge" then
+                        race = "undead";
+                    else
+                        race = character.Race:lower()
+                    end
+                    self.rows[i].Icon:SetAtlas(string.format("raceicon-%s-%s", race, character.Gender:lower()))
                 else
                     self.rows[i].Icon:SetTexture(1067180)
                 end
@@ -1864,9 +1837,14 @@ function GuildbookChatContentMixin:ChatContentScrollBar_OnValueChanged()
                 if gb.PlayerMixin:IsValid() then
                     --local _, class, _ = C_PlayerInfo.GetClass(self.PlayerMixin)
                     local raceID = C_PlayerInfo.GetRace(gb.PlayerMixin)
-                    local race = C_CreatureInfo.GetRaceInfo(raceID).clientFileString:upper()
+                    local _race = C_CreatureInfo.GetRaceInfo(raceID).clientFileString:upper()
+                    if _race:lower() == "scourge" then
+                        race = "undead";
+                    else
+                        race = _race:lower()
+                    end
                     local gender = (C_PlayerInfo.GetSex(gb.PlayerMixin) == 1 and "FEMALE" or "MALE")
-                    self.rows[i].Icon:SetAtlas(string.format("raceicon-%s-%s", race:lower(), gender:lower()))
+                    self.rows[i].Icon:SetAtlas(string.format("raceicon-%s-%s", race, gender:lower()))
                 end
             end
 
@@ -2043,14 +2021,47 @@ function GuildbookProfilesMixin:OnShow()
     for k, f in ipairs(self.contentPane.scrollChild.frames) do
         f:ClearAllPoints()
         if k == 1 then
-            f:SetPoint("TOPLEFT", 0, -25)
-            f:SetPoint("TOPRIGHT", 0, -25)
+            f:SetPoint("TOPLEFT", 0, 0)
+            f:SetPoint("TOPRIGHT", 0, 0)
         else
             f:SetPoint("TOPLEFT", self.contentPane.scrollChild.frames[k-1], "BOTTOMLEFT", 0, 0)
             f:SetPoint("TOPRIGHT", self.contentPane.scrollChild.frames[k-1], "BOTTOMRIGHT", 0, 0)
         end
     end
-    --self:LoadCharacter()
+    self.myCharacters = {}
+    if GUILDBOOK_GLOBAL.myCharacters then
+        for guid, isMain in pairs(GUILDBOOK_GLOBAL.myCharacters) do
+            if GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][guid] then
+                local character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][guid]
+                table.insert(self.myCharacters, {
+                    text = character.Name,
+                    func = function()
+                        for _, main in pairs(GUILDBOOK_GLOBAL.myCharacters) do
+                            main = false;
+                        end
+                        GUILDBOOK_GLOBAL.myCharacters[guid] = true;
+                        for _guid, _ in pairs(GUILDBOOK_GLOBAL.myCharacters) do
+                            if GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][_guid] then
+                                local alt = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][_guid]
+                                --print("current value:",alt.MainCharacter)
+                                alt.MainCharacter = guid;
+                                GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][_guid].MainCharacter = guid;
+                                --print("new value:",alt.MainCharacter)
+                                GUILDBOOK_CHARACTER.MainCharacter = guid;
+                                print(string.format("set %s as main character for %s", character.Name, alt.Name))
+                            end
+                        end
+                        self.contentPane.scrollChild.profile.mainCharacterDropDown.Text:SetText(character.Name)
+                        self.contentPane.scrollChild.profile.mainCharacter:SetText(character.Name)
+                    end
+                })
+            end
+        end
+        self.contentPane.scrollChild.profile.mainCharacterDropDown.menu = self.myCharacters;
+    end
+
+
+
 end
 
 function GuildbookProfilesMixin:MyProfile_OnEditChanged(edit, text)
@@ -2064,8 +2075,34 @@ function GuildbookProfilesMixin:MyProfile_OnEditChanged(edit, text)
 end
 
 function GuildbookProfilesMixin:LoadCharacter(player)
+    local loadDelay = 1.1;
     if player and player == "player" then
+        loadDelay = 0;
+        navigateTo(self)
         self.character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][UnitGUID("player")]
+        local mainSpec, offSpec = {}, {}
+        for _, spec in ipairs(gb.Data.Class[self.character.Class].Specializations) do
+            table.insert(mainSpec, {
+                text = spec,
+                func = function()
+                    self.character.MainSpec = spec
+                    GUILDBOOK_CHARACTER.MainSpec = spec
+                    self.contentPane.scrollChild.profile.mainSpec:SetText(spec)
+                    self.contentPane.scrollChild.profile.mainSpecDropDown.Text:SetText(spec)
+                end
+            })
+            table.insert(offSpec, {
+                text = spec,
+                func = function()
+                    self.character.OffSpec = spec
+                    GUILDBOOK_CHARACTER.OffSpec = spec
+                    self.contentPane.scrollChild.profile.offSpec:SetText(spec)
+                end
+            })
+        end
+        self.contentPane.scrollChild.profile.mainSpecDropDown.menu = mainSpec
+        self.contentPane.scrollChild.profile.offSpecDropDown.menu = offSpec
+        
     end
     self:HideCharacterModels()
     self:HideInventoryIcons()
@@ -2073,39 +2110,41 @@ function GuildbookProfilesMixin:LoadCharacter(player)
     self:HideProfile()
     if self.character then
 
-        self:GetParent().statusBar:SetValue(0)
-        self:GetParent().statusBar.duration = 1.0 + gb.COMMS_DELAY
-        self:GetParent().statusBar.endTime = GetTime() + self:GetParent().statusBar.duration
-        self:GetParent().statusBar.active = true
+        if not player then
+            self:GetParent().statusBar:SetValue(0)
+            self:GetParent().statusBar.duration = loadDelay + gb.COMMS_DELAY
+            self:GetParent().statusBar.endTime = GetTime() + self:GetParent().statusBar.duration
+            self:GetParent().statusBar.active = true
 
-        self:GetParent().statusText:SetText("requesting profile")
-        gb:SendProfileRequest(self.character.Name)
-        C_Timer.After(0.2, function()
-            self:GetParent().statusText:SetText("requesting character data")
-            gb:CharacterDataRequest(self.character.Name)
-        end)
-        C_Timer.After(0.4, function()
-            self:GetParent().statusText:SetText("requesting inventory")
-            gb:SendInventoryRequest(self.character.Name)
-        end)
-        C_Timer.After(0.6, function()
-            self:GetParent().statusText:SetText("requesting talents")
-            gb:SendTalentInfoRequest(self.character.Name, 'primary')
-        end)
-        C_Timer.After(0.8, function()
-            if self.character.Profession1 then
-                self:GetParent().statusText:SetText("requesting profession 1")
-                gb:SendTradeSkillsRequest(self.character.Name, self.character.Profession1)
-            end
-        end)
-        C_Timer.After(1.0, function()
-            if self.character.Profession2 then
-                self:GetParent().statusText:SetText("requesting profession 2")
-                gb:SendTradeSkillsRequest(self.character.Name, self.character.Profession2)
-            end
-        end)
+            self:GetParent().statusText:SetText("requesting profile")
+            gb:SendProfileRequest(self.character.Name)
+            C_Timer.After(0.25, function()
+                self:GetParent().statusText:SetText("requesting character data")
+                gb:CharacterDataRequest(self.character.Name)
+            end)
+            C_Timer.After(0.5, function()
+                self:GetParent().statusText:SetText("requesting inventory")
+                gb:SendInventoryRequest(self.character.Name)
+            end)
+            C_Timer.After(0.75, function()
+                self:GetParent().statusText:SetText("requesting talents")
+                gb:SendTalentInfoRequest(self.character.Name, 'primary')
+            end)
+            C_Timer.After(1.0, function()
+                if self.character.Profession1 then
+                    self:GetParent().statusText:SetText("requesting profession 1")
+                    gb:SendTradeSkillsRequest(self.character.Name, self.character.Profession1)
+                end
+            end)
+            C_Timer.After(1.25, function()
+                if self.character.Profession2 then
+                    self:GetParent().statusText:SetText("requesting profession 2")
+                    gb:SendTradeSkillsRequest(self.character.Name, self.character.Profession2)
+                end
+            end)
+        end
 
-        C_Timer.After(gb.COMMS_DELAY + 1.0, function()
+        C_Timer.After(gb.COMMS_DELAY + loadDelay, function()
             if player and player == "player" then
                 self.contentPane.scrollChild.profile.edit:Show()
             else
@@ -2117,9 +2156,10 @@ function GuildbookProfilesMixin:LoadCharacter(player)
                     fs:SetShown(true)
                 end
             end
-            --self:LoadTalents("primary")
-            --self:LoadInventory()
-            --self:LoadStats()
+            self:LoadProfile()
+            self:LoadTalents("primary")
+            self:LoadInventory()
+            self:LoadStats()
             if self.character.Inventory and self.character.Inventory.Current and next(self.character.Inventory.Current) and self.character.Race and self.character.Gender and self.characterModels[self.character.Race:upper()] and self.characterModels[self.character.Race:upper()][self.character.Gender:upper()] then
                 self.defaultModel:Hide()
                 self.characterModels[self.character.Race:upper()][self.character.Gender:upper()]:Show()
@@ -2133,11 +2173,6 @@ function GuildbookProfilesMixin:LoadCharacter(player)
             if self.character.MainSpec then
                 self.sidePane.spec:SetText(self.character.MainSpec)
             end
-            if self.character.MainCharacter then
-                self.sidePane.mainCharacter:SetText("["..self.character.MainCharacter.."]")
-            else
-                self.sidePane.mainCharacter:SetText("-")
-            end
         end)
     else
         self.defaultModel:Show()
@@ -2148,17 +2183,7 @@ function GuildbookProfilesMixin:Edit_OnMouseDown(self)
     self.editOpen = not self.editOpen
     if self.editOpen == true then
         GuildbookUI.profiles.avatarPicker:Show()
-    else
-        GuildbookUI.profiles.avatarPicker:Hide()
-    end
-    GuildbookButtonMixin.OnMouseDown(self)
-    for _, f in ipairs(self:GetParent().displayEdit) do
-        f:SetShown(not f:IsVisible())
-    end
-    for _, fs in ipairs(self:GetParent().displayStrings) do
-        fs:SetShown(not fs:IsVisible())
-    end
-    if self.editOpen then
+
         local rName = self:GetParent().realName:GetText()
         local rDob = self:GetParent().realDob:GetText()
         local rBio = self:GetParent().realBio:GetText()
@@ -2167,6 +2192,8 @@ function GuildbookProfilesMixin:Edit_OnMouseDown(self)
         self:GetParent().realDobInput:SetText(rDob or "")
         self:GetParent().realBioInput.EditBox:SetText(rBio or "")
     else
+        GuildbookUI.profiles.avatarPicker:Hide()
+
         local rName = self:GetParent().realNameInput:GetText()
         local rDob = self:GetParent().realDobInput:GetText()
         local rBio = self:GetParent().realBioInput.EditBox:GetText()
@@ -2174,6 +2201,13 @@ function GuildbookProfilesMixin:Edit_OnMouseDown(self)
         self:GetParent().realName:SetText(rName or "")
         self:GetParent().realDob:SetText(rDob or "")
         self:GetParent().realBio:SetText(rBio or "")
+    end
+    GuildbookButtonMixin.OnMouseDown(self)
+    for _, f in ipairs(self:GetParent().displayEdit) do
+        f:SetShown(not f:IsVisible())
+    end
+    for _, fs in ipairs(self:GetParent().displayStrings) do
+        fs:SetShown(not fs:IsVisible())
     end
 end
 
@@ -2190,7 +2224,7 @@ function GuildbookProfilesMixin:LoadProfile()
                 if self.contentPane.scrollChild.profile[k] then
                     self.contentPane.scrollChild.profile[k]:SetText(v)
                 else
-                    self.contentPane.scrollChild.profile[k]:SetText("-")
+                    self.contentPane.scrollChild.profile[k]:SetText("")
                 end
             end
         end
@@ -2199,6 +2233,13 @@ function GuildbookProfilesMixin:LoadProfile()
             fs:SetText("-")
         end
     end
+    --print("load profile",self.character.MainCharacter)
+    if self.character.MainCharacter and GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][self.character.MainCharacter] then
+        self.contentPane.scrollChild.profile.mainCharacter:SetText(GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][self.character.MainCharacter].Name or "-")
+    end
+
+    self.contentPane.scrollChild.profile.mainSpec:SetText(self.character.MainSpec or "")
+    self.contentPane.scrollChild.profile.offSpec:SetText(self.character.OffSpec or "")
 end
 
 function GuildbookProfilesMixin:HideProfile()
@@ -2514,7 +2555,9 @@ end
 
 
 function GuildbookProfilesMixin:LoadInventory()
+    --print("loading inventory")
     if self.character and self.character.Inventory and self.character.Inventory.Current then
+        --print("got current items")
         for slot, link in pairs(self.character.Inventory.Current) do
             if link ~= false then
                 local _, _, _, _, icon, _, _ = GetItemInfoInstant(link)

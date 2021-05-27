@@ -134,6 +134,9 @@ the copyright holders.
                     </OnClick>
                 </Scripts>
             </Button>
+
+
+<!-- 
             <CheckButton name="$parentLoadChatModule" inherits="ChatConfigCheckButtonTemplate" >
                 <Size x="24" y="24"/>
                 <Layers>
@@ -278,7 +281,10 @@ the copyright holders.
                         GuildbookOptionsLoadGuildBankModule_OnClick(self)
                     </OnClick>
                 </Scripts>
-            </CheckButton>
+            </CheckButton> -->
+
+
+
             <CheckButton name="$parentTooltipInfo" inherits="ChatConfigCheckButtonTemplate" >
                 <Size x="24" y="24"/>
                 <Layers>

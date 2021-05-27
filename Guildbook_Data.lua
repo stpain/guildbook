@@ -162,7 +162,7 @@ Guildbook.Data.Class = {
         Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\DRUID", 
         RGB={ 1.00, 0.49, 0.04 }, 
         FontColour='|cffFF7D0A', 
-        Specializations={'Balance','Restoration','Cat','Bear',} 
+        Specializations={'Balance','Restoration','Feral','Guardian',} 
     },
     HUNTER = { 
         FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:0:64:64:128|t", 

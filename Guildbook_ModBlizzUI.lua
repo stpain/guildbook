@@ -452,10 +452,10 @@ function Guildbook:ModBlizzUI()
     
     self.GuildFrame.Frames = {
         ['GuildBankFrame'] = { Text = 'GuildBank', Width = 77.0, OffsetY = -80.0 },
-        ['ChatFrame'] = { Text = 'Chat', Width = 77.0, OffsetY = -160.0 },
-        ['StatsFrame'] = { Text = 'Statistics', Width = 77.0, OffsetY = -240.0 },
-        ['ProfilesFrame'] = { Text = 'Profiles', Width = 77.0, OffsetY = -320.0 },
-        ['GuildCalendarFrame'] = { Text = 'Calendar', Width = 77.0, OffsetY = -400.0 },
+        -- ['ChatFrame'] = { Text = 'Chat', Width = 77.0, OffsetY = -160.0 },
+        -- ['StatsFrame'] = { Text = 'Statistics', Width = 77.0, OffsetY = -240.0 },
+        -- ['ProfilesFrame'] = { Text = 'Profiles', Width = 77.0, OffsetY = -320.0 },
+        --['GuildCalendarFrame'] = { Text = 'Calendar', Width = 77.0, OffsetY = -400.0 },
     }
 
     local function setupModule(frame, button)
