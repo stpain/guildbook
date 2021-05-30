@@ -314,25 +314,6 @@ function Guildbook:Init()
         end
     end)
 
-    --ToggleFriendsFrame:HookScript()
-    hooksecurefunc(FriendsFrame, 'Show', function(...)
-        for k, v in pairs(...) do
-            if k == 'selectedTab' and v == 3 then
-                Guildbook:ToggleGuildFrame('none')
-            end
-        end
-    end)
-
-    --ToggleFriendsFrame:HookScript()
-    local guildRosterCacheChecked = 0
-    hooksecurefunc(GuildFrame, 'Show', function(...)
-        C_Timer.After(2, function()
-            if GetTime() > (guildRosterCacheChecked + 30) then
-                Guildbook:CleanUpGuildRosterData(Guildbook:GetGuildName(), 'checking guild data')
-                guildRosterCacheChecked = GetTime()
-            end
-        end)
-    end)
 
     -- hook the tooltip for guild characters
     GameTooltip:HookScript('OnTooltipSetUnit', function(self)
@@ -970,24 +951,44 @@ end
 -- this will check name and class against the return values from PlayerMixin using guid, sometimes players create multipole characters before settling on a class
 -- we also check the player entries for profression errors, talents table and spec data
 -- any entries not found the current guild roster will be removed (=nil)
+local lastRosterCleanUp = -1.0;
+local rosterScanDelay = 120.0
 function Guildbook:CleanUpGuildRosterData(guild, msg)
+    if lastRosterCleanUp + rosterScanDelay > time() then
+        local nextScanIn = rosterScanDelay - (time() - lastRosterCleanUp)
+        GuildbookUI.statusText:SetText(string.format("roster clean up cancelled, %s until reset", SecondsToTime(nextScanIn)))
+        C_Timer.After(3, function() GuildbookUI.statusText:SetText("") end)
+        return;
+    end
+    lastRosterCleanUp = time()
     if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[guild] then
-        if msg then
-            Guildbook:PrintMessage(msg)
-        end
+        local memberCount = 0;
+        local memberGUIDs = {}
         local currentGUIDs = {}
+        local guidsToRemove = {}
+        for guid, _ in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[guild]) do
+            table.insert(memberGUIDs, guid)
+            memberCount = memberCount + 1;
+        end
         local totalMembers, onlineMembers, _ = GetNumGuildMembers()
         GUILDBOOK_GLOBAL['RosterExcel'] = {}
         for i = 1, totalMembers do
             --local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, guid = GetGuildRosterInfo(i)
-            local name, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, guid = GetGuildRosterInfo(i)
+            local _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, guid = GetGuildRosterInfo(i)
             currentGUIDs[guid] = true
-            name = Ambiguate(name, 'none')
+            --name = Ambiguate(name, 'none')
             --table.insert(GUILDBOOK_GLOBAL['RosterExcel'], string.format("%s,%s,%s,%s,%s", name, class, rankName, level, publicNote))
         end
-        local removedCharacters = 0
-        local guidsToRemove = {}
-        for guid, info in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[guild]) do
+        local i = 1;
+        local start = date('*t')
+        local started = time()
+        GuildbookUI.statusText:SetText(string.format("starting roster clean up at %s:%s:%s", start.hour, start.min, start.sec))
+        C_Timer.NewTicker(0.05, function()
+            local percent = (i/memberCount) * 100
+            GuildbookUI.statusText:SetText(string.format("roster clean up %s%%",string.format("%.1f", percent)))
+            GuildbookUI.statusBar:SetValue(i/memberCount)
+            local guid = memberGUIDs[i]
+            local info = GUILDBOOK_GLOBAL.GuildRosterCache[guild][guid]
             if currentGUIDs[guid] then
                 if info.Name and info.Name:find('-') then
                     info.Name = Ambiguate(info.Name, 'none')
@@ -1085,23 +1086,163 @@ function Guildbook:CleanUpGuildRosterData(guild, msg)
                             info.UNKNOWN = nil
                             DEBUG('func', 'CleanUpGuildRosterData', string.format('removed table UNKNOWN from %s', name))
                         end
+
+                        if info.MainCharacter then
+                            info.Alts = {}
+                            for _guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[guild]) do
+                                if info.MainCharacter ~= "-" and character.MainCharacter == info.MainCharacter then
+                                    table.insert(info.Alts, _guid)
+                                end
+                            end
+                        end
                     end
                 end
             else
                 table.insert(guidsToRemove, guid)
                 DEBUG('func', 'CleanUpGuildRosterData', string.format('removed %s from roster cache', info.Name))
             end
-        end
-        C_Timer.After(3, function()
-            if guidsToRemove and next(guidsToRemove) then
-                for k, guid in ipairs(guidsToRemove) do
-                    GUILDBOOK_GLOBAL.GuildRosterCache[guild][guid] = nil
-                end
-                if msg then
-                    Guildbook:PrintMessage(string.format('removed %s characters from roster cache', #guidsToRemove))
-                end
+            i = i + 1;
+            if i > memberCount then
+                local finish = date('*t')
+                local finished = time() - started
+                GuildbookUI.statusBar:SetValue(0)
+                GuildbookUI.statusText:SetText(string.format("finished roster clean up, took %s", SecondsToTime(finished)))
+                C_Timer.After(3, function()
+                    if guidsToRemove and next(guidsToRemove) then
+                        for k, guid in ipairs(guidsToRemove) do
+                            GUILDBOOK_GLOBAL.GuildRosterCache[guild][guid] = nil
+                        end
+                        if msg then
+                            GuildbookUI.statusText:SetText(string.format('removed %s characters from roster cache', #guidsToRemove))
+                        end
+                    end
+                end)
             end
-        end)
+        end, memberCount)
+        -- for guid, info in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[guild]) do
+        --     if currentGUIDs[guid] then
+        --         if info.Name and info.Name:find('-') then
+        --             info.Name = Ambiguate(info.Name, 'none')
+        --             DEBUG('func', 'CleanUpGuildRosterData', info.Name..' has error with name, removing realm from name')
+        --         end
+        --         if not self.PlayerMixin then
+        --             self.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
+        --         else
+        --             self.PlayerMixin:SetGUID(guid)
+        --         end
+        --         if self.PlayerMixin:IsValid() then
+        --             local _, class, _ = C_PlayerInfo.GetClass(self.PlayerMixin)
+        --             local name = C_PlayerInfo.GetName(self.PlayerMixin)
+        --             if name and class then
+        --                 local raceID = C_PlayerInfo.GetRace(self.PlayerMixin)
+        --                 local race = C_CreatureInfo.GetRaceInfo(raceID).clientFileString:upper()
+        --                 local sex = (C_PlayerInfo.GetSex(self.PlayerMixin) == 1 and "FEMALE" or "MALE")
+        --                 local faction = C_CreatureInfo.GetFactionInfo(raceID).groupTag
+        --                 if not info.Faction then
+        --                     info.Faction = faction
+        --                 end
+        --                 if not info.Race then
+        --                     info.Race = race
+        --                     DEBUG('func', 'CleanUpGuildRosterData', 'updated '..name..' race info')
+        --                 end
+        --                 if not info.Gender then
+        --                     info.Gender = sex
+        --                     DEBUG('func', 'CleanUpGuildRosterData', 'updated '..name..' gender info')
+        --                 end
+        --                 name = Ambiguate(name, 'none')
+        --                 if not info.Class or (info.Class ~= class) then
+        --                     info.Class = class
+        --                     DEBUG('func', 'CleanUpGuildRosterData', name..' has error with class, updating class to mixin value')
+        --                 end
+        --                 if not info.Name or (info.Name ~= name) then
+        --                     info.Name = name
+        --                     DEBUG('func', 'CleanUpGuildRosterData', info.Name..' has error with name, updating name to mixin value')
+        --                 end
+        --                 local ms = false
+        --                 if info.MainSpec ~= '-' then
+        --                     for _, spec in pairs(Guildbook.Data.Class[class].Specializations) do
+        --                         if info.MainSpec == spec then
+        --                             ms = true
+        --                         end
+        --                     end
+        --                 elseif info.MainSpec == '-' then
+        --                     ms = true
+        --                 end
+        --                 if ms == false then
+        --                     DEBUG('func', 'CleanUpGuildRosterData', name..' has error with main spec, setting to default')
+        --                     info.MainSpec = '-'
+        --                 end
+        --                 local os = false
+        --                 if info.OffSpec ~= '-' then
+        --                     for _, spec in pairs(Guildbook.Data.Class[class].Specializations) do
+        --                         if info.OffSpec == spec then
+        --                             os = true
+        --                         end
+        --                     end
+        --                 elseif info.OffSpec == '-' then
+        --                     os = true
+        --                 end
+        --                 if os == false then
+        --                     DEBUG('func', 'CleanUpGuildRosterData', name..' has error with off spec, setting to default')
+        --                     info.OffSpec = '-'
+        --                 end
+        --                 for prof, _ in pairs(Guildbook.Data.Profession) do
+        --                     for k, v in pairs(info) do
+        --                         if k == prof then
+        --                             if info.Profession1 == prof or info.Profession2 == prof then
+        --                                 DEBUG('func', 'CleanUpGuildRosterData', string.format('%s matches prof1 or prof2 keeping data', prof))
+        --                             else
+        --                                 if prof == 'Cooking' or prof == 'Fishing' or prof == 'FirstAid' then
+
+        --                                 else
+        --                                     info[prof] = nil
+        --                                     DEBUG('func', 'CleanUpGuildRosterData', string.format('removing %s from %s as no longer trained', prof, name))
+        --                                 end
+        --                             end
+        --                         end
+        --                     end
+        --                 end
+        --                 if not info.Talents then
+        --                     info.Talents = {
+        --                         ['primary'] = {},
+        --                         ['secondary'] = {},
+        --                     }
+        --                     DEBUG('func', 'CleanUpGuildRosterData', string.format('added talent tables to %s', name))
+        --                 end
+        --                 if not info.PaperDollStats then
+        --                     info.PaperDollStats = {}
+        --                     DEBUG('func', 'CleanUpGuildRosterData', string.format('added paper doll stats tables to %s', name))
+        --                 end
+        --                 if info.UNKNOWN then
+        --                     info.UNKNOWN = nil
+        --                     DEBUG('func', 'CleanUpGuildRosterData', string.format('removed table UNKNOWN from %s', name))
+        --                 end
+
+        --                 if info.MainCharacter then
+        --                     info.Alts = {}
+        --                     for _guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[guild]) do
+        --                         if character.MainCharacter == info.MainCharacter then
+        --                             table.insert(info.Alts, _guid)
+        --                         end
+        --                     end
+        --                 end
+        --             end
+        --         end
+        --     else
+        --         table.insert(guidsToRemove, guid)
+        --         DEBUG('func', 'CleanUpGuildRosterData', string.format('removed %s from roster cache', info.Name))
+        --     end
+        -- end
+        -- C_Timer.After(3, function()
+        --     if guidsToRemove and next(guidsToRemove) then
+        --         for k, guid in ipairs(guidsToRemove) do
+        --             GUILDBOOK_GLOBAL.GuildRosterCache[guild][guid] = nil
+        --         end
+        --         if msg then
+        --             Guildbook:PrintMessage(string.format('removed %s characters from roster cache', #guidsToRemove))
+        --         end
+        --     end
+        -- end)
     end
 end
 
@@ -2374,7 +2515,7 @@ function Guildbook:GUILD_ROSTER_UPDATE(...)
                     GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Class = class
                     --DEBUG('func', 'GUILD_ROSTER_UPDATE', string.format("added %s to cache", Ambiguate(name, 'none')))
                 end
-                C_Timer.After(0.5, function()
+                C_Timer.After(0.25, function()
                     Guildbook:CleanUpGuildRosterData(guildName, nil)
                 end)
                 C_Timer.After(1, function()

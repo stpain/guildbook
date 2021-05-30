@@ -122,6 +122,21 @@ L["MAIN_CHARACTER"] = "Main character"
 L["MAIN_SPEC"] = "Main spec"
 L["OFF_SPEC"] = "Off spec"
 
+L["PROFILES"] = "Profiles"
+L["TRADESKILLS"] = "Tradeskills (Professions)"
+L["CHAT"] = "Chat"
+L["ROSTER"] = "Roster"
+L["CALENDAR"] = "Calendar"
+L["MY_PROFILE"] = "My profile"
+L["OPEN_PROFILE"] = "Open profile"
+L["OPEN_CHAT"] = "Open chat"
+L["INVITE_TO_GROUP"] = "Invite to group"
+L["SEND_TRADE_ENQUIRY"] = "Send message about item"
+L["REFRESH_ROSTER"] = "Refresh roster"
+L["EDIT"] = "Edit profile"
+
+L["ALTS"] = "Alt characters"
+
 
 
 --professions

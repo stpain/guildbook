@@ -219,7 +219,7 @@
                     </Layer>
                 </Layers>
                 <KeyValues>
-                    <KeyValue key="tooltipText" value="Invite to group"/>
+                    <KeyValue key="tooltipText" value="INVITE_TO_GROUP" type="string"/>
                 </KeyValues>
                 <Scripts>   
                     <OnMouseDown>
@@ -231,20 +231,20 @@
             <Frame parentKey="openChat" inherits="GuildbookSmallHighlightButton" enableMouse="true">
                 <Size x="25" y="25"/>
                 <Anchors>
-                    <Anchor point="RIGHT" x="-26" y="0"/>
+                    <Anchor point="RIGHT" relativeKey="$parent.inviteToGroup" relativePoint="LEFT" x="-4" y="0"/>
                 </Anchors>
                 <Layers>
                     <Layer level="BACKGROUND">
-                        <Texture atlas="socialqueuing-icon-group">
-                            <Size x="25" y="25"/>
+                        <Texture file="interface/helpframe/reportlagicon-chat" setAllPoints="true">
                             <Anchors>
-                                <Anchor point="CENTER"/>
+                                <Anchor point="TOPLEFT" x="-8" y="8"/>
+                                <Anchor point="BOTTOMRIGHT" x="8" y="-8"/>
                             </Anchors>
                         </Texture>
                     </Layer>
                 </Layers>
                 <KeyValues>
-                    <KeyValue key="tooltipText" value="Open chat"/>
+                    <KeyValue key="tooltipText" value="OPEN_CHAT" type="string"/>
                 </KeyValues>
                 <Scripts>   
                     <OnMouseDown>
@@ -256,20 +256,20 @@
             <Frame parentKey="openProfile" inherits="GuildbookSmallHighlightButton" enableMouse="true">
                 <Size x="25" y="25"/>
                 <Anchors>
-                    <Anchor point="RIGHT" x="-52" y="0"/>
+                    <Anchor point="RIGHT" relativeKey="$parent.openChat" relativePoint="LEFT" x="-4" y="0"/>
                 </Anchors>
                 <Layers>
                     <Layer level="BACKGROUND">
-                        <Texture atlas="groupfinder-waitdot" useAtlasSize="true">
-                            <Size x="25" y="25"/>
+                        <Texture parentKey="background" atlas="GarrMission_MissionIcon-Recruit" setAllPoints="true">
                             <Anchors>
-                                <Anchor point="CENTER"/>
+                                <Anchor point="TOPLEFT" x="-2" y="2"/>
+                                <Anchor point="BOTTOMRIGHT" x="2" y="-2"/>
                             </Anchors>
                         </Texture>
                     </Layer>
                 </Layers>
                 <KeyValues>
-                    <KeyValue key="tooltipText" value="Open profile"/>
+                    <KeyValue key="tooltipText" value="OPEN_PROFILE" type="string"/>
                 </KeyValues>
                 <Scripts>   
                     <OnMouseDown>
@@ -525,13 +525,14 @@
             </OnMouseDown>
             <OnHyperlinkEnter>
                 if link then
+                    GameTooltip:SetOwner(self, 'ANCHOR_TOPRIGHT')
                     GameTooltip:SetHyperlink(link)
                     GameTooltip:Show()
                 end
             </OnHyperlinkEnter>
             <OnHyperlinkLeave>
                 GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-                GameTooltip:Hide()
+                <!-- GameTooltip:Hide() -->
             </OnHyperlinkLeave>
         </Scripts>
     </Frame>
@@ -699,11 +700,16 @@
                         </Anchors>
                         <Layers>
                             <Layer level="BACKGROUND">
-                                <Texture atlas="GarrMission_MissionIcon-Recruit" setAllPoints="true"/>
+                                <Texture atlas="GarrMission_MissionIcon-Recruit" setAllPoints="true">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="-2" y="2"/>
+                                        <Anchor point="BOTTOMRIGHT" x="2" y="-2"/>
+                                    </Anchors>
+                                </Texture>
                             </Layer>
                         </Layers>
                         <KeyValues>
-                            <KeyValue key="tooltipText" value="Profiles" type="string"/>
+                            <KeyValue key="tooltipText" value="PROFILES" type="string"/>
                         </KeyValues>
                     </Frame>
                     <Frame parentKey="tradeskills" inherits="GuildbookSmallHighlightButton" hidden="false">
@@ -716,25 +722,31 @@
                             </Layer>
                         </Layers>
                         <KeyValues>
-                            <KeyValue key="tooltipText" value="Tradeskills" type="string"/>
+                            <KeyValue key="tooltipText" value="TRADESKILLS" type="string"/>
                         </KeyValues>
                     </Frame>
                     <Frame parentKey="chat" inherits="GuildbookSmallHighlightButton" hidden="false">
                         <Anchors>
-                            <Anchor point="LEFT" x="130" y="0"/>
+                            <Anchor point="LEFT" x="120" y="0"/>
                         </Anchors>
                         <Layers>
                             <Layer level="BACKGROUND">
-                                <Texture atlas="socialqueuing-icon-group" setAllPoints="true"/>
+                                <!-- <Texture atlas="socialqueuing-icon-group" setAllPoints="true"/> -->
+                                <Texture file="interface/helpframe/reportlagicon-chat" setAllPoints="true">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="-8" y="8"/>
+                                        <Anchor point="BOTTOMRIGHT" x="8" y="-8"/>
+                                    </Anchors>
+                                </Texture>
                             </Layer>
                         </Layers>
                         <KeyValues>
-                            <KeyValue key="tooltipText" value="Chat" type="string"/>
+                            <KeyValue key="tooltipText" value="CHAT" type="string"/>
                         </KeyValues>
                     </Frame>
                     <Frame parentKey="roster" inherits="GuildbookSmallHighlightButton" hidden="false">
                         <Anchors>
-                            <Anchor point="LEFT" x="170" y="0"/>
+                            <Anchor point="LEFT" x="150" y="0"/>
                         </Anchors>
                         <Layers>
                             <Layer level="BACKGROUND">
@@ -742,37 +754,42 @@
                             </Layer>
                         </Layers>
                         <KeyValues>
-                            <KeyValue key="tooltipText" value="Roster" type="string"/>
+                            <KeyValue key="tooltipText" value="ROSTER" type="string"/>
                         </KeyValues>
                     </Frame>
                     <Frame parentKey="calendar" inherits="GuildbookSmallHighlightButton" hidden="false">
                         <Anchors>
-                            <Anchor point="LEFT" x="210" y="0"/>
+                            <Anchor point="LEFT" x="180" y="0"/>
                         </Anchors>
                         <Layers>
                             <Layer level="BACKGROUND">
-                                <Texture atlas="groupfinder-waitdot" setAllPoints="true"/>
+                                <Texture file="Interface/Addons/Guildbook/Icons/CalendarMinimapButton">
+                                    <TexCoords left="0.0" right="0.72" top="0.0" bottom="0.72"/>
+                                </Texture>
                             </Layer>
                         </Layers>
                         <KeyValues>
-                            <KeyValue key="tooltipText" value="Calendar" type="string"/>
+                            <KeyValue key="tooltipText" value="CALENDAR" type="string"/>
                         </KeyValues>
                     </Frame>
 
                     <Frame parentKey="myProfile" inherits="GuildbookSmallHighlightButton" enableMouse="true">
-                        <Size x="25" y="25"/>
+                        <Size x="30" y="30"/>
                         <Anchors>
-                            <Anchor point="RIGHT" x="-5" y="0"/>
+                            <Anchor point="RIGHT" x="-8" y="0"/>
                         </Anchors>
                         <Layers>
                             <Layer level="BACKGROUND">
-                                <Texture atlas="groupfinder-waitdot" setAllPoints="true"/>
+                                <Texture parentKey="background" setAllPoints="true"/>
                             </Layer>
                         </Layers>
                         <KeyValues>
-                            <KeyValue key="tooltipText" value="My profile"/>
+                            <KeyValue key="tooltipText" value="MY_PROFILE"/>
                         </KeyValues>
-                        <Scripts>   
+                        <Scripts>
+                            <OnShow>
+                                SetPortraitTexture(self.background, "player")
+                            </OnShow>
                             <OnMouseDown>
                                 GuildbookButtonMixin.OnMouseDown(self)
                                 self:GetParent():GetParent().profiles:LoadCharacter("player")
@@ -1046,7 +1063,7 @@
                                                     </Layer>
                                                 </Layers>
                                                 <KeyValues>
-                                                    <KeyValue key="tooltipText" value="Edit"/>
+                                                    <KeyValue key="tooltipText" value="EDIT"/>
                                                 </KeyValues>
                                                 <Scripts>
                                                     <OnLoad>
@@ -1577,7 +1594,7 @@
                     </Layer>
                 </Layers>
                 <Frames>
-                    <Frame parentKey="refresh" inherits="GuildbookSmallHighlightButton" enableMouse="true">
+                    <!-- <Frame parentKey="refresh" inherits="GuildbookSmallHighlightButton" enableMouse="true">
                         <Size x="35" y="35"/>
                         <Anchors>
                             <Anchor point="TOPRIGHT" x="-10" y="-10"/>
@@ -1593,14 +1610,14 @@
                             </Layer>
                         </Layers>
                         <KeyValues>
-                            <KeyValue key="tooltipText" value="Refresh roster"/>
+                            <KeyValue key="tooltipText" value="REFRESH_ROSTER"/>
                         </KeyValues>
                         <Scripts>   
                             <OnMouseDown>
                                 self:GetParent():ParseGuildRoster()
                             </OnMouseDown>
                         </Scripts>
-                    </Frame>
+                    </Frame> -->
                     <Button parentKey="sortClass" parentArray="sortButtons" inherits="UIPanelButtonTemplate">
                         <Size x="35" y="24"/>
                         <Anchors>

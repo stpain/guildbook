@@ -241,7 +241,7 @@ function Guildbook:ModBlizzUI()
                     Guildbook:CharacterDataRequest(name)
                     Guildbook.DEBUG('comms_out', 'GuildFrameButton'..i..':OnClick', 'sent character data request to '..name)
                 end
-                Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(guid, nil)
+                --Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(guid, nil)
                 --GuildMemberDetailFrame:Show()
 
                 --Guildbook.GuildMemberDetailFrame.Portrait.Portrait:SetTexture(130903)

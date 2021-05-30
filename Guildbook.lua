@@ -38,7 +38,7 @@ end
 function GuildbookButtonMixin:OnEnter()
     if self.tooltipText then
         GameTooltip:SetOwner(self, 'ANCHOR_LEFT')
-        GameTooltip:AddLine("|cffffffff"..self.tooltipText)
+        GameTooltip:AddLine("|cffffffff"..L[self.tooltipText])
         GameTooltip:Show()
     else
         GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
@@ -261,7 +261,7 @@ end
 function GuildbookCharacterListviewItemMixin:SendMessage_OnEnter()
     if self.itemLink then
         GameTooltip:SetOwner(self.sendMessage, 'ANCHOR_RIGHT')
-        GameTooltip:AddLine("|cffffffffSend trade enquiry|r")
+        GameTooltip:AddLine("|cffffffff"..L["SEND_TRADE_ENQUIRY"])
         GameTooltip:Show()
     else
         GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
@@ -415,51 +415,80 @@ function GuildbookRosterListviewItemMixin:OnEnter()
     if not self.character then
         return;
     end
+    local character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][self.character.guid]
+    if not character then
+        return;
+    end
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-    local rPerc, gPerc, bPerc, argbHex = GetClassColor(self.character.class:upper())
-    GameTooltip_SetTitle(GameTooltip, self.Name:GetText().."\n\n|cffffffff"..L['level'].." "..self.Level:GetText(), CreateColor(rPerc, gPerc, bPerc), nil)
+    local rPerc, gPerc, bPerc, argbHex = GetClassColor(character.Class:upper())
+    GameTooltip_SetTitle(GameTooltip, character.Name.."\n\n|cffffffff"..L['level'].." "..character.Level, CreateColor(rPerc, gPerc, bPerc), nil)
     if self.tooltipIcon then
-        if self.character.race and self.character.gender then
+        if character.profile and character.profile.avatar then
+            self.tooltipIcon.icon:SetTexture(character.profile.avatar)
+        elseif character.Race and character.Gender then
             local race;
-            if self.character.race:lower() == "scourge" then
+            if character.Race:lower() == "scourge" then
                 race = "undead";
             else
-                race = self.character.race:lower()
+                race = character.Race:lower()
             end
-            self.tooltipIcon.icon:SetAtlas(string.format("raceicon-%s-%s", race, self.character.gender:lower()))
-            GameTooltip_InsertFrame(GameTooltip, self.tooltipIcon)
-            for k, frame in pairs(GameTooltip.insertedFrames) do
-                if frame:GetName() == "GuildbookRosterListviewItemTooltipIcon" then
-                    frame:ClearAllPoints()
-                    frame:SetPoint("TOPRIGHT", -20, -20)
-                end
+            self.tooltipIcon.icon:SetAtlas(string.format("raceicon-%s-%s", race, character.Gender:lower()))
+        end
+        GameTooltip_InsertFrame(GameTooltip, self.tooltipIcon)
+        for k, frame in pairs(GameTooltip.insertedFrames) do
+            if frame:GetName() == "GuildbookRosterListviewItemTooltipIcon" then
+                frame:ClearAllPoints()
+                frame:SetPoint("TOPRIGHT", -20, -20)
             end
         end
     end
 
-   -- GameTooltip:AddLine(" ")
-    -- GameTooltip:AddDoubleLine(L['rankName'], "|cffffffff"..self.Rank:GetText())
-    -- GameTooltip:AddLine(" ")
-    -- GameTooltip:AddDoubleLine(L['location'], "|cffffffff"..self.Location:GetText())
-    -- GameTooltip:AddLine(" ")
-    GameTooltip:AddDoubleLine(L['Professions'], "|cffffffff"..(self.character.prof1 or ""))
+    GameTooltip:AddDoubleLine(L['Professions'], "       ")
+    GameTooltip:AddDoubleLine(character.Profession1 or "-", character.Profession1Level or 0, 1,1,1,1, 1,1,1,1)
     --GameTooltip_ShowStatusBar(GameTooltip, 0, 300, 245)
     --GameTooltip_ShowProgressBar(GameTooltip, 0, 300, 245)
-    GameTooltip:AddDoubleLine(" ", "|cffffffff"..(self.character.prof2 or ""))
-    if self.PublicNote:GetText() and #self.PublicNote:GetText() > 0 then
+    GameTooltip:AddDoubleLine(character.Profession2 or "-", character.Profession2Level or 0, 1,1,1,1, 1,1,1,1)
+    -- if self.PublicNote:GetText() and #self.PublicNote:GetText() > 0 then
+    --     GameTooltip:AddLine(" ")
+    --     GameTooltip:AddDoubleLine(L['publicNote'], "|cffffffff"..self.PublicNote:GetText())
+    -- end
+
+    if character.MainCharacter and GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][character.MainCharacter] then
         GameTooltip:AddLine(" ")
-        GameTooltip:AddDoubleLine(L['publicNote'], "|cffffffff"..self.PublicNote:GetText())
+        GameTooltip:AddLine(L['MAIN_CHARACTER'])
+        local s = string.format("%s %s %s",
+        gb.Data.Class[GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][character.MainCharacter].Class].FontStringIconMEDIUM,
+        gb.Data.Class[GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][character.MainCharacter].Class].FontColour,
+        GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][character.MainCharacter].Name
+        )
+        GameTooltip:AddLine(s)
     end
+    if character.Alts then
+        GameTooltip:AddLine(" ")
+        GameTooltip:AddLine(L['ALTS'])
+        for _, guid in pairs(character.Alts) do
+            if guid ~= character.MainCharacter then
+                local s = string.format("%s %s %s",
+                gb.Data.Class[GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][guid].Class].FontStringIconMEDIUM,
+                gb.Data.Class[GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][guid].Class].FontColour,
+                GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][guid].Name
+                )
+                GameTooltip:AddLine(s)
+            end
+            --GameTooltip:AddTexture(gb.Data.Class[GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][guid].Class].Icon)
+        end
+    end
+    --GameTooltip:AddLine(" ")
 
     -- i contacted the author of attune to check it was ok to add their addon data 
-    if Attune_DB and Attune_DB.toons[self.character.name.."-"..GetRealmName()] then
+    if Attune_DB and Attune_DB.toons[character.Name.."-"..GetRealmName()] then
         GameTooltip:AddLine(" ")
         GameTooltip:AddLine(L["attunements"])
 
-        local db = Attune_DB.toons[self.character.name.."-"..GetRealmName()]
+        local db = Attune_DB.toons[character.Name.."-"..GetRealmName()]
 
         for _, instance in ipairs(Attune_Data.attunes) do
-            if db.attuned[instance.ID] and type(db.attuned[instance.ID]) == "number" and instance.FACTION == "Both" or instance.FACTION == GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][self.character.guid].Faction then
+            if db.attuned[instance.ID] and type(db.attuned[instance.ID]) == "number" and instance.FACTION == "Both" or instance.FACTION == character.Faction then
                 local formatPercent = db.attuned[instance.ID] < 100 and "|cffff0000"..db.attuned[instance.ID].."%" or "|cff00ff00"..db.attuned[instance.ID].."%"
                 GameTooltip:AddDoubleLine("|cffffffff"..instance.NAME, formatPercent)
             end
@@ -471,6 +500,11 @@ end
 
 
 function GuildbookRosterListviewItemMixin:OnLeave()
+    for k, frame in pairs(GameTooltip.insertedFrames) do
+        if frame:GetName() == "GuildbookRosterListviewItemTooltipIcon" then
+            frame:Hide()
+        end
+    end
     GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
 end
 
@@ -539,6 +573,13 @@ function GuildbookRosterListviewItemMixin:SetCharacter(character)
     self.Location:SetText(character.location)
     self.Rank:SetText(character.rankName)
     self.PublicNote:SetText(character.publicNote)
+
+    if GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][self.character.guid] and GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][self.character.guid].profile and GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][self.character.guid].profile.avatar then
+        self.openProfile.background:SetTexture(GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][self.character.guid].profile.avatar)
+    else
+        self.openProfile.background:SetAtlas("GarrMission_MissionIcon-Recruit")
+    end
+
 end
 
 function GuildbookRosterListviewItemMixin:OnMouseDown()
@@ -583,7 +624,7 @@ end
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 GuildbookMixin = {}
 GuildbookMixin.selectedProfession = nil;
-GuildbookMixin.characterWithProfession = {}
+GuildbookMixin.charactersWithProfession = {}
 GuildbookMixin.playerContainerItems = {}
 
 local function scanPlayerBags()
@@ -937,24 +978,24 @@ function GuildbookProfessionListviewMixin:OnLoad()
         f:SetItem(prof)
         f.func = function()
             if GUILD_NAME then
-                wipe(GuildbookMixin.characterWithProfession)
+                wipe(GuildbookMixin.charactersWithProfession)
                 GuildbookProfessionListviewMixin.recipesProcessed = 0;
                 GuildbookMixin.selectedProfession = prof.Name;
                 for guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME]) do
                     if character.Profession1 and character.Profession1 == prof.Name then
-                        table.insert(GuildbookMixin.characterWithProfession, guid)
+                        table.insert(GuildbookMixin.charactersWithProfession, guid)
                         --print("found", character.Name, "with prof", prof.Name)
                     elseif character.Profession2 and character.Profession2 == prof.Name then
-                        table.insert(GuildbookMixin.characterWithProfession, guid)
+                        table.insert(GuildbookMixin.charactersWithProfession, guid)
                         --print("found", character.Name, "with prof", prof.Name)
                     end
                 end
                 scanPlayerBags()
-                if #GuildbookMixin.characterWithProfession > 0 then
+                if #GuildbookMixin.charactersWithProfession > 0 then
                     wipe(GuildbookUI.tradeskills.recipesListview.recipes)
                    -- print("wiping table")
                     local recipes = {}
-                    for k, guid in ipairs(GuildbookMixin.characterWithProfession) do
+                    for k, guid in ipairs(GuildbookMixin.charactersWithProfession) do
                         local character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][guid]
                         --print(character.Name)
                         if character[prof.Name]  then
@@ -1011,7 +1052,7 @@ local function getPlayersWithRecipe(recipeID)
         return
     end
     local characters = {}
-    for k, guid in ipairs(GuildbookMixin.characterWithProfession) do
+    for k, guid in ipairs(GuildbookMixin.charactersWithProfession) do
         local character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][guid]
         if character[GuildbookMixin.selectedProfession] then
             if character[GuildbookMixin.selectedProfession][recipeID] then
@@ -1398,13 +1439,17 @@ function GuildbookRosterMixin:ForceRosterListviewRefresh(playAnim)
             self.memberListview.scrollBar:SetValue(1)
         end)
         if self.rosterSort and self.rosterSortOrder then
-            self:SortRoster(self.rosterSort, self.rosterSortOrder)
+            self:SortRoster()
         else
             table.sort(self.roster, function(a,b)
-                if a.level == b.level then
-                    return a.name < b.name
+                if a.isOnline == b.isOnline then
+                    if a.level == b.level then
+                        return a.name < b.name
+                    else
+                        return a.level > b.level;
+                    end
                 else
-                    return a.level > b.level;
+                    return a.isOnline and not b.isOnline
                 end
             end)
         end
@@ -1443,8 +1488,8 @@ function GuildbookRosterMixin:SortRoster()
         local sort = self.rosterSort
         --this is to trigger a refresh by calling the scroll value changed func
         self.memberListview.scrollBar:SetMinMaxValues(1,2)
-        self.memberListview.scrollBar:SetValue(2)
-        self.memberListview.scrollBar:SetValue(1)
+        -- self.memberListview.scrollBar:SetValue(2)
+        -- self.memberListview.scrollBar:SetValue(1)
         C_Timer.After(0, function()
             self.memberListview.scrollBar:SetValue(2)
             self.memberListview.scrollBar:SetValue(1)
@@ -1818,7 +1863,9 @@ function GuildbookChatContentMixin:ChatContentScrollBar_OnValueChanged()
             local race;
             if GUILD_NAME and GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][msg.senderGUID] then
                 local character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][msg.senderGUID]
-                if character.Race and character.Gender then
+                if character.profile and character.profile.avatar then
+                    self.rows[i].Icon:SetTexture(character.profile.avatar)
+                elseif character.Race and character.Gender then
                     if character.Race:lower() == "scourge" then
                         race = "undead";
                     else
@@ -2097,6 +2144,7 @@ function GuildbookProfilesMixin:LoadCharacter(player)
                     self.character.OffSpec = spec
                     GUILDBOOK_CHARACTER.OffSpec = spec
                     self.contentPane.scrollChild.profile.offSpec:SetText(spec)
+                    self.contentPane.scrollChild.profile.offSpecDropDown.Text:SetText(spec)
                 end
             })
         end
