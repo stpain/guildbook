@@ -467,4 +467,19 @@ Removed older profile scripts.
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [16] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+fixed bug with clicking default blizz roster
+
+|cff0070DEUpdates|r:
+Icons now set up!
+
+Added alts to roster tooltip, these can be set via your profile.
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }
