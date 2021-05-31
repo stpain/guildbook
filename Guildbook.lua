@@ -1315,14 +1315,51 @@ function GuildbookRosterMixin:OnLoad()
         GuildbookRosterMixin.rows[i] = f;
     end
 
+    local buttonDropdownMenus = {
+        class = {},
+    }
+    for i = GetNumClasses(), 1, -1 do
+        local className, classFile, classID = GetClassInfo(i)
+        if className then
+            table.insert(buttonDropdownMenus.class, {
+                text = string.format("%s %s", gb.Data.Class[classFile].FontStringIconSMALL, className),
+                func = function()
+                    self.rosterFilterKey = "Class";
+                    self.rosterFilterValue = classFile;
+                    self:ParseGuildRoster(false)
+                end,
+            })
+        end
+    end
+    table.insert(buttonDropdownMenus.class, {
+        text = "All classes",
+        func = function()
+            self.rosterFilterKey = nil;
+            self.rosterFilterValue = nil;
+            self:ParseGuildRoster(false)
+        end,
+    })
+    local mixin = self;
     for _, button in pairs(self.sortButtons) do
+        button:RegisterForClicks("AnyDown")
         button:SetText(L[button.sort])
         button.order = true
-        button:SetScript("OnClick", function()
-            self.rosterSort = button.sort
-            self.rosterSortOrder = button.order
-            self:SortRoster()
-            button.order = not button.order;
+        button.menu = buttonDropdownMenus[button.sort]
+        button:SetScript("OnClick", function(self, b)
+            if b == "RightButton" then
+                if self.flyout:IsVisible() then
+                    self.flyout:Hide()
+                end
+                if self.flyout and mixin.roster then
+                    self.flyout.delayTimer = 5.0;
+                    self.flyout:Show()
+                end
+            else
+                mixin.rosterSort = self.sort
+                mixin.rosterSortOrder = self.order
+                mixin:SortRoster()
+                self.order = not self.order;
+            end
         end)
     end
 end
@@ -1344,9 +1381,9 @@ function GuildbookRosterMixin:ParseGuildRoster(playAnim)
         self.characterStatus[GUID] = {
             isOnline = _isOnline  and _isOnline or false,
             zone = _zone,
-            publicNote = _publicNote,
-            officerNote = _officerNote,
-            rankName = _rankName,
+            -- publicNote = _publicNote,
+            -- officerNote = _officerNote,
+            -- rankName = _rankName,
         }
         if i == totalMembers then
             self:LoadCharacters(playAnim)
@@ -1398,24 +1435,44 @@ function GuildbookRosterMixin:LoadCharacters(playAnim)
     local i = 1;
     for guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME]) do
         local _class = string.sub(character.Class, 1, 1):upper()..string.sub(character.Class, 2)
-        if self.characterStatus and self.characterStatus[guid] then
-            table.insert(self.roster, {
-                guid = guid,
-                class = _class,
-                race = character.Race,
-                gender = character.Gender,
-                name = character.Name,
-                level = character.Level,
-                mainSpec = character.MainSpec or "-",
-                prof1 = character.Profession1 or "-",
-                prof2 = character.Profession2 or "-",
-                selected = false,
-                isOnline = self.characterStatus[guid].isOnline,
-                location = self.characterStatus[guid].zone or "-",
-                rankName = self.characterStatus[guid].rankName,
-                publicNote = self.characterStatus[guid].publicNote,
-                officernote = self.characterStatus[guid].officerNote,
-            })
+        if self.rosterFilterKey then
+            if character[self.rosterFilterKey] and character[self.rosterFilterKey] == self.rosterFilterValue then
+                if self.characterStatus and self.characterStatus[guid] then
+                    table.insert(self.roster, {
+                        guid = guid,
+                        -- add the rest of these for sorting purposes
+                        class = _class,
+                        name = character.Name,
+                        level = character.Level,
+                        mainSpec = character.MainSpec or "-",
+                        prof1 = character.Profession1 or "-",
+                        prof2 = character.Profession2 or "-",
+                        selected = false,
+                        isOnline = self.characterStatus[guid].isOnline,
+                        location = self.characterStatus[guid].zone or "-",
+                        rankName = character.RankName or "-",
+                        publicNote = character.PublicNote or "-",
+                    })
+                end
+            end
+        else
+            if self.characterStatus and self.characterStatus[guid] then
+                table.insert(self.roster, {
+                    guid = guid,
+                    -- add the rest of these for sorting purposes
+                    class = _class,
+                    name = character.Name,
+                    level = character.Level,
+                    mainSpec = character.MainSpec or "-",
+                    prof1 = character.Profession1 or "-",
+                    prof2 = character.Profession2 or "-",
+                    selected = false,
+                    isOnline = self.characterStatus[guid].isOnline,
+                    location = self.characterStatus[guid].zone or "-",
+                    rankName = character.RankName or "-",
+                    publicNote = character.PublicNote or "-",
+                })
+            end
         end
         if i == numChars then
             self:ForceRosterListviewRefresh(playAnim)
@@ -1539,8 +1596,7 @@ end
 
 function GuildbookRosterMixin:RowOpenProfile_OnMouseDown(row)
     if GUILD_NAME then
-        local character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][row.character.guid]
-        self:GetParent().profiles.character = character;
+        self:GetParent().profiles.character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][row.character.guid];
         self:GetParent().profiles:LoadCharacter()
     end
 
@@ -1585,6 +1641,35 @@ GuildbookChatsMixin.chats = {
 GuildbookChatsMixin.chatsKeys = {}
 GuildbookChatsMixin.chatsRows = {}
 GuildbookChatsMixin.chatContentsRows = {}
+-- GuildbookChatsMixin.chatFrame1EditBoxMessage = "";
+
+-- if ChatFrame1EditBox then
+--     ChatFrame1EditBox:HookScript("OnTextChanged", function(self)
+--         GuildbookChatsMixin.chatFrame1EditBoxMessage = self:GetText()
+--     end)
+--     ChatFrame1EditBox:HookScript("OnEnterPressed", function(self)
+--         if #GuildbookChatsMixin.chatFrame1EditBoxMessage > 0 then
+--             local sender = Ambiguate(UnitName("player"), "none")
+--             local _, class = UnitClass("player")
+--             local _target = self.target
+--             --print(_target)
+--             SendChatMessage(GuildbookChatsMixin.chatFrame1EditBoxMessage, self.channel, nil, _target)
+
+--             if self.channel == "GUILD" then
+--                 return;
+--             end
+
+--             self:AddChatMessage({
+--                 formattedMessage = string.format("%s [%s%s|r]: %s", date("%T"), gb.Data.Class[class].FontColour, sender, msg),
+--                 sender = sender,
+--                 target = _target,
+--                 senderGUID = UnitGUID("player"),
+--                 message = msg,
+--                 chatID = self.chatID, -- self.chatID is the guid of the person you are /w with
+--             })
+--         end
+--     end)
+-- end
 
 local NUM_MESSAGES_ROWS = 9
 
@@ -2215,8 +2300,12 @@ function GuildbookProfilesMixin:LoadCharacter(player)
                 self.defaultModel:Show()
             end
             --self.fadeIn:Play()
-            self.background:SetAtlas("legionmission-complete-background-"..(self.character.Class:lower()))
-            self.sidePane.background:SetAtlas("transmog-background-race-"..(self.character.Race:lower()))
+            if self.character.Class then
+                self.background:SetAtlas("legionmission-complete-background-"..(self.character.Class:lower()))
+            end
+            if self.character.Race then
+                self.sidePane.background:SetAtlas("transmog-background-race-"..(self.character.Race:lower()))
+            end
             self.sidePane.name:SetText(self.character.Name)
             if self.character.MainSpec then
                 self.sidePane.spec:SetText(self.character.MainSpec)

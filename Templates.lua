@@ -44,7 +44,9 @@ end
 
 function GuildbookDropdownMixin:OnLoad()
     self:SetSize(self:GetWidth(), self:GetHeight())
-    self.Background:SetSize(self:GetWidth(), self:GetHeight())
+    if self.Background then
+        self.Background:SetSize(self:GetWidth(), self:GetHeight())
+    end
     self.Button:SetHeight(self:GetHeight())
 end
 
@@ -106,7 +108,7 @@ function GuildbookDropdownFlyoutMixin:OnShow()
         self.delay:Cancel()
     end
 
-    self.delay = C_Timer.NewTicker(DROPDOWN_CLOSE_DELAY, function()
+    self.delay = C_Timer.NewTicker(self.delayTimer or DROPDOWN_CLOSE_DELAY, function()
         if not self:IsMouseOver() then
             self:Hide()
         end

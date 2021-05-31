@@ -471,13 +471,19 @@ end
 -- functions
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+local localProfNames = tInvert(Guildbook.ProfessionNames[GetLocale()])
 function Guildbook:GetEnglishProf(prof)
-    for id, name in pairs(self.ProfessionNames[locale]) do
-        if name == prof then
-            --print("found", prof, "returning", self.ProfessionNames.enUS[id])
-            return self.ProfessionNames.enUS[id]
-        end
+    local id = localProfNames[prof]
+    if id then
+        --print(Guildbook.ProfessionNames.enUS[id])
+        return Guildbook.ProfessionNames.enUS[id]
     end
+    -- for id, name in pairs(self.ProfessionNames[locale]) do
+    --     if name == prof then
+    --         --print("found", prof, "returning", self.ProfessionNames.enUS[id])
+    --         return self.ProfessionNames.enUS[id]
+    --     end
+    -- end
 end
 
 function Guildbook:CreateFrame(_type, _name, _parent, _inherits)
@@ -875,26 +881,23 @@ end
 function Guildbook:ScanTradeSkill()
     local prof = GetTradeSkillLine() -- this returns local name
     if Guildbook:GetEnglishProf(prof) then
-        prof = Guildbook:GetEnglishProf(prof) --convert to english, this is a lookup table
+        prof = Guildbook:GetEnglishProf(prof) --convert to english
         GUILDBOOK_CHARACTER[prof] = {}
         for i = 1, GetNumTradeSkills() do
-            local name, type, _, _, _, _ = GetTradeSkillInfo(i)
-            if (name and type ~= "header") then
+            local name, _type, _, _, _, _ = GetTradeSkillInfo(i)
+            if (name and _type ~= "header") then
                 local itemLink = GetTradeSkillItemLink(i)
                 local itemID = select(1, GetItemInfoInstant(itemLink))
-                local itemName = select(1, GetItemInfo(itemID))
-                DEBUG('func', 'ScanTradeSkill', string.format('|cff0070DETrade item|r: %s, with ID: %s', name, itemID))
-                if itemName and itemID then
+                if itemID then
                     GUILDBOOK_CHARACTER[prof][itemID] = {}
                 end
                 local numReagents = GetTradeSkillNumReagents(i);
                 if numReagents > 0 then
-                    for j = 1, numReagents, 1 do
-                        local reagentName, reagentTexture, reagentCount, playerReagentCount = GetTradeSkillReagentInfo(i, j)
+                    for j = 1, numReagents do
+                        local _, _, reagentCount, _ = GetTradeSkillReagentInfo(i, j)
                         local reagentLink = GetTradeSkillReagentItemLink(i, j)
                         local reagentID = select(1, GetItemInfoInstant(reagentLink))
-                        if reagentName and reagentID and reagentCount then
-                            DEBUG('func', 'ScanTradeSkill', string.format('    Reagent name: %s, with ID: %s, Needed: %s', reagentName, reagentID, reagentCount))
+                        if reagentID and reagentCount then
                             GUILDBOOK_CHARACTER[prof][itemID][reagentID] = reagentCount
                         end
                     end
@@ -974,8 +977,8 @@ function Guildbook:CleanUpGuildRosterData(guild, msg)
         GUILDBOOK_GLOBAL['RosterExcel'] = {}
         for i = 1, totalMembers do
             --local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, guid = GetGuildRosterInfo(i)
-            local _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, guid = GetGuildRosterInfo(i)
-            currentGUIDs[guid] = true
+            local _, rankName, _, _, _, zone, publicNote, officerNote, isOnline, _, _, _, _, _, _, _, guid = GetGuildRosterInfo(i)
+            currentGUIDs[guid] = {exists = true, rank = rankName, pubNote = publicNote, offNote = officerNote}
             --name = Ambiguate(name, 'none')
             --table.insert(GUILDBOOK_GLOBAL['RosterExcel'], string.format("%s,%s,%s,%s,%s", name, class, rankName, level, publicNote))
         end
@@ -990,10 +993,6 @@ function Guildbook:CleanUpGuildRosterData(guild, msg)
             local guid = memberGUIDs[i]
             local info = GUILDBOOK_GLOBAL.GuildRosterCache[guild][guid]
             if currentGUIDs[guid] then
-                if info.Name and info.Name:find('-') then
-                    info.Name = Ambiguate(info.Name, 'none')
-                    DEBUG('func', 'CleanUpGuildRosterData', info.Name..' has error with name, removing realm from name')
-                end
                 if not self.PlayerMixin then
                     self.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
                 else
@@ -1007,26 +1006,16 @@ function Guildbook:CleanUpGuildRosterData(guild, msg)
                         local race = C_CreatureInfo.GetRaceInfo(raceID).clientFileString:upper()
                         local sex = (C_PlayerInfo.GetSex(self.PlayerMixin) == 1 and "FEMALE" or "MALE")
                         local faction = C_CreatureInfo.GetFactionInfo(raceID).groupTag
-                        if not info.Faction then
-                            info.Faction = faction
-                        end
-                        if not info.Race then
-                            info.Race = race
-                            DEBUG('func', 'CleanUpGuildRosterData', 'updated '..name..' race info')
-                        end
-                        if not info.Gender then
-                            info.Gender = sex
-                            DEBUG('func', 'CleanUpGuildRosterData', 'updated '..name..' gender info')
-                        end
-                        name = Ambiguate(name, 'none')
-                        if not info.Class or (info.Class ~= class) then
-                            info.Class = class
-                            DEBUG('func', 'CleanUpGuildRosterData', name..' has error with class, updating class to mixin value')
-                        end
-                        if not info.Name or (info.Name ~= name) then
-                            info.Name = name
-                            DEBUG('func', 'CleanUpGuildRosterData', info.Name..' has error with name, updating name to mixin value')
-                        end
+                        
+                        info.Faction = faction;
+                        info.Race = race;
+                        info.Gender = sex;
+                        info.Class = class;
+                        info.Name = Ambiguate(name, 'none');
+                        info.PublicNote = currentGUIDs[guid].pubNote;
+                        info.OfficerNote = currentGUIDs[guid].offNote;
+                        info.RankName = currentGUIDs[guid].rank;
+
                         local ms = false
                         if info.MainSpec ~= '-' then
                             for _, spec in pairs(Guildbook.Data.Class[class].Specializations) do
@@ -1055,6 +1044,7 @@ function Guildbook:CleanUpGuildRosterData(guild, msg)
                             DEBUG('func', 'CleanUpGuildRosterData', name..' has error with off spec, setting to default')
                             info.OffSpec = '-'
                         end
+
                         for prof, _ in pairs(Guildbook.Data.Profession) do
                             for k, v in pairs(info) do
                                 if k == prof then
@@ -1087,6 +1077,7 @@ function Guildbook:CleanUpGuildRosterData(guild, msg)
                             DEBUG('func', 'CleanUpGuildRosterData', string.format('removed table UNKNOWN from %s', name))
                         end
 
+
                         if info.MainCharacter then
                             info.Alts = {}
                             for _guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[guild]) do
@@ -1107,14 +1098,14 @@ function Guildbook:CleanUpGuildRosterData(guild, msg)
                 local finished = time() - started
                 GuildbookUI.statusBar:SetValue(0)
                 GuildbookUI.statusText:SetText(string.format("finished roster clean up, took %s", SecondsToTime(finished)))
-                C_Timer.After(3, function()
-                    if guidsToRemove and next(guidsToRemove) then
-                        for k, guid in ipairs(guidsToRemove) do
-                            GUILDBOOK_GLOBAL.GuildRosterCache[guild][guid] = nil
-                        end
-                        if msg then
-                            GuildbookUI.statusText:SetText(string.format('removed %s characters from roster cache', #guidsToRemove))
-                        end
+                if guidsToRemove and next(guidsToRemove) then
+                    for k, guid in ipairs(guidsToRemove) do
+                        GUILDBOOK_GLOBAL.GuildRosterCache[guild][guid] = nil
+                    end
+                end
+                C_Timer.After(0.5, function()
+                    if GuildbookUI then
+                        GuildbookUI.roster:ParseGuildRoster()
                     end
                 end)
             end
@@ -1495,6 +1486,10 @@ end
 -- comms
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function Guildbook:Transmit(data, channel, target, priority)
+    local inInstance, _ = IsInInstance()
+    if inInstance then
+        GuildbookUI.statusText:SetText("unable to transmit data while in an instance")
+    end
     if not self:GetGuildName() then
         return;
     end
@@ -1725,7 +1720,14 @@ function Guildbook:OnTradeSkillsReceived(data, distribution, sender)
             local guildName = Guildbook:GetGuildName()
             if guildName and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
                 for guid, character in pairs(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName]) do
-                    if character.Name == sender then                
+                    if character.Name == sender then
+                        if type(data.payload.recipes) == "table" then
+                            local i = 0;
+                            for recipeID, reagentsTable in pairs(data.payload.recipes) do
+                                i = i + 1;
+                                DEBUG("comms_in", 'OnTradeSkillsReceived', "got recipeID: "..recipeID)
+                            end
+                        end
                         character[data.payload.profession] = data.payload.recipes
                         DEBUG('func', 'OnTradeSkillsReceived', 'updating db, set: '..character.Name..' prof: '..data.payload.profession)
                     end
@@ -2502,27 +2504,7 @@ function Guildbook:GUILD_ROSTER_UPDATE(...)
                 if not GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
                     GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] = {}
                 end
-                local totalMembers, onlineMembers, _ = GetNumGuildMembers()
-                for i = 1, totalMembers do
-                    local name, _, _, level, _, _, _, _, _, _, class, _, _, _, _, _, guid = GetGuildRosterInfo(i)
-                    --print(name, Ambiguate(name, 'none'))
-                    if not GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] then
-                        --GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] = Guildbook.Data.DefaultCharacterSettings
-                        GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] = {}
-                    end
-                    GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Name = Ambiguate(name, 'none')
-                    GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Level = level
-                    GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Class = class
-                    --DEBUG('func', 'GUILD_ROSTER_UPDATE', string.format("added %s to cache", Ambiguate(name, 'none')))
-                end
-                C_Timer.After(0.25, function()
-                    Guildbook:CleanUpGuildRosterData(guildName, nil)
-                end)
-                C_Timer.After(1, function()
-                    if GuildbookUI then
-                        GuildbookUI.roster:ParseGuildRoster()
-                    end
-                end)
+                self:CleanUpGuildRosterData(guildName, nil)
             end
         end
     end)

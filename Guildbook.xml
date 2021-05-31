@@ -1626,6 +1626,14 @@
                         <KeyValues>
                             <KeyValue key="sort" value="class" type="string"/>
                         </KeyValues>
+                        <Frames>
+                            <Frame parentKey="flyout" inherits="GuildbookDropdownFlyout">
+                                <Size x="100" y="24"/>
+                                <Anchors>
+                                    <Anchor point="BOTTOM" x="0" y="0"/>
+                                </Anchors>
+                            </Frame>
+                        </Frames>
                     </Button>
                     <Button parentKey="sortName" parentArray="sortButtons" inherits="UIPanelButtonTemplate">
                         <Size x="113" y="24"/>
