@@ -6,7 +6,7 @@ local L = gb.Locales
 local DEBUG = gb.DEBUG
 
 local GUILD_NAME;
-
+local transmitStagger = 0.4;
 
 --- basic button mixin
 GuildbookButtonMixin = {}
@@ -500,9 +500,11 @@ end
 
 
 function GuildbookRosterListviewItemMixin:OnLeave()
-    for k, frame in pairs(GameTooltip.insertedFrames) do
-        if frame:GetName() == "GuildbookRosterListviewItemTooltipIcon" then
-            frame:Hide()
+    if GameTooltip.insertedFrames and next(GameTooltip.insertedFrames) ~= nil then
+        for k, frame in pairs(GameTooltip.insertedFrames) do
+            if frame:GetName() == "GuildbookRosterListviewItemTooltipIcon" then
+                frame:Hide()
+            end
         end
     end
     GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
@@ -701,6 +703,11 @@ function GuildbookMixin:OnShow()
 
     scanPlayerBags()
 
+    if GUILDBOOK_CHARACTER.profile.avatar then
+        self.ribbon.myProfile.background:SetTexture(GUILDBOOK_CHARACTER.profile.avatar) 
+    else
+        SetPortraitTexture(self.ribbon.myProfile.background, "player")
+    end
 
 end
 
@@ -2180,7 +2187,7 @@ function GuildbookProfilesMixin:OnShow()
                                 GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][_guid].MainCharacter = guid;
                                 --print("new value:",alt.MainCharacter)
                                 GUILDBOOK_CHARACTER.MainCharacter = guid;
-                                print(string.format("set %s as main character for %s", character.Name, alt.Name))
+                                --print(string.format("set %s as main character for %s", character.Name, alt.Name))
                             end
                         end
                         self.contentPane.scrollChild.profile.mainCharacterDropDown.Text:SetText(character.Name)
@@ -2207,9 +2214,7 @@ function GuildbookProfilesMixin:MyProfile_OnEditChanged(edit, text)
 end
 
 function GuildbookProfilesMixin:LoadCharacter(player)
-    local loadDelay = 1.1;
     if player and player == "player" then
-        loadDelay = 0;
         navigateTo(self)
         self.character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][UnitGUID("player")]
         local mainSpec, offSpec = {}, {}
@@ -2245,31 +2250,31 @@ function GuildbookProfilesMixin:LoadCharacter(player)
 
         if not player then
             self:GetParent().statusBar:SetValue(0)
-            self:GetParent().statusBar.duration = loadDelay + gb.COMMS_DELAY
+            self:GetParent().statusBar.duration = gb.COMMS_DELAY + (transmitStagger * 5)
             self:GetParent().statusBar.endTime = GetTime() + self:GetParent().statusBar.duration
             self:GetParent().statusBar.active = true
 
             self:GetParent().statusText:SetText("requesting profile")
             gb:SendProfileRequest(self.character.Name)
-            C_Timer.After(0.25, function()
+            C_Timer.After(transmitStagger * 1, function()
                 self:GetParent().statusText:SetText("requesting character data")
                 gb:CharacterDataRequest(self.character.Name)
             end)
-            C_Timer.After(0.5, function()
+            C_Timer.After(transmitStagger * 2, function()
                 self:GetParent().statusText:SetText("requesting inventory")
                 gb:SendInventoryRequest(self.character.Name)
             end)
-            C_Timer.After(0.75, function()
+            C_Timer.After(transmitStagger * 3, function()
                 self:GetParent().statusText:SetText("requesting talents")
                 gb:SendTalentInfoRequest(self.character.Name, 'primary')
             end)
-            C_Timer.After(1.0, function()
+            C_Timer.After(transmitStagger * 4, function()
                 if self.character.Profession1 then
                     self:GetParent().statusText:SetText("requesting profession 1")
                     gb:SendTradeSkillsRequest(self.character.Name, self.character.Profession1)
                 end
             end)
-            C_Timer.After(1.25, function()
+            C_Timer.After(transmitStagger * 5, function()
                 if self.character.Profession2 then
                     self:GetParent().statusText:SetText("requesting profession 2")
                     gb:SendTradeSkillsRequest(self.character.Name, self.character.Profession2)
@@ -2277,9 +2282,13 @@ function GuildbookProfilesMixin:LoadCharacter(player)
             end)
         end
 
-        C_Timer.After(gb.COMMS_DELAY + loadDelay, function()
+        C_Timer.After(gb.COMMS_DELAY + (transmitStagger * 1), function()
             if player and player == "player" then
                 self.contentPane.scrollChild.profile.edit:Show()
+                self:LoadProfile()
+                self:LoadTalents("primary")
+                self:LoadInventory()
+                self:LoadStats()
             else
                 self.contentPane.scrollChild.profile.edit:Hide()
                 for _, f in ipairs(self.contentPane.scrollChild.profile.displayEdit) do
@@ -2289,10 +2298,6 @@ function GuildbookProfilesMixin:LoadCharacter(player)
                     fs:SetShown(true)
                 end
             end
-            self:LoadProfile()
-            self:LoadTalents("primary")
-            self:LoadInventory()
-            self:LoadStats()
             if self.character.Inventory and self.character.Inventory.Current and next(self.character.Inventory.Current) and self.character.Race and self.character.Gender and self.characterModels[self.character.Race:upper()] and self.characterModels[self.character.Race:upper()][self.character.Gender:upper()] then
                 self.defaultModel:Hide()
                 self.characterModels[self.character.Race:upper()][self.character.Gender:upper()]:Show()
@@ -2317,28 +2322,31 @@ function GuildbookProfilesMixin:LoadCharacter(player)
 end
 
 function GuildbookProfilesMixin:Edit_OnMouseDown(self)
+    if not GUILDBOOK_CHARACTER.profile then
+        GUILDBOOK_CHARACTER.profile = {}
+    end
     self.editOpen = not self.editOpen
+
+    self:GetParent().realNameInput:SetText(GUILDBOOK_CHARACTER.profile.realName or "")
+    self:GetParent().realDobInput:SetText(GUILDBOOK_CHARACTER.profile.realDob or "")
+    self:GetParent().realBioInput.EditBox:SetText(GUILDBOOK_CHARACTER.profile.realBio or "")
+
+    self:GetParent().realName:SetText(GUILDBOOK_CHARACTER.profile.realName or "")
+    self:GetParent().realDob:SetText(GUILDBOOK_CHARACTER.profile.realDob or "")
+    self:GetParent().realBio:SetText(GUILDBOOK_CHARACTER.profile.realBio or "")
+
+    if GUILDBOOK_CHARACTER.profile.avatar then
+        GuildbookUI.ribbon.myProfile.background:SetTexture(GUILDBOOK_CHARACTER.profile.avatar) 
+    else
+        SetPortraitTexture(GuildbookUI.ribbon.myProfile.background, "player")
+    end
+
     if self.editOpen == true then
         GuildbookUI.profiles.avatarPicker:Show()
-
-        local rName = self:GetParent().realName:GetText()
-        local rDob = self:GetParent().realDob:GetText()
-        local rBio = self:GetParent().realBio:GetText()
-
-        self:GetParent().realNameInput:SetText(rName or "")
-        self:GetParent().realDobInput:SetText(rDob or "")
-        self:GetParent().realBioInput.EditBox:SetText(rBio or "")
     else
         GuildbookUI.profiles.avatarPicker:Hide()
-
-        local rName = self:GetParent().realNameInput:GetText()
-        local rDob = self:GetParent().realDobInput:GetText()
-        local rBio = self:GetParent().realBioInput.EditBox:GetText()
-
-        self:GetParent().realName:SetText(rName or "")
-        self:GetParent().realDob:SetText(rDob or "")
-        self:GetParent().realBio:SetText(rBio or "")
     end
+
     GuildbookButtonMixin.OnMouseDown(self)
     for _, f in ipairs(self:GetParent().displayEdit) do
         f:SetShown(not f:IsVisible())

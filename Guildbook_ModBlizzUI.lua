@@ -138,25 +138,25 @@ function Guildbook:ModBlizzUI()
 
 
     -- experimental stuff
-    GuildMemberDetailFrame:SetWidth(GUILD_MEMBER_DETAIL_FRAME_WIDTH + 120)
-    GuildMemberRemoveButton:SetWidth((GUILD_MEMBER_DETAIL_FRAME_WIDTH + 100) / 2)
-    GuildMemberGroupInviteButton:SetWidth((GUILD_MEMBER_DETAIL_FRAME_WIDTH + 100) / 2)
-    for k, v in pairs({GuildMemberDetailFrame:GetRegions()}) do
-        if v:GetObjectType() == 'Texture' then
-            if v:GetTexture() and v:GetTexture():lower() == 'interface\\friendsframe\\ui-guildmember-patch' then
-                v:Hide()
-            end
-        end
-    end
-    local w = GuildMemberNoteBackground:GetWidth()
-    GuildMemberNoteBackground:SetWidth(w * 1.65)
-    w = PersonalNoteText:GetWidth()
-    PersonalNoteText:SetWidth(w * 1.65)
+    -- GuildMemberDetailFrame:SetWidth(GUILD_MEMBER_DETAIL_FRAME_WIDTH + 120)
+    -- GuildMemberRemoveButton:SetWidth((GUILD_MEMBER_DETAIL_FRAME_WIDTH + 100) / 2)
+    -- GuildMemberGroupInviteButton:SetWidth((GUILD_MEMBER_DETAIL_FRAME_WIDTH + 100) / 2)
+    -- for k, v in pairs({GuildMemberDetailFrame:GetRegions()}) do
+    --     if v:GetObjectType() == 'Texture' then
+    --         if v:GetTexture() and v:GetTexture():lower() == 'interface\\friendsframe\\ui-guildmember-patch' then
+    --             v:Hide()
+    --         end
+    --     end
+    -- end
+    -- local w = GuildMemberNoteBackground:GetWidth()
+    -- GuildMemberNoteBackground:SetWidth(w * 1.65)
+    -- w = PersonalNoteText:GetWidth()
+    -- PersonalNoteText:SetWidth(w * 1.65)
 
-    local w = GuildMemberOfficerNoteBackground:GetWidth()
-    GuildMemberOfficerNoteBackground:SetWidth(w * 1.65)
-    w = OfficerNoteText:GetWidth()
-    OfficerNoteText:SetWidth(w * 1.65)
+    -- local w = GuildMemberOfficerNoteBackground:GetWidth()
+    -- GuildMemberOfficerNoteBackground:SetWidth(w * 1.65)
+    -- w = OfficerNoteText:GetWidth()
+    -- OfficerNoteText:SetWidth(w * 1.65)
 
     -- adjust blizz layout and add widgets
     GuildFrameGuildListToggleButton:Hide()
@@ -232,21 +232,6 @@ function Guildbook:ModBlizzUI()
         _G['GuildFrameButton'..i..'Name']:ClearAllPoints()
         _G['GuildFrameButton'..i..'Name']:SetPoint('TOPLEFT', _G['GuildFrameButton'..i], 'TOPLEFT', x, -3.0)
         -- hook the click event
-        _G['GuildFrameButton'..i]:HookScript('OnClick', function(self, button)
-            if (button == 'LeftButton') and (GuildMemberDetailFrame:IsVisible()) then
-                Guildbook:ClearGuildMemberDetailFrame()
-                local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, guid = GetGuildRosterInfo(GetGuildRosterSelection())
-                if isOnline then
-                    Guildbook:UpdateGuildMemberDetailFrameLabels(guid)
-                    Guildbook:CharacterDataRequest(name)
-                    Guildbook.DEBUG('comms_out', 'GuildFrameButton'..i..':OnClick', 'sent character data request to '..name)
-                end
-                --Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(guid, nil)
-                --GuildMemberDetailFrame:Show()
-
-                --Guildbook.GuildMemberDetailFrame.Portrait.Portrait:SetTexture(130903)
-            end
-        end)
         _G['GuildFrameButton'..i]:HookScript('OnShow', function(self, button)
             if ROSTER_VISIBLE == false then
                 self:Hide()
@@ -493,30 +478,6 @@ function Guildbook:ModBlizzUI()
                 print(string.format("%s has not been setup", frame))
             end
         end
-        -- self.GuildFrame[frame] = CreateFrame('FRAME', tostring('GuildbookGuildFrame'..frame), GuildFrame)
-        -- self.GuildFrame[frame]:SetBackdrop({
-        --     edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-        --     edgeSize = 16,
-        --     bgFile = "interface/framegeneral/ui-background-marble",
-        --     tile = true,
-        --     tileEdge = false,
-        --     tileSize = 300,
-        --     insets = { left = 4, right = 4, top = 4, bottom = 4 }
-        -- })
-        -- self.GuildFrame[frame]:SetPoint('TOPLEFT', GuildFrame, 'TOPLEFT', 2.00, -55.0)
-        -- self.GuildFrame[frame]:SetPoint('BOTTOMRIGHT', GuildFrame, 'BOTTOMRIGHT', -4.00, 25.0)      
-        -- self.GuildFrame[frame]:SetFrameLevel(6)
-        -- self.GuildFrame[frame]:Hide()
-
-        -- self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')] = CreateFrame('BUTTON', tostring('GuildbookGuildFrame'..frame..'Button'), GuildFrame, "UIPanelButtonTemplate")
-        -- self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetPoint('LEFT', Guildbook.GuildFrame.RosterButton, 'LEFT', button.OffsetY, 0)
-        -- self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetSize(button.Width, GuildFrameGuildInformationButton:GetHeight())
-        -- self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetText(L[button.Text])
-        -- self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetNormalFontObject(GameFontNormalSmall)
-        -- self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetHighlightFontObject(GameFontNormalSmall)
-        -- self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetScript('OnClick', function(self)
-        --     Guildbook:ToggleGuildFrame(frame)
-        -- end)
     end
 
     self.ScanGuildBankButton = CreateFrame('BUTTON', 'GuildbookBankFrameScanBankButton', BankFrame)

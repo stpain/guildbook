@@ -482,4 +482,19 @@ Added alts to roster tooltip, these can be set via your profile.
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [17] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+made some changes to the comms timings, if you experience issues try adjusting the comms delay found in the main options interface
+removed old and unused code
+
+|cff0070DEUpdates|r:
+
+Remember to download Attune!
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }

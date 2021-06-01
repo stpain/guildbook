@@ -50,6 +50,13 @@ Guildbook.Data.DefaultGlobalSettings = {
 }
 
 Guildbook.Data.DefaultCharacterSettings = {
+    Name = "",
+    Class = "",
+    Race = "",
+    Gender = "",
+    PublicNote = "",
+    OfficerNote = "",
+    RankName = "",
     MainSpec = '-',
     OffSpec = '-',
     MainSpecIsPvP = false,
@@ -71,15 +78,7 @@ Guildbook.Data.DefaultCharacterSettings = {
         Saturday = nil,
         Sunday = nil,
     },
-    AttunementsKeys = {
-        UBRS = false,
-        MC = false,
-        ONY = false,
-        BWL = false,
-        NAXX = false,
-    },
     CalendarEvents = {},
-    GuildBank = {},
     Talents = {
         primary = {},
 
@@ -87,7 +86,9 @@ Guildbook.Data.DefaultCharacterSettings = {
     PaperDollStats = {},
     Inventory = {
         Current = {},
-    }
+    },
+    profile = {},
+    Alts = {},
 }
 
 Guildbook.Data.RaceIcons = {

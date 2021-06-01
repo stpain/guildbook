@@ -30,7 +30,7 @@ local LibSerialize = LibStub:GetLibrary("LibSerialize")
 --variables
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- this used to match the toc but for simplicity i've made it just an integer
-local build = 16;
+local build = 17;
 local locale = GetLocale()
 local L = Guildbook.Locales
 
@@ -79,7 +79,7 @@ Guildbook.DebugLog = {}
 -- @param err string function name message originates from
 -- @param msg string the message to print
 function Guildbook.DEBUG(type, err, msg)
-    for i = 1, 20 do
+    for i = 1, 40 do
         Guildbook.DebuggerWindow.Listview[i]:Hide()
     end
     if err and msg then
@@ -88,14 +88,14 @@ function Guildbook.DEBUG(type, err, msg)
         table.insert(Guildbook.DebugLog, 'oops something went wrong!')
     end
     if Guildbook.DebugLog and next(Guildbook.DebugLog) then
-        local i = #Guildbook.DebugLog - 19
+        local i = #Guildbook.DebugLog - 39
         if i < 1 then
             i = 1
         end
         Guildbook.DebuggerWindow.ScrollBar:SetMinMaxValues(1, i)
         Guildbook.DebuggerWindow.ScrollBar:SetValue(i)
         C_Timer.After(0, function()
-            for i = 1, 20 do
+            for i = 1, 40 do
                 Guildbook.DebuggerWindow.Listview[i]:Show()
             end
         end)
@@ -108,7 +108,7 @@ local DEBUG = Guildbook.DEBUG
 Guildbook.DebuggerWindow = CreateFrame('FRAME', 'GuildbookDebugFrame', UIParent, "UIPanelDialogTemplate")
 Guildbook.DebuggerWindow:SetPoint('CENTER', 0, 0)
 Guildbook.DebuggerWindow:SetFrameStrata('HIGH')
-Guildbook.DebuggerWindow:SetSize(800, 280)
+Guildbook.DebuggerWindow:SetSize(800, 560)
 Guildbook.DebuggerWindow:SetMovable(true)
 Guildbook.DebuggerWindow:EnableMouse(true)
 Guildbook.DebuggerWindow:RegisterForDrag("LeftButton")
@@ -131,7 +131,7 @@ Guildbook.DebuggerWindow.header:SetPoint('TOP', 0, -9)
 Guildbook.DebuggerWindow.header:SetText('Guildbook Debug')
 
 Guildbook.DebuggerWindow.Listview = {}
-for i = 1, 20 do
+for i = 1, 40 do
     local f = CreateFrame('BUTTON', tostring('SRBLP_LogsListview'..i), Guildbook.DebuggerWindow)
     f:SetPoint('TOPLEFT', Guildbook.DebuggerWindow, 'TOPLEFT', 8, (i * -12) -18)
     f:SetPoint('TOPRIGHT', Guildbook.DebuggerWindow, 'TOPRIGHT', -8, (i * -12) -18)
@@ -174,7 +174,7 @@ Guildbook.DebuggerWindow.ScrollBar:SetScript('OnValueChanged', function(self)
         if scrollPos == 0 then
             scrollPos = 1
         end
-        for i = 1, 20 do
+        for i = 1, 40 do
             if Guildbook.DebugLog[(i - 1) + scrollPos] then
                 Guildbook.DebuggerWindow.Listview[i]:Hide()
                 Guildbook.DebuggerWindow.Listview[i].msg = Guildbook.DebugLog[(i - 1) + scrollPos]
@@ -300,7 +300,6 @@ function Guildbook:Init()
             tooltip:AddDoubleLine('|cffffffffLeft Click|r Open Guildbook')
             tooltip:AddDoubleLine("Shift + "..'|cffffffffLeft Click|r Open Chat')
             tooltip:AddDoubleLine('|cffffffffRight Click|r Options')
-            tooltip:AddDoubleLine('|cffffffffMiddle Click|r OLD Guildbook')
         end,
     })
     self.MinimapIcon = LibStub("LibDBIcon-1.0")
@@ -368,7 +367,7 @@ function Guildbook:Init()
         GuildbookOptionsShowMinimapButton:SetChecked(GUILDBOOK_GLOBAL['ShowMinimapButton'])
 
         if not GUILDBOOK_GLOBAL['CommsDelay'] then
-            GUILDBOOK_GLOBAL['CommsDelay'] = 0.2
+            GUILDBOOK_GLOBAL['CommsDelay'] = 1.0
         end
         Guildbook.CommsDelaySlider:SetValue(GUILDBOOK_GLOBAL['CommsDelay'])
 
@@ -757,25 +756,6 @@ function Guildbook:IsCharacterInGuild(guid)
 end
 
 
-function Guildbook:GetCharactersAlts(guid)
-    local guildName = self:GetGuildName()
-    if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] then
-        local main = GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid].Name
-        local alts = {}
-        for g, c in pairs(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName]) do
-            if c.MainCharacter == main then
-                local charString = string.format("%s%s|r %s", Guildbook.Data.Class[c.Class].FontColour, c.Name, Guildbook.Data.Class[c.Class].FontStringIconSMALL)
-                table.insert(alts, charString)
-                DEBUG('func', 'GetCharacterAlts', string.format("found %s as an alt for %s", c.Name, main))
-            end
-        end
-        if next(alts) then
-            return alts
-        end
-    end
-end
-
-
 --- return the players guild name if they belong to 1
 function Guildbook:GetGuildName()
     if IsInGuild() and GetGuildInfo("player") then
@@ -955,7 +935,7 @@ end
 -- we also check the player entries for profression errors, talents table and spec data
 -- any entries not found the current guild roster will be removed (=nil)
 local lastRosterCleanUp = -1.0;
-local rosterScanDelay = 120.0
+local rosterScanDelay = 180.0
 function Guildbook:CleanUpGuildRosterData(guild, msg)
     if lastRosterCleanUp + rosterScanDelay > time() then
         local nextScanIn = rosterScanDelay - (time() - lastRosterCleanUp)
@@ -965,20 +945,40 @@ function Guildbook:CleanUpGuildRosterData(guild, msg)
     end
     lastRosterCleanUp = time()
     if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[guild] then
-        local memberCount = 0;
         local memberGUIDs = {}
         local currentGUIDs = {}
         local guidsToRemove = {}
-        for guid, _ in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[guild]) do
-            table.insert(memberGUIDs, guid)
-            memberCount = memberCount + 1;
-        end
         local totalMembers, onlineMembers, _ = GetNumGuildMembers()
         GUILDBOOK_GLOBAL['RosterExcel'] = {}
         for i = 1, totalMembers do
             --local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, guid = GetGuildRosterInfo(i)
-            local _, rankName, _, _, _, zone, publicNote, officerNote, isOnline, _, _, _, _, _, _, _, guid = GetGuildRosterInfo(i)
-            currentGUIDs[guid] = {exists = true, rank = rankName, pubNote = publicNote, offNote = officerNote}
+            local name, rankName, _, level, class, zone, publicNote, officerNote, isOnline, _, _, _, _, _, _, _, guid = GetGuildRosterInfo(i)
+            if not GUILDBOOK_GLOBAL.GuildRosterCache[guild][guid] then
+                GUILDBOOK_GLOBAL.GuildRosterCache[guild][guid] = {
+                    Name = name,
+                    Class = class,
+                    Level = level,
+                    PublicNote = publicNote,
+                    officerNote = officerNote,
+                    RankName = rankName,
+                    Talents = {
+                        primary = {},
+                        secondary = {},
+                    },
+                    Alts = {},
+                    MainCharacter = "-",
+                    Prof1 = "-",
+                    Prof1Level = 0,
+                    Prof2 = "-",
+                    Prof2Level = 0,
+                    MainSpec = "-",
+                    MainSpecIsPvP = false,
+                    OffSpec = "-",
+                    OffSpecIsPvP = false,
+                };
+            end
+            currentGUIDs[i] = { GUID = guid, exists = true, rank = rankName, pubNote = publicNote, offNote = officerNote}
+            memberGUIDs[guid] = true;
             --name = Ambiguate(name, 'none')
             --table.insert(GUILDBOOK_GLOBAL['RosterExcel'], string.format("%s,%s,%s,%s,%s", name, class, rankName, level, publicNote))
         end
@@ -986,13 +986,16 @@ function Guildbook:CleanUpGuildRosterData(guild, msg)
         local start = date('*t')
         local started = time()
         GuildbookUI.statusText:SetText(string.format("starting roster clean up at %s:%s:%s", start.hour, start.min, start.sec))
-        C_Timer.NewTicker(0.05, function()
-            local percent = (i/memberCount) * 100
+        C_Timer.NewTicker(0.025, function()
+            local percent = (i/totalMembers) * 100
             GuildbookUI.statusText:SetText(string.format("roster clean up %s%%",string.format("%.1f", percent)))
-            GuildbookUI.statusBar:SetValue(i/memberCount)
-            local guid = memberGUIDs[i]
+            GuildbookUI.statusBar:SetValue(i/totalMembers)
+            if not currentGUIDs[i] then
+                return;
+            end
+            local guid = currentGUIDs[i].GUID
             local info = GUILDBOOK_GLOBAL.GuildRosterCache[guild][guid]
-            if currentGUIDs[guid] then
+            if info then
                 if not self.PlayerMixin then
                     self.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
                 else
@@ -1012,71 +1015,18 @@ function Guildbook:CleanUpGuildRosterData(guild, msg)
                         info.Gender = sex;
                         info.Class = class;
                         info.Name = Ambiguate(name, 'none');
-                        info.PublicNote = currentGUIDs[guid].pubNote;
-                        info.OfficerNote = currentGUIDs[guid].offNote;
-                        info.RankName = currentGUIDs[guid].rank;
+                        info.PublicNote = currentGUIDs[i].pubNote;
+                        info.OfficerNote = currentGUIDs[i].offNote;
+                        info.RankName = currentGUIDs[i].rank;
 
-                        local ms = false
-                        if info.MainSpec ~= '-' then
-                            for _, spec in pairs(Guildbook.Data.Class[class].Specializations) do
-                                if info.MainSpec == spec then
-                                    ms = true
-                                end
-                            end
-                        elseif info.MainSpec == '-' then
-                            ms = true
-                        end
-                        if ms == false then
-                            DEBUG('func', 'CleanUpGuildRosterData', name..' has error with main spec, setting to default')
-                            info.MainSpec = '-'
-                        end
-                        local os = false
-                        if info.OffSpec ~= '-' then
-                            for _, spec in pairs(Guildbook.Data.Class[class].Specializations) do
-                                if info.OffSpec == spec then
-                                    os = true
-                                end
-                            end
-                        elseif info.OffSpec == '-' then
-                            os = true
-                        end
-                        if os == false then
-                            DEBUG('func', 'CleanUpGuildRosterData', name..' has error with off spec, setting to default')
-                            info.OffSpec = '-'
-                        end
-
-                        for prof, _ in pairs(Guildbook.Data.Profession) do
-                            for k, v in pairs(info) do
-                                if k == prof then
-                                    if info.Profession1 == prof or info.Profession2 == prof then
-                                        DEBUG('func', 'CleanUpGuildRosterData', string.format('%s matches prof1 or prof2 keeping data', prof))
-                                    else
-                                        if prof == 'Cooking' or prof == 'Fishing' or prof == 'FirstAid' then
-
-                                        else
-                                            info[prof] = nil
-                                            DEBUG('func', 'CleanUpGuildRosterData', string.format('removing %s from %s as no longer trained', prof, name))
-                                        end
-                                    end
-                                end
-                            end
-                        end
-                        if not info.Talents then
-                            info.Talents = {
-                                ['primary'] = {},
-                                ['secondary'] = {},
-                            }
-                            DEBUG('func', 'CleanUpGuildRosterData', string.format('added talent tables to %s', name))
-                        end
-                        if not info.PaperDollStats then
-                            info.PaperDollStats = {}
-                            DEBUG('func', 'CleanUpGuildRosterData', string.format('added paper doll stats tables to %s', name))
-                        end
                         if info.UNKNOWN then
                             info.UNKNOWN = nil
                             DEBUG('func', 'CleanUpGuildRosterData', string.format('removed table UNKNOWN from %s', name))
                         end
 
+                        if info.AttunementsKeys then
+                            info.AttunementsKeys = nil;
+                        end
 
                         if info.MainCharacter then
                             info.Alts = {}
@@ -1088,152 +1038,28 @@ function Guildbook:CleanUpGuildRosterData(guild, msg)
                         end
                     end
                 end
-            else
-                table.insert(guidsToRemove, guid)
-                DEBUG('func', 'CleanUpGuildRosterData', string.format('removed %s from roster cache', info.Name))
             end
             i = i + 1;
-            if i > memberCount then
+            if i > totalMembers then
                 local finish = date('*t')
                 local finished = time() - started
                 GuildbookUI.statusBar:SetValue(0)
-                GuildbookUI.statusText:SetText(string.format("finished roster clean up, took %s", SecondsToTime(finished)))
-                if guidsToRemove and next(guidsToRemove) then
-                    for k, guid in ipairs(guidsToRemove) do
-                        GUILDBOOK_GLOBAL.GuildRosterCache[guild][guid] = nil
+                local removedCount = 0;
+                for guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[guild]) do
+                    if not memberGUIDs[guid] then
+                        GUILDBOOK_GLOBAL.GuildRosterCache[guild][guid] = nil;
+                        removedCount = removedCount + 1;
                     end
                 end
+                GuildbookUI.statusText:SetText(string.format("finished roster clean up, took %s, removed %s characters from db", SecondsToTime(finished), removedCount))
                 C_Timer.After(0.5, function()
                     if GuildbookUI then
                         GuildbookUI.roster:ParseGuildRoster()
                     end
                 end)
             end
-        end, memberCount)
-        -- for guid, info in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[guild]) do
-        --     if currentGUIDs[guid] then
-        --         if info.Name and info.Name:find('-') then
-        --             info.Name = Ambiguate(info.Name, 'none')
-        --             DEBUG('func', 'CleanUpGuildRosterData', info.Name..' has error with name, removing realm from name')
-        --         end
-        --         if not self.PlayerMixin then
-        --             self.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
-        --         else
-        --             self.PlayerMixin:SetGUID(guid)
-        --         end
-        --         if self.PlayerMixin:IsValid() then
-        --             local _, class, _ = C_PlayerInfo.GetClass(self.PlayerMixin)
-        --             local name = C_PlayerInfo.GetName(self.PlayerMixin)
-        --             if name and class then
-        --                 local raceID = C_PlayerInfo.GetRace(self.PlayerMixin)
-        --                 local race = C_CreatureInfo.GetRaceInfo(raceID).clientFileString:upper()
-        --                 local sex = (C_PlayerInfo.GetSex(self.PlayerMixin) == 1 and "FEMALE" or "MALE")
-        --                 local faction = C_CreatureInfo.GetFactionInfo(raceID).groupTag
-        --                 if not info.Faction then
-        --                     info.Faction = faction
-        --                 end
-        --                 if not info.Race then
-        --                     info.Race = race
-        --                     DEBUG('func', 'CleanUpGuildRosterData', 'updated '..name..' race info')
-        --                 end
-        --                 if not info.Gender then
-        --                     info.Gender = sex
-        --                     DEBUG('func', 'CleanUpGuildRosterData', 'updated '..name..' gender info')
-        --                 end
-        --                 name = Ambiguate(name, 'none')
-        --                 if not info.Class or (info.Class ~= class) then
-        --                     info.Class = class
-        --                     DEBUG('func', 'CleanUpGuildRosterData', name..' has error with class, updating class to mixin value')
-        --                 end
-        --                 if not info.Name or (info.Name ~= name) then
-        --                     info.Name = name
-        --                     DEBUG('func', 'CleanUpGuildRosterData', info.Name..' has error with name, updating name to mixin value')
-        --                 end
-        --                 local ms = false
-        --                 if info.MainSpec ~= '-' then
-        --                     for _, spec in pairs(Guildbook.Data.Class[class].Specializations) do
-        --                         if info.MainSpec == spec then
-        --                             ms = true
-        --                         end
-        --                     end
-        --                 elseif info.MainSpec == '-' then
-        --                     ms = true
-        --                 end
-        --                 if ms == false then
-        --                     DEBUG('func', 'CleanUpGuildRosterData', name..' has error with main spec, setting to default')
-        --                     info.MainSpec = '-'
-        --                 end
-        --                 local os = false
-        --                 if info.OffSpec ~= '-' then
-        --                     for _, spec in pairs(Guildbook.Data.Class[class].Specializations) do
-        --                         if info.OffSpec == spec then
-        --                             os = true
-        --                         end
-        --                     end
-        --                 elseif info.OffSpec == '-' then
-        --                     os = true
-        --                 end
-        --                 if os == false then
-        --                     DEBUG('func', 'CleanUpGuildRosterData', name..' has error with off spec, setting to default')
-        --                     info.OffSpec = '-'
-        --                 end
-        --                 for prof, _ in pairs(Guildbook.Data.Profession) do
-        --                     for k, v in pairs(info) do
-        --                         if k == prof then
-        --                             if info.Profession1 == prof or info.Profession2 == prof then
-        --                                 DEBUG('func', 'CleanUpGuildRosterData', string.format('%s matches prof1 or prof2 keeping data', prof))
-        --                             else
-        --                                 if prof == 'Cooking' or prof == 'Fishing' or prof == 'FirstAid' then
+        end, totalMembers)
 
-        --                                 else
-        --                                     info[prof] = nil
-        --                                     DEBUG('func', 'CleanUpGuildRosterData', string.format('removing %s from %s as no longer trained', prof, name))
-        --                                 end
-        --                             end
-        --                         end
-        --                     end
-        --                 end
-        --                 if not info.Talents then
-        --                     info.Talents = {
-        --                         ['primary'] = {},
-        --                         ['secondary'] = {},
-        --                     }
-        --                     DEBUG('func', 'CleanUpGuildRosterData', string.format('added talent tables to %s', name))
-        --                 end
-        --                 if not info.PaperDollStats then
-        --                     info.PaperDollStats = {}
-        --                     DEBUG('func', 'CleanUpGuildRosterData', string.format('added paper doll stats tables to %s', name))
-        --                 end
-        --                 if info.UNKNOWN then
-        --                     info.UNKNOWN = nil
-        --                     DEBUG('func', 'CleanUpGuildRosterData', string.format('removed table UNKNOWN from %s', name))
-        --                 end
-
-        --                 if info.MainCharacter then
-        --                     info.Alts = {}
-        --                     for _guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[guild]) do
-        --                         if character.MainCharacter == info.MainCharacter then
-        --                             table.insert(info.Alts, _guid)
-        --                         end
-        --                     end
-        --                 end
-        --             end
-        --         end
-        --     else
-        --         table.insert(guidsToRemove, guid)
-        --         DEBUG('func', 'CleanUpGuildRosterData', string.format('removed %s from roster cache', info.Name))
-        --     end
-        -- end
-        -- C_Timer.After(3, function()
-        --     if guidsToRemove and next(guidsToRemove) then
-        --         for k, guid in ipairs(guidsToRemove) do
-        --             GUILDBOOK_GLOBAL.GuildRosterCache[guild][guid] = nil
-        --         end
-        --         if msg then
-        --             Guildbook:PrintMessage(string.format('removed %s characters from roster cache', #guidsToRemove))
-        --         end
-        --     end
-        -- end)
     end
 end
 
@@ -1396,26 +1222,6 @@ function Guildbook:IsGuildMemberOnline(player)
 end
 
 
-function Guildbook:GetGuildMemberRankNotes(player)
-    local rankName, publicNote, officerNote
-    local guildName = Guildbook:GetGuildName()
-    if guildName then
-        local totalMembers, onlineMembers, _ = GetNumGuildMembers()
-        for i = 1, totalMembers do
-            local name, _rankName, rankIndex, level, classDisplayName, _zone, _publicNote, _officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, GUID = GetGuildRosterInfo(i)
-            --DEBUG('func', 'IsGuildMemberOnline', string.format("player %s is online %s", name, tostring(isOnline)))
-            if Ambiguate(name, 'none') == Ambiguate(player, 'none') then
-                publicNote = _publicNote
-                officerNote = _officerNote
-                rankName = _rankName
-            end
-        end
-    end
-    return rankName, publicNote, officerNote
-end
-
-
-
 function Guildbook:GetCharacterDataPayload()
     local guid = UnitGUID('player')
     local level = UnitLevel('player')
@@ -1531,9 +1337,20 @@ function Guildbook:SendProfileRequest(target)
     self:Transmit(request, "WHISPER", target, "NORMAL")
 end
 
+function Guildbook:OnProfileChanged()
+    if GUILDBOOK_CHARACTER and GUILDBOOK_CHARACTER.profile then
+        local response = {
+            type = "PROFILE_INFO_RESPONSE",
+            payload = {
+                guid = UnitGUID("player"),
+                profile = GUILDBOOK_CHARACTER.profile,
+            }
+        }
+        self:Transmit(response, "GUILD", nil, "BULK")
+    end
+end
 
 function Guildbook:OnProfileRequest(request, distribution, sender)
-
     if GUILDBOOK_CHARACTER and GUILDBOOK_CHARACTER.profile then
         local response = {
             type = "PROFILE_INFO_RESPONSE",
@@ -1563,7 +1380,7 @@ function Guildbook:OnProfileReponse(response, distribution, sender)
         end
 
         GuildbookUI.statusText:SetText(string.format("received profile from %s", sender))
-        --GuildbookUI.profiles:LoadProfile()
+        GuildbookUI.profiles:LoadProfile()
     end)
 end
 
@@ -1617,7 +1434,7 @@ function Guildbook:OnTalentInfoReceived(data, distribution, sender)
         end
 
         GuildbookUI.statusText:SetText(string.format("received talents from %s", sender))
-        --GuildbookUI.profiles:LoadTalents("primary")
+        GuildbookUI.profiles:LoadTalents("primary")
     end)
 end
 
@@ -1668,7 +1485,7 @@ function Guildbook:OnCharacterInventoryReceived(data, distribution, sender)
             DEBUG('func', 'OnCharacterInventoryReceived', string.format('updated %s inventory', sender))
         end
         GuildbookUI.statusText:SetText(string.format("received inventory from %s", sender))
-        --GuildbookUI.profiles:LoadInventory()
+        GuildbookUI.profiles:LoadInventory()
     end)
 end
 
@@ -1725,7 +1542,7 @@ function Guildbook:OnTradeSkillsReceived(data, distribution, sender)
                             local i = 0;
                             for recipeID, reagentsTable in pairs(data.payload.recipes) do
                                 i = i + 1;
-                                DEBUG("comms_in", 'OnTradeSkillsReceived', "got recipeID: "..recipeID)
+                                --DEBUG("comms_in", 'OnTradeSkillsReceived', "got recipeID: "..recipeID)
                             end
                         end
                         character[data.payload.profession] = data.payload.recipes
@@ -1733,7 +1550,6 @@ function Guildbook:OnTradeSkillsReceived(data, distribution, sender)
                     end
                 end
             end
-            --self.GuildFrame.TradeSkillFrame.RecipesTable = data.payload.recipes
             GuildbookUI.statusText:SetText(string.format("received tradeskill data from %s", sender))
         end)
     end
@@ -1863,10 +1679,8 @@ function Guildbook:OnCharacterDataReceived(data, distribution, sender)
 
         DEBUG('func', 'OnCharacterDataReceived', string.format('OnCharacterDataReceived > sender=%s', data.payload.Name))
         C_Timer.After(Guildbook.COMMS_DELAY, function()
-            Guildbook:UpdateGuildMemberDetailFrame(data.payload.GUID)
-
             GuildbookUI.statusText:SetText(string.format("received character data from %s", data.payload.Name))
-            --GuildbookUI.profiles:LoadStats()
+            GuildbookUI.profiles:LoadStats()
         end)
     end
 end
@@ -2257,49 +2071,6 @@ end
 
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- soft reserve
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-function Guildbook:RequestRaidSoftReserves()
-    local request = {
-        type = 'RAID_SOFT_RESERVES_REQUEST',
-    }
-    self:Transmit(request, 'RAID', nil, 'NORMAL')
-    --DEBUG('comms_out', 'RequestRaidSoftReserves', 'Sent a request on RAID channel for soft reserves')
-end
-
-function Guildbook:OnRaidSoftReserveRequested(data, distribution, sender)
-    if GUILDBOOK_CHARACTER and GUILDBOOK_CHARACTER['SoftReserve'] then
-        local response = {
-            type = 'RAID_SOFT_RESERVE_RESPONSE',
-            payload = GUILDBOOK_CHARACTER['SoftReserve'],
-        }
-        self:Transmit(response, 'RAID', nil, 'NORMAL')
-        --DEBUG('comms_out', 'OnRaidSoftReserveRequested', 'Soft reserve response sent')
-    end
-end
-
-function Guildbook:OnRaidSoftReserveReceived(data, distribution, sender)
-    --DEBUG('comms_in', 'OnRaidSoftReserveReceived', 'Soft reserve response receieved from: '..sender)
-    if self.GuildFrame.SoftReserveFrame.SelectedRaid ~= nil then
-        if data.payload and data.payload[self.GuildFrame.SoftReserveFrame.SelectedRaid] then
-            DEBUG('func', 'OnRaidSoftReserveReceived', string.format('%s has a soft reserved %s for %s', sender, data.payload[self.GuildFrame.SoftReserveFrame.SelectedRaid], self.GuildFrame.SoftReserveFrame.SelectedRaid))
-            for i = 1, 40 do
-                local name, _, _, level, class, fileName, _, online, _, role, isML, _ = GetRaidRosterInfo(i)
-                -- this may not be quite right check for realms (name-realm)
-                if name and (name == sender) then
-                    self.GuildFrame.SoftReserveFrame.RaidRosterList[i].data = {
-                        Character = name,
-                        ItemID = tonumber(data.payload[self.GuildFrame.SoftReserveFrame.SelectedRaid]),
-                        Class = fileName,
-                    }
-                    self.GuildFrame.SoftReserveFrame.RaidRosterList[i]:Show()
-                end
-            end
-        end
-    end
-end
-
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- events
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function Guildbook:ADDON_LOADED(...)
@@ -2311,7 +2082,6 @@ end
 
 function Guildbook:PLAYER_ENTERING_WORLD()
 
-    self:SetupGuildMemberDetailframe()
     self:ModBlizzUI()
 
     if GUILDBOOK_GLOBAL.Modules then
@@ -2361,7 +2131,7 @@ function Guildbook:PLAYER_ENTERING_WORLD()
 end
 
 
-local lastTradeskillTransmit = GetTime()
+local lastTradeskillTransmit = -1.0
 function Guildbook:TRADE_SKILL_UPDATE()
     if lastTradeskillTransmit + 30 > GetTime() then
         return
@@ -2412,9 +2182,6 @@ function Guildbook:UPDATE_MOUSEOVER_UNIT()
             local race = C_CreatureInfo.GetRaceInfo(raceID).clientFileString:upper()
             local faction = C_CreatureInfo.GetFactionInfo(raceID).groupTag
             if race and self.player.faction == C_CreatureInfo.GetFactionInfo(raceID).groupTag then
-                -- if self.GuildFrame.ProfilesFrame.PaperdollTab:IsVisible() then
-                --     self.GuildFrame.ProfilesFrame.PaperdollTab:AddModelFrame('mouseover', race, sex)
-                -- end
                 GuildbookUI.profiles:AddCharacterModelFrame('mouseover', race, sex)
             end
         end
@@ -2440,7 +2207,6 @@ function Guildbook:CHAT_MSG_GUILD(...)
             if not Guildbook.GuildChatLog then
                 Guildbook.GuildChatLog = {}
             end
-            --self:AddGuildChatMessage(Guildbook.GuildChatLog, string.format("%s [%s%s|r]: %s", date("%T"), Guildbook.Data.Class[class].FontColour, sender, msg))
             GuildbookUI.chat:AddGuildChatMessage({
                 formattedMessage = string.format("%s [%s%s|r]: %s", date("%T"), Guildbook.Data.Class[class].FontColour, sender, msg),
                 sender = sender,
@@ -2497,7 +2263,7 @@ end
 
 
 function Guildbook:GUILD_ROSTER_UPDATE(...)
-    C_Timer.After(2, function()
+    C_Timer.After(1, function()
         if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'] then
             local guildName = Guildbook:GetGuildName()
             if guildName then
