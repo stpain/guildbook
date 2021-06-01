@@ -703,7 +703,7 @@ function GuildbookMixin:OnShow()
 
     scanPlayerBags()
 
-    if GUILDBOOK_CHARACTER.profile.avatar then
+    if GUILDBOOK_CHARACTER.profile and GUILDBOOK_CHARACTER.profile.avatar then
         self.ribbon.myProfile.background:SetTexture(GUILDBOOK_CHARACTER.profile.avatar) 
     else
         SetPortraitTexture(self.ribbon.myProfile.background, "player")
@@ -2689,6 +2689,7 @@ function GuildbookProfilesMixin:LoadTalents(spec)
                 end
             end
             self.contentPane.scrollChild.talents.tree1:SetTexture(gb.Data.TalentBackgrounds[gb.Data.Talents[self.character.Class:upper()][1]])
+            --self.contentPane.scrollChild.talents.tree1:SetTexture(string.format("Interface/TalentFrame/%s%s-TopLeft", "Paladin", "Holy"))
             self.contentPane.scrollChild.talents.tree1:SetAlpha(0.6)
             self.contentPane.scrollChild.talents.tree2:SetTexture(gb.Data.TalentBackgrounds[gb.Data.Talents[self.character.Class:upper()][2]])
             self.contentPane.scrollChild.talents.tree2:SetAlpha(0.6)
