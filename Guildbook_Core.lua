@@ -986,7 +986,7 @@ function Guildbook:CleanUpGuildRosterData(guild, msg)
         local start = date('*t')
         local started = time()
         GuildbookUI.statusText:SetText(string.format("starting roster clean up at %s:%s:%s", start.hour, start.min, start.sec))
-        C_Timer.NewTicker(0.025, function()
+        C_Timer.NewTicker(0.01, function()
             local percent = (i/totalMembers) * 100
             GuildbookUI.statusText:SetText(string.format("roster clean up %s%%",string.format("%.1f", percent)))
             GuildbookUI.statusBar:SetValue(i/totalMembers)
@@ -2082,7 +2082,13 @@ end
 
 function Guildbook:PLAYER_ENTERING_WORLD()
 
-    self:ModBlizzUI()
+    --self:ModBlizzUI()
+    if not self.GuildFrame then
+        self.GuildFrame = {
+            "GuildBankFrame",
+            "GuildCalendarFrame",
+        }
+    end
 
     if GUILDBOOK_GLOBAL.Modules then
         if GUILDBOOK_GLOBAL.Modules["GuildBankFrame"] == true then

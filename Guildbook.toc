@@ -20,7 +20,6 @@ Libs\LibSerialize\lib.xml
 
 Guildbook_News.lua
 Guildbook_Locales.lua
-Guildbook_ModBlizzUI.lua
 Guildbook_Data.lua
 Guildbook_Core.lua
 Guildbook_Legacy.lua

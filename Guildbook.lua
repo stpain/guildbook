@@ -6,7 +6,7 @@ local L = gb.Locales
 local DEBUG = gb.DEBUG
 
 local GUILD_NAME;
-local transmitStagger = 0.4;
+local transmitStagger = 0.5; -- if comms get messed up by lots of traffic, increase this to cause requests to be staggered further apart
 
 --- basic button mixin
 GuildbookButtonMixin = {}
@@ -37,7 +37,7 @@ end
 
 function GuildbookButtonMixin:OnEnter()
     if self.tooltipText then
-        GameTooltip:SetOwner(self, 'ANCHOR_LEFT')
+        GameTooltip:SetOwner(self, 'ANCHOR_TOP')
         GameTooltip:AddLine("|cffffffff"..L[self.tooltipText])
         GameTooltip:Show()
     else
@@ -744,23 +744,17 @@ function GuildbookMixin:OnLoad()
         gb.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('BOTTOMRIGHT', self.calendar, 'BOTTOMRIGHT', 254, 0)
     end
 
+    self.ribbon.guildBank.func = function()
+        navigateTo(self.guildBank)
+        gb.GuildFrame.GuildBankFrame:ClearAllPoints()
+        gb.GuildFrame.GuildBankFrame:SetParent(self.guildBank)
+        gb.GuildFrame.GuildBankFrame:SetPoint("TOPLEFT", 0, -26)
+        gb.GuildFrame.GuildBankFrame:SetPoint("BOTTOMRIGHT", -2, 0)
+        gb.GuildFrame.GuildBankFrame:Show()
+    end
+
 
     self.profiles.contentPane.scrollChild:SetSize(650, 480)
-
-    -- self.dropdown.menu = {
-    --     {
-    --         text = "test 1",
-    --         func = function() print(1) end,
-    --     },
-    --     {
-    --         text = "test 2",
-    --         func = function() print(2) end,
-    --     },
-    --     {
-    --         text = "test 3",
-    --         func = function() print(3) end,
-    --     },
-    -- }
 
 end
 
@@ -768,9 +762,10 @@ end
 
 function GuildbookMixin:OnUpdate()
     if self.statusBar.active then
-        local remaining = 1 - ((self.statusBar.endTime - GetTime()) / self.statusBar.duration)
-        self.statusBar:SetValue(remaining)
-        if remaining > 0.9 then
+        local complete = 1 - ((self.statusBar.endTime - GetTime()) / self.statusBar.duration)
+        --print(complete)
+        self.statusBar:SetValue(complete)
+        if complete > 1.0 then
             self.statusBar.active = false;
             self.statusBar:SetValue(0)
             self.statusText:SetText(" ")
@@ -2117,6 +2112,7 @@ function GuildbookProfilesMixin:OnLoad()
     for _, fs in ipairs(self.contentPane.scrollChild.profile.localStrings) do
         fs:SetText(L[fs.locale])
     end
+    self.contentPane.scrollChild.profile.useMainProfile.label:SetText(L["USE_MAIN_PROFILE"])
 
     --self.contentPane.scrollChild.profile.realBioInput.EditBox:SetMaxLetters(200)
     self.contentPane.scrollChild.profile.realBioInput.EditBox:SetScript("OnTextChanged", function(self)
@@ -2211,6 +2207,14 @@ function GuildbookProfilesMixin:MyProfile_OnEditChanged(edit, text)
         GUILDBOOK_CHARACTER.profile = {}
     end
     GUILDBOOK_CHARACTER.profile[edit] = text;
+
+    if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME] and GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][UnitGUID("player")] then
+        local character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][UnitGUID("player")]
+        if not character.profile then
+            character.profile = {}
+        end
+        character.profile[edit] = text;
+    end
 end
 
 function GuildbookProfilesMixin:LoadCharacter(player)
@@ -2282,7 +2286,8 @@ function GuildbookProfilesMixin:LoadCharacter(player)
             end)
         end
 
-        C_Timer.After(gb.COMMS_DELAY + (transmitStagger * 1), function()
+        local delay = (player and player == "player") and 0 or transmitStagger * 1;
+        C_Timer.After(gb.COMMS_DELAY + delay, function()
             if player and player == "player" then
                 self.contentPane.scrollChild.profile.edit:Show()
                 self:LoadProfile()
@@ -2335,6 +2340,13 @@ function GuildbookProfilesMixin:Edit_OnMouseDown(self)
     self:GetParent().realDob:SetText(GUILDBOOK_CHARACTER.profile.realDob or "")
     self:GetParent().realBio:SetText(GUILDBOOK_CHARACTER.profile.realBio or "")
 
+    self:GetParent().mainSpecDropDown.Text:SetText(GUILDBOOK_CHARACTER.MainSpec or "")
+    self:GetParent().offSpecDropDown.Text:SetText(GUILDBOOK_CHARACTER.OffSpec or "")
+
+    if GUILDBOOK_CHARACTER.MainCharacter and GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][GUILDBOOK_CHARACTER.MainCharacter] then
+        self:GetParent().mainCharacterDropDown.Text:SetText(GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][GUILDBOOK_CHARACTER.MainCharacter].Name)
+    end
+
     if GUILDBOOK_CHARACTER.profile.avatar then
         GuildbookUI.ribbon.myProfile.background:SetTexture(GUILDBOOK_CHARACTER.profile.avatar) 
     else
@@ -2356,9 +2368,50 @@ function GuildbookProfilesMixin:Edit_OnMouseDown(self)
     end
 end
 
+function GuildbookProfilesMixin:UseMainProfile_OnMouseDown(cb)
+    if not self.character then
+        return;
+    end
+
+    if cb:GetChecked() then
+        GUILDBOOK_CHARACTER.UseMainProfile = true;
+        if not self.character.profile then
+            self.character.profile = {}
+        end
+        if self.character.MainCharacter and GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][self.character.MainCharacter] then
+            local mainCharacter = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][self.character.MainCharacter]
+            if mainCharacter.profile and next(mainCharacter.profile) then
+                for k, v in pairs(mainCharacter.profile) do
+                    if k == "avatar" then
+                        
+                    else
+                        self.character.profile[k] = v
+                    end
+                end
+                self.contentPane.scrollChild.profile.realNameInput:SetText(mainCharacter.profile.realName)
+                self.contentPane.scrollChild.profile.realDobInput:SetText(mainCharacter.profile.realDob)
+                self.contentPane.scrollChild.profile.realBioInput.EditBox:SetText(mainCharacter.profile.realBio)
+            end
+        end
+    else
+        GUILDBOOK_CHARACTER.UseMainProfile = false;
+        self.contentPane.scrollChild.profile.realNameInput:SetText(GUILDBOOK_CHARACTER.profile.realName or "-")
+        self.contentPane.scrollChild.profile.realDobInput:SetText(GUILDBOOK_CHARACTER.profile.realDob or "-")
+        self.contentPane.scrollChild.profile.realBioInput.EditBox:SetText(GUILDBOOK_CHARACTER.profile.realBio or "-")
+
+        self.contentPane.scrollChild.profile.realName:SetText(GUILDBOOK_CHARACTER.profile.realName or "-")
+        self.contentPane.scrollChild.profile.realDob:SetText(GUILDBOOK_CHARACTER.profile.realDob or "-")
+        self.contentPane.scrollChild.profile.realBio:SetText(GUILDBOOK_CHARACTER.profile.realBio or "-")
+    end
+    GuildbookUI.profiles:LoadProfile()
+end
+
 function GuildbookProfilesMixin:LoadProfile()
     if not self.character then
         return
+    end
+    if GUILDBOOK_CHARACTER.UseMainProfile ~= nil then
+        self.contentPane.scrollChild.profile.useMainProfile:SetChecked(GUILDBOOK_CHARACTER.UseMainProfile == true and true or false)
     end
     if self.character.profile then
         for k, v in pairs(self.character.profile) do

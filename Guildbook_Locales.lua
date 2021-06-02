@@ -134,9 +134,9 @@ L["INVITE_TO_GROUP"] = "Invite to group"
 L["SEND_TRADE_ENQUIRY"] = "Send message about item"
 L["REFRESH_ROSTER"] = "Refresh roster"
 L["EDIT"] = "Edit profile"
-
+L["GUILD_BANK"] = "Guild bank (Legacy feature)"
 L["ALTS"] = "Alt characters"
-
+L["USE_MAIN_PROFILE"] = "Use main character profile"
 
 
 --professions

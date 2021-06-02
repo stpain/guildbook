@@ -44,6 +44,10 @@ are supported.
 |cff00BFF3 |r
     ]]
 
+    if not self.GuildFrame.GuildBankFrame then
+        self.GuildFrame.GuildBankFrame = CreateFrame('FRAME', 'GuildbookGuildFrameCalendarFrame', GuildFrame, BackdropTemplateMixin and "BackdropTemplate")
+    end
+
     self.GuildFrame.GuildBankFrame.helpIcon = Guildbook:CreateHelperIcon(self.GuildFrame.GuildBankFrame, 'BOTTOMRIGHT', Guildbook.GuildFrame.GuildBankFrame, 'TOPRIGHT', -2, 2, 'Bank')
 
     self.GuildFrame.GuildBankFrame.bankCharacter = nil

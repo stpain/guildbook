@@ -772,6 +772,24 @@
                             <KeyValue key="tooltipText" value="CALENDAR" type="string"/>
                         </KeyValues>
                     </Frame>
+                    <Frame parentKey="guildBank" inherits="GuildbookSmallHighlightButton" hidden="false">
+                        <Anchors>
+                            <Anchor point="LEFT" x="210" y="0"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture atlas="ShipMissionIcon-Treasure-Map">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="-4" y="4"/>
+                                        <Anchor point="BOTTOMRIGHT" x="4" y="-4"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                        <KeyValues>
+                            <KeyValue key="tooltipText" value="GUILD_BANK" type="string"/>
+                        </KeyValues>
+                    </Frame>
 
                     <Frame parentKey="myProfile" inherits="GuildbookSmallHighlightButton" enableMouse="true">
                         <Size x="30" y="30"/>
@@ -947,7 +965,7 @@
                                                 <FontString parentKey="realNameLabel" parentArray="localStrings" inherits="Acme14" justifyH="LEFT">
                                                     <Size x="75" y="25"/>
                                                     <Anchors>
-                                                        <Anchor point="TOPLEFT" x="20" y="-20"/>
+                                                        <Anchor point="TOPLEFT" x="20" y="-25"/>
                                                     </Anchors>
                                                     <KeyValues>
                                                         <KeyValue key="locale" value="REAL_NAME" type="string"/>
@@ -1074,6 +1092,36 @@
                                                     </OnMouseDown>
                                                 </Scripts>
                                             </Frame>
+
+                                            <CheckButton parentKey="useMainProfile" parentArray="displayEdit" inherits="ChatConfigCheckButtonTemplate" hidden="true">
+                                                <Size x="24" y="24"/>
+                                                <Layers>
+                                                    <Layer>
+                                                        <FontString parentKey="label" parentArray="localStrings" inherits="GameFontNormalSmall">
+                                                            <Color r="1" g="1" b="1" a="1"/>
+                                                            <!-- <FontHeight val="12"/> -->
+                                                            <Anchors>
+                                                                <Anchor point="LEFT">
+                                                                    <offset x="24" y="0"/>
+                                                                </Anchor>
+                                                            </Anchors>
+                                                            <KeyValues>
+                                                                <KeyValue key="locale" value="USE_MAIN_PROFILE" type="string"/>
+                                                            </KeyValues>
+                                                        </FontString>
+                                                    </Layer>
+                                                </Layers>                
+                                                <Anchors>
+                                                    <Anchor point="TOPLEFT" x="5" y="--5"/>
+                                                </Anchors>
+                                                <Scripts>
+                                                    <OnLoad>
+                                                    </OnLoad>
+                                                    <OnClick>
+                                                        self:GetParent():GetParent():GetParent():GetParent():UseMainProfile_OnMouseDown(self)
+                                                    </OnClick>
+                                                </Scripts>
+                                            </CheckButton>
 
                                             <EditBox parentKey="realNameInput" parentArray="displayEdit" inherits="InputBoxTemplate" autoFocus="false" hidden="true">
                                                 <Size x="150" y="20"/>
@@ -1731,6 +1779,20 @@
             </Frame>
 
             <Frame parentKey="calendar" parentArray="frames" hidden="true">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.ribbon" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND" textureSubLevel="1">
+                        <Texture parentKey="background" atlas="ClassHall_InfoBoxMission-BackgroundTile" setAllPoints="true" alpha="0.5">
+                            <!-- <Color r="0" g="0" b="0"/> -->
+                        </Texture>
+                    </Layer>
+                </Layers>
+            </Frame>
+
+            <Frame parentKey="guildBank" parentArray="frames" hidden="true">
                 <Anchors>
                     <Anchor point="TOPLEFT" relativeKey="$parent.ribbon" relativePoint="BOTTOMLEFT" x="0" y="0"/>
                     <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
