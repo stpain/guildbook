@@ -127,6 +127,7 @@ L["TRADESKILLS"] = "Tradeskills (Professions)"
 L["CHAT"] = "Chat"
 L["ROSTER"] = "Roster"
 L["CALENDAR"] = "Calendar"
+L["SEARCH"] = "Search"
 L["MY_PROFILE"] = "My profile"
 L["OPEN_PROFILE"] = "Open profile"
 L["OPEN_CHAT"] = "Open chat"
@@ -137,6 +138,10 @@ L["EDIT"] = "Edit profile"
 L["GUILD_BANK"] = "Guild bank (Legacy feature)"
 L["ALTS"] = "Alt characters"
 L["USE_MAIN_PROFILE"] = "Use main character profile"
+L["MY_SACKS"] = "My containers"
+L["BAGS"] = "Bags"
+L["BANK"] = "Bank"
+L["STATS"] = "Statistics"
 
 
 --professions

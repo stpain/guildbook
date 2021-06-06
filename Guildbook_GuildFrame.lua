@@ -499,73 +499,37 @@ function Guildbook:SetupGuildCalendarFrame()
         ['ONY'] = 329121,
     }
 
-
-    -- this table is the dropdown menu sub menu for raids, it will automatically fill the event title which is used to set the raid texture on the calendar days
-    local eventsRaids = {
-        {
-            text = 'Molten Core',
-            notCheckable = true,
-            func = function()
-                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetText('MC')
-                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 1
-                CloseDropDownMenus()
-            end,
-        },
-        {
-            text = 'Blackwing Liar',
-            notCheckable = true,
-            func = function()
-                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetText('BWL')
-                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 1
-                CloseDropDownMenus()
-            end,
-        },
-        {
-            text = 'Onyxia',
-            notCheckable = true,
-            func = function()
-                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetText('ONY')
-                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 1
-                CloseDropDownMenus()
-            end,
-        },
-        {
-            text = 'Zul\'Gurub',
-            notCheckable = true,
-            func = function()
-                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetText('ZG')
-                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 1
-                CloseDropDownMenus()
-            end,
-        },
-        {
-            text = 'The Ruins of Ahn\'Qiraj',
-            notCheckable = true,
-            func = function()
-                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetText('AQ20')
-                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 1
-                CloseDropDownMenus()
-            end,
-        },
-        {
-            text = 'The Temple of Ahn\'Qiraj',
-            notCheckable = true,
-            func = function()
-                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetText('AQ40')
-                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 1
-                CloseDropDownMenus()
-            end,
-        },
-        {
-            text = 'Naxxramas',
-            notCheckable = true,
-            func = function()
-                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetText('NAXX')
-                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 1
-                CloseDropDownMenus()
-            end,
-        },
+    --returntokarazhan
+    local raids = {
+        { name = [[Molten Core]], textureKey = "moltencore", },
+        { name = [[Blackwing lair]], textureKey = "blackwinglair", },
+        { name = [[AQ20]], textureKey = "ruinsofahnqiraj", },
+        { name = [[AQ40]], textureKey = "templeofahnqiraj", }, -- so anoying
+        { name = [[Naxxramas]], textureKey = "naxxramas", },
+        { name = [[Zul'Gurub]], textureKey = "zulgurub", },
+        { name = [[Onyxia]], textureKey = "onyxia", },
+        { name = [[Magtheridon's Lair]], textureKey = "magtheridonslair", },
+        { name = [[Serpentshrine Cavern]], textureKey = "coilfangreservoir", },
+        { name = [[Tempest Keep]], textureKey = "tempestkeep", },
+        { name = [[Gruul's Lair]], textureKey = "gruulslair", },
+        { name = [[The Battle for Mount Hyjal]], textureKey = "cavernsoftime", },
+        { name = [[Black Temple]], textureKey = "blacktemple", },
+        { name = [[Sunwell Plateau]], textureKey = "sunwellplateau", },
     }
+
+    local raidsMenu = {}
+    for k, raid in ipairs(raids) do
+        table.insert(raidsMenu, {
+            text = raid.name,
+            icon = string.format("interface/encounterjournal/ui-ej-dungeonbutton-%s", raid.textureKey),
+            notCheckable = true,
+            func = function()
+                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetText(raid.name)
+                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 1
+                CloseDropDownMenus()
+            end,
+        })
+    end
 
     -- this table is the drodown menu for the event type dropdown widget in the event pop out frame
     local eventTypes = {
@@ -585,7 +549,7 @@ function Guildbook:SetupGuildCalendarFrame()
                 UIDropDownMenu_SetText(Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTypeDropdown, 'Raid')
             end,
             hasArrow = true,
-            menuList = eventsRaids,
+            menuList = raidsMenu,
         },
         { 
             text = 'PVP', 
@@ -754,7 +718,7 @@ function Guildbook:SetupGuildCalendarFrame()
             f.overlay:Hide()
 
             -- add a texture to use for world events
-            f.worldEventTexture = f:CreateTexture('$parentBackground', 'BORDER')
+            f.worldEventTexture = f:CreateTexture('$parentWorldEventBackground', 'BORDER')
             f.worldEventTexture:SetPoint('TOPLEFT', 0, 0)
             f.worldEventTexture:SetPoint('BOTTOMRIGHT', 0, 0)
             f.worldEventTexture:SetTexture(235448)
@@ -762,12 +726,12 @@ function Guildbook:SetupGuildCalendarFrame()
 
             -- add a texture to use for guild events
             -- set this as top layer so its clear there is an event
-            f.guildEventTexture = f:CreateTexture('$parentBackground', 'ARTWORK')
-            f.guildEventTexture:SetAllPoints(f)
-            -- f.guildEventTexture:SetPoint('TOPLEFT', 1, -1)
-            -- f.guildEventTexture:SetPoint('BOTTOMRIGHT', -1, 1)
-            f.guildEventTexture:SetAlpha(0.8)
-            --f.guildEventTexture:SetTexCoord(0.0, 1.0, 0.20, 0.8)
+            f.guildEventTexture = f:CreateTexture('$parentGuildEventBackground', 'ARTWORK')
+            -- f.guildEventTexture:SetAllPoints(f)
+            f.guildEventTexture:SetPoint('TOPLEFT', -2, 1)
+            f.guildEventTexture:SetPoint('BOTTOMRIGHT', -1,0)
+            f.guildEventTexture:SetAlpha(1)
+            f.guildEventTexture:SetTexCoord(0.0, 0.64, 0.0, 0.7)
 
             -- add the current day border texture
             f.currentDayTexture = f:CreateTexture('$parentCurrentDayTexture', 'OVERLAY')
@@ -784,8 +748,11 @@ function Guildbook:SetupGuildCalendarFrame()
                 f['eventButton'..e] = CreateFrame('BUTTON', tostring('GuildbookGuildFrameGuildCalendarFrameWeek'..week..'Day'..day..'Button'..e), f, BackdropTemplateMixin and "BackdropTemplate")
                 f['eventButton'..e]:SetPoint('BOTTOMLEFT', f, 'BOTTOMLEFT', 1, ((e - 1) * eHeight) + 3)
                 f['eventButton'..e]:SetPoint('BOTTOMRIGHT', f, 'BOTTOMRIGHT', -1, ((e - 1) * eHeight) + 3)
-                f['eventButton'..e]:SetHeight(eHeight)
-                f['eventButton'..e]:SetNormalFontObject(GameFontNormal)
+                f['eventButton'..e]:SetSize(dayW, eHeight)
+                f['eventButton'..e].text = f["eventButton"..e]:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+                f['eventButton'..e].text:SetPoint("CENTER", 0, 0)
+                f['eventButton'..e].text:SetSize(dayW, eHeight)
+                f['eventButton'..e].text:SetFont("Fonts\\FRIZQT__.TTF", 11) --, 'OUTLINE')
                 f['eventButton'..e]:SetHighlightTexture(404984)
                 f['eventButton'..e]:GetHighlightTexture():SetTexCoord(0.0, 0.6, 0.75, 0.85)
                 f['eventButton'..e]:Hide()
@@ -839,21 +806,26 @@ function Guildbook:SetupGuildCalendarFrame()
                 f.guildEventTexture:Hide()
                 for i = 1, 3 do
                     f['eventButton'..i]:Hide()
-                    f['eventButton'..i]:SetText('')
+                    f['eventButton'..i].text:SetText('')
                     f['eventButton'..i].event = nil
                 end
                 if self.events then
                     for k, event in ipairs(self.events) do
                         f['eventButton'..k]:Show()
-                        f['eventButton'..k]:SetText('|cffffffff'..event.title)
+                        f['eventButton'..k].text:SetText('|cffffffff'..event.title)
                         f['eventButton'..k].event = event
 
+                        -- change this to just use the first texture in the event list
                         -- for now find a raid to add the texture
                         if event.type == 1 then
-                            if raidTextures[event.title] then
-                                f.guildEventTexture:SetTexture(raidTextures[event.title])
-                                f.guildEventTexture:Show()
+
+                            for k, raid in ipairs(raids) do
+                                if raid.name == event.title then
+                                    f.guildEventTexture:SetTexture(string.format("interface/encounterjournal/ui-ej-dungeonbutton-%s", raid.textureKey))
+                                    f.guildEventTexture:Show()
+                                end
                             end
+
                         end
 
                     end
@@ -1059,8 +1031,8 @@ function Guildbook:SetupGuildCalendarFrame()
     end
 
     self.GuildFrame.GuildCalendarFrame.EventFrame = CreateFrame('FRAME', 'GuildbookGuildFrameGuildCalendarFrameEventFrame', self.GuildFrame.GuildCalendarFrame, BackdropTemplateMixin and "BackdropTemplate") --, "UIPanelDialogTemplate")
-    self.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('TOPLEFT', GuildFrame, 'TOPRIGHT', 4, 0)
-    self.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('BOTTOMRIGHT', GuildFrame, 'BOTTOMRIGHT', 254, 0)
+    -- self.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('TOPLEFT', GuildFrame, 'TOPRIGHT', 4, 0)
+    -- self.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('BOTTOMRIGHT', GuildFrame, 'BOTTOMRIGHT', 254, 0)
     self.GuildFrame.GuildCalendarFrame.EventFrame:SetBackdrop({
         edgeFile = "interface/dialogframe/ui-dialogbox-border",
         edgeSize = 32,
@@ -1120,17 +1092,21 @@ function Guildbook:SetupGuildCalendarFrame()
     end)
 
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox = CreateFrame('EDITBOX', 'GuildbookGuildFrameGuildCalendarFrameEventFrameEventTitleEditbox', self.GuildFrame.GuildCalendarFrame.EventFrame, "InputBoxTemplate")
-    self.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetPoint('TOPLEFT', 26, -65)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetSize(100, 22)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetPoint('TOPLEFT', 25, -65)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetSize(200, 22)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:ClearFocus()
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetAutoFocus(false)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetMaxLetters(15)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetMaxLetters(50)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox.header = self.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:CreateFontString('$parentHeader', 'OVERLAY', 'GameFontNormalSmall')
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox.header:SetPoint('BOTTOMLEFT', self.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox, 'TOPLEFT', 0, 2)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox.header:SetText('Title')
 
+    local etdt = self.GuildFrame.GuildCalendarFrame.EventFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    etdt:SetPoint("TOPLEFT", 25, -96)
+    etdt:SetText("Event type")
+
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventTypeDropdown = CreateFrame('FRAME', "GuildbookGuildFrameGuildCalendarFrameEventFrameEventTypeDropdown", self.GuildFrame.GuildCalendarFrame.EventFrame, "UIDropDownMenuTemplate")
-    self.GuildFrame.GuildCalendarFrame.EventFrame.EventTypeDropdown:SetPoint('LEFT', Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox, 'RIGHT', -10, -2)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventTypeDropdown:SetPoint('TOPLEFT', etdt, 'BOTTOMLEFT', -20, -4)
     UIDropDownMenu_SetWidth(self.GuildFrame.GuildCalendarFrame.EventFrame.EventTypeDropdown, 75)
     UIDropDownMenu_SetText(self.GuildFrame.GuildCalendarFrame.EventFrame.EventTypeDropdown, 'Event')
     _G['GuildbookGuildFrameGuildCalendarFrameEventFrameEventTypeDropdownButton']:SetScript('OnClick', function(self)
@@ -1138,7 +1114,7 @@ function Guildbook:SetupGuildCalendarFrame()
     end)
 
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent = CreateFrame('FRAME', 'GuildbookGuildFrameGuildCalendarFrameEventFrameEventDescriptionEditboxParent', self.GuildFrame.GuildCalendarFrame.EventFrame, BackdropTemplateMixin and "BackdropTemplate")
-    self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent:SetPoint('TOPLEFT', 20, -120)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent:SetPoint('TOPLEFT', 20, -160)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent:SetSize(206, 80)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent:SetBackdrop({
         edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
@@ -1170,18 +1146,18 @@ function Guildbook:SetupGuildCalendarFrame()
     end)
 
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent = CreateFrame('FRAME', 'GuildbookGuildFrameGuildCalendarFrameEventFrameEventAttendeesListviewParent', self.GuildFrame.GuildCalendarFrame.EventFrame, BackdropTemplateMixin and "BackdropTemplate")
-    self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent:SetPoint('TOPLEFT', 20, -260)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent:SetSize(206, 120)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent:SetPoint('BOTTOMLEFT', 20, 45)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent:SetSize(206, 180)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent:EnableMouse(true)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent:SetBackdrop({
         edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
         edgeSize = 16,
     })
     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendingListview = {}
-    for i = 1, 10 do
+    for i = 1, 15 do
         local f = CreateFrame('FRAME', tostring('GuildbookGuildFrameGuildCalendarFrameEventFrameAttendListviewRow'..i), self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent)
-        f:SetPoint('TOPLEFT', 0, ((i - 1) * -11) - 6)
-        f:SetPoint('TOPRIGHT', -25, ((i - 1) * -11) - 6)
+        f:SetPoint('TOPLEFT', 0, ((i - 1) * -16) - 6)
+        f:SetPoint('TOPRIGHT', -25, ((i - 1) * -16) - 6)
         f:SetHeight(11)
         f.character = f:CreateFontString('$parentCharacter', 'OVERLAY', 'GameFontNormalSmall')
         f.character:SetPoint('LEFT', 10, 0)
@@ -1353,7 +1329,7 @@ function Guildbook:SetupGuildCalendarFrame()
 
     function self.GuildFrame.GuildCalendarFrame.EventFrame:UpdateAttending()
         local scroll = math.floor(self.EventAttendeesListviewScrollBar:GetValue())
-        for k = 1, 10 do
+        for k = 1, 15 do
             self.AttendingListview[k].character:SetText('')
             self.AttendingListview[k].status:SetText('')
         end
@@ -1372,7 +1348,7 @@ function Guildbook:SetupGuildCalendarFrame()
                         local name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
                         if name and class then
                             local count = tonumber(self.ClassTabs[class].text:GetText())
-                            if i > ((scroll * 10) - 10) and i <= (scroll * 10) then
+                            if i > ((scroll * 15) - 15) and i <= (scroll * 15) then
                                 self.AttendingListview[i].character:SetText(Guildbook.Data.Class[class].FontColour..name)
                                 self.AttendingListview[i].status:SetText(status[info.Status])
                             end

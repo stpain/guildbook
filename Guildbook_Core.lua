@@ -243,13 +243,7 @@ function Guildbook:Init()
 
     -- added later again again!
     if not GUILDBOOK_GLOBAL.Modules then
-        GUILDBOOK_GLOBAL.Modules = {
-            ['GuildBankFrame'] = true,
-            ['ChatFrame'] = true,
-            ['StatsFrame'] = true,
-            ['ProfilesFrame'] = true,
-            ['GuildCalendarFrame'] = true,
-        }
+        GUILDBOOK_GLOBAL.Modules = nil
     end
 
 
@@ -772,7 +766,64 @@ function Guildbook:PrintMessage(msg)
 end
 
 
+function Guildbook:ScanPlayerBags()
+    if not GUILDBOOK_GLOBAL.MySacks then -- my sacks is an addon i made which im going to use in guildbook
+        GUILDBOOK_GLOBAL.MySacks = {
+            Bags = {},
+            Banks = {},
+        }
+    end
+    GUILDBOOK_GLOBAL.MySacks.Bags[UnitGUID("player")] = {}
+    for bag = 0, 4 do
+        for slot = 1, GetContainerNumSlots(bag) do
+            local icon, count, _, quality, _, _, link, _, _, id = GetContainerItemInfo(bag, slot)
+            if id and count and link and quality then
+                if not GUILDBOOK_GLOBAL.MySacks.Bags[UnitGUID("player")][id] then
+                    GUILDBOOK_GLOBAL.MySacks.Bags[UnitGUID("player")][id] = {count = count, link = link, quality = quality, icon = icon}
+                else
+                    GUILDBOOK_GLOBAL.MySacks.Bags[UnitGUID("player")][id].count = GUILDBOOK_GLOBAL.MySacks.Bags[UnitGUID("player")][id].count + count;
+                end
+            end
+        end
+    end
+end
 
+
+function Guildbook:ScanPlayerBank()
+    if not GUILDBOOK_GLOBAL.MySacks then -- my sacks is an addon i made which im going to use in guildbook
+        GUILDBOOK_GLOBAL.MySacks = {
+            Bags = {},
+            Banks = {},
+        }
+    end
+    GUILDBOOK_GLOBAL.MySacks.Banks[UnitGUID("player")] = {}
+    -- main bank
+    for slot = 1, 28 do
+        local icon, count, _, quality, _, _, link, _, _, id = GetContainerItemInfo(-1, slot)
+        if id and count and link and quality then
+            if not GUILDBOOK_GLOBAL.MySacks.Banks[UnitGUID("player")][id] then
+                GUILDBOOK_GLOBAL.MySacks.Banks[UnitGUID("player")][id] = {count = count, link = link, quality = quality, icon = icon}
+            else
+                GUILDBOOK_GLOBAL.MySacks.Banks[UnitGUID("player")][id].count = GUILDBOOK_GLOBAL.MySacks.Banks[UnitGUID("player")][id].count + count;
+            end
+        end
+    end
+    -- bank bags
+    for bag = 5, 11 do
+        for slot = 1, GetContainerNumSlots(bag) do
+            local icon, count, _, quality, _, _, link, _, _, id = GetContainerItemInfo(bag, slot)
+            if id and count and link and quality then
+                if not GUILDBOOK_GLOBAL.MySacks.Banks[UnitGUID("player")][id] then
+                    GUILDBOOK_GLOBAL.MySacks.Banks[UnitGUID("player")][id] = {count = count, link = link, quality = quality, icon = icon}
+                else
+                    GUILDBOOK_GLOBAL.MySacks.Banks[UnitGUID("player")][id].count = GUILDBOOK_GLOBAL.MySacks.Banks[UnitGUID("player")][id].count + count;
+                end
+            end
+        end
+    end
+end
+
+-- THIS FUNCTION WILL GO AWAY WHEN GUILD BANKS GET ADDED
 --- scans the players bags and bank for guild bank sharing
 --- creates a table in the character saved vars with scan time so we can check which data is newest
 function Guildbook:ScanPlayerContainers()
@@ -864,7 +915,7 @@ function Guildbook:ScanTradeSkill()
         prof = Guildbook:GetEnglishProf(prof) --convert to english
         GUILDBOOK_CHARACTER[prof] = {}
         for i = 1, GetNumTradeSkills() do
-            local name, _type, _, _, _, _ = GetTradeSkillInfo(i)
+            local name, _type, a, b, c = GetTradeSkillInfo(i)
             if (name and _type ~= "header") then
                 local itemLink = GetTradeSkillItemLink(i)
                 local itemID = select(1, GetItemInfoInstant(itemLink))
@@ -935,15 +986,16 @@ end
 -- we also check the player entries for profression errors, talents table and spec data
 -- any entries not found the current guild roster will be removed (=nil)
 local lastRosterCleanUp = -1.0;
-local rosterScanDelay = 180.0
+local rosterScanDelay = 60.0
 function Guildbook:CleanUpGuildRosterData(guild, msg)
-    if lastRosterCleanUp + rosterScanDelay > time() then
-        local nextScanIn = rosterScanDelay - (time() - lastRosterCleanUp)
-        GuildbookUI.statusText:SetText(string.format("roster clean up cancelled, %s until reset", SecondsToTime(nextScanIn)))
-        C_Timer.After(3, function() GuildbookUI.statusText:SetText("") end)
-        return;
-    end
-    lastRosterCleanUp = time()
+    -- if lastRosterCleanUp + rosterScanDelay > time() then
+    --     local nextScanIn = rosterScanDelay - (time() - lastRosterCleanUp)
+    --     GuildbookUI.statusText:SetText(string.format("roster clean up cancelled, %s until reset", SecondsToTime(nextScanIn)))
+    --     GuildbookUI.roster:ParseGuildRoster()
+    --     C_Timer.After(3, function() GuildbookUI.statusText:SetText("") end)
+    --     return;
+    -- end
+    -- lastRosterCleanUp = time()
     if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[guild] then
         local memberGUIDs = {}
         local currentGUIDs = {}
@@ -977,7 +1029,7 @@ function Guildbook:CleanUpGuildRosterData(guild, msg)
                     OffSpecIsPvP = false,
                 };
             end
-            currentGUIDs[i] = { GUID = guid, exists = true, rank = rankName, pubNote = publicNote, offNote = officerNote}
+            currentGUIDs[i] = { GUID = guid, lvl = level, exists = true, rank = rankName, pubNote = publicNote, offNote = officerNote}
             memberGUIDs[guid] = true;
             --name = Ambiguate(name, 'none')
             --table.insert(GUILDBOOK_GLOBAL['RosterExcel'], string.format("%s,%s,%s,%s,%s", name, class, rankName, level, publicNote))
@@ -1018,6 +1070,7 @@ function Guildbook:CleanUpGuildRosterData(guild, msg)
                         info.PublicNote = currentGUIDs[i].pubNote;
                         info.OfficerNote = currentGUIDs[i].offNote;
                         info.RankName = currentGUIDs[i].rank;
+                        info.Level = currentGUIDs[i].lvl;
 
                         if info.UNKNOWN then
                             info.UNKNOWN = nil
@@ -1045,7 +1098,7 @@ function Guildbook:CleanUpGuildRosterData(guild, msg)
                 local finished = time() - started
                 GuildbookUI.statusBar:SetValue(0)
                 local removedCount = 0;
-                for guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[guild]) do
+                for guid, _ in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[guild]) do
                     if not memberGUIDs[guid] then
                         GUILDBOOK_GLOBAL.GuildRosterCache[guild][guid] = nil;
                         removedCount = removedCount + 1;
@@ -1906,9 +1959,13 @@ function Guildbook:SendGuildCalendarEvents()
         local guildName = Guildbook:GetGuildName()
         if guildName and GUILDBOOK_GLOBAL['Calendar'][guildName] then
             for k, event in pairs(GUILDBOOK_GLOBAL['Calendar'][guildName]) do
-                if event.date.month >= today.month and event.date.year >= today.year and event.date.month <= future.month and event.date.year <= future.year then
-                    table.insert(events, event)
-                    DEBUG('func', 'SendGuildCalendarEvents', string.format('Added event: %s to transmit table', event.title))
+                if not event.date then
+                    DEBUG("func", 'SendGuildCalendarEvents', "event has no date table "..event.title)
+                else
+                    if event.date.month >= today.month and event.date.year >= today.year and event.date.month <= future.month and event.date.year <= future.year then
+                        table.insert(events, event)
+                        DEBUG('func', 'SendGuildCalendarEvents', string.format('Added event: %s to transmit table', event.title))
+                    end
                 end
             end
             local calendarEvents = {
@@ -2089,24 +2146,8 @@ function Guildbook:PLAYER_ENTERING_WORLD()
             "GuildCalendarFrame",
         }
     end
-
-    if GUILDBOOK_GLOBAL.Modules then
-        if GUILDBOOK_GLOBAL.Modules["GuildBankFrame"] == true then
-            self:SetupGuildBankFrame()
-        end
-        if GUILDBOOK_GLOBAL.Modules["ChatFrame"] == true then
-            --self:SetupChatFrame()
-        end
-        if GUILDBOOK_GLOBAL.Modules["StatsFrame"] == true then
-            --self:SetupStatsFrame()
-        end
-        if GUILDBOOK_GLOBAL.Modules["ProfilesFrame"] == true then
-            --self:SetupProfilesFrame()
-        end
-        if GUILDBOOK_GLOBAL.Modules["GuildCalendarFrame"] == true then
-            self:SetupGuildCalendarFrame()
-        end
-    end
+    self:SetupGuildBankFrame()
+    self:SetupGuildCalendarFrame()
 
     self.EventFrame:UnregisterEvent('PLAYER_ENTERING_WORLD')
 
@@ -2296,6 +2337,10 @@ function Guildbook:SKILL_LINES_CHANGED()
     end)
 end
 
+function Guildbook:BAG_UPDATE()
+    self:ScanPlayerBags()
+end
+
 -- added to automate the guild bank scan
 function Guildbook:BANKFRAME_OPENED()
     for i = 1, GetNumGuildMembers() do
@@ -2304,6 +2349,8 @@ function Guildbook:BANKFRAME_OPENED()
             self:ScanPlayerContainers()
         end
     end
+
+    self:ScanPlayerBank()
 end
 
 --- handle comms
@@ -2499,6 +2546,7 @@ Guildbook.EventFrame:RegisterEvent('TRADE_SKILL_UPDATE')
 Guildbook.EventFrame:RegisterEvent('CRAFT_UPDATE')
 Guildbook.EventFrame:RegisterEvent('RAID_ROSTER_UPDATE')
 Guildbook.EventFrame:RegisterEvent('BANKFRAME_OPENED')
+Guildbook.EventFrame:RegisterEvent('BAG_UPDATE')
 Guildbook.EventFrame:RegisterEvent('CHAT_MSG_GUILD')
 Guildbook.EventFrame:RegisterEvent('CHAT_MSG_WHISPER')
 Guildbook.EventFrame:RegisterEvent('UPDATE_MOUSEOVER_UNIT')

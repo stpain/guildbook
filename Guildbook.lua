@@ -36,9 +36,17 @@ function GuildbookButtonMixin:OnMouseUp()
 end
 
 function GuildbookButtonMixin:OnEnter()
-    if self.tooltipText then
+    if self.tooltipText and L[self.tooltipText] then
         GameTooltip:SetOwner(self, 'ANCHOR_TOP')
         GameTooltip:AddLine("|cffffffff"..L[self.tooltipText])
+        GameTooltip:Show()
+    elseif self.tooltipText and not L[self.tooltipText] then
+        GameTooltip:SetOwner(self, 'ANCHOR_TOP')
+        GameTooltip:AddLine(self.tooltipText)
+        GameTooltip:Show()
+    elseif self.link then
+        GameTooltip:SetOwner(self, 'ANCHOR_TOP')
+        GameTooltip:SetHyperlink(self.link)
         GameTooltip:Show()
     else
         GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
@@ -410,6 +418,9 @@ GuildbookRosterListviewItemMixin.tooltipIcon.mask:SetSize(50,50)
 GuildbookRosterListviewItemMixin.tooltipIcon.mask:SetPoint("CENTER", 0, 0)
 GuildbookRosterListviewItemMixin.tooltipIcon.mask:SetTexture("Interface/CHARACTERFRAME/TempPortraitAlphaMask", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
 GuildbookRosterListviewItemMixin.tooltipIcon.icon:AddMaskTexture(GuildbookRosterListviewItemMixin.tooltipIcon.mask)
+-- GuildbookRosterListviewItemMixin.tooltipBackground = GuildbookRosterListviewItemMixin.tooltipIcon:CreateTexture("GuildbookRosterTooltipBackground", "BACKGROUND")
+-- GuildbookRosterListviewItemMixin.tooltipBackground:SetDrawLayer("BACKGROUND", -7)
+
 
 function GuildbookRosterListviewItemMixin:OnEnter()
     if not self.character then
@@ -420,6 +431,8 @@ function GuildbookRosterListviewItemMixin:OnEnter()
         return;
     end
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+    -- self.tooltipBackground:SetAtlas(string.format("UI-Character-Info-%s-BG", character.Class:sub(1,1):upper()..character.Class:sub(2)))
+    -- self.tooltipBackground:SetAllPoints(GameTooltip)
     local rPerc, gPerc, bPerc, argbHex = GetClassColor(character.Class:upper())
     GameTooltip_SetTitle(GameTooltip, character.Name.."\n\n|cffffffff"..L['level'].." "..character.Level, CreateColor(rPerc, gPerc, bPerc), nil)
     if self.tooltipIcon then
@@ -488,7 +501,7 @@ function GuildbookRosterListviewItemMixin:OnEnter()
         local db = Attune_DB.toons[character.Name.."-"..GetRealmName()]
 
         for _, instance in ipairs(Attune_Data.attunes) do
-            if db.attuned[instance.ID] and type(db.attuned[instance.ID]) == "number" and instance.FACTION == "Both" or instance.FACTION == character.Faction then
+            if db.attuned[instance.ID] and type(db.attuned[instance.ID]) == "number" and (instance.FACTION == "Both" or instance.FACTION == character.Faction) then
                 local formatPercent = db.attuned[instance.ID] < 100 and "|cffff0000"..db.attuned[instance.ID].."%" or "|cff00ff00"..db.attuned[instance.ID].."%"
                 GameTooltip:AddDoubleLine("|cffffffff"..instance.NAME, formatPercent)
             end
@@ -507,6 +520,8 @@ function GuildbookRosterListviewItemMixin:OnLeave()
             end
         end
     end
+    -- self.tooltipBackground:SetTexture(nil)
+    -- self.tooltipBackground:ClearAllPoints()
     GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
 end
 
@@ -730,20 +745,21 @@ function GuildbookMixin:OnLoad()
     self.ribbon.roster.func = function()
         navigateTo(self.roster)
     end
-    --self.ribbon.calendar.Background:SetAtlas("poi-workorders")
+    self.ribbon.mySacks.func = function()
+        navigateTo(self.mySacks)
+    end
     self.ribbon.calendar.func = function()
         navigateTo(self.calendar)
         gb.GuildFrame.GuildCalendarFrame:ClearAllPoints()
         gb.GuildFrame.GuildCalendarFrame:SetParent(self.calendar)
-        gb.GuildFrame.GuildCalendarFrame:SetPoint("TOPLEFT", 0, -26)
+        gb.GuildFrame.GuildCalendarFrame:SetPoint("TOPLEFT", 0, -26) --this has button above the frame so lower it a bit
         gb.GuildFrame.GuildCalendarFrame:SetPoint("BOTTOMRIGHT", -2, 0)
         gb.GuildFrame.GuildCalendarFrame:Show()
 
         gb.GuildFrame.GuildCalendarFrame.EventFrame:ClearAllPoints()
-        gb.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('TOPLEFT', self.calendar, 'TOPRIGHT', 4, 0)
+        gb.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('TOPLEFT', self.calendar, 'TOPRIGHT', 4, 50)
         gb.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('BOTTOMRIGHT', self.calendar, 'BOTTOMRIGHT', 254, 0)
     end
-
     self.ribbon.guildBank.func = function()
         navigateTo(self.guildBank)
         gb.GuildFrame.GuildBankFrame:ClearAllPoints()
@@ -752,7 +768,12 @@ function GuildbookMixin:OnLoad()
         gb.GuildFrame.GuildBankFrame:SetPoint("BOTTOMRIGHT", -2, 0)
         gb.GuildFrame.GuildBankFrame:Show()
     end
-
+    self.ribbon.search.func = function()
+        navigateTo(self.search)
+    end
+    self.ribbon.stats.func = function()
+        navigateTo(self.stats)
+    end
 
     self.profiles.contentPane.scrollChild:SetSize(650, 480)
 
@@ -897,6 +918,7 @@ local function addRecipe(prof, recipeID, reagents)
     local _rarity = false;
     local _enchant = false;
     local _name = false;
+    local _expansion = 0;
     if prof == 'Enchanting' then
         _link = select(1, GetSpellLink(recipeID))
         _rarity = select(3, GetItemInfo(_link)) or 1
@@ -923,6 +945,7 @@ local function addRecipe(prof, recipeID, reagents)
                     reagents = reagents,
                     rarity = _rarity,
                     link = _link,
+                    expsanion = _expansion;
                     enchant = _enchant,
                     name = _name,
                     selected = false,
@@ -936,6 +959,10 @@ local function addRecipe(prof, recipeID, reagents)
             local item = Item:CreateFromItemID(recipeID)
             item:ContinueOnItemLoad(function()
                 _link = item:GetItemLink()
+                _expansion = select(15, GetItemInfo(_link))
+                if _expansion > 0 then
+                    --print(_expansion, _link)
+                end
                 _rarity = item:GetItemQuality()
                 _name = item:GetItemName()
                 _enchant = false
@@ -944,6 +971,7 @@ local function addRecipe(prof, recipeID, reagents)
                     reagents = reagents,
                     rarity = _rarity,
                     link = _link,
+                    expansion = _expansion;
                     enchant = _enchant,
                     name = _name,
                     selected = false,
@@ -956,12 +984,19 @@ local function addRecipe(prof, recipeID, reagents)
         end
     else
         --print('got link')
+        _expansion = select(14, GetItemInfo(_link))
+        local a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p = GetItemInfo(_link)
+        --print(a,"bind",n,"expan",o,"set",p)
+        if _expansion > 0 then
+            --print(_expansion, _link)
+        end
         table.insert(GuildbookUI.tradeskills.recipesListview.recipes, {
             itemID = recipeID,
             reagents = reagents,
             rarity = _rarity,
             link = _link,
             enchant = _enchant,
+            expansion = _expansion;
             name = _name,
             selected = false,
         })
@@ -1142,11 +1177,15 @@ function GuildbookRecipesListviewMixin:LoadRecipes()
             self.scrollBar:SetValue(1)
         end)
         table.sort(self.recipes, function(a,b)
-            if a.rarity == b.rarity then
-                return a.name < b.name
-            else
-                return a.rarity > b.rarity;
-            end
+            --if a.expansion == b.expansion then
+                if a.rarity == b.rarity then
+                    return a.name < b.name
+                else
+                    return a.rarity > b.rarity;
+                end
+            -- else
+            --     return a.expansion > b.expansion;
+            -- end
         end)
         self.scrollBar:SetMinMaxValues(1,(#self.recipes>NUM_RECIPE_ROWS) and #self.recipes-(NUM_RECIPE_ROWS-1) or 1)
         self.scrollBar:SetValue(1)
@@ -1269,50 +1308,15 @@ GuildbookRosterMixin.roster = {}
 local NUM_ROSTER_ROWS = 14;
 
 function GuildbookRosterMixin:OnLoad()
-    local animDur = 0.8
+    local animDur = 0.5
     for i = 1, 14 do
         local f = CreateFrame("FRAME", "GuildbookUiCharactersListview"..i, self.memberListview, "GuildbookRosterListviewItem")
-        f:SetPoint("TOPLEFT", 5, ((i-1)*-29)-2)
-        --f:SetPoint("TOPLEFT", 5, 0)
-        f:SetSize(880, 29)
-        --f:SetAlpha(1)
-        f:Hide()
-
-        f.rowAnim = f:CreateAnimationGroup()
-        f.rowAnim:SetToFinalAlpha(true)
-        -- local trans = f.rowAnim:CreateAnimation("Translation")
-        -- trans:SetOffset(0, ((i-1)*-29))
-        -- trans:SetDuration(animDur)
-        -- trans:SetStartDelay(animDelay*0.5)
-        -- trans:SetSmoothing("OUT")
-        -- trans:SetScript("OnFinished", function()
-        --     f:SetPoint("TOPLEFT", f:GetParent(), "TOPLEFT", 5, ((i-1)*-29)-2)
-        -- end)
-        --trans:SetOrder(1)
-
-        -- local scaler = f.rowAnim:CreateAnimation("Scale")
-        -- scaler:SetOrigin("TOPLEFT", 5, ((i-1)*-29)-2)
-        -- scaler:SetFromScale(1,0)
-        -- scaler:SetToScale(1,1)
-        -- scaler:SetDuration(animDur)
-        -- scaler:SetStartDelay(animDelay/i)
-        -- scaler:SetSmoothing("OUT")
-        -- local function smoothScale(self)
-        --     local x = self:GetSmoothProgress()
-        --     local k = (x^(x* 0.05))
-        --     self:SetSmoothProgress(k)
-        --  end
-        -- scaler:SetScript("OnUpdate", smoothScale)
-        --scaler:SetOrder(2)
-
+        f:SetPoint("TOPLEFT", 5, ((i-1)*-30)-2)
+        f:SetSize(880, 30)
+        --f:SetAlpha(0)
         local x = ((i-14) *-1) * 0.025
-        local fade = f.rowAnim:CreateAnimation("Alpha")
-        fade:SetFromAlpha(0)
-        fade:SetToAlpha(1)
-        fade:SetDuration(animDur)
-        fade:SetStartDelay((x^x) - 0.65)
-        fade:SetSmoothing("OUT")
-        --fade:SetOrder(3)
+        f.anim.fadeIn:SetStartDelay((x^x) - 0.68)
+        --f.anim.fadeIn:SetSmoothing("OUT")
 
         GuildbookRosterMixin.rows[i] = f;
     end
@@ -1328,7 +1332,7 @@ function GuildbookRosterMixin:OnLoad()
                 func = function()
                     self.rosterFilterKey = "Class";
                     self.rosterFilterValue = classFile;
-                    self:ParseGuildRoster(false)
+                    self:ParseGuildRoster()
                 end,
             })
         end
@@ -1338,7 +1342,7 @@ function GuildbookRosterMixin:OnLoad()
         func = function()
             self.rosterFilterKey = nil;
             self.rosterFilterValue = nil;
-            self:ParseGuildRoster(false)
+            self:ParseGuildRoster()
         end,
     })
     local mixin = self;
@@ -1366,29 +1370,31 @@ function GuildbookRosterMixin:OnLoad()
     end
 end
 
+function GuildbookRosterMixin:OnHide()
+    for i, row in ipairs(self.rows) do
+        --row:SetAlpha(0)
+    end
+end
+
 function GuildbookRosterMixin:OnShow()
     GUILD_NAME = gb:GetGuildName()
     GuildRoster()
-    C_Timer.After(0.5, function()
-        self:ParseGuildRoster(true)
+    C_Timer.After(0.25, function()
+        self:ParseGuildRoster()
     end)
 end
 
-function GuildbookRosterMixin:ParseGuildRoster(playAnim)
+function GuildbookRosterMixin:ParseGuildRoster()
     self.characterStatus = {}
     local totalMembers, _, _ = GetNumGuildMembers()
     for i = 1, totalMembers do
-        local name, _rankName, _, _, _, _zone, _publicNote, _officerNote, _isOnline, _, _, achievementPoints, _, _, _, _, GUID = GetGuildRosterInfo(i)
-        name = Ambiguate(name, 'none')
+        local _, _, _, _, _, _zone, _, _, _isOnline, _, _, _, _, _, _, _, GUID = GetGuildRosterInfo(i)
         self.characterStatus[GUID] = {
             isOnline = _isOnline  and _isOnline or false,
             zone = _zone,
-            -- publicNote = _publicNote,
-            -- officerNote = _officerNote,
-            -- rankName = _rankName,
         }
         if i == totalMembers then
-            self:LoadCharacters(playAnim)
+            self:LoadCharacters()
         end
     end
 end
@@ -1411,15 +1417,14 @@ end
 
 function GuildbookRosterMixin:PlayRowAnim()
     for i, row in ipairs(self.rows) do
-        row:Hide()
-        --row:SetPoint("TOPLEFT", 5, -2)
-        row:SetAlpha(0)
-        row:Show()
-        row.rowAnim:Play()
+        -- row:Hide()
+        --row:SetAlpha(0)
+        --row:Show()
+        row.anim:Play()
     end
 end
 
-function GuildbookRosterMixin:LoadCharacters(playAnim)
+function GuildbookRosterMixin:LoadCharacters()
     if not GUILD_NAME then
         return;
     end
@@ -1477,26 +1482,32 @@ function GuildbookRosterMixin:LoadCharacters(playAnim)
             end
         end
         if i == numChars then
-            self:ForceRosterListviewRefresh(playAnim)
+            self:ForceRosterListviewRefresh()
         else
             i = i + 1;
         end
     end
 end
 
-function GuildbookRosterMixin:ForceRosterListviewRefresh(playAnim)
-    if playAnim then
-        self:PlayRowAnim()
-    end
+function GuildbookRosterMixin:ForceRosterListviewRefresh()
     if self.roster and next(self.roster) then
         --this is to trigger a refresh by calling the scroll value changed func
-        self.memberListview.scrollBar:SetMinMaxValues(1,2)
-        self.memberListview.scrollBar:SetValue(2)
-        self.memberListview.scrollBar:SetValue(1)
-        C_Timer.After(0, function()
-            self.memberListview.scrollBar:SetValue(2)
-            self.memberListview.scrollBar:SetValue(1)
-        end)
+        -- for i, row in ipairs(self.rows) do
+        --     row:Hide()
+        --     --row:SetAlpha(0)
+        -- end
+        -- self.memberListview.scrollBar:SetMinMaxValues(1,2)
+        -- C_Timer.After(0, function()
+        --     -- self.memberListview.scrollBar:SetValue(2)
+        --     -- self.memberListview.scrollBar:SetValue(1)
+        --     -- self.memberListview.scrollBar:SetValue(scrollPos)
+        -- end)
+        -- C_Timer.After(0.005, function()
+        --     for i, row in ipairs(self.rows) do
+        --         row:Show()
+        --     end
+        --     --self:PlayRowAnim()
+        -- end)
         if self.rosterSort and self.rosterSortOrder then
             self:SortRoster()
         else
@@ -1512,8 +1523,17 @@ function GuildbookRosterMixin:ForceRosterListviewRefresh(playAnim)
                 end
             end)
         end
+        self:ClearRosterRows()
+        local scrollPos = math.floor(self.memberListview.scrollBar:GetValue()) - 1;
+        for row = 1, NUM_ROSTER_ROWS do
+            if self.roster[scrollPos + row] then
+                self.rows[row]:SetCharacter(self.roster[scrollPos+row])
+                self.rows[row]:SetOffline(self.roster[scrollPos+row].isOnline)
+                local i = 1;
+            end
+        end
         self.memberListview.scrollBar:SetMinMaxValues(1,(#self.roster>NUM_ROSTER_ROWS) and #self.roster-(NUM_ROSTER_ROWS-1) or 1)
-        self.memberListview.scrollBar:SetValue(1)
+        self.memberListview.scrollBar:SetValue(scrollPos)
     end
 end
 
@@ -1930,8 +1950,6 @@ function GuildbookChatContentMixin:ChatContentScrollBar_OnValueChanged()
     end
     local scrollPos = math.floor(self.scrollBar:GetValue())
     for i = 1, 9 do
-        --self.rows[i].rowAnimFadeOut:Play()
-        --self.rows[i]:Hide()
         self.rows[i].Message:SetText("")
         self.rows[i].Icon:SetTexture(nil)
         if self.messages[i+scrollPos-1] then
@@ -2775,3 +2793,333 @@ function GuildbookProfilesMixin:LoadInventory()
     end
 end
 
+
+
+
+
+GuildbookMySacksListviewItemMixin = {}
+
+function GuildbookMySacksListviewItemMixin:UpdateItem()
+    if self.item and self.item.itemID then
+        self.Icon:SetTexture(self.item.icon)
+        self.Link:SetText(self.item.link)
+        self.Count:SetText(self.item.count)
+        self.Type:SetText(self.item.itemType)
+        self.SubType:SetText(self.item.itemSubtype)
+
+        for k, icon in ipairs(self.characterIcons) do
+            icon:Hide()
+        end
+        
+        for k, v in ipairs(self.item.characters) do
+            if GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME] and GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][v.guid] then
+                local character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][v.guid]
+                if character.profile and character.profile.avatar then
+                    self["character"..k].background:SetTexture(character.profile.avatar)                    
+                else
+                    self["character"..k].background:SetAtlas(string.format("raceicon-%s-%s", character.Race, character.Gender))
+                end
+                self["character"..k].tooltipText = string.format("%s |cffffffff%s", gb.Data.Class[character.Class].FontColour..character.Name, v.count)
+                self["character"..k]:Show()
+            end
+        end
+
+        self.tooltip.link = self.item.link
+    end
+end
+
+
+function GuildbookMySacksListviewItemMixin:OnEnter()
+
+end
+
+function GuildbookMySacksListviewItemMixin:OnLeave()
+    GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+end
+
+GuildbookMySacksMixin = {}
+GuildbookMySacksMixin.rows ={}
+GuildbookMySacksMixin.items = {}
+GuildbookMySacksMixin.processed = {}
+
+function GuildbookMySacksMixin:OnLoad()
+    for i = 1, 14 do
+        local f = CreateFrame("FRAME", "GuildbookUiMySacksListview"..i, self.listview, "GuildbookMySacksListviewItem")
+        f:SetPoint("TOPLEFT", 5, ((i-1)*-30)-2)
+        f:SetSize(880, 30)
+
+        local x = ((i-14) *-1) * 0.025
+        f.anim.fadeIn:SetStartDelay((x^x) - 0.68)
+        self.rows[i] = f;
+    end
+end
+
+function GuildbookMySacksMixin:OnMouseWheel(delta)
+    local x = self.listview.scrollBar:GetValue()
+    self.listview.scrollBar:SetValue(x - delta)
+end
+
+function GuildbookMySacksMixin:ScrollBar_OnValueChanged()
+    if #self.items > 0 then
+        local scrollPos = math.floor(self.listview.scrollBar:GetValue()) - 1;
+        for row = 1, 14 do
+            if self.items[scrollPos + row] then
+                self.rows[row].item = self.items[scrollPos + row]
+                self.rows[row]:UpdateItem()
+            end
+        end
+    end
+end
+
+local BAG_PROCESS_DELAY = 0.15;
+local function processContainers(t, db, location)
+    local guids = {};
+    for guid, items in pairs(t) do
+        table.insert(guids, guid)
+    end
+    local i = 1;
+    C_Timer.NewTicker(BAG_PROCESS_DELAY, function()
+        if not gb.PlayerMixin then
+            gb.PlayerMixin = PlayerLocation:CreateFromGUID(guids[i])
+        else
+            gb.PlayerMixin:SetGUID(guids[i])
+        end
+        if gb.PlayerMixin:IsValid() then
+            local name = C_PlayerInfo.GetName(gb.PlayerMixin)
+            if not name then
+                return
+            end
+            name = Ambiguate(name, 'none')
+            GuildbookUI.statusText:SetText("processing container items for "..name)
+            for itemID, info in pairs(t[guids[i]]) do
+                if not GuildbookMySacksMixin.processed[itemID] then
+                    local iType = select(2, GetItemInfoInstant(itemID))
+                    local iSubType = select(3, GetItemInfoInstant(itemID))
+                    local s = info.link:find("|h")
+                    local e = info.link:find("|h", s+1)
+                    table.insert(db, {
+                        itemID = itemID,
+                        itemType = iType,
+                        itemSubtype = iSubType,
+                        itemName = info.link:sub(s,e),
+                        icon = info.icon,
+                        count = info.count,
+                        link = info.link,
+                        quality = info.quality,
+                        characters = {
+                            { 
+                                guid = guids[i], 
+                                name = name, 
+                                count = info.count,
+                                location = location,
+                            },
+                        }
+                    })
+                    GuildbookMySacksMixin.processed[itemID] = true
+                else
+                    for k,v in ipairs(db) do
+                        if v.itemID == itemID then
+                            v.count = v.count + info.count;
+                            local exists = false
+                            for _, c in ipairs(v.characters) do
+                                if c.guid == guids[i] then
+                                    c.count = c.count + info.count;
+                                    exists = true
+                                end
+                            end
+                            if exists == false then
+                                table.insert(v.characters, {
+                                    guid = guids[i],
+                                    name = name,
+                                    count = info.count,
+                                    location = location,
+                                })
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        i = i + 1;
+    end, #guids)
+
+    return #guids * BAG_PROCESS_DELAY;
+end
+
+function GuildbookMySacksMixin:OnHide()
+    for row = 1, 14 do
+        if self.items[row] then
+            self.rows[row]:SetAlpha(0)
+        end
+    end
+end
+
+function GuildbookMySacksMixin:OnShow()
+    gb:ScanPlayerBags()
+
+    wipe(self.items)
+    wipe(self.processed)
+
+    local delay = processContainers(GUILDBOOK_GLOBAL.MySacks.Bags, self.items, "BAGS")
+
+    C_Timer.After(delay, function()
+        if GUILDBOOK_GLOBAL.MySacks.Banks and next(GUILDBOOK_GLOBAL.MySacks.Banks) then
+            local delay2 = processContainers(GUILDBOOK_GLOBAL.MySacks.Banks, self.items, "BANK")
+            C_Timer.After(delay2, function()
+                if #self.items > 0 then
+                    table.sort(self.items, function(a,b)
+                        if a.itemType == b.itemType then
+                            if a.itemSubtype == b.itemSubtype then
+                                if a.quality == b.quality then
+                                    return a.itemName < b.itemName
+                                else
+                                    return a.quality > b.quality;
+                                end
+                            else
+                                return a.itemSubtype < b.itemSubtype;
+                            end
+                        else
+                            return a.itemType < b.itemType;
+                        end
+                    end)
+                end            
+                self.listview.scrollBar:SetMinMaxValues(1, #self.items-13)        
+                for row = 1, 14 do
+                    if self.items[row] then
+                        self.rows[row].item = self.items[row]
+                        self.rows[row]:UpdateItem()
+                        self.rows[row].anim:Play()
+                    end
+                end
+            end)
+        else
+            if #self.items > 0 then
+                table.sort(self.items, function(a,b)
+                    if a.itemType == b.itemType then
+                        if a.itemSubtype == b.itemSubtype then
+                            if a.quality == b.quality then
+                                return a.link < b.link
+                            else
+                                return a.quality > b.quality;
+                            end
+                        else
+                            return a.itemSubtype < b.itemSubtype;
+                        end
+                    else
+                        return a.itemType < b.itemType;
+                    end
+                end)
+            end            
+            self.listview.scrollBar:SetMinMaxValues(1, #self.items-13)        
+            for row = 1, 14 do
+                if self.items[row] then
+                    self.rows[row].item = self.items[row]
+                    self.rows[row]:UpdateItem()
+                    self.rows[row].anim:Play()
+                end
+            end
+        end
+    end)
+
+
+end
+
+
+GuildbookSearchMixin = {}
+
+function GuildbookSearchMixin:Search(term)
+    navigateTo(self)
+
+    self.processed = {}
+    self.results = {}
+
+    local guids = {}
+    for guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME]) do
+        table.insert(guids, guid)
+        if character.Name:lower():find(term:lower()) then
+            table.insert(self.results, {
+                title = character.Name,
+                icon = string.format("raceicon-%s-%s", character.Race:lower(), character.Gender:lower()),
+                iconType = "atlas",
+                info = string.format("%s %s", character.MainSpec or "", character.Class:sub(1,1):Upper()..character.Class:sub(2):lower())
+            })
+        end
+
+        -- search items
+        if character.Inventory and character.Inventory.Current then
+            for slot, link in pairs(character.Inventory.Current) do
+                if link and link:lower():find(term:lower()) and not self.processed[link] then
+                    local itemID, itemType, itemSubType, itemEquipLoc, icon, _, _ = GetItemInfoInstant(link)
+                    table.insert(self.results, {
+                        title = link,
+                        icon = icon,
+                        iconType = "fileID",
+                        info = strinbg.format("%s %s %s", itemType, itemSubType, itemID)
+                    })
+                    self.processed[link] = true
+                end
+            end
+        end
+
+        -- search professions
+        if character.Profession1 and character.Profession1 ~= "-" then
+            
+        end
+    end
+end
+
+
+
+
+GuildbookStatsMixin = {}
+GuildbookStatsMixin.charts = {
+    class = {}
+}
+
+
+function GuildbookStatsMixin:OnLoad()
+
+    for class, info in pairs(gb.Data.Class) do
+        local f = CreateFrame("FRAME", "GuildbookStatsClassBar"..class, self, "GuildbookStatsClassChartBar")
+        f.statusBar:SetStatusBarColor(info.RGB[1], info.RGB[2], info.RGB[3], 0.75)
+        f.icon:SetAtlas(string.format("GarrMission_ClassIcon-%s", string.sub(class, 1, 1):upper()..string.sub(class, 2)))
+        f.className = class
+        f.classCount = 0
+        table.insert(self.charts.class, f)
+    end
+    table.sort(self.charts.class, function(a,b)
+        return a.className > b.className
+    end)
+    for i, bar in ipairs(self.charts.class) do
+        bar:SetPoint("BOTTOMLEFT", 25, (31*i) -6)
+    end
+    
+end
+
+function GuildbookStatsMixin:OnShow()
+    self.classCount = {
+        ["DEATHKNIGHT"] = 0,
+        ["DRUID"] = 0,
+        ["HUNTER"] = 0,
+        ["MAGE"] = 0,
+        ["PALADIN"] = 0,
+        ["PRIEST"] = 0,
+        ["ROGUE"] = 0,
+        ["SHAMAN"] = 0,
+        ["WARLOCK"] = 0,
+        ["WARRIOR"] = 0,
+    }
+    local totalMembers = 0;
+    for guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME]) do
+        if character.Class then
+            self.classCount[character.Class] = self.classCount[character.Class] + 1;
+            totalMembers = totalMembers + 1;
+        end
+    end
+    for _, bar in ipairs(self.charts.class) do
+        bar.classCount = self.classCount[bar.className]
+        bar.statusBar:SetValue(bar.classCount / totalMembers)
+        bar.text:SetText(string.format("%.1f %%", (bar.classCount / totalMembers) * 100))
+    end
+    
+end

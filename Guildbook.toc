@@ -34,4 +34,4 @@ Templates.xml
 Guildbook.lua
 Guildbook.xml
 
-#TextureViewer.lua
+TextureViewer.lua

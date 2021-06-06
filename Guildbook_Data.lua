@@ -145,16 +145,16 @@ Guildbook.Data.Class = {
         FontColour='|cffC41F3B', 
         Specializations={'Frost','Blood','Unholy',} 
     },
-    ['DEATH KNIGHT'] = { 
-        FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:64:128:128:192|t", 
-        FontStringIconMEDIUM="|TInterface\\WorldStateFrame\\ICONS-CLASSES:22:22:0:2:256:256:64:128:128:192|t", 
-        FontStringIconLARGE="|TInterface\\WorldStateFrame\\ICONS-CLASSES:28:28:0:2:256:256:64:128:128:192|t", 
-        IconID = 135771, 
-        Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\DEATHKNIGHT", 
-        RGB={ 0.77, 0.12, 0.23 }, 
-        FontColour='|cffC41F3B', 
-        Specializations={'Frost','Blood','Unholy',} 
-    },
+    -- ['DEATH KNIGHT'] = { 
+    --     FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:64:128:128:192|t", 
+    --     FontStringIconMEDIUM="|TInterface\\WorldStateFrame\\ICONS-CLASSES:22:22:0:2:256:256:64:128:128:192|t", 
+    --     FontStringIconLARGE="|TInterface\\WorldStateFrame\\ICONS-CLASSES:28:28:0:2:256:256:64:128:128:192|t", 
+    --     IconID = 135771, 
+    --     Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\DEATHKNIGHT", 
+    --     RGB={ 0.77, 0.12, 0.23 }, 
+    --     FontColour='|cffC41F3B', 
+    --     Specializations={'Frost','Blood','Unholy',} 
+    -- },
     DRUID = { 
         FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:192:256:0:64|t", 
         FontStringIconMEDIUM="|TInterface\\WorldStateFrame\\ICONS-CLASSES:22:22:0:2:256:256:192:256:0:64|t", 
