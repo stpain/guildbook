@@ -497,4 +497,21 @@ Remember to download Attune!
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [18] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+still looking into models and profs issues
+
+|cff0070DEUpdates|r:
+Profession recipes should now show with TBC items first then Classic listed under.
+
+Calendar, I have updated the event frame and added the new raids, for calendar icons to work the event title must be the name set by the dropdown menu!
+
+Started work on updating the stats info, however, between a nasty cold and levelling a shaman my dev time is low :(
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }

@@ -40,7 +40,7 @@ local L = {}
 L['CharacterName'] = 'Data Recipient'
 L['OptionsAbout'] = 'Guildbook options and about.'
 L['Version'] = 'Version'
-L['Author'] = 'Author: |cffffffffstpain (|r|cffF58CBACopperbolts|r, |cffABD473Windstalker|r |cffffffffand|r |cff0070DEKylanda|r|cffffffff)|r'
+L['Author'] = 'Author: |cffffffffstpain (|r|cffF58CBACopperbolts|r |cffffffffand|r |cff0070DEKylanda|r|cffffffff)|r'
 L['Summary'] = 'Summary'
 L['SummaryHeader'] = 'Guild Summary'
 L['Roster'] = 'Roster'
@@ -102,46 +102,47 @@ L["Guild"] = "Guild"
 
 
 -- roster listview and tooltip
-L["name"] = "Name"
-L["level"] = "Level"
-L["mainSpec"] = "Main Spec"
-L["prof1"] = "Trade"
-L["location"] = "Location"
-L["rankName"] = "Rank"
-L["publicNote"] = "Public Note"
-L["class"] = "Class"
-L["attunements"] = "Attunements"
+L["name"]                   = "Name"
+L["level"]                  = "Level"
+L["mainSpec"]               = "Main Spec"
+L["prof1"]                  = "Trade"
+L["location"]               = "Location"
+L["rankName"]               = "Rank"
+L["publicNote"]             = "Public Note"
+L["class"]                  = "Class"
+L["attunements"]            = "Attunements"
 
 
-L["PROFILE_TITLE"] = "Profile"
-L["REAL_NAME"] = "Name"
-L["REAL_DOB"] = "Birthday"
-L["REAL_BIO"] = "Bio"
-L["AVATAR"] = "Avatar"
-L["MAIN_CHARACTER"] = "Main character"
-L["MAIN_SPEC"] = "Main spec"
-L["OFF_SPEC"] = "Off spec"
+-- xml strings
+L["PROFILE_TITLE"]          = "Profile"
+L["REAL_NAME"]              = "Name"
+L["REAL_DOB"]               = "Birthday"
+L["REAL_BIO"]               = "Bio"
+L["AVATAR"]                 = "Avatar"
+L["MAIN_CHARACTER"]         = "Main character"
+L["MAIN_SPEC"]              = "Main spec"
+L["OFF_SPEC"]               = "Off spec"
 
-L["PROFILES"] = "Profiles"
-L["TRADESKILLS"] = "Tradeskills (Professions)"
-L["CHAT"] = "Chat"
-L["ROSTER"] = "Roster"
-L["CALENDAR"] = "Calendar"
-L["SEARCH"] = "Search"
-L["MY_PROFILE"] = "My profile"
-L["OPEN_PROFILE"] = "Open profile"
-L["OPEN_CHAT"] = "Open chat"
-L["INVITE_TO_GROUP"] = "Invite to group"
-L["SEND_TRADE_ENQUIRY"] = "Send message about item"
-L["REFRESH_ROSTER"] = "Refresh roster"
-L["EDIT"] = "Edit profile"
-L["GUILD_BANK"] = "Guild bank (Legacy feature)"
-L["ALTS"] = "Alt characters"
-L["USE_MAIN_PROFILE"] = "Use main character profile"
-L["MY_SACKS"] = "My containers"
-L["BAGS"] = "Bags"
-L["BANK"] = "Bank"
-L["STATS"] = "Statistics"
+L["PROFILES"]               = "Profiles"
+L["TRADESKILLS"]            = "Tradeskills (Professions)"
+L["CHAT"]                   = "Chat"
+L["ROSTER"]                 = "Roster"
+L["CALENDAR"]               = "Calendar"
+L["SEARCH"]                 = "Search"
+L["MY_PROFILE"]             = "My profile"
+L["OPEN_PROFILE"]           = "Open profile"
+L["OPEN_CHAT"]              = "Open chat"
+L["INVITE_TO_GROUP"]        = "Invite to group"
+L["SEND_TRADE_ENQUIRY"]     = "Send message about item"
+L["REFRESH_ROSTER"]         = "Refresh roster"
+L["EDIT"]                   = "Edit profile"
+L["GUILD_BANK"]             = "Guild bank (Legacy feature)"
+L["ALTS"]                   = "Alt characters"
+L["USE_MAIN_PROFILE"]       = "Use main character profile"
+L["MY_SACKS"]               = "My containers"
+L["BAGS"]                   = "Bags"
+L["BANK"]                   = "Bank"
+L["STATS"]                  = "Statistics"
 
 
 --professions

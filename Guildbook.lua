@@ -5,6 +5,9 @@ local _, gb = ...
 local L = gb.Locales
 local DEBUG = gb.DEBUG
 
+local LCI = LibStub:GetLibrary("LibCraftInfo-1.0")
+
+
 local GUILD_NAME;
 local transmitStagger = 0.5; -- if comms get messed up by lots of traffic, increase this to cause requests to be staggered further apart
 
@@ -919,6 +922,14 @@ local function addRecipe(prof, recipeID, reagents)
     local _enchant = false;
     local _name = false;
     local _expansion = 0;
+
+    --- this will work up to MoP, we can create our own table if/when classic gets to WoD, or maybe speak to Thaoky *very* nicely
+    local _, spellID = LCI:GetItemSource(recipeID)
+    if spellID then
+        _expansion = LCI:GetCraftXPack(spellID)
+    end
+    --print(recipeID, spellID, _expansion, _link)
+
     if prof == 'Enchanting' then
         _link = select(1, GetSpellLink(recipeID))
         _rarity = select(3, GetItemInfo(_link)) or 1
@@ -983,13 +994,6 @@ local function addRecipe(prof, recipeID, reagents)
             end)
         end
     else
-        --print('got link')
-        _expansion = select(14, GetItemInfo(_link))
-        local a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p = GetItemInfo(_link)
-        --print(a,"bind",n,"expan",o,"set",p)
-        if _expansion > 0 then
-            --print(_expansion, _link)
-        end
         table.insert(GuildbookUI.tradeskills.recipesListview.recipes, {
             itemID = recipeID,
             reagents = reagents,
@@ -1030,24 +1034,23 @@ function GuildbookProfessionListviewMixin:OnLoad()
                 scanPlayerBags()
                 if #GuildbookMixin.charactersWithProfession > 0 then
                     wipe(GuildbookUI.tradeskills.recipesListview.recipes)
-                   -- print("wiping table")
+                    GuildbookRecipesListviewMixin:ClearRows()
                     local recipes = {}
-                    for k, guid in ipairs(GuildbookMixin.charactersWithProfession) do
-                        local character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][guid]
-                        --print(character.Name)
+                    local i = 1;
+                    C_Timer.NewTicker(0.01, function()
+                        local character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][GuildbookMixin.charactersWithProfession[i]]
                         if character[prof.Name]  then
-                            --print("looping character recipes")
                             for itemID, reagents in pairs(character[prof.Name]) do
                                 if not recipes[itemID] then
                                     recipes[itemID] = true;
                                     addRecipe(prof.Name, itemID, reagents)
-                                    --print("adding recipe", itemID)
                                 end
                             end
                         else
                             --print("prof not found in character table")
                         end
-                    end
+                        i = i + 1;
+                    end, #GuildbookMixin.charactersWithProfession)
                 end
             end
         end
@@ -1116,6 +1119,8 @@ function GuildbookRecipesListviewMixin:OnLoad()
     for row = 1, NUM_RECIPE_ROWS do
         local f = CreateFrame("FRAME", "GuildbookUiRecipesListview"..row, self, "GuildbookRecipeListviewItem")
         f:SetSize(480, 24)
+        local x = ((row-17) *-1) * 0.025
+        f.anim.fadeIn:SetStartDelay((x^x)) -- - 0.68)
         f:SetPoint("TOPLEFT", 5, ((row - 1) * -24) - 2)
         for _, reagent in ipairs(f.reagentIcons) do
             local _, size, flags = reagent.count:GetFont()
@@ -1162,30 +1167,58 @@ function GuildbookRecipesListviewMixin:ClearRows()
         row.enchant = nil;
         row.recipeID = nil;
         row:ClearReagents()
+        row:SetAlpha(0)
     end
 end
 
 function GuildbookRecipesListviewMixin:LoadRecipes()
-    self:ClearRows()
+    --self:ClearRows()
     if self.recipes and next(self.recipes) then
-        --this is to trigger a refresh by calling the scroll value changed func
-        self.scrollBar:SetMinMaxValues(1,2)
-        self.scrollBar:SetValue(2)
-        self.scrollBar:SetValue(1)
-        C_Timer.After(0, function()
-            self.scrollBar:SetValue(2)
-            self.scrollBar:SetValue(1)
-        end)
         table.sort(self.recipes, function(a,b)
-            --if a.expansion == b.expansion then
+            if a.expansion == b.expansion then
                 if a.rarity == b.rarity then
                     return a.name < b.name
                 else
                     return a.rarity > b.rarity;
                 end
-            -- else
-            --     return a.expansion > b.expansion;
-            -- end
+            else
+                return a.expansion > b.expansion;
+            end
+        end)
+        C_Timer.After(0.1, function()
+            for i = 1, NUM_RECIPE_ROWS do
+                if self.recipes[i] then
+                    self.rows[i].model = self.recipes[i]
+                    if self.recipes[i].selected == true then
+                        self.rows[i].Selected:Show()
+                    else
+                        self.rows[i].Selected:Hide()
+                    end
+                    self.rows[i].Text:SetText(self.recipes[i].link)
+                    self.rows[i].enchant = self.recipes[i].enchant;
+                    self.rows[i].recipeID = self.recipes[i].itemID;
+                    self.rows[i].link = self.recipes[i].link;
+                    self.rows[i]:ClearReagents()
+                    local j = 1;
+                    for reagentID, count in pairs(self.recipes[i].reagents) do
+                        if self.rows[i].reagentIcons[j] then
+                            if GuildbookUI.playerContainerItems[reagentID] then
+                                if GuildbookUI.playerContainerItems[reagentID] >= count then
+                                    self.rows[i].reagentIcons[j].greenBorder:Show()
+                                elseif GuildbookUI.playerContainerItems[reagentID] < count then
+                                    self.rows[i].reagentIcons[j].purpleBorder:Show()
+                                end
+                            else
+                                self.rows[i].reagentIcons[j].orangeBorder:Show()
+                            end
+                            self.rows[i].reagentIcons[j]:SetItem(reagentID)
+                            self.rows[i].reagentIcons[j].count:SetText(count)
+                            j = j + 1;
+                        end
+                    end
+                end
+                self.rows[i].anim:Play()
+            end
         end)
         self.scrollBar:SetMinMaxValues(1,(#self.recipes>NUM_RECIPE_ROWS) and #self.recipes-(NUM_RECIPE_ROWS-1) or 1)
         self.scrollBar:SetValue(1)
@@ -1315,19 +1348,20 @@ function GuildbookRosterMixin:OnLoad()
         f:SetSize(880, 30)
         --f:SetAlpha(0)
         local x = ((i-14) *-1) * 0.025
-        f.anim.fadeIn:SetStartDelay((x^x) - 0.68)
+        f.anim.fadeIn:SetStartDelay((x^x)) -- - 0.68)
         --f.anim.fadeIn:SetSmoothing("OUT")
 
         GuildbookRosterMixin.rows[i] = f;
     end
 
-    local buttonDropdownMenus = {
+    self.buttonDropdownMenus = {
         class = {},
+        rankName = {},
     }
     for i = GetNumClasses(), 1, -1 do
         local className, classFile, classID = GetClassInfo(i)
         if className then
-            table.insert(buttonDropdownMenus.class, {
+            table.insert(self.buttonDropdownMenus.class, {
                 text = string.format("%s %s", gb.Data.Class[classFile].FontStringIconSMALL, className),
                 func = function()
                     self.rosterFilterKey = "Class";
@@ -1337,7 +1371,7 @@ function GuildbookRosterMixin:OnLoad()
             })
         end
     end
-    table.insert(buttonDropdownMenus.class, {
+    table.insert(self.buttonDropdownMenus.class, {
         text = "All classes",
         func = function()
             self.rosterFilterKey = nil;
@@ -1350,10 +1384,10 @@ function GuildbookRosterMixin:OnLoad()
         button:RegisterForClicks("AnyDown")
         button:SetText(L[button.sort])
         button.order = true
-        button.menu = buttonDropdownMenus[button.sort]
+        button.menu = self.buttonDropdownMenus[button.sort]
         button:SetScript("OnClick", function(self, b)
             if b == "RightButton" then
-                if self.flyout:IsVisible() then
+                if self.flyout and self.flyout:IsVisible() then
                     self.flyout:Hide()
                 end
                 if self.flyout and mixin.roster then
@@ -1387,16 +1421,37 @@ end
 function GuildbookRosterMixin:ParseGuildRoster()
     self.characterStatus = {}
     local totalMembers, _, _ = GetNumGuildMembers()
+    local ranks = {}
+    wipe(self.buttonDropdownMenus.rankName)
     for i = 1, totalMembers do
-        local _, _, _, _, _, _zone, _, _, _isOnline, _, _, _, _, _, _, _, GUID = GetGuildRosterInfo(i)
+        local _, _rankName, _, _, _, _zone, _, _, _isOnline, _, _, _, _, _, _, _, GUID = GetGuildRosterInfo(i)
         self.characterStatus[GUID] = {
             isOnline = _isOnline  and _isOnline or false,
             zone = _zone,
         }
+        if not ranks[_rankName] then
+            table.insert(self.buttonDropdownMenus.rankName, {
+                text = _rankName,
+                func = function()
+                    self.rosterFilterKey = "RankName";
+                    self.rosterFilterValue = _rankName;
+                    self:ParseGuildRoster()
+                end,
+            })
+            ranks[_rankName] = true;
+        end
         if i == totalMembers then
             self:LoadCharacters()
         end
     end
+    table.insert(self.buttonDropdownMenus.rankName, {
+        text = "All ranks",
+        func = function()
+            self.rosterFilterKey = nil;
+            self.rosterFilterValue = nil;
+            self:ParseGuildRoster()
+        end,
+    })
 end
 
 function GuildbookRosterMixin:ClearRosterRows()
@@ -2124,7 +2179,7 @@ function GuildbookProfilesMixin:OnLoad()
     -- set the delay on animations
     for k, slot in ipairs(gb.Data.InventorySlotNames) do
         local x = ((k-#gb.Data.InventorySlotNames) *-1) * 0.025
-        self.contentPane.scrollChild.inventory[slot.Name].anim.fadeIn:SetStartDelay((x^x) - 0.6)
+        self.contentPane.scrollChild.inventory[slot.Name].anim.fadeIn:SetStartDelay((x^x)) -- - 0.6)
     end
 
     for _, fs in ipairs(self.contentPane.scrollChild.profile.localStrings) do
@@ -2236,6 +2291,9 @@ function GuildbookProfilesMixin:MyProfile_OnEditChanged(edit, text)
 end
 
 function GuildbookProfilesMixin:LoadCharacter(player)
+    if not GUILD_NAME then
+        return;
+    end
     if player and player == "player" then
         navigateTo(self)
         self.character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][UnitGUID("player")]
@@ -2811,16 +2869,18 @@ function GuildbookMySacksListviewItemMixin:UpdateItem()
             icon:Hide()
         end
         
+        local i = 1;
         for k, v in ipairs(self.item.characters) do
             if GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME] and GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][v.guid] then
                 local character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][v.guid]
-                if character.profile and character.profile.avatar then
-                    self["character"..k].background:SetTexture(character.profile.avatar)                    
+                if character and character.profile and character.profile.avatar then
+                    self["character"..i].background:SetTexture(character.profile.avatar)                  
                 else
-                    self["character"..k].background:SetAtlas(string.format("raceicon-%s-%s", character.Race, character.Gender))
+                    self["character"..i].background:SetAtlas(string.format("raceicon-%s-%s", character.Race, character.Gender))
                 end
-                self["character"..k].tooltipText = string.format("%s |cffffffff%s", gb.Data.Class[character.Class].FontColour..character.Name, v.count)
-                self["character"..k]:Show()
+                self["character"..i].tooltipText = string.format("%s |cffffffff%s", gb.Data.Class[character.Class].FontColour..character.Name, v.count)
+                self["character"..i]:Show()
+                i = i + 1;
             end
         end
 
@@ -2849,7 +2909,7 @@ function GuildbookMySacksMixin:OnLoad()
         f:SetSize(880, 30)
 
         local x = ((i-14) *-1) * 0.025
-        f.anim.fadeIn:SetStartDelay((x^x) - 0.68)
+        f.anim.fadeIn:SetStartDelay((x^x)) -- - 0.68)
         self.rows[i] = f;
     end
 end
@@ -2955,6 +3015,12 @@ function GuildbookMySacksMixin:OnHide()
 end
 
 function GuildbookMySacksMixin:OnShow()
+    if not GUILDBOOK_GLOBAL then
+        return;
+    end
+    if not GUILDBOOK_GLOBAL.MySacks then
+        return;
+    end
     gb:ScanPlayerBags()
 
     wipe(self.items)
@@ -2983,7 +3049,7 @@ function GuildbookMySacksMixin:OnShow()
                         end
                     end)
                 end            
-                self.listview.scrollBar:SetMinMaxValues(1, #self.items-13)        
+                self.listview.scrollBar:SetMinMaxValues(1, (#self.items-13 > 0 and #self.items - 13 or 1))        
                 for row = 1, 14 do
                     if self.items[row] then
                         self.rows[row].item = self.items[row]
@@ -3085,6 +3151,13 @@ function GuildbookStatsMixin:OnLoad()
         f.icon:SetAtlas(string.format("GarrMission_ClassIcon-%s", string.sub(class, 1, 1):upper()..string.sub(class, 2)))
         f.className = class
         f.classCount = 0
+        f.specCounts = {}
+        for s in ipairs(info.Specializations) do
+            table.insert(f.specCounts, {
+                spec = s,
+                count = 0,
+            })
+        end
         table.insert(self.charts.class, f)
     end
     table.sort(self.charts.class, function(a,b)
@@ -3097,29 +3170,41 @@ function GuildbookStatsMixin:OnLoad()
 end
 
 function GuildbookStatsMixin:OnShow()
-    self.classCount = {
-        ["DEATHKNIGHT"] = 0,
-        ["DRUID"] = 0,
-        ["HUNTER"] = 0,
-        ["MAGE"] = 0,
-        ["PALADIN"] = 0,
-        ["PRIEST"] = 0,
-        ["ROGUE"] = 0,
-        ["SHAMAN"] = 0,
-        ["WARLOCK"] = 0,
-        ["WARRIOR"] = 0,
-    }
+    if not GUILD_NAME then
+        return;
+    end
+    -- sort bars first to use key lookup
+    table.sort(self.charts.class, function(a,b)
+        return a.className > b.className
+    end)
+    for i, bar in ipairs(self.charts.class) do
+        bar:SetPoint("BOTTOMLEFT", 25, (31*i) -6)
+        bar.classCount = 0;
+        for k, s in ipairs(bar.specCounts) do
+            s.count = 0;
+        end
+    end
     local totalMembers = 0;
     for guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME]) do
         if character.Class then
-            self.classCount[character.Class] = self.classCount[character.Class] + 1;
-            totalMembers = totalMembers + 1;
+            for _, bar in ipairs(self.charts.class) do
+                if bar.className == character.Class then
+                    bar.classCount = bar.classCount + 1;
+                    totalMembers = totalMembers + 1;
+                    if character.MainSpec and character.MainSpec ~= "-" then
+                        for k, s in ipairs(bar.specCounts) do
+                            if s.spec == character.MainSpec then
+                                s.count = s.count + 1;
+                            end
+                        end
+                    end
+                end
+            end
         end
     end
     for _, bar in ipairs(self.charts.class) do
-        bar.classCount = self.classCount[bar.className]
         bar.statusBar:SetValue(bar.classCount / totalMembers)
         bar.text:SetText(string.format("%.1f %%", (bar.classCount / totalMembers) * 100))
     end
-    
+
 end

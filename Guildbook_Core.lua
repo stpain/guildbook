@@ -30,7 +30,7 @@ local LibSerialize = LibStub:GetLibrary("LibSerialize")
 --variables
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- this used to match the toc but for simplicity i've made it just an integer
-local build = 17;
+local build = 18;
 local locale = GetLocale()
 local L = Guildbook.Locales
 
@@ -415,6 +415,8 @@ function Guildbook:Init()
                 DEBUG("func", "init", "sending prof1 data during init")
             end
         end
+    end)
+    C_Timer.After(9, function()
         if GUILDBOOK_CHARACTER and GUILDBOOK_CHARACTER.Profession2 then
             local prof = GUILDBOOK_CHARACTER.Profession2
             if GUILDBOOK_CHARACTER[prof] and next(GUILDBOOK_CHARACTER[prof]) ~= nil then
@@ -423,7 +425,7 @@ function Guildbook:Init()
             end
         end
     end)
-    C_Timer.After(6, function()
+    C_Timer.After(12, function()
         Guildbook:GetCharacterTalentInfo('primary')
         if GUILDBOOK_CHARACTER and GUILDBOOK_CHARACTER['Talents'] then
             local response = {
@@ -439,16 +441,16 @@ function Guildbook:Init()
             DEBUG('error', 'OnTalentInfoRequest', string.format('unable to send talents, requested from %s', sender))
         end   
     end)
-    C_Timer.After(9, function()
+    C_Timer.After(15, function()
         Guildbook:SendGuildCalendarEvents()
     end)
-    C_Timer.After(12, function()
+    C_Timer.After(18, function()
         Guildbook:SendGuildCalendarDeletedEvents()
     end)
-    C_Timer.After(15, function()
+    C_Timer.After(21, function()
         Guildbook:RequestGuildCalendarEvents()
     end)
-    C_Timer.After(18, function()
+    C_Timer.After(24, function()
         Guildbook:RequestGuildCalendarDeletedEvents()
     end)
 
