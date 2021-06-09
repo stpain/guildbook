@@ -514,4 +514,17 @@ Started work on updating the stats info, however, between a nasty cold and level
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [19] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+fixed the sort issue on the profession items, should now show correctly first time
+
+|cff0070DEUpdates|r:
+added the old wide view for the default roster UI back, there is a check box in the options menu to toggle this on/off
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }

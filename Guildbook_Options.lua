@@ -67,6 +67,17 @@ local function setWarningText(txt)
     StaticPopup_Show('Reload')
 end
 
+function GuildbookOptionsModifyDefaultGuildRoster_OnClick(self)
+    if not GUILDBOOK_GLOBAL then
+        return
+    end
+    if not GUILDBOOK_GLOBAL.config then
+        GUILDBOOK_GLOBAL.config = {}
+    end
+    GUILDBOOK_GLOBAL.config.modifyDefaultGuildRoster = self:GetChecked()
+    setWarningText('changes made require a UI reload')
+end
+
 function GuildbookOptionsLoadChatModule_OnClick(self)
     if not GUILDBOOK_GLOBAL then
         return

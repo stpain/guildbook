@@ -30,7 +30,7 @@ local LibSerialize = LibStub:GetLibrary("LibSerialize")
 --variables
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- this used to match the toc but for simplicity i've made it just an integer
-local build = 18;
+local build = 19;
 local locale = GetLocale()
 local L = Guildbook.Locales
 
@@ -395,11 +395,17 @@ function Guildbook:Init()
             GuildbookOptionsTooltipInfoMainCharacter:Enable()
         end
 
-        -- GuildbookOptionsLoadCalendarModule:SetChecked(GUILDBOOK_GLOBAL.Modules["GuildCalendarFrame"])
-        -- GuildbookOptionsLoadChatModule:SetChecked(GUILDBOOK_GLOBAL.Modules["ChatFrame"])
-        -- GuildbookOptionsLoadStatsModule:SetChecked(GUILDBOOK_GLOBAL.Modules["StatsFrame"])
-        -- GuildbookOptionsLoadProfilesModule:SetChecked(GUILDBOOK_GLOBAL.Modules["ProfilesFrame"])
-        -- GuildbookOptionsLoadGuildBankModule:SetChecked(GUILDBOOK_GLOBAL.Modules["GuildBankFrame"])
+
+        -- this will be the new config setup system moving forward
+        if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.config then
+            local config = GUILDBOOK_GLOBAL.config
+            if config.modifyDefaultGuildRoster == true then
+                self:ModBlizzUI()
+                GuildbookOptionsModifyDefaultGuildRoster:SetChecked(true)
+            else
+                GuildbookOptionsModifyDefaultGuildRoster:SetChecked(false)
+            end
+        end
 
     end
 

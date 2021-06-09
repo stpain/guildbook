@@ -135,13 +135,12 @@ the copyright holders.
                 </Scripts>
             </Button>
 
-
-<!-- 
-            <CheckButton name="$parentLoadChatModule" inherits="ChatConfigCheckButtonTemplate" >
+ 
+            <CheckButton name="$parentModifyDefaultGuildRoster" inherits="ChatConfigCheckButtonTemplate" >
                 <Size x="24" y="24"/>
                 <Layers>
                     <Layer>
-                        <FontString name="$parentText" text="Load chat module" inherits="GameFontNormal">
+                        <FontString name="$parentText" text="Modify default roster" inherits="GameFontNormal">
                             <Color r="1" g="1" b="1" a="1"/>
                             <FontHeight val="12"/>
                             <Anchors>
@@ -159,13 +158,15 @@ the copyright holders.
                 </Anchors>
                 <Scripts>
                     <OnLoad>
-                        self.tooltip = 'Load chat module'
+                        self.tooltip = 'Show the wide view for the default Blizzard guild roster'
                     </OnLoad>
                     <OnClick>
-                        GuildbookOptionsLoadChatModule_OnClick(self)
+                        GuildbookOptionsModifyDefaultGuildRoster_OnClick(self)
                     </OnClick>
                 </Scripts>
             </CheckButton>
+
+<!--
             <CheckButton name="$parentLoadCalendarModule" inherits="ChatConfigCheckButtonTemplate" >
                 <Size x="24" y="24"/>
                 <Layers>

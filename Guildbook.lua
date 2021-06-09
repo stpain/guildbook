@@ -970,10 +970,6 @@ local function addRecipe(prof, recipeID, reagents)
             local item = Item:CreateFromItemID(recipeID)
             item:ContinueOnItemLoad(function()
                 _link = item:GetItemLink()
-                _expansion = select(15, GetItemInfo(_link))
-                if _expansion > 0 then
-                    --print(_expansion, _link)
-                end
                 _rarity = item:GetItemQuality()
                 _name = item:GetItemName()
                 _enchant = false
