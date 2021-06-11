@@ -36,13 +36,64 @@
         </Member>
     </FontFamily>
 
-
-
-
-
-
-
-
+    <Frame name="GuildbookProfScan" mixin="GuildbookProfScanMixin" parent="UIParent" hidden="true" inherits="UIPanelDialogTemplate">
+        <Size x="300" y="200"/>
+        <Layers>
+            <Layer level="OVERLAY">
+                <FontString parentKey="prof" parentArray="fontstrings" inherits="GameFontNormalSmall" text="no action">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="10" y="-63"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="currentAction" parentArray="fontstrings" inherits="GameFontNormalSmall">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="10" y="-78"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="commsOut" parentArray="fontstrings" inherits="GameFontNormalSmall">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="10" y="-93"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="commsIn" parentArray="fontstrings" inherits="GameFontNormalSmall">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="10" y="-108"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="onCommsAction" parentArray="fontstrings" inherits="GameFontNormalSmall">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="10" y="-123"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="updatedGlobalChar" parentArray="fontstrings" inherits="GameFontNormalSmall">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="10" y="-138"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="info" parentArray="fontstrings" inherits="GameFontNormalSmall" justifyH="LEFT" justifyV="TOP">
+                    <Size x="288" y="50"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="10" y="-153"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Frames>
+            <StatusBar parentKey="statusBar" useParentLevel="true" minValue="0" maxValue="1" defaultValue="0" orientation="HORIZONTAL">
+                <Size y="30"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT"  x="10" y="-25"/>
+                    <Anchor point="TOPRIGHT" x="-2" y="-25"/>
+                </Anchors>
+                <BarTexture file="Interface\TargetingFrame\UI-StatusBar"/>
+                <BarColor r="0.859" g="0.128" b="0.593" a="0.15"/>
+            </StatusBar>
+        </Frames>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnShow method="OnShow"/>
+        </Scripts>
+    </Frame>
 
     <Frame name="GuildbookUI" mixin="GuildbookMixin" parent="UIParent" inherits="PortraitFrameTemplate" frameStrata="HIGH" enableMouse="true" movable="true" hidden="true">
         <Size x="920" y="510"/>
@@ -481,7 +532,7 @@
 
                                             </Layer>
                                             <Layer level="OVERLAY">
-                                                <FontString inherits="Acme" parentArray="localStrings">
+                                                <FontString parentKey="title" inherits="Acme" parentArray="localStrings">
                                                     <Anchors>
                                                         <Anchor point="TOP" x="0" y="0"/>
                                                     </Anchors>
@@ -732,7 +783,7 @@
                                         </Anchors>
                                         <Layers>
                                             <Layer level="ARTWORK">
-                                                <FontString inherits="Acme" text="Inventory">
+                                                <FontString parentKey="title" inherits="Acme" text="Inventory">
                                                     <Anchors>
                                                         <Anchor point="TOP" x="0" y="-5"/>
                                                     </Anchors>
@@ -740,101 +791,101 @@
                                             </Layer>
                                         </Layers>
                                         <Frames>
-                                            <Frame parentKey="HEADSLOT" inherits="GuildbookItemIconLinkFrame">
+                                            <Frame parentArray="slots" parentKey="HEADSLOT" inherits="GuildbookItemIconLinkFrame">
                                                 <Anchors>
                                                     <Anchor point="TOPLEFT" x="10" y="-40"/>
                                                 </Anchors>
                                             </Frame>
-                                            <Frame parentKey="NECKSLOT" inherits="GuildbookItemIconLinkFrame">
+                                            <Frame parentArray="slots" parentKey="NECKSLOT" inherits="GuildbookItemIconLinkFrame">
                                                 <Anchors>
                                                     <Anchor point="TOPLEFT" x="10" y="-70"/>
                                                 </Anchors>
                                             </Frame>
-                                            <Frame parentKey="SHOULDERSLOT" inherits="GuildbookItemIconLinkFrame">
+                                            <Frame parentArray="slots" parentKey="SHOULDERSLOT" inherits="GuildbookItemIconLinkFrame">
                                                 <Anchors>
                                                     <Anchor point="TOPLEFT" x="10" y="-100"/>
                                                 </Anchors>
                                             </Frame>
-                                            <Frame parentKey="BACKSLOT" inherits="GuildbookItemIconLinkFrame">
+                                            <Frame parentArray="slots" parentKey="BACKSLOT" inherits="GuildbookItemIconLinkFrame">
                                                 <Anchors>
                                                     <Anchor point="TOPLEFT" x="10" y="-130"/>
                                                 </Anchors>
                                             </Frame>
-                                            <Frame parentKey="CHESTSLOT" inherits="GuildbookItemIconLinkFrame">
+                                            <Frame parentArray="slots" parentKey="CHESTSLOT" inherits="GuildbookItemIconLinkFrame">
                                                 <Anchors>
                                                     <Anchor point="TOPLEFT" x="10" y="-160"/>
                                                 </Anchors>
                                             </Frame>
-                                            <Frame parentKey="SHIRTSLOT" inherits="GuildbookItemIconLinkFrame">
+                                            <Frame parentArray="slots" parentKey="SHIRTSLOT" inherits="GuildbookItemIconLinkFrame">
                                                 <Anchors>
                                                     <Anchor point="TOPLEFT" x="10" y="-190"/>
                                                 </Anchors>
                                             </Frame>
-                                            <Frame parentKey="TABARDSLOT" inherits="GuildbookItemIconLinkFrame">
+                                            <Frame parentArray="slots" parentKey="TABARDSLOT" inherits="GuildbookItemIconLinkFrame">
                                                 <Anchors>
                                                     <Anchor point="TOPLEFT" x="10" y="-220"/>
                                                 </Anchors>
                                             </Frame>
-                                            <Frame parentKey="WRISTSLOT" inherits="GuildbookItemIconLinkFrame">
+                                            <Frame parentArray="slots" parentKey="WRISTSLOT" inherits="GuildbookItemIconLinkFrame">
                                                 <Anchors>
                                                     <Anchor point="TOPLEFT" x="10" y="-250"/>
                                                 </Anchors>
                                             </Frame>
 
                                             <!-- column 2 -->
-                                            <Frame parentKey="HANDSSLOT" inherits="GuildbookItemIconLinkFrame">
+                                            <Frame parentArray="slots" parentKey="HANDSSLOT" inherits="GuildbookItemIconLinkFrame">
                                                 <Anchors>
                                                     <Anchor point="TOPLEFT" x="335" y="-40"/>
                                                 </Anchors>
                                             </Frame>
-                                            <Frame parentKey="WAISTSLOT" inherits="GuildbookItemIconLinkFrame">
+                                            <Frame parentArray="slots" parentKey="WAISTSLOT" inherits="GuildbookItemIconLinkFrame">
                                                 <Anchors>
                                                     <Anchor point="TOPLEFT" x="335" y="-70"/>
                                                 </Anchors>
                                             </Frame>
-                                            <Frame parentKey="LEGSSLOT" inherits="GuildbookItemIconLinkFrame">
+                                            <Frame parentArray="slots" parentKey="LEGSSLOT" inherits="GuildbookItemIconLinkFrame">
                                                 <Anchors>
                                                     <Anchor point="TOPLEFT" x="335" y="-100"/>
                                                 </Anchors>
                                             </Frame>
-                                            <Frame parentKey="FEETSLOT" inherits="GuildbookItemIconLinkFrame">
+                                            <Frame parentArray="slots" parentKey="FEETSLOT" inherits="GuildbookItemIconLinkFrame">
                                                 <Anchors>
                                                     <Anchor point="TOPLEFT" x="335" y="-130"/>
                                                 </Anchors>
                                             </Frame>
-                                            <Frame parentKey="FINGER0SLOT" inherits="GuildbookItemIconLinkFrame">
+                                            <Frame parentArray="slots" parentKey="FINGER0SLOT" inherits="GuildbookItemIconLinkFrame">
                                                 <Anchors>
                                                     <Anchor point="TOPLEFT" x="335" y="-160"/>
                                                 </Anchors>
                                             </Frame>
-                                            <Frame parentKey="FINGER1SLOT" inherits="GuildbookItemIconLinkFrame">
+                                            <Frame parentArray="slots" parentKey="FINGER1SLOT" inherits="GuildbookItemIconLinkFrame">
                                                 <Anchors>
                                                     <Anchor point="TOPLEFT" x="335" y="-190"/>
                                                 </Anchors>
                                             </Frame>
-                                            <Frame parentKey="TRINKET0SLOT" inherits="GuildbookItemIconLinkFrame">
+                                            <Frame parentArray="slots" parentKey="TRINKET0SLOT" inherits="GuildbookItemIconLinkFrame">
                                                 <Anchors>
                                                     <Anchor point="TOPLEFT" x="335" y="-220"/>
                                                 </Anchors>
                                             </Frame>
-                                            <Frame parentKey="TRINKET1SLOT" inherits="GuildbookItemIconLinkFrame">
+                                            <Frame parentArray="slots" parentKey="TRINKET1SLOT" inherits="GuildbookItemIconLinkFrame">
                                                 <Anchors>
                                                     <Anchor point="TOPLEFT" x="335" y="-250"/>
                                                 </Anchors>
                                             </Frame>
 
                                             <!-- weapons -->
-                                            <Frame parentKey="MAINHANDSLOT" inherits="GuildbookItemIconLinkFrame">
+                                            <Frame parentArray="slots" parentKey="MAINHANDSLOT" inherits="GuildbookItemIconLinkFrame">
                                                 <Anchors>
                                                     <Anchor point="TOPLEFT" x="10" y="-280"/>
                                                 </Anchors>
                                             </Frame>
-                                            <Frame parentKey="SECONDARYHANDSLOT" inherits="GuildbookItemIconLinkFrame">
+                                            <Frame parentArray="slots" parentKey="SECONDARYHANDSLOT" inherits="GuildbookItemIconLinkFrame">
                                                 <Anchors>
                                                     <Anchor point="TOPLEFT" x="335" y="-280"/>
                                                 </Anchors>
                                             </Frame>
-                                            <Frame parentKey="RANGEDSLOT" inherits="GuildbookItemIconLinkFrame">
+                                            <Frame parentArray="slots" parentKey="RANGEDSLOT" inherits="GuildbookItemIconLinkFrame">
                                                 <Anchors>
                                                     <Anchor point="TOPLEFT" x="10" y="-310"/>
                                                 </Anchors>
@@ -850,7 +901,7 @@
                                         </Anchors>
                                         <Layers>
                                             <Layer level="ARTWORK">
-                                                <FontString inherits="Acme" text="Stats">
+                                                <FontString parentKey="title" inherits="Acme" text="Stats">
                                                     <Anchors>
                                                         <Anchor point="TOP" x="0" y="-5"/>
                                                     </Anchors>
@@ -858,42 +909,36 @@
                                             </Layer>
                                         </Layers>
                                         <Frames>
-                                            <Frame parentKey="attributes" inherits="GuildbookStatsGroup">
+                                            <Frame parentArray="statgroup" parentKey="attributes" inherits="GuildbookStatsGroup">
                                                 <Size x="180" y="150"/>
                                                 <Anchors>
                                                     <Anchor point="TOP" x="-200" y="-35"/>
                                                 </Anchors>
                                             </Frame>
-                                            <Frame parentKey="defence" inherits="GuildbookStatsGroup">
+                                            <Frame parentArray="statgroup" parentKey="defence" inherits="GuildbookStatsGroup">
                                                 <Size x="180" y="150"/>
                                                 <Anchors>
                                                     <Anchor point="TOP" x="0" y="-35"/>
                                                 </Anchors>
                                             </Frame>
-                                            <Frame parentKey="spells" inherits="GuildbookStatsGroup">
+                                            <Frame parentArray="statgroup" parentKey="spells" inherits="GuildbookStatsGroup">
                                                 <Size x="180" y="150"/>
                                                 <Anchors>
                                                     <Anchor point="TOP" x="200" y="-35"/>
                                                 </Anchors>
                                             </Frame>
-                                            <Frame parentKey="melee" inherits="GuildbookStatsGroup">
+                                            <Frame parentArray="statgroup" parentKey="melee" inherits="GuildbookStatsGroup">
                                                 <Size x="180" y="150"/>
                                                 <Anchors>
                                                     <Anchor point="TOP" x="-200" y="-215"/>
                                                 </Anchors>
                                             </Frame>
-                                            <Frame parentKey="ranged" inherits="GuildbookStatsGroup">
+                                            <Frame parentArray="statgroup" parentKey="ranged" inherits="GuildbookStatsGroup">
                                                 <Size x="180" y="150"/>
                                                 <Anchors>
                                                     <Anchor point="TOP" x="0" y="-215"/>
                                                 </Anchors>
                                             </Frame>
-                                            <!-- <Frame inherits="GuildbookStatsGroup">
-                                                <Size x="180" y="150"/>
-                                                <Anchors>
-                                                    <Anchor point="TOP" x="200" y="-215"/>
-                                                </Anchors>
-                                            </Frame> -->
                                         </Frames>
                                     </Frame>
 
@@ -905,7 +950,7 @@
                                         </Anchors>
                                         <Layers>
                                             <Layer level="ARTWORK">
-                                                <FontString inherits="Acme" text="Talents">
+                                                <FontString parentKey="title" inherits="Acme" text="Talents">
                                                     <Anchors>
                                                         <Anchor point="TOP" x="0" y="-5"/>
                                                     </Anchors>
@@ -1039,19 +1084,19 @@
                         </Anchors>
                         <Layers>
                             <Layer level="OVERLAY">
-                                <FontString parentKey="professionListviewHeader" inherits="Acme" text="Professions">
+                                <FontString parentArray="headers" parentKey="professionListviewHeader" inherits="Acme" text="Professions">
                                     <Color r="1" g="1" b="1"/>
                                     <Anchors>
                                         <Anchor point="LEFT" x="5" y="0"/>
                                     </Anchors>
                                 </FontString>
-                                <FontString parentKey="recipeListviewHeader" inherits="Acme" text="Recipes">
+                                <FontString parentArray="headers" parentKey="recipeListviewHeader" inherits="Acme" text="Recipes">
                                     <Color r="1" g="1" b="1"/>
                                     <Anchors>
                                         <Anchor point="LEFT" x="185" y="0"/>
                                     </Anchors>
                                 </FontString>
-                                <FontString parentKey="charactersListviewHeader" inherits="Acme" text="Characters">
+                                <FontString parentArray="headers" parentKey="charactersListviewHeader" inherits="Acme" text="Characters">
                                     <Color r="1" g="1" b="1"/>
                                     <Anchors>
                                         <Anchor point="LEFT" x="695" y="0"/>

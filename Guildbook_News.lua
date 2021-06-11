@@ -527,4 +527,21 @@ added the old wide view for the default roster UI back, there is a check box in 
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [20] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+okay...i have tinkered with the prof scanning, if debug is turned on you'll see a small window next to the prof window with info of what happened
+
+|cff0070DEUpdates|r:
+added a check button to toggle between normal font and a default blizzard font, the blizzard font will work on all languages, sorry my other font doesnt :(
+
+Bindings! yes i have added a few key bindings,
+
+game menu > key bindings > Guildbook
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }

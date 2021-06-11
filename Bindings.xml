@@ -1,0 +1,13 @@
+<Bindings>
+    <Binding name="Open" header="GENERAL" category="Guildbook">
+        GuildbookUI:Show()
+    </Binding>
+    <Binding name="Chat" category="Guildbook">
+        GuildbookUI:Show()
+        GuildbookUI:OpenTo("chat")
+    </Binding>
+    <Binding name="Calendar" category="Guildbook">
+        GuildbookUI:Show()
+        GuildbookUI:OpenTo("calendar")
+    </Binding>
+</Bindings>

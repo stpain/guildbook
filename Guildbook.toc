@@ -1,8 +1,8 @@
 ## Interface: 20501
 ## Author: Copperbolts
-## Version: 4.4.5
+## Version: 4.4.6
 ## Title: |cff0070DEGuildbook|r
-## Notes: Guildbook adds additional information to the standard guild interface.
+## Notes: Guildbook for Guilds!
 ## SavedVariables: GUILDBOOK_GLOBAL
 ## SavedVariablesPerCharacter: GUILDBOOK_CHARACTER
 
@@ -16,7 +16,6 @@ Libs\ChatThrottleLib.lua
 Libs\LibDeflate\LibDeflate.lua
 Libs\AceComm-3.0\AceComm-3.0.xml
 Libs\LibSerialize\lib.xml
-
 Libs\LibCraftInfo-1.0\LibCraftInfo-1.0.xml
 
 Guildbook_News.lua

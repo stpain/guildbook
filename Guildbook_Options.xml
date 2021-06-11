@@ -158,10 +158,40 @@ the copyright holders.
                 </Anchors>
                 <Scripts>
                     <OnLoad>
-                        self.tooltip = 'Show the wide view for the default Blizzard guild roster'
+                        self.tooltip = 'Show the wide view for the default Blizzard guild roster.'
                     </OnLoad>
                     <OnClick>
                         GuildbookOptionsModifyDefaultGuildRoster_OnClick(self)
+                    </OnClick>
+                </Scripts>
+            </CheckButton>
+ 
+            <CheckButton name="$parentUseDefaultBlizzardFont" inherits="ChatConfigCheckButtonTemplate" >
+                <Size x="24" y="24"/>
+                <Layers>
+                    <Layer>
+                        <FontString name="$parentText" text="Use Blizzard font" inherits="GameFontNormal">
+                            <Color r="1" g="1" b="1" a="1"/>
+                            <FontHeight val="12"/>
+                            <Anchors>
+                                <Anchor point="LEFT">
+                                    <offset x="24" y="0"/>
+                                </Anchor>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>                
+                <Anchors>
+                    <Anchor point="TOPLEFT">
+                        <Offset x="250" y="-180"/>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self.tooltip = 'Use the Blizzard default font.'
+                    </OnLoad>
+                    <OnClick>
+                        GuildbookOptionsUseDefaultBlizzardFont_OnClick(self)
                     </OnClick>
                 </Scripts>
             </CheckButton>

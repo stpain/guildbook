@@ -78,6 +78,18 @@ function GuildbookOptionsModifyDefaultGuildRoster_OnClick(self)
     setWarningText('changes made require a UI reload')
 end
 
+function GuildbookOptionsUseDefaultBlizzardFont_OnClick(self)
+    if not GUILDBOOK_GLOBAL then
+        return
+    end
+    if not GUILDBOOK_GLOBAL.config then
+        GUILDBOOK_GLOBAL.config = {}
+    end
+    GUILDBOOK_GLOBAL.config.useBlizzardFont = self:GetChecked()
+    
+    Guildbook:UpdateFonts()
+end
+
 function GuildbookOptionsLoadChatModule_OnClick(self)
     if not GUILDBOOK_GLOBAL then
         return

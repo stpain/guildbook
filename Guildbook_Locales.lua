@@ -678,3 +678,6 @@ Guildbook.ProfessionNames = {
 		[773] = "주문각인",
 	},
 }
+
+
+BINDING_HEADER_GENERAL = "General"

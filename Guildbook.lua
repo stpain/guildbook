@@ -2,6 +2,29 @@
 
 local _, gb = ...
 
+
+GuildbookProfScanMixin = {}
+
+function GuildbookProfScanMixin:OnLoad()
+    LoadAddOn("Blizzard_TradeSkillUI")
+    self:SetParent(TradeSkillFrame)
+    self:SetPoint("TOPLEFT", TradeSkillFrame, "TOPRIGHT", -20, -10)
+    self.Title:SetText("Guildbook prof debug")
+    TradeSkillFrame:HookScript("OnShow", function()
+        if GUILDBOOK_GLOBAL.Debug == true then
+            self:Show()
+        end
+    end)
+end
+
+function GuildbookProfScanMixin:OnShow()
+    for k, fs in ipairs(self.fontstrings) do
+        fs:SetText("")
+    end
+end
+
+
+
 local L = gb.Locales
 local DEBUG = gb.DEBUG
 
@@ -903,6 +926,7 @@ end
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 GuildbookProfessionListviewMixin = {}
 GuildbookProfessionListviewMixin.recipesProcessed = 0;
+GuildbookProfessionListviewMixin.profButtons = {}
 
 local professions = {
     { Name = 'Alchemy', Atlas = "Mobile-Alchemy", },
@@ -1050,6 +1074,7 @@ function GuildbookProfessionListviewMixin:OnLoad()
                 end
             end
         end
+        self.profButtons[i] = f
     end
 end
 

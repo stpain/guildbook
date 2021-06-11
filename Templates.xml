@@ -110,14 +110,14 @@
 						<Anchor point="LEFT" x="3" y="0"/>
 					</Anchors>
 				</Texture>
-				<FontString parentKey="Name" inherits="Acme14" justifyH="LEFT">
+				<FontString parentArray="fontstrings" parentKey="Name" inherits="Acme14" justifyH="LEFT">
                     <Size x="108" y="22"/>
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.ClassIcon" x="7" y="0"/>
 					</Anchors>
 					<Color r="1" g="1" b="1"/>
 				</FontString>
-				<FontString parentKey="Level" inherits="Acme14" justifyH="CENTER">
+				<FontString parentArray="fontstrings" parentKey="Level" inherits="Acme14" justifyH="CENTER">
                     <Size x="30" y="22"/>
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Name" x="5" y="0"/>
@@ -130,7 +130,7 @@
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Level" x="5" y="0"/> -->
 					</Anchors>
 				</Texture>
-				<FontString parentKey="MainSpec" inherits="Acme14" justifyH="LEFT">
+				<FontString parentArray="fontstrings" parentKey="MainSpec" inherits="Acme14" justifyH="LEFT">
                     <Size x="100" y="22"/>
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.MainSpecIcon" x="5" y="0"/>
@@ -149,21 +149,21 @@
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Prof1" x="5" y="0"/>
 					</Anchors>
 				</Texture>
-				<FontString parentKey="Location" inherits="Acme14" justifyH="LEFT">
+				<FontString parentArray="fontstrings" parentKey="Location" inherits="Acme14" justifyH="LEFT">
                     <Size x="110" y="22"/>
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Prof2" x="10" y="0"/>
 					</Anchors>
 					<Color r="1" g="1" b="1"/>
 				</FontString>
-				<FontString parentKey="Rank" inherits="Acme14" justifyH="LEFT">
+				<FontString parentArray="fontstrings" parentKey="Rank" inherits="Acme14" justifyH="LEFT">
                     <Size x="110" y="22"/>
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Location" x="5" y="0"/>
 					</Anchors>
 					<Color r="1" g="1" b="1"/>
 				</FontString>
-				<FontString parentKey="PublicNote" inherits="Acme14" justifyH="LEFT">
+				<FontString parentArray="fontstrings" parentKey="PublicNote" inherits="Acme14" justifyH="LEFT">
                     <Size x="110" y="22"/>
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Rank" x="5" y="0"/>
@@ -603,25 +603,25 @@
                         <Anchor point="LEFT" x="0" y="0"/>
                     </Anchors>
                 </Texture>
-                <FontString parentKey="Link" inherits="Acme14" justifyH="LEFT">
+                <FontString parentArray="fontstrings" parentKey="Link" inherits="Acme14" justifyH="LEFT">
                     <Size x="280" y="26"/>
                     <Anchors>
                         <Anchor point="LEFT" relativeKey="$parent.Icon" relativePoint="RIGHT" x="5" y="0"/>
                     </Anchors>
                 </FontString>
-                <FontString parentKey="Count" inherits="Acme14"  justifyH="LEFT">
+                <FontString parentArray="fontstrings" parentKey="Count" inherits="Acme14"  justifyH="LEFT">
                     <Size x="40" y="26"/>
                     <Anchors>
                         <Anchor point="LEFT" relativeKey="$parent.Link" relativePoint="RIGHT" x="5" y="0"/>
                     </Anchors>
                 </FontString>
-                <FontString parentKey="Type" inherits="Acme14" justifyH="LEFT">
+                <FontString parentArray="fontstrings" parentKey="Type" inherits="Acme14" justifyH="LEFT">
                     <Size x="100" y="26"/>
                     <Anchors>
                         <Anchor point="LEFT" relativeKey="$parent.Count" relativePoint="RIGHT" x="5" y="0"/>
                     </Anchors>
                 </FontString>
-                <FontString parentKey="SubType" inherits="Acme14"  justifyH="LEFT">
+                <FontString parentArray="fontstrings" parentKey="SubType" inherits="Acme14"  justifyH="LEFT">
                     <Size x="100" y="26"/>
                     <Anchors>
                         <Anchor point="LEFT" relativeKey="$parent.Type" relativePoint="RIGHT" x="5" y="0"/>
