@@ -36,7 +36,7 @@ local addonName, Guildbook = ...
 -- locales table
 local L = {}
 
--- buttons, labels and texts
+-- buttons, labels and texts NEED TO GO THROUGH THESE AND REMOVE OLD STRINGS
 L['CharacterName'] = 'Data Recipient'
 L['OptionsAbout'] = 'Guildbook options and about.'
 L['Version'] = 'Version'
@@ -220,34 +220,10 @@ L['September'] = 'September'
 L['October'] = 'October'
 L['November'] = 'November'
 L['December'] = 'December'
+
 --------------------------------------------------------------------------------------------
 -- help text tooltips
 --------------------------------------------------------------------------------------------
-L['profilesHelpText'] = [[
-Profiles.
-
-|cffffffffYou can search for characters or items using Guildbook.
-
-When you search a drop-down list will show possible
-matches, this list is limited and if the results count 
-exceeds the limit it won't show, so if nothing appears 
-keep typing to narrow the results.
-
-Recipe items will show a sub menu of characters who can 
-craft the item. Click the character to view the recipe 
-item in their 'Professions' tab.|r
-
-|cff00BFF3Character models are not available by default, to display 
-them you will need to open profiles tab and mouse-over 
-players of the various race/gender combinations for your 
-faction. The limitation here is that the models shown 
-will keep the characteristic's of the character you mouse 
-over. 
-This shouldn't be to detrimental as most characters will 
-have a head/helm piece which hides the face and hair etc.|r
-]]
-
-
 L['calendarHelpText'] = [[
 Calendar
 
@@ -524,6 +500,7 @@ end
 
 
 
+
 Guildbook.Locales = L
 
 Guildbook.AvailableLocales = {
@@ -541,6 +518,7 @@ if Guildbook.AvailableLocales[locale] then
 end
 
 
+-- these were taken from the game however some seem to be incorrect so any fixes please post on the curse page for others to see (and me)
 Guildbook.ProfessionNames = {
 	enUS = {
 		[164] = "Blacksmithing",
@@ -560,7 +538,7 @@ Guildbook.ProfessionNames = {
 	deDE = {
 		[164] = "Schmiedekunst",
 		[165] = "Lederverarbeitung",
-		[171] = "Alchemie",
+		[171] = "Alchimie",
 		[182] = "Kräuterkunde",
 		[185] = "Kochkunst",
 		[186] = "Bergbau",
@@ -569,7 +547,7 @@ Guildbook.ProfessionNames = {
 		[333] = "Verzauberkunst",
 		[356] = "Angeln",
 		[393] = "Kürschnerei",
-		[755] = "Juwelierskunst",
+		[755] = "Juwelenschleifen",
 		[773] = "Inschriftenkunde",
 	},
 	frFR = {
@@ -680,4 +658,5 @@ Guildbook.ProfessionNames = {
 }
 
 
+-- key binding header
 BINDING_HEADER_GENERAL = "General"

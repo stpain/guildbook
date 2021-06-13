@@ -29,6 +29,7 @@ local L = gb.Locales
 local DEBUG = gb.DEBUG
 
 local LCI = LibStub:GetLibrary("LibCraftInfo-1.0")
+local LibGraph = LibStub("LibGraph-2.0");
 
 
 local GUILD_NAME;
@@ -95,7 +96,7 @@ end
 function GuildbookListviewItemMixin:SetItem(info)
     self.Icon:SetAtlas(info.Atlas)
     --self.Icon:SetTexture(1396618)
-    self.Text:SetText(info.Name)
+    self.Text:SetText(gb.ProfessionNames[GetLocale()][info.id])
 
     -- self.Icon:SetTexture("Interface\\GLUES\\CHARACTERCREATE\\UI-CHARACTERCREATE-CLASSES");
     -- local coords = CLASS_ICON_TCOORDS["PALADIN"];
@@ -585,6 +586,8 @@ function GuildbookRosterListviewItemMixin:SetCharacter(character)
         mainSpec = "Guardian"
     elseif character.mainSpec == "Cat" then
         mainSpec = "Feral"
+    elseif character.mainSpec == "Beast Master" then
+        mainSpec = "BeastMastery"
     end
     if character.mainSpec ~= "-" then
         self.MainSpecIcon:SetAtlas(string.format("GarrMission_ClassIcon-%s-%s", character.class, mainSpec and mainSpec or character.mainSpec))
@@ -928,16 +931,18 @@ GuildbookProfessionListviewMixin = {}
 GuildbookProfessionListviewMixin.recipesProcessed = 0;
 GuildbookProfessionListviewMixin.profButtons = {}
 
+
+
 local professions = {
-    { Name = 'Alchemy', Atlas = "Mobile-Alchemy", },
-    { Name = 'Blacksmithing', Atlas = "Mobile-Blacksmithing", },
-    { Name = 'Enchanting', Atlas = "Mobile-Enchanting", },
-    { Name = 'Engineering', Atlas = "Mobile-Enginnering", },
-    { Name = 'Inscription', Atlas = "Mobile-Inscription", },
-    { Name = 'Jewelcrafting', Atlas = "Mobile-Jewelcrafting", },
-    { Name = 'Leatherworking', Atlas = "Mobile-Leatherworking", },
-    { Name = 'Tailoring', Atlas = "Mobile-Tailoring", },
-    { Name = 'Mining', Atlas = "Mobile-Mining", },
+    { id = 171, Name = 'Alchemy', Atlas = "Mobile-Alchemy", },
+    { id = 164, Name = 'Blacksmithing', Atlas = "Mobile-Blacksmithing", },
+    { id = 333, Name = 'Enchanting', Atlas = "Mobile-Enchanting", },
+    { id = 202, Name = 'Engineering', Atlas = "Mobile-Enginnering", },
+    { id = 773, Name = 'Inscription', Atlas = "Mobile-Inscription", },
+    { id = 755, Name = 'Jewelcrafting', Atlas = "Mobile-Jewelcrafting", },
+    { id = 165, Name = 'Leatherworking', Atlas = "Mobile-Leatherworking", },
+    { id = 197, Name = 'Tailoring', Atlas = "Mobile-Tailoring", },
+    { id = 186, Name = 'Mining', Atlas = "Mobile-Mining", },
 }
 
 local function addRecipe(prof, recipeID, reagents)
@@ -1434,9 +1439,9 @@ end
 function GuildbookRosterMixin:OnShow()
     GUILD_NAME = gb:GetGuildName()
     GuildRoster()
-    C_Timer.After(0.25, function()
-        self:ParseGuildRoster()
-    end)
+    -- C_Timer.After(0.25, function()
+    --     self:ParseGuildRoster()
+    -- end)
 end
 
 function GuildbookRosterMixin:ParseGuildRoster()
@@ -3160,25 +3165,54 @@ end
 
 GuildbookStatsMixin = {}
 GuildbookStatsMixin.charts = {
-    class = {}
+    class = {},
 }
 
-
 function GuildbookStatsMixin:OnLoad()
+
+    local segColOffset = 0.66
 
     for class, info in pairs(gb.Data.Class) do
         local f = CreateFrame("FRAME", "GuildbookStatsClassBar"..class, self, "GuildbookStatsClassChartBar")
         f.statusBar:SetStatusBarColor(info.RGB[1], info.RGB[2], info.RGB[3], 0.75)
         f.icon:SetAtlas(string.format("GarrMission_ClassIcon-%s", string.sub(class, 1, 1):upper()..string.sub(class, 2)))
         f.className = class
-        f.classCount = 0
+        f.classCount = 0;
+        f.specCountTotal = 0;
         f.specCounts = {}
-        for s in ipairs(info.Specializations) do
+        f.specInfoText = {}
+        f.specPie = LibGraph:CreateGraphPieChart('GuildbookUIStats'..class.."SpecPie", self, 'BOTTOMLEFT', 'BOTTOMLEFT', 300, 125, 150, 150)
+        f.specPie:Hide()
+        for k, s in ipairs(info.Specializations) do
             table.insert(f.specCounts, {
                 spec = s,
                 count = 0,
             })
+            local r, g, b = unpack(gb.Data.Class[class].RGB)
+            f.specPie:AddPie((100 / #info.Specializations), {r*segColOffset, g*segColOffset, b*segColOffset})
+
+            local fs = self:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+            fs:SetTextColor(1,1,1)
+            fs:SetPoint("BOTTOMLEFT", 250, (25) * k)
+            fs:SetText(s)
+            fs:Hide()
+            f.specInfoText[k] = fs
         end
+        f:SetScript("OnEnter", function()
+            for _, b in ipairs(self.charts.class) do
+                b.specPie:Hide()
+            end
+            for _, b in pairs(self.charts.class) do
+                for _, fs in pairs(b.specInfoText) do
+                    fs:Hide()
+                end
+            end
+            for _, fs in pairs(f.specInfoText) do
+                fs:Show()
+            end
+            f.specPie:Show()
+            --self.background:SetAtlas(string.format("Artifacts-%s-BG", f.className:sub(1,1):upper()..f.className:sub(2):lower()))
+        end)
         table.insert(self.charts.class, f)
     end
     table.sort(self.charts.class, function(a,b)
@@ -3201,6 +3235,7 @@ function GuildbookStatsMixin:OnShow()
     for i, bar in ipairs(self.charts.class) do
         bar:SetPoint("BOTTOMLEFT", 25, (31*i) -6)
         bar.classCount = 0;
+        bar.specCountTotal = 0;
         for k, s in ipairs(bar.specCounts) do
             s.count = 0;
         end
@@ -3216,6 +3251,7 @@ function GuildbookStatsMixin:OnShow()
                         for k, s in ipairs(bar.specCounts) do
                             if s.spec == character.MainSpec then
                                 s.count = s.count + 1;
+                                bar.specCountTotal = bar.specCountTotal + 1;
                             end
                         end
                     end
@@ -3223,9 +3259,23 @@ function GuildbookStatsMixin:OnShow()
             end
         end
     end
+    local classColourOffsets = {0.5, 0.8, 1.1, 1.4}
     for _, bar in ipairs(self.charts.class) do
+        local r, g, b = unpack(gb.Data.Class[bar.className].RGB)
         bar.statusBar:SetValue(bar.classCount / totalMembers)
         bar.text:SetText(string.format("%.1f %%", (bar.classCount / totalMembers) * 100))
+        bar.specPie:ResetPie()
+        if bar.specCountTotal > 0 then
+            table.sort(bar.specCounts, function(a,b)
+                return a.count < b.count
+            end)
+            for k, s in ipairs(bar.specCounts) do
+                bar.specPie:AddPie((s.count/bar.specCountTotal) * 100, {r*classColourOffsets[k], g*classColourOffsets[k], b*classColourOffsets[k]})
+                bar.specInfoText[k]:SetText(string.format("%s%%   %s", string.format("%0.1f", (s.count/bar.specCountTotal) * 100), s.spec))
+                bar.specInfoText[k]:SetTextColor(r*classColourOffsets[k], g*classColourOffsets[k], b*classColourOffsets[k])
+            end
+            bar.specPie:CompletePie({100,100,100})
+        end
     end
 
 end

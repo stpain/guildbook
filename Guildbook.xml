@@ -1,6 +1,6 @@
 <UI xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI-Retail.xsd">
     
-    <FontFamily name="Acme14" inherits="GameFontNormal" virtual="true">
+    <FontFamily name="GuildbookAcme14" inherits="GameFontNormal" virtual="true">
         <Member alphabet="roman">
             <Font font="Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf" height="14" outline="NORMAL"/>
         </Member>
@@ -18,7 +18,7 @@
         </Member>
     </FontFamily>
 
-    <FontFamily name="Acme" inherits="GameFontNormal" virtual="true">
+    <FontFamily name="GuildbookAcme" inherits="GameFontNormal" virtual="true">
         <Member alphabet="roman">
             <Font font="Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf" height="20" outline="NORMAL"/>
         </Member>
@@ -452,19 +452,19 @@
                                         <Anchor point="TOPLEFT" x="20" y="-260"/>
                                     </Anchors>
                                 </Texture> -->
-                                <FontString parentKey="name" inherits="Acme" text="-">
+                                <FontString parentKey="name" inherits="GuildbookAcme" text="-">
                                     <Size x="160" y="25"/>
                                     <Anchors>
                                         <Anchor point="TOP" x="0" y="-250"/>
                                     </Anchors>
                                 </FontString>
-                                <!-- <FontString parentKey="mainCharacter" inherits="Acme14" text="-">
+                                <!-- <FontString parentKey="mainCharacter" inherits="GuildbookAcme14" text="-">
                                     <Size x="200" y="20"/>
                                     <Anchors>
                                         <Anchor point="TOP" relativePoint="BOTTOM" relativeKey="$parent.name" x="0" y="-2"/>
                                     </Anchors>
                                 </FontString> -->
-                                <FontString parentKey="spec" inherits="Acme14" text="-">
+                                <FontString parentKey="spec" inherits="GuildbookAcme14" text="-">
                                     <Size x="200" y="25"/>
                                     <Anchors>
                                         <Anchor point="TOP" relativePoint="BOTTOM" relativeKey="$parent.name" x="0" y="-10"/>
@@ -532,7 +532,7 @@
 
                                             </Layer>
                                             <Layer level="OVERLAY">
-                                                <FontString parentKey="title" inherits="Acme" parentArray="localStrings">
+                                                <FontString parentKey="title" inherits="GuildbookAcme" parentArray="localStrings">
                                                     <Anchors>
                                                         <Anchor point="TOP" x="0" y="0"/>
                                                     </Anchors>
@@ -541,7 +541,7 @@
                                                     </KeyValues>
                                                 </FontString>
 
-                                                <FontString parentKey="realNameLabel" parentArray="localStrings" inherits="Acme14" justifyH="LEFT">
+                                                <FontString parentKey="realNameLabel" parentArray="localStrings" inherits="GuildbookAcme14" justifyH="LEFT">
                                                     <Size x="75" y="25"/>
                                                     <Anchors>
                                                         <Anchor point="TOPLEFT" x="20" y="-25"/>
@@ -550,14 +550,14 @@
                                                         <KeyValue key="locale" value="REAL_NAME" type="string"/>
                                                     </KeyValues>
                                                 </FontString>
-                                                <FontString parentKey="realName" parentArray="displayStrings" inherits="Acme14" justifyH="LEFT">
+                                                <FontString parentKey="realName" parentArray="displayStrings" inherits="GuildbookAcme14" justifyH="LEFT">
                                                     <Size x="175" y="25"/>
                                                     <Anchors>
                                                         <Anchor relativeKey="$parent.realNameLabel" relativePoint="RIGHT" point="LEFT" x="20" y="0"/>
                                                     </Anchors>
                                                 </FontString>
 
-                                                <FontString parentKey="avatarLabel" parentArray="localStrings" inherits="Acme14" justifyH="LEFT">
+                                                <FontString parentKey="avatarLabel" parentArray="localStrings" inherits="GuildbookAcme14" justifyH="LEFT">
                                                     <Size x="75" y="25"/>
                                                     <Anchors>
                                                         <Anchor point="TOPLEFT" x="355" y="-25"/>
@@ -567,7 +567,7 @@
                                                     </KeyValues>
                                                 </FontString>
 
-                                                <FontString parentKey="mainSpecLabel" parentArray="localStrings" inherits="Acme14" justifyH="LEFT">
+                                                <FontString parentKey="mainSpecLabel" parentArray="localStrings" inherits="GuildbookAcme14" justifyH="LEFT">
                                                     <Size x="75" y="25"/>
                                                     <Anchors>
                                                         <Anchor relativeKey="$parent.avatarLabel" relativePoint="BOTTOMLEFT" point="TOPLEFT" x="0" y="-60"/>
@@ -576,14 +576,14 @@
                                                         <KeyValue key="locale" value="MAIN_SPEC" type="string"/>
                                                     </KeyValues>
                                                 </FontString>
-                                                <FontString parentKey="mainSpec" parentArray="displayStrings" inherits="Acme14" justifyH="LEFT">
+                                                <FontString parentKey="mainSpec" parentArray="displayStrings" inherits="GuildbookAcme14" justifyH="LEFT">
                                                     <Size x="175" y="25"/>
                                                     <Anchors>
                                                         <Anchor relativeKey="$parent.mainSpecLabel" relativePoint="RIGHT" point="LEFT" x="20" y="0"/>
                                                     </Anchors>
                                                 </FontString>
 
-                                                <FontString parentKey="offSpecLabel" parentArray="localStrings" inherits="Acme14" justifyH="LEFT">
+                                                <FontString parentKey="offSpecLabel" parentArray="localStrings" inherits="GuildbookAcme14" justifyH="LEFT">
                                                     <Size x="75" y="25"/>
                                                     <Anchors>
                                                         <Anchor relativeKey="$parent.mainSpecLabel" relativePoint="BOTTOMLEFT" point="TOPLEFT" x="0" y="-30"/>
@@ -592,14 +592,14 @@
                                                         <KeyValue key="locale" value="OFF_SPEC" type="string"/>
                                                     </KeyValues>
                                                 </FontString>
-                                                <FontString parentKey="offSpec" parentArray="displayStrings" inherits="Acme14" justifyH="LEFT">
+                                                <FontString parentKey="offSpec" parentArray="displayStrings" inherits="GuildbookAcme14" justifyH="LEFT">
                                                     <Size x="175" y="25"/>
                                                     <Anchors>
                                                         <Anchor relativeKey="$parent.offSpecLabel" relativePoint="RIGHT" point="LEFT" x="20" y="0"/>
                                                     </Anchors>
                                                 </FontString>
 
-                                                <FontString parentKey="realDobLabel" parentArray="localStrings" inherits="Acme14" justifyH="LEFT">
+                                                <FontString parentKey="realDobLabel" parentArray="localStrings" inherits="GuildbookAcme14" justifyH="LEFT">
                                                     <Size x="75" y="25"/>
                                                     <Anchors>
                                                         <Anchor point="TOPLEFT" x="20" y="-45"/>
@@ -608,14 +608,14 @@
                                                         <KeyValue key="locale" value="REAL_DOB" type="string"/>
                                                     </KeyValues>
                                                 </FontString>
-                                                <FontString parentKey="realDob" parentArray="displayStrings" inherits="Acme14" justifyH="LEFT">
+                                                <FontString parentKey="realDob" parentArray="displayStrings" inherits="GuildbookAcme14" justifyH="LEFT">
                                                     <Size x="175" y="25"/>
                                                     <Anchors>
                                                         <Anchor relativeKey="$parent.realDobLabel" relativePoint="RIGHT" point="LEFT" x="20" y="0"/>
                                                     </Anchors>
                                                 </FontString>
 
-                                                <FontString parentKey="realBioLabel" parentArray="localStrings" inherits="Acme14" justifyH="LEFT">
+                                                <FontString parentKey="realBioLabel" parentArray="localStrings" inherits="GuildbookAcme14" justifyH="LEFT">
                                                     <Size x="75" y="25"/>
                                                     <Anchors>
                                                         <Anchor point="TOPLEFT" x="20" y="-70"/>
@@ -624,14 +624,14 @@
                                                         <KeyValue key="locale" value="REAL_BIO" type="string"/>
                                                     </KeyValues>
                                                 </FontString>
-                                                <FontString parentKey="realBio" parentArray="displayStrings" inherits="Acme14" justifyH="LEFT" justifyV="TOP">
+                                                <FontString parentKey="realBio" parentArray="displayStrings" inherits="GuildbookAcme14" justifyH="LEFT" justifyV="TOP">
                                                     <Size x="230" y="90"/>
                                                     <Anchors>
                                                         <Anchor relativeKey="$parent.realBioLabel" relativePoint="TOPRIGHT" point="TOPLEFT" x="20" y="-6"/>
                                                     </Anchors>
                                                 </FontString>
 
-                                                <FontString parentKey="mainCharacterLabel" parentArray="localStrings" inherits="Acme14" justifyH="LEFT">
+                                                <FontString parentKey="mainCharacterLabel" parentArray="localStrings" inherits="GuildbookAcme14" justifyH="LEFT">
                                                     <Size x="75" y="30"/>
                                                     <Anchors>
                                                         <Anchor relativeKey="$parent.realBioLabel" relativePoint="BOTTOMLEFT" point="TOPLEFT" x="0" y="-80"/>
@@ -640,7 +640,7 @@
                                                         <KeyValue key="locale" value="MAIN_CHARACTER" type="string"/>
                                                     </KeyValues>
                                                 </FontString>
-                                                <FontString parentKey="mainCharacter" parentArray="displayStrings" inherits="Acme14" justifyH="LEFT" justifyV="TOP">
+                                                <FontString parentKey="mainCharacter" parentArray="displayStrings" inherits="GuildbookAcme14" justifyH="LEFT" justifyV="TOP">
                                                     <Size x="230" y="25"/>
                                                     <Anchors>
                                                         <Anchor relativeKey="$parent.mainCharacterLabel" relativePoint="RIGHT" point="LEFT" x="20" y="0"/>
@@ -783,7 +783,7 @@
                                         </Anchors>
                                         <Layers>
                                             <Layer level="ARTWORK">
-                                                <FontString parentKey="title" inherits="Acme" text="Inventory">
+                                                <FontString parentKey="title" inherits="GuildbookAcme" text="Inventory">
                                                     <Anchors>
                                                         <Anchor point="TOP" x="0" y="-5"/>
                                                     </Anchors>
@@ -901,7 +901,7 @@
                                         </Anchors>
                                         <Layers>
                                             <Layer level="ARTWORK">
-                                                <FontString parentKey="title" inherits="Acme" text="Stats">
+                                                <FontString parentKey="title" inherits="GuildbookAcme" text="Stats">
                                                     <Anchors>
                                                         <Anchor point="TOP" x="0" y="-5"/>
                                                     </Anchors>
@@ -950,7 +950,7 @@
                                         </Anchors>
                                         <Layers>
                                             <Layer level="ARTWORK">
-                                                <FontString parentKey="title" inherits="Acme" text="Talents">
+                                                <FontString parentKey="title" inherits="GuildbookAcme" text="Talents">
                                                     <Anchors>
                                                         <Anchor point="TOP" x="0" y="-5"/>
                                                     </Anchors>
@@ -1084,19 +1084,19 @@
                         </Anchors>
                         <Layers>
                             <Layer level="OVERLAY">
-                                <FontString parentArray="headers" parentKey="professionListviewHeader" inherits="Acme" text="Professions">
+                                <FontString parentArray="headers" parentKey="professionListviewHeader" inherits="GuildbookAcme" text="Professions">
                                     <Color r="1" g="1" b="1"/>
                                     <Anchors>
                                         <Anchor point="LEFT" x="5" y="0"/>
                                     </Anchors>
                                 </FontString>
-                                <FontString parentArray="headers" parentKey="recipeListviewHeader" inherits="Acme" text="Recipes">
+                                <FontString parentArray="headers" parentKey="recipeListviewHeader" inherits="GuildbookAcme" text="Recipes">
                                     <Color r="1" g="1" b="1"/>
                                     <Anchors>
                                         <Anchor point="LEFT" x="185" y="0"/>
                                     </Anchors>
                                 </FontString>
-                                <FontString parentArray="headers" parentKey="charactersListviewHeader" inherits="Acme" text="Characters">
+                                <FontString parentArray="headers" parentKey="charactersListviewHeader" inherits="GuildbookAcme" text="Characters">
                                     <Color r="1" g="1" b="1"/>
                                     <Anchors>
                                         <Anchor point="LEFT" x="695" y="0"/>
@@ -1122,7 +1122,7 @@
                 </Layers>
                 <Layers>
                     <Layer level="OVERLAY">
-                        <FontString parentKey="currentChat" inherits="Acme" text=" No channel" justifyH="CENTER">
+                        <FontString parentKey="currentChat" inherits="GuildbookAcme" text=" No channel" justifyH="CENTER">
                             <Size x="190" y="20"/>
                             <Anchors>
                                 <Anchor point="BOTTOMLEFT" x="5" y="5"/>
@@ -1454,7 +1454,7 @@
                 </Anchors>
                 <Layers>
                     <Layer level="BACKGROUND" textureSubLevel="1">
-                        <Texture parentKey="background" atlas="Artifacts-DemonHunter-BG" tile="true" setAllPoints="true" alpha="0.35">
+                        <Texture parentKey="background" atlas="Artifacts-Druid-BG" tile="true" setAllPoints="true" alpha="0.35">
                             <!-- <Color r="0" g="0" b="0"/> -->
                         </Texture>
                     </Layer>

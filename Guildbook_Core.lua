@@ -30,7 +30,7 @@ local LibSerialize = LibStub:GetLibrary("LibSerialize")
 --variables
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- this used to match the toc but for simplicity i've made it just an integer
-local build = 20;
+local build = 21;
 local locale = GetLocale()
 local L = Guildbook.Locales
 
@@ -308,6 +308,29 @@ function Guildbook:Init()
     end)
 
 
+    GameTooltip:HookScript("OnTooltipSetItem", function(self)
+        local name, link = GameTooltip:GetItem()
+        local itemID = GetItemInfoInstant(link)
+
+        -- local characters = {}
+        -- if 1 == 1 then -- place holder for a options setting
+        --     if GUILDBOOK_GLOBAL.MySacks then
+        --         if GUILDBOOK_GLOBAL.MySacks.Banks then
+        --             for guid, items in pairs(GUILDBOOK_GLOBAL.MySacks.Banks) do
+        --                 if items[itemID] then
+        --                     table.insert(characters, {
+        --                         guid = guid,
+        --                         count = items[itemID].count,
+        --                     })
+        --                 end
+        --             end
+        --         end
+        --     end
+        -- end
+
+    end)
+
+
     -- hook the tooltip for guild characters
     GameTooltip:HookScript('OnTooltipSetUnit', function(self)
         if GUILDBOOK_GLOBAL['TooltipInfo'] == false then
@@ -476,15 +499,8 @@ local localProfNames = tInvert(Guildbook.ProfessionNames[GetLocale()])
 function Guildbook:GetEnglishProf(prof)
     local id = localProfNames[prof]
     if id then
-        --print(Guildbook.ProfessionNames.enUS[id])
         return Guildbook.ProfessionNames.enUS[id]
     end
-    -- for id, name in pairs(self.ProfessionNames[locale]) do
-    --     if name == prof then
-    --         --print("found", prof, "returning", self.ProfessionNames.enUS[id])
-    --         return self.ProfessionNames.enUS[id]
-    --     end
-    -- end
 end
 
 function Guildbook:CreateFrame(_type, _name, _parent, _inherits)
@@ -616,6 +632,9 @@ function Guildbook:UpdateFonts()
         end
         for _, chart in ipairs(ui.stats.charts.class) do
             chart.text:SetFont(font, 14)
+            for _, fs in ipairs(chart.specInfoText) do
+                fs:SetFont(font, 14)
+            end
         end
         for _, b in ipairs(ui.tradeskills.professionListview.profButtons) do
             b.Text:SetFont(font, 16)
@@ -982,10 +1001,13 @@ end
 
 --- scan the players trade skills
 --- this is used to get data about the players professions, recipes and reagents
-function Guildbook:ScanTradeSkill(sendData)
+function Guildbook:ScanTradeSkill(sendData, newRecipe)
     local localeProf = GetTradeSkillLine() -- this returns local name
     if Guildbook:GetEnglishProf(localeProf) then
         local prof = Guildbook:GetEnglishProf(localeProf) --convert to english
+        if prof == "Cooking" then
+            return
+        end
         GUILDBOOK_CHARACTER[prof] = {}
 
         GuildbookProfScan.prof:SetText(string.format("scanning %s [english %s]", localeProf, prof))
@@ -1025,6 +1047,9 @@ function Guildbook:ScanTradeSkill(sendData)
                     end
                 end
             end
+            if i > GetNumTradeSkills() and newRecipe == true then
+                self:FindAndSendNewRecipe()
+            end
             if i > GetNumTradeSkills() and sendData == true then
                 self:SendTradeskillData(prof, "GUILD", nil)
                 GuildbookProfScan.commsOut:SetText("sending tradeskill data")
@@ -1038,7 +1063,7 @@ end
 
 --- scan the players enchanting recipes, enchanting works a little differently 
 --- this is used to get data about the players professions, recipes and reagents
-function Guildbook:ScanCraftSkills_Enchanting(sendData)
+function Guildbook:ScanCraftSkills_Enchanting(sendData, newRecipe)
     local currentCraftingWindow = GetCraftSkillLine(1)
     if L['Enchanting'] == currentCraftingWindow then -- check we have enchanting open
         GUILDBOOK_CHARACTER['Enchanting'] = {}
@@ -1087,6 +1112,9 @@ function Guildbook:ScanCraftSkills_Enchanting(sendData)
                     end
                 end
             end
+            if i > GetNumCrafts() and newRecipe == true then
+                self:FindAndSendNewRecipe()
+            end
             if i > GetNumCrafts() and sendData == true then
                 self:SendTradeskillData("Enchanting", "GUILD", nil)
                 GuildbookProfScan.commsOut:SetText("sending tradeskill data")
@@ -1094,35 +1122,6 @@ function Guildbook:ScanCraftSkills_Enchanting(sendData)
                 GuildbookProfScan.info:SetText("data is saved locally but not sent, if a guild member views your profile the data will be sent, also on your next login/ui reload the data will be sent")
             end
         end, GetNumCrafts())
-
-        -- for i = 1, GetNumCrafts() do
-        --     local name, _, type, _, _, _, _ = GetCraftInfo(i)
-        --     if (name and type ~= "header") then
-        --         local itemID = select(7, GetSpellInfo(name))
-        --         DEBUG('func', 'ScanTradeSkill_Enchanting', string.format('|cff0070DETrade item|r: %s, with ID: %s', name, itemID))
-        --         if itemID then
-        --             GUILDBOOK_CHARACTER['Enchanting'][itemID] = {}
-        --         end
-        --         local numReagents = GetCraftNumReagents(i);
-        --         DEBUG('func', 'ScanTradeSkill_Enchanting', string.format('this recipe has %s reagents', numReagents))
-        --         if numReagents > 0 then
-        --             for j = 1, numReagents do
-        --                 local reagentName, reagentTexture, reagentCount, playerReagentCount = GetCraftReagentInfo(i, j)
-        --                 local reagentLink = GetCraftReagentItemLink(i, j)
-        --                 if reagentName and reagentCount then
-        --                     DEBUG('func', 'ScanTradeSkill_Enchanting', string.format('reagent number: %s with name %s and count %s', j, reagentName, reagentCount))
-        --                     if reagentLink then
-        --                         local reagentID = select(1, GetItemInfoInstant(reagentLink))
-        --                         DEBUG('func', 'Enchanting', 'reagent id: '..reagentID)
-        --                         if reagentID and reagentCount then
-        --                             GUILDBOOK_CHARACTER['Enchanting'][itemID][reagentID] = reagentCount
-        --                         end
-        --                     end
-        --                 end
-        --             end
-        --         end
-        --     end
-        -- end
     else
         --StaticPopup_Show('Error', 'Guildbook is missing the translation for this profession!')
     end
@@ -1133,17 +1132,7 @@ end
 -- this will check name and class against the return values from PlayerMixin using guid, sometimes players create multipole characters before settling on a class
 -- we also check the player entries for profression errors, talents table and spec data
 -- any entries not found the current guild roster will be removed (=nil)
-local lastRosterCleanUp = -1.0;
-local rosterScanDelay = 60.0
 function Guildbook:CleanUpGuildRosterData(guild, msg)
-    -- if lastRosterCleanUp + rosterScanDelay > time() then
-    --     local nextScanIn = rosterScanDelay - (time() - lastRosterCleanUp)
-    --     GuildbookUI.statusText:SetText(string.format("roster clean up cancelled, %s until reset", SecondsToTime(nextScanIn)))
-    --     GuildbookUI.roster:ParseGuildRoster()
-    --     C_Timer.After(3, function() GuildbookUI.statusText:SetText("") end)
-    --     return;
-    -- end
-    -- lastRosterCleanUp = time()
     if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[guild] then
         local memberGUIDs = {}
         local currentGUIDs = {}
@@ -1242,7 +1231,6 @@ function Guildbook:CleanUpGuildRosterData(guild, msg)
             end
             i = i + 1;
             if i > totalMembers then
-                local finish = date('*t')
                 local finished = time() - started
                 GuildbookUI.statusBar:SetValue(0)
                 local removedCount = 0;
@@ -1750,6 +1738,21 @@ function Guildbook:OnTradeSkillsReceived(data, distribution, sender)
                         GuildbookUI.statusText:SetText(string.format("received tradeskill data from %s, got %s %s recipes", sender, i, data.payload.profession))
                         DEBUG('func', 'OnTradeSkillsReceived', 'updating db, set: '..character.Name..' prof: '..data.payload.profession)
                     end
+                end
+            end
+        end)
+    end
+end
+
+function Guildbook:OnTradeSkillsRecipeUpdate(data, distribution, sender)
+    GuildbookProfScan.commsIn:SetText("received tradeskill recipe update")
+    if type(data.payload) == 'table' then
+        C_Timer.After(Guildbook.COMMS_DELAY, function()
+            local guildName = Guildbook:GetGuildName()
+            if guildName and data.payload.guid and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.guid] then
+                local character = GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.guid]
+                if data.payload.prof and character[data.payload.prof] then
+                    character[data.payload.prof][data.payload.recipeID] = data.payload.reagents;
                 end
             end
         end)
@@ -2339,6 +2342,52 @@ function Guildbook:CRAFT_UPDATE()
     end)
 end
 
+function Guildbook:FindAndSendNewRecipe()
+    if GUILDBOOK_CHARACTER.Profession1 ~= "-" then
+        local prof = GUILDBOOK_CHARACTER.Profession1
+        if GUILDBOOK_CHARACTER[prof] then
+            for rid, reagents in pairs(GUILDBOOK_CHARACTER[prof]) do
+                if recipeID == rid then
+                    local recipeComm = {
+                        type = "TRADESKILL_RECIPE_UPDATE",
+                        payload = {
+                            guid = UnitGUID("player"),
+                            prof = prof,
+                            recipeID = rid,
+                            reagents = reagents,
+                        }
+                    }
+                    self:Transmit(recipeComm, "GUILD", nil, "NORMAL")
+                end
+            end
+        end
+    end
+    if GUILDBOOK_CHARACTER.Profession2 ~= "-" then
+        local prof = GUILDBOOK_CHARACTER.Profession2
+        if GUILDBOOK_CHARACTER[prof] then
+            for rid, reagents in pairs(GUILDBOOK_CHARACTER[prof]) do
+                if recipeID == rid then
+                    local recipeComm = {
+                        type = "TRADESKILL_RECIPE_UPDATE",
+                        payload = {
+                            guid = UnitGUID("player"),
+                            prof = prof,
+                            recipeID = rid,
+                            reagents = reagents,
+                        }
+                    }
+                    self:Transmit(recipeComm, "GUILD", nil, "NORMAL")
+                end
+            end
+        end
+    end
+end
+
+function Guildbook:NEW_RECIPE_LEARNED(...)
+    self:ScanTradeSkill(false, true)
+    self:ScanCraftSkills_Enchanting(false, true)
+end
+
 
 function Guildbook:UPDATE_MOUSEOVER_UNIT()
 
@@ -2514,27 +2563,18 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
     DEBUG('comms_in', 'ON_COMMS_RECEIVED', string.format("%s from %s", data.type, sender))
 
     if data.type == "TRADESKILLS_REQUEST" then
-        -- if not Guildbook.GuildFrame.ProfilesFrame then
-        --     return
-        -- end
         self:OnTradeSkillsRequested(data, distribution, sender)
 
     elseif data.type == "TRADESKILLS_RESPONSE" then
-        -- if not Guildbook.GuildFrame.ProfilesFrame then
-        --     return
-        -- end
         self:OnTradeSkillsReceived(data, distribution, sender);
 
+    elseif data.type == "TRADESKILL_RECIPE_UPDATE" then
+        self:OnTradeSkillsRecipeUpdate(data, distribution, sender);
+
     elseif data.type == 'CHARACTER_DATA_REQUEST' then
-        -- if not Guildbook.GuildFrame.ProfilesFrame then
-        --     return
-        -- end
         self:OnCharacterDataRequested(data, distribution, sender)
 
     elseif data.type == 'CHARACTER_DATA_RESPONSE' then
-        -- if not Guildbook.GuildFrame.ProfilesFrame then
-        --     return
-        -- end
         self:OnCharacterDataReceived(data, distribution, sender)
 
     elseif data.type == 'CHARACTER_DATA_UPDATE' then
@@ -2684,6 +2724,7 @@ Guildbook.EventFrame:RegisterEvent('PLAYER_LEVEL_UP')
 Guildbook.EventFrame:RegisterEvent('PLAYER_ENTERING_WORLD')
 Guildbook.EventFrame:RegisterEvent('SKILL_LINES_CHANGED')
 Guildbook.EventFrame:RegisterEvent('TRADE_SKILL_UPDATE')
+Guildbook.EventFrame:RegisterEvent('NEW_RECIPE_LEARNED')
 Guildbook.EventFrame:RegisterEvent('CRAFT_UPDATE')
 Guildbook.EventFrame:RegisterEvent('RAID_ROSTER_UPDATE')
 Guildbook.EventFrame:RegisterEvent('BANKFRAME_OPENED')

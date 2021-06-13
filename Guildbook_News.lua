@@ -544,4 +544,17 @@ game menu > key bindings > Guildbook
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [21] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+further prof scan/sync tweeking
+
+|cff0070DEUpdates|r:
+fixed a texture bug with beast master hunters
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }

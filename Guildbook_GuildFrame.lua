@@ -480,26 +480,7 @@ function Guildbook:SetupGuildCalendarFrame()
     }
     -- make quick calculation to see if leap year?
 
--- for tbc
-    -- Magtheridon’s Lair – Hellfire Citadel – Hellfire Peninsula
-    -- Serpentshrine Cavern – Coilfang Reservoir – Zangarmarsh
-    -- Tempest Keep – The Eye – Netherstorm
-    -- Gruul’s Lair – Blade’s Edge Mountains
-    -- The Battle for Mount Hyjal – Caverns of Time – Tanaris Desert
-    -- Black Temple – Shadowmoon Valley
-    -- Sunwell Plateau – Isle of Quel’Danas
 
-    local raidTextures = {
-        ['MC'] = 136346,
-        ['BWL'] = 136329,
-        ['AQ20'] = 136320,
-        ['AQ40'] = 136321,
-        ['NAXX'] = 136347,
-        ['ZG'] = 136369,
-        ['ONY'] = 329121,
-    }
-
-    --returntokarazhan
     local raids = {
         { name = [[Molten Core]], textureKey = "moltencore", },
         { name = [[Blackwing lair]], textureKey = "blackwinglair", },
@@ -515,6 +496,7 @@ function Guildbook:SetupGuildCalendarFrame()
         { name = [[The Battle for Mount Hyjal]], textureKey = "cavernsoftime", },
         { name = [[Black Temple]], textureKey = "blacktemple", },
         { name = [[Sunwell Plateau]], textureKey = "sunwellplateau", },
+        { name = [[Karazhan]], textureKey = "karazhan", },
     }
 
     local raidsMenu = {}
@@ -592,15 +574,14 @@ function Guildbook:SetupGuildCalendarFrame()
         if (month == 2) then
             if year % 4 == 0 then
                 if year % 100 == 0 then                
-                    if year % 400 == 0 then                    
+                    if year % 400 == 0 then              
                         d = 29
-                        end
-                    else                
+                    end
+                else
                     d = 29
                 end
             end
         end
-        -- print(d)
         return d
     end
 

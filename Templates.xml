@@ -110,14 +110,14 @@
 						<Anchor point="LEFT" x="3" y="0"/>
 					</Anchors>
 				</Texture>
-				<FontString parentArray="fontstrings" parentKey="Name" inherits="Acme14" justifyH="LEFT">
+				<FontString parentArray="fontstrings" parentKey="Name" inherits="GuildbookAcme14" justifyH="LEFT">
                     <Size x="108" y="22"/>
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.ClassIcon" x="7" y="0"/>
 					</Anchors>
 					<Color r="1" g="1" b="1"/>
 				</FontString>
-				<FontString parentArray="fontstrings" parentKey="Level" inherits="Acme14" justifyH="CENTER">
+				<FontString parentArray="fontstrings" parentKey="Level" inherits="GuildbookAcme14" justifyH="CENTER">
                     <Size x="30" y="22"/>
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Name" x="5" y="0"/>
@@ -130,7 +130,7 @@
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Level" x="5" y="0"/> -->
 					</Anchors>
 				</Texture>
-				<FontString parentArray="fontstrings" parentKey="MainSpec" inherits="Acme14" justifyH="LEFT">
+				<FontString parentArray="fontstrings" parentKey="MainSpec" inherits="GuildbookAcme14" justifyH="LEFT">
                     <Size x="100" y="22"/>
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.MainSpecIcon" x="5" y="0"/>
@@ -149,21 +149,21 @@
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Prof1" x="5" y="0"/>
 					</Anchors>
 				</Texture>
-				<FontString parentArray="fontstrings" parentKey="Location" inherits="Acme14" justifyH="LEFT">
+				<FontString parentArray="fontstrings" parentKey="Location" inherits="GuildbookAcme14" justifyH="LEFT">
                     <Size x="110" y="22"/>
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Prof2" x="10" y="0"/>
 					</Anchors>
 					<Color r="1" g="1" b="1"/>
 				</FontString>
-				<FontString parentArray="fontstrings" parentKey="Rank" inherits="Acme14" justifyH="LEFT">
+				<FontString parentArray="fontstrings" parentKey="Rank" inherits="GuildbookAcme14" justifyH="LEFT">
                     <Size x="110" y="22"/>
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Location" x="5" y="0"/>
 					</Anchors>
 					<Color r="1" g="1" b="1"/>
 				</FontString>
-				<FontString parentArray="fontstrings" parentKey="PublicNote" inherits="Acme14" justifyH="LEFT">
+				<FontString parentArray="fontstrings" parentKey="PublicNote" inherits="GuildbookAcme14" justifyH="LEFT">
                     <Size x="110" y="22"/>
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Rank" x="5" y="0"/>
@@ -535,7 +535,7 @@
                         <Anchor point="LEFT" x="10" y="0"/>
                     </Anchors>
                 </Texture>
-                <FontString parentKey="Link" inherits="Acme14">
+                <FontString parentKey="Link" inherits="GuildbookAcme14">
                     <Anchors>
                         <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Icon" x="10" y="0"/>
                     </Anchors>
@@ -573,7 +573,7 @@
                 </Texture>
             </Layer>
             <Layer level="OVERLAY">
-                <FontString parentKey="header" inherits="Acme14" text="stat group">
+                <FontString parentKey="header" inherits="GuildbookAcme14" text="stat group">
                     <Anchors>
                         <Anchor point="TOP" x="0" y="-7"/>
                     </Anchors>
@@ -603,25 +603,25 @@
                         <Anchor point="LEFT" x="0" y="0"/>
                     </Anchors>
                 </Texture>
-                <FontString parentArray="fontstrings" parentKey="Link" inherits="Acme14" justifyH="LEFT">
+                <FontString parentArray="fontstrings" parentKey="Link" inherits="GuildbookAcme14" justifyH="LEFT">
                     <Size x="280" y="26"/>
                     <Anchors>
                         <Anchor point="LEFT" relativeKey="$parent.Icon" relativePoint="RIGHT" x="5" y="0"/>
                     </Anchors>
                 </FontString>
-                <FontString parentArray="fontstrings" parentKey="Count" inherits="Acme14"  justifyH="LEFT">
+                <FontString parentArray="fontstrings" parentKey="Count" inherits="GuildbookAcme14"  justifyH="LEFT">
                     <Size x="40" y="26"/>
                     <Anchors>
                         <Anchor point="LEFT" relativeKey="$parent.Link" relativePoint="RIGHT" x="5" y="0"/>
                     </Anchors>
                 </FontString>
-                <FontString parentArray="fontstrings" parentKey="Type" inherits="Acme14" justifyH="LEFT">
+                <FontString parentArray="fontstrings" parentKey="Type" inherits="GuildbookAcme14" justifyH="LEFT">
                     <Size x="100" y="26"/>
                     <Anchors>
                         <Anchor point="LEFT" relativeKey="$parent.Count" relativePoint="RIGHT" x="5" y="0"/>
                     </Anchors>
                 </FontString>
-                <FontString parentArray="fontstrings" parentKey="SubType" inherits="Acme14"  justifyH="LEFT">
+                <FontString parentArray="fontstrings" parentKey="SubType" inherits="GuildbookAcme14"  justifyH="LEFT">
                     <Size x="100" y="26"/>
                     <Anchors>
                         <Anchor point="LEFT" relativeKey="$parent.Type" relativePoint="RIGHT" x="5" y="0"/>
@@ -869,7 +869,7 @@
                         <Anchor point="LEFT" x="2" y="0"/>
                     </Anchors>
                 </Texture>
-                <FontString parentKey="text" inherits="Acme14" justifyH="RIGHT">
+                <FontString parentKey="text" inherits="GuildbookAcme14" justifyH="RIGHT">
                     <Anchors>
                         <Anchor point="RIGHT" x="-2" y="0"/>
                     </Anchors>    
@@ -886,6 +886,18 @@
                 <BarTexture atlas="nameplates-bar-background-white"/>
             </StatusBar>
         </Frames>
+        <Scripts>
+            <!-- <OnEnter>
+                if self.specPie then
+                    self.specPie:Show()
+                end
+            </OnEnter> -->
+            <!-- <OnLeave>
+                if self.specPie then
+                    self.specPie:Hide()
+                end
+            </OnLeave> -->
+        </Scripts>
     </Frame>
 
 
