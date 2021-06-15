@@ -30,7 +30,7 @@ local LibSerialize = LibStub:GetLibrary("LibSerialize")
 --variables
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- this used to match the toc but for simplicity i've made it just an integer
-local build = 21;
+local build = 22;
 local locale = GetLocale()
 local L = Guildbook.Locales
 
@@ -310,7 +310,9 @@ function Guildbook:Init()
 
     GameTooltip:HookScript("OnTooltipSetItem", function(self)
         local name, link = GameTooltip:GetItem()
-        local itemID = GetItemInfoInstant(link)
+        if link and link:find([[|Hitem]]) then
+            local itemID = GetItemInfoInstant(link)
+        end
 
         -- local characters = {}
         -- if 1 == 1 then -- place holder for a options setting
@@ -495,7 +497,7 @@ end
 -- functions
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-local localProfNames = tInvert(Guildbook.ProfessionNames[GetLocale()])
+local localProfNames = tInvert(Guildbook.ProfessionNames[locale])
 function Guildbook:GetEnglishProf(prof)
     local id = localProfNames[prof]
     if id then
@@ -554,40 +556,7 @@ function Guildbook:CreateHelperIcon(parent, relTo, anchor, relPoint, x, y, toolt
 end
 
 
-function Guildbook:UpdateListviewSelectedTextures(listview)
-    for k, button in ipairs(listview) do
-        if button.data and button.data.Selected == true then
-            button:GetHighlightTexture():SetVertexColor(1, 1, 0);
-            button:LockHighlight()
-        else
-            button:GetHighlightTexture():SetVertexColor(0.196, 0.388, 0.8);
-            button:UnlockHighlight();
-        end
-    end
-end
-
-function Guildbook:CreateTooltipPanel(name, parent, anchor, x, y, w, h, headerText) --, headerFont, headerFontSize)
-    local f = CreateFrame('FRAME', name, parent)
-    f:SetPoint(anchor, x, y)
-    f:SetSize(w, h)
-    f.background = f:CreateTexture("$parentBackground", 'BACKGROUND')
-    f.background:SetPoint('TOPLEFT', 3, -3)
-    f.background:SetPoint('BOTTOMRIGHT', -3, 3)
-    f.background:SetColorTexture(0,0,0,0.6)
-    -- f:SetBackdrop({
-    --     edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-    --     edgeSize = 16,
-    -- })
-    if headerText then
-        f.header = f:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
-        f.header:SetPoint('TOP', 0, -10)
-        f.header:SetText(headerText)
-        f.header:SetFont("Fonts\\FRIZQT__.TTF", 14)
-        --f.header:SetTextColor(1,1,1,1)
-    end
-    return f
-end
-
+-- this is not an ok way to move forward - consider how best to handle fonts? remove custom seems easiest
 function Guildbook:UpdateFonts()
     if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.config then
         local font = GUILDBOOK_GLOBAL.config.useBlizzardFont == true and "Fonts\\FRIZQT__.TTF" or [[Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf]]
@@ -672,6 +641,7 @@ function Guildbook:GetCalendarEvents(start, duration)
         return
     end
     local events = {}
+    local today = date('*t')
     local finish = (time(today) + (60*60*24*duration))
     if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['Calendar'] and GUILDBOOK_GLOBAL['Calendar'][guildName] then
         for k, event in pairs(GUILDBOOK_GLOBAL['Calendar'][guildName]) do

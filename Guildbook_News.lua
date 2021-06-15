@@ -557,4 +557,17 @@ fixed a texture bug with beast master hunters
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [22] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+mouse over link bug fixed
+
+|cff0070DEUpdates|r:
+
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }
