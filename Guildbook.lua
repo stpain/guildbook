@@ -9,11 +9,17 @@ function GuildbookProfScanMixin:OnLoad()
     LoadAddOn("Blizzard_TradeSkillUI")
     self:SetParent(TradeSkillFrame)
     self:SetPoint("TOPLEFT", TradeSkillFrame, "TOPRIGHT", -20, -10)
-    self.Title:SetText("Guildbook prof debug")
+    self.Title:SetText("Guildbook Tradeskills")
     TradeSkillFrame:HookScript("OnShow", function()
-        if GUILDBOOK_GLOBAL.Debug == true then
-            self:Show()
+        self:Show()
+        self.sendData:SetEnabled(false)
+    end)
+    self.sendData:SetText("Send data")
+    self.sendData:SetScript("OnClick", function()
+        if not self.tradeskill then
+            return;
         end
+        StaticPopup_Show('SendProfessionData', nil, nil, {prof = self.tradeskill})
     end)
 end
 

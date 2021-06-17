@@ -37,7 +37,7 @@
     </FontFamily>
 
     <Frame name="GuildbookProfScan" mixin="GuildbookProfScanMixin" parent="UIParent" hidden="true" inherits="UIPanelDialogTemplate">
-        <Size x="300" y="200"/>
+        <Size x="350" y="225"/>
         <Layers>
             <Layer level="OVERLAY">
                 <FontString parentKey="prof" parentArray="fontstrings" inherits="GameFontNormalSmall" text="no action">
@@ -86,8 +86,14 @@
                     <Anchor point="TOPRIGHT" x="-2" y="-25"/>
                 </Anchors>
                 <BarTexture file="Interface\TargetingFrame\UI-StatusBar"/>
-                <BarColor r="0.859" g="0.128" b="0.593" a="0.15"/>
+                <BarColor r="0.859" g="0.128" b="0.593" a="0.75"/>
             </StatusBar>
+            <Button parentKey="sendData" inherits="UIPanelButtonTemplate">
+                <Size x="100" y="25"/>
+                <Anchors>
+                    <Anchor point="BOTTOM"  x="0" y="15"/>
+                </Anchors>
+            </Button>
         </Frames>
         <Scripts>
             <OnLoad method="OnLoad"/>

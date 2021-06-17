@@ -30,7 +30,7 @@ local LibSerialize = LibStub:GetLibrary("LibSerialize")
 --variables
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- this used to match the toc but for simplicity i've made it just an integer
-local build = 22;
+local build = 23;
 local locale = GetLocale()
 local L = Guildbook.Locales
 
@@ -53,8 +53,8 @@ SlashCmdList['GUILDBOOK'] = function(msg)
     if msg == '-help' then
         print(':(')
 
-    elseif msg == '-alts' then
-        --Guildbook:GetCharactersAlts(UnitGUID('player'))
+    elseif msg == '-profs' then
+        GuildbookProfScan:Show()
 
     end
 end
@@ -980,6 +980,8 @@ function Guildbook:ScanTradeSkill(sendData, newRecipe)
         end
         GUILDBOOK_CHARACTER[prof] = {}
 
+        GuildbookProfScan.sendData:SetEnabled(false)
+        GuildbookProfScan.tradeskill = prof;
         GuildbookProfScan.prof:SetText(string.format("scanning %s [english %s]", localeProf, prof))
         GuildbookProfScan.statusBar:SetValue(0)
 
@@ -1017,14 +1019,17 @@ function Guildbook:ScanTradeSkill(sendData, newRecipe)
                     end
                 end
             end
-            if i > GetNumTradeSkills() and newRecipe == true then
-                self:FindAndSendNewRecipe()
-            end
-            if i > GetNumTradeSkills() and sendData == true then
-                self:SendTradeskillData(prof, "GUILD", nil)
-                GuildbookProfScan.commsOut:SetText("sending tradeskill data")
-            elseif i > GetNumTradeSkills() and sendData ~= true then
-                GuildbookProfScan.info:SetText("data is saved locally but not sent, if a guild member views your profile the data will be sent, also on your next login/ui reload the data will be sent")
+            if i > GetNumTradeSkills() then
+                if newRecipe == true then
+                    self:FindAndSendNewRecipe()
+                end 
+                if sendData == true then
+                    GuildbookProfScan.sendData:SetEnabled(true)
+                    --StaticPopup_Show('SendProfessionData', nil, nil, {prof = prof})
+                end
+                if sendData ~= true then
+                    GuildbookProfScan.info:SetText("data is saved locally but not sent, if a guild member views your profile the data will be sent, also on your next login/ui reload the data will be sent")
+                end
             end
         end, GetNumTradeSkills())
     end
@@ -1038,6 +1043,8 @@ function Guildbook:ScanCraftSkills_Enchanting(sendData, newRecipe)
     if L['Enchanting'] == currentCraftingWindow then -- check we have enchanting open
         GUILDBOOK_CHARACTER['Enchanting'] = {}
 
+        GuildbookProfScan.sendData:SetEnabled(false)
+        GuildbookProfScan.tradeskill = "Enchanting";
         GuildbookProfScan.prof:SetText(string.format("scanning %s [english %s]", currentCraftingWindow, "Enchanting"))
         GuildbookProfScan.statusBar:SetValue(0)
 
@@ -1082,14 +1089,19 @@ function Guildbook:ScanCraftSkills_Enchanting(sendData, newRecipe)
                     end
                 end
             end
-            if i > GetNumCrafts() and newRecipe == true then
-                self:FindAndSendNewRecipe()
-            end
-            if i > GetNumCrafts() and sendData == true then
-                self:SendTradeskillData("Enchanting", "GUILD", nil)
-                GuildbookProfScan.commsOut:SetText("sending tradeskill data")
-            elseif i > GetNumCrafts() and sendData ~= true then
-                GuildbookProfScan.info:SetText("data is saved locally but not sent, if a guild member views your profile the data will be sent, also on your next login/ui reload the data will be sent")
+            if i > GetNumCrafts() then
+                if i > GetNumCrafs() then
+                    if newRecipe == true then
+                        self:FindAndSendNewRecipe()
+                    end 
+                    if sendData == true then
+                        GuildbookProfScan.sendData:Enabled(true)
+                        --StaticPopup_Show('SendProfessionData', nil, nil, {prof = "Enchanting"})
+                    end
+                    if sendData ~= true then
+                        GuildbookProfScan.info:SetText("data is saved locally but not sent, if a guild member views your profile the data will be sent, also on your next login/ui reload the data will be sent")
+                    end
+                end
             end
         end, GetNumCrafts())
     else
@@ -2302,13 +2314,13 @@ end
 function Guildbook:TRADE_SKILL_UPDATE()
     C_Timer.After(1, function()
         DEBUG('func', 'TRADE_SKILL_UPDATE', 'scanning skills')
-        self:ScanTradeSkill()
+        self:ScanTradeSkill(true)
     end)
 end
 function Guildbook:CRAFT_UPDATE()
     C_Timer.After(1, function()
         DEBUG('func', 'CRAFT_UPDATE', 'scanning skills enchanting')
-        self:ScanCraftSkills_Enchanting()
+        self:ScanCraftSkills_Enchanting(true)
     end)
 end
 

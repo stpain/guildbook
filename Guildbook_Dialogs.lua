@@ -180,3 +180,33 @@ StaticPopupDialogs['GuildbookUpdates'] = {
     preferredIndex = 3,
     showAlert = 1,
 }
+
+
+StaticPopupDialogs['SendProfessionData'] = {
+    text = L["SEND_TRADESDKILL_DATA"],
+    button1 = "No",
+    button2 = "Yes",
+    OnShow = function(self)
+        self.button2:SetEnabled(false)
+        local i = 7
+        C_Timer.NewTicker(1, function()
+            _G[self:GetName().."Text"]:SetText(L["SEND_TRADESDKILL_DATA"]..i)
+            if i < 1 then
+                self.button2:SetEnabled(true)
+            end
+            i = i - 1;
+        end, 8)
+    end,
+    OnAccept = function()
+        print("A wise choice!")
+    end,
+    OnCancel = function(self, args)
+        Guildbook:SendTradeskillData(args.prof, "GUILD", nil)
+        GuildbookProfScan.commsOut:SetText("sending tradeskill data")
+    end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = false,
+    preferredIndex = 3,
+    showAlert = 1,
+}

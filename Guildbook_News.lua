@@ -570,4 +570,17 @@ mouse over link bug fixed
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [23] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+
+
+|cff0070DEUpdates|r:
+Profession sharing button! If you use a UI mod such as Elvui, use the slash cmd /guildbook -profs to open the window (when you open a prof window)
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }

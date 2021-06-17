@@ -144,6 +144,8 @@ L["BAGS"]                   = "Bags"
 L["BANK"]                   = "Bank"
 L["STATS"]                  = "Statistics"
 
+L["SEND_TRADESDKILL_DATA"]  = "Send profession data?\n\n|cffC41F3BWARNING - this option should only be used when necessary, it could cause issues for addons if the chat message system is abused!\n\n|cffffffffWait..."
+
 
 --professions
 L['Alchemy'] = 'Alchemy'
