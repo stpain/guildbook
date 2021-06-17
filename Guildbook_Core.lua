@@ -30,7 +30,7 @@ local LibSerialize = LibStub:GetLibrary("LibSerialize")
 --variables
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- this used to match the toc but for simplicity i've made it just an integer
-local build = 24;
+local build = 25;
 local locale = GetLocale()
 local L = Guildbook.Locales
 
@@ -903,10 +903,10 @@ function Guildbook:ScanPlayerContainers()
             end
             name = Ambiguate(name, 'none')
 
-            if not GUILDBOOK_CHARACTER['GuildBank'] then
-                GUILDBOOK_CHARACTER['GuildBank'] = {}
+            if not GUILDBOOK_GLOBAL["GuildBank"] then
+                GUILDBOOK_GLOBAL["GuildBank"] = {}
             end
-            GUILDBOOK_CHARACTER['GuildBank'][name] = {
+            GUILDBOOK_GLOBAL["GuildBank"][name] = {
                 Commit = GetServerTime(),
                 Data = {},
             }
@@ -917,10 +917,10 @@ function Guildbook:ScanPlayerContainers()
                     local id = select(10, GetContainerItemInfo(bag, slot))
                     local count = select(2, GetContainerItemInfo(bag, slot))
                     if id and count then
-                        if not GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] then
-                            GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] = count
+                        if not GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] then
+                            GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = count
                         else
-                            GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] = GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] + count
+                            GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] + count
                         end
                     end
                 end
@@ -931,10 +931,10 @@ function Guildbook:ScanPlayerContainers()
                 local id = select(10, GetContainerItemInfo(-1, slot))
                 local count = select(2, GetContainerItemInfo(-1, slot))
                 if id and count then
-                    if not GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] then
-                        GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] = count
+                    if not GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] then
+                        GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = count
                     else
-                        GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] = GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] + count
+                        GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] + count
                     end
                 end
             end
@@ -945,10 +945,10 @@ function Guildbook:ScanPlayerContainers()
                     local id = select(10, GetContainerItemInfo(bag, slot))
                     local count = select(2, GetContainerItemInfo(bag, slot))
                     if id and count then
-                        if not GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] then
-                            GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] = count
+                        if not GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] then
+                            GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = count
                         else
-                            GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] = GUILDBOOK_CHARACTER['GuildBank'][name].Data[id] + count
+                            GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] + count
                         end
                     end
                 end
@@ -957,12 +957,12 @@ function Guildbook:ScanPlayerContainers()
             local bankUpdate = {
                 type = 'GUILD_BANK_DATA_RESPONSE',
                 payload = {
-                    Data = GUILDBOOK_CHARACTER['GuildBank'][name].Data,
-                    Commit = GUILDBOOK_CHARACTER['GuildBank'][name].Commit,
+                    Data = GUILDBOOK_GLOBAL["GuildBank"][name].Data,
+                    Commit = GUILDBOOK_GLOBAL["GuildBank"][name].Commit,
                     Bank = name,
                 }
             }
-            self:Transmit(bankUpdate, 'GUILD', sender, 'BULK')
+            self:Transmit(bankUpdate, 'GUILD', nil, 'BULK')
             --DEBUG('comms_out', 'ScanPlayerContainers', 'sending guild bank data due to new commit')
         end
     end
@@ -1889,15 +1889,15 @@ end
 
 function Guildbook:OnGuildBankCommitRequested(data, distribution, sender)
     if distribution == 'GUILD' then
-        if GUILDBOOK_CHARACTER['GuildBank'] and GUILDBOOK_CHARACTER['GuildBank'][data.payload] and GUILDBOOK_CHARACTER['GuildBank'][data.payload].Commit then
+        if GUILDBOOK_GLOBAL["GuildBank"] and GUILDBOOK_GLOBAL["GuildBank"][data.payload] and GUILDBOOK_GLOBAL["GuildBank"][data.payload].Commit then
             local response = {
                 type = 'GUILD_BANK_COMMIT_RESPONSE',
                 payload = { 
-                    Commit = GUILDBOOK_CHARACTER['GuildBank'][data.payload].Commit,
+                    Commit = GUILDBOOK_GLOBAL["GuildBank"][data.payload].Commit,
                     Character = data.payload
                 }
             }
-            DEBUG('comms_out', 'OnGuildBankCommitRequested', string.format('character=%s, commit=%s', data.payload, GUILDBOOK_CHARACTER['GuildBank'][data.payload].Commit))
+            DEBUG('comms_out', 'OnGuildBankCommitRequested', string.format('character=%s, commit=%s', data.payload, GUILDBOOK_GLOBAL["GuildBank"][data.payload].Commit))
             self:Transmit(response, 'WHISPER', sender, 'NORMAL')
         end
     end
@@ -1938,8 +1938,8 @@ function Guildbook:OnGuildBankDataRequested(data, distribution, sender)
         local response = {
             type = 'GUILD_BANK_DATA_RESPONSE',
             payload = {
-                Data = GUILDBOOK_CHARACTER['GuildBank'][data.payload].Data,
-                Commit = GUILDBOOK_CHARACTER['GuildBank'][data.payload].Commit,
+                Data = GUILDBOOK_GLOBAL["GuildBank"][data.payload].Data,
+                Commit = GUILDBOOK_GLOBAL["GuildBank"][data.payload].Commit,
                 Bank = data.payload,
             }
         }
@@ -1950,15 +1950,15 @@ end
 
 function Guildbook:OnGuildBankDataReceived(data, distribution, sender)
     if distribution == 'WHISPER' or distribution == 'GUILD' then
-        if not GUILDBOOK_CHARACTER['GuildBank'] then
-            GUILDBOOK_CHARACTER['GuildBank'] = {
+        if not GUILDBOOK_GLOBAL["GuildBank"] then
+            GUILDBOOK_GLOBAL["GuildBank"] = {
                 [data.payload.Bank] = {
                     Commit = data.payload.Commit,
                     Data = data.payload.Data,
                 }
             }
         else
-            GUILDBOOK_CHARACTER['GuildBank'][data.payload.Bank] = {
+            GUILDBOOK_GLOBAL["GuildBank"][data.payload.Bank] = {
                 Commit = data.payload.Commit,
                 Data = data.payload.Data,
             }

@@ -134,7 +134,7 @@ are supported.
     self.GuildFrame.GuildBankFrame.CommitBankCharacter:SetTextColor(1,1,1,1)
 
     self.GuildFrame.GuildBankFrame.BankSlots = {}
-    local slotIdx, slotWidth = 1, 40
+    local slotIdx, slotWidth = 1, 44
     for column = 1, 14 do
         local x = ((column - 1) * slotWidth) + 205
         for row = 1, 7 do            
@@ -217,11 +217,12 @@ are supported.
         wipe(self.BankData)
         local c = 0
         for id, count in pairs(data) do
-            local itemClass = select(6, GetItemInfoInstant(id))
+            local itemID, itemType, itemSubType, itemEquipLoc, icon, itemClassID, itemSubClassID = GetItemInfoInstant(id)
             table.insert(Guildbook.GuildFrame.GuildBankFrame.BankData, {
                 ItemID = id,
                 Count = count,
-                Class = itemClass,
+                Class = itemClassID,
+                Icon = icon,
             })
             c = c + 1
         end
@@ -230,16 +231,17 @@ are supported.
             return a.Class < b.Class
         end)
         DEBUG('func', 'GuildBankFrame:ProcessBankData', string.format('processed %s bank items from data', c))
+        self.BankSlotsScrollBar:SetValue(2)
         self.BankSlotsScrollBar:SetValue(1)
     end
 
     function self.GuildFrame.GuildBankFrame:RefreshSlots()
-        if self.bankCharacter and GUILDBOOK_CHARACTER['GuildBank'] and GUILDBOOK_CHARACTER['GuildBank'][self.bankCharacter] then
+        if self.bankCharacter and GUILDBOOK_GLOBAL["GuildBank"] and GUILDBOOK_GLOBAL["GuildBank"][self.bankCharacter] then
             local scrollPos = math.floor(self.BankSlotsScrollBar:GetValue())
             for i = 1, 98 do                
                 if Guildbook.GuildFrame.GuildBankFrame.BankData[i + ((scrollPos - 1) * 98)] then
                     local item = Guildbook.GuildFrame.GuildBankFrame.BankData[i + ((scrollPos - 1) * 98)]
-                    self.BankSlots[i].icon:SetTexture(C_Item.GetItemIconByID(item.ItemID))
+                    self.BankSlots[i].icon:SetTexture(item.Icon)
                     self.BankSlots[i].count:SetText(item.Count)
                     self.BankSlots[i].itemID = item.ItemID
                     --DEBUG('GuildBankFrame:RefreshSlots', string.format('updating slot %s with item id %s', i, item.ItemID))

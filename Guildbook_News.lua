@@ -596,4 +596,17 @@ Ok so i just saw a HUGE error I'd made in some logic which might explain some is
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [25] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+
+
+|cff0070DEUpdates|r:
+Moved the guild bank data into the account wide saved var, hopefully this will make it easier.
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }
