@@ -2359,7 +2359,6 @@ function GuildbookProfilesMixin:LoadCharacter(player)
     self:HideTalentIcons()
     self:HideProfile()
     if self.character then
-
         if not player then
             self:GetParent().statusBar:SetValue(0)
             self:GetParent().statusBar.duration = gb.COMMS_DELAY + (transmitStagger * 5)
@@ -2398,10 +2397,6 @@ function GuildbookProfilesMixin:LoadCharacter(player)
         C_Timer.After(gb.COMMS_DELAY + delay, function()
             if player and player == "player" then
                 self.contentPane.scrollChild.profile.edit:Show()
-                self:LoadProfile()
-                self:LoadTalents("primary")
-                self:LoadInventory()
-                self:LoadStats()
             else
                 self.contentPane.scrollChild.profile.edit:Hide()
                 for _, f in ipairs(self.contentPane.scrollChild.profile.displayEdit) do
@@ -2411,6 +2406,10 @@ function GuildbookProfilesMixin:LoadCharacter(player)
                     fs:SetShown(true)
                 end
             end
+            self:LoadProfile()
+            self:LoadTalents("primary")
+            self:LoadInventory()
+            self:LoadStats()
             if self.character.Inventory and self.character.Inventory.Current and next(self.character.Inventory.Current) and self.character.Race and self.character.Gender and self.characterModels[self.character.Race:upper()] and self.characterModels[self.character.Race:upper()][self.character.Gender:upper()] then
                 self.defaultModel:Hide()
                 self.characterModels[self.character.Race:upper()][self.character.Gender:upper()]:Show()
@@ -2465,6 +2464,9 @@ function GuildbookProfilesMixin:Edit_OnMouseDown(self)
         GuildbookUI.profiles.avatarPicker:Show()
     else
         GuildbookUI.profiles.avatarPicker:Hide()
+        if GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][UnitGUID("player")] then
+            GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][UnitGUID("player")].profile = GUILDBOOK_CHARACTER.profile
+        end
     end
 
     GuildbookButtonMixin.OnMouseDown(self)

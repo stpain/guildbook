@@ -583,4 +583,17 @@ Profession sharing button! If you use a UI mod such as Elvui, use the slash cmd 
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [24] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+Ok so i just saw a HUGE error I'd made in some logic which might explain some issues, anyways profiles should load properly now, mega sorry.
+
+|cff0070DEUpdates|r:
+
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }
