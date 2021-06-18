@@ -609,4 +609,17 @@ Moved the guild bank data into the account wide saved var, hopefully this will m
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [26] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+Guild Bank, it seems that other addons that modify your bags/bank will prevent Guildbook from scanning these containers, if you have issues please try to disable these addons on your bank alts when you need to scan.
+
+|cff0070DEUpdates|r:
+Search! I have started working on the search feature, you can currently view profiles by clicking the search result, more to come!
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }

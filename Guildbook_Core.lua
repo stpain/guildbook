@@ -30,7 +30,7 @@ local LibSerialize = LibStub:GetLibrary("LibSerialize")
 --variables
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- this used to match the toc but for simplicity i've made it just an integer
-local build = 25;
+local build = 26;
 local locale = GetLocale()
 local L = Guildbook.Locales
 
@@ -1090,7 +1090,7 @@ function Guildbook:ScanCraftSkills_Enchanting(sendData, newRecipe)
                 end
             end
             if i > GetNumCrafts() then
-                if i > GetNumCrafs() then
+                if i > GetNumCrafts() then
                     if newRecipe == true then
                         self:FindAndSendNewRecipe()
                     end 
@@ -1190,6 +1190,21 @@ function Guildbook:CleanUpGuildRosterData(guild, msg)
                         info.OfficerNote = currentGUIDs[i].offNote;
                         info.RankName = currentGUIDs[i].rank;
                         info.Level = currentGUIDs[i].lvl;
+
+                        for _, prof in ipairs(Guildbook.Data.Professions) do
+                            if info[prof.Name] then
+                                local exists = false;
+                                if info.Profession1 == prof.Name then
+                                    exists = true;
+                                end
+                                if info.Profession2 == prof.Name then
+                                    exists = true;
+                                end
+                                if exists == false then
+                                    info[prof.Name] = nil;
+                                end
+                            end
+                        end
 
                         if info.UNKNOWN then
                             info.UNKNOWN = nil

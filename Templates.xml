@@ -901,6 +901,63 @@
     </Frame>
 
 
+    <Frame name="GuildbookSearchResult" mixin="GuildbookSearchResultMixin" virtual="true" enableMouse="true">
+        <Layers>
+            <Layer level="BACKGROUND">
+				<Texture parentKey="Background" atlas="Talent-Background" useAtlasSize="false" setAllPoints="true"/>
+			</Layer>
+			<Layer level="HIGHLIGHT">
+				<Texture parentKey="Highlight" atlas="GarrMission_ListGlow-Highlight" useAtlasSize="false" setAllPoints="true"/>
+			</Layer>
+            <Layer level="ARTWORK">
+                <Texture parentKey="icon">
+                    <Size x="40" y="40"/>
+                    <Anchors>
+                        <Anchor point="LEFT" x="2" y="0"/>
+                    </Anchors>
+                </Texture>
+                <MaskTexture parentKey="mask" file="Interface/CHARACTERFRAME/TempPortraitAlphaMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+                    <Size x="36" y="36"/>
+                    <Anchors>
+                        <Anchor point="LEFT" x="4" y="0"/>
+                    </Anchors>
+                    <MaskedTextures>
+                        <MaskedTexture childKey="icon"/>
+                    </MaskedTextures>
+                </MaskTexture>
+                <FontString parentKey="text" inherits="GameFontNormal" justifyH="LEFT" justifyV="TOP">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="45" y="-5"/>
+                    </Anchors>    
+                </FontString>
+                <FontString parentKey="info" inherits="GameFontNormal" justifyH="LEFT" justifyV="BOTTOM">
+                    <Anchors>
+                        <Anchor point="BOTTOMLEFT" x="45" y="5"/>
+                    </Anchors>    
+                </FontString>
+            </Layer>
+        </Layers>
+        <Frames>
+            <!-- <Frame parentKey="goto" inherits="GuildbookSmallHighlightButton">
+                <Size x="40" y="40"/>
+                <Anchors>
+                    <Anchor point="RIGHT" x="-5" y="0"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture atlas="questrepeatableturnin" setAllPoints="true"/>
+                    </Layer>
+                </Layers>
+            </Frame> -->
+        </Frames>
+        <Scripts>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnMouseDown method="OnMouseDown"/>
+        </Scripts>
+    </Frame>
+
+
 
 	<Frame name="GuildbookDropdownFlyout" mixin="GuildbookDropdownFlyoutMixin" virtual="true" hidden="true">
 		<Size x="100" y="275"/>

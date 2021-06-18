@@ -1,5 +1,53 @@
 
 
+GuildbookSearchResultMixin = {}
+
+function GuildbookSearchResultMixin:OnMouseDown()
+    if self.func then
+        C_Timer.After(0, self.func)
+    end
+end
+
+function GuildbookSearchResultMixin:OnEnter()
+    if self.link and self.link:find("|Hitem") then
+        GameTooltip:SetOwner(self, 'ANCHOR_TOP')
+        GameTooltip:SetHyperlink(self.link)
+        GameTooltip:Show()
+    else
+        GameTooltip:SetOwner(self, 'ANCHOR_TOP')
+        GameTooltip:AddLine(self.link)
+        GameTooltip:Show()
+    end
+end
+
+function GuildbookSearchResultMixin:OnLeave()
+    GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+end
+
+function GuildbookSearchResultMixin:ClearRow()
+    self.icon:SetTexture(nil)
+    self.text:SetText(nil)
+    self.info:SetText(nil)
+    self.link = nil;
+    self.func = nil;
+end
+
+function GuildbookSearchResultMixin:SetResult(info)
+    if not info then
+        return;
+    end
+    if info.iconType == "fileID" then
+        self.icon:SetTexture(info.icon)
+    else
+        self.icon:SetAtlas(info.icon)
+    end
+    self.text:SetText(info.title)
+    self.info:SetText(info.info)
+    self.link = info.title;
+    self.func = info.func;
+end
+
+
 
 GuildbookDropDownFrameMixin = {}
 local DROPDOWN_CLOSE_DELAY = 2.0

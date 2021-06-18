@@ -1394,7 +1394,7 @@
                 </Layers>
             </Frame>
 
-            <Frame parentKey="search" parentArray="frames" mixin="GuildbookSearchMixin" hidden="true">
+            <Frame parentKey="search" parentArray="frames" mixin="GuildbookSearchMixin" hidden="true" enableMouse="true">
                 <Anchors>
                     <Anchor point="TOPLEFT" relativeKey="$parent.ribbon" relativePoint="BOTTOMLEFT" x="0" y="0"/>
                     <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
@@ -1406,6 +1406,35 @@
                         </Texture>
                     </Layer>
                 </Layers>
+                <Frames>
+                    <Frame parentKey="listview">
+                        <Size x="890" y="450"/>
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT" x="5" y="5"/>
+                        </Anchors>
+                        <Frames>
+                            <Slider parentKey="scrollBar" inherits="UIPanelScrollBarTemplate" orientation="VERTICAL">
+                                <Anchors>
+                                    <Anchor point="TOPRIGHT" x="16" y="-16"/>
+                                    <Anchor point="BOTTOMRIGHT" x="16" y="16"/>
+                                </Anchors>
+                                <Scripts>
+                                    <OnValueChanged>
+                                        self:GetParent():GetParent():ScrollBar_OnValueChanged()
+                                    </OnValueChanged>
+                                </Scripts>
+                            </Slider>
+                        </Frames>
+                        <Scripts>
+                            <OnMouseWheel>
+                                self:GetParent():OnMouseWheel(delta)
+                            </OnMouseWheel>
+                        </Scripts>
+                    </Frame>
+                </Frames>
+                <Scripts>
+                    <OnLoad method="OnLoad"/>
+                </Scripts>
             </Frame>
 
             <Frame parentKey="mySacks" mixin="GuildbookMySacksMixin" parentArray="frames" hidden="true">

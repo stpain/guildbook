@@ -951,7 +951,7 @@ local professions = {
     { id = 186, Name = 'Mining', Atlas = "Mobile-Mining", },
 }
 
-local function addRecipe(prof, recipeID, reagents)
+local function addRecipe(t, prof, recipeID, reagents)
     local _link = false;
     local _rarity = false;
     local _enchant = false;
@@ -986,7 +986,7 @@ local function addRecipe(prof, recipeID, reagents)
                 _name = select(1, GetSpellInfo(recipeID)) or 'unknown'
                 _rarity =  1
                 _enchant = true
-                table.insert(GuildbookUI.tradeskills.recipesListview.recipes, {
+                table.insert(t, {
                     itemID = recipeID,
                     reagents = reagents,
                     rarity = _rarity,
@@ -1008,7 +1008,7 @@ local function addRecipe(prof, recipeID, reagents)
                 _rarity = item:GetItemQuality()
                 _name = item:GetItemName()
                 _enchant = false
-                table.insert(GuildbookUI.tradeskills.recipesListview.recipes, {
+                table.insert(t, {
                     itemID = recipeID,
                     reagents = reagents,
                     rarity = _rarity,
@@ -1025,7 +1025,7 @@ local function addRecipe(prof, recipeID, reagents)
             end)
         end
     else
-        table.insert(GuildbookUI.tradeskills.recipesListview.recipes, {
+        table.insert(t, {
             itemID = recipeID,
             reagents = reagents,
             rarity = _rarity,
@@ -1074,7 +1074,7 @@ function GuildbookProfessionListviewMixin:OnLoad()
                             for itemID, reagents in pairs(character[prof.Name]) do
                                 if not recipes[itemID] then
                                     recipes[itemID] = true;
-                                    addRecipe(prof.Name, itemID, reagents)
+                                    addRecipe(GuildbookUI.tradeskills.recipesListview.recipes, prof.Name, itemID, reagents)
                                 end
                             end
                         else
@@ -3126,6 +3126,34 @@ end
 
 
 GuildbookSearchMixin = {}
+GuildbookSearchMixin.rows = {}
+
+function GuildbookSearchMixin:OnLoad()
+    for i = 1, 10 do
+        local f = CreateFrame("FRAME", "GuildbookSearchRow"..i, self.listview, "GuildbookSearchResult")
+        f:SetPoint("TOPLEFT", 5, ((i-1)*-45)-2)
+        f:SetSize(880, 45)
+
+        self.rows[i] = f;
+    end
+end
+
+function GuildbookSearchMixin:OnMouseWheel(delta)
+    local x = self.listview.scrollBar:GetValue()
+    self.listview.scrollBar:SetValue(x - delta)
+end
+
+function GuildbookSearchMixin:ScrollBar_OnValueChanged()
+    if self.results and #self.results > 0 then
+        local scrollPos = math.floor(self.listview.scrollBar:GetValue()) - 1;
+        for row = 1, 10 do
+            self.rows[row]:ClearRow()
+            if self.results[row+scrollPos] then
+                self.rows[row]:SetResult(self.results[row+scrollPos])
+            end
+        end
+    end
+end
 
 function GuildbookSearchMixin:Search(term)
     navigateTo(self)
@@ -3138,10 +3166,16 @@ function GuildbookSearchMixin:Search(term)
         table.insert(guids, guid)
         if character.Name:lower():find(term:lower()) then
             table.insert(self.results, {
+                resultKey = 1,
                 title = character.Name,
                 icon = string.format("raceicon-%s-%s", character.Race:lower(), character.Gender:lower()),
                 iconType = "atlas",
-                info = string.format("%s %s", character.MainSpec or "", character.Class:sub(1,1):Upper()..character.Class:sub(2):lower())
+                info = string.format("%s %s", character.MainSpec or "", character.Class:sub(1,1):upper()..character.Class:sub(2):lower()),
+                func = function()
+                    GuildbookUI.profiles.character = character;
+                    navigateTo(GuildbookUI.profiles)
+                    GuildbookUI.profiles:LoadCharacter()
+                end,
             })
         end
 
@@ -3151,10 +3185,11 @@ function GuildbookSearchMixin:Search(term)
                 if link and link:lower():find(term:lower()) and not self.processed[link] then
                     local itemID, itemType, itemSubType, itemEquipLoc, icon, _, _ = GetItemInfoInstant(link)
                     table.insert(self.results, {
+                        resultKey = 2,
                         title = link,
                         icon = icon,
                         iconType = "fileID",
-                        info = strinbg.format("%s %s %s", itemType, itemSubType, itemID)
+                        info = string.format("%s %s [%s %s; %s %s]", itemType, itemSubType, "ItemID:", itemID, "Source:", character.Name)
                     })
                     self.processed[link] = true
                 end
@@ -3162,10 +3197,30 @@ function GuildbookSearchMixin:Search(term)
         end
 
         -- search professions
-        if character.Profession1 and character.Profession1 ~= "-" then
-            
+        -- if character.Profession1 and character.Profession1 ~= "-" then
+        --     local recipes ={}
+        --     for itemID, reagents in pairs(character[character.Profession1]) do
+        --         if not recipes[itemID] then
+        --             recipes[itemID] = true;
+        --             addRecipe(GuildbookUI.tradeskills.recipesListview.recipes, character.Profession1, itemID, reagents)
+        --         end
+        --     end
+        -- end
+    end
+
+    self.listview.scrollBar:SetValue(1)
+    if self.results and #self.results > 0 then
+        table.sort(self.results, function(a,b)
+            return a.resultKey < b.resultKey
+        end)
+        for row = 1, 10 do
+            self.rows[row]:ClearRow()
+            if self.results[row] then
+                self.rows[row]:SetResult(self.results[row])
+            end
         end
     end
+    self.listview.scrollBar:SetMinMaxValues(1, (#self.results-9 >= 1 and #self.results-9 or 1))
 end
 
 
