@@ -459,21 +459,27 @@
                                     </Anchors>
                                 </Texture> -->
                                 <FontString parentKey="name" inherits="GuildbookAcme" text="-">
-                                    <Size x="160" y="25"/>
+                                    <Size x="200" y="25"/>
                                     <Anchors>
                                         <Anchor point="TOP" x="0" y="-250"/>
                                     </Anchors>
                                 </FontString>
-                                <!-- <FontString parentKey="mainCharacter" inherits="GuildbookAcme14" text="-">
-                                    <Size x="200" y="20"/>
-                                    <Anchors>
-                                        <Anchor point="TOP" relativePoint="BOTTOM" relativeKey="$parent.name" x="0" y="-2"/>
-                                    </Anchors>
-                                </FontString> -->
                                 <FontString parentKey="spec" inherits="GuildbookAcme14" text="-">
                                     <Size x="200" y="25"/>
                                     <Anchors>
-                                        <Anchor point="TOP" relativePoint="BOTTOM" relativeKey="$parent.name" x="0" y="-10"/>
+                                        <Anchor point="TOP" relativePoint="BOTTOM" relativeKey="$parent.name" x="0" y="-5"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="prof1" inherits="GuildbookAcme14" text="-">
+                                    <Size x="200" y="20"/>
+                                    <Anchors>
+                                        <Anchor point="TOP" relativePoint="BOTTOM" relativeKey="$parent.spec" x="0" y="-5"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="prof2" inherits="GuildbookAcme14" text="-">
+                                    <Size x="200" y="20"/>
+                                    <Anchors>
+                                        <Anchor point="TOP" relativePoint="BOTTOM" relativeKey="$parent.prof1" x="0" y="-5"/>
                                     </Anchors>
                                 </FontString>
                             </Layer>

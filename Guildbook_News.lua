@@ -622,4 +622,17 @@ Search! I have started working on the search feature, you can currently view pro
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [27] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+minor bug fixes
+
+|cff0070DEUpdates|r:
+
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }

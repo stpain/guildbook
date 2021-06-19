@@ -1117,6 +1117,7 @@ end
 GuildbookRecipesListviewMixin = {}
 GuildbookRecipesListviewMixin.rows = {}
 GuildbookRecipesListviewMixin.recipes = {}
+GuildbookRecipesListviewMixin.selectedRecipeLink = nil;
 local NUM_RECIPE_ROWS = 17
 
 local function getPlayersWithRecipe(recipeID)
@@ -1165,13 +1166,18 @@ function GuildbookRecipesListviewMixin:OnLoad()
                 f.model.selected = not s;
                 if f.model.selected == true then
                     f.Selected:Show()
+                    GuildbookRecipesListviewMixin.selectedRecipeLink = f.link;
                 end
             end
             local characters = getPlayersWithRecipe(f.recipeID)
             GuildbookCharactersListviewMixin:ClearRows()
             if characters and next(characters) ~= nil then
+                GuildbookCharactersListviewMixin.characters = characters;
+                GuildbookUI.tradeskills.charactersListview.scrollBar:SetMinMaxValues(1, (#characters > 9 and #characters or 1))
                 for k, character in ipairs(characters) do
-                    GuildbookCharactersListviewMixin.rows[k]:SetCharacter(character, f.link)
+                    if k < 10 then
+                        GuildbookCharactersListviewMixin.rows[k]:SetCharacter(character, f.link)
+                    end
                 end
             end
         end
@@ -1323,6 +1329,7 @@ end
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 GuildbookCharactersListviewMixin = {}
 GuildbookCharactersListviewMixin.rows = {}
+GuildbookCharactersListviewMixin.characters = {}
 
 function GuildbookCharactersListviewMixin:OnLoad()
     for i = 1, 9 do
@@ -1343,7 +1350,12 @@ end
 
 
 function GuildbookCharactersListviewMixin:ScrollBar_OnValueChanged()
-
+    if self.characters and #self.characters > 0 then
+        local scrollPos = math.floor(self.scrollBar:GetValue()) - 1;
+        for i = 1, 9 do
+            self.rows[i]:SetCharacter(self.characters[i + scrollPos], GuildbookRecipesListviewMixin.selectedRecipeLink)
+        end
+    end
 end
 
 
@@ -2423,9 +2435,21 @@ function GuildbookProfilesMixin:LoadCharacter(player)
             if self.character.Race then
                 self.sidePane.background:SetAtlas("transmog-background-race-"..(self.character.Race:lower()))
             end
-            self.sidePane.name:SetText(self.character.Name)
+            self.sidePane.name:SetText(string.format("%s  Lvl %s", self.character.Name, self.character.Level))
             if self.character.MainSpec then
-                self.sidePane.spec:SetText(self.character.MainSpec)
+                self.sidePane.spec:SetText(string.format("%s %s", self.character.MainSpec, self.character.Class:sub(1,1):upper()..self.character.Class:sub(2):lower()))
+            else
+                self.sidePane.spec:SetText("-")
+            end
+            if self.character.Profession1 then
+                self.sidePane.prof1:SetText(string.format("%s [%s]", self.character.Profession1, self.character.Profession1Level))
+            else
+                self.sidePane.prof1:SetText("-")
+            end
+            if self.character.Profession2 then
+                self.sidePane.prof2:SetText(string.format("%s [%s]", self.character.Profession2, self.character.Profession2Level))
+            else
+                self.sidePane.prof2:SetText("-")
             end
         end)
     else

@@ -30,7 +30,7 @@ local LibSerialize = LibStub:GetLibrary("LibSerialize")
 --variables
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- this used to match the toc but for simplicity i've made it just an integer
-local build = 26;
+local build = 27;
 local locale = GetLocale()
 local L = Guildbook.Locales
 
@@ -1095,7 +1095,7 @@ function Guildbook:ScanCraftSkills_Enchanting(sendData, newRecipe)
                         self:FindAndSendNewRecipe()
                     end 
                     if sendData == true then
-                        GuildbookProfScan.sendData:Enabled(true)
+                        GuildbookProfScan.sendData:SetEnabled(true)
                         --StaticPopup_Show('SendProfessionData', nil, nil, {prof = "Enchanting"})
                     end
                     if sendData ~= true then
