@@ -635,4 +635,17 @@ minor bug fixes
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [28] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+made a change to the bank scanning, should now just scan regardless of bag addons used
+
+|cff0070DEUpdates|r:
+
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }

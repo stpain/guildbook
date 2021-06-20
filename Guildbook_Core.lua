@@ -30,7 +30,7 @@ local LibSerialize = LibStub:GetLibrary("LibSerialize")
 --variables
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- this used to match the toc but for simplicity i've made it just an integer
-local build = 27;
+local build = 28;
 local locale = GetLocale()
 local L = Guildbook.Locales
 
@@ -889,47 +889,21 @@ end
 --- scans the players bags and bank for guild bank sharing
 --- creates a table in the character saved vars with scan time so we can check which data is newest
 function Guildbook:ScanPlayerContainers()
-    if BankFrame:IsVisible() then
-        local guid = UnitGUID('player')
-        if not self.PlayerMixin then
-            self.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
-        else
-            self.PlayerMixin:SetGUID(guid)
+    --if BankFrame:IsVisible() then
+        local name = Ambiguate(UnitName("player"), 'none')
+
+        if not GUILDBOOK_GLOBAL["GuildBank"] then
+            GUILDBOOK_GLOBAL["GuildBank"] = {}
         end
-        if self.PlayerMixin:IsValid() then
-            local name = C_PlayerInfo.GetName(self.PlayerMixin)
-            if not name then 
-                return 
-            end
-            name = Ambiguate(name, 'none')
+        GUILDBOOK_GLOBAL["GuildBank"][name] = {
+            Commit = GetServerTime(),
+            Data = {},
+        }
 
-            if not GUILDBOOK_GLOBAL["GuildBank"] then
-                GUILDBOOK_GLOBAL["GuildBank"] = {}
-            end
-            GUILDBOOK_GLOBAL["GuildBank"][name] = {
-                Commit = GetServerTime(),
-                Data = {},
-            }
-
-            -- player bags
-            for bag = 0, 4 do
-                for slot = 1, GetContainerNumSlots(bag) do
-                    local id = select(10, GetContainerItemInfo(bag, slot))
-                    local count = select(2, GetContainerItemInfo(bag, slot))
-                    if id and count then
-                        if not GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] then
-                            GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = count
-                        else
-                            GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] + count
-                        end
-                    end
-                end
-            end
-
-            -- main bank
-            for slot = 1, 28 do
-                local id = select(10, GetContainerItemInfo(-1, slot))
-                local count = select(2, GetContainerItemInfo(-1, slot))
+        -- player bags
+        for bag = 0, 4 do
+            for slot = 1, GetContainerNumSlots(bag) do
+                local _, id, _, _, _, _, _, _, _, count = GetContainerItemInfo(bag, slot)
                 if id and count then
                     if not GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] then
                         GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = count
@@ -938,34 +912,48 @@ function Guildbook:ScanPlayerContainers()
                     end
                 end
             end
+        end
 
-            -- bank bags
-            for bag = 5, 11 do
-                for slot = 1, GetContainerNumSlots(bag) do
-                    local id = select(10, GetContainerItemInfo(bag, slot))
-                    local count = select(2, GetContainerItemInfo(bag, slot))
-                    if id and count then
-                        if not GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] then
-                            GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = count
-                        else
-                            GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] + count
-                        end
+        -- main bank
+        for slot = 1, 28 do
+            local id = select(10, GetContainerItemInfo(-1, slot))
+            local count = select(2, GetContainerItemInfo(-1, slot))
+            if id and count then
+                if not GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] then
+                    GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = count
+                else
+                    GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] + count
+                end
+            end
+        end
+
+        -- bank bags
+        for bag = 5, 11 do
+            for slot = 1, GetContainerNumSlots(bag) do
+                local id = select(10, GetContainerItemInfo(bag, slot))
+                local count = select(2, GetContainerItemInfo(bag, slot))
+                if id and count then
+                    if not GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] then
+                        GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = count
+                    else
+                        GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] + count
                     end
                 end
             end
-
-            local bankUpdate = {
-                type = 'GUILD_BANK_DATA_RESPONSE',
-                payload = {
-                    Data = GUILDBOOK_GLOBAL["GuildBank"][name].Data,
-                    Commit = GUILDBOOK_GLOBAL["GuildBank"][name].Commit,
-                    Bank = name,
-                }
-            }
-            self:Transmit(bankUpdate, 'GUILD', nil, 'BULK')
-            --DEBUG('comms_out', 'ScanPlayerContainers', 'sending guild bank data due to new commit')
         end
-    end
+
+        local bankUpdate = {
+            type = 'GUILD_BANK_DATA_RESPONSE',
+            payload = {
+                Data = GUILDBOOK_GLOBAL["GuildBank"][name].Data,
+                Commit = GUILDBOOK_GLOBAL["GuildBank"][name].Commit,
+                Bank = name,
+            }
+        }
+        self:Transmit(bankUpdate, 'GUILD', nil, 'BULK')
+        --DEBUG('comms_out', 'ScanPlayerContainers', 'sending guild bank data due to new commit')
+
+    --end
 end
 
 
