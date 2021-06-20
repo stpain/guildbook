@@ -648,4 +648,17 @@ made a change to the bank scanning, should now just scan regardless of bag addon
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [29] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+
+
+|cff0070DEUpdates|r:
+Removed the awful profession scan UI, its now back to auto sending but is limited to sending at most once every 30s. When you open a profession window it will print a message when done.
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }

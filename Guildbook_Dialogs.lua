@@ -183,26 +183,61 @@ StaticPopupDialogs['GuildbookUpdates'] = {
 
 
 StaticPopupDialogs['SendProfessionData'] = {
-    text = L["SEND_TRADESDKILL_DATA"],
+    text = L["SCANNING_TRADESKILL_DATA"].."0/0"..L["SEND_TRADESKILL_DATA_WARNING"],
     button1 = "No",
     button2 = "Yes",
-    OnShow = function(self)
+    button3 = "Ignore",
+    OnShow = function(self, args)
+        Guildbook.profScanDialogOpen = true;
         self.button2:SetEnabled(false)
-        local i = 7
-        C_Timer.NewTicker(1, function()
-            _G[self:GetName().."Text"]:SetText(L["SEND_TRADESDKILL_DATA"]..i)
-            if i < 1 then
+        local i = 1;
+        local c = GetNumTradeSkills();
+        C_Timer.NewTicker(0.01, function()
+            local name, _type, _, _, _ = GetTradeSkillInfo(i)
+            if (name and _type ~= "header") then
+                local itemLink = GetTradeSkillItemLink(i)
+                local itemID = GetItemInfoInstant(itemLink)
+                if itemID then
+                    GUILDBOOK_CHARACTER[args.prof][itemID] = {}
+                    --_G[self:GetName().."Text"]:SetText(L["SCANNING_TRADESKILL_DATA"]..i.."/"..c..L["SEND_TRADESKILL_DATA_WARNING"])
+                    _G[self:GetName().."Text"]:SetText(L["SCANNING_TRADESKILL_DATA"]..itemLink..L["SEND_TRADESKILL_DATA_WARNING"])
+                end
+                local numReagents = GetTradeSkillNumReagents(i);
+                if numReagents > 0 then
+                    for j = 1, numReagents do
+                        local _, _, reagentCount, _ = GetTradeSkillReagentInfo(i, j)
+                        local reagentLink = GetTradeSkillReagentItemLink(i, j)
+                        local reagentID = GetItemInfoInstant(reagentLink)
+                        if reagentID and reagentCount then
+                            GUILDBOOK_CHARACTER[args.prof][itemID][reagentID] = reagentCount
+                        end
+                    end
+                end
+            end
+            if i == c then
+                local guildName = Guildbook:GetGuildName()
+                if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[guildName] then
+                    local character = GUILDBOOK_GLOBAL.GuildRosterCache[guildName][UnitGUID("player")]
+                    if character then
+                        character[args.prof] = GUILDBOOK_CHARACTER[args.prof]
+                    end
+                end
                 self.button2:SetEnabled(true)
             end
-            i = i - 1;
-        end, 8)
+            i = i + 1;
+        end, c)
     end,
     OnAccept = function()
         print("A wise choice!")
+        Guildbook.profScanDialogOpen = false;
     end,
     OnCancel = function(self, args)
         Guildbook:SendTradeskillData(args.prof, "GUILD", nil)
-        GuildbookProfScan.commsOut:SetText("sending tradeskill data")
+        Guildbook.profScanDialogOpen = false;
+    end,
+    OnAlt = function()
+        print("alt")
+        Guildbook.profScanDialogOpen = false;
     end,
     timeout = 0,
     whileDead = true,

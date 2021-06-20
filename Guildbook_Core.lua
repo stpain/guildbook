@@ -30,11 +30,12 @@ local LibSerialize = LibStub:GetLibrary("LibSerialize")
 --variables
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- this used to match the toc but for simplicity i've made it just an integer
-local build = 28;
+local build = 29;
 local locale = GetLocale()
 local L = Guildbook.Locales
 
-
+Guildbook.lastProfTransmit = GetTime()
+Guildbook.profScanDialogOpen = false;
 Guildbook.FONT_COLOUR = '|cff0070DE'
 Guildbook.PlayerMixin = nil
 Guildbook.GuildBankCommit = {
@@ -443,6 +444,7 @@ function Guildbook:Init()
             local prof = GUILDBOOK_CHARACTER.Profession1
             if GUILDBOOK_CHARACTER[prof] and next(GUILDBOOK_CHARACTER[prof]) ~= nil then
                 self:SendTradeskillData(prof, "GUILD", nil)
+                Guildbook.lastProfTransmit = GetTime()
                 DEBUG("func", "init", "sending prof1 data during init")
             end
         end
@@ -452,6 +454,7 @@ function Guildbook:Init()
             local prof = GUILDBOOK_CHARACTER.Profession2
             if GUILDBOOK_CHARACTER[prof] and next(GUILDBOOK_CHARACTER[prof]) ~= nil then
                 self:SendTradeskillData(prof, "GUILD", nil)
+                Guildbook.lastProfTransmit = GetTime()
                 DEBUG("func", "init", "sending prof2 data during init")
             end
         end
@@ -967,22 +970,15 @@ function Guildbook:ScanTradeSkill(sendData, newRecipe)
             return
         end
         GUILDBOOK_CHARACTER[prof] = {}
-
-        GuildbookProfScan.sendData:SetEnabled(false)
-        GuildbookProfScan.tradeskill = prof;
-        GuildbookProfScan.prof:SetText(string.format("scanning %s [english %s]", localeProf, prof))
-        GuildbookProfScan.statusBar:SetValue(0)
-
         local i = 1;
+        local c = GetNumTradeSkills()
         C_Timer.NewTicker(0.01, function()
-            GuildbookProfScan.statusBar:SetValue(i/GetNumTradeSkills())
             local name, _type, _, _, _ = GetTradeSkillInfo(i)
             if (name and _type ~= "header") then
                 local itemLink = GetTradeSkillItemLink(i)
                 local itemID = GetItemInfoInstant(itemLink)
                 if itemID then
                     GUILDBOOK_CHARACTER[prof][itemID] = {}
-                    GuildbookProfScan.currentAction:SetText(string.format("added %s to character saved var", itemLink))
                 end
                 local numReagents = GetTradeSkillNumReagents(i);
                 if numReagents > 0 then
@@ -996,29 +992,24 @@ function Guildbook:ScanTradeSkill(sendData, newRecipe)
                     end
                 end
             end
-            i = i + 1;
-            if i > GetNumTradeSkills() then
+            if i == c then
                 local guildName = self:GetGuildName()
                 if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[guildName] then
                     local character = GUILDBOOK_GLOBAL.GuildRosterCache[guildName][UnitGUID("player")]
                     if character then
                         character[prof] = GUILDBOOK_CHARACTER[prof]
-                        GuildbookProfScan.updatedGlobalChar:SetText(string.format("updated the global saved var for %s", character.Name))
                     end
                 end
-            end
-            if i > GetNumTradeSkills() then
-                if newRecipe == true then
-                    self:FindAndSendNewRecipe()
-                end 
-                if sendData == true then
-                    GuildbookProfScan.sendData:SetEnabled(true)
-                    --StaticPopup_Show('SendProfessionData', nil, nil, {prof = prof})
-                end
-                if sendData ~= true then
-                    GuildbookProfScan.info:SetText("data is saved locally but not sent, if a guild member views your profile the data will be sent, also on your next login/ui reload the data will be sent")
+                local elapsed = GetTime() - Guildbook.lastProfTransmit
+                if elapsed > 30 then
+                    self:SendTradeskillData(prof, "GUILD", nil)
+                    Guildbook.lastProfTransmit = GetTime()
+                    self:PrintMessage("sent profession data")
+                else
+                    self:PrintMessage(string.format("profession data NOT sent, wait %ss", string.format("%.0f",30-elapsed)))
                 end
             end
+            i = i + 1;
         end, GetNumTradeSkills())
     end
 end
@@ -1031,21 +1022,15 @@ function Guildbook:ScanCraftSkills_Enchanting(sendData, newRecipe)
     if L['Enchanting'] == currentCraftingWindow then -- check we have enchanting open
         GUILDBOOK_CHARACTER['Enchanting'] = {}
 
-        GuildbookProfScan.sendData:SetEnabled(false)
-        GuildbookProfScan.tradeskill = "Enchanting";
-        GuildbookProfScan.prof:SetText(string.format("scanning %s [english %s]", currentCraftingWindow, "Enchanting"))
-        GuildbookProfScan.statusBar:SetValue(0)
-
         local i = 1;
+        local c = GetNumCrafts()
         C_Timer.NewTicker(0.01, function()
-            GuildbookProfScan.statusBar:SetValue(i/GetNumCrafts())
             local name, _, type, _, _, _, _ = GetCraftInfo(i)
             if (name and type ~= "header") then
                 local itemID = select(7, GetSpellInfo(name))
                 DEBUG('func', 'ScanTradeSkill_Enchanting', string.format('|cff0070DETrade item|r: %s, with ID: %s', name, itemID))
                 if itemID then
                     GUILDBOOK_CHARACTER['Enchanting'][itemID] = {}
-                    GuildbookProfScan.currentAction:SetText(string.format("added [%s] to character saved var", name))
                 end
                 local numReagents = GetCraftNumReagents(i);
                 DEBUG('func', 'ScanTradeSkill_Enchanting', string.format('this recipe has %s reagents', numReagents))
@@ -1066,32 +1051,25 @@ function Guildbook:ScanCraftSkills_Enchanting(sendData, newRecipe)
                     end
                 end
             end
-            i = i + 1;
-            if i > GetNumCrafts() then
+            if i == c then
                 local guildName = self:GetGuildName()
                 if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[guildName] then
                     local character = GUILDBOOK_GLOBAL.GuildRosterCache[guildName][UnitGUID("player")]
                     if character then
-                        character["Enchanting"] = GUILDBOOK_CHARACTER['Enchanting']
-                        GuildbookProfScan.updatedGlobalChar:SetText(string.format("updated the global saved var for %s", character.Name))
+                        character["Enchanting"] = GUILDBOOK_CHARACTER["Enchanting"]
                     end
                 end
-            end
-            if i > GetNumCrafts() then
-                if i > GetNumCrafts() then
-                    if newRecipe == true then
-                        self:FindAndSendNewRecipe()
-                    end 
-                    if sendData == true then
-                        GuildbookProfScan.sendData:SetEnabled(true)
-                        --StaticPopup_Show('SendProfessionData', nil, nil, {prof = "Enchanting"})
-                    end
-                    if sendData ~= true then
-                        GuildbookProfScan.info:SetText("data is saved locally but not sent, if a guild member views your profile the data will be sent, also on your next login/ui reload the data will be sent")
-                    end
+                local elapsed = GetTime() - Guildbook.lastProfTransmit
+                if elapsed > 30 then
+                    self:SendTradeskillData("Enchanting", "GUILD", nil)
+                    Guildbook.lastProfTransmit = GetTime()
+                    self:PrintMessage("sent profession data")
+                else
+                    self:PrintMessage(string.format("profession data NOT sent, wait %ss", string.format("%.0f",30-elapsed)))
                 end
             end
-        end, GetNumCrafts())
+            i = i + 1;
+        end, c)
     else
         --StaticPopup_Show('Error', 'Guildbook is missing the translation for this profession!')
     end
@@ -1719,7 +1697,6 @@ function Guildbook:OnTradeSkillsReceived(data, distribution, sender)
                             --DEBUG("comms_in", 'OnTradeSkillsReceived', "got recipeID: "..recipeID)
                         end
                         character[data.payload.profession] = data.payload.recipes
-                        GuildbookProfScan.onCommsAction:SetText(string.format("%s updated %s with %s recipes", character.Name, data.payload.profession, i))
                         GuildbookUI.statusText:SetText(string.format("received tradeskill data from %s, got %s %s recipes", sender, i, data.payload.profession))
                         DEBUG('func', 'OnTradeSkillsReceived', 'updating db, set: '..character.Name..' prof: '..data.payload.profession)
                     end

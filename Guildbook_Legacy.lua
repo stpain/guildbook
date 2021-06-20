@@ -234,7 +234,7 @@ are supported.
             table.insert(Guildbook.GuildFrame.GuildBankFrame.BankData, {
                 ItemID = id,
                 Count = count,
-                Class = itemClassID,
+                Class = itemClassID and itemClassID or -1,
                 Icon = icon,
             })
             c = c + 1
