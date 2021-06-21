@@ -234,14 +234,19 @@ are supported.
             table.insert(Guildbook.GuildFrame.GuildBankFrame.BankData, {
                 ItemID = id,
                 Count = count,
-                Class = itemClassID and itemClassID or -1,
+                Class = itemClassID,
+                SubClass = itemSubClassID,
                 Icon = icon,
             })
             c = c + 1
         end
         -- sort table by item class  https://wow.gamepedia.com/ItemType
         table.sort(Guildbook.GuildFrame.GuildBankFrame.BankData, function(a, b)
-            return a.Class < b.Class
+            if a.Class == b.Class then
+                return a.SubClass < b.SubClass;
+            else
+                return a.Class < b.Class;
+            end
         end)
         DEBUG('func', 'GuildBankFrame:ProcessBankData', string.format('processed %s bank items from data', c))
         self.BankSlotsScrollBar:SetValue(2)

@@ -906,7 +906,7 @@ function Guildbook:ScanPlayerContainers()
         -- player bags
         for bag = 0, 4 do
             for slot = 1, GetContainerNumSlots(bag) do
-                local _, id, _, _, _, _, _, _, _, count = GetContainerItemInfo(bag, slot)
+                local _, count, _, _, _, _, link, _, _, id = GetContainerItemInfo(bag, slot)
                 if id and count then
                     if not GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] then
                         GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = count
@@ -919,8 +919,7 @@ function Guildbook:ScanPlayerContainers()
 
         -- main bank
         for slot = 1, 28 do
-            local id = select(10, GetContainerItemInfo(-1, slot))
-            local count = select(2, GetContainerItemInfo(-1, slot))
+            local _, count, _, _, _, _, link, _, _, id = GetContainerItemInfo(-1, slot)
             if id and count then
                 if not GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] then
                     GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = count
@@ -933,8 +932,7 @@ function Guildbook:ScanPlayerContainers()
         -- bank bags
         for bag = 5, 11 do
             for slot = 1, GetContainerNumSlots(bag) do
-                local id = select(10, GetContainerItemInfo(bag, slot))
-                local count = select(2, GetContainerItemInfo(bag, slot))
+                local _, count, _, _, _, _, link, _, _, id = GetContainerItemInfo(bag, slot)
                 if id and count then
                     if not GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] then
                         GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = count
