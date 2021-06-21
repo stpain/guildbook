@@ -1004,7 +1004,7 @@ function Guildbook:ScanTradeSkill(sendData, newRecipe)
                     Guildbook.lastProfTransmit = GetTime()
                     self:PrintMessage("sent profession data")
                 else
-                    self:PrintMessage(string.format("profession data NOT sent, wait %ss", string.format("%.0f",30-elapsed)))
+                    --self:PrintMessage(string.format("profession data NOT sent, wait %ss", string.format("%.0f",30-elapsed)))
                 end
             end
             i = i + 1;
@@ -1063,7 +1063,7 @@ function Guildbook:ScanCraftSkills_Enchanting(sendData, newRecipe)
                     Guildbook.lastProfTransmit = GetTime()
                     self:PrintMessage("sent profession data")
                 else
-                    self:PrintMessage(string.format("profession data NOT sent, wait %ss", string.format("%.0f",30-elapsed)))
+                    --self:PrintMessage(string.format("profession data NOT sent, wait %ss", string.format("%.0f",30-elapsed)))
                 end
             end
             i = i + 1;

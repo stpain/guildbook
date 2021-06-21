@@ -56,24 +56,6 @@ are supported.
         self:BankCharacterSelectDropDown_Init()
     end)
 
-    -- self.GuildFrame.GuildBankFrame.Header = self.GuildFrame.GuildBankFrame:CreateFontString('GuildbookGuildInfoFrameGuildBankFrameHeader', 'OVERLAY', 'GameFontNormal')
-    -- self.GuildFrame.GuildBankFrame.Header:SetPoint('BOTTOM', Guildbook.GuildFrame.GuildBankFrame, 'TOP', 0, 4)
-    -- self.GuildFrame.GuildBankFrame.Header:SetText('Guild Bank')
-    -- self.GuildFrame.GuildBankFrame.Header:SetTextColor(1,1,1,1)
-    -- self.GuildFrame.GuildBankFrame.Header:SetFont("Fonts\\FRIZQT__.TTF", 12)
-
-    -- self.GuildFrame.GuildBankFramescanButton = CreateFrame("BUTTON", nil, self.GuildFrame.GuildBankFrame, "UIPanelButtonTemplate")
-    -- self.GuildFrame.GuildBankFramescanButton:SetPoint("TOPLEFT", 18, -15)
-    -- self.GuildFrame.GuildBankFramescanButton:SetSize(60, 24)
-    -- self.GuildFrame.GuildBankFramescanButton:SetText("Scan")
-    -- self.GuildFrame.GuildBankFramescanButton:SetScript("OnClick", function()
-    --     for i = 1, GetNumGuildMembers() do
-    --         local _, _, _, _, _, _, publicNote, _, _, _, _, _, _, _, _, _, GUID = GetGuildRosterInfo(i)
-    --         if publicNote:lower():find('guildbank') and GUID == UnitGUID('player') then
-    --             self:ScanPlayerContainers()
-    --         end
-    --     end
-    -- end)
 
     self.GuildFrame.GuildBankFrame.ProgressCooldown = CreateFrame('FRAME', 'GuildbookGuildFrameRecipesListviewParentCooldown', self.GuildFrame.GuildBankFrame)
     self.GuildFrame.GuildBankFrame.ProgressCooldown:SetPoint('LEFT', 80, 0)
@@ -202,17 +184,6 @@ are supported.
             slot.itemID = nil
         end
     end
-
-    -- self.GuildFrame.GuildBankFrame.scrollBarBackgroundTop = self.GuildFrame.GuildBankFrame:CreateTexture('$parentBackgroundTop', 'ARTWORK')
-    -- self.GuildFrame.GuildBankFrame.scrollBarBackgroundTop:SetTexture(136569)
-    -- self.GuildFrame.GuildBankFrame.scrollBarBackgroundTop:SetPoint('TOPRIGHT', Guildbook.GuildFrame.GuildBankFrame, 'TOPRIGHT', -3, -4)
-    -- self.GuildFrame.GuildBankFrame.scrollBarBackgroundTop:SetSize(30, 280)
-    -- self.GuildFrame.GuildBankFrame.scrollBarBackgroundTop:SetTexCoord(0, 0.5, 0, 0.9)
-    -- self.GuildFrame.GuildBankFrame.scrollBarBackgroundBottom = self.GuildFrame.GuildBankFrame:CreateTexture('$parentBackgroundBottom', 'ARTWORK')
-    -- self.GuildFrame.GuildBankFrame.scrollBarBackgroundBottom:SetTexture(136569)
-    -- self.GuildFrame.GuildBankFrame.scrollBarBackgroundBottom:SetPoint('BOTTOMRIGHT', Guildbook.GuildFrame.GuildBankFrame, 'BOTTOMRIGHT', -4, 4)
-    -- self.GuildFrame.GuildBankFrame.scrollBarBackgroundBottom:SetSize(30, 60)
-    -- self.GuildFrame.GuildBankFrame.scrollBarBackgroundBottom:SetTexCoord(0.5, 1.0, 0.2, 0.41)
 
     self.GuildFrame.GuildBankFrame.BankSlotsScrollBar = CreateFrame('SLIDER', 'GuildbookGuildFrameBankSlotsScrollBar', Guildbook.GuildFrame.GuildBankFrame, "UIPanelScrollBarTemplate")
     self.GuildFrame.GuildBankFrame.BankSlotsScrollBar:SetPoint('TOPLEFT', Guildbook.GuildFrame.GuildBankFrame, 'TOPRIGHT', -26, -26)

@@ -96,23 +96,7 @@ function Guildbook:ModBlizzUI()
     end)
 
     Guildbook.GameTimeFrame:SetScript('OnClick', function(self)
-        FriendsFrame:Show()
-        --this may change ??? doubtful
-        FriendsFrameTab3:Click()
-        if Guildbook.GuildFrame['GuildbookGuildFrameGuildCalendarFrameButton'] then
-            Guildbook.GuildFrame['GuildbookGuildFrameGuildCalendarFrameButton']:Click()
-        end
-
-        -- not sure why but 
-        if FriendsFrame:IsVisible() then
-            return
-        else
-            FriendsFrame:Show()
-            FriendsFrameTab3:Click()
-            if Guildbook.GuildFrame['GuildbookGuildFrameGuildCalendarFrameButton'] then
-                Guildbook.GuildFrame['GuildbookGuildFrameGuildCalendarFrameButton']:Click()
-            end
-        end
+        GuildbookUI.OpenTo("calendar")
     end)
 
     Guildbook.GameTimeFrame:SetScript('OnEnter', function(self)
