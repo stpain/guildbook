@@ -30,7 +30,7 @@ local LibSerialize = LibStub:GetLibrary("LibSerialize")
 --variables
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- this used to match the toc but for simplicity i've made it just an integer
-local build = 29;
+local build = 30;
 local locale = GetLocale()
 local L = Guildbook.Locales
 
@@ -1002,7 +1002,7 @@ function Guildbook:ScanTradeSkill(sendData, newRecipe)
                 if elapsed > 30 then
                     self:SendTradeskillData(prof, "GUILD", nil)
                     Guildbook.lastProfTransmit = GetTime()
-                    self:PrintMessage("sent profession data")
+                    --self:PrintMessage("sent profession data")
                 else
                     --self:PrintMessage(string.format("profession data NOT sent, wait %ss", string.format("%.0f",30-elapsed)))
                 end
@@ -1061,7 +1061,7 @@ function Guildbook:ScanCraftSkills_Enchanting(sendData, newRecipe)
                 if elapsed > 30 then
                     self:SendTradeskillData("Enchanting", "GUILD", nil)
                     Guildbook.lastProfTransmit = GetTime()
-                    self:PrintMessage("sent profession data")
+                    --self:PrintMessage("sent profession data")
                 else
                     --self:PrintMessage(string.format("profession data NOT sent, wait %ss", string.format("%.0f",30-elapsed)))
                 end

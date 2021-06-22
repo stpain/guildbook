@@ -661,4 +661,17 @@ Removed the awful profession scan UI, its now back to auto sending but is limite
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [30] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+
+
+|cff0070DEUpdates|r:
+You can now shift click on profession recipes/reagents to link them into chat, or auction house or wherever!
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }

@@ -96,7 +96,16 @@ function Guildbook:ModBlizzUI()
     end)
 
     Guildbook.GameTimeFrame:SetScript('OnClick', function(self)
-        GuildbookUI.OpenTo("calendar")
+        GuildbookUI:OpenTo("calendar")
+        Guildbook.GuildFrame.GuildCalendarFrame:ClearAllPoints()
+        Guildbook.GuildFrame.GuildCalendarFrame:SetParent(GuildbookUI.calendar)
+        Guildbook.GuildFrame.GuildCalendarFrame:SetPoint("TOPLEFT", 0, -26) --this has button above the frame so lower it a bit
+        Guildbook.GuildFrame.GuildCalendarFrame:SetPoint("BOTTOMRIGHT", -2, 0)
+        Guildbook.GuildFrame.GuildCalendarFrame:Show()
+
+        Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:ClearAllPoints()
+        Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('TOPLEFT', GuildbookUI.calendar, 'TOPRIGHT', 4, 50)
+        Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('BOTTOMRIGHT', GuildbookUI.calendar, 'BOTTOMRIGHT', 254, 0)
     end)
 
     Guildbook.GameTimeFrame:SetScript('OnEnter', function(self)

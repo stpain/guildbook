@@ -205,6 +205,12 @@ function GuildbookItemIconFrameMixin:OnLeave()
     GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
 end
 
+function GuildbookItemIconFrameMixin:OnMouseDown()
+    if self.link and IsShiftKeyDown() then
+        HandleModifiedItemClick(self.link)
+    end
+end
+
 function GuildbookItemIconFrameMixin:SetItem(itemID)
     local item = Item:CreateFromItemID(itemID)
     local link = item:GetItemLink()
@@ -380,8 +386,12 @@ function GuildbookRecipeListviewItemMixin:OnMouseDown()
 	self:ClearAllPoints()
 	self:SetPoint(point, relativeTo, relativePoint, xOfs - 1, yOfs - 1)
 
-    if self.func then
-        self.func()
+    if self.link and IsShiftKeyDown() then
+        HandleModifiedItemClick(self.link)
+    else
+        if self.func then
+            self.func()
+        end
     end
 end
 
