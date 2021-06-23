@@ -674,4 +674,17 @@ You can now shift click on profession recipes/reagents to link them into chat, o
 Please report bugs at curseforge 
 (ctrl+c to copy website)
     ]],
+    [31] = [[
+Welcome to Guildbook and thank you for using the addon.
+
+|cff06B200Bug fixes|r:
+
+
+|cff0070DEUpdates|r:
+Added character profession recipes to the search, on load the addon will take a few minutes to request item data from the server, during this time results will be limited until all items have been loaded. This is still an early system but i though i would get some functionality added. Search results include everything including characters, inventory and profession items (and maybe more to come)
+
+|cffC41F3BIssues|r:
+Please report bugs at curseforge 
+(ctrl+c to copy website)
+    ]],
 }

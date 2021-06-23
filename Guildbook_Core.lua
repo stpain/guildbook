@@ -26,11 +26,13 @@ local AceComm = LibStub:GetLibrary("AceComm-3.0")
 local LibDeflate = LibStub:GetLibrary("LibDeflate")
 local LibSerialize = LibStub:GetLibrary("LibSerialize")
 
+local LCI = LibStub:GetLibrary("LibCraftInfo-1.0")
+
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 --variables
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- this used to match the toc but for simplicity i've made it just an integer
-local build = 30;
+local build = 31;
 local locale = GetLocale()
 local L = Guildbook.Locales
 
@@ -68,7 +70,8 @@ end
 Guildbook.DebugColours = {
     ['error'] = '|cffC41E3A', --dk
     ['comms_in'] = '|cffAAD372', --hunter
-    ['func'] = '|cff00FF98', --monk
+    --['func'] = '|cff00FF98', --monk
+    ['func'] = '|cff8787ED', --warlock
     ['comms_out'] = '|cff0070DD', --shaman
 }
 
@@ -493,6 +496,8 @@ function Guildbook:Init()
     DEBUG('func', 'init', tostring('Load time '..date("%T")))
 
     self:MakeFrameMoveable(FriendsFrame)
+
+    self:RequestTradeskillData()
 end
 
 
@@ -537,6 +542,151 @@ function Guildbook:CreateGuildRosterCache(guild)
         GUILDBOOK_GLOBAL['GuildRosterCache'][guild] = {}
     end
 end
+
+
+function Guildbook:RequestTradeskillData()
+    local delay = 0.1;
+    local recipeIDs, recipeIDsSeen = {}, {}
+    if not self.tradeskillRecipes then
+        self.tradeskillRecipes = {}
+    else
+        wipe(self.tradeskillRecipes)
+    end
+    local guild = self.GetGuildName()
+    if not guild then
+        return;
+    end
+    if not GUILDBOOK_GLOBAL then
+        return;
+    end
+    if not GUILDBOOK_GLOBAL.GuildRosterCache[guild] then
+        return;
+    end
+    for guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[guild]) do
+        if character.Profession1 and character.Profession1 ~= "-" then
+            local prof = character.Profession1
+            if character[prof] and next(character[prof]) ~= nil then
+                for recipeID, reagents in pairs(character[prof]) do
+                    if not recipeIDsSeen[recipeID] then
+                        recipeIDsSeen[recipeID] = true;
+                        table.insert(recipeIDs, {
+                            recipeID = recipeID,
+                            prof = prof, 
+                            reagents = reagents or false,
+                        })
+                    end
+                end
+            end
+        end
+        if character.Profession2 and character.Profession2 ~= "-" then
+            local prof = character.Profession2
+            if character[prof] and next(character[prof]) ~= nil then
+                for recipeID, reagents in pairs(character[prof]) do
+                    if not recipeIDsSeen[recipeID] then
+                        recipeIDsSeen[recipeID] = true;
+                        table.insert(recipeIDs, {
+                            recipeID = recipeID,
+                            prof = prof, 
+                            reagents = reagents or false,
+                        })
+                    end
+                end
+            end
+        end
+    end
+    if #recipeIDs > 0 then
+        self:PrintMessage(string.format("found %s recipes, estimated duration %s", #recipeIDs, SecondsToTime(#recipeIDs*delay)))
+        table.sort(recipeIDs, function(a,b)
+            if a.prof == b.prof then
+                return a.recipeID < b.recipeID
+            else
+                return a.prof < b.prof
+            end
+        end)
+        local i = 1;
+        DEBUG('func', 'tradeskill data requst', string.format("found %s recipes, estimated duration %s", #recipeIDs, SecondsToTime(#recipeIDs*delay)))
+        C_Timer.NewTicker(delay, function()
+            if i > #recipeIDs then
+                return;
+            end
+            local recipeID = recipeIDs[i].recipeID
+            local prof = recipeIDs[i].prof
+            local reagents = recipeIDs[i].reagents
+            local l, r, n, e, x = false, false, false, false, 0
+            local _, spellID = LCI:GetItemSource(recipeID)
+            if spellID then
+                x = LCI:GetCraftXPack(spellID)
+            end
+            if prof == 'Enchanting' then
+                l = GetSpellLink(recipeID)
+                r = 1
+                n = GetSpellInfo(recipeID)
+                if not n then
+                    n = "unknown"
+                end
+                e = true
+            else
+                n, l, r = GetItemInfo(recipeID)
+            end
+            if not l and not n and not r then
+                if prof == 'Enchanting' then                    
+                    local spell = Spell:CreateFromSpellID(recipeID)
+                    spell:ContinueOnSpellLoad(function()
+                        l = select(1, GetSpellLink(recipeID))
+                        n = select(1, GetSpellInfo(recipeID))
+                        if not n then
+                            n = "unknown"
+                        end
+                        e = true
+                        table.insert(self.tradeskillRecipes, {
+                            itemID = recipeID,
+                            reagents = reagents,
+                            rarity = 1,
+                            link = l,
+                            expsanion = x;
+                            enchant = e,
+                            name = n,
+                            profession = prof,
+                        })
+                        --DEBUG('func', 'tradeskill data requst', string.format("added recipeID %s prof %s link %s", recipeID, prof, l))
+                    end)
+                else
+                    local item = Item:CreateFromItemID(recipeID)
+                    item:ContinueOnItemLoad(function()
+                        l = item:GetItemLink()
+                        r = item:GetItemQuality()
+                        n = item:GetItemName()
+                        table.insert(self.tradeskillRecipes, {
+                            itemID = recipeID,
+                            reagents = reagents,
+                            rarity = r,
+                            link = l,
+                            expansion = x;
+                            enchant = false,
+                            name = n,
+                            profession = prof,
+                        })
+                        --DEBUG('func', 'tradeskill data requst', string.format("added recipeID %s prof %s link %s", recipeID, prof, l))
+                    end)
+                end
+            else
+                table.insert(self.tradeskillRecipes, {
+                    itemID = recipeID,
+                    reagents = reagents,
+                    rarity = r,
+                    link = l,
+                    enchant = e,
+                    expansion = x;
+                    name = n,
+                    profession = prof,
+                })
+                DEBUG('func', 'tradeskill data requst', string.format("added recipeID %s prof %s link %s", recipeID, prof, l))
+            end
+            i = i + 1;
+        end, #recipeIDs)
+    end
+end
+
 
 local helperIcons = 1
 function Guildbook:CreateHelperIcon(parent, relTo, anchor, relPoint, x, y, tooltiptext)
