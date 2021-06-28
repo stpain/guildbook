@@ -101,6 +101,27 @@ StaticPopupDialogs['GuildbookResetCharacter'] = {
     showAlert = 1,
 }
 
+StaticPopupDialogs['GuildbookResetCacheCharacter'] = {
+    text = 'Reset data for %s?',
+    button1 = 'Reset',
+    button2 = 'Cancel',
+    OnAccept = function(self, t)
+        wipe(GUILDBOOK_CHARACTER)
+        local guildName = Guildbook:GetGuildName()
+        if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
+            GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][t.guid] = nil
+        end
+    end,
+    OnCancel = function(self)
+
+    end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = false,
+    preferredIndex = 3,
+    showAlert = 1,
+}
+
 StaticPopupDialogs['GuildbookResetGlobalSettings'] = {
     text = 'Reset global settings to default values? \n\nThis will delete all data about all guilds you are a member of.',
     button1 = 'Reset',

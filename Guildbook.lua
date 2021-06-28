@@ -3,33 +3,6 @@
 local _, gb = ...
 
 
-GuildbookProfScanMixin = {}
-
-function GuildbookProfScanMixin:OnLoad()
-    LoadAddOn("Blizzard_TradeSkillUI")
-    self:SetParent(TradeSkillFrame)
-    self:SetPoint("TOPLEFT", TradeSkillFrame, "TOPRIGHT", -20, -10)
-    self.Title:SetText("Guildbook Tradeskills")
-    TradeSkillFrame:HookScript("OnShow", function()
-        --self:Show()
-        self.sendData:SetEnabled(false)
-    end)
-    self.sendData:SetText("Send data")
-    self.sendData:SetScript("OnClick", function()
-        if not self.tradeskill then
-            return;
-        end
-        StaticPopup_Show('SendProfessionData', nil, nil, {prof = self.tradeskill})
-    end)
-end
-
-function GuildbookProfScanMixin:OnShow()
-    for k, fs in ipairs(self.fontstrings) do
-        fs:SetText("")
-    end
-end
-
-
 
 local L = gb.Locales
 local DEBUG = gb.DEBUG
@@ -37,204 +10,34 @@ local DEBUG = gb.DEBUG
 local LCI = LibStub:GetLibrary("LibCraftInfo-1.0")
 local LibGraph = LibStub("LibGraph-2.0");
 
-
 local GUILD_NAME;
 local transmitStagger = 0.5; -- if comms get messed up by lots of traffic, increase this to cause requests to be staggered further apart
 
---- basic button mixin
-GuildbookButtonMixin = {}
+local frameBackdrop = {
+	bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+	edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+	tile = true, tileSize = 32, edgeSize = 32,
+	insets = { left = 8, right = 8, top = 8, bottom = 8 }
+}
 
-function GuildbookButtonMixin:OnLoad()
-    --self.anchor = AnchorUtil.CreateAnchor(self:GetPoint());
+GuildbookLoaderMixin = {}
 
-    self.point, self.relativeTo, self.relativePoint, self.xOfs, self.yOfs = self:GetPoint()
+function GuildbookLoaderMixin:OnLoad()
+    self:RegisterForDrag("LeftButton")
+    self:SetPoint("CENTER", 0, 0)
+    self:SetBackdrop(frameBackdrop)
+
+    self.header:SetText(L["GUILDBOOK_LOADER_HEADER"])
+
+    self.load:SetText("OK")
+    self.load:SetScript("OnClick", function()
+        self:Hide()
+    end)
 end
 
-function GuildbookButtonMixin:OnShow()
-    --self.anchor:SetPoint(self);
-    if self.point and self.relativeTo and self.relativePoint and self.xOfs and self.yOfs then
-        self:SetPoint(self.point, self.relativeTo, self.relativePoint, self.xOfs, self.yOfs)
-    end
+function GuildbookLoaderMixin:OnShow()
+
 end
-
-function GuildbookButtonMixin:OnMouseDown()
-    self:AdjustPointsOffset(-1,-1)
-end
-
-function GuildbookButtonMixin:OnMouseUp()
-    self:AdjustPointsOffset(1,1)
-    if self.func then
-        C_Timer.After(0, self.func)
-    end
-end
-
-function GuildbookButtonMixin:OnEnter()
-    if self.tooltipText and L[self.tooltipText] then
-        GameTooltip:SetOwner(self, 'ANCHOR_TOP')
-        GameTooltip:AddLine("|cffffffff"..L[self.tooltipText])
-        GameTooltip:Show()
-    elseif self.tooltipText and not L[self.tooltipText] then
-        GameTooltip:SetOwner(self, 'ANCHOR_TOP')
-        GameTooltip:AddLine(self.tooltipText)
-        GameTooltip:Show()
-    elseif self.link then
-        GameTooltip:SetOwner(self, 'ANCHOR_TOP')
-        GameTooltip:SetHyperlink(self.link)
-        GameTooltip:Show()
-    else
-        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-    end
-end
-
-function GuildbookButtonMixin:OnLeave()
-    GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-end
-
-
---- basic button with an icon and text area
-GuildbookListviewItemMixin = {}
-
-function GuildbookListviewItemMixin:OnLoad()
-    local _, size, flags = self.Text:GetFont()
-    self.Text:SetFont([[Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf]], size+4, flags)
-end
-
-function GuildbookListviewItemMixin:SetItem(info)
-    self.Icon:SetAtlas(info.Atlas)
-    --self.Icon:SetTexture(1396618)
-    self.Text:SetText(gb.ProfessionNames[GetLocale()][info.id])
-
-    -- self.Icon:SetTexture("Interface\\GLUES\\CHARACTERCREATE\\UI-CHARACTERCREATE-CLASSES");
-    -- local coords = CLASS_ICON_TCOORDS["PALADIN"];
-    -- self.Icon:SetTexCoord(unpack(coords));
-end
-
-function GuildbookListviewItemMixin:OnMouseDown()
-    self:AdjustPointsOffset(-1,-1)
-end
-
-function GuildbookListviewItemMixin:OnMouseUp()
-    self:AdjustPointsOffset(1,1)
-    if self.func then
-        C_Timer.After(0, self.func)
-    end
-end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
---------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- slide out menu
---------------------------------------------------------------------------------------------------------------------------------------------------------------------
-GuildbookMenuFlyoutItemMixin = {}
-
-function GuildbookMenuFlyoutItemMixin:OnMouseDown()
-    self:AdjustPointsOffset(-1,-1)
-end
-
-function GuildbookMenuFlyoutItemMixin:OnMouseUp()
-    self:AdjustPointsOffset(1,1)
-    if self.func then
-        C_Timer.After(0, self.func)
-    end
-end
-
-function GuildbookMenuFlyoutItemMixin:OnEnter()
-    if self.tooltipText then
-        GameTooltip:SetOwner(self, 'ANCHOR_LEFT')
-        GameTooltip:AddLine(self.tooltipText)
-        GameTooltip:Show()
-    else
-        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-    end
-end
-
-function GuildbookMenuFlyoutItemMixin:OnLeave()
-    GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
---------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- tradeskill lisview reagents icons mixin
---------------------------------------------------------------------------------------------------------------------------------------------------------------------
-GuildbookItemIconFrameMixin = {}
-
-function GuildbookItemIconFrameMixin:OnEnter()
-    if self.link then
-        GameTooltip:SetOwner(self, 'ANCHOR_LEFT')
-        GameTooltip:SetHyperlink(self.link)
-        GameTooltip:Show()
-    else
-        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-    end
-end
-
-function GuildbookItemIconFrameMixin:OnLeave()
-    GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-end
-
-function GuildbookItemIconFrameMixin:OnMouseDown()
-    if self.link and IsShiftKeyDown() then
-        HandleModifiedItemClick(self.link)
-    end
-end
-
-function GuildbookItemIconFrameMixin:SetItem(itemID)
-    local item = Item:CreateFromItemID(itemID)
-    local link = item:GetItemLink()
-    local icon = item:GetItemIcon()
-    if not link and not icon then
-        item:ContinueOnItemLoad(function()
-            self.link = item:GetItemLink()
-            self.icon:SetTexture(item:GetItemIcon())
-        end)
-    else
-        self.link = link
-        self.icon:SetTexture(icon)
-    end
-end
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -544,7 +347,7 @@ function GuildbookRosterListviewItemMixin:OnEnter()
         local db = Attune_DB.toons[character.Name.."-"..GetRealmName()]
 
         for _, instance in ipairs(Attune_Data.attunes) do
-            if db.attuned[instance.ID] and type(db.attuned[instance.ID]) == "number" and (instance.FACTION == "Both" or instance.FACTION == character.Faction) then
+            if db.attuned[instance.ID] and (instance.FACTION == "Both" or instance.FACTION == character.Faction) then
                 local formatPercent = db.attuned[instance.ID] < 100 and "|cffff0000"..db.attuned[instance.ID].."%" or "|cff00ff00"..db.attuned[instance.ID].."%"
                 GameTooltip:AddDoubleLine("|cffffffff"..instance.NAME, formatPercent)
             end
@@ -644,8 +447,10 @@ function GuildbookRosterListviewItemMixin:SetCharacter(character)
 
 end
 
-function GuildbookRosterListviewItemMixin:OnMouseDown()
-    
+function GuildbookRosterListviewItemMixin:OnMouseDown(button)
+    if button == "RightButton" and self.character then
+    StaticPopup_Show("GuildbookResetCacheCharacter", self.character.name, nil, {guid = self.character.guid})
+    end
 end
 
 function GuildbookRosterListviewItemMixin:OnMouseUp()
@@ -792,6 +597,9 @@ function GuildbookMixin:OnLoad()
     end
     self.ribbon.mySacks.func = function()
         navigateTo(self.mySacks)
+    end
+    self.ribbon.privacy.func = function()
+        navigateTo(self.privacy)
     end
     self.ribbon.calendar.func = function()
         navigateTo(self.calendar)
@@ -959,6 +767,7 @@ local professions = {
     { id = 165, Name = 'Leatherworking', Atlas = "Mobile-Leatherworking", },
     { id = 197, Name = 'Tailoring', Atlas = "Mobile-Tailoring", },
     { id = 186, Name = 'Mining', Atlas = "Mobile-Mining", },
+    { id = 185, Name = 'Cooking', Atlas = "Mobile-Cooking", },
 }
 
 local function addRecipe(t, prof, recipeID, reagents)
@@ -1055,8 +864,8 @@ end
 function GuildbookProfessionListviewMixin:OnLoad()
     for i, prof in ipairs(professions) do
         local f = CreateFrame("FRAME", "GuildbookUiProfessionListview"..i, self, "GuildbookListviewItem")
-        f:SetSize(175, 45)
-        f:SetPoint("TOP", 0, ((i-1)*-45)-2)
+        f:SetSize(175, 40)
+        f:SetPoint("TOP", 0, ((i-1)*-40.5)-2)
         f:SetItem(prof)
         f.tradeskill = prof.Name
         f.func = function()
@@ -1071,6 +880,8 @@ function GuildbookProfessionListviewMixin:OnLoad()
                     elseif character.Profession2 and character.Profession2 == prof.Name then
                         table.insert(GuildbookMixin.charactersWithProfession, guid)
                         --print("found", character.Name, "with prof", prof.Name)
+                    elseif character.Cooking and type(character.Cooking) == "table" then
+                        table.insert(GuildbookMixin.charactersWithProfession, guid)
                     end
                 end
                 scanPlayerBags()
@@ -3396,4 +3207,127 @@ function GuildbookStatsMixin:OnShow()
         end
     end
 
+end
+
+
+GuildbookPrivacyMixin = {}
+
+function GuildbookPrivacyMixin:OnLoad()
+    self.header:SetText(L["PRIVACY"] )
+    self.about:SetText(L["PRIVACY_ABOUT"] )
+    self.shareProfile.Text:SetText(L["PROFILE_TITLE"])
+    self.shareInventory.Text:SetText(L["INVENTORY"])
+    self.shareTalents.Text:SetText(L["TALENTS"])
+end
+
+function GuildbookPrivacyMixin:OnShow()
+    self.ranks = {}
+    for i = 1, GuildControlGetNumRanks() do
+        self.ranks[i] = GuildControlGetRankName(i)
+    end
+    if not GUILDBOOK_GLOBAL.config.privacy then
+        GUILDBOOK_GLOBAL.config.privacy = {}
+    end
+
+    local function updateInfo(fs, k)
+        gb:SendPrivacyInfo("GUILD", nil)
+        if type(k) == "function" then
+            k = k()
+        end
+        if k == "none" then
+            fs:SetText("Sharing with nobody")
+            return;
+        end
+        local t = "Sharing with"
+        for i, r in ipairs(self.ranks) do
+            if i <= k then
+                t = t..", "..r
+            end
+        end
+        fs:SetText(t)
+    end
+    updateInfo(self.profileSharingInfo, function()
+        if GUILDBOOK_GLOBAL.config.privacy.shareProfileMinRank == "none" then
+            return "none";
+        end
+        if GUILDBOOK_GLOBAL.config.privacy.shareProfileMinRank then
+            for k, r in ipairs(self.ranks) do
+                if r == GUILDBOOK_GLOBAL.config.privacy.shareProfileMinRank then
+                    return k
+                end
+            end
+        end
+    end)
+    updateInfo(self.inventorySharingInfo, function()
+        if GUILDBOOK_GLOBAL.config.privacy.shareInventoryMinRank == "none" then
+            return "none";
+        end
+        if GUILDBOOK_GLOBAL.config.privacy.shareInventoryMinRank then
+            for k, r in ipairs(self.ranks) do
+                if r == GUILDBOOK_GLOBAL.config.privacy.shareInventoryMinRank then
+                    return k
+                end
+            end
+        end
+    end)
+    updateInfo(self.talentsSharingInfo, function()
+        if GUILDBOOK_GLOBAL.config.privacy.shareTalentsMinRank == "none" then
+            return "none";
+        end
+        if GUILDBOOK_GLOBAL.config.privacy.shareTalentsMinRank then
+            for k, r in ipairs(self.ranks) do
+                if r == GUILDBOOK_GLOBAL.config.privacy.shareTalentsMinRank then
+                    return k
+                end
+            end
+        end
+    end)
+
+    self.shareProfile.menu = {}
+    self.shareInventory.menu = {}
+    self.shareTalents.menu = {}
+    for k, rank in ipairs(self.ranks) do
+        table.insert(self.shareProfile.menu, {
+            text = rank,
+            func = function()
+                GUILDBOOK_GLOBAL.config.privacy.shareProfileMinRank = rank;
+                updateInfo(self.profileSharingInfo, k)
+            end,
+        })
+        table.insert(self.shareInventory.menu, {
+            text = rank,
+            func = function()
+                GUILDBOOK_GLOBAL.config.privacy.shareInventoryMinRank = rank;
+                updateInfo(self.inventorySharingInfo, k)
+            end,
+        })
+        table.insert(self.shareTalents.menu, {
+            text = rank,
+            func = function()
+                GUILDBOOK_GLOBAL.config.privacy.shareTalentsMinRank = rank;
+                updateInfo(self.talentsSharingInfo, k)
+            end,
+        })
+    end
+    table.insert(self.shareProfile.menu, {
+        text = "None",
+        func = function()
+            GUILDBOOK_GLOBAL.config.privacy.shareProfileMinRank = "none";
+            updateInfo(self.profileSharingInfo, "none")
+        end,
+    })
+    table.insert(self.shareInventory.menu, {
+        text = "None",
+        func = function()
+            GUILDBOOK_GLOBAL.config.privacy.shareInventoryMinRank = "none";
+            updateInfo(self.inventorySharingInfo, "none")
+        end,
+    })
+    table.insert(self.shareTalents.menu, {
+        text = "None",
+        func = function()
+            GUILDBOOK_GLOBAL.config.privacy.shareTalentsMinRank = "none";
+            updateInfo(self.talentsSharingInfo, "none")
+        end,
+    })
 end

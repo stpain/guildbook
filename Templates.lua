@@ -1,3 +1,120 @@
+local _, gb = ...
+local L = gb.Locales
+
+
+--- basic button mixin
+GuildbookButtonMixin = {}
+
+function GuildbookButtonMixin:OnLoad()
+    --self.anchor = AnchorUtil.CreateAnchor(self:GetPoint());
+
+    self.point, self.relativeTo, self.relativePoint, self.xOfs, self.yOfs = self:GetPoint()
+end
+
+function GuildbookButtonMixin:OnShow()
+    --self.anchor:SetPoint(self);
+    if self.point and self.relativeTo and self.relativePoint and self.xOfs and self.yOfs then
+        self:SetPoint(self.point, self.relativeTo, self.relativePoint, self.xOfs, self.yOfs)
+    end
+end
+
+function GuildbookButtonMixin:OnMouseDown()
+    self:AdjustPointsOffset(-1,-1)
+end
+
+function GuildbookButtonMixin:OnMouseUp()
+    self:AdjustPointsOffset(1,1)
+    if self.func then
+        C_Timer.After(0, self.func)
+    end
+end
+
+function GuildbookButtonMixin:OnEnter()
+    if self.tooltipText and L[self.tooltipText] then
+        GameTooltip:SetOwner(self, 'ANCHOR_TOP')
+        GameTooltip:AddLine("|cffffffff"..L[self.tooltipText])
+        GameTooltip:Show()
+    elseif self.tooltipText and not L[self.tooltipText] then
+        GameTooltip:SetOwner(self, 'ANCHOR_TOP')
+        GameTooltip:AddLine(self.tooltipText)
+        GameTooltip:Show()
+    elseif self.link then
+        GameTooltip:SetOwner(self, 'ANCHOR_TOP')
+        GameTooltip:SetHyperlink(self.link)
+        GameTooltip:Show()
+    else
+        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+    end
+end
+
+function GuildbookButtonMixin:OnLeave()
+    GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+end
+
+
+--- basic button with an icon and text area
+GuildbookListviewItemMixin = {}
+
+function GuildbookListviewItemMixin:OnLoad()
+    local _, size, flags = self.Text:GetFont()
+    self.Text:SetFont([[Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf]], size+4, flags)
+end
+
+function GuildbookListviewItemMixin:SetItem(info)
+    self.Icon:SetAtlas(info.Atlas)
+    self.Text:SetText(gb.ProfessionNames[GetLocale()][info.id])
+end
+
+function GuildbookListviewItemMixin:OnMouseDown()
+    self:AdjustPointsOffset(-1,-1)
+end
+
+function GuildbookListviewItemMixin:OnMouseUp()
+    self:AdjustPointsOffset(1,1)
+    if self.func then
+        C_Timer.After(0, self.func)
+    end
+end
+
+
+
+GuildbookItemIconFrameMixin = {}
+
+function GuildbookItemIconFrameMixin:OnEnter()
+    if self.link then
+        GameTooltip:SetOwner(self, 'ANCHOR_LEFT')
+        GameTooltip:SetHyperlink(self.link)
+        GameTooltip:Show()
+    else
+        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+    end
+end
+
+function GuildbookItemIconFrameMixin:OnLeave()
+    GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+end
+
+function GuildbookItemIconFrameMixin:OnMouseDown()
+    if self.link and IsShiftKeyDown() then
+        HandleModifiedItemClick(self.link)
+    end
+end
+
+function GuildbookItemIconFrameMixin:SetItem(itemID)
+    local item = Item:CreateFromItemID(itemID)
+    local link = item:GetItemLink()
+    local icon = item:GetItemIcon()
+    if not link and not icon then
+        item:ContinueOnItemLoad(function()
+            self.link = item:GetItemLink()
+            self.icon:SetTexture(item:GetItemIcon())
+        end)
+    else
+        self.link = link
+        self.icon:SetTexture(icon)
+    end
+end
+
 
 
 GuildbookSearchResultMixin = {}
@@ -10,11 +127,11 @@ end
 
 function GuildbookSearchResultMixin:OnEnter()
     if self.link and self.link:find("|Hitem") then
-        GameTooltip:SetOwner(self, 'ANCHOR_TOP')
+        GameTooltip:SetOwner(self, 'ANCHOR_LEFT')
         GameTooltip:SetHyperlink(self.link)
         GameTooltip:Show()
     else
-        GameTooltip:SetOwner(self, 'ANCHOR_TOP')
+        GameTooltip:SetOwner(self, 'ANCHOR_LEFT')
         GameTooltip:AddLine(self.link)
         GameTooltip:Show()
     end
@@ -48,7 +165,7 @@ function GuildbookSearchResultMixin:SetResult(info)
 end
 
 
-
+--- custom dropdown widget supporting a single menu layer
 GuildbookDropDownFrameMixin = {}
 local DROPDOWN_CLOSE_DELAY = 2.0
 

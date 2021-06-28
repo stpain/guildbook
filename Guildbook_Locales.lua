@@ -42,22 +42,17 @@ L['OptionsAbout'] = 'Guildbook options and about.'
 L['Version'] = 'Version'
 L['Author'] = 'Author: |cffffffffstpain (|r|cffF58CBACopperbolts|r |cffffffffand|r |cff0070DEKylanda|r|cffffffff)|r'
 
--- L['GuildBank'] = 'Guild Bank'
--- L['Events'] = 'Events'
--- L['WorldEvents'] = 'World Events'
--- L['Attunements'] = 'Attunements'
--- L["Guild"] = "Guild"
 
+L["GUILDBOOK_LOADER_HEADER"]        = "Welcome to Guildbook"
+L["TOOLTIP_ITEM_RECIPE_HEADER"]     = "Used for the following"
 
--- L['Roles'] = 'Roles'
--- L['Tank'] = 'Tank'
--- L['Melee'] = 'Melee'
--- L['Ranged'] = 'Ranged'
--- L['Healer'] = 'Healer'
--- L['ClassRoleSummary'] = 'Class & Role Summary'
--- L['RoleChart'] = 'Roles (Online Members)'
--- L['ClassChart'] = 'Classes (All Members)'
-
+--mod blizz stuff
+L['Online'] = 'Online'
+L['MainSpec'] = 'Main Spec'
+L['Rank'] = 'Rank'
+L['Note'] = 'Note'
+L['Profession1'] = 'Profession 1'
+L['Profession2'] = 'Profession 2'
 
 
 -- roster listview and tooltip
@@ -81,6 +76,10 @@ L["AVATAR"]                         = "Avatar"
 L["MAIN_CHARACTER"]                 = "Main character"
 L["MAIN_SPEC"]                      = "Main spec"
 L["OFF_SPEC"]                       = "Off spec"
+L["PRIVACY"]                        = "Privacy"
+L["PRIVACY_ABOUT"]                  = "Set the lowest rank you wish to share data with."
+L["INVENTORY"]                      = "Inventory"
+L["TALENTS"]                        = "Talents"
 
 L["PROFILES"]                       = "Profiles"
 L["TRADESKILLS"]                    = "Tradeskills (Professions)"
@@ -102,6 +101,8 @@ L["MY_SACKS"]                       = "My containers"
 L["BAGS"]                           = "Bags"
 L["BANK"]                           = "Bank"
 L["STATS"]                          = "Statistics"
+
+L["PRIVACY_HEADER"]                 = "Privacy settings"
 
 --dialog strings
 L["SCANNING_TRADESKILL_DATA"]       = "Scanning recipes\n\n"
@@ -165,6 +166,22 @@ L['September']                      = 'September'
 L['October']                        = 'October'
 L['November']                       = 'November'
 L['December']                       = 'December'
+
+-- L['GuildBank'] = 'Guild Bank'
+-- L['Events'] = 'Events'
+-- L['WorldEvents'] = 'World Events'
+-- L['Attunements'] = 'Attunements'
+-- L["Guild"] = "Guild"
+
+
+-- L['Roles'] = 'Roles'
+-- L['Tank'] = 'Tank'
+-- L['Melee'] = 'Melee'
+-- L['Ranged'] = 'Ranged'
+-- L['Healer'] = 'Healer'
+-- L['ClassRoleSummary'] = 'Class & Role Summary'
+-- L['RoleChart'] = 'Roles (Online Members)'
+-- L['ClassChart'] = 'Classes (All Members)'
 
 --------------------------------------------------------------------------------------------
 -- help text tooltips

@@ -90,6 +90,31 @@ function GuildbookOptionsUseDefaultBlizzardFont_OnClick(self)
     Guildbook:UpdateFonts()
 end
 
+function GuildbookOptionsTooltipTradeskill_OnClick(self)
+    if not GUILDBOOK_GLOBAL then
+        return
+    end
+    if not GUILDBOOK_GLOBAL.config then
+        GUILDBOOK_GLOBAL.config = {}
+    end
+    if self:GetChecked() == false then
+        GuildbookOptionsTooltipTradeskillRecipes:Disable()
+    else
+        GuildbookOptionsTooltipTradeskillRecipes:Enable()
+    end
+    GUILDBOOK_GLOBAL.config.showTooltipTradeskills = self:GetChecked()
+end
+
+function GuildbookOptionsTooltipTradeskillRecipes_OnClick(self)
+    if not GUILDBOOK_GLOBAL then
+        return
+    end
+    if not GUILDBOOK_GLOBAL.config then
+        GUILDBOOK_GLOBAL.config = {}
+    end
+    GUILDBOOK_GLOBAL.config.showTooltipTradeskillsRecipes = self:GetChecked()
+end
+
 function GuildbookOptionsLoadChatModule_OnClick(self)
     if not GUILDBOOK_GLOBAL then
         return
@@ -183,13 +208,6 @@ function GuildbookOptionsTooltipInfoMainCharacter_OnClick(self)
     GUILDBOOK_GLOBAL['TooltipInfoMainCharacter'] = self:GetChecked()
 end
 
-function GuildbookOptionsRosterHealthCheck_OnClick()
-    local guildName = Guildbook:GetGuildName()
-    if guildName then
-        Guildbook:CleanUpGuildRosterData(guildName, 'scanning '..guildName..' for errors')
-    end
-end
-
 function GuildbookOptions_OnLoad(self)
 
     local version = GetAddOnMetadata('Guildbook', "Version")
@@ -200,7 +218,7 @@ function GuildbookOptions_OnLoad(self)
     GuildbookOptionsAuthor:SetText(L['Author'])
 
     local deleteGuildDropdown = CreateFrame('FRAME', 'GuildbookDeleteGuildDropDown', GuildbookOptions, "UIDropDownMenuTemplate")
-    deleteGuildDropdown:SetPoint('LEFT', _G['GuildbookOptionsRosterHealthCheck'], 'RIGHT', 40, 0)
+    deleteGuildDropdown:SetPoint("BOTTOMLEFT", 0, 180)
     UIDropDownMenu_SetWidth(deleteGuildDropdown, 180)
     UIDropDownMenu_SetText(deleteGuildDropdown, 'Delete Guild')
     _G['GuildbookDeleteGuildDropDownButton']:SetScript('OnClick', function()

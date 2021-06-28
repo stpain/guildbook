@@ -67,15 +67,7 @@ the copyright holders.
                             <offset x="16" y="-100"/>
                         </Anchor>
                     </Anchors>
-                </FontString>                 
-                <FontString name="$parentGuildOptions" text="Guild options" inherits="GameFontNormal">
-                    <FontHeight val="11"/>
-                    <Anchors>
-                        <Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-                            <offset x="16" y="-300"/>
-                        </Anchor>
-                    </Anchors>
-                </FontString>                 
+                </FontString>               
                 <FontString name="$parentGeneralOptionsWarningText" text="" inherits="GameFontNormalLarge">
                     <FontHeight val="16"/>
                     <Anchors>
@@ -83,59 +75,63 @@ the copyright holders.
                             <offset x="16" y="0"/>
                         </Anchor>
                     </Anchors>
-                </FontString>                 
+                </FontString>
+                <FontString name="$parentTooltipOptions" text="Tooltip options" inherits="GameFontNormal">
+                    <FontHeight val="11"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativePoint="TOPLEFT">
+                            <offset x="16" y="-180"/>
+                        </Anchor>
+                    </Anchors>
+                </FontString>
+                <FontString name="$parentGuildOptions" text="Guild options" inherits="GameFontNormal">
+                    <FontHeight val="11"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativePoint="TOPLEFT">
+                            <offset x="16" y="-330"/>
+                        </Anchor>
+                    </Anchors>
+                </FontString>           
                 <FontString name="$parentDevOptions" text="Dev options" inherits="GameFontNormal">
                     <FontHeight val="11"/>
                     <Anchors>
                         <Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-                            <offset x="16" y="-480"/>
+                            <offset x="16" y="-440"/>
                         </Anchor>
                     </Anchors>
                 </FontString>                 
             </Layer>
         </Layers>
         <Frames>
-            <Button name="$parentResetCharacterData" inherits="UIPanelButtonTemplate" text="Reset Character Settings">
-                <Size x="190" y="25"/>
+            <CheckButton name="$parentShowMinimapButton" inherits="ChatConfigCheckButtonTemplate" >
+                <Size x="24" y="24"/>
+                <Layers>
+                    <Layer>
+                        <FontString name="$parentText" inherits="GameFontNormal" text="Minimap Button">
+                            <Color r="1" g="1" b="1" a="1"/>
+                            <FontHeight val="12"/>
+                            <Anchors>
+                                <Anchor point="LEFT">
+                                    <offset x="24" y="0"/>
+                                </Anchor>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>                
                 <Anchors>
                     <Anchor point="TOPLEFT">
-                        <offset x="16" y="-150"/>
+                        <Offset x="16" y="-120"/>
                     </Anchor>
                 </Anchors>
                 <Scripts>
+                    <OnLoad>
+                        self.tooltip = 'Show / Hide Minimap Button'
+                    </OnLoad>                
                     <OnClick>
-                        StaticPopup_Show('GuildbookResetCharacter')
+                        GuildbookOptionsShowMinimapButton_OnClick(self)
                     </OnClick>
                 </Scripts>
-            </Button>
-            <Button name="$parentResetGlobalSettings" inherits="UIPanelButtonTemplate" text="Reset Global Settings">
-                <Size x="190" y="25"/>
-                <Anchors>
-                    <Anchor point="TOPLEFT" relativeTo="GuildbookOptionsResetCharacterData" relativePoint="BOTTOMLEFT">
-                        <offset x="0" y="-10"/>
-                    </Anchor>
-                </Anchors>
-                <Scripts>
-                    <OnClick>
-                        StaticPopup_Show('GuildbookResetGlobalSettings')
-                    </OnClick>
-                </Scripts>
-            </Button>
-            <Button name="$parentRosterHealthCheck" inherits="UIPanelButtonTemplate" text="Roster Health Check">
-                <Size x="190" y="25"/>
-                <Anchors>
-                    <Anchor point="TOPLEFT">
-                        <offset x="16" y="-330"/>
-                    </Anchor>
-                </Anchors>
-                <Scripts>
-                    <OnClick>
-                        GuildbookOptionsRosterHealthCheck_OnClick()
-                    </OnClick>
-                </Scripts>
-            </Button>
-
- 
+            </CheckButton>
             <CheckButton name="$parentModifyDefaultGuildRoster" inherits="ChatConfigCheckButtonTemplate" >
                 <Size x="24" y="24"/>
                 <Layers>
@@ -153,7 +149,7 @@ the copyright holders.
                 </Layers>                
                 <Anchors>
                     <Anchor point="TOPLEFT">
-                        <Offset x="250" y="-150"/>
+                        <Offset x="200" y="-120"/>
                     </Anchor>
                 </Anchors>
                 <Scripts>
@@ -164,8 +160,7 @@ the copyright holders.
                         GuildbookOptionsModifyDefaultGuildRoster_OnClick(self)
                     </OnClick>
                 </Scripts>
-            </CheckButton>
- 
+            </CheckButton> 
             <CheckButton name="$parentUseDefaultBlizzardFont" inherits="ChatConfigCheckButtonTemplate" >
                 <Size x="24" y="24"/>
                 <Layers>
@@ -183,7 +178,7 @@ the copyright holders.
                 </Layers>                
                 <Anchors>
                     <Anchor point="TOPLEFT">
-                        <Offset x="250" y="-180"/>
+                        <Offset x="400" y="-120"/>
                     </Anchor>
                 </Anchors>
                 <Scripts>
@@ -196,131 +191,11 @@ the copyright holders.
                 </Scripts>
             </CheckButton>
 
-<!--
-            <CheckButton name="$parentLoadCalendarModule" inherits="ChatConfigCheckButtonTemplate" >
-                <Size x="24" y="24"/>
-                <Layers>
-                    <Layer>
-                        <FontString name="$parentText" text="Load calendar module" inherits="GameFontNormal">
-                            <Color r="1" g="1" b="1" a="1"/>
-                            <FontHeight val="12"/>
-                            <Anchors>
-                                <Anchor point="LEFT">
-                                    <offset x="24" y="0"/>
-                                </Anchor>
-                            </Anchors>
-                        </FontString>
-                    </Layer>
-                </Layers>                
-                <Anchors>
-                    <Anchor point="TOPLEFT" relativeTo="GuildbookOptionsLoadChatModule" relativePoint="BOTTOMLEFT">
-                        <Offset x="0" y="-2"/>
-                    </Anchor>
-                </Anchors>
-                <Scripts>
-                    <OnLoad>
-                        self.tooltip = 'Load calendar module'
-                    </OnLoad>
-                    <OnClick>
-                        GuildbookOptionsLoadCalendarModule_OnClick(self)
-                    </OnClick>
-                </Scripts>
-            </CheckButton>
-            <CheckButton name="$parentLoadStatsModule" inherits="ChatConfigCheckButtonTemplate" >
-                <Size x="24" y="24"/>
-                <Layers>
-                    <Layer>
-                        <FontString name="$parentText" text="Load stats module" inherits="GameFontNormal">
-                            <Color r="1" g="1" b="1" a="1"/>
-                            <FontHeight val="12"/>
-                            <Anchors>
-                                <Anchor point="LEFT">
-                                    <offset x="24" y="0"/>
-                                </Anchor>
-                            </Anchors>
-                        </FontString>
-                    </Layer>
-                </Layers>                
-                <Anchors>
-                    <Anchor point="TOPLEFT" relativeTo="GuildbookOptionsLoadCalendarModule" relativePoint="BOTTOMLEFT">
-                        <Offset x="0" y="-2"/>
-                    </Anchor>
-                </Anchors>
-                <Scripts>
-                    <OnLoad>
-                        self.tooltip = 'Load stats module'
-                    </OnLoad>
-                    <OnClick>
-                        GuildbookOptionsLoadStatsModule_OnClick(self)
-                    </OnClick>
-                </Scripts>
-            </CheckButton>
-            <CheckButton name="$parentLoadProfilesModule" inherits="ChatConfigCheckButtonTemplate" >
-                <Size x="24" y="24"/>
-                <Layers>
-                    <Layer>
-                        <FontString name="$parentText" text="Load profiles module" inherits="GameFontNormal">
-                            <Color r="1" g="1" b="1" a="1"/>
-                            <FontHeight val="12"/>
-                            <Anchors>
-                                <Anchor point="LEFT">
-                                    <offset x="24" y="0"/>
-                                </Anchor>
-                            </Anchors>
-                        </FontString>
-                    </Layer>
-                </Layers>                
-                <Anchors>
-                    <Anchor point="TOPLEFT" relativeTo="GuildbookOptionsLoadStatsModule" relativePoint="BOTTOMLEFT">
-                        <Offset x="0" y="-2"/>
-                    </Anchor>
-                </Anchors>
-                <Scripts>
-                    <OnLoad>
-                        self.tooltip = 'Load profiles module'
-                    </OnLoad>
-                    <OnClick>
-                        GuildbookOptionsLoadProfilesModule_OnClick(self)
-                    </OnClick>
-                </Scripts>
-            </CheckButton>
-            <CheckButton name="$parentLoadGuildBankModule" inherits="ChatConfigCheckButtonTemplate" >
-                <Size x="24" y="24"/>
-                <Layers>
-                    <Layer>
-                        <FontString name="$parentText" text="Load guild bank module" inherits="GameFontNormal">
-                            <Color r="1" g="1" b="1" a="1"/>
-                            <FontHeight val="12"/>
-                            <Anchors>
-                                <Anchor point="LEFT">
-                                    <offset x="24" y="0"/>
-                                </Anchor>
-                            </Anchors>
-                        </FontString>
-                    </Layer>
-                </Layers>                
-                <Anchors>
-                    <Anchor point="TOPLEFT" relativeTo="GuildbookOptionsLoadProfilesModule" relativePoint="BOTTOMLEFT">
-                        <Offset x="0" y="-2"/>
-                    </Anchor>
-                </Anchors>
-                <Scripts>
-                    <OnLoad>
-                        self.tooltip = 'Load guild bank module'
-                    </OnLoad>
-                    <OnClick>
-                        GuildbookOptionsLoadGuildBankModule_OnClick(self)
-                    </OnClick>
-                </Scripts>
-            </CheckButton> -->
-
-
-
             <CheckButton name="$parentTooltipInfo" inherits="ChatConfigCheckButtonTemplate" >
                 <Size x="24" y="24"/>
                 <Layers>
                     <Layer>
-                        <FontString name="$parentText" text="Show tooltip info" inherits="GameFontNormal">
+                        <FontString name="$parentText" text="Show character info" inherits="GameFontNormal">
                             <Color r="1" g="1" b="1" a="1"/>
                             <FontHeight val="12"/>
                             <Anchors>
@@ -333,7 +208,7 @@ the copyright holders.
                 </Layers>                
                 <Anchors>
                     <Anchor point="TOPLEFT">
-                        <Offset x="16" y="-360"/>
+                        <Offset x="16" y="-200"/>
                     </Anchor>
                 </Anchors>
                 <Scripts>
@@ -431,7 +306,94 @@ the copyright holders.
                         GuildbookOptionsTooltipInfoMainCharacter_OnClick(self)
                     </OnClick>
                 </Scripts>
-            </CheckButton>           
+            </CheckButton>
+
+            <CheckButton name="$parentTooltipTradeskill" inherits="ChatConfigCheckButtonTemplate">
+                <Size x="24" y="24"/>
+                <Layers>
+                    <Layer>
+                        <FontString name="$parentText" text="Show professions" inherits="GameFontNormal">
+                            <Color r="1" g="1" b="1" a="1"/>
+                            <FontHeight val="12"/>
+                            <Anchors>
+                                <Anchor point="LEFT">
+                                    <offset x="24" y="0"/>
+                                </Anchor>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>                
+                <Anchors>
+                    <Anchor point="TOPLEFT">
+                        <Offset x="300" y="-200"/>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self.tooltip = 'Display a list of professions that use the current item. This uses data from Guildbook members professions.'
+                    </OnLoad>
+                    <OnClick>
+                        GuildbookOptionsTooltipTradeskill_OnClick(self)
+                    </OnClick>
+                </Scripts>
+            </CheckButton>
+            <CheckButton name="$parentTooltipTradeskillRecipes" inherits="ChatConfigCheckButtonTemplate">
+                <Size x="24" y="24"/>
+                <Layers>
+                    <Layer>
+                        <FontString name="$parentText" text="Show recipes" inherits="GameFontNormal">
+                            <Color r="1" g="1" b="1" a="1"/>
+                            <FontHeight val="12"/>
+                            <Anchors>
+                                <Anchor point="LEFT">
+                                    <offset x="24" y="0"/>
+                                </Anchor>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>                
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="GuildbookOptionsTooltipTradeskill" relativePoint="BOTTOMLEFT">
+                        <Offset x="16" y="-2"/>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self.tooltip = 'Display a list recipes that use the current item.'
+                    </OnLoad>
+                    <OnClick>
+                        GuildbookOptionsTooltipTradeskillRecipes_OnClick(self)
+                    </OnClick>
+                </Scripts>
+            </CheckButton>
+
+            <Button name="$parentResetCharacterData" inherits="UIPanelButtonTemplate" text="Reset Character Settings">
+                <Size x="190" y="25"/>
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT">
+                        <offset x="16" y="80"/>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnClick>
+                        StaticPopup_Show('GuildbookResetCharacter')
+                    </OnClick>
+                </Scripts>
+            </Button>
+            <Button name="$parentResetGlobalSettings" inherits="UIPanelButtonTemplate" text="Reset Global Settings">
+                <Size x="190" y="25"/>
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="GuildbookOptionsResetCharacterData" relativePoint="RIGHT">
+                        <offset x="20" y="0"/>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnClick>
+                        StaticPopup_Show('GuildbookResetGlobalSettings')
+                    </OnClick>
+                </Scripts>
+            </Button>
+
             <CheckButton name="$parentDebugCB" inherits="ChatConfigCheckButtonTemplate" >
                 <Size x="24" y="24"/>
                 <Layers>
@@ -458,35 +420,6 @@ the copyright holders.
                     </OnLoad>                
                     <OnClick>
                         GuildbookOptionsDebugCB_OnClick(self)
-                    </OnClick>
-                </Scripts>
-            </CheckButton>
-            <CheckButton name="$parentShowMinimapButton" inherits="ChatConfigCheckButtonTemplate" >
-                <Size x="24" y="24"/>
-                <Layers>
-                    <Layer>
-                        <FontString name="$parentText" inherits="GameFontNormal" text="Minimap Button">
-                            <Color r="1" g="1" b="1" a="1"/>
-                            <FontHeight val="12"/>
-                            <Anchors>
-                                <Anchor point="LEFT">
-                                    <offset x="24" y="0"/>
-                                </Anchor>
-                            </Anchors>
-                        </FontString>
-                    </Layer>
-                </Layers>                
-                <Anchors>
-                    <Anchor point="TOPLEFT">
-                        <Offset x="16" y="-120"/>
-                    </Anchor>
-                </Anchors>
-                <Scripts>
-                    <OnLoad>
-                        self.tooltip = 'Show / Hide Minimap Button'
-                    </OnLoad>                
-                    <OnClick>
-                        GuildbookOptionsShowMinimapButton_OnClick(self)
                     </OnClick>
                 </Scripts>
             </CheckButton>

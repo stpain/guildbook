@@ -128,29 +128,6 @@ function Guildbook:ModBlizzUI()
         GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
     end)
 
-
-
-    -- experimental stuff
-    -- GuildMemberDetailFrame:SetWidth(GUILD_MEMBER_DETAIL_FRAME_WIDTH + 120)
-    -- GuildMemberRemoveButton:SetWidth((GUILD_MEMBER_DETAIL_FRAME_WIDTH + 100) / 2)
-    -- GuildMemberGroupInviteButton:SetWidth((GUILD_MEMBER_DETAIL_FRAME_WIDTH + 100) / 2)
-    -- for k, v in pairs({GuildMemberDetailFrame:GetRegions()}) do
-    --     if v:GetObjectType() == 'Texture' then
-    --         if v:GetTexture() and v:GetTexture():lower() == 'interface\\friendsframe\\ui-guildmember-patch' then
-    --             v:Hide()
-    --         end
-    --     end
-    -- end
-    -- local w = GuildMemberNoteBackground:GetWidth()
-    -- GuildMemberNoteBackground:SetWidth(w * 1.65)
-    -- w = PersonalNoteText:GetWidth()
-    -- PersonalNoteText:SetWidth(w * 1.65)
-
-    -- local w = GuildMemberOfficerNoteBackground:GetWidth()
-    -- GuildMemberOfficerNoteBackground:SetWidth(w * 1.65)
-    -- w = OfficerNoteText:GetWidth()
-    -- OfficerNoteText:SetWidth(w * 1.65)
-
     -- adjust blizz layout and add widgets
     GuildFrameGuildListToggleButton:Hide()
 
@@ -224,30 +201,9 @@ function Guildbook:ModBlizzUI()
         -- adjust Name column position
         _G['GuildFrameButton'..i..'Name']:ClearAllPoints()
         _G['GuildFrameButton'..i..'Name']:SetPoint('TOPLEFT', _G['GuildFrameButton'..i], 'TOPLEFT', x, -3.0)
-        -- hook the click event
-        _G['GuildFrameButton'..i]:HookScript('OnClick', function(self, button)
-            if (button == 'LeftButton') and (GuildMemberDetailFrame:IsVisible()) then
-                -- Guildbook:ClearGuildMemberDetailFrame()
-                -- local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, guid = GetGuildRosterInfo(GetGuildRosterSelection())
-                -- if isOnline then
-                --     Guildbook:UpdateGuildMemberDetailFrameLabels(guid)
-                --     Guildbook:CharacterDataRequest(name)
-                --     Guildbook.DEBUG('comms_out', 'GuildFrameButton'..i..':OnClick', 'sent character data request to '..name)
-                -- end
-                -- Guildbook.GuildFrame.ProfilesFrame:LoadCharacterDetails(guid, nil)
-                -- GuildMemberDetailFrame:Show()
-                -- Guildbook.GuildMemberDetailFrame.Portrait.Portrait:SetTexture(130903)
-            end
-        end)
-        -- _G['GuildFrameButton'..i]:HookScript('OnShow', function(self, button)
-        --     if ROSTER_VISIBLE == false then
-        --         self:Hide()
-        --     end
-        -- end)
     end
     
     local function formatGuildFrameButton(button, col)
-        --button:SetFont("Fonts\\FRIZQT__.TTF", 10)
         button:SetJustifyH('LEFT')
         button:SetTextColor(col[1], col[2], col[3], col[4])
     end
@@ -407,131 +363,5 @@ function Guildbook:ModBlizzUI()
             end
         end
     end)
-
-    function Guildbook:ToggleGuildFrame(frame)
-        for f, _ in pairs(Guildbook.GuildFrame.Frames) do
-            if _G['GuildbookGuildFrame'..f] then
-                _G['GuildbookGuildFrame'..f]:Hide()
-            end
-        end
-        if frame == 'none' then
-            for i = 1, 13 do
-                _G['GuildFrameButton'..i]:Show()
-            end
-            ROSTER_VISIBLE = true
-            GuildFrameLFGFrame:Show()
-            SortGuildRoster('Online')
-        else
-            for i = 1, 13 do
-                _G['GuildFrameButton'..i]:Hide()
-            end
-            ROSTER_VISIBLE = false
-            GuildFrameLFGFrame:Hide()
-            Guildbook.GuildFrame[frame]:Show()
-        end
-    end
-
-    -- self.GuildFrame.RosterButton = CreateFrame('BUTTON', 'GuildbookGuildFrameRosterButton', GuildFrame, "UIPanelButtonTemplate")
-    -- self.GuildFrame.RosterButton:SetPoint('RIGHT', GuildFrameGuildInformationButton, 'LEFT', -2, 0)
-    -- self.GuildFrame.RosterButton:SetSize(65, GuildFrameGuildInformationButton:GetHeight())
-    -- self.GuildFrame.RosterButton:SetText('Roster')
-    -- self.GuildFrame.RosterButton:SetNormalFontObject(GameFontNormalSmall)
-    -- self.GuildFrame.RosterButton:SetHighlightFontObject(GameFontNormalSmall)
-    -- self.GuildFrame.RosterButton:SetScript('OnClick', function(self)
-    --     GuildRoster()
-    --     Guildbook:ToggleGuildFrame('none')
-    -- end)
-    
-    -- self.GuildFrame.Frames = {
-    --     ['GuildBankFrame'] = { Text = 'GuildBank', Width = 77.0, OffsetY = -80.0 },
-    --     -- ['ChatFrame'] = { Text = 'Chat', Width = 77.0, OffsetY = -160.0 },
-    --     -- ['StatsFrame'] = { Text = 'Statistics', Width = 77.0, OffsetY = -240.0 },
-    --     -- ['ProfilesFrame'] = { Text = 'Profiles', Width = 77.0, OffsetY = -320.0 },
-    --     --['GuildCalendarFrame'] = { Text = 'Calendar', Width = 77.0, OffsetY = -400.0 },
-    -- }
-
-    -- local function setupModule(frame, button)
-    --     self.GuildFrame[frame] = CreateFrame('FRAME', tostring('GuildbookGuildFrame'..frame), GuildFrame, BackdropTemplateMixin and "BackdropTemplate")
-    --     self.GuildFrame[frame]:SetBackdrop({
-    --         edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-    --         edgeSize = 16,
-    --         bgFile = "interface/framegeneral/ui-background-marble",
-    --         tile = true,
-    --         tileEdge = false,
-    --         tileSize = 300,
-    --         insets = { left = 4, right = 4, top = 4, bottom = 4 }
-    --     })
-    --     self.GuildFrame[frame]:SetPoint('TOPLEFT', GuildFrame, 'TOPLEFT', 2.00, -55.0)
-    --     self.GuildFrame[frame]:SetPoint('BOTTOMRIGHT', GuildFrame, 'BOTTOMRIGHT', -4.00, 25.0)      
-    --     self.GuildFrame[frame]:SetFrameLevel(6)
-    --     self.GuildFrame[frame]:Hide()
-
-    --     self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')] = CreateFrame('BUTTON', tostring('GuildbookGuildFrame'..frame..'Button'), GuildFrame, "UIPanelButtonTemplate")
-    --     self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetPoint('LEFT', Guildbook.GuildFrame.RosterButton, 'LEFT', button.OffsetY, 0)
-    --     self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetSize(button.Width, GuildFrameGuildInformationButton:GetHeight())
-    --     self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetText(L[button.Text])
-    --     self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetNormalFontObject(GameFontNormalSmall)
-    --     self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetHighlightFontObject(GameFontNormalSmall)
-    --     self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetScript('OnClick', function(self)
-    --         Guildbook:ToggleGuildFrame(frame)
-    --     end)
-    -- end
-
-    -- for frame, button in pairs(self.GuildFrame.Frames) do
-    --     if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.Modules then
-    --         if GUILDBOOK_GLOBAL.Modules[frame] == true then
-    --             setupModule(frame, button)
-    --         else
-    --             print(string.format("%s has not been setup", frame))
-    --         end
-    --     end
-        -- self.GuildFrame[frame] = CreateFrame('FRAME', tostring('GuildbookGuildFrame'..frame), GuildFrame)
-        -- self.GuildFrame[frame]:SetBackdrop({
-        --     edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-        --     edgeSize = 16,
-        --     bgFile = "interface/framegeneral/ui-background-marble",
-        --     tile = true,
-        --     tileEdge = false,
-        --     tileSize = 300,
-        --     insets = { left = 4, right = 4, top = 4, bottom = 4 }
-        -- })
-        -- self.GuildFrame[frame]:SetPoint('TOPLEFT', GuildFrame, 'TOPLEFT', 2.00, -55.0)
-        -- self.GuildFrame[frame]:SetPoint('BOTTOMRIGHT', GuildFrame, 'BOTTOMRIGHT', -4.00, 25.0)      
-        -- self.GuildFrame[frame]:SetFrameLevel(6)
-        -- self.GuildFrame[frame]:Hide()
-
-        -- self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')] = CreateFrame('BUTTON', tostring('GuildbookGuildFrame'..frame..'Button'), GuildFrame, "UIPanelButtonTemplate")
-        -- self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetPoint('LEFT', Guildbook.GuildFrame.RosterButton, 'LEFT', button.OffsetY, 0)
-        -- self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetSize(button.Width, GuildFrameGuildInformationButton:GetHeight())
-        -- self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetText(L[button.Text])
-        -- self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetNormalFontObject(GameFontNormalSmall)
-        -- self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetHighlightFontObject(GameFontNormalSmall)
-        -- self.GuildFrame[tostring('GuildbookGuildFrame'..frame..'Button')]:SetScript('OnClick', function(self)
-        --     Guildbook:ToggleGuildFrame(frame)
-        -- end)
-    -- end
-
-    self.ScanGuildBankButton = CreateFrame('BUTTON', 'GuildbookBankFrameScanBankButton', BankFrame)
-    self.ScanGuildBankButton:SetPoint('TOPLEFT', BankCloseButton, 'BOTTOMRIGHT', -10, -50)
-    self.ScanGuildBankButton:SetSize(60, 60)
-    self.ScanGuildBankButton.background = self.ScanGuildBankButton:CreateTexture('$parentBackground', 'BACKGROUND')
-    self.ScanGuildBankButton.background:SetAllPoints(self.ScanGuildBankButton)
-    self.ScanGuildBankButton.background:SetTexture(136831)
-    self.ScanGuildBankButton.icon = self.ScanGuildBankButton:CreateTexture('$parentBackground', 'ARTWORK')
-    self.ScanGuildBankButton.icon:SetPoint('TOPLEFT', 4, -12)
-    self.ScanGuildBankButton.icon:SetPoint('BOTTOMRIGHT', -28, 20)
-    self.ScanGuildBankButton.icon:SetTexture(136453)
-    self.ScanGuildBankButton:SetScript('OnClick', function(self)
-        Guildbook:ScanCharacterContainers()
-    end)
-    self.ScanGuildBankButton:SetScript('OnEnter', function(self)
-        GameTooltip:SetOwner(self, 'ANCHOR_RIGHT', -28, -10)
-        GameTooltip:AddLine('Guildbook: Scan bank and update online players.')
-        GameTooltip:Show()
-    end)
-    self.ScanGuildBankButton:SetScript('OnLeave', function(self)
-        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-    end)
-
     
 end

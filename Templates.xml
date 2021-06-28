@@ -1,38 +1,4 @@
 <UI>
-
-
-    <Frame name="GuildbookMenuFlyoutItem" mixin="GuildbookMenuFlyoutItemMixin" virtual="true" enableMouse="true" useParentLevel="true">
-        <Size x="30" y="30"/>
-        <Layers>
-			<Layer level="BACKGROUND">
-				<Texture parentKey="Background" useAtlasSize="false">
-                    <Size x="35" y="35"/>
-                    <Anchors>
-                        <Anchor point="CENTER"/>
-                    </Anchors>
-                </Texture>
-			</Layer>
-			<Layer level="HIGHLIGHT">
-				<!-- <Texture parentKey="Highlight" atlas="GarrMission_CurrentEncounter-Glow" useAtlasSize="true"> -->
-				<!-- <Texture parentKey="Highlight" atlas="GarrMission_CurrentEncounter-SpikeyGlow" useAtlasSize="true"> -->
-				<Texture parentKey="Highlight" atlas="Darktrait-Glow" useAtlasSize="true">
-                    <Anchors>
-                        <Anchor point="CENTER"/>
-                    </Anchors>
-                </Texture>
-			</Layer>
-			<Layer level="BORDER">
-				<Texture parentKey="Border" atlas="GarrMission_PortraitRing_Enemy" useAtlasSize="false" setAllPoints="true"/> 
-			</Layer>
-        </Layers>
-        <Scripts>
-            <OnEnter method="OnEnter"/>
-            <OnLeave method="OnLeave"/>
-            <OnMouseDown method="OnMouseDown"/>
-            <OnMouseUp method="OnMouseUp"/>
-        </Scripts>
-    </Frame>
-
     <Frame name="GuildbookListviewItem" mixin="GuildbookListviewItemMixin" virtual="true" enableMouse="true">
         <Layers>
 			<Layer level="BACKGROUND">
@@ -1056,10 +1022,10 @@
 	</Frame>
 
 	<Frame name="GuildbookDropdown" mixin="GuildbookDropdownMixin" virtual="true" enableMouse="true">
-		<Size x="115" y="30"/>
-        <Anchors>
+		<Size x="115" y="28"/>
+        <!-- <Anchors>
             <Anchor point="CENTER" x="0" y="0"/>
-        </Anchors>
+        </Anchors> -->
         <Layers>
             <Layer level="BACKGROUND">
 				<!-- <Texture parentKey="Background" atlas="groupfinder-button-cover-down" setAllPoints="true" useAtlasSize="false"> -->
