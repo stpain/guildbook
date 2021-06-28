@@ -179,7 +179,7 @@ function Guildbook:Init()
         if link then
             local itemID = GetItemInfoInstant(link)
             if itemID then
-                if GUILDBOOK_GLOBAL.config.showTooltipTradeskills and Guildbook.tradeskillRecipes then
+                if GUILDBOOK_GLOBAL.config and GUILDBOOK_GLOBAL.config.showTooltipTradeskills and Guildbook.tradeskillRecipes then
                     local headerAdded = false;
                     local profs = {}
                     for k, recipe in ipairs(Guildbook.tradeskillRecipes) do
@@ -352,10 +352,6 @@ function Guildbook:Init()
             GuildbookOptionsTooltipInfoMainCharacter:Enable()
         end
 
-        GuildbookOptionsTooltipTradeskill:SetChecked(GUILDBOOK_GLOBAL.config.showTooltipTradeskills and GUILDBOOK_GLOBAL.config.showTooltipTradeskills or false)
-        GuildbookOptionsTooltipTradeskillRecipes:SetChecked(GUILDBOOK_GLOBAL.config.showTooltipTradeskillsRecipes and GUILDBOOK_GLOBAL.config.showTooltipTradeskillsRecipes or false)
-
-
         -- this will be the new config setup system moving forward
         if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.config then
             local config = GUILDBOOK_GLOBAL.config
@@ -365,6 +361,9 @@ function Guildbook:Init()
             end
             GuildbookOptionsUseDefaultBlizzardFont:SetChecked(config.useBlizzardFont == true and true or false)
             self:UpdateFonts()
+
+            GuildbookOptionsTooltipTradeskill:SetChecked(GUILDBOOK_GLOBAL.config.showTooltipTradeskills and GUILDBOOK_GLOBAL.config.showTooltipTradeskills or false)
+            GuildbookOptionsTooltipTradeskillRecipes:SetChecked(GUILDBOOK_GLOBAL.config.showTooltipTradeskillsRecipes and GUILDBOOK_GLOBAL.config.showTooltipTradeskillsRecipes or false)
         end
 
     end
@@ -1635,6 +1634,9 @@ end
 -- privacy comms
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function Guildbook:SendPrivacyInfo(channel, target)
+    if not GUILDBOOK_GLOBAL.config and not GUILDBOOK_GLOBAL.config.privacy then
+        return;
+    end
     local privacy = {
         type = "PRIVACY_INFO",
         payload = {

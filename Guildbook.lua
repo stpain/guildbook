@@ -3225,6 +3225,9 @@ function GuildbookPrivacyMixin:OnShow()
     for i = 1, GuildControlGetNumRanks() do
         self.ranks[i] = GuildControlGetRankName(i)
     end
+    if not GUILDBOOK_GLOBAL.config then
+        GUILDBOOK_GLOBAL.config = {}
+    end
     if not GUILDBOOK_GLOBAL.config.privacy then
         GUILDBOOK_GLOBAL.config.privacy = {}
     end
@@ -3247,6 +3250,10 @@ function GuildbookPrivacyMixin:OnShow()
         fs:SetText(t)
     end
     updateInfo(self.profileSharingInfo, function()
+        if not GUILDBOOK_GLOBAL.config.privacy.shareProfileMinRank then
+            GUILDBOOK_GLOBAL.config.privacy.shareProfileMinRank = self.ranks[#self.ranks]
+            return #self.ranks
+        end
         if GUILDBOOK_GLOBAL.config.privacy.shareProfileMinRank == "none" then
             return "none";
         end
@@ -3259,6 +3266,10 @@ function GuildbookPrivacyMixin:OnShow()
         end
     end)
     updateInfo(self.inventorySharingInfo, function()
+        if not GUILDBOOK_GLOBAL.config.privacy.shareInventoryMinRank then
+            GUILDBOOK_GLOBAL.config.privacy.shareInventoryMinRank = self.ranks[#self.ranks]
+            return #self.ranks
+        end
         if GUILDBOOK_GLOBAL.config.privacy.shareInventoryMinRank == "none" then
             return "none";
         end
@@ -3271,6 +3282,10 @@ function GuildbookPrivacyMixin:OnShow()
         end
     end)
     updateInfo(self.talentsSharingInfo, function()
+        if not GUILDBOOK_GLOBAL.config.privacy.shareTalentsMinRank then
+            GUILDBOOK_GLOBAL.config.privacy.shareTalentsMinRank = self.ranks[#self.ranks]
+            return #self.ranks
+        end
         if GUILDBOOK_GLOBAL.config.privacy.shareTalentsMinRank == "none" then
             return "none";
         end
