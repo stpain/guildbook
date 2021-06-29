@@ -622,3 +622,4 @@ Guildbook.ProfessionNames = {
 
 -- key binding header
 BINDING_HEADER_GENERAL = "General"
+BINDING_CATEGORY_GUILDBOOK = "Guildbook"

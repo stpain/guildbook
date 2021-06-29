@@ -80,7 +80,7 @@ the copyright holders.
                     <FontHeight val="11"/>
                     <Anchors>
                         <Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-                            <offset x="16" y="-180"/>
+                            <offset x="16" y="-200"/>
                         </Anchor>
                     </Anchors>
                 </FontString>
@@ -88,7 +88,7 @@ the copyright holders.
                     <FontHeight val="11"/>
                     <Anchors>
                         <Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-                            <offset x="16" y="-330"/>
+                            <offset x="16" y="-350"/>
                         </Anchor>
                     </Anchors>
                 </FontString>           
@@ -129,6 +129,35 @@ the copyright holders.
                     </OnLoad>                
                     <OnClick>
                         GuildbookOptionsShowMinimapButton_OnClick(self)
+                    </OnClick>
+                </Scripts>
+            </CheckButton>
+            <CheckButton name="$parentShowMinimapCalendarButton" inherits="ChatConfigCheckButtonTemplate" >
+                <Size x="24" y="24"/>
+                <Layers>
+                    <Layer>
+                        <FontString name="$parentText" inherits="GameFontNormal" text="Minimap Calendar Button">
+                            <Color r="1" g="1" b="1" a="1"/>
+                            <FontHeight val="12"/>
+                            <Anchors>
+                                <Anchor point="LEFT">
+                                    <offset x="24" y="0"/>
+                                </Anchor>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>                
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="GuildbookOptionsShowMinimapButton" relativePoint="BOTTOMLEFT">
+                        <Offset x="0" y="-2"/>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self.tooltip = 'Show / Hide Minimap calendar button'
+                    </OnLoad>                
+                    <OnClick>
+                        GuildbookOptionsShowMinimapCalendarButton_OnClick(self)
                     </OnClick>
                 </Scripts>
             </CheckButton>
@@ -208,7 +237,7 @@ the copyright holders.
                 </Layers>                
                 <Anchors>
                     <Anchor point="TOPLEFT">
-                        <Offset x="16" y="-200"/>
+                        <Offset x="16" y="-220"/>
                     </Anchor>
                 </Anchors>
                 <Scripts>
@@ -325,7 +354,7 @@ the copyright holders.
                 </Layers>                
                 <Anchors>
                     <Anchor point="TOPLEFT">
-                        <Offset x="300" y="-200"/>
+                        <Offset x="300" y="-220"/>
                     </Anchor>
                 </Anchors>
                 <Scripts>
@@ -359,7 +388,7 @@ the copyright holders.
                 </Anchors>
                 <Scripts>
                     <OnLoad>
-                        self.tooltip = 'Display a list recipes that use the current item.'
+                        self.tooltip = 'Display a list of recipes that use the current item.'
                     </OnLoad>
                     <OnClick>
                         GuildbookOptionsTooltipTradeskillRecipes_OnClick(self)

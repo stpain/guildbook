@@ -62,6 +62,18 @@ function GuildbookOptionsShowMinimapButton_OnClick(self)
     end
 end
 
+function GuildbookOptionsShowMinimapCalendarButton_OnClick(self)
+    if GUILDBOOK_CHARACTER and GUILDBOOK_GLOBAL then
+        GUILDBOOK_GLOBAL['ShowMinimapCalendarButton'] = self:GetChecked()
+        self:SetChecked(GUILDBOOK_GLOBAL['ShowMinimapCalendarButton'])
+        if GUILDBOOK_GLOBAL['ShowMinimapCalendarButton'] == false then
+            Guildbook:HideCalendarButton()
+        else
+            Guildbook:ForceCalendarButton(Minimap, 40, 'TOPRIGHT', 20, -2)
+        end
+    end
+end
+
 local function setWarningText(txt)
     GuildbookOptionsGeneralOptionsWarningText:SetText('|cffC41F3B'..txt)
     StaticPopup_Show('Reload')
@@ -218,7 +230,7 @@ function GuildbookOptions_OnLoad(self)
     GuildbookOptionsAuthor:SetText(L['Author'])
 
     local deleteGuildDropdown = CreateFrame('FRAME', 'GuildbookDeleteGuildDropDown', GuildbookOptions, "UIDropDownMenuTemplate")
-    deleteGuildDropdown:SetPoint("BOTTOMLEFT", 0, 180)
+    deleteGuildDropdown:SetPoint("BOTTOMLEFT", 0, 160)
     UIDropDownMenu_SetWidth(deleteGuildDropdown, 180)
     UIDropDownMenu_SetText(deleteGuildDropdown, 'Delete Guild')
     _G['GuildbookDeleteGuildDropDownButton']:SetScript('OnClick', function()

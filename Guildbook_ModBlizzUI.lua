@@ -57,6 +57,10 @@ Guildbook.GuildFrame = {
     ColumnMarginX = 1.0,
 }
 
+function Guildbook:HideCalendarButton()
+    Guildbook.GameTimeFrame:Hide()
+end
+
 function Guildbook:ForceCalendarButton(parent, s, anchor, x, y)
     Guildbook.GameTimeFrame:SetParent(parent)
     Guildbook.GameTimeFrame:SetSize(s, s)
@@ -67,6 +71,7 @@ function Guildbook:ForceCalendarButton(parent, s, anchor, x, y)
     Guildbook.GameTimeFrame:GetPushedTexture():SetTexCoord(0.5, 0.890625, 0.0, 0.78125)
     Guildbook.GameTimeFrame:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight", "ADD")
     Guildbook.GameTimeFrame:SetHitRectInsets(6, 0, 5, 10)
+    Guildbook.GameTimeFrame:Show()
 end
 
 function Guildbook:ModBlizzUI()

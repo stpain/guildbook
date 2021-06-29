@@ -121,6 +121,11 @@ function Guildbook:Init()
         GUILDBOOK_GLOBAL["myCharacters"][UnitGUID("player")] = false;
     end
 
+    if not GUILDBOOK_GLOBAL['ShowMinimapCalendarButton'] then
+        GUILDBOOK_GLOBAL['ShowMinimapCalendarButton'] = true
+        GuildbookOptionsShowMinimapCalendarButton:SetChecked(true)
+    end
+
 
     local ldb = LibStub("LibDataBroker-1.1")
     self.MinimapButton = ldb:NewDataObject('GuildbookMinimapIcon', {
@@ -170,6 +175,11 @@ function Guildbook:Init()
         if GUILDBOOK_GLOBAL['ShowMinimapButton'] == false then
             self.MinimapIcon:Hide('GuildbookMinimapIcon')
             DEBUG('func', 'init', 'minimap icon saved var setting: false, hiding minimap button')
+        end
+        if GUILDBOOK_GLOBAL['ShowMinimapCalendarButton'] == false then
+            Guildbook:HideCalendarButton()
+        else
+            Guildbook:ForceCalendarButton(Minimap, 40, 'TOPRIGHT', 20, -2)
         end
     end)
 
@@ -409,6 +419,9 @@ function Guildbook:Init()
         Guildbook:RequestGuildCalendarDeletedEvents()
     end)
     C_Timer.After(30, function()
+        if not GUILDBOOK_GLOBAL.config and not GUILDBOOK_GLOBAL.config.privacy then
+            return;
+        end
         Guildbook:SendPrivacyInfo("GUILD", nil)
     end)
 
@@ -1226,6 +1239,9 @@ end
 -- any entries not found the current guild roster will be removed (=nil)
 function Guildbook:ScanGuildRoster(guild, msg)
     if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[guild] then
+        if self.scanRosterTicker then
+            self.scanRosterTicker:Cancel()
+        end
         local memberGUIDs = {}
         local currentGUIDs = {}
         local guidsToRemove = {}
@@ -1237,7 +1253,7 @@ function Guildbook:ScanGuildRoster(guild, msg)
             local name, rankName, _, level, class, zone, publicNote, officerNote, isOnline, _, _, _, _, _, _, _, guid = GetGuildRosterInfo(i)
             if not GUILDBOOK_GLOBAL.GuildRosterCache[guild][guid] then
                 GUILDBOOK_GLOBAL.GuildRosterCache[guild][guid] = {
-                    Name = name,
+                    Name = Ambiguate(name, 'none'),
                     Class = class,
                     Level = level,
                     PublicNote = publicNote,
@@ -1269,7 +1285,7 @@ function Guildbook:ScanGuildRoster(guild, msg)
         local start = date('*t')
         local started = time()
         GuildbookUI.statusText:SetText(string.format("starting roster clean up at %s:%s:%s", start.hour, start.min, start.sec))
-        C_Timer.NewTicker(0.01, function()
+        self.scanRosterTicker = C_Timer.NewTicker(0.01, function()
             local percent = (i/totalMembers) * 100
             GuildbookUI.statusText:SetText(string.format("roster clean up %s%%",string.format("%.1f", percent)))
             GuildbookUI.statusBar:SetValue(i/totalMembers)
@@ -1647,6 +1663,9 @@ function Guildbook:SendPrivacyInfo(channel, target)
 end
 
 function Guildbook:OnPrivacyReceived(data, distribution, sender)
+    if not data.payload.privacy then
+        return
+    end
     if data.senderGUID then --and data.senderGUID ~= UnitGUID("player") then
         local guildName = Guildbook:GetGuildName()
         if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[guildName] and GUILDBOOK_GLOBAL.GuildRosterCache[guildName][data.senderGUID] then
@@ -1656,23 +1675,29 @@ function Guildbook:OnPrivacyReceived(data, distribution, sender)
                 ranks[GuildControlGetRankName(i)] = i;
             end
             local myRank = GuildControlGetRankName(C_GuildInfo.GetGuildRankOrder(UnitGUID("player")))
-            if data.payload.privacy.shareProfileMinRank == "none" then
-                character.profile = nil;
+            if data.payload.privacy.shareProfileMinRank then
+                if data.payload.privacy.shareProfileMinRank == "none" then
+                    character.profile = nil;
+                end
+                if data.payload.privacy.shareProfileMinRank and data.payload.privacy.shareProfileMinRank ~= "none" and (ranks[myRank] > ranks[data.payload.privacy.shareProfileMinRank]) then
+                    character.profile = nil;
+                end
             end
-            if data.payload.privacy.shareInventoryMinRank == "none" then
-                character.Inventory = nil;
+            if data.payload.privacy.shareInventoryMinRank then
+                if data.payload.privacy.shareInventoryMinRank == "none" then
+                    character.Inventory = nil;
+                end
+                if data.payload.privacy.shareInventoryMinRank and data.payload.privacy.shareInventoryMinRank ~= "none" and (ranks[myRank] > ranks[data.payload.privacy.shareInventoryMinRank]) then
+                    character.Inventory = nil;
+                end
             end
-            if data.payload.privacy.shareTalentsMinRank == "none" then
-                character.Talents = nil;
-            end
-            if data.payload.privacy.shareProfileMinRank and data.payload.privacy.shareProfileMinRank ~= "none" and (ranks[myRank] > ranks[data.payload.privacy.shareProfileMinRank]) then
-                character.profile = nil;
-            end
-            if data.payload.privacy.shareInventoryMinRank and data.payload.privacy.shareInventoryMinRank ~= "none" and (ranks[myRank] > ranks[data.payload.privacy.shareInventoryMinRank]) then
-                character.Inventory = nil;
-            end
-            if data.payload.privacy.shareTalentsMinRank and data.payload.privacy.shareTalentsMinRank ~= "none" and (ranks[myRank] > ranks[data.payload.privacy.shareTalentsMinRank]) then
-                character.Talents = nil;
+            if data.payload.privacy.shareTalentsMinRank then
+                if data.payload.privacy.shareTalentsMinRank == "none" then
+                    character.Talents = nil;
+                end
+                if data.payload.privacy.shareTalentsMinRank and data.payload.privacy.shareTalentsMinRank ~= "none" and (ranks[myRank] > ranks[data.payload.privacy.shareTalentsMinRank]) then
+                    character.Talents = nil;
+                end
             end
         end
     end
@@ -2430,7 +2455,7 @@ end
 function Guildbook:UPDATE_MOUSEOVER_UNIT()
 
     -- delay any model loading while players addons sort themselves out
-    if Guildbook.LoadTime + 8.0 > GetTime() then
+    if Guildbook.LoadTime and Guildbook.LoadTime + 8.0 > GetTime() then
         return
     end
     local guid = UnitGUID('mouseover')
