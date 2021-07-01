@@ -201,7 +201,7 @@ are supported.
     self.GuildFrame.GuildBankFrame.BankData = {}
     function self.GuildFrame.GuildBankFrame:ProcessBankData(data, money)
         if money then
-            self.GuildFrame.GuildBankFrame.BankMoney:SetText(GetCoinTextureString(money))
+            self.BankMoney:SetText(GetCoinTextureString(money))
         end
         wipe(self.BankData)
         local c = 0

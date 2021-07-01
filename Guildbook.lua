@@ -54,8 +54,8 @@ GuildbookCharacterListviewItemMixin = {}
 
 function GuildbookCharacterListviewItemMixin:OnLoad()
     local _, size, flags = self.Name:GetFont()
-    self.Name:SetFont([[Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf]], size, flags)
-    self.Zone:SetFont([[Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf]], size, flags)
+    --self.Name:SetFont([[Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf]], size, flags)
+    --self.Zone:SetFont([[Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf]], size, flags)
 
     self.mask = self:CreateMaskTexture()
     self.mask:SetSize(31,31)
@@ -161,14 +161,14 @@ GuildbookRecipeListviewItemMixin = {}
 
 function GuildbookRecipeListviewItemMixin:OnLoad()
     local _, size, flags = self.Text:GetFont()
-    self.Text:SetFont([[Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf]], size+2, flags)
+    --self.Text:SetFont([[Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf]], size+2, flags)
 end
 
 function GuildbookRecipeListviewItemMixin:OnEnter()
     if self.link then
         GameTooltip:SetOwner(self, 'ANCHOR_LEFT')
         if self.enchant then
-            GameTooltip:SetSpellByID(self.recipeID)
+            GameTooltip:SetSpellByID(self.itemID)
         else
             GameTooltip:SetHyperlink(self.link)
         end
@@ -979,7 +979,7 @@ function GuildbookRecipesListviewMixin:OnLoad()
         f:SetPoint("TOPLEFT", 5, ((row - 1) * -24) - 2)
         for _, reagent in ipairs(f.reagentIcons) do
             local _, size, flags = reagent.count:GetFont()
-            reagent.count:SetFont([[Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf]], 14, flags)
+            --reagent.count:SetFont([[Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf]], 14, flags)
         end
         f.func = function()
             if f.model then
@@ -991,7 +991,7 @@ function GuildbookRecipesListviewMixin:OnLoad()
                     GuildbookRecipesListviewMixin.selectedRecipeLink = f.link;
                 end
             end
-            local characters = getPlayersWithRecipe(f.recipeID)
+            local characters = getPlayersWithRecipe(f.itemID)
             GuildbookCharactersListviewMixin:ClearRows()
             if characters and next(characters) ~= nil then
                 GuildbookCharactersListviewMixin.characters = characters;
@@ -1025,7 +1025,7 @@ function GuildbookRecipesListviewMixin:ClearRows()
         row.Text:SetText("")
         row.link = nil;
         row.enchant = nil;
-        row.recipeID = nil;
+        row.itemID = nil;
         row:ClearReagents()
         row:SetAlpha(0)
     end
@@ -1056,7 +1056,7 @@ function GuildbookRecipesListviewMixin:LoadRecipes()
                     end
                     self.rows[i].Text:SetText(self.recipes[i].link)
                     self.rows[i].enchant = self.recipes[i].enchant;
-                    self.rows[i].recipeID = self.recipes[i].itemID;
+                    self.rows[i].itemID = self.recipes[i].itemID;
                     self.rows[i].link = self.recipes[i].link;
                     self.rows[i]:ClearReagents()
                     local j = 1;
@@ -1098,7 +1098,7 @@ function GuildbookRecipesListviewMixin:ScrollBar_OnValueChanged()
                 end
                 self.rows[row].Text:SetText(self.recipes[scrollPos + row].link)
                 self.rows[row].enchant = self.recipes[scrollPos + row].enchant;
-                self.rows[row].recipeID = self.recipes[scrollPos + row].itemID;
+                self.rows[row].itemID = self.recipes[scrollPos + row].itemID;
                 self.rows[row].link = self.recipes[scrollPos + row].link;
                 self.rows[row]:ClearReagents()
                 local i = 1;
@@ -1540,7 +1540,11 @@ end
 function GuildbookRosterMixin:RowOpenProfile_OnMouseDown(row)
     if GUILD_NAME then
         self:GetParent().profiles.character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][row.character.guid];
-        self:GetParent().profiles:LoadCharacter()
+        if row.character.guid == UnitGUID("player") then
+            self:GetParent().profiles:LoadCharacter("player")
+        else
+            self:GetParent().profiles:LoadCharacter()
+        end
     end
 
     GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)

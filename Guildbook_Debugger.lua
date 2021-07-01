@@ -7,11 +7,11 @@ _, Guildbook = ...
 --debug printers
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 Guildbook.DebugColours = {
-    ['error'] = '|cffC41E3A', --dk
-    ['comms_in'] = '|cffAAD372', --hunter
+    ['comms_out'] = '|cffC41E3A', --dk
+    ['func'] = '|cffAAD372', --hunter
     --['func'] = '|cff00FF98', --monk
-    ['func'] = '|cff8787ED', --warlock
-    ['comms_out'] = '|cff0070DD', --shaman
+    ['error'] = '|cff8787ED', --warlock
+    ['comms_in'] = '|cff0070DD', --shaman
 }
 
 -- table to hold debug messages

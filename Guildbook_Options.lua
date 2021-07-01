@@ -90,18 +90,6 @@ function GuildbookOptionsModifyDefaultGuildRoster_OnClick(self)
     setWarningText('changes made require a UI reload')
 end
 
-function GuildbookOptionsUseDefaultBlizzardFont_OnClick(self)
-    if not GUILDBOOK_GLOBAL then
-        return
-    end
-    if not GUILDBOOK_GLOBAL.config then
-        GUILDBOOK_GLOBAL.config = {}
-    end
-    GUILDBOOK_GLOBAL.config.useBlizzardFont = self:GetChecked()
-    
-    Guildbook:UpdateFonts()
-end
-
 function GuildbookOptionsTooltipTradeskill_OnClick(self)
     if not GUILDBOOK_GLOBAL then
         return
@@ -127,67 +115,12 @@ function GuildbookOptionsTooltipTradeskillRecipes_OnClick(self)
     GUILDBOOK_GLOBAL.config.showTooltipTradeskillsRecipes = self:GetChecked()
 end
 
-function GuildbookOptionsLoadChatModule_OnClick(self)
-    if not GUILDBOOK_GLOBAL then
-        return
-    end
-    if not GUILDBOOK_GLOBAL.Modules then
-        GUILDBOOK_GLOBAL.Modules = {}
-    end
-    GUILDBOOK_GLOBAL.Modules["ChatFrame"] = self:GetChecked()
-    setWarningText('changes made require a UI reload')
-end
-
-function GuildbookOptionsLoadStatsModule_OnClick(self)
-    if not GUILDBOOK_GLOBAL then
-        return
-    end
-    if not GUILDBOOK_GLOBAL.Modules then
-        GUILDBOOK_GLOBAL.Modules = {}
-    end
-    GUILDBOOK_GLOBAL.Modules["StatsFrame"] = self:GetChecked()
-    setWarningText('changes made require a UI reload')
-end
-
-function GuildbookOptionsLoadCalendarModule_OnClick(self)
-    if not GUILDBOOK_GLOBAL then
-        return
-    end
-    if not GUILDBOOK_GLOBAL.Modules then
-        GUILDBOOK_GLOBAL.Modules = {}
-    end
-    GUILDBOOK_GLOBAL.Modules["GuildCalendarFrame"] = self:GetChecked()
-    setWarningText('changes made require a UI reload')
-end
-
-function GuildbookOptionsLoadGuildBankModule_OnClick(self)
-    if not GUILDBOOK_GLOBAL then
-        return
-    end
-    if not GUILDBOOK_GLOBAL.Modules then
-        GUILDBOOK_GLOBAL.Modules = {}
-    end
-    GUILDBOOK_GLOBAL.Modules["GuildBankFrame"] = self:GetChecked()
-    setWarningText('changes made require a UI reload')
-end
-
-function GuildbookOptionsLoadProfilesModule_OnClick(self)
-    if not GUILDBOOK_GLOBAL then
-        return
-    end
-    if not GUILDBOOK_GLOBAL.Modules then
-        GUILDBOOK_GLOBAL.Modules = {}
-    end
-    GUILDBOOK_GLOBAL.Modules["ProfilesFrame"] = self:GetChecked()
-    setWarningText('changes made require a UI reload')
-end
-
 function GuildbookOptionsTooltipInfo_OnClick(self)
     if not GUILDBOOK_GLOBAL then
         return
     end
-    GUILDBOOK_GLOBAL['TooltipInfo'] = self:GetChecked()
-    if GUILDBOOK_GLOBAL['TooltipInfo'] == false then
+    GUILDBOOK_GLOBAL.config.showTooltipCharacterInfo = self:GetChecked()
+    if GUILDBOOK_GLOBAL.config.showTooltipCharacterInfo == false then
         GuildbookOptionsTooltipInfoMainSpec:Disable()
         GuildbookOptionsTooltipInfoMainSpecText:SetTextColor(0.5, 0.5, 0.5, 0.5)
         GuildbookOptionsTooltipInfoProfessions:Disable()
@@ -203,21 +136,21 @@ function GuildbookOptionsTooltipInfoMainSpec_OnClick(self)
     if not GUILDBOOK_GLOBAL then
         return
     end
-    GUILDBOOK_GLOBAL['TooltipInfoMainSpec'] = self:GetChecked()
+    GUILDBOOK_GLOBAL.config.showTooltipMainSpec = self:GetChecked()
 end
 
 function GuildbookOptionsTooltipInfoProfessions_OnClick(self)
     if not GUILDBOOK_GLOBAL then
         return
     end
-    GUILDBOOK_GLOBAL['TooltipInfoProfessions'] = self:GetChecked()
+    GUILDBOOK_GLOBAL.config.showTooltipProfessions = self:GetChecked()
 end
 
 function GuildbookOptionsTooltipInfoMainCharacter_OnClick(self)
     if not GUILDBOOK_GLOBAL then
         return
     end
-    GUILDBOOK_GLOBAL['TooltipInfoMainCharacter'] = self:GetChecked()
+    GUILDBOOK_GLOBAL.config.showTooltipMainCharacter = self:GetChecked()
 end
 
 function GuildbookOptions_OnLoad(self)

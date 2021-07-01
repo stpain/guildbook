@@ -71,9 +71,58 @@ end
 --init
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 function Guildbook:Init()
-    self.version = GetAddOnMetadata('Guildbook', "Version")
+    -- get this open first if debug is on
+    if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['Debug'] == true then
+        Guildbook.DebuggerWindow:Show()
+        DEBUG('func', 'init', 'debug active')
+    else
+        Guildbook.DebuggerWindow:Hide()
+    end
+    GuildbookOptionsDebugCB:SetChecked(GUILDBOOK_GLOBAL['Debug'])
+
+    -- this enables us to prevent character model capturing until the player is fully loaded
+    Guildbook.LoadTime = GetTime()
+    DEBUG('func', 'init', tostring('Load time '..date("%T")))
+
+    -- grab version number
+    self.version = tonumber(GetAddOnMetadata('Guildbook', "Version"))
+
+    --register comms
     AceComm:Embed(self)
     self:RegisterComm('Guildbook', 'ON_COMMS_RECEIVED')
+
+    -- this makes the bank/calendar legacy features work
+    if not self.GuildFrame then
+        self.GuildFrame = {
+            "GuildBankFrame",
+            "GuildCalendarFrame",
+        }
+    end
+    self:SetupGuildBankFrame()
+    self:SetupGuildCalendarFrame()
+
+    -- get players race/faction
+    self.player = {
+        faction = nil,
+        race = nil,
+    }
+    C_Timer.After(2.0, function()
+        if not Guildbook.PlayerMixin then
+            Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(UnitGUID('player'))
+        else
+            Guildbook.PlayerMixin:SetGUID(UnitGUID('player'))
+        end
+        if Guildbook.PlayerMixin:IsValid() then
+            local name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
+            -- double check mixin
+            if not name then
+                return
+            end
+            local raceID = C_PlayerInfo.GetRace(Guildbook.PlayerMixin)
+            self.player.race = C_CreatureInfo.GetRaceInfo(raceID).clientFileString:upper()
+            self.player.faction = C_CreatureInfo.GetFactionInfo(raceID).groupTag
+        end
+    end)
 
     --create stored variable tables
     if GUILDBOOK_GLOBAL == nil or GUILDBOOK_GLOBAL == {} then
@@ -88,32 +137,31 @@ function Guildbook:Init()
     else
         DEBUG('func', 'init', 'character variables exists')
     end
-    --added later
-    if not GUILDBOOK_GLOBAL['GuildRosterCache'] then
-        GUILDBOOK_GLOBAL['GuildRosterCache'] = {}
+    if not GUILDBOOK_GLOBAL.GuildRosterCache then
+        GUILDBOOK_GLOBAL.GuildRosterCache = {}
+        DEBUG('func', 'init', 'created guild roster cache')
+    else
+        DEBUG('func', 'init', 'guild roster cache exists')
     end
-    GUILDBOOK_GLOBAL['Build'] = nil --remove after a few updates
-    -- added later again
-    if not GUILDBOOK_GLOBAL['Calendar'] then
-        GUILDBOOK_GLOBAL['Calendar'] = {}
+    if not GUILDBOOK_GLOBAL.Calendar then
+        GUILDBOOK_GLOBAL.Calendar = {}
+        DEBUG('func', 'init', 'created global calendar table')
+    else
+        DEBUG('func', 'init', 'global calendar table exists')
     end
-    if not GUILDBOOK_GLOBAL['CalendarDeleted'] then
-        GUILDBOOK_GLOBAL['CalendarDeleted'] = {}
+    if not GUILDBOOK_GLOBAL.CalendarDeleted then
+        GUILDBOOK_GLOBAL.CalendarDeleted = {}
+        DEBUG('func', 'init', 'created global calendar deleted events table')
+    else
+        DEBUG('func', 'init', 'global calendar deleted events table exists')
     end
-    if not GUILDBOOK_GLOBAL['LastCalendarTransmit'] then
-        GUILDBOOK_GLOBAL['LastCalendarTransmit'] = GetServerTime()
+    if not GUILDBOOK_GLOBAL.LastCalendarTransmit then
+        GUILDBOOK_GLOBAL.LastCalendarTransmit = GetServerTime()
     end
-    if not GUILDBOOK_GLOBAL['LastCalendarDeletedTransmit'] then
-        GUILDBOOK_GLOBAL['LastCalendarDeletedTransmit'] = GetServerTime()
+    if not GUILDBOOK_GLOBAL.LastCalendarDeletedTransmit then
+        GUILDBOOK_GLOBAL.LastCalendarDeletedTransmit = GetServerTime()
     end
 
-    -- added later again again!
-    if not GUILDBOOK_GLOBAL.Modules then
-        GUILDBOOK_GLOBAL.Modules = nil
-    end
-
-
-    -- added much later !!!
     if not GUILDBOOK_GLOBAL["myCharacters"] then
         GUILDBOOK_GLOBAL["myCharacters"] = {}
     end
@@ -121,9 +169,94 @@ function Guildbook:Init()
         GUILDBOOK_GLOBAL["myCharacters"][UnitGUID("player")] = false;
     end
 
-    if not GUILDBOOK_GLOBAL['ShowMinimapCalendarButton'] then
-        GUILDBOOK_GLOBAL['ShowMinimapCalendarButton'] = true
-        GuildbookOptionsShowMinimapCalendarButton:SetChecked(true)
+    if not GUILDBOOK_GLOBAL['CommsDelay'] then
+        GUILDBOOK_GLOBAL['CommsDelay'] = 1.0
+    end
+    Guildbook.CommsDelaySlider:SetValue(GUILDBOOK_GLOBAL['CommsDelay'])
+
+    if not GUILDBOOK_GLOBAL.config then
+        local lowestRank = GuildControlGetRankName(GuildControlGetNumRanks())
+        GUILDBOOK_GLOBAL.config = {
+            privacy = {
+                shareInventoryMinRank = lowestRank,
+                shareTalentsMinRank = lowestRank,
+                shareProfileMinRank = lowestRank,
+            },
+            modifyDefaultGuildRoster = true,
+            showTooltipTradeskills = true,
+            showTooltipTradeskillsRecipes = true,
+            showMinimapButton = true,
+            showMinimapCalendarButton = true,
+            showTooltipCharacterInfo = true,
+            showTooltipMainCharacter = true,
+            showTooltipMainSpec = true,
+            showTooltipProfessions = true,
+            parsePublicNotes = false,
+        }
+        DEBUG('func', 'init', "created default config table")
+    end
+
+    -- 4.9 will do a soft reset on this to bring in the new config table after that changes will persist
+    if self.version < 5.0 then
+        if not GUILDBOOK_GLOBAL.configUpdate then
+            local lowestRank = GuildControlGetRankName(GuildControlGetNumRanks())
+            GUILDBOOK_GLOBAL.config = {
+                privacy = {
+                    shareInventoryMinRank = lowestRank,
+                    shareTalentsMinRank = lowestRank,
+                    shareProfileMinRank = lowestRank,
+                },
+                modifyDefaultGuildRoster = true,
+                showTooltipTradeskills = true,
+                showTooltipTradeskillsRecipes = true,
+                showMinimapButton = true,
+                showMinimapCalendarButton = true,
+                showTooltipCharacterInfo = true,
+                showTooltipMainCharacter = true,
+                showTooltipMainSpec = true,
+                showTooltipProfessions = true,
+                parsePublicNotes = false,
+            }
+            local news = "There has been some changes made to how Guildbook stores your settings. For this update only, they have been reset to default values, you should check and make any changes as needed."
+            StaticPopup_Show('GuildbookUpdates', self.version, news)
+        end
+    end
+
+    local config = GUILDBOOK_GLOBAL.config
+    GuildbookOptionsModifyDefaultGuildRoster:SetChecked(config.modifyDefaultGuildRoster == true and true or false)
+    if config.modifyDefaultGuildRoster == true then
+        self:ModBlizzUI()
+    end
+    if config.showMinimapButton == false then
+        self.MinimapIcon:Hide('GuildbookMinimapIcon')
+        DEBUG('func', 'init', 'minimap icon saved var setting: false, hiding minimap button')
+    end
+    if config.showMinimapCalendarButton == false then
+        Guildbook:HideCalendarButton()
+        DEBUG('func', 'init', 'minimap calendar button saved var setting: false, hiding button')
+    else
+        Guildbook:ForceCalendarButton(Minimap, 40, 'TOPRIGHT', 20, -2)
+    end
+
+    GuildbookOptionsTooltipTradeskill:SetChecked(config.showTooltipTradeskills and config.showTooltipTradeskills or false)
+    GuildbookOptionsTooltipTradeskillRecipes:SetChecked(config.showTooltipTradeskillsRecipes and config.showTooltipTradeskillsRecipes or false)
+
+    GuildbookOptionsShowMinimapButton:SetChecked(config.showMinimapButton)
+    GuildbookOptionsShowMinimapCalendarButton:SetChecked(config.showMinimapCalendarButton)
+
+    GuildbookOptionsTooltipInfo:SetChecked(config.showTooltipCharacterInfo)
+    GuildbookOptionsTooltipInfoMainSpec:SetChecked(config.showTooltipMainSpec)
+    GuildbookOptionsTooltipInfoProfessions:SetChecked(config.showTooltipProfessions)
+    GuildbookOptionsTooltipInfoMainCharacter:SetChecked(config.showTooltipMainCharacter)
+
+    if config.showTooltipCharacterInfo == false then
+        GuildbookOptionsTooltipInfoMainSpec:Disable()
+        GuildbookOptionsTooltipInfoProfessions:Disable()
+        GuildbookOptionsTooltipInfoMainCharacter:Disable()
+    else
+        GuildbookOptionsTooltipInfoMainSpec:Enable()
+        GuildbookOptionsTooltipInfoProfessions:Enable()
+        GuildbookOptionsTooltipInfoMainCharacter:Enable()
     end
 
 
@@ -170,19 +303,6 @@ function Guildbook:Init()
     self.MinimapIcon = LibStub("LibDBIcon-1.0")
     if not GUILDBOOK_GLOBAL['MinimapButton'] then GUILDBOOK_GLOBAL['MinimapButton'] = {} end
     self.MinimapIcon:Register('GuildbookMinimapIcon', self.MinimapButton, GUILDBOOK_GLOBAL['MinimapButton'])
-    -- used a timer here for some reason to force hiding
-    C_Timer.After(1, function()
-        if GUILDBOOK_GLOBAL['ShowMinimapButton'] == false then
-            self.MinimapIcon:Hide('GuildbookMinimapIcon')
-            DEBUG('func', 'init', 'minimap icon saved var setting: false, hiding minimap button')
-        end
-        if GUILDBOOK_GLOBAL['ShowMinimapCalendarButton'] == false then
-            Guildbook:HideCalendarButton()
-        else
-            Guildbook:ForceCalendarButton(Minimap, 40, 'TOPRIGHT', 20, -2)
-        end
-    end)
-
 
     GameTooltip:HookScript("OnTooltipSetItem", function(self)
         local name, link = GameTooltip:GetItem()
@@ -248,7 +368,7 @@ function Guildbook:Init()
     tooltipIcon.icon:SetAllPoints()
     -- hook the tooltip for guild characters
     GameTooltip:HookScript('OnTooltipSetUnit', function(self)
-        if GUILDBOOK_GLOBAL['TooltipInfo'] == false then
+        if GUILDBOOK_GLOBAL.config.showTooltipCharacterInfo == false then
             return;
         end
         local _, unit = self:GetUnit()
@@ -263,7 +383,7 @@ function Guildbook:Init()
                 local r, g, b = unpack(Guildbook.Data.Class[character.Class].RGB)
                 self:AddLine(" ")
                 self:AddLine('Guildbook:', 0.00, 0.44, 0.87, 1)
-                if GUILDBOOK_GLOBAL['TooltipInfoMainSpec'] == true then
+                if GUILDBOOK_GLOBAL.config.showTooltipMainSpec == true then
                     if character.MainSpec then
                         local mainSpec = false;
                         if character.MainSpec == "Bear" then
@@ -277,7 +397,7 @@ function Guildbook:Init()
                         self:AddLine(iconString.. "  |cffffffff"..character.MainSpec)
                     end
                 end
-                if GUILDBOOK_GLOBAL['TooltipInfoProfessions'] == true then
+                if GUILDBOOK_GLOBAL.config.showTooltipProfessions == true then
                     if character.Profession1 ~= '-' and Guildbook.Data.Profession[character.Profession1] then
                         self:AddDoubleLine(character.Profession1, character.Profession1Level, 1,1,1,1,1,1,1,1)
                     end
@@ -292,7 +412,7 @@ function Guildbook:Init()
                         self:AddLine(character.profile.realBio, 1,1,1,1, 1)
                     end
                 end
-                if GUILDBOOK_GLOBAL['TooltipInfoMainCharacter'] == true then
+                if GUILDBOOK_GLOBAL.config.showTooltipMainCharacter == true then
                     if character.MainCharacter and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[guildName] and GUILDBOOK_GLOBAL.GuildRosterCache[guildName][character.MainCharacter] then
                         self:AddDoubleLine(L['MAIN_CHARACTER'], GUILDBOOK_GLOBAL.GuildRosterCache[guildName][character.MainCharacter].Name, 1, 1, 1, 1, 1, 1, 1, 1) 
                     end
@@ -300,140 +420,76 @@ function Guildbook:Init()
             end
         end
     end)
-    -- GameTooltip:HookScript("OnTooltipCleared", function()
-    --     if GameTooltip.insertedFrames and next(GameTooltip.insertedFrames) ~= nil then
-    --         for k, frame in ipairs(GameTooltip.insertedFrames) do
-    --             if frame:GetName() == "GuildbookTooltipIcon" then
-    --                 frame:SetParent(nil)
-    --                 frame:SetSize(1,1)
-    --                 frame:ClearAllPoints()
-    --                 frame:Hide()
-    --             end
-    --         end
-    --     end
-    -- end)
 
 
-
-    ------- this section will be adjusted when player profiles move in to profiles tab fully
-    --the OnShow event doesnt fire for the first time the options frame is shown? set the values here
-    -- these are all xml define widgets - REMOVE at some point?
-    if GUILDBOOK_CHARACTER and GUILDBOOK_GLOBAL then
-        GuildbookOptionsDebugCB:SetChecked(GUILDBOOK_GLOBAL['Debug'])
-        if GUILDBOOK_GLOBAL['Debug'] == true then
-            Guildbook.DebuggerWindow:Show()
-        else
-            Guildbook.DebuggerWindow:Hide()
-        end
-        GuildbookOptionsShowMinimapButton:SetChecked(GUILDBOOK_GLOBAL['ShowMinimapButton'])
-
-        if not GUILDBOOK_GLOBAL['CommsDelay'] then
-            GUILDBOOK_GLOBAL['CommsDelay'] = 1.0
-        end
-        Guildbook.CommsDelaySlider:SetValue(GUILDBOOK_GLOBAL['CommsDelay'])
-
-        if not GUILDBOOK_GLOBAL['TooltipInfo'] then
-            GUILDBOOK_GLOBAL['TooltipInfo'] = false
-        end
-        GuildbookOptionsTooltipInfo:SetChecked(GUILDBOOK_GLOBAL['TooltipInfo'])
-
-        if not GUILDBOOK_GLOBAL['TooltipInfoMainSpec'] then
-            GUILDBOOK_GLOBAL['TooltipInfoMainSpec'] = false
-        end
-        GuildbookOptionsTooltipInfoMainSpec:SetChecked(GUILDBOOK_GLOBAL['TooltipInfoMainSpec'])
-
-        if not GUILDBOOK_GLOBAL['TooltipInfoProfessions'] then
-            GUILDBOOK_GLOBAL['TooltipInfoProfessions'] = false
-        end
-        GuildbookOptionsTooltipInfoProfessions:SetChecked(GUILDBOOK_GLOBAL['TooltipInfoProfessions'])
-
-        if not GUILDBOOK_GLOBAL['TooltipInfoMainCharacter'] then
-            GUILDBOOK_GLOBAL['TooltipInfoMainCharacter'] = false
-        end
-        GuildbookOptionsTooltipInfoMainCharacter:SetChecked(GUILDBOOK_GLOBAL['TooltipInfoMainCharacter'])
-
-        if GUILDBOOK_GLOBAL['TooltipInfo'] == false then
-            GuildbookOptionsTooltipInfoMainSpec:Disable()
-            GuildbookOptionsTooltipInfoProfessions:Disable()
-            GuildbookOptionsTooltipInfoMainCharacter:Disable()
-        else
-            GuildbookOptionsTooltipInfoMainSpec:Enable()
-            GuildbookOptionsTooltipInfoProfessions:Enable()
-            GuildbookOptionsTooltipInfoMainCharacter:Enable()
-        end
-
-        -- this will be the new config setup system moving forward
-        if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.config then
-            local config = GUILDBOOK_GLOBAL.config
-            GuildbookOptionsModifyDefaultGuildRoster:SetChecked(config.modifyDefaultGuildRoster == true and true or false)
-            if config.modifyDefaultGuildRoster == true then
-                self:ModBlizzUI()
-            end
-            GuildbookOptionsUseDefaultBlizzardFont:SetChecked(config.useBlizzardFont == true and true or false)
-            self:UpdateFonts()
-
-            GuildbookOptionsTooltipTradeskill:SetChecked(GUILDBOOK_GLOBAL.config.showTooltipTradeskills and GUILDBOOK_GLOBAL.config.showTooltipTradeskills or false)
-            GuildbookOptionsTooltipTradeskillRecipes:SetChecked(GUILDBOOK_GLOBAL.config.showTooltipTradeskillsRecipes and GUILDBOOK_GLOBAL.config.showTooltipTradeskillsRecipes or false)
-        end
-
-    end
-
+    Guildbook:CheckPrivacyRankSettings() -- this will make sure rank changes are handled, just set any privacy rule to the lowest rank if its
+    C_Timer.After(1, function()
+        Guildbook:SendPrivacyInfo("GUILD", nil)
+        DEBUG("func", "init", "sending privacy settings")
+    end)
     -- stagger some start up calls to prevent chat spam, use 3s interval
-    C_Timer.After(6, function()
+    C_Timer.After(3, function()
         if GUILDBOOK_CHARACTER and GUILDBOOK_CHARACTER.Profession1 then
             local prof = GUILDBOOK_CHARACTER.Profession1
             if GUILDBOOK_CHARACTER[prof] and next(GUILDBOOK_CHARACTER[prof]) ~= nil then
                 self:SendTradeskillData(prof, "GUILD", nil)
                 Guildbook.lastProfTransmit = GetTime()
-                DEBUG("func", "init", "sending prof1 data during init")
+                DEBUG("func", "init", string.format("sending %s data", prof))
             end
         end
     end)
-    C_Timer.After(9, function()
+    C_Timer.After(6, function()
         if GUILDBOOK_CHARACTER and GUILDBOOK_CHARACTER.Profession2 then
             local prof = GUILDBOOK_CHARACTER.Profession2
             if GUILDBOOK_CHARACTER[prof] and next(GUILDBOOK_CHARACTER[prof]) ~= nil then
                 self:SendTradeskillData(prof, "GUILD", nil)
                 Guildbook.lastProfTransmit = GetTime()
-                DEBUG("func", "init", "sending prof2 data during init")
+                DEBUG("func", "init", string.format("sending %s data", prof))
             end
         end
     end)
-    C_Timer.After(12, function()
+    C_Timer.After(9, function()
         if GUILDBOOK_CHARACTER.Cooking and type(GUILDBOOK_CHARACTER.Cooking) == "table" and next(GUILDBOOK_CHARACTER.Cooking) ~= nil then
             self:SendTradeskillData("Cooking", "GUILD", nil)
             Guildbook.lastProfTransmit = GetTime()
-            DEBUG("func", "init", "sending prof2 data during init")
+            DEBUG("func", "init", string.format("sending %s data", "cooking"))
         end    
     end)
-    C_Timer.After(18, function()
+    C_Timer.After(12, function()
+        self:RequestTradeskillData()
+        DEBUG("func", "init", "requested tradeskill recipe\\item data")
+    end)
+    C_Timer.After(15, function()
         Guildbook:SendGuildCalendarEvents()
+        DEBUG("func", "init", "send calendar events")
+    end)
+    C_Timer.After(18, function()
+        Guildbook:SendGuildCalendarDeletedEvents()
+        DEBUG("func", "init", "send deleted calendar events")
     end)
     C_Timer.After(21, function()
-        Guildbook:SendGuildCalendarDeletedEvents()
+        Guildbook:RequestGuildCalendarEvents()
+        DEBUG("func", "init", "requested calendar events")
     end)
     C_Timer.After(24, function()
-        Guildbook:RequestGuildCalendarEvents()
-    end)
-    C_Timer.After(27, function()
         Guildbook:RequestGuildCalendarDeletedEvents()
-    end)
-    C_Timer.After(30, function()
-        if not GUILDBOOK_GLOBAL.config and not GUILDBOOK_GLOBAL.config.privacy then
-            return;
-        end
-        Guildbook:SendPrivacyInfo("GUILD", nil)
+        DEBUG("func", "init", "requested deleted calendar events")
     end)
 
-    -- this enables us to prevent character model capturing until the player is fully loaded
-    Guildbook.LoadTime = GetTime()
-    DEBUG('func', 'init', tostring('Load time '..date("%T")))
+    --self:MakeFrameMoveable(FriendsFrame)
 
-    self:MakeFrameMoveable(FriendsFrame)
 
-    C_Timer.After(15, function()
-        self:RequestTradeskillData()
-    end)
+
+
+    --remove after a few updates
+    GUILDBOOK_GLOBAL.TooltipInfo = nil
+    GUILDBOOK_GLOBAL.TooltipInfoMainSpec = nil
+    GUILDBOOK_GLOBAL.TooltipInfoMainCharacter = nil
+    GUILDBOOK_GLOBAL.TooltipInfoProfessions = nil
+    GUILDBOOK_GLOBAL.ShowMinimapButton = nil
+    GUILDBOOK_GLOBAL.ShowMinimapCalendarButton = nil
+    GUILDBOOK_GLOBAL['Build'] = nil
+    GUILDBOOK_GLOBAL.Modules = nil
 end
 
 
@@ -621,7 +677,7 @@ function Guildbook:RequestTradeskillData()
                             profession = prof,
                         })
                         recipesToProcess = recipesToProcess - 1;
-                        DEBUG('func', 'tradeskill data requst', string.format("added recipeID %s prof %s link %s", recipeID, prof, l))
+                        --DEBUG('func', 'tradeskill data requst', string.format("added recipeID %s prof %s link %s", recipeID, prof, l))
                     end)
                 else
                     local item = Item:CreateFromItemID(recipeID)
@@ -640,7 +696,7 @@ function Guildbook:RequestTradeskillData()
                             profession = prof,
                         })
                         recipesToProcess = recipesToProcess - 1;
-                        DEBUG('func', 'tradeskill data requst', string.format("added recipeID %s prof %s link %s", recipeID, prof, l))
+                        --DEBUG('func', 'tradeskill data requst', string.format("added recipeID %s prof %s link %s", recipeID, prof, l))
                     end)
                 end
             else
@@ -655,11 +711,12 @@ function Guildbook:RequestTradeskillData()
                     profession = prof,
                 })
                 recipesToProcess = recipesToProcess - 1;
-                DEBUG('func', 'tradeskill data requst', string.format("added recipeID %s prof %s link %s", recipeID, prof, l))
+                --DEBUG('func', 'tradeskill data requst', string.format("added recipeID %s prof %s link %s", recipeID, prof, l))
             end
             i = i + 1;
             if recipesToProcess == 0 then
                 self:PrintMessage(string.format("all tradeskill recipes processed, took %s", SecondsToTime(time()-startTime)))
+                DEBUG('func', 'tradeskill data requst', string.format("all tradeskill recipes processed, took %s", SecondsToTime(time()-startTime)))
             end
         end, #recipeIDs)
     end
@@ -985,6 +1042,21 @@ function Guildbook:ShareWithPlayer(player, rule)
     return false;
 end
 
+function Guildbook:CheckPrivacyRankSettings()
+    local ranks = {}
+    for i = 1, GuildControlGetNumRanks() do
+        ranks[GuildControlGetRankName(i)] = i;
+    end
+    local lowestRank = GuildControlGetRankName(GuildControlGetNumRanks())
+    if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.config and GUILDBOOK_GLOBAL.config.privacy and next(GUILDBOOK_GLOBAL.config.privacy) ~= nil then
+        for rule, rank in pairs(GUILDBOOK_GLOBAL.config.privacy) do
+            if not ranks[rank] then
+                rank = lowestRank
+            end
+        end
+    end
+end
+
 function Guildbook:ScanPlayerBags()
     if not GUILDBOOK_GLOBAL.MySacks then -- my sacks is an addon i made which im going to use in guildbook
         GUILDBOOK_GLOBAL.MySacks = {
@@ -1172,7 +1244,6 @@ function Guildbook:ScanTradeSkill()
     end
 end
 
-
 --- scan the players enchanting recipes, enchanting works a little differently 
 --- this is used to get data about the players professions, recipes and reagents
 function Guildbook:ScanCraftSkills_Enchanting()
@@ -1184,7 +1255,7 @@ function Guildbook:ScanCraftSkills_Enchanting()
         C_Timer.NewTicker(0.01, function()
             local name, _, _type, _, _, _, _ = GetCraftInfo(i)
             if (name and _type ~= "header") then
-                local itemID = select(7, GetSpellInfo(name))
+                local _, _, _, _, _, _, itemID = GetSpellInfo(name)
                 DEBUG('func', 'ScanTradeSkill_Enchanting', string.format('|cff0070DETrade item|r: %s, with ID: %s', name, itemID))
                 if itemID then
                     GUILDBOOK_CHARACTER['Enchanting'][itemID] = {}
@@ -1220,18 +1291,42 @@ function Guildbook:ScanCraftSkills_Enchanting()
                 if elapsed > 30 then
                     self:SendTradeskillData("Enchanting", "GUILD", nil)
                     Guildbook.lastProfTransmit = GetTime()
-                    --self:PrintMessage("sent profession data")
-                else
-                    --self:PrintMessage(string.format("profession data NOT sent, wait %ss", string.format("%.0f",30-elapsed)))
                 end
             end
             i = i + 1;
         end, c)
-    else
-        --StaticPopup_Show('Error', 'Guildbook is missing the translation for this profession!')
     end
 end
 
+local profAbbrev = {
+    ["alch"] = "Alchemy",
+    ["bs"] = "Blacksmithing",
+    ["ench"] = "Enchanting",
+    ["eng"] = "Engineering",
+    ["insc"] = "Inscription",
+    ["lw"] = "Leatherworking",
+    ["jc"] = "Jewelcrafting",
+    ["tail"] = "Tailoring",
+    ["mine"] = "Mining",
+    ["herb"] = "Herbalism",
+    ["skin"] = "Skinning",
+}
+function Guildbook:ParseMemberNote(note, character)
+    if note:find("{gb,") then
+        local s = string.find(note, "{gb,")
+        local e = string.find(note, "}")
+        if s and e then
+            local data = note:sub(s+1,e-1)
+            local prefix, spec, prof1, prof2 = strsplit(",", data)
+            if profAbbrev[prof1] then
+                character.Profession1 = profAbbrev[prof1]
+            end
+            if profAbbrev[prof2] then
+                character.Profession2 = profAbbrev[prof2]
+            end
+        end
+    end
+end
 
 --- scan the characters current guild cache
 -- this will check name and class against the return values from PlayerMixin using guid, sometimes players create multipole characters before settling on a class
@@ -1666,7 +1761,7 @@ function Guildbook:OnPrivacyReceived(data, distribution, sender)
     if not data.payload.privacy then
         return
     end
-    if data.senderGUID then --and data.senderGUID ~= UnitGUID("player") then
+    if data.senderGUID and data.senderGUID ~= UnitGUID("player") then
         local guildName = Guildbook:GetGuildName()
         if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[guildName] and GUILDBOOK_GLOBAL.GuildRosterCache[guildName][data.senderGUID] then
             local character = GUILDBOOK_GLOBAL.GuildRosterCache[guildName][data.senderGUID]
@@ -2386,53 +2481,12 @@ end
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- events
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 function Guildbook:ADDON_LOADED(...)
     if tostring(...):lower() == addonName:lower() then
         self:Init()
     end
 end
-
-
-function Guildbook:PLAYER_ENTERING_WORLD()
-
-    --self:ModBlizzUI()
-    if not self.GuildFrame then
-        self.GuildFrame = {
-            "GuildBankFrame",
-            "GuildCalendarFrame",
-        }
-    end
-    self:SetupGuildBankFrame()
-    self:SetupGuildCalendarFrame()
-
-    self.EventFrame:UnregisterEvent('PLAYER_ENTERING_WORLD')
-
-    --LoadAddOn("Blizzard_DebugTools")
-
-    self.player = {
-        faction = nil,
-        race = nil,
-    }
-    C_Timer.After(2.0, function()
-        if not Guildbook.PlayerMixin then
-            Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(UnitGUID('player'))
-        else
-            Guildbook.PlayerMixin:SetGUID(UnitGUID('player'))
-        end
-        if Guildbook.PlayerMixin:IsValid() then
-            local name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
-            -- double check mixin
-            if not name then
-                return
-            end
-            local raceID = C_PlayerInfo.GetRace(Guildbook.PlayerMixin)
-            self.player.race = C_CreatureInfo.GetRaceInfo(raceID).clientFileString:upper()
-            self.player.faction = C_CreatureInfo.GetFactionInfo(raceID).groupTag
-        end
-        --DevTools_Dump(self.player)
-    end)
-end
-
 
 function Guildbook:TRADE_SKILL_UPDATE()
     C_Timer.After(1, function()
@@ -2440,20 +2494,15 @@ function Guildbook:TRADE_SKILL_UPDATE()
         self:ScanTradeSkill()
     end)
 end
+
 function Guildbook:CRAFT_UPDATE()
     C_Timer.After(1, function()
         DEBUG('func', 'CRAFT_UPDATE', 'scanning skills enchanting')
         self:ScanCraftSkills_Enchanting()
     end)
 end
-function Guildbook:NEW_RECIPE_LEARNED(...)
-    self:ScanTradeSkill()
-    self:ScanCraftSkills_Enchanting()
-end
-
 
 function Guildbook:UPDATE_MOUSEOVER_UNIT()
-
     -- delay any model loading while players addons sort themselves out
     if Guildbook.LoadTime and Guildbook.LoadTime + 8.0 > GetTime() then
         return
@@ -2488,7 +2537,6 @@ function Guildbook:UPDATE_MOUSEOVER_UNIT()
     end
 end
 
-
 function Guildbook:CHAT_MSG_GUILD(...)
     local sender = select(5, ...)
     local msg = select(1, ...)
@@ -2518,7 +2566,6 @@ function Guildbook:CHAT_MSG_GUILD(...)
         end
     end
 end
-
 
 function Guildbook:CHAT_MSG_WHISPER(...)
     local msg, sender, _, _, _, _, _, _, _, _, _, guid = ...
@@ -2752,9 +2799,7 @@ Guildbook.EventFrame = CreateFrame('FRAME', 'GuildbookEventFrame', UIParent)
 Guildbook.EventFrame:RegisterEvent('GUILD_ROSTER_UPDATE')
 Guildbook.EventFrame:RegisterEvent('ADDON_LOADED')
 Guildbook.EventFrame:RegisterEvent('PLAYER_LEVEL_UP')
-Guildbook.EventFrame:RegisterEvent('PLAYER_ENTERING_WORLD')
 Guildbook.EventFrame:RegisterEvent('TRADE_SKILL_UPDATE')
-Guildbook.EventFrame:RegisterEvent('NEW_RECIPE_LEARNED')
 Guildbook.EventFrame:RegisterEvent('CRAFT_UPDATE')
 Guildbook.EventFrame:RegisterEvent('RAID_ROSTER_UPDATE')
 Guildbook.EventFrame:RegisterEvent('BANKFRAME_OPENED')

@@ -56,8 +56,8 @@ end
 GuildbookListviewItemMixin = {}
 
 function GuildbookListviewItemMixin:OnLoad()
-    local _, size, flags = self.Text:GetFont()
-    self.Text:SetFont([[Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf]], size+4, flags)
+    -- local _, size, flags = self.Text:GetFont()
+    -- self.Text:SetFont([[Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf]], size+4, flags)
 end
 
 function GuildbookListviewItemMixin:SetItem(info)

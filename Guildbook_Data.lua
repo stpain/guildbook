@@ -44,9 +44,10 @@ Guildbook.Data.Months = {
 
 Guildbook.Data.DefaultGlobalSettings = {
     Debug = false,
-    ShowMinimapButton = true,
     GuildRosterCache = {},
-    Build = 0.0,
+    Calendar = {},
+    CalendarDeleted = {},
+    CommsDelay = 1.0,
 }
 
 Guildbook.Data.DefaultCharacterSettings = {

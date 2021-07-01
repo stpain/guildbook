@@ -178,19 +178,19 @@ StaticPopupDialogs['GuildbookGatheringDatabaseEditObject'] = {
 }
 
 StaticPopupDialogs['GuildbookUpdates'] = {
-    text = 'Version: %s\n\n%s',
+    text = 'Guildbook Version: %s\n\n%s',
     button1 = 'OK',
-    hasEditBox = true,
+    --hasEditBox = true,
     OnAccept = function(self)
-
+        GUILDBOOK_GLOBAL.configUpdate = true
     end,
     OnShow = function(self)
         --self.icon:SetTexture(132049)
         self.icon:SetTexture(nil)
-        self.editBox:SetMaxLetters(50)
-        self.editBox:SetWidth(300)
-        self.editBox:SetText('https://www.curseforge.com/wow/addons/guildbook')
-        self.editBox:HighlightText()
+        -- self.editBox:SetMaxLetters(50)
+        -- self.editBox:SetWidth(300)
+        -- self.editBox:SetText('https://www.curseforge.com/wow/addons/guildbook')
+        -- self.editBox:HighlightText()
     end,
     OnHide = function(self)
         --self.icon:SetTexture("Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew")

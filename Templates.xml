@@ -1,4 +1,21 @@
 <UI>
+    <Frame name="GuildbookProfilesRowTemplate" virtual="true">
+        <Layers>
+            <Layer level="BACKGROUND">
+
+            </Layer>
+            <Layer level="ARTWORK">
+
+            </Layer>
+            <Layer level="OVERLAY">
+
+            </Layer>
+            <Frames>
+
+            </Frames>
+        </Layers>
+    </Frame>
+
     <Frame name="GuildbookListviewItem" mixin="GuildbookListviewItemMixin" virtual="true" enableMouse="true">
         <Layers>
 			<Layer level="BACKGROUND">
@@ -76,14 +93,14 @@
 						<Anchor point="LEFT" x="3" y="0"/>
 					</Anchors>
 				</Texture>
-				<FontString parentArray="fontstrings" parentKey="Name" inherits="GuildbookAcme14" justifyH="LEFT">
+				<FontString parentArray="fontstrings" parentKey="Name" inherits="GameFontNormal" justifyH="LEFT">
                     <Size x="108" y="22"/>
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.ClassIcon" x="7" y="0"/>
 					</Anchors>
 					<Color r="1" g="1" b="1"/>
 				</FontString>
-				<FontString parentArray="fontstrings" parentKey="Level" inherits="GuildbookAcme14" justifyH="CENTER">
+				<FontString parentArray="fontstrings" parentKey="Level" inherits="GameFontNormal" justifyH="CENTER">
                     <Size x="30" y="22"/>
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Name" x="5" y="0"/>
@@ -96,7 +113,7 @@
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Level" x="5" y="0"/> -->
 					</Anchors>
 				</Texture>
-				<FontString parentArray="fontstrings" parentKey="MainSpec" inherits="GuildbookAcme14" justifyH="LEFT">
+				<FontString parentArray="fontstrings" parentKey="MainSpec" inherits="GameFontNormal" justifyH="LEFT">
                     <Size x="100" y="22"/>
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.MainSpecIcon" x="5" y="0"/>
@@ -115,21 +132,21 @@
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Prof1" x="5" y="0"/>
 					</Anchors>
 				</Texture>
-				<FontString parentArray="fontstrings" parentKey="Location" inherits="GuildbookAcme14" justifyH="LEFT">
+				<FontString parentArray="fontstrings" parentKey="Location" inherits="GameFontNormal" justifyH="LEFT">
                     <Size x="110" y="22"/>
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Prof2" x="10" y="0"/>
 					</Anchors>
 					<Color r="1" g="1" b="1"/>
 				</FontString>
-				<FontString parentArray="fontstrings" parentKey="Rank" inherits="GuildbookAcme14" justifyH="LEFT">
+				<FontString parentArray="fontstrings" parentKey="Rank" inherits="GameFontNormal" justifyH="LEFT">
                     <Size x="110" y="22"/>
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Location" x="5" y="0"/>
 					</Anchors>
 					<Color r="1" g="1" b="1"/>
 				</FontString>
-				<FontString parentArray="fontstrings" parentKey="PublicNote" inherits="GuildbookAcme14" justifyH="LEFT">
+				<FontString parentArray="fontstrings" parentKey="PublicNote" inherits="GameFontNormal" justifyH="LEFT">
                     <Size x="110" y="22"/>
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Rank" x="5" y="0"/>
@@ -502,7 +519,7 @@
                         <Anchor point="LEFT" x="10" y="0"/>
                     </Anchors>
                 </Texture>
-                <FontString parentKey="Link" inherits="GuildbookAcme14">
+                <FontString parentKey="Link" inherits="GameFontNormal">
                     <Anchors>
                         <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Icon" x="10" y="0"/>
                     </Anchors>
@@ -624,7 +641,8 @@
                 </Texture>
             </Layer>
             <Layer level="OVERLAY">
-                <FontString parentKey="header" inherits="GuildbookAcme14" text="stat group">
+                <FontString parentKey="header" inherits="GameFontNormal" text="stat group">
+                    <Color r="1" g="1" b="1"/>
                     <Anchors>
                         <Anchor point="TOP" x="0" y="-7"/>
                     </Anchors>
@@ -654,25 +672,25 @@
                         <Anchor point="LEFT" x="0" y="0"/>
                     </Anchors>
                 </Texture>
-                <FontString parentArray="fontstrings" parentKey="Link" inherits="GuildbookAcme14" justifyH="LEFT">
+                <FontString parentArray="fontstrings" parentKey="Link" inherits="GameFontNormal" justifyH="LEFT">
                     <Size x="280" y="26"/>
                     <Anchors>
                         <Anchor point="LEFT" relativeKey="$parent.Icon" relativePoint="RIGHT" x="5" y="0"/>
                     </Anchors>
                 </FontString>
-                <FontString parentArray="fontstrings" parentKey="Count" inherits="GuildbookAcme14"  justifyH="LEFT">
+                <FontString parentArray="fontstrings" parentKey="Count" inherits="GameFontNormal"  justifyH="LEFT">
                     <Size x="40" y="26"/>
                     <Anchors>
                         <Anchor point="LEFT" relativeKey="$parent.Link" relativePoint="RIGHT" x="5" y="0"/>
                     </Anchors>
                 </FontString>
-                <FontString parentArray="fontstrings" parentKey="Type" inherits="GuildbookAcme14" justifyH="LEFT">
+                <FontString parentArray="fontstrings" parentKey="Type" inherits="GameFontNormal" justifyH="LEFT">
                     <Size x="100" y="26"/>
                     <Anchors>
                         <Anchor point="LEFT" relativeKey="$parent.Count" relativePoint="RIGHT" x="5" y="0"/>
                     </Anchors>
                 </FontString>
-                <FontString parentArray="fontstrings" parentKey="SubType" inherits="GuildbookAcme14"  justifyH="LEFT">
+                <FontString parentArray="fontstrings" parentKey="SubType" inherits="GameFontNormal"  justifyH="LEFT">
                     <Size x="100" y="26"/>
                     <Anchors>
                         <Anchor point="LEFT" relativeKey="$parent.Type" relativePoint="RIGHT" x="5" y="0"/>
@@ -920,7 +938,8 @@
                         <Anchor point="LEFT" x="2" y="0"/>
                     </Anchors>
                 </Texture>
-                <FontString parentKey="text" inherits="GuildbookAcme14" justifyH="RIGHT">
+                <FontString parentKey="text" inherits="GameFontNormal" justifyH="RIGHT">
+                    <Color r="1" g="1" b="1"/>
                     <Anchors>
                         <Anchor point="RIGHT" x="-2" y="0"/>
                     </Anchors>    
