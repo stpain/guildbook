@@ -150,6 +150,10 @@ function GuildbookSearchResultMixin:ClearRow()
 end
 
 function GuildbookSearchResultMixin:SetResult(info)
+    self.text:SetText("")
+    self.info:SetText("")
+    self.link = nil
+    self.func = nil
     if not info then
         return;
     end

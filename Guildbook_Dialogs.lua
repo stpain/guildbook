@@ -127,9 +127,11 @@ StaticPopupDialogs['GuildbookResetGlobalSettings'] = {
     button1 = 'Reset',
     button2 = 'Cancel',
     OnAccept = function(self)
-        wipe(GUILDBOOK_GLOBAL)
-        GUILDBOOK_GLOBAL = Guildbook.Data.DefaultGlobalSettings
-        GuildbookOptionsDebugCB:SetChecked(GUILDBOOK_GLOBAL['Debug'])
+        if GUILDBOOK_GLOBAL then
+            wipe(GUILDBOOK_GLOBAL)
+            GUILDBOOK_GLOBAL = Guildbook.Data.DefaultGlobalSettings
+            GuildbookOptionsDebugCB:SetChecked(GUILDBOOK_GLOBAL['Debug'])
+        end
         ReloadUI()
     end,
     OnCancel = function(self)

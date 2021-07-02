@@ -56,8 +56,8 @@ local DEBUG = Guildbook.DEBUG
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 SLASH_GUILDBOOK1 = '/guildbook'
 SlashCmdList['GUILDBOOK'] = function(msg)
-    if msg == '-help' then
-        print(':(')
+    if msg == 'open' then
+        GuildbookUI:Show()
 
     elseif msg == '-profs' then
 
@@ -78,7 +78,7 @@ function Guildbook:Init()
     else
         Guildbook.DebuggerWindow:Hide()
     end
-    GuildbookOptionsDebugCB:SetChecked(GUILDBOOK_GLOBAL['Debug'])
+    GuildbookOptionsDebugCB:SetChecked(GUILDBOOK_GLOBAL.Debug and GUILDBOOK_GLOBAL.Debug or false)
 
     -- this enables us to prevent character model capturing until the player is fully loaded
     Guildbook.LoadTime = GetTime()
@@ -279,7 +279,7 @@ function Guildbook:Init()
         GameTimeFrame:Show()
         DEBUG('func', 'init', 'minimap calendar button saved var setting: false, hiding button')
     else
-        Guildbook:ForceCalendarButton(Minimap, 40, 'TOPRIGHT', 20, -2)
+        Guildbook:ShowCalendarButton()
         GameTimeFrame:Hide()
     end
 
@@ -1412,7 +1412,7 @@ function Guildbook:ScanGuildRoster(guild, msg)
                 };
                 table.insert(newGUIDs, guid)
             end
-            currentGUIDs[i] = { GUID = guid, lvl = level, exists = true, rank = rankName, pubNote = publicNote, offNote = officerNote}
+            currentGUIDs[i] = { GUID = guid, lvl = level, exists = true, online = isOnline, rank = rankName, pubNote = publicNote, offNote = officerNote}
             memberGUIDs[guid] = true;
             --name = Ambiguate(name, 'none')
             --table.insert(GUILDBOOK_GLOBAL['RosterExcel'], string.format("%s,%s,%s,%s,%s", name, class, rankName, level, publicNote))
@@ -1462,6 +1462,9 @@ function Guildbook:ScanGuildRoster(guild, msg)
                         if not info.Profession2 then
                             info.Profession2 = (info.Prof2 and info.Prof2 or "-")
                         end
+                        -- if info.Profession1 == "-" and info.Profession2 == "-" then
+                        --     DEBUG("func", "ScanGuildRoster", string.format("no prof keys for %s", info.Name))
+                        -- end
                         -- remove the old
                         info.Prof1 = nil
                         info.Prof2 = nil
@@ -1486,8 +1489,18 @@ function Guildbook:ScanGuildRoster(guild, msg)
                                     exists = true;
                                 end
                                 if exists == false then
-                                    --info[prof.Name] = nil;
-                                    DEBUG("func", "ScanGuildRoster", string.format("removed %s from %s", prof.Name, info.Name))
+                                    if info.Profession1 == "-" then
+                                        info.Profession1 = prof.Name
+                                        DEBUG("func", "ScanGuildRoster", string.format("set %s profession1 as %s because it was blank", info.Name, prof.Name))
+                                    else
+                                        if info.Profession2 == "-" then
+                                            info.Profession2 = prof.Name
+                                            DEBUG("func", "ScanGuildRoster", string.format("set %s profession2 as %s because it was blank", info.Name, prof.Name))
+                                        else
+                                            info[prof.Name] = nil
+                                            DEBUG("func", "ScanGuildRoster", string.format("|cffC41F3Bremoved|r %s from %s", prof.Name, info.Name))
+                                        end
+                                    end
                                 end
                             end
                         end
@@ -1833,6 +1846,15 @@ function Guildbook:OnPrivacyReceived(data, distribution, sender)
                 ranks[GuildControlGetRankName(i)] = i;
             end
             local myRank = GuildControlGetRankName(C_GuildInfo.GetGuildRankOrder(UnitGUID("player")))
+            if not ranks[myRank] and not ranks[data.payload.privacy.shareProfileMinRank] then
+                return
+            end
+            if not ranks[myRank] and not ranks[data.payload.privacy.shareInventoryMinRank] then
+                return
+            end
+            if not ranks[myRank] and not ranks[data.payload.privacy.shareTalentsMinRank] then
+                return
+            end
             if data.payload.privacy.shareProfileMinRank then
                 if data.payload.privacy.shareProfileMinRank == "none" then
                     character.profile = nil;
@@ -2058,6 +2080,11 @@ function Guildbook:OnTradeSkillsReceived(response, distribution, sender)
                 local i = 0;
                 for k, v in pairs(response.payload.recipes) do
                     i = i + 1;
+                end
+                if character.Profession1 == "-" then
+                    if character.Profession2 == "-" and (character.Profession1 ~= response.payload.profession) then
+                        Guildbook:CharacterDataRequest(sender)
+                    end
                 end
                 character[response.payload.profession] = response.payload.recipes
                 GuildbookUI.statusText:SetText(string.format("received tradeskill response from %s, got %s %s recipes", sender, i, response.payload.profession))
@@ -2595,7 +2622,7 @@ function Guildbook:UPDATE_MOUSEOVER_UNIT()
             local raceID = C_PlayerInfo.GetRace(Guildbook.PlayerMixin)
             local race = C_CreatureInfo.GetRaceInfo(raceID).clientFileString:upper()
             local faction = C_CreatureInfo.GetFactionInfo(raceID).groupTag
-            if race and self.player.faction == C_CreatureInfo.GetFactionInfo(raceID).groupTag then
+            if race and self.player and self.player.faction == C_CreatureInfo.GetFactionInfo(raceID).groupTag then
                 GuildbookUI.profiles:AddCharacterModelFrame('mouseover', race, sex)
             end
         end

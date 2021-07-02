@@ -35,24 +35,20 @@ local addonName, Guildbook = ...
 
 -- locales table
 local L = {}
-
--- buttons, labels and texts NEED TO GO THROUGH THESE AND REMOVE OLD STRINGS
-
 L['OptionsAbout'] = 'Guildbook options and about.'
 L['Version'] = 'Version'
 L['Author'] = 'Author: |cffffffffstpain (|r|cffF58CBACopperbolts|r |cffffffffand|r |cff0070DEKylanda|r|cffffffff)|r'
-
 
 L["GUILDBOOK_LOADER_HEADER"]        = "Welcome to Guildbook"
 L["TOOLTIP_ITEM_RECIPE_HEADER"]     = "Used for the following"
 
 --mod blizz stuff
-L['Online'] = 'Online'
-L['MainSpec'] = 'Main Spec'
-L['Rank'] = 'Rank'
-L['Note'] = 'Note'
-L['Profession1'] = 'Profession 1'
-L['Profession2'] = 'Profession 2'
+L['Online']                         = 'Online'
+L['MainSpec']                       = 'Main Spec'
+L['Rank']                           = 'Rank'
+L['Note']                           = 'Note'
+L['Profession1']                    = 'Profession 1'
+L['Profession2']                    = 'Profession 2'
 
 
 -- roster listview and tooltip

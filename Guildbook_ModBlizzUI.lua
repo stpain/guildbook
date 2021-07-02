@@ -56,8 +56,7 @@ Guildbook.GuildFrame = {
     },
     ColumnMarginX = 1.0,
 }
-Guildbook.GameTimeFrame = CreateFrame('BUTTON')
-Guildbook.GameTimeFrame:SetParent(Minimap)
+Guildbook.GameTimeFrame = CreateFrame('BUTTON', "GuildbookMinimapCalendarButton", Minimap)
 Guildbook.GameTimeFrame:SetSize(40, 40)
 Guildbook.GameTimeFrame:SetPoint('TOPRIGHT', 20, -2)
 Guildbook.GameTimeFrame:SetNormalTexture("Interface\\Calendar\\UI-Calendar-Button")
@@ -65,10 +64,18 @@ Guildbook.GameTimeFrame:GetNormalTexture():SetTexCoord(0.0, 0.390625, 0.0, 0.781
 Guildbook.GameTimeFrame:SetPushedTexture("Interface\\Calendar\\UI-Calendar-Button")
 Guildbook.GameTimeFrame:GetPushedTexture():SetTexCoord(0.5, 0.890625, 0.0, 0.78125)
 Guildbook.GameTimeFrame:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight", "ADD")
-Guildbook.GameTimeFrame:SetHitRectInsets(6, 0, 5, 10)
+--Guildbook.GameTimeFrame:SetHitRectInsets(6, 0, 5, 10)
+Guildbook.GameTimeFrame:RegisterForClicks("AnyDown", "AnyUp")
+
+Guildbook.GameTimeFrame:SetScript("OnMouseUp", function(self)
+    --self:RegisterForDrag()
+end)
 
 function Guildbook:HideCalendarButton()
     Guildbook.GameTimeFrame:Hide()
+end
+function Guildbook:ShowCalendarButton()
+    Guildbook.GameTimeFrame:Show()
 end
 
 function Guildbook:ForceCalendarButton(parent, s, anchor, x, y)
@@ -80,7 +87,7 @@ function Guildbook:ForceCalendarButton(parent, s, anchor, x, y)
     Guildbook.GameTimeFrame:SetPushedTexture("Interface\\Calendar\\UI-Calendar-Button")
     Guildbook.GameTimeFrame:GetPushedTexture():SetTexCoord(0.5, 0.890625, 0.0, 0.78125)
     Guildbook.GameTimeFrame:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight", "ADD")
-    Guildbook.GameTimeFrame:SetHitRectInsets(6, 0, 5, 10)
+    --Guildbook.GameTimeFrame:SetHitRectInsets(6, 0, 5, 10)
     Guildbook.GameTimeFrame:Show()
 end
 
@@ -92,12 +99,9 @@ function Guildbook:ModBlizzUI()
     Guildbook.GameTimeFrame.Text:SetText(date('*t').day)
     C_Timer.NewTicker(1, function()
         Guildbook.GameTimeFrame.Text:SetText(date('*t').day)
-
-        -- force the button back to default settings
-        --Guildbook:ForceCalendarButton(Minimap, 40, 'TOPRIGHT', 20, -2)
     end)
 
-    Guildbook.GameTimeFrame:SetScript('OnClick', function(self)
+    Guildbook.GameTimeFrame:SetScript('OnClick', function(self, button)
         GuildbookUI:OpenTo("calendar")
         Guildbook.GuildFrame.GuildCalendarFrame:ClearAllPoints()
         Guildbook.GuildFrame.GuildCalendarFrame:SetParent(GuildbookUI.calendar)
@@ -108,6 +112,12 @@ function Guildbook:ModBlizzUI()
         Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:ClearAllPoints()
         Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('TOPLEFT', GuildbookUI.calendar, 'TOPRIGHT', 4, 50)
         Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('BOTTOMRIGHT', GuildbookUI.calendar, 'BOTTOMRIGHT', 254, 0)
+
+        -- if button == "LeftButton" then
+        --     Guildbook:MakeFrameMoveable(Guildbook.GameTimeFrame)
+        -- elseif button == "MiddleButton" then
+        --     Guildbook:ForceCalendarButton(Minimap, 40, 'TOPRIGHT', 20, -2)
+        -- end
     end)
 
     Guildbook.GameTimeFrame:SetScript('OnEnter', function(self)
@@ -166,10 +176,9 @@ function Guildbook:ModBlizzUI()
             tab:SetPoint('LEFT', self.GuildFrame.ColumnTabs[k-1], 'RIGHT', -2.0, 0.0)
         end
         tab:SetSize(col.Width, GuildFrameColumnHeader4:GetHeight())
-        tab.text = tab:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
+        tab.text = tab:CreateFontString(nil, 'OVERLAY', 'GameFontNormalSmall')
         tab.text:SetPoint('LEFT', tab, 'LEFT', 8.0, 0.0)
         tab.text:SetText(L[col.Text])
-        tab.text:SetFont("Fonts\\FRIZQT__.TTF", 10)
         tab.text:SetTextColor(1,1,1,1)
         --if elvui == false then
             tab.background = tab:CreateTexture('$parentBackground', 'BACKGROUND')
