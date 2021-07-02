@@ -221,46 +221,6 @@ function Guildbook:Init()
         end
     end
 
-    local config = GUILDBOOK_GLOBAL.config
-    GuildbookOptionsModifyDefaultGuildRoster:SetChecked(config.modifyDefaultGuildRoster == true and true or false)
-    if config.modifyDefaultGuildRoster == true then
-        self:ModBlizzUI()
-    end
-    if config.showMinimapButton == false then
-        self.MinimapIcon:Hide('GuildbookMinimapIcon')
-        DEBUG('func', 'init', 'minimap icon saved var setting: false, hiding minimap button')
-    end
-    if config.showMinimapCalendarButton == false then
-        Guildbook:HideCalendarButton()
-        GameTimeFrame:Show()
-        DEBUG('func', 'init', 'minimap calendar button saved var setting: false, hiding button')
-    else
-        Guildbook:ForceCalendarButton(Minimap, 40, 'TOPRIGHT', 20, -2)
-        GameTimeFrame:Hide()
-    end
-
-    GuildbookOptionsTooltipTradeskill:SetChecked(config.showTooltipTradeskills and config.showTooltipTradeskills or false)
-    GuildbookOptionsTooltipTradeskillRecipes:SetChecked(config.showTooltipTradeskillsRecipes and config.showTooltipTradeskillsRecipes or false)
-
-    GuildbookOptionsShowMinimapButton:SetChecked(config.showMinimapButton)
-    GuildbookOptionsShowMinimapCalendarButton:SetChecked(config.showMinimapCalendarButton)
-
-    GuildbookOptionsTooltipInfo:SetChecked(config.showTooltipCharacterInfo)
-    GuildbookOptionsTooltipInfoMainSpec:SetChecked(config.showTooltipMainSpec)
-    GuildbookOptionsTooltipInfoProfessions:SetChecked(config.showTooltipProfessions)
-    GuildbookOptionsTooltipInfoMainCharacter:SetChecked(config.showTooltipMainCharacter)
-
-    if config.showTooltipCharacterInfo == false then
-        GuildbookOptionsTooltipInfoMainSpec:Disable()
-        GuildbookOptionsTooltipInfoProfessions:Disable()
-        GuildbookOptionsTooltipInfoMainCharacter:Disable()
-    else
-        GuildbookOptionsTooltipInfoMainSpec:Enable()
-        GuildbookOptionsTooltipInfoProfessions:Enable()
-        GuildbookOptionsTooltipInfoMainCharacter:Enable()
-    end
-
-
     local ldb = LibStub("LibDataBroker-1.1")
     self.MinimapButton = ldb:NewDataObject('GuildbookMinimapIcon', {
         type = "data source",
@@ -304,6 +264,45 @@ function Guildbook:Init()
     self.MinimapIcon = LibStub("LibDBIcon-1.0")
     if not GUILDBOOK_GLOBAL['MinimapButton'] then GUILDBOOK_GLOBAL['MinimapButton'] = {} end
     self.MinimapIcon:Register('GuildbookMinimapIcon', self.MinimapButton, GUILDBOOK_GLOBAL['MinimapButton'])
+
+    local config = GUILDBOOK_GLOBAL.config
+    GuildbookOptionsModifyDefaultGuildRoster:SetChecked(config.modifyDefaultGuildRoster == true and true or false)
+    if config.modifyDefaultGuildRoster == true then
+        self:ModBlizzUI()
+    end
+    if config.showMinimapButton == false then
+        self.MinimapIcon:Hide('GuildbookMinimapIcon')
+        DEBUG('func', 'init', 'minimap icon saved var setting: false, hiding minimap button')
+    end
+    if config.showMinimapCalendarButton == false then
+        Guildbook:HideCalendarButton()
+        GameTimeFrame:Show()
+        DEBUG('func', 'init', 'minimap calendar button saved var setting: false, hiding button')
+    else
+        Guildbook:ForceCalendarButton(Minimap, 40, 'TOPRIGHT', 20, -2)
+        GameTimeFrame:Hide()
+    end
+
+    GuildbookOptionsTooltipTradeskill:SetChecked(config.showTooltipTradeskills and config.showTooltipTradeskills or false)
+    GuildbookOptionsTooltipTradeskillRecipes:SetChecked(config.showTooltipTradeskillsRecipes and config.showTooltipTradeskillsRecipes or false)
+
+    GuildbookOptionsShowMinimapButton:SetChecked(config.showMinimapButton)
+    GuildbookOptionsShowMinimapCalendarButton:SetChecked(config.showMinimapCalendarButton)
+
+    GuildbookOptionsTooltipInfo:SetChecked(config.showTooltipCharacterInfo)
+    GuildbookOptionsTooltipInfoMainSpec:SetChecked(config.showTooltipMainSpec)
+    GuildbookOptionsTooltipInfoProfessions:SetChecked(config.showTooltipProfessions)
+    GuildbookOptionsTooltipInfoMainCharacter:SetChecked(config.showTooltipMainCharacter)
+
+    if config.showTooltipCharacterInfo == false then
+        GuildbookOptionsTooltipInfoMainSpec:Disable()
+        GuildbookOptionsTooltipInfoProfessions:Disable()
+        GuildbookOptionsTooltipInfoMainCharacter:Disable()
+    else
+        GuildbookOptionsTooltipInfoMainSpec:Enable()
+        GuildbookOptionsTooltipInfoProfessions:Enable()
+        GuildbookOptionsTooltipInfoMainCharacter:Enable()
+    end
 
     GameTooltip:HookScript("OnTooltipSetItem", function(self)
         local name, link = GameTooltip:GetItem()

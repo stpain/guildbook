@@ -1537,21 +1537,21 @@
                             </Anchors>
                         </FontString>
 
-                        <FontString parentKey="profileSharingInfo" inherits="GameFontNormal" justifyH="LEFT" justifyV="CENTER" text="test">
+                        <FontString parentKey="profileSharingInfo" inherits="GameFontNormal" justifyH="LEFT" justifyV="CENTER">
                             <Size x="700" y="30"/>
                             <Color r="1" g="1" b="1"/>
                             <Anchors>
                                 <Anchor point="TOPLEFT" x="175" y="-80"/>
                             </Anchors>
                         </FontString>
-                        <FontString parentKey="inventorySharingInfo" inherits="GameFontNormal" justifyH="LEFT" justifyV="CENTER" text="test">
+                        <FontString parentKey="inventorySharingInfo" inherits="GameFontNormal" justifyH="LEFT" justifyV="CENTER">
                             <Size x="700" y="30"/>
                             <Color r="1" g="1" b="1"/>
                             <Anchors>
                                 <Anchor point="TOP" relativeKey="$parent.profileSharingInfo" relativePoint="BOTTOM" x="0" y="-15"/>
                             </Anchors>
                         </FontString>
-                        <FontString parentKey="talentsSharingInfo" inherits="GameFontNormal" justifyH="LEFT" justifyV="CENTER" text="test">
+                        <FontString parentKey="talentsSharingInfo" inherits="GameFontNormal" justifyH="LEFT" justifyV="CENTER">
                             <Size x="700" y="30"/>
                             <Color r="1" g="1" b="1"/>
                             <Anchors>
