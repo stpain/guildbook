@@ -1057,7 +1057,7 @@ function Guildbook:ShareWithPlayer(player, rule)
     end
     local privacyRank = GUILDBOOK_GLOBAL.config.privacy[rule]
     local senderRank = GuildControlGetRankName(C_GuildInfo.GetGuildRankOrder(self:GetGuildMemberGUID(player)))
-    if (ranks[senderRank] <= ranks[privacyRank]) then
+    if ranks[senderRank] and ranks[privacyRank] and (ranks[senderRank] <= ranks[privacyRank]) then
         return true;
     end
     return false;
