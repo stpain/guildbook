@@ -51,26 +51,34 @@ end
 -- end
 
 function GuildbookOptionsShowMinimapButton_OnClick(self)
-    if GUILDBOOK_CHARACTER and GUILDBOOK_GLOBAL then
-        GUILDBOOK_GLOBAL['ShowMinimapButton'] = self:GetChecked()
-        self:SetChecked(GUILDBOOK_GLOBAL['ShowMinimapButton'])
-        if GUILDBOOK_GLOBAL['ShowMinimapButton'] == false then
-            Guildbook.MinimapIcon:Hide('GuildbookMinimapIcon')
-        else
-            Guildbook.MinimapIcon:Show('GuildbookMinimapIcon')
-        end
+    if not GUILDBOOK_GLOBAL then
+        return
+    end
+    if not GUILDBOOK_GLOBAL.config then
+        GUILDBOOK_GLOBAL.config = {}
+    end
+    GUILDBOOK_GLOBAL.config.showMinimapButton = self:GetChecked()
+    if GUILDBOOK_GLOBAL.config.showMinimapButton == true then
+        Guildbook.MinimapIcon:Show('GuildbookMinimapIcon')
+    else
+        Guildbook.MinimapIcon:Hide('GuildbookMinimapIcon')
     end
 end
 
 function GuildbookOptionsShowMinimapCalendarButton_OnClick(self)
-    if GUILDBOOK_CHARACTER and GUILDBOOK_GLOBAL then
-        GUILDBOOK_GLOBAL['ShowMinimapCalendarButton'] = self:GetChecked()
-        self:SetChecked(GUILDBOOK_GLOBAL['ShowMinimapCalendarButton'])
-        if GUILDBOOK_GLOBAL['ShowMinimapCalendarButton'] == false then
-            Guildbook:HideCalendarButton()
-        else
-            Guildbook:ForceCalendarButton(Minimap, 40, 'TOPRIGHT', 20, -2)
-        end
+    if not GUILDBOOK_GLOBAL then
+        return
+    end
+    if not GUILDBOOK_GLOBAL.config then
+        GUILDBOOK_GLOBAL.config = {}
+    end
+    GUILDBOOK_GLOBAL.config.showMinimapCalendarButton = self:GetChecked()
+    if GUILDBOOK_GLOBAL.config.showMinimapCalendarButton == true then
+        Guildbook:ForceCalendarButton(Minimap, 40, 'TOPRIGHT', 20, -2)
+        GameTimeFrame:Hide()
+    else
+        Guildbook:HideCalendarButton()
+        GameTimeFrame:Show()
     end
 end
 

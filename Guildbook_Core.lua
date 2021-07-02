@@ -196,7 +196,6 @@ function Guildbook:Init()
         DEBUG('func', 'init', "created default config table")
     end
 
-    -- 4.9 will do a soft reset on this to bring in the new config table after that changes will persist
     if self.version < 5.0 then
         if not GUILDBOOK_GLOBAL.configUpdate then
             local lowestRank = GuildControlGetRankName(GuildControlGetNumRanks())
@@ -233,9 +232,11 @@ function Guildbook:Init()
     end
     if config.showMinimapCalendarButton == false then
         Guildbook:HideCalendarButton()
+        GameTimeFrame:Show()
         DEBUG('func', 'init', 'minimap calendar button saved var setting: false, hiding button')
     else
         Guildbook:ForceCalendarButton(Minimap, 40, 'TOPRIGHT', 20, -2)
+        GameTimeFrame:Hide()
     end
 
     GuildbookOptionsTooltipTradeskill:SetChecked(config.showTooltipTradeskills and config.showTooltipTradeskills or false)

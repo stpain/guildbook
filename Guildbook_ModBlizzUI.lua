@@ -56,6 +56,16 @@ Guildbook.GuildFrame = {
     },
     ColumnMarginX = 1.0,
 }
+Guildbook.GameTimeFrame = CreateFrame('BUTTON')
+Guildbook.GameTimeFrame:SetParent(Minimap)
+Guildbook.GameTimeFrame:SetSize(40, 40)
+Guildbook.GameTimeFrame:SetPoint('TOPRIGHT', 20, -2)
+Guildbook.GameTimeFrame:SetNormalTexture("Interface\\Calendar\\UI-Calendar-Button")
+Guildbook.GameTimeFrame:GetNormalTexture():SetTexCoord(0.0, 0.390625, 0.0, 0.78125)
+Guildbook.GameTimeFrame:SetPushedTexture("Interface\\Calendar\\UI-Calendar-Button")
+Guildbook.GameTimeFrame:GetPushedTexture():SetTexCoord(0.5, 0.890625, 0.0, 0.78125)
+Guildbook.GameTimeFrame:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight", "ADD")
+Guildbook.GameTimeFrame:SetHitRectInsets(6, 0, 5, 10)
 
 function Guildbook:HideCalendarButton()
     Guildbook.GameTimeFrame:Hide()
@@ -75,19 +85,6 @@ function Guildbook:ForceCalendarButton(parent, s, anchor, x, y)
 end
 
 function Guildbook:ModBlizzUI()
-
-    GameTimeFrame:Hide()
-    -- a lua calendar button which i can force into any pos regardless of other addons :p
-    Guildbook.GameTimeFrame = CreateFrame('BUTTON')
-    Guildbook.GameTimeFrame:SetParent(Minimap)
-    Guildbook.GameTimeFrame:SetSize(40, 40)
-    Guildbook.GameTimeFrame:SetPoint('TOPRIGHT', 20, -2)
-    Guildbook.GameTimeFrame:SetNormalTexture("Interface\\Calendar\\UI-Calendar-Button")
-    Guildbook.GameTimeFrame:GetNormalTexture():SetTexCoord(0.0, 0.390625, 0.0, 0.78125)
-    Guildbook.GameTimeFrame:SetPushedTexture("Interface\\Calendar\\UI-Calendar-Button")
-    Guildbook.GameTimeFrame:GetPushedTexture():SetTexCoord(0.5, 0.890625, 0.0, 0.78125)
-    Guildbook.GameTimeFrame:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight", "ADD")
-    Guildbook.GameTimeFrame:SetHitRectInsets(6, 0, 5, 10)
 
     Guildbook.GameTimeFrame.Text = Guildbook.GameTimeFrame:CreateFontString(nil, 'OVERLAY', 'GameFontBlack')
     Guildbook.GameTimeFrame.Text:SetPoint('CENTER', -1, -1)
