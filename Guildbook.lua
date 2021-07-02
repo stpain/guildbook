@@ -3245,6 +3245,10 @@ function GuildbookPrivacyMixin:OnShow()
             fs:SetText("Sharing with nobody")
             return;
         end
+        if type(k) ~= "number" then
+            fs:SetText("an error has occured, please check your rank selection")
+            return;
+        end
         local t = "Sharing with"
         for i, r in ipairs(self.ranks) do
             if i <= k then

@@ -1002,6 +1002,26 @@ function Guildbook:IsCharacterInGuild(guid)
 end
 
 
+function Guildbook:UpdatePlayerInfo(guid, key, value)
+    if guid:find('Player') then
+        local guildName = Guildbook:GetGuildName()
+        if guildName and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] then
+            GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][key] = value;
+            
+        end
+    end
+end
+
+
+function Guildbook:GetPlayerInfo(guid, key)
+    if guid:find('Player') then
+        local guildName = Guildbook:GetGuildName()
+        if guildName and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] then
+            return GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][key];           
+        end
+    end
+end
+
 --- return the players guild name if they belong to one
 function Guildbook:GetGuildName()
     if IsInGuild() and GetGuildInfo("player") then
@@ -1199,6 +1219,12 @@ function Guildbook:ScanTradeSkill()
         --     return
         -- end
         GUILDBOOK_CHARACTER[prof] = {}
+        if self:GetPlayerInfo(UnitGUID("player"), "Profession1") == "-" then
+            self:UpdatePlayerInfo(UnitGUID("player"), "Profession1", prof)
+        elseif self:GetPlayerInfo(UnitGUID("player"), "Profession2") == "-" then
+            self:UpdatePlayerInfo(UnitGUID("player"), "Profession2", prof)
+        end
+        DEBUG("func", "Scantradeskill", "created table for "..prof)
         local i = 1;
         local c = GetNumTradeSkills()
         C_Timer.NewTicker(0.01, function()
@@ -1235,9 +1261,9 @@ function Guildbook:ScanTradeSkill()
                 if elapsed > 30 then
                     self:SendTradeskillData(prof, "GUILD", nil)
                     Guildbook.lastProfTransmit = GetTime()
-                    --self:PrintMessage("sent profession data")
+                    DEBUG("func", "Scantradeskill", "sending data for "..prof)
                 else
-                    --self:PrintMessage(string.format("profession data NOT sent, wait %ss", string.format("%.0f",30-elapsed)))
+                    DEBUG("func", "Scantradeskill", string.format("%s remaining before comm lock off", 30-elapsed))
                 end
             end
             i = i + 1;
@@ -1251,6 +1277,11 @@ function Guildbook:ScanCraftSkills_Enchanting()
     local currentCraftingWindow = GetCraftSkillLine(1)
     if Guildbook:GetEnglishProf(currentCraftingWindow) == "Enchanting" then -- check we have enchanting open
         GUILDBOOK_CHARACTER['Enchanting'] = {}
+        if self:GetPlayerInfo(UnitGUID("player"), "Profession1") == "-" then
+            self:UpdatePlayerInfo(UnitGUID("player"), "Profession1", "Enchanting")
+        elseif self:GetPlayerInfo(UnitGUID("player"), "Profession2") == "-" then
+            self:UpdatePlayerInfo(UnitGUID("player"), "Profession2", "Enchanting")
+        end
         local i = 1;
         local c = GetNumCrafts()
         C_Timer.NewTicker(0.01, function()
@@ -1361,10 +1392,10 @@ function Guildbook:ScanGuildRoster(guild, msg)
                     },
                     Alts = {},
                     MainCharacter = "-",
-                    Prof1 = "-",
-                    Prof1Level = 0,
-                    Prof2 = "-",
-                    Prof2Level = 0,
+                    Profession1 = "-",
+                    Profession1Level = 0,
+                    Profession2 = "-",
+                    Profession2Level = 0,
                     MainSpec = "-",
                     MainSpecIsPvP = false,
                     OffSpec = "-",
@@ -1415,8 +1446,29 @@ function Guildbook:ScanGuildRoster(guild, msg)
                         info.RankName = currentGUIDs[i].rank;
                         info.Level = currentGUIDs[i].lvl;
 
+                        -- this was a bug found where i used Prof1 instead of Profession1
+                        if not info.Profession1 then
+                            info.Profession1 = (info.Prof1 and info.Prof1 or "-")
+                        end
+                        if not info.Profession2 then
+                            info.Profession2 = (info.Prof2 and info.Prof2 or "-")
+                        end
+                        -- remove the old
+                        info.Prof1 = nil
+                        info.Prof2 = nil
+                        if not info.Profession1Level then
+                            info.Profession1Level = (info.Prof1Level and info.Prof1Level or "-")
+                        end
+                        if not info.Profession2Level then
+                            info.Profession2Level = (info.Prof2Level and info.Prof2Level or "-")
+                        end
+                        -- remove the old
+                        info.Prof1Level = nil
+                        info.Prof2Level = nil
+
                         for _, prof in ipairs(Guildbook.Data.Professions) do
                             if info[prof.Name] then
+                                DEBUG("func", "ScanGuildRoster", string.format("found %s in %s db", prof.Name, info.Name))
                                 local exists = false;
                                 if info.Profession1 == prof.Name then
                                     exists = true;
@@ -1425,7 +1477,8 @@ function Guildbook:ScanGuildRoster(guild, msg)
                                     exists = true;
                                 end
                                 if exists == false then
-                                    info[prof.Name] = nil;
+                                    --info[prof.Name] = nil;
+                                    DEBUG("func", "ScanGuildRoster", string.format("removed %s from %s", prof.Name, info.Name))
                                 end
                             end
                         end
@@ -1494,25 +1547,25 @@ function Guildbook.GetProfessionData()
     for s = 1, GetNumSkillLines() do
         local skill, _, _, level, _, _, _, _, _, _, _, _, _ = GetSkillLineInfo(s)
         if Guildbook:GetEnglishProf(skill) == 'Fishing' then 
-        --if L['Fishing'] == skill then 
+            DEBUG("func", "GetProfessionData", "found fishing updating level")
             myCharacter.Fishing = level
         elseif Guildbook:GetEnglishProf(skill) == 'Cooking' then
-        --elseif L['Cooking'] == skill then
+            DEBUG("func", "GetProfessionData", "found cooking updating level")
             myCharacter.Cooking = level
         elseif Guildbook:GetEnglishProf(skill) == 'First Aid' then
-        --elseif L['First Aid'] == skill then
+            DEBUG("func", "GetProfessionData", "found first aid updating level")
             myCharacter.FirstAid = level
         else
             for k, prof in pairs(Guildbook.Data.Profession) do
                 if prof.Name == Guildbook:GetEnglishProf(skill) then
-                --if prof.Name == Guildbook.GetEnglish[skill] then
+                    DEBUG("func", "GetProfessionData", string.format("found %s", prof.Name))
                     if myCharacter.Prof1 == '-' then
                         myCharacter.Prof1 = Guildbook:GetEnglishProf(skill)
-                        --myCharacter.Prof1 = Guildbook.GetEnglish[skill]
+                        DEBUG("func", "GetProfessionData", string.format("setting Profession1 as %s", prof.Name))
                         myCharacter.Prof1Level = level
                     elseif myCharacter.Prof2 == '-' then
                         myCharacter.Prof2 = Guildbook:GetEnglishProf(skill)
-                        --myCharacter.Prof2 = Guildbook.GetEnglish[skill]
+                        DEBUG("func", "GetProfessionData", string.format("setting Profession2 as %s", prof.Name))
                         myCharacter.Prof2Level = level
                     end
                 end
@@ -2025,7 +2078,7 @@ function Guildbook:OnCharacterDataRequested(request, distribution, sender)
     local ilvl = self:GetItemLevel()
     self.GetProfessionData() -- this gets the basic prof info for primary and seconday professions
     self:GetPaperDollStats() -- this gets the paperdoll stats
-    C_Timer.After(0.5, function()
+    C_Timer.After(1.0, function()
         local response = {
             type = 'CHARACTER_DATA_RESPONSE',
             payload = {
@@ -2490,6 +2543,7 @@ function Guildbook:ADDON_LOADED(...)
 end
 
 function Guildbook:TRADE_SKILL_UPDATE()
+    self:GetProfessionData()
     C_Timer.After(1, function()
         DEBUG('func', 'TRADE_SKILL_UPDATE', 'scanning skills')
         self:ScanTradeSkill()
@@ -2497,6 +2551,7 @@ function Guildbook:TRADE_SKILL_UPDATE()
 end
 
 function Guildbook:CRAFT_UPDATE()
+    self:GetProfessionData()
     C_Timer.After(1, function()
         DEBUG('func', 'CRAFT_UPDATE', 'scanning skills enchanting')
         self:ScanCraftSkills_Enchanting()
