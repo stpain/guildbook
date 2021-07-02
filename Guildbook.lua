@@ -2975,6 +2975,15 @@ function GuildbookMySacksMixin:OnShow()
 end
 
 
+
+
+
+
+
+
+
+
+
 GuildbookSearchMixin = {}
 GuildbookSearchMixin.rows = {}
 
@@ -3060,9 +3069,9 @@ function GuildbookSearchMixin:Search(term)
                     table.insert(self.results, {
                         resultKey = resultKeys["tradeskill"],
                         title = recipe.link,
-                        icon = icon,
+                        icon = recipe.icon,
                         iconType = "fileID",
-                        info = string.format("%s %s %s %s; %s %s", itemType, itemSubType, "ItemID:", itemID, "Source:", recipe.profession),
+                        info = string.format("%s %s %s %s; %s %s", (itemType and itemType or ""), (itemSubType and itemSubType or ""), "ItemID:", recipe.itemID, "Source:", recipe.profession),
                         func = function()
                             for k, but in ipairs(GuildbookProfessionListviewMixin.profButtons) do
                                 if but.tradeskill:lower() == recipe.profession:lower() then

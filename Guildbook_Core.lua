@@ -640,7 +640,7 @@ function Guildbook:RequestTradeskillData()
             local recipeID = recipeIDs[i].recipeID
             local prof = recipeIDs[i].prof
             local reagents = recipeIDs[i].reagents
-            local l, r, n, e, x = false, false, false, false, 0
+            local l, r, n, e, x, ic = false, false, false, false, 0, false
             local _, spellID = LCI:GetItemSource(recipeID)
             if spellID then
                 x = LCI:GetCraftXPack(spellID)
@@ -654,16 +654,19 @@ function Guildbook:RequestTradeskillData()
                 end
                 e = true
             else
-                n, l, r = GetItemInfo(recipeID)
+                n, l, r, _, _, _, _, _, _, ic = GetItemInfo(recipeID)
             end
-            if not l and not n and not r then
+            if not l and not n and not r and not ic then
                 if prof == 'Enchanting' then                    
                     local spell = Spell:CreateFromSpellID(recipeID)
                     spell:ContinueOnSpellLoad(function()
-                        l = select(1, GetSpellLink(recipeID))
-                        n = select(1, GetSpellInfo(recipeID))
+                        l = GetSpellLink(recipeID)
+                        n, _, ic = GetSpellInfo(recipeID)
                         if not n then
                             n = "unknown"
+                        end
+                        if not ic then
+                            ic = 136244
                         end
                         e = true
                         table.insert(self.tradeskillRecipes, {
@@ -671,6 +674,7 @@ function Guildbook:RequestTradeskillData()
                             reagents = reagents,
                             rarity = 1,
                             link = l,
+                            icon = ic,
                             expsanion = x;
                             enchant = e,
                             name = n,
@@ -685,11 +689,13 @@ function Guildbook:RequestTradeskillData()
                         l = item:GetItemLink()
                         r = item:GetItemQuality()
                         n = item:GetItemName()
+                        ic = item:GetItemIcon()
                         table.insert(self.tradeskillRecipes, {
                             itemID = recipeID,
                             reagents = reagents,
                             rarity = r,
                             link = l,
+                            icon = ic,
                             expansion = x;
                             enchant = false,
                             name = n,
@@ -700,11 +706,15 @@ function Guildbook:RequestTradeskillData()
                     end)
                 end
             else
+                if prof == "Enchanting" then
+                    ic = 136244
+                end
                 table.insert(self.tradeskillRecipes, {
                     itemID = recipeID,
                     reagents = reagents,
                     rarity = r,
                     link = l,
+                    icon = ic,
                     enchant = e,
                     expansion = x;
                     name = n,
