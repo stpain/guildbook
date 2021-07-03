@@ -326,14 +326,16 @@ function Guildbook:Init()
     if config.modifyDefaultGuildRoster == true then
         self:ModBlizzUI()
     end
-    if config.showMinimapButton == false then
-        self.MinimapIcon:Hide('GuildbookMinimapIcon')
-        DEBUG('func', 'init', 'minimap icon saved var setting: false, hiding minimap button')
-    end
-    if config.showMinimapCalendarButton == false then
-        self.MinimapIcon:Hide('GuildbookMinimapCalendarIcon')
-        DEBUG('func', 'init', 'minimap calendar icon saved var setting: false, hiding minimap calendar button')
-    end
+    C_Timer.After(1, function()
+        if config.showMinimapButton == false then
+            self.MinimapIcon:Hide('GuildbookMinimapIcon')
+            DEBUG('func', 'init', 'minimap icon saved var setting: false, hiding minimap button')
+        end
+        if config.showMinimapCalendarButton == false then
+            self.MinimapCalendarIcon:Hide('GuildbookMinimapCalendarIcon')
+            DEBUG('func', 'init', 'minimap calendar icon saved var setting: false, hiding minimap calendar button')
+        end
+    end)
 
     GuildbookOptionsTooltipTradeskill:SetChecked(config.showTooltipTradeskills and config.showTooltipTradeskills or false)
     GuildbookOptionsTooltipTradeskillRecipes:SetChecked(config.showTooltipTradeskillsRecipes and config.showTooltipTradeskillsRecipes or false)
@@ -1700,6 +1702,7 @@ function Guildbook:GetCharacterTalentInfo(activeTalents)
                 --DEBUG('func', 'GetCharacterTalentInfo', string.format("Tab %s: %s %s points", tabIndex, name, rank))
             end
         end
+        self:SetPlayerInfo(UnitGUID("player"), "Talents", GUILDBOOK_CHARACTER.Talents)
     end
 end
 
@@ -1751,7 +1754,7 @@ function Guildbook:GetCharacterInventory()
         for k, slot in ipairs(Guildbook.Data.InventorySlots) do
             local link = GetInventoryItemLink('player', GetInventorySlotInfo(slot.Name)) or false
             GUILDBOOK_CHARACTER['Inventory'].Current[slot.Name] = link
-            DEBUG('func', 'GetCharacterInventory', string.format("added %s at slot %s", link or 'false', slot.Name))
+            --DEBUG('func', 'GetCharacterInventory', string.format("added %s at slot %s", link or 'false', slot.Name))
         end
         self:SetPlayerInfo(UnitGUID("player"), "Inventory", GUILDBOOK_CHARACTER['Inventory'])
     end

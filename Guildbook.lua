@@ -2231,6 +2231,9 @@ function GuildbookProfilesMixin:LoadCharacter(player)
                     gb:SendTradeSkillsRequest(self.character.Name, self.character.Profession2)
                 end
             end)
+        else
+            gb:GetCharacterInventory()
+            gb:GetCharacterTalentInfo('primary')
         end
 
         local delay = (player and player == "player") and 0 or transmitStagger * 1;
