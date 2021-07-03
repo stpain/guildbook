@@ -58,7 +58,7 @@
         <Layers>
             <Layer level="OVERLAY">
                 <FontString parentKey="statusText" inherits="GameFontNormalSmall" justifyH="RIGHT" text="load text">
-                    <Size x="375" y="10"/>
+                    <Size x="700" y="10"/>
                     <Anchors>
                         <Anchor point="TOPRIGHT" x="-35" y="-6"/>
                     </Anchors>

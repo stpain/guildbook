@@ -56,89 +56,9 @@ Guildbook.GuildFrame = {
     },
     ColumnMarginX = 1.0,
 }
-Guildbook.GameTimeFrame = CreateFrame('BUTTON', "GuildbookMinimapCalendarButton", Minimap)
-Guildbook.GameTimeFrame:SetSize(40, 40)
-Guildbook.GameTimeFrame:SetPoint('TOPRIGHT', 20, -2)
-Guildbook.GameTimeFrame:SetNormalTexture("Interface\\Calendar\\UI-Calendar-Button")
-Guildbook.GameTimeFrame:GetNormalTexture():SetTexCoord(0.0, 0.390625, 0.0, 0.78125)
-Guildbook.GameTimeFrame:SetPushedTexture("Interface\\Calendar\\UI-Calendar-Button")
-Guildbook.GameTimeFrame:GetPushedTexture():SetTexCoord(0.5, 0.890625, 0.0, 0.78125)
-Guildbook.GameTimeFrame:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight", "ADD")
---Guildbook.GameTimeFrame:SetHitRectInsets(6, 0, 5, 10)
-Guildbook.GameTimeFrame:RegisterForClicks("AnyDown", "AnyUp")
 
-Guildbook.GameTimeFrame:SetScript("OnMouseUp", function(self)
-    --self:RegisterForDrag()
-end)
-
-function Guildbook:HideCalendarButton()
-    Guildbook.GameTimeFrame:Hide()
-end
-function Guildbook:ShowCalendarButton()
-    Guildbook.GameTimeFrame:Show()
-end
-
-function Guildbook:ForceCalendarButton(parent, s, anchor, x, y)
-    Guildbook.GameTimeFrame:SetParent(parent)
-    Guildbook.GameTimeFrame:SetSize(s, s)
-    Guildbook.GameTimeFrame:SetPoint(anchor, x, y)
-    Guildbook.GameTimeFrame:SetNormalTexture("Interface\\Calendar\\UI-Calendar-Button")
-    Guildbook.GameTimeFrame:GetNormalTexture():SetTexCoord(0.0, 0.390625, 0.0, 0.78125)
-    Guildbook.GameTimeFrame:SetPushedTexture("Interface\\Calendar\\UI-Calendar-Button")
-    Guildbook.GameTimeFrame:GetPushedTexture():SetTexCoord(0.5, 0.890625, 0.0, 0.78125)
-    Guildbook.GameTimeFrame:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight", "ADD")
-    --Guildbook.GameTimeFrame:SetHitRectInsets(6, 0, 5, 10)
-    Guildbook.GameTimeFrame:Show()
-end
 
 function Guildbook:ModBlizzUI()
-
-    Guildbook.GameTimeFrame.Text = Guildbook.GameTimeFrame:CreateFontString(nil, 'OVERLAY', 'GameFontBlack')
-    Guildbook.GameTimeFrame.Text:SetPoint('CENTER', -1, -1)
-
-    Guildbook.GameTimeFrame.Text:SetText(date('*t').day)
-    C_Timer.NewTicker(1, function()
-        Guildbook.GameTimeFrame.Text:SetText(date('*t').day)
-    end)
-
-    Guildbook.GameTimeFrame:SetScript('OnClick', function(self, button)
-        GuildbookUI:OpenTo("calendar")
-        Guildbook.GuildFrame.GuildCalendarFrame:ClearAllPoints()
-        Guildbook.GuildFrame.GuildCalendarFrame:SetParent(GuildbookUI.calendar)
-        Guildbook.GuildFrame.GuildCalendarFrame:SetPoint("TOPLEFT", 0, -26) --this has button above the frame so lower it a bit
-        Guildbook.GuildFrame.GuildCalendarFrame:SetPoint("BOTTOMRIGHT", -2, 0)
-        Guildbook.GuildFrame.GuildCalendarFrame:Show()
-
-        Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:ClearAllPoints()
-        Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('TOPLEFT', GuildbookUI.calendar, 'TOPRIGHT', 4, 50)
-        Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('BOTTOMRIGHT', GuildbookUI.calendar, 'BOTTOMRIGHT', 254, 0)
-
-        -- if button == "LeftButton" then
-        --     Guildbook:MakeFrameMoveable(Guildbook.GameTimeFrame)
-        -- elseif button == "MiddleButton" then
-        --     Guildbook:ForceCalendarButton(Minimap, 40, 'TOPRIGHT', 20, -2)
-        -- end
-    end)
-
-    Guildbook.GameTimeFrame:SetScript('OnEnter', function(self)
-        GameTooltip:SetOwner(self, 'ANCHOR_LEFT')
-        local now = date('*t')
-        GameTooltip:AddLine('Guildbook')
-        GameTooltip:AddLine(string.format("%s %s %s", now.day, L[Guildbook.Data.Months[now.month]], now.year), 1,1,1,1)
-        GameTooltip:AddLine(' ')
-        GameTooltip:AddLine(L['Events'])
-        -- get events for next 7 days
-        local upcomingEvents = Guildbook:GetCalendarEvents(time(now), 7)
-        if upcomingEvents and next(upcomingEvents) then
-            for k, event in ipairs(upcomingEvents) do
-                GameTooltip:AddDoubleLine(event.title, string.format("%s %s",event.date.day, string.sub(L[Guildbook.Data.Months[event.date.month]], 1, 3)), 1,1,1,1,1,1,1,1)
-            end
-        end
-        GameTooltip:Show()
-    end)
-    Guildbook.GameTimeFrame:SetScript('OnLeave', function(self)
-        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-    end)
 
     -- adjust blizz layout and add widgets
     GuildFrameGuildListToggleButton:Hide()

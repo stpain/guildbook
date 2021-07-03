@@ -1291,23 +1291,25 @@ function GuildbookRosterMixin:ParseGuildRoster()
     wipe(self.buttonDropdownMenus.rankName)
     for i = 1, totalMembers do
         local _, _rankName, _, _, _, _zone, _, _, _isOnline, _, _, _, _, _, _, _, GUID = GetGuildRosterInfo(i)
-        self.characterStatus[GUID] = {
-            isOnline = _isOnline  and _isOnline or false,
-            zone = _zone,
-        }
-        if not ranks[_rankName] then
-            table.insert(self.buttonDropdownMenus.rankName, {
-                text = _rankName,
-                func = function()
-                    self.rosterFilterKey = "RankName";
-                    self.rosterFilterValue = _rankName;
-                    self:ParseGuildRoster()
-                end,
-            })
-            ranks[_rankName] = true;
-        end
-        if i == totalMembers then
-            self:LoadCharacters()
+        if GUID then
+            self.characterStatus[GUID] = {
+                isOnline = _isOnline  and _isOnline or false,
+                zone = _zone,
+            }
+            if not ranks[_rankName] then
+                table.insert(self.buttonDropdownMenus.rankName, {
+                    text = _rankName,
+                    func = function()
+                        self.rosterFilterKey = "RankName";
+                        self.rosterFilterValue = _rankName;
+                        self:ParseGuildRoster()
+                    end,
+                })
+                ranks[_rankName] = true;
+            end
+            if i == totalMembers then
+                self:LoadCharacters()
+            end
         end
     end
     table.insert(self.buttonDropdownMenus.rankName, {
@@ -3246,7 +3248,6 @@ function GuildbookPrivacyMixin:OnShow()
     end
 
     local function updateInfo(fs, k)
-        gb:SendPrivacyInfo("GUILD", nil)
         if type(k) == "function" then
             k = k()
         end
@@ -3255,8 +3256,8 @@ function GuildbookPrivacyMixin:OnShow()
             return;
         end
         if type(k) ~= "number" then
-            fs:SetText("an error has occured, please check your rank selection")
-            return;
+            fs:SetText("an error has occured, setting as lowest rank available")
+            k = GuildControlGetNumRanks()
         end
         local t = "Sharing with"
         for i, r in ipairs(self.ranks) do
@@ -3265,6 +3266,7 @@ function GuildbookPrivacyMixin:OnShow()
             end
         end
         fs:SetText(t)
+        gb:SendPrivacyInfo("GUILD", nil)
     end
     updateInfo(self.profileSharingInfo, function()
         if not GUILDBOOK_GLOBAL.config.privacy.shareProfileMinRank then

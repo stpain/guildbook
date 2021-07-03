@@ -78,7 +78,9 @@ function Guildbook:Init()
     else
         Guildbook.DebuggerWindow:Hide()
     end
-    GuildbookOptionsDebugCB:SetChecked(GUILDBOOK_GLOBAL.Debug and GUILDBOOK_GLOBAL.Debug or false)
+    if GUILDBOOK_GLOBAL then
+        GuildbookOptionsDebugCB:SetChecked(GUILDBOOK_GLOBAL.Debug and GUILDBOOK_GLOBAL.Debug or false)
+    end
 
     -- this enables us to prevent character model capturing until the player is fully loaded
     Guildbook.LoadTime = GetTime()
@@ -265,6 +267,60 @@ function Guildbook:Init()
     if not GUILDBOOK_GLOBAL['MinimapButton'] then GUILDBOOK_GLOBAL['MinimapButton'] = {} end
     self.MinimapIcon:Register('GuildbookMinimapIcon', self.MinimapButton, GUILDBOOK_GLOBAL['MinimapButton'])
 
+    self.MinimapCalendarButton = ldb:NewDataObject('GuildbookMinimapCalendarIcon', {
+        type = "data source",
+        icon = 134939,
+        OnClick = function(self, button)
+            GuildbookUI:OpenTo("calendar")
+            Guildbook.GuildFrame.GuildCalendarFrame:ClearAllPoints()
+            Guildbook.GuildFrame.GuildCalendarFrame:SetParent(GuildbookUI.calendar)
+            Guildbook.GuildFrame.GuildCalendarFrame:SetPoint("TOPLEFT", 0, -26) --this has button above the frame so lower it a bit
+            Guildbook.GuildFrame.GuildCalendarFrame:SetPoint("BOTTOMRIGHT", -2, 0)
+            Guildbook.GuildFrame.GuildCalendarFrame:Show()
+    
+            Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:ClearAllPoints()
+            Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('TOPLEFT', GuildbookUI.calendar, 'TOPRIGHT', 4, 50)
+            Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('BOTTOMRIGHT', GuildbookUI.calendar, 'BOTTOMRIGHT', 254, 0)
+        end,
+        OnTooltipShow = function(tooltip)
+            if not tooltip or not tooltip.AddLine then return end
+            local now = date('*t')
+            tooltip:AddLine('Guildbook')
+            tooltip:AddLine(string.format("%s %s %s", now.day, L[Guildbook.Data.Months[now.month]], now.year), 1,1,1,1)
+            tooltip:AddLine(' ')
+            tooltip:AddLine(L['Events'])
+            -- get events for next 7 days
+            local upcomingEvents = Guildbook:GetCalendarEvents(time(now), 7)
+            if upcomingEvents and next(upcomingEvents) then
+                for k, event in ipairs(upcomingEvents) do
+                    tooltip:AddDoubleLine(event.title, string.format("%s %s",event.date.day, string.sub(L[Guildbook.Data.Months[event.date.month]], 1, 3)), 1,1,1,1,1,1,1,1)
+                end
+            end
+        end,
+    })
+    self.MinimapCalendarIcon = LibStub("LibDBIcon-1.0")
+    if not GUILDBOOK_GLOBAL['MinimapCalendarButton'] then GUILDBOOK_GLOBAL['MinimapCalendarButton'] = {} end
+    self.MinimapCalendarIcon:Register('GuildbookMinimapCalendarIcon', self.MinimapCalendarButton, GUILDBOOK_GLOBAL['MinimapCalendarButton'])
+    for i = 1, _G['LibDBIcon10_GuildbookMinimapCalendarIcon']:GetNumRegions() do
+        local region = select(i, _G['LibDBIcon10_GuildbookMinimapCalendarIcon']:GetRegions())
+        if (region:GetObjectType() == 'Texture') then
+            region:Hide()
+        end
+    end
+    _G['LibDBIcon10_GuildbookMinimapCalendarIcon']:SetSize(40,40)
+    _G['LibDBIcon10_GuildbookMinimapCalendarIcon']:SetNormalTexture("Interface\\Calendar\\UI-Calendar-Button")
+    _G['LibDBIcon10_GuildbookMinimapCalendarIcon']:GetNormalTexture():SetTexCoord(0.0, 0.390625, 0.0, 0.78125)
+    _G['LibDBIcon10_GuildbookMinimapCalendarIcon']:SetPushedTexture("Interface\\Calendar\\UI-Calendar-Button")
+    _G['LibDBIcon10_GuildbookMinimapCalendarIcon']:GetPushedTexture():SetTexCoord(0.5, 0.890625, 0.0, 0.78125)
+    _G['LibDBIcon10_GuildbookMinimapCalendarIcon']:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight", "ADD")
+    _G['LibDBIcon10_GuildbookMinimapCalendarIcon'].Text = _G['LibDBIcon10_GuildbookMinimapCalendarIcon']:CreateFontString(nil, 'OVERLAY', 'GameFontBlack')
+    _G['LibDBIcon10_GuildbookMinimapCalendarIcon'].Text:SetPoint('CENTER', -1, -1)
+
+    _G['LibDBIcon10_GuildbookMinimapCalendarIcon'].Text:SetText(date('*t').day)
+    C_Timer.NewTicker(1, function()
+        _G['LibDBIcon10_GuildbookMinimapCalendarIcon'].Text:SetText(date('*t').day)
+    end)
+
     local config = GUILDBOOK_GLOBAL.config
     GuildbookOptionsModifyDefaultGuildRoster:SetChecked(config.modifyDefaultGuildRoster == true and true or false)
     if config.modifyDefaultGuildRoster == true then
@@ -275,12 +331,8 @@ function Guildbook:Init()
         DEBUG('func', 'init', 'minimap icon saved var setting: false, hiding minimap button')
     end
     if config.showMinimapCalendarButton == false then
-        Guildbook:HideCalendarButton()
-        GameTimeFrame:Show()
-        DEBUG('func', 'init', 'minimap calendar button saved var setting: false, hiding button')
-    else
-        Guildbook:ShowCalendarButton()
-        GameTimeFrame:Hide()
+        self.MinimapIcon:Hide('GuildbookMinimapCalendarIcon')
+        DEBUG('func', 'init', 'minimap calendar icon saved var setting: false, hiding minimap calendar button')
     end
 
     GuildbookOptionsTooltipTradeskill:SetChecked(config.showTooltipTradeskills and config.showTooltipTradeskills or false)
@@ -420,7 +472,6 @@ function Guildbook:Init()
             end
         end
     end)
-
 
     Guildbook:CheckPrivacyRankSettings() -- this will make sure rank changes are handled, just set any privacy rule to the lowest rank if its
     C_Timer.After(1, function()
@@ -1010,23 +1061,30 @@ function Guildbook:IsCharacterInGuild(guid)
     end
 end
 
-
-function Guildbook:UpdatePlayerInfo(guid, key, value)
+---update the character table in the account wide saved variables
+---@param guid string the characters GUID
+---@param key string key to update
+---@param value any new value
+function Guildbook:SetPlayerInfo(guid, key, value)
     if guid:find('Player') then
         local guildName = Guildbook:GetGuildName()
         if guildName and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] then
-            GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][key] = value;
-            
+            local character = GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid]
+            character[key] = value;
+            DEBUG("db_func", "SetPlayerInfo", string.format("updated %s for %s", key, character.Name))
         end
     end
 end
 
-
+---fetch character info using guid and key
+---@param guid string the characters GUID
+---@param key string the key to fetch
+---@return any
 function Guildbook:GetPlayerInfo(guid, key)
     if guid:find('Player') then
         local guildName = Guildbook:GetGuildName()
         if guildName and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] then
-            return GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][key];           
+            return GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][key];
         end
     end
 end
@@ -1088,6 +1146,9 @@ function Guildbook:CheckPrivacyRankSettings()
 end
 
 function Guildbook:ScanPlayerBags()
+    if not GUILDBOOK_GLOBAL then
+        return;
+    end
     if not GUILDBOOK_GLOBAL.MySacks then -- my sacks is an addon i made which im going to use in guildbook
         GUILDBOOK_GLOBAL.MySacks = {
             Bags = {},
@@ -1229,11 +1290,11 @@ function Guildbook:ScanTradeSkill()
         -- end
         GUILDBOOK_CHARACTER[prof] = {}
         if self:GetPlayerInfo(UnitGUID("player"), "Profession1") == "-" then
-            self:UpdatePlayerInfo(UnitGUID("player"), "Profession1", prof)
+            self:SetPlayerInfo(UnitGUID("player"), "Profession1", prof)
         elseif self:GetPlayerInfo(UnitGUID("player"), "Profession2") == "-" then
-            self:UpdatePlayerInfo(UnitGUID("player"), "Profession2", prof)
+            self:SetPlayerInfo(UnitGUID("player"), "Profession2", prof)
         end
-        DEBUG("func", "Scantradeskill", "created table for "..prof)
+        DEBUG("func", "ScanTradeskill", "created table for "..prof)
         local i = 1;
         local c = GetNumTradeSkills()
         C_Timer.NewTicker(0.01, function()
@@ -1287,9 +1348,9 @@ function Guildbook:ScanCraftSkills_Enchanting()
     if Guildbook:GetEnglishProf(currentCraftingWindow) == "Enchanting" then -- check we have enchanting open
         GUILDBOOK_CHARACTER['Enchanting'] = {}
         if self:GetPlayerInfo(UnitGUID("player"), "Profession1") == "-" then
-            self:UpdatePlayerInfo(UnitGUID("player"), "Profession1", "Enchanting")
+            self:SetPlayerInfo(UnitGUID("player"), "Profession1", "Enchanting")
         elseif self:GetPlayerInfo(UnitGUID("player"), "Profession2") == "-" then
-            self:UpdatePlayerInfo(UnitGUID("player"), "Profession2", "Enchanting")
+            self:SetPlayerInfo(UnitGUID("player"), "Profession2", "Enchanting")
         end
         local i = 1;
         local c = GetNumCrafts()
@@ -1351,6 +1412,9 @@ local profAbbrev = {
     ["mine"] = "Mining",
     ["herb"] = "Herbalism",
     ["skin"] = "Skinning",
+}
+local specAbbrev = {
+
 }
 function Guildbook:ParseMemberNote(note, character)
     if note:find("{gb,") then
@@ -1420,10 +1484,10 @@ function Guildbook:ScanGuildRoster(guild, msg)
         local i = 1;
         local start = date('*t')
         local started = time()
-        GuildbookUI.statusText:SetText(string.format("starting roster clean up at %s:%s:%s", start.hour, start.min, start.sec))
+        GuildbookUI.statusText:SetText(string.format("starting roster scan at %s:%s:%s", start.hour, start.min, start.sec))
         self.scanRosterTicker = C_Timer.NewTicker(0.01, function()
             local percent = (i/totalMembers) * 100
-            GuildbookUI.statusText:SetText(string.format("roster clean up %s%%",string.format("%.1f", percent)))
+            GuildbookUI.statusText:SetText(string.format("roster scan %s%%",string.format("%.1f", percent)))
             GuildbookUI.statusBar:SetValue(i/totalMembers)
             if not currentGUIDs[i] then
                 return;
@@ -1542,7 +1606,7 @@ function Guildbook:ScanGuildRoster(guild, msg)
                 if removedCount > 0 then
                     
                 end
-                GuildbookUI.statusText:SetText(string.format("finished roster clean up, took %s, %s new characters, removed %s characters from db", SecondsToTime(finished), (#newGUIDs or 0), removedCount))
+                GuildbookUI.statusText:SetText(string.format("finished roster scan, took %s, %s new characters, removed %s characters from db", SecondsToTime(finished), (#newGUIDs or 0), removedCount))
                 C_Timer.After(0.5, function()
                     if GuildbookUI then
                         GuildbookUI.roster:ParseGuildRoster()
@@ -1677,7 +1741,7 @@ end
 
 
 --- get the players currently equipped gear
-function Guildbook.GetCharacterInventory()
+function Guildbook:GetCharacterInventory()
     if GUILDBOOK_CHARACTER then
         if not GUILDBOOK_CHARACTER['Inventory'] then
             GUILDBOOK_CHARACTER['Inventory'] = {
@@ -1687,8 +1751,9 @@ function Guildbook.GetCharacterInventory()
         for k, slot in ipairs(Guildbook.Data.InventorySlots) do
             local link = GetInventoryItemLink('player', GetInventorySlotInfo(slot.Name)) or false
             GUILDBOOK_CHARACTER['Inventory'].Current[slot.Name] = link
-            --DEBUG('func', 'GetCharacterInventory', string.format("added %s at slot %s", link or 'false', slot.Name))
+            DEBUG('func', 'GetCharacterInventory', string.format("added %s at slot %s", link or 'false', slot.Name))
         end
+        self:SetPlayerInfo(UnitGUID("player"), "Inventory", GUILDBOOK_CHARACTER['Inventory'])
     end
 end
 
@@ -1996,20 +2061,22 @@ function Guildbook:OnCharacterInventoryRequest(data, distribution, sender)
         return
     end
     self:GetCharacterInventory()
-    if GUILDBOOK_CHARACTER and GUILDBOOK_CHARACTER['Inventory'] then
-        local response = {
-            type = 'INVENTORY_RESPONSE',
-            payload = {
-                guid = UnitGUID('player'),
-                inventory = GUILDBOOK_CHARACTER['Inventory'], --send it all for now
+    C_Timer.After(0.5, function()
+        if GUILDBOOK_CHARACTER and GUILDBOOK_CHARACTER['Inventory'] then
+            local response = {
+                type = 'INVENTORY_RESPONSE',
+                payload = {
+                    guid = UnitGUID('player'),
+                    inventory = GUILDBOOK_CHARACTER['Inventory'], --send it all for now
+                }
             }
-        }
-        if self:ShareWithPlayer(sender, "shareInventoryMinRank") == true then
-            self:Transmit(response, "WHISPER", sender, "BULK")
-        else
-
+            if self:ShareWithPlayer(sender, "shareInventoryMinRank") == true then
+                self:Transmit(response, "WHISPER", sender, "BULK")
+            else
+    
+            end
         end
-    end
+    end)
 end
 
 
@@ -2726,6 +2793,15 @@ function Guildbook:BANKFRAME_OPENED()
     self:ScanPlayerBank()
 end
 
+
+function Guildbook:PLAYER_EQUIPMENT_CHANGED()
+    self:GetCharacterInventory()
+end
+
+
+
+
+
 --- handle comms
 function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
     if prefix ~= addonName then 
@@ -2900,6 +2976,7 @@ Guildbook.EventFrame:RegisterEvent('CHAT_MSG_GUILD')
 Guildbook.EventFrame:RegisterEvent('CHAT_MSG_WHISPER')
 Guildbook.EventFrame:RegisterEvent('CHAT_MSG_SYSTEM')
 Guildbook.EventFrame:RegisterEvent('UPDATE_MOUSEOVER_UNIT')
+Guildbook.EventFrame:RegisterEvent('PLAYER_EQUIPMENT_CHANGED')
 Guildbook.EventFrame:SetScript('OnEvent', function(self, event, ...)
     if Guildbook[event] then
         Guildbook[event](Guildbook, ...)

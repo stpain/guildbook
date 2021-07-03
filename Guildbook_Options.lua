@@ -74,11 +74,11 @@ function GuildbookOptionsShowMinimapCalendarButton_OnClick(self)
     end
     GUILDBOOK_GLOBAL.config.showMinimapCalendarButton = self:GetChecked()
     if GUILDBOOK_GLOBAL.config.showMinimapCalendarButton == true then
-        Guildbook:ForceCalendarButton(Minimap, 40, 'TOPRIGHT', 20, -2)
-        GameTimeFrame:Hide()
+        Guildbook.MinimapCalendarIcon:Show('GuildbookMinimapCalendarIcon')
+        --GameTimeFrame:Hide()
     else
-        Guildbook:HideCalendarButton()
-        GameTimeFrame:Show()
+        Guildbook.MinimapCalendarIcon:Hide('GuildbookMinimapCalendarIcon')
+        --GameTimeFrame:Show()
     end
 end
 

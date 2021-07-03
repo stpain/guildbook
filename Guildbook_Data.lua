@@ -893,12 +893,12 @@ Guildbook.CalendarWorldEvents = {
 	},
 	['Midsummer Fire Festival'] = {
 		['Start'] = { 
-			day = 21, 
-			month = 6,
+			day = 20, 
+			month = 7,
 		},
 		['End'] = { 
-			day = 5, 
-			month = 7,
+			day = 3, 
+			month = 8,
 		},
 		['Texture'] = {
 			['Start'] = 235474,
