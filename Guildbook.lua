@@ -3269,7 +3269,6 @@ function GuildbookPrivacyMixin:OnShow()
             end
         end
         fs:SetText(t)
-        gb:SendPrivacyInfo("GUILD", nil)
     end
     updateInfo(self.profileSharingInfo, function()
         if not GUILDBOOK_GLOBAL.config.privacy.shareProfileMinRank then
@@ -3329,6 +3328,7 @@ function GuildbookPrivacyMixin:OnShow()
             func = function()
                 GUILDBOOK_GLOBAL.config.privacy.shareProfileMinRank = rank;
                 updateInfo(self.profileSharingInfo, k)
+                gb:SendPrivacyInfo("GUILD", nil)
             end,
         })
         table.insert(self.shareInventory.menu, {
@@ -3336,6 +3336,7 @@ function GuildbookPrivacyMixin:OnShow()
             func = function()
                 GUILDBOOK_GLOBAL.config.privacy.shareInventoryMinRank = rank;
                 updateInfo(self.inventorySharingInfo, k)
+                gb:SendPrivacyInfo("GUILD", nil)
             end,
         })
         table.insert(self.shareTalents.menu, {
@@ -3343,6 +3344,7 @@ function GuildbookPrivacyMixin:OnShow()
             func = function()
                 GUILDBOOK_GLOBAL.config.privacy.shareTalentsMinRank = rank;
                 updateInfo(self.talentsSharingInfo, k)
+                gb:SendPrivacyInfo("GUILD", nil)
             end,
         })
     end
@@ -3351,6 +3353,7 @@ function GuildbookPrivacyMixin:OnShow()
         func = function()
             GUILDBOOK_GLOBAL.config.privacy.shareProfileMinRank = "none";
             updateInfo(self.profileSharingInfo, "none")
+            gb:SendPrivacyInfo("GUILD", nil)
         end,
     })
     table.insert(self.shareInventory.menu, {
@@ -3358,6 +3361,7 @@ function GuildbookPrivacyMixin:OnShow()
         func = function()
             GUILDBOOK_GLOBAL.config.privacy.shareInventoryMinRank = "none";
             updateInfo(self.inventorySharingInfo, "none")
+            gb:SendPrivacyInfo("GUILD", nil)
         end,
     })
     table.insert(self.shareTalents.menu, {
@@ -3365,6 +3369,7 @@ function GuildbookPrivacyMixin:OnShow()
         func = function()
             GUILDBOOK_GLOBAL.config.privacy.shareTalentsMinRank = "none";
             updateInfo(self.talentsSharingInfo, "none")
+            gb:SendPrivacyInfo("GUILD", nil)
         end,
     })
 end

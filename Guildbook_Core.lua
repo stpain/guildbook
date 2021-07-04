@@ -226,7 +226,7 @@ function Guildbook:Init()
     local ldb = LibStub("LibDataBroker-1.1")
     self.MinimapButton = ldb:NewDataObject('GuildbookMinimapIcon', {
         type = "data source",
-        icon = 134939,
+        icon = 134068,
         OnClick = function(self, button)
             if button == "RightButton" then
                 if InterfaceOptionsFrame:IsVisible() then
@@ -271,6 +271,10 @@ function Guildbook:Init()
         type = "data source",
         icon = 134939,
         OnClick = function(self, button)
+            if GuildbookUI:IsVisible() then
+                GuildbookUI:Hide()
+                return;
+            end
             GuildbookUI:OpenTo("calendar")
             Guildbook.GuildFrame.GuildCalendarFrame:ClearAllPoints()
             Guildbook.GuildFrame.GuildCalendarFrame:SetParent(GuildbookUI.calendar)
@@ -1888,6 +1892,8 @@ end
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- privacy comms
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+local lastPrivacyTransmit = -1000
+local privacyTransmitQueued = false
 function Guildbook:SendPrivacyInfo(channel, target)
     if not GUILDBOOK_GLOBAL.config and not GUILDBOOK_GLOBAL.config.privacy then
         return;
@@ -1898,7 +1904,19 @@ function Guildbook:SendPrivacyInfo(channel, target)
             privacy = GUILDBOOK_GLOBAL.config.privacy,
         },
     }
-    self:Transmit(privacy, channel, target, "NORMAL")
+    --this was spamming for some reason so added a 15s delay, might be awkward but better than spamming chat channels
+    if (lastPrivacyTransmit + 15) < GetTime() then
+        self:Transmit(privacy, channel, target, "NORMAL")
+        lastPrivacyTransmit = GetTime()
+    else
+        if privacyTransmitQueued == false then
+            C_Timer.After(15, function()
+                self:Transmit(privacy, channel, target, "NORMAL")
+                privacyTransmitQueued = false
+            end)
+            privacyTransmitQueued = true;
+        end
+    end
 end
 
 function Guildbook:OnPrivacyReceived(data, distribution, sender)
@@ -1914,43 +1932,56 @@ function Guildbook:OnPrivacyReceived(data, distribution, sender)
                 ranks[GuildControlGetRankName(i)] = i;
             end
             local myRank = GuildControlGetRankName(C_GuildInfo.GetGuildRankOrder(UnitGUID("player")))
-            if not ranks[myRank] and not ranks[data.payload.privacy.shareProfileMinRank] then
+            if not ranks[myRank] then
                 return
             end
-            if not ranks[myRank] and not ranks[data.payload.privacy.shareInventoryMinRank] then
-                return
-            end
-            if not ranks[myRank] and not ranks[data.payload.privacy.shareTalentsMinRank] then
-                return
-            end
-            if data.payload.privacy.shareProfileMinRank then
-                if data.payload.privacy.shareProfileMinRank == "none" then
+            if data.payload.privacy.shareProfileMinRank and ranks[data.payload.privacy.shareProfileMinRank] and type(ranks[data.payload.privacy.shareProfileMinRank]) == "number" then
+                if ranks[myRank] > ranks[data.payload.privacy.shareProfileMinRank] then
                     character.profile = nil;
+                    DEBUG("error", "OnPrivacyReceived", string.format("removed %s profile data"), character.Name)
                 end
-                if data.payload.privacy.shareProfileMinRank and data.payload.privacy.shareProfileMinRank ~= "none" and (ranks[myRank] > ranks[data.payload.privacy.shareProfileMinRank]) then
+            else
+                if data.payload.privacy.shareProfileMinRank and data.payload.privacy.shareProfileMinRank == "none" then
                     character.profile = nil;
+                    DEBUG("error", "OnPrivacyReceived", string.format("removed %s profile data"), character.Name)
                 end
             end
-            if data.payload.privacy.shareInventoryMinRank then
-                if data.payload.privacy.shareInventoryMinRank == "none" then
+            if data.payload.privacy.shareInventoryMinRank and ranks[data.payload.privacy.shareInventoryMinRank] and type(ranks[data.payload.privacy.shareInventoryMinRank]) == "number" then
+                if ranks[myRank] > ranks[data.payload.privacy.shareInventoryMinRank] then
                     character.Inventory = nil;
+                    DEBUG("error", "OnPrivacyReceived", string.format("removed %s inventory data"), character.Name)
                 end
-                if data.payload.privacy.shareInventoryMinRank and data.payload.privacy.shareInventoryMinRank ~= "none" and (ranks[myRank] > ranks[data.payload.privacy.shareInventoryMinRank]) then
+            else
+                if data.payload.privacy.shareInventoryMinRank and data.payload.privacy.shareInventoryMinRank == "none" then
                     character.Inventory = nil;
+                    DEBUG("error", "OnPrivacyReceived", string.format("removed %s inventory data"), character.Name)
                 end
             end
-            if data.payload.privacy.shareTalentsMinRank then
-                if data.payload.privacy.shareTalentsMinRank == "none" then
+            if data.payload.privacy.shareTalentsMinRank and ranks[data.payload.privacy.shareTalentsMinRank] and type(ranks[data.payload.privacy.shareTalentsMinRank]) == "number" then
+                if ranks[myRank] > ranks[data.payload.privacy.shareTalentsMinRank] then
                     character.Talents = nil;
+                    DEBUG("error", "OnPrivacyReceived", string.format("removed %s talents data"), character.Name)
                 end
-                if data.payload.privacy.shareTalentsMinRank and data.payload.privacy.shareTalentsMinRank ~= "none" and (ranks[myRank] > ranks[data.payload.privacy.shareTalentsMinRank]) then
+            else
+                if data.payload.privacy.shareTalentsMinRank and data.payload.privacy.shareTalentsMinRank == "none" then
                     character.Talents = nil;
+                    DEBUG("error", "OnPrivacyReceived", string.format("removed %s talents data"), character.Name)
                 end
             end
         end
     end
 end
 
+
+function Guildbook:OnPrivacyError(code, sender)
+    if code == 0 then
+        DEBUG("error", "PrivacyError", string.format("%s not sharing inventory", sender))
+    elseif code == 1 then
+        DEBUG("error", "PrivacyError", string.format("%s not sharing talents", sender))
+    elseif code == 2 then
+        DEBUG("error", "PrivacyError", string.format("%s not sharing profile", sender))
+    end
+end
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- profile comms
@@ -1972,7 +2003,13 @@ function Guildbook:OnProfileRequest(request, distribution, sender)
         if self:ShareWithPlayer(sender, "shareProfileMinRank") == true then
             self:Transmit(response, "WHISPER", sender, "BULK")
         else
-
+            self:Transmit({
+                type = "PRIVACY_ERROR",
+                payload = 2,
+            },
+            "WHISPER", 
+            sender, 
+            "NORMAL")
         end
     end
 end
@@ -2021,7 +2058,13 @@ function Guildbook:OnTalentInfoRequest(request, distribution, sender)
         if self:ShareWithPlayer(sender, "shareTalentsMinRank") == true then
             self:Transmit(response, "WHISPER", sender, "BULK")
         else
-
+            self:Transmit({
+                type = "PRIVACY_ERROR",
+                payload = 1,
+            },
+            "WHISPER", 
+            sender, 
+            "NORMAL")
         end
     end
 end
@@ -2031,15 +2074,8 @@ function Guildbook:OnTalentInfoReceived(response, distribution, sender)
         return
     end
     C_Timer.After(Guildbook.COMMS_DELAY, function()
-        local guildName = Guildbook:GetGuildName()
-        if guildName and GUILDBOOK_GLOBAL['GuildRosterCache'] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
-            if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][response.senderGUID].Talents then
-                wipe(GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][response.senderGUID].Talents)
-            end
-            GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][response.senderGUID].Talents = response.payload.talents
-            DEBUG('func', 'OnTalentInfoReceived', string.format('updated %s talents', sender))
-        end
-
+        self:SetPlayerInfo(response.senderGUID, "Talents", response.payload.talents)
+        DEBUG('func', 'OnTalentInfoReceived', string.format('updated %s talents', sender))
         GuildbookUI.statusText:SetText(string.format("received talents from %s", sender))
         GuildbookUI.profiles:LoadTalents("primary")
     end)
@@ -2076,7 +2112,13 @@ function Guildbook:OnCharacterInventoryRequest(data, distribution, sender)
             if self:ShareWithPlayer(sender, "shareInventoryMinRank") == true then
                 self:Transmit(response, "WHISPER", sender, "BULK")
             else
-    
+                self:Transmit({
+                    type = "PRIVACY_ERROR",
+                    payload = 0,
+                },
+                "WHISPER", 
+                sender, 
+                "NORMAL")
             end
         end
     end)
@@ -2878,6 +2920,8 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
     elseif data.type == "PRIVACY_INFO" then
         self:OnPrivacyReceived(data, distribution, sender)
 
+    elseif data.type == "PRIVACY_ERROR" then
+        self:OnPrivacyError(tonumber(data.payload), sender)
 
 
         
