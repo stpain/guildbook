@@ -374,7 +374,7 @@ function Guildbook:PLAYER_ENTERING_WORLD()
         return;
     end
     GuildRoster() -- this will trigger a roster scan but we set addonLoaded as false to skip the auto roster scan
-    C_Timer.After(0.1, function()
+    C_Timer.After(1, function()
         self:ScanGuildRoster(function()
             Guildbook:Load() -- once the roster has been scanned continue to load
         end)
