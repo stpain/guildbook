@@ -35,14 +35,14 @@ local addonName, Guildbook = ...
 
 -- locales table
 local L = {}
-L['OptionsAbout'] = 'Guildbook options and about.'
+L['OptionsAbout'] = 'Guildbook options and about. Thanks to Belrand@Auberdine for the French translations'
 L['Version'] = 'Version'
 L['Author'] = 'Author: |cffffffffstpain (|r|cffF58CBACopperbolts|r |cffffffffand|r |cff0070DEKylanda|r|cffffffff)|r'
 
 L["GUILDBOOK_LOADER_HEADER"]        = "Welcome to Guildbook"
 L["TOOLTIP_ITEM_RECIPE_HEADER"]     = "Used for the following"
 
---mod blizz stuff
+--mod blizz guild roster
 L['Online']                         = 'Online'
 L['MainSpec']                       = 'Main Spec'
 L['Rank']                           = 'Rank'
@@ -51,7 +51,7 @@ L['Profession1']                    = 'Profession 1'
 L['Profession2']                    = 'Profession 2'
 
 
--- roster listview and tooltip
+-- roster listview and tooltip, these are also sort keys hence the lowercase usage
 L["name"]                           = "Name"
 L["level"]                          = "Level"
 L["mainSpec"]                       = "Main Spec"
@@ -99,10 +99,6 @@ L["BANK"]                           = "Bank"
 L["STATS"]                          = "Statistics"
 
 L["PRIVACY_HEADER"]                 = "Privacy settings"
-
---dialog strings
-L["SCANNING_TRADESKILL_DATA"]       = "Scanning recipes\n\n"
-L["SEND_TRADESKILL_DATA_WARNING"]   = "\n\n|cffC41F3BWARNING - this option should only be used when necessary, it could cause issues for addons if the chat message system is abused!"
 
 -- class and spec
 L['DEATHKNIGHT']                    = 'Deathknight'
@@ -163,25 +159,25 @@ L['October']                        = 'October'
 L['November']                       = 'November'
 L['December']                       = 'December'
 
--- L['GuildBank'] = 'Guild Bank'
--- L['Events'] = 'Events'
--- L['WorldEvents'] = 'World Events'
--- L['Attunements'] = 'Attunements'
--- L["Guild"] = "Guild"
+
+-- old stuff but might use again
+L['GuildBank']                      = 'Guild Bank'
+L['Events']                         = 'Events'
+L['WorldEvents']                    = 'World Events'
+L['Attunements']                    = 'Attunements'
+L["Guild"]                          = "Guild"
 
 
--- L['Roles'] = 'Roles'
--- L['Tank'] = 'Tank'
--- L['Melee'] = 'Melee'
--- L['Ranged'] = 'Ranged'
--- L['Healer'] = 'Healer'
--- L['ClassRoleSummary'] = 'Class & Role Summary'
--- L['RoleChart'] = 'Roles (Online Members)'
--- L['ClassChart'] = 'Classes (All Members)'
+L['Roles']                          = 'Roles'
+L['Tank']                           = 'Tank'
+L['Melee']                          = 'Melee'
+L['Ranged']                         = 'Ranged'
+L['Healer']                         = 'Healer'
+L['ClassRoleSummary']               = 'Class & Role Summary'
+L['RoleChart']                      = 'Roles (Online Members)'
+L['ClassChart']                     = 'Classes (All Members)'
 
---------------------------------------------------------------------------------------------
--- help text tooltips
---------------------------------------------------------------------------------------------
+-- calendar help icon
 L['calendarHelpText'] = [[
 Calendar
 
@@ -202,14 +198,36 @@ fall within 4 weeks of the current date|r.
 ]]
 
 
+--legacy stuff
+L["SELECT_BANK_CHARACTER"]          = "Select bank character"
+L["DUNGEON"]                        = "Dungeon"
+L["RAID"]                           = "Raid"
+L["MEETING"]                        = "Meeting"
+L["OTHER"]                          = "Other"
+L["GUILD_CALENDAR"]                 = "Guild Calendar"
+L["INSTANCE_LOCKS"]                 = "Instance locks"
+L["CREATE_EVENT"]                   = "Create event"
+L["DELETE_EVENT"]                   = "Delete event"
+L["EVENT"]                          = "Event"
+L["EVENT_TYPE"]                     = "Event type"
+L["TITLE"]                          = "Title"
+L["DESCRIPTION"]                    = "Description"
+L["UPDATE"]                         = "Update"
+L["ATTENDING"]                      = "Attending"
+L["TENTATIVE"]                      = "Tentative"
+L["DECLINE"]                        = "Decline"
+
+L["YEARS"]                          = "years"
+L["MONTHS"]                         = "months"
+L["DAYS"]                           = "days"
+L["HOURS"]                          = "hours"
+
 
 -- grab the clients locale
 local locale = GetLocale()
 
-
-
 --[[
-    german
+    german  - this needs to be updated
 ]]
 if locale == "deDE" then
 
@@ -337,143 +355,197 @@ if locale == "deDE" then
 ]]
 elseif locale == 'frFR' then
 
-    -- buttons, labels and texts
-    L['CharacterName'] = 'Data Recipient'
-    L['OptionsAbout'] = 'Guildbook allows players to share more detail about their characters with guild members. Use the options below your to set spec/alt information for your character.'
-    L['Summary'] = 'Summary'
-    L['SummaryHeader'] = 'Guild Summary'
-    L['Roster'] = 'Roster'
-    L['CharacterLevel'] = 'Character Level'
-    L['Name'] = 'Name'
-    L['Roles'] = 'Roles'
-    L['Tank'] = 'Tank'
-    L['Melee'] = 'Melee'
-    L['Ranged'] = 'Ranged'
-    L['Healer'] = 'Healer'
-    L['ClassRoleSummary'] = 'Class & Role Summary'
-    L['RoleChart'] = 'Roles (Online Members)'
-    L['ClassChart'] = 'Classes (All Members)'
-    L['Online'] = 'Online'
-    L['Offline'] = 'Offline'
-    L['SearchFor'] = 'Search...'
-    L['Info'] = 'Info'
-    L['Specializations'] = 'Specializations'
-    L['ItemLevel'] = 'Item Level'
-    L['MainSpec'] = 'Main Spec'
-    L['Main'] = 'Main:'
-    L['Rank'] = 'Rank'
-    L['Note'] = 'Note'
-    L['OffSpec'] = 'Off Spec:'
-    L['IsPvpSpec'] = '  PVP'
-    L['Class'] = 'Class'
-    L['FirstAid'] = 'First Aid'
-    L['Fishing'] = 'Fishing'
-    L['Cooking'] = 'Cooking'
-    L['Professions'] = 'Professions'
-    L['Profession1'] = 'Profession 1'
-    L['Profession2'] = 'Profession 2'
-    L['Profiles'] = 'Profiles'
-    L['Profile'] = 'Profile'
-    L['Chat'] = 'Chat'
-    L['Statistics'] = 'Statistics'
-    L['Calendar'] = 'Calendar'
-    L['GuildBank'] = 'Guild Bank'
-    L['EditCharacterInfo'] = 'Information about your character should be displayed below, update your specializations and if this is an alt provide your main character name.\nClick confirm to share with guild.'
-    L['SaveCharacterData'] = 'Confirm'
-    L['MainCharacterNameInputDesc'] = 'Main character'
-    L['MainCharacter'] = 'Main Character'
-    L['Gems'] = 'Gems'
-    L['Enchants'] = 'Enchants'
-    L['ilvl'] = 'ilvl'
-    L['Guild Information'] = 'Guild Information'
-    L['ClassRolesSummary'] = 'Class & Role Summary'
-    L['RaidRoster'] = 'Raid Roster |cffffffff(Right click player for more options)|r'
-    L['Cancel'] = 'Cancel'
-    L['GuildBank'] = 'Guild Bank'
+    L['OptionsAbout'] = 'Guildbook options and about. Thanks to Belrand@Auberdine for the French translations'
+	L['Version'] = 'Version'
+	L['Author'] = 'Auteur: |cffffffffstpain (|r|cffF58CBACopperbolts|r |cffffffffand|r |cff0070DEKylanda|r|cffffffff) |r'
 
-    --professions
-    L['Alchemy'] = "Alchimie"
-    L["Blacksmithing"] = "Forge"
-    L["Enchanting"] = "Enchantement"
-    L["Engineering"] = "Ingénierie"
-    --['Inscription'] = 'Inscription',
-    --['Jewelcrafting'] = 'Jewelcrafting',
-    L['Tailoring'] = "Couturier"
-    L['Leatheroworking'] = "Travail du cuir"
-    L['Herbalism'] = "Herboristerie"
-    L['Skinning'] = "Dépecage"
-    L['Mining'] = "Minage"
-    L['First Aid'] = 'Secourisme'
-    L['Fishing'] = 'Pêche'
-    L['Cooking'] = 'Cuisine'
-    
-    -- class and spec
-    L['DEATHKNIGHT'] = 'Deathknight'
-    L['DRUID'] = 'Druid'
-    L['HUNTER'] = 'Hunter'
-    L['MAGE'] = 'Mage'
-    L['PALADIN'] = 'Paladin'
-    L['PRIEST'] = 'Priest'
-    L['SHAMAN'] = 'Shaman'
-    L['ROGUE'] = 'Rogue'
-    L['WARLOCK'] = 'Warlock'
-    L['WARRIOR'] = 'Warrior'
-    --mage/dk
-    L['Arcane'] = 'Arcane'
-    L['Fire'] = 'Fire'
-    L['Frost'] = 'Frost'
-    L['Blood'] = 'Blood'
-    L['Unholy'] = 'Unholy'
-    --druid/shaman
-    L['Restoration'] = 'Restoration'
-    L['Enhancement'] = 'Enhancement'
-    L['Elemental'] = 'Elemental'
-    L['Cat'] = 'Cat'
-    L['Bear'] = 'Bear'
-    L['Balance'] = 'Balance'
-    --rogue
-    L['Assassination'] = 'Assassination'
-    L['Combat'] = 'Combat'
-    L['Subtlety'] = 'Subtlety'
-    --hunter
-    L['Marksmanship'] = 'Marksmanship'
-    L['Beast Master'] = 'Beast Master'
-    L['Survival'] = 'Survival'
-    --warlock
-    L['Destruction'] = 'Destruction'
-    L['Affliction'] = 'Affliction'
-    L['Demonology'] = 'Demonology'
-    --warrior/paladin/priest
-    L['Fury'] = 'Fury'
-    L['Arms'] = 'Arms'
-    L['Protection'] = 'Protection'
-    L['Retribution'] = 'Retribution'
-    L['Holy'] = 'Holy'
-    L['Discipline'] = 'Discipline'
-    L['Shadow'] = 'Shadow'
+	L["GUILDBOOK_LOADER_HEADER"]        = "Bienvenue sur Guildbook"
+	L["TOOLTIP_ITEM_RECIPE_HEADER"]     = "Utilisé pour:"
 
+	--mod blizz guild roster
+	L['Online']                         = 'En Ligne'
+	L['MainSpec']                       = 'Spé Principale'
+	L['Rank']                           = 'Rang'
+	L['Note']                           = 'Note'
+	L['Profession1']                    = 'Métier 1'
+	L['Profession2']                    = 'Métier 2'
+
+
+	-- roster listview and tooltip, these are also sort keys hence the lowercase usage
+	L["name"]                           = "Nom"
+	L["level"]                          = "Niveau"
+	L["mainSpec"]                       = "Spé Principale"
+	L["prof1"]                          = "Métiers"
+	L["location"]                       = "Zone"
+	L["rankName"]                       = "Rang"
+	L["publicNote"]                     = "Note Publique"
+	L["class"]                          = "Classe"
+	L["attunements"]                    = "Accès"
+
+
+	-- xml strings
+	L["PROFILE_TITLE"]                  = "Profile"
+	L["REAL_NAME"]                      = "Nom"
+	L["REAL_DOB"]                       = "Anniversaire"
+	L["REAL_BIO"]                       = "Bio"
+	L["AVATAR"]                         = "Avatar"
+	L["MAIN_CHARACTER"]                 = "Personnage Principal"
+	L["MAIN_SPEC"]                      = "Spé Principale"
+	L["OFF_SPEC"]                       = "Spé Secondaire"
+	L["PRIVACY"]                        = "Confidentialité"
+	L["PRIVACY_ABOUT"]                  = "Choisir avec quels Rangs vous souhaitez partager vos données."
+	L["INVENTORY"]                      = "Inventaire"
+	L["TALENTS"]                        = "Talents"
+
+	L["PROFILES"]                       = "Profiles"
+	L["TRADESKILLS"]                    = "Métiers (Recettes)"
+	L["CHAT"]                           = "Chat"
+	L["ROSTER"]                         = "Roster"
+	L["CALENDAR"]                       = "Calendrier"
+	L["SEARCH"]                         = "Rechercher"
+	L["MY_PROFILE"]                     = "Mon profile"
+	L["OPEN_PROFILE"]                   = "Ouvrir profile"
+	L["OPEN_CHAT"]                      = "Ouvrir chat"
+	L["INVITE_TO_GROUP"]                = "Inviter dans un groupe"
+	L["SEND_TRADE_ENQUIRY"]             = "Envoyer un message à propos de l'objet"
+	L["REFRESH_ROSTER"]                 = "Rafraîchir roster"
+	L["EDIT"]                           = "Modifier profile"
+	L["GUILD_BANK"]                     = "Banque de Guilde (Fonctionnalité héritée)"
+	L["ALTS"]                           = "Personnages secondaires"
+	L["USE_MAIN_PROFILE"]               = "Utiliser profil du Personnage Principal"
+	L["MY_SACKS"]                       = "Mes sacs"
+	L["BAGS"]                           = "Sacs"
+	L["BANK"]                           = "Banque"
+	L["STATS"]                          = "Statistiques"
+
+	L["PRIVACY_HEADER"]                 = "Paramètres de confidentialité"
+
+	-- class and spec
+	L['DEATHKNIGHT']                    = 'Chevalier de la mort'
+	L['DRUID']                          = 'Druide'
+	L['HUNTER']                         = 'Chasseur'
+	L['MAGE']                           = 'Mage'
+	L['PALADIN']                        = 'Paladin'
+	L['PRIEST']                         = 'Prêtre'
+	L['SHAMAN']                         = 'Chaman'
+	L['ROGUE']                          = 'Voleur'
+	L['WARLOCK']                        = 'Démoniste'
+	L['WARRIOR']                        = 'Guerrier'
+	--mage/dk
+	L['Arcane']                         = 'Arcane'
+	L['Fire']                           = 'Feu'
+	L['Frost']                          = 'Givre'
+	L['Blood']                          = 'Sang'
+	L['Unholy']                         = 'Impie'
+	--druid/shaman
+	L['Restoration']                    = 'Restauration'
+	L['Enhancement']                    = 'Amélioration'
+	L['Elemental']                      = 'Elémentaire'
+	L['Cat']                            = 'Chat'
+	L['Bear']                           = 'Ours'
+	L['Balance']                        = 'Equilibre'
+	--rogue
+	L['Assassination']                  = 'Assassinat'
+	L['Combat']                         = 'Combat'
+	L['Subtlety']                       = 'Finesse'
+	--hunter
+	L['Marksmanship']                   = 'Précision'
+	L['Beast Master']                   = 'Maîtrise des Bêtes'
+	L['Survival']                       = 'Survie'
+	--warlock
+	L['Destruction']                    = 'Destruction'
+	L['Affliction']                     = 'Affliction'
+	L['Demonology']                     = 'Démonologie'
+	--warrior/paladin/priest
+	L['Fury']                           = 'Fureur'
+	L['Arms']                           = 'Armes'
+	L['Protection']                     = 'Protection'
+	L['Retribution']                    = 'Vindicte'
+	L['Holy']                           = 'Sacré'
+	L['Discipline']                     = 'Discipline'
+	L['Shadow']                         = 'Ombre'
+
+	--date time
+	L['January']                        = 'Janvier'
+	L['February']                       = 'Février'
+	L['March']                          = 'Mars'
+	L['April']                          = 'Avril'
+	L['May']                            = 'Mai'
+	L['June']                           = 'Juin'
+	L['July']                           = 'Juillet'
+	L['August']                         = 'Août'
+	L['September']                      = 'Septembre'
+	L['October']                        = 'Octobre'
+	L['November']                       = 'Novembre'
+	L['December']                       = 'Décembre'
+
+
+	-- old stuff but might use again
+	L['GuildBank']                      = 'Banque de Guilde'
+	L['Events']                         = 'Evénements'
+	L['WorldEvents']                    = 'Evénements mondiaux'
+	L['Attunements']                    = 'Accès'
+	L["Guild"]                          = "Guilde"
+
+
+	L['Roles']                          = 'Rôles'
+	L['Tank']                           = 'Tank'
+	L['Melee']                          = 'Mêlée'
+	L['Ranged']                         = 'Distance'
+	L['Healer']                         = 'Soigneur'
+	L['ClassRoleSummary']               = 'Classes & Rôles'
+	L['RoleChart']                      = 'Rôles (Membres en ligne)'
+	L['ClassChart']                     = 'Classes (Tous les Membres)'
+	
+	--legacy stuff
+	L["SELECT_BANK_CHARACTER"]          = "Sélectionner votre Personnage Banque"
+	L["DUNGEON"]                        = "Donjon"
+	L["RAID"]                           = "Raid"
+	L["MEETING"]                        = "Réunion"
+	L["OTHER"]                          = "Autre"
+	L["GUILD_CALENDAR"]                 = "Calendrier de Guild"
+	L["INSTANCE_LOCKS"]                 = "Instances verrouilées"
+	L["CREATE_EVENT"]                   = "Créer événement"
+	L["DELETE_EVENT"]                   = "Supprimer événement"
+	L["EVENT"]                          = "Evénement"
+	L["EVENT_TYPE"]                     = "Type d'événement"
+	L["TITLE"]                          = "Titre"
+	L["DESCRIPTION"]                    = "Description"
+	L["UPDATE"]                         = "Mettre à jour"
+	L["ATTENDING"]                      = "Présent"
+	L["TENTATIVE"]                      = "Tentative"
+	L["DECLINE"]                        = "Décliner"
+	L["YEARS"]                          = "années"
+	L["MONTHS"]                         = "mois"
+	L["DAYS"]                           = "jours"
+
+--------------------------------------------------------------------------------------------
+-- help text tooltips
+--------------------------------------------------------------------------------------------
+	L['calendarHelpText'] = [[
+Calendar
+
+|cffffffffGuildbook fournit un calendrier en jeu pour les guildes afin de
+planifier des événements. Il est vaguement basé sur une ancienne version du
+Calendrier Blizzard et fonctionne de manière similaire. Actuellement
+jusqu'à 3 événements par jour seront affichés (une option pour en afficher 
+plus sera ajoutée plus tard) sur les cases de la grille calendaire.|r
+
+|cff00BFF3Le calendrier envoie/reçoit des données lorsqu'un joueur se connecte,
+lorsqu'un événement est créé (ou supprimé) et lorsqu'un événement est modifié.
+Les événements devraient se synchroniser avec les membres de la guilde,
+mais cela n'est pas garanti car il repose sur une superposition suffisante 
+entre les sessions des joueurs.
+
+Les données envoyées sont limitées à 4 semaines pour réduire la demande sur 
+les systèmes chat par l'addon, les événements peuvent être créés pour n'importe
+quelle date et se synchroniseront dans les 4 semaines suivant la date actuelle|r.
+]]
 
 end
-
-
-
 
 
 Guildbook.Locales = L
-
-Guildbook.AvailableLocales = {
-    ['enUS'] = true,
-    ['deDE'] = true,
-    ['frFR'] = true,
-}
-
--- this will be a lookup table to convert to english for function args etc
-if Guildbook.AvailableLocales[locale] then
-    Guildbook.GetEnglish = {}
-    for k, v in pairs(L) do
-        Guildbook.GetEnglish[v] = k
-    end
-end
 
 
 -- these were taken from the game however some seem to be incorrect so any fixes please post on the curse page for others to see (and me)

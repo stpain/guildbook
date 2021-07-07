@@ -40,7 +40,7 @@ Guildbook.GuildFrame = {
     ColumnHeaders = {
         { Text = 'Rank', Width = 70, },
         { Text = 'Note', Width = 80, },
-        { Text = 'MainSpec', Width = 80, },
+        { Text = 'MainSpec', Width = 100, },
         { Text = 'Profession1', Width = 90, },
         { Text = 'Profession2', Width = 90, },
         { Text = 'Online', Width = 65, },
@@ -49,7 +49,7 @@ Guildbook.GuildFrame = {
     ColumnWidths = {
         Rank = 67.0,
         Note = 77.0,
-        MainSpec = 77.0,
+        MainSpec = 97.0,
         Profession1 = 87.0,
         Profession2 = 87.0,
         Online = 52.0,
@@ -64,8 +64,8 @@ function Guildbook:ModBlizzUI()
     GuildFrameGuildListToggleButton:Hide()
 
     GuildFrame:HookScript('OnShow', function(self)
-        self:SetWidth(810)
-        FriendsFrame:SetWidth(810)
+        self:SetWidth(830)
+        FriendsFrame:SetWidth(830)
     end)
     
     GuildFrame:HookScript('OnHide', function(self)
@@ -229,16 +229,16 @@ function Guildbook:ModBlizzUI()
             if isOnline == false then            
                 local yearsOffline, monthsOffline, daysOffline, hoursOffline = GetGuildRosterLastOnline(idx)
                 if yearsOffline and yearsOffline > 0 then
-                    offline = string.format('%s years', yearsOffline)
+                    offline = string.format('%s %s', yearsOffline, L["YEARS"])
                 else
                     if monthsOffline and monthsOffline > 0 then
-                        offline = string.format('%s months', monthsOffline)
+                        offline = string.format('%s %s', monthsOffline, L["MONTHS"])
                     else
                         if daysOffline and daysOffline > 0 then
-                            offline = string.format('%s days', daysOffline)
+                            offline = string.format('%s %s', daysOffline, L["DAYS"])
                         else
                             if hoursOffline and hoursOffline > 0 then
-                                offline = string.format('%s hours', hoursOffline)
+                                offline = string.format('%s %s', hoursOffline, L["HOURS"])
                             else
                                 offline = '< an hour'
                             end

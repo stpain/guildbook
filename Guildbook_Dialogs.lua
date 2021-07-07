@@ -89,7 +89,7 @@ StaticPopupDialogs['GuildbookResetCharacter'] = {
             GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][UnitGUID('player')] = nil
         end
         GUILDBOOK_CHARACTER = Guildbook.Data.DefaultCharacterSettings
-        ReloadUI()
+        DEBUG("error", "ResetCharacterData", "set character saved var table to default values")
     end,
     OnCancel = function(self)
 
@@ -179,20 +179,30 @@ StaticPopupDialogs['GuildbookGatheringDatabaseEditObject'] = {
     showAlert = 1,
 }
 
+StaticPopupDialogs['GuildbookUpdateAvailable'] = {
+    text = 'Guildbook, new version available\n\nCurrent version %s\nNew version %s',
+    button1 = 'OK',
+    hasEditBox = true,
+    OnShow = function(self)
+        --self.icon:SetTexture(132049)
+        self.icon:SetTexture(nil)
+        self.editBox:SetMaxLetters(50)
+        --self.editBox:SetWidth(300)
+        self.editBox:SetText('https://www.curseforge.com/wow/addons/guildbook')
+        self.editBox:HighlightText()
+    end,
+    OnAccept = function(self)
+
+    end,
+}
+
 StaticPopupDialogs['GuildbookUpdates'] = {
     text = 'Guildbook Version: %s\n\n%s',
     button1 = 'OK',
-    --hasEditBox = true,
     OnAccept = function(self)
         GUILDBOOK_GLOBAL.configUpdate = true
     end,
     OnShow = function(self)
-        --self.icon:SetTexture(132049)
-        self.icon:SetTexture(nil)
-        -- self.editBox:SetMaxLetters(50)
-        -- self.editBox:SetWidth(300)
-        -- self.editBox:SetText('https://www.curseforge.com/wow/addons/guildbook')
-        -- self.editBox:HighlightText()
     end,
     OnHide = function(self)
         --self.icon:SetTexture("Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew")
@@ -204,67 +214,3 @@ StaticPopupDialogs['GuildbookUpdates'] = {
     showAlert = 1,
 }
 
-
-StaticPopupDialogs['SendProfessionData'] = {
-    text = L["SCANNING_TRADESKILL_DATA"].."0/0"..L["SEND_TRADESKILL_DATA_WARNING"],
-    button1 = "No",
-    button2 = "Yes",
-    button3 = "Ignore",
-    OnShow = function(self, args)
-        Guildbook.profScanDialogOpen = true;
-        self.button2:SetEnabled(false)
-        local i = 1;
-        local c = GetNumTradeSkills();
-        C_Timer.NewTicker(0.01, function()
-            local name, _type, _, _, _ = GetTradeSkillInfo(i)
-            if (name and _type ~= "header") then
-                local itemLink = GetTradeSkillItemLink(i)
-                local itemID = GetItemInfoInstant(itemLink)
-                if itemID then
-                    GUILDBOOK_CHARACTER[args.prof][itemID] = {}
-                    --_G[self:GetName().."Text"]:SetText(L["SCANNING_TRADESKILL_DATA"]..i.."/"..c..L["SEND_TRADESKILL_DATA_WARNING"])
-                    _G[self:GetName().."Text"]:SetText(L["SCANNING_TRADESKILL_DATA"]..itemLink..L["SEND_TRADESKILL_DATA_WARNING"])
-                end
-                local numReagents = GetTradeSkillNumReagents(i);
-                if numReagents > 0 then
-                    for j = 1, numReagents do
-                        local _, _, reagentCount, _ = GetTradeSkillReagentInfo(i, j)
-                        local reagentLink = GetTradeSkillReagentItemLink(i, j)
-                        local reagentID = GetItemInfoInstant(reagentLink)
-                        if reagentID and reagentCount then
-                            GUILDBOOK_CHARACTER[args.prof][itemID][reagentID] = reagentCount
-                        end
-                    end
-                end
-            end
-            if i == c then
-                local guildName = Guildbook:GetGuildName()
-                if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[guildName] then
-                    local character = GUILDBOOK_GLOBAL.GuildRosterCache[guildName][UnitGUID("player")]
-                    if character then
-                        character[args.prof] = GUILDBOOK_CHARACTER[args.prof]
-                    end
-                end
-                self.button2:SetEnabled(true)
-            end
-            i = i + 1;
-        end, c)
-    end,
-    OnAccept = function()
-        print("A wise choice!")
-        Guildbook.profScanDialogOpen = false;
-    end,
-    OnCancel = function(self, args)
-        Guildbook:SendTradeskillData(args.prof, "GUILD", nil)
-        Guildbook.profScanDialogOpen = false;
-    end,
-    OnAlt = function()
-        print("alt")
-        Guildbook.profScanDialogOpen = false;
-    end,
-    timeout = 0,
-    whileDead = true,
-    hideOnEscape = false,
-    preferredIndex = 3,
-    showAlert = 1,
-}

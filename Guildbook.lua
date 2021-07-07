@@ -1248,7 +1248,9 @@ function GuildbookRosterMixin:OnLoad()
     local mixin = self;
     for _, button in pairs(self.sortButtons) do
         button:RegisterForClicks("AnyDown")
-        button:SetText(L[button.sort])
+        local font, size, flags = button.Text:GetFont()
+        button.Text:SetFont(font, 10, flags)
+        button:SetText("|cffffffff"..L[button.sort])
         button.order = true
         button.menu = self.buttonDropdownMenus[button.sort]
         button:SetScript("OnClick", function(self, b)
@@ -2094,6 +2096,9 @@ function GuildbookProfilesMixin:HideInventoryIcons()
 end
 
 function GuildbookProfilesMixin:OnShow()
+    if gb.addonLoaded == false then
+        return;
+    end
     GUILD_NAME = gb:GetGuildName()
     if not GUILD_NAME then
         return

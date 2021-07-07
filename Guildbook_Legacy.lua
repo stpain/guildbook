@@ -68,7 +68,7 @@ are supported.
     self.GuildFrame.GuildBankFrame.BankCharacterSelectDropDown = CreateFrame('FRAME', 'GuildbookGuildFrameGuildBankFrameBankCharacterSelectDropDown', self.GuildFrame.GuildBankFrame, "UIDropDownMenuTemplate")
     self.GuildFrame.GuildBankFrame.BankCharacterSelectDropDown:SetPoint('TOPLEFT', self.GuildFrame.GuildBankFrame, 'TOPLEFT', 0, -48)
     UIDropDownMenu_SetWidth(self.GuildFrame.GuildBankFrame.BankCharacterSelectDropDown, 150)
-    UIDropDownMenu_SetText(self.GuildFrame.GuildBankFrame.BankCharacterSelectDropDown, 'Select Bank Character')
+    UIDropDownMenu_SetText(self.GuildFrame.GuildBankFrame.BankCharacterSelectDropDown, L["SELECT_BANK_CHARACTER"])
     function self.GuildFrame.GuildBankFrame:BankCharacterSelectDropDown_Init()
         UIDropDownMenu_Initialize(self.BankCharacterSelectDropDown, function(self, level, menuList)
             GuildRoster()
@@ -357,7 +357,7 @@ function Guildbook:SetupGuildCalendarFrame()
             notCheckable = true, 
             func = function(self) 
                 Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 3
-                UIDropDownMenu_SetText(Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTypeDropdown, 'Dungeon')
+                UIDropDownMenu_SetText(Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTypeDropdown, L["DUNGEON"])
             end, 
         },
         { 
@@ -365,7 +365,7 @@ function Guildbook:SetupGuildCalendarFrame()
             notCheckable = true, 
             func = function(self) 
                 Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 1
-                UIDropDownMenu_SetText(Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTypeDropdown, 'Raid')
+                UIDropDownMenu_SetText(Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTypeDropdown, L["RAID"])
             end,
             hasArrow = true,
             menuList = raidsMenu,
@@ -383,7 +383,7 @@ function Guildbook:SetupGuildCalendarFrame()
             notCheckable = true, 
             func = function(self) 
                 Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 4
-                UIDropDownMenu_SetText(Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTypeDropdown, 'Meeting')
+                UIDropDownMenu_SetText(Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTypeDropdown, L["MEETING"])
             end,  
         },
         { 
@@ -391,7 +391,7 @@ function Guildbook:SetupGuildCalendarFrame()
             notCheckable = true, 
             func = function(self) 
                 Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 5
-                UIDropDownMenu_SetText(Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTypeDropdown, 'Other')
+                UIDropDownMenu_SetText(Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTypeDropdown, L["OTHER"])
             end,  
         },
     }
@@ -434,7 +434,7 @@ function Guildbook:SetupGuildCalendarFrame()
 
     self.GuildFrame.GuildCalendarFrame.Header = self.GuildFrame.GuildCalendarFrame:CreateFontString('GuildbookGuildInfoFrameGuildCalendarFrameHeader', 'OVERLAY', 'GameFontNormal')
     self.GuildFrame.GuildCalendarFrame.Header:SetPoint('BOTTOM', Guildbook.GuildFrame.GuildCalendarFrame, 'TOP', 0, 4)
-    self.GuildFrame.GuildCalendarFrame.Header:SetText('Guild Calendar')
+    self.GuildFrame.GuildCalendarFrame.Header:SetText(L["GUILD_CALENDAR"])
     self.GuildFrame.GuildCalendarFrame.Header:SetTextColor(1,1,1,1)
     self.GuildFrame.GuildCalendarFrame.Header:SetFont("Fonts\\FRIZQT__.TTF", 12)
 
@@ -474,7 +474,7 @@ function Guildbook:SetupGuildCalendarFrame()
     self.GuildFrame.GuildCalendarFrame.InstanceInfoFrame:SetWidth(300)
     self.GuildFrame.GuildCalendarFrame.InstanceInfoFrame.header = self.GuildFrame.GuildCalendarFrame.InstanceInfoFrame:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
     self.GuildFrame.GuildCalendarFrame.InstanceInfoFrame.header:SetPoint('TOP', 0, -4)
-    self.GuildFrame.GuildCalendarFrame.InstanceInfoFrame.header:SetText('Instance locks')
+    self.GuildFrame.GuildCalendarFrame.InstanceInfoFrame.header:SetText(L["INSTANCE_LOCKS"])
     self.GuildFrame.GuildCalendarFrame.InstanceInfoFrame.rows = {}
 
 
@@ -873,7 +873,7 @@ function Guildbook:SetupGuildCalendarFrame()
     self.GuildFrame.GuildCalendarFrame.EventFrame.CreateEventButton = CreateFrame('BUTTON', 'GuildbookGuildFrameGuildCalendarFrameEventFrameCreateEventButton', self.GuildFrame.GuildCalendarFrame.EventFrame, "UIPanelButtonTemplate")
     self.GuildFrame.GuildCalendarFrame.EventFrame.CreateEventButton:SetPoint('BOTTOMLEFT', 10, 10)
     self.GuildFrame.GuildCalendarFrame.EventFrame.CreateEventButton:SetSize(115, 22)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.CreateEventButton:SetText('Create Event')
+    self.GuildFrame.GuildCalendarFrame.EventFrame.CreateEventButton:SetText(L["CREATE_EVENT"])
     self.GuildFrame.GuildCalendarFrame.EventFrame.CreateEventButton:SetScript('OnClick', function()
         Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:CreateEvent()
     end)
@@ -881,7 +881,7 @@ function Guildbook:SetupGuildCalendarFrame()
     self.GuildFrame.GuildCalendarFrame.EventFrame.CancelEventButton = CreateFrame('BUTTON', 'GuildbookGuildFrameGuildCalendarFrameEventFrameCancelEventButton', self.GuildFrame.GuildCalendarFrame.EventFrame, "UIPanelButtonTemplate")
     self.GuildFrame.GuildCalendarFrame.EventFrame.CancelEventButton:SetPoint('LEFT', self.GuildFrame.GuildCalendarFrame.EventFrame.CreateEventButton, 'RIGHT', 0, 0)
     self.GuildFrame.GuildCalendarFrame.EventFrame.CancelEventButton:SetSize(115, 22)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.CancelEventButton:SetText('Delete Event')
+    self.GuildFrame.GuildCalendarFrame.EventFrame.CancelEventButton:SetText(L["DELETE_EVENT"])
     self.GuildFrame.GuildCalendarFrame.EventFrame.CancelEventButton:SetScript('OnClick', function(self)
         Guildbook:SendGuildCalendarEventDeleted(self:GetParent().event)
         self:GetParent().event = nil
@@ -893,7 +893,7 @@ function Guildbook:SetupGuildCalendarFrame()
         self:GetParent().EventDescriptionEditbox:Enable()
         self:GetParent().AttendEventButton_Confirm:Disable()
         self:GetParent().AttendEventButton_Tentative:Disable()
-        self:GetParent().AttendEventButton_Unable:Disable()
+        self:GetParent().AttendEventButton_Decline:Disable()
         self:GetParent():ResetClassCounts()
         self:GetParent():ResetAttending()
     end)
@@ -917,16 +917,16 @@ function Guildbook:SetupGuildCalendarFrame()
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetMaxLetters(50)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox.header = self.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:CreateFontString('$parentHeader', 'OVERLAY', 'GameFontNormalSmall')
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox.header:SetPoint('BOTTOMLEFT', self.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox, 'TOPLEFT', 0, 2)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox.header:SetText('Title')
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox.header:SetText(L["TITLE"])
 
     local etdt = self.GuildFrame.GuildCalendarFrame.EventFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     etdt:SetPoint("TOPLEFT", 25, -96)
-    etdt:SetText("Event type")
+    etdt:SetText(L["EVENT_TYPE"])
 
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventTypeDropdown = CreateFrame('FRAME', "GuildbookGuildFrameGuildCalendarFrameEventFrameEventTypeDropdown", self.GuildFrame.GuildCalendarFrame.EventFrame, "UIDropDownMenuTemplate")
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventTypeDropdown:SetPoint('TOPLEFT', etdt, 'BOTTOMLEFT', -20, -4)
     UIDropDownMenu_SetWidth(self.GuildFrame.GuildCalendarFrame.EventFrame.EventTypeDropdown, 75)
-    UIDropDownMenu_SetText(self.GuildFrame.GuildCalendarFrame.EventFrame.EventTypeDropdown, 'Event')
+    UIDropDownMenu_SetText(self.GuildFrame.GuildCalendarFrame.EventFrame.EventTypeDropdown, L["EVENT"])
     _G['GuildbookGuildFrameGuildCalendarFrameEventFrameEventTypeDropdownButton']:SetScript('OnClick', function(self)
         EasyMenu(eventTypes, Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTypeDropdown, Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTypeDropdown, 10, 10, 'NONE')
     end)
@@ -949,7 +949,7 @@ function Guildbook:SetupGuildCalendarFrame()
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox:SetMultiLine(true)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox.header = self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox:CreateFontString('$parentHeader', 'OVERLAY', 'GameFontNormalSmall')
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox.header:SetPoint('BOTTOMLEFT', self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox, 'TOPLEFT', -4, 8)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox.header:SetText('Description')
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox.header:SetText(L["DESCRIPTION"])
 
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent.UpdateButton = CreateFrame('BUTTON', 'GuildbookGuildFrameGuildCalendarFrameEventFrameEventDescriptionFrameUpdateButton', Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent, 'UIPanelButtonTemplate')
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent.UpdateButton:SetPoint('BOTTOMRIGHT', Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent, 'TOPRIGHT', 0, 2)
@@ -957,7 +957,7 @@ function Guildbook:SetupGuildCalendarFrame()
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent.UpdateButton:SetNormalFontObject(GameFontNormalSmall)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent.UpdateButton:SetHighlightFontObject(GameFontNormalSmall)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent.UpdateButton:SetDisabledFontObject(GameFontNormalSmall)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent.UpdateButton:SetText('Update')
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent.UpdateButton:SetText(L["UPDATE"])
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent.UpdateButton:SetScript('OnClick', function(self)
         Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:UpdateEvent()
         Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox:ClearFocus()
@@ -979,7 +979,7 @@ function Guildbook:SetupGuildCalendarFrame()
         f:SetHeight(11)
         f.character = f:CreateFontString('$parentCharacter', 'OVERLAY', 'GameFontNormalSmall')
         f.character:SetPoint('LEFT', 10, 0)
-        f.character:SetText('Copperbolts')
+        f.character:SetText('')
         f.status = f:CreateFontString('$parentStatus', 'OVERLAY', 'GameFontNormalSmall')
         f.status:SetPoint('LEFT', 100, 0)
         f.status:SetText('Confirmed')
@@ -1004,7 +1004,7 @@ function Guildbook:SetupGuildCalendarFrame()
     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Confirm:SetNormalFontObject(GameFontNormalSmall)
     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Confirm:SetHighlightFontObject(GameFontNormalSmall)
     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Confirm:SetDisabledFontObject(GameFontNormalSmall)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Confirm:SetText('Attending')
+    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Confirm:SetText(L["ATTENDING"])
     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Confirm:SetScript('OnClick', function(self)
         local event = self:GetParent().event
         local guildName = Guildbook:GetGuildName()
@@ -1018,7 +1018,7 @@ function Guildbook:SetupGuildCalendarFrame()
     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Tentative:SetNormalFontObject(GameFontNormalSmall)
     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Tentative:SetHighlightFontObject(GameFontNormalSmall)
     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Tentative:SetDisabledFontObject(GameFontNormalSmall)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Tentative:SetText('Tentative')
+    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Tentative:SetText(L["TENTATIVE"])
     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Tentative:SetScript('OnClick', function(self)
         local event = self:GetParent().event
         local guildName = Guildbook:GetGuildName()
@@ -1026,14 +1026,14 @@ function Guildbook:SetupGuildCalendarFrame()
             Guildbook:SendGuildCalendarEventAttend(event, 2)
         end
     end)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Unable = CreateFrame('BUTTON', 'GuildbookGuildFrameGuildCalendarFrameEventFrameAttendEventButtonUnable', self.GuildFrame.GuildCalendarFrame.EventFrame, "UIPanelButtonTemplate")
-    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Unable:SetPoint('LEFT', self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Tentative, 'RIGHT', 0, 0)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Unable:SetSize(68, 22)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Unable:SetNormalFontObject(GameFontNormalSmall)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Unable:SetHighlightFontObject(GameFontNormalSmall)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Unable:SetDisabledFontObject(GameFontNormalSmall)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Unable:SetText('Decline')
-    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Unable:SetScript('OnClick', function(self)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Decline = CreateFrame('BUTTON', 'GuildbookGuildFrameGuildCalendarFrameEventFrameAttendEventButtonUnable', self.GuildFrame.GuildCalendarFrame.EventFrame, "UIPanelButtonTemplate")
+    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Decline:SetPoint('LEFT', self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Tentative, 'RIGHT', 0, 0)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Decline:SetSize(68, 22)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Decline:SetNormalFontObject(GameFontNormalSmall)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Decline:SetHighlightFontObject(GameFontNormalSmall)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Decline:SetDisabledFontObject(GameFontNormalSmall)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Decline:SetText(L["DECLINE"])
+    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Decline:SetScript('OnClick', function(self)
         local event = self:GetParent().event
         local guildName = Guildbook:GetGuildName()
         if guildName and event then
@@ -1095,10 +1095,19 @@ function Guildbook:SetupGuildCalendarFrame()
         self.EventAttendeesListviewScrollBar:SetValue(1)
     end
 
+
     function self.GuildFrame.GuildCalendarFrame.EventFrame:UpdateClassTabs()
-        if self.event and next(self.event.attend) then            
+        local attending = false;
+        if self.event and next(self.event.attend) then   
             local i = 0
             for guid, info in pairs(self.event.attend) do
+                if guid == UnitGUID("player") then
+                    if info.Status == 1 then
+                        attending = true
+                    elseif info.Status == 2 then
+                        attending = true
+                    end
+                end
                 -- dont update if the player is declining
                 if info.Status ~= 0 then
                     i = i + 1
@@ -1153,7 +1162,19 @@ function Guildbook:SetupGuildCalendarFrame()
         end
         if self.event and next(self.event.attend) then            
             local i = 0
+            self.AttendEventButton_Confirm:Enable()
+            self.AttendEventButton_Tentative:Enable()
+            self.AttendEventButton_Decline:Enable()
             for guid, info in pairs(self.event.attend) do
+                if guid == UnitGUID("player") then
+                    if info.Status == 1 then
+                        self.AttendEventButton_Confirm:Disable()
+                    elseif info.Status == 2 then
+                        self.AttendEventButton_Tentative:Disable()
+                    else
+                        self.AttendEventButton_Decline:Disable()
+                    end
+                end
                 if info.Status ~= 0 then
                     i = i + 1
                     if not Guildbook.PlayerMixin then
@@ -1177,11 +1198,6 @@ function Guildbook:SetupGuildCalendarFrame()
         end
     end
 
-    -- self.GuildFrame.GuildCalendarFrame.EventFrame:SetScript('OnShow', function(self)
-    --     self.CancelEventButton:Disable()
-    -- end)
-
-
     -- setup the event frame pop out
     -- if no event show an enabled frame with no data
     -- otherwise show event info
@@ -1189,7 +1205,6 @@ function Guildbook:SetupGuildCalendarFrame()
         self:ResetClassCounts()
         self:UpdateClassTabs()
         self:ResetAttending()
-        self:UpdateAttending()
         if self.date then
             self.HeaderText:SetText(string.format('%s/%s/%s', self.date.day, self.date.month, self.date.year))
         end
@@ -1223,7 +1238,7 @@ function Guildbook:SetupGuildCalendarFrame()
             self.CreateEventButton:Disable()
             self.AttendEventButton_Confirm:Enable()
             self.AttendEventButton_Tentative:Enable()
-            self.AttendEventButton_Unable:Enable()
+            self.AttendEventButton_Decline:Enable()
             UIDropDownMenu_SetText(self.EventTypeDropdown, eventTypesReversed[self.event.type])
             if self.event.owner == UnitGUID('player') then
                 self.CancelEventButton:Enable()
@@ -1244,8 +1259,9 @@ function Guildbook:SetupGuildCalendarFrame()
             self.EventDescriptionEditbox:Enable()
             self.AttendEventButton_Confirm:Disable()
             self.AttendEventButton_Tentative:Disable()
-            self.AttendEventButton_Unable:Disable()
+            self.AttendEventButton_Decline:Disable()
         end
+        self:UpdateAttending()
     end)
 
 
