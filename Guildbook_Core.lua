@@ -1796,7 +1796,7 @@ end
 function Guildbook:GetCharacterDataPayload()
     local guid = UnitGUID('player')
     local ilvl = self:GetItemLevel()
-    self.GetCharacterProfessions() -- this gets the basic prof info for primary and seconday professions
+    self:GetCharacterProfessions() -- this gets the basic prof info for primary and seconday professions
     self:GetPaperDollStats() -- this gets the paperdoll stats
 
     local response = {
@@ -2249,7 +2249,7 @@ function Guildbook:OnCharacterDataRequested(request, distribution, sender)
     end
     local guid = UnitGUID('player')
     local ilvl = self:GetItemLevel()
-    self.GetCharacterProfessions() -- this gets the basic prof info for primary and seconday professions
+    self:GetCharacterProfessions() -- this gets the basic prof info for primary and seconday professions
     self:GetPaperDollStats() -- this gets the paperdoll stats
     C_Timer.After(1.0, function()
         local response = {
