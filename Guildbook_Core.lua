@@ -479,16 +479,15 @@ function Guildbook:Load()
             if not tooltip or not tooltip.AddLine then return end
             local now = date('*t')
             tooltip:AddLine('Guildbook')
-            tooltip:AddLine(string.format("%s %s %s", now.day, L[Guildbook.Data.Months[now.month]], now.year), 1,1,1,1)
-            tooltip:AddLine(' ')
+            tooltip:AddLine(string.format("%s %s %s", now.day, Guildbook.Data.Months[now.month], now.year), 1,1,1,1)
             -- get events for next 7 days
             local upcomingEvents = Guildbook:GetCalendarEvents(time(now), 7)
             if upcomingEvents and next(upcomingEvents) then
+                tooltip:AddLine(' ')
                 tooltip:AddLine(L['Events'])
                 for k, event in ipairs(upcomingEvents) do
-                    tooltip:AddDoubleLine(event.title, string.format("%s %s",event.date.day, string.sub(L[Guildbook.Data.Months[event.date.month]], 1, 3)), 1,1,1,1,1,1,1,1)
+                    tooltip:AddDoubleLine(event.title, string.format("%s %s",event.date.day, Guildbook.Data.Months[event.date.month], 1,1,1,1,1,1,1,1))
                 end
-                tooltip:AddLine(' ')
             end
         end,
     })
