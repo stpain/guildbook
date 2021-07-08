@@ -816,9 +816,9 @@ local function addRecipe(t, prof, recipeID, reagents)
                     selected = false,
                 })
                 GuildbookProfessionListviewMixin.recipesProcessed = GuildbookProfessionListviewMixin.recipesProcessed - 1;
-                if GuildbookProfessionListviewMixin.recipesProcessed == 0 then
-                    GuildbookUI.tradeskills.recipesListview:LoadRecipes()
-                end
+                -- if GuildbookProfessionListviewMixin.recipesProcessed == 0 then
+                --     GuildbookUI.tradeskills.recipesListview:LoadRecipes()
+                -- end
             end)
         else
             local item = Item:CreateFromItemID(recipeID)
@@ -838,9 +838,9 @@ local function addRecipe(t, prof, recipeID, reagents)
                     selected = false,
                 })
                 GuildbookProfessionListviewMixin.recipesProcessed = GuildbookProfessionListviewMixin.recipesProcessed - 1;
-                if GuildbookProfessionListviewMixin.recipesProcessed == 0 then
-                    GuildbookUI.tradeskills.recipesListview:LoadRecipes()
-                end
+                -- if GuildbookProfessionListviewMixin.recipesProcessed == 0 then
+                --     GuildbookUI.tradeskills.recipesListview:LoadRecipes()
+                -- end
             end)
         end
     else
@@ -855,9 +855,12 @@ local function addRecipe(t, prof, recipeID, reagents)
             selected = false,
         })
         --GuildbookProfessionListviewMixin.recipesProcessed = GuildbookProfessionListviewMixin.recipesProcessed - 1;
-        if GuildbookProfessionListviewMixin.recipesProcessed == 0 then
-            GuildbookUI.tradeskills.recipesListview:LoadRecipes()
-        end
+        -- if GuildbookProfessionListviewMixin.recipesProcessed == 0 then
+        --     GuildbookUI.tradeskills.recipesListview:LoadRecipes()
+        -- end
+    end
+    if GuildbookProfessionListviewMixin.recipesProcessed == 0 then
+--        GuildbookUI.tradeskills.recipesListview:LoadRecipes()
     end
 end
 
@@ -904,6 +907,9 @@ function GuildbookProfessionListviewMixin:OnLoad()
                         end
                         i = i + 1;
                     end, #GuildbookMixin.charactersWithProfession)
+                    C_Timer.After(0.01 * (#GuildbookMixin.charactersWithProfession + 1), function()
+                        GuildbookUI.tradeskills.recipesListview:LoadRecipes()
+                    end)
                 end
             end
         end
@@ -940,6 +946,7 @@ GuildbookRecipesListviewMixin = {}
 GuildbookRecipesListviewMixin.rows = {}
 GuildbookRecipesListviewMixin.recipes = {}
 GuildbookRecipesListviewMixin.selectedRecipeLink = nil;
+GuildbookRecipesListviewMixin.searchResultRecipeID = nil;
 local NUM_RECIPE_ROWS = 17
 
 local function getPlayersWithRecipe(recipeID)
@@ -1083,6 +1090,27 @@ function GuildbookRecipesListviewMixin:LoadRecipes()
         self.scrollBar:SetMinMaxValues(1,(#self.recipes>NUM_RECIPE_ROWS) and #self.recipes-(NUM_RECIPE_ROWS-1) or 1)
         self.scrollBar:SetValue(1)
     end
+    C_Timer.After(1, function()
+        if self.searchResultRecipeID then
+            -- local a,b = self.scrollBar:GetMinMaxValues()
+            -- print(a,b)
+            local key = 1;
+            for k, recipe in ipairs(self.recipes) do
+                if recipe.name == self.searchResultRecipeID then
+                    key = k
+                end
+            end
+            local i = 1;
+            C_Timer.NewTicker(0.01, function()
+                self.scrollBar:SetValue(i)
+                --print("scrollBar value", i, "index", key)
+                i = i + 1;
+                if i > key then
+    
+                end
+            end, key)
+        end
+    end)
 end
 
 function GuildbookRecipesListviewMixin:ScrollBar_OnValueChanged()
@@ -3070,31 +3098,36 @@ function GuildbookSearchMixin:Search(term)
                 end
             end
         end
-
-        -- search professions
-        if gb.tradeskillRecipes and #gb.tradeskillRecipes > 0 then
-            for k, recipe in ipairs(gb.tradeskillRecipes) do
-                if recipe.name:lower():find(term:lower()) and not self.processed[recipe.link] then
-                    local itemID, itemType, itemSubType, itemEquipLoc, icon, itemClassID, itemSubClassID = GetItemInfoInstant(recipe.itemID)
-                    table.insert(self.results, {
-                        resultKey = resultKeys["tradeskill"],
-                        title = recipe.link,
-                        icon = recipe.icon,
-                        iconType = "fileID",
-                        info = string.format("%s %s %s %s; %s %s", (itemType and itemType or ""), (itemSubType and itemSubType or ""), "ItemID:", recipe.itemID, "Source:", recipe.profession),
-                        func = function()
-                            for k, but in ipairs(GuildbookProfessionListviewMixin.profButtons) do
-                                if but.tradeskill:lower() == recipe.profession:lower() then
-                                    navigateTo(GuildbookUI.tradeskills)
-                                    but.func()
-                                end
+    end
+    -- search professions
+    if gb.tradeskillRecipes and #gb.tradeskillRecipes > 0 then
+        --DEBUG("func", "Search", "tradeskillRecipes exists > 0")
+        for k, recipe in ipairs(gb.tradeskillRecipes) do
+            --DEBUG("func", "Search", string.format("recipe name: %s, search term: %s", recipe.name, term))
+            if recipe.name:lower():find(term:lower()) and not self.processed[recipe.link] then
+                --DEBUG("func", "Search", "match found")
+                local itemID, itemType, itemSubType, itemEquipLoc, icon, itemClassID, itemSubClassID = GetItemInfoInstant(recipe.itemID)
+                table.insert(self.results, {
+                    resultKey = resultKeys["tradeskill"],
+                    title = recipe.link,
+                    icon = recipe.icon,
+                    iconType = "fileID",
+                    info = string.format("%s %s %s %s; %s %s", (itemType and itemType or ""), (itemSubType and itemSubType or ""), "ItemID:", recipe.itemID, "Source:", recipe.profession),
+                    func = function()
+                        for k, but in ipairs(GuildbookProfessionListviewMixin.profButtons) do
+                            if but.tradeskill:lower() == recipe.profession:lower() then
+                                GuildbookUI.tradeskills.recipesListview.searchResultRecipeID = recipe.name
+                                navigateTo(GuildbookUI.tradeskills)
+                                but.func()
                             end
-                        end,
-                    })
-                    self.processed[recipe.link] = true
-                end
+                        end
+                    end,
+                })
+                self.processed[recipe.link] = true
             end
         end
+    else
+        DEBUG("func", "Search", "tradeskillRecipes NOT exists > 0")
     end
 
     self.listview.scrollBar:SetValue(1)

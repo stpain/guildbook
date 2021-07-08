@@ -626,8 +626,6 @@ function Guildbook:RequestTradeskillData()
     local recipeIdsToQuery = {}
     if not self.tradeskillRecipes then
         self.tradeskillRecipes = {}
-    else
-        wipe(self.tradeskillRecipes)
     end
     local guild = self.GetGuildName()
     if not guild then
@@ -639,6 +637,7 @@ function Guildbook:RequestTradeskillData()
     if not GUILDBOOK_GLOBAL.GuildRosterCache[guild] then
         return;
     end
+    DEBUG("func", "RequestTradeskillData", "begin looping character cache")
     for guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[guild]) do
         if character.Profession1 and character.Profession1 ~= "-" then
             local prof = character.Profession1
@@ -646,6 +645,7 @@ function Guildbook:RequestTradeskillData()
                 for recipeID, reagents in pairs(character[prof]) do
                     if prof == "Enchanting" then
                         if not self.craftIdsQueried[recipeID] then
+                            --DEBUG("func", "RequestTradeskillData", "adding ENCHANT to query: "..recipeID)
                             self.craftIdsQueried[recipeID] = true;
                             table.insert(recipeIdsToQuery, {
                                 recipeID = recipeID,
@@ -655,6 +655,7 @@ function Guildbook:RequestTradeskillData()
                         end
                     else
                         if not self.recipeIdsQueried[recipeID] then
+                            --DEBUG("func", "RequestTradeskillData", "adding TRADESKILL to query: "..recipeID)
                             self.recipeIdsQueried[recipeID] = true;
                             table.insert(recipeIdsToQuery, {
                                 recipeID = recipeID,
@@ -672,6 +673,7 @@ function Guildbook:RequestTradeskillData()
                 for recipeID, reagents in pairs(character[prof]) do
                     if prof == "Enchanting" then
                         if not self.craftIdsQueried[recipeID] then
+                            --DEBUG("func", "RequestTradeskillData", "adding ENCHANT to query: "..recipeID)
                             self.craftIdsQueried[recipeID] = true;
                             table.insert(recipeIdsToQuery, {
                                 recipeID = recipeID,
@@ -681,6 +683,7 @@ function Guildbook:RequestTradeskillData()
                         end
                     else
                         if not self.recipeIdsQueried[recipeID] then
+                            --DEBUG("func", "RequestTradeskillData", "adding TRADESKILL to query: "..recipeID)
                             self.recipeIdsQueried[recipeID] = true;
                             table.insert(recipeIdsToQuery, {
                                 recipeID = recipeID,
@@ -695,6 +698,7 @@ function Guildbook:RequestTradeskillData()
         if character.Cooking and type(character.Cooking) == "table" then
             for recipeID, reagents in pairs(character.Cooking) do
                 if not self.recipeIdsQueried[recipeID] then
+                    DEBUG("func", "RequestTradeskillData", "adding COOKING to query: "..recipeID)
                     self.recipeIdsQueried[recipeID] = true;
                     table.insert(recipeIdsToQuery, {
                         recipeID = recipeID,
@@ -705,6 +709,7 @@ function Guildbook:RequestTradeskillData()
             end
         end
     end
+    --DEBUG("func", "RequestTradeskillData", "recipes to query "..#recipeIdsToQuery)
     if #recipeIdsToQuery > 0 then
         local recipesToProcess = #recipeIdsToQuery;
         local startTime = time();
