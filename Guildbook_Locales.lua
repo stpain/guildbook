@@ -101,6 +101,7 @@ L["STATS"]                          = "Statistics"
 L["PRIVACY_HEADER"]                 = "Privacy settings"
 
 -- class and spec
+-- class is upper case
 L['DEATHKNIGHT']                    = 'Deathknight'
 L['DRUID']                          = 'Druid'
 L['HUNTER']                         = 'Hunter'
@@ -146,18 +147,26 @@ L['Discipline']                     = 'Discipline'
 L['Shadow']                         = 'Shadow'
 
 --date time
-L['January']                        = 'January'
-L['February']                       = 'February'
-L['March']                          = 'March'
-L['April']                          = 'April'
-L['May']                            = 'May'
-L['June']                           = 'June'
-L['July']                           = 'July'
-L['August']                         = 'August'
-L['September']                      = 'September'
-L['October']                        = 'October'
-L['November']                       = 'November'
-L['December']                       = 'December'
+L['JANUARY']                        = 'January'
+L['FEBRUARY']                       = 'February'
+L['MARCH']                          = 'March'
+L['APRIL']                          = 'April'
+L['MAY']                            = 'May'
+L['JUNE']                           = 'June'
+L['JULY']                           = 'July'
+L['AUGUST']                         = 'August'
+L['SEPTEMBER']                      = 'September'
+L['OCTOBER']                        = 'October'
+L['NOVEMBER']                       = 'November'
+L['DECEMBER']                       = 'December'
+
+L["MONDAY"]							= "Monday"
+L["TUESDAY"]						= "Tuesday"
+L["WEDNESDAY"]						= "Wednesday"
+L["THURSDAY"]						= "Thursday"
+L["FRIDAY"]							= "Friday"
+L["SATURDAY"]						= "Saturday"
+L["SUNDAY"]							= "Sunday"
 
 
 -- old stuff but might use again

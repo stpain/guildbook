@@ -270,28 +270,28 @@ function Guildbook:SetupGuildCalendarFrame()
     self.GuildFrame.GuildCalendarFrame.date = date('*t')
 
     local weekdays = {
-        [1] = 'Monday',
-        [2] = 'Tuesday',
-        [3] = 'Wednesday',
-        [4] = 'Thursday',
-        [5] = 'Friday',
-        [6] = 'Saturday',
-        [7] = 'Sunday',
+        L["MONDAY"],
+        L["TUESDAY"],
+        L["WEDNESDAY"],
+        L["THURSDAY"],
+        L["FRIDAY"],
+        L["SATURDAY"],
+        L["SUNDAY"],
     }
 
     local monthNames = {
-        'January',
-        'February',
-        'March',
-        'April',
-        'May',
-        'June',
-        'July',
-        'August',
-        'September',
-        'October',
-        'November',
-        'December',
+        L['JANUARY'],
+        L['FEBRUARY'],
+        L['MARCH'],
+        L['APRIL'],
+        L['MAY'],
+        L['JUNE'],
+        L['JULY'],
+        L['AUGUST'],
+        L['SEPTEMBER'],
+        L['OCTOBER'],
+        L['NOVEMBER'],
+        L['DECEMBER'] 
     }
 
     local status = {
@@ -471,7 +471,7 @@ function Guildbook:SetupGuildCalendarFrame()
     self.GuildFrame.GuildCalendarFrame.InstanceInfoFrame = CreateFrame('FRAME', 'GuildbookGuildFrameGuildCalendarFrameInstanceInfoFrame', Guildbook.GuildFrame.GuildCalendarFrame, BackdropTemplateMixin and "BackdropTemplate")
     self.GuildFrame.GuildCalendarFrame.InstanceInfoFrame:SetPoint('TOPRIGHT', -6, -6)
     self.GuildFrame.GuildCalendarFrame.InstanceInfoFrame:SetPoint('BOTTOMRIGHT', -6, 6)
-    self.GuildFrame.GuildCalendarFrame.InstanceInfoFrame:SetWidth(300)
+    self.GuildFrame.GuildCalendarFrame.InstanceInfoFrame:SetWidth(285)
     self.GuildFrame.GuildCalendarFrame.InstanceInfoFrame.header = self.GuildFrame.GuildCalendarFrame.InstanceInfoFrame:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
     self.GuildFrame.GuildCalendarFrame.InstanceInfoFrame.header:SetPoint('TOP', 0, -4)
     self.GuildFrame.GuildCalendarFrame.InstanceInfoFrame.header:SetText(L["INSTANCE_LOCKS"])
@@ -1382,7 +1382,7 @@ function Guildbook:SetupGuildCalendarFrame()
                 if not self.InstanceInfoFrame.rows[k] then
                     local f = CreateFrame('FRAME', 'GuildbookGuildFrameGuildCalendarFrameinstanceInfoRow'..k, self.InstanceInfoFrame, BackdropTemplateMixin and "BackdropTemplate")
                     f:SetPoint('TOP', 0, ((k-1) * -20) - 20)
-                    f:SetSize(300, 20)
+                    f:SetSize(285, 20)
 
                     f.progress = f:CreateFontString(nil, 'OVERLAY', 'GameFontNormalSmall')
                     f.progress:SetPoint('LEFT', 180, 0)                

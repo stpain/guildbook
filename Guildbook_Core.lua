@@ -481,13 +481,14 @@ function Guildbook:Load()
             tooltip:AddLine('Guildbook')
             tooltip:AddLine(string.format("%s %s %s", now.day, L[Guildbook.Data.Months[now.month]], now.year), 1,1,1,1)
             tooltip:AddLine(' ')
-            tooltip:AddLine(L['Events'])
             -- get events for next 7 days
             local upcomingEvents = Guildbook:GetCalendarEvents(time(now), 7)
             if upcomingEvents and next(upcomingEvents) then
+                tooltip:AddLine(L['Events'])
                 for k, event in ipairs(upcomingEvents) do
                     tooltip:AddDoubleLine(event.title, string.format("%s %s",event.date.day, string.sub(L[Guildbook.Data.Months[event.date.month]], 1, 3)), 1,1,1,1,1,1,1,1)
                 end
+                tooltip:AddLine(' ')
             end
         end,
     })
@@ -501,7 +502,7 @@ function Guildbook:Load()
         end
     end
     -- modify the minimap icon to match the blizz calendar button
-    _G['LibDBIcon10_GuildbookMinimapCalendarIcon']:SetSize(40,40)
+    _G['LibDBIcon10_GuildbookMinimapCalendarIcon']:SetSize(44,44)
     _G['LibDBIcon10_GuildbookMinimapCalendarIcon']:SetNormalTexture("Interface\\Calendar\\UI-Calendar-Button")
     _G['LibDBIcon10_GuildbookMinimapCalendarIcon']:GetNormalTexture():SetTexCoord(0.0, 0.390625, 0.0, 0.78125)
     _G['LibDBIcon10_GuildbookMinimapCalendarIcon']:SetPushedTexture("Interface\\Calendar\\UI-Calendar-Button")

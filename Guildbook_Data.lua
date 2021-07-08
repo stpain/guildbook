@@ -24,22 +24,23 @@ the copyright holders.
 -- TODO: tidy this file up, make better lookup tables
 
 local addonName, Guildbook = ...
+local L = Guildbook.Locales
 
 Guildbook.Data = {}
 
 Guildbook.Data.Months = {
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
+    L['JANUARY'],
+    L['FEBRUARY'],
+    L['MARCH'],
+    L['APRIL'],
+    L['MAY'],
+    L['JUNE'],
+    L['JULY'],
+    L['AUGUST'],
+    L['SEPTEMBER'],
+    L['OCTOBER'],
+    L['NOVEMBER'],
+    L['DECEMBER'] 
 }
 
 Guildbook.Data.DefaultGlobalSettings = {
