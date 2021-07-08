@@ -396,7 +396,7 @@ elseif locale == 'frFR' then
 	L["PROFILE_TITLE"]                  = "Profile"
 	L["REAL_NAME"]                      = "Nom"
 	L["REAL_DOB"]                       = "Anniversaire"
-	L["REAL_BIO"]                       = "Bio"
+	L["REAL_BIO"]                       = "Biographie"
 	L["AVATAR"]                         = "Avatar"
 	L["MAIN_CHARACTER"]                 = "Personnage Principal"
 	L["MAIN_SPEC"]                      = "Spé Principale"
@@ -475,18 +475,26 @@ elseif locale == 'frFR' then
 	L['Shadow']                         = 'Ombre'
 
 	--date time
-	L['January']                        = 'Janvier'
-	L['February']                       = 'Février'
-	L['March']                          = 'Mars'
-	L['April']                          = 'Avril'
-	L['May']                            = 'Mai'
-	L['June']                           = 'Juin'
-	L['July']                           = 'Juillet'
-	L['August']                         = 'Août'
-	L['September']                      = 'Septembre'
-	L['October']                        = 'Octobre'
-	L['November']                       = 'Novembre'
-	L['December']                       = 'Décembre'
+	L['JANUARY']                        = 'Janvier'
+	L['FEBRUARY']                       = 'Février'
+	L['MARCH']                          = 'Mars'
+	L['APRIL']                          = 'Avril'
+	L['MAY']                            = 'Mai'
+	L['JUNE']                           = 'Juin'
+	L['JULY']                           = 'Juillet'
+	L['AUGUST']                         = 'Août'
+	L['SEPTEMBER']                      = 'Septembre'
+	L['OCTOBER']                        = 'Octobre'
+	L['NOVEMBER']                       = 'Novembre'
+	L['DECEMBER']                       = 'Décembre'
+
+	L["MONDAY"]                         = "Lundi"
+	L["TUESDAY"]                        = "Mardi"
+	L["WEDNESDAY"]                      = "Mercredi"
+	L["THURSDAY"]                       = "Jeudi"
+	L["FRIDAY"]                         = "Vendredi"
+	L["SATURDAY"]                       = "Samedi"
+	L["SUNDAY"]                         = "Dimanche"
 
 
 	-- old stuff but might use again
@@ -507,7 +515,7 @@ elseif locale == 'frFR' then
 	L['ClassChart']                     = 'Classes (Tous les Membres)'
 	
 	--legacy stuff
-	L["SELECT_BANK_CHARACTER"]          = "Sélectionner votre Personnage Banque"
+	L["SELECT_BANK_CHARACTER"]          = "Sélectionner le Perso Banque"
 	L["DUNGEON"]                        = "Donjon"
 	L["RAID"]                           = "Raid"
 	L["MEETING"]                        = "Réunion"
