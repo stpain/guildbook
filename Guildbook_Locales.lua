@@ -206,6 +206,27 @@ systems, events can be created for any date and will sync once they
 fall within 4 weeks of the current date|r.
 ]]
 
+--guildbank help icon
+L["GUILDBANKHELPTEXT"]	= [[
+Guild Bank
+
+|cffffffffGuildbook provides an in-game guild bank for guild 
+to share bank character's inventory.
+|r
+
+|cff00BFF3To use the Guild Bank, add the word 'Guildbank'
+to the Public Note of the character being used as a bank
+(this will add them to the dropdown menu).
+Said character must then open his bank 
+to sync his inventory with connected Guild Members.
+
+The guild bank sends/receives data when a player logs in, 
+only the most recent data is being used, thus bank characters
+should sync their inventory after every change within it.
+
+Multiple bank characters are supported.|r
+]]
+
 
 --legacy stuff
 L["SELECT_BANK_CHARACTER"]          = "Select bank character"
@@ -613,8 +634,9 @@ elseif locale == 'frFR' then
 --------------------------------------------------------------------------------------------
 -- help text tooltips
 --------------------------------------------------------------------------------------------
+--calendar help icon
 	L['calendarHelpText'] = [[
-Calendar
+Calendrier
 
 |cffffffffGuildbook fournit un calendrier en jeu pour les guildes afin de
 planifier des événements. Il est vaguement basé sur une ancienne version du
@@ -631,6 +653,29 @@ entre les sessions des joueurs.
 Les données envoyées sont limitées à 4 semaines pour réduire la demande sur 
 les systèmes chat par l'addon, les événements peuvent être créés pour n'importe
 quelle date et se synchroniseront dans les 4 semaines suivant la date actuelle|r.
+]]
+
+--guildbank help icon
+	L["GUILDBANKHELPTEXT"]	= [[
+Guild Bank
+
+|cffffffffGuildbook fournit une banque de guilde en jeu 
+pour paratager les inventaires de votre personnage banque.
+|r
+
+|cff00BFF3Pour utiliser la Banque de Guilde, ajouter le mot 
+'Guildbank' à la note publique du personnage utilisé comme banque
+(ceci va l'ajouter au menu déroulant).
+Le dit personnage doit ensuite ouvrir sa banque pour lancer
+la synchronisation de son inventaire avec 
+les membres de la guilde connectés.
+
+La Banque de Guilde envoie/reçoit des données quand un joueur
+est en ligne, seul les données les plus récentes sont utilisées. as a result 
+Il est donc conseillé que les personnages banque fassent une
+synchronisation de leur inventaire après chaque changement dedans.
+
+De multiples personnages banques sont supportés.|r
 ]]
 
 end
