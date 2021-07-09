@@ -671,7 +671,7 @@ la synchronisation de son inventaire avec
 les membres de la guilde connectés.
 
 La Banque de Guilde envoie/reçoit des données quand un joueur
-est en ligne, seul les données les plus récentes sont utilisées. as a result 
+est en ligne, seul les données les plus récentes sont utilisées. 
 Il est donc conseillé que les personnages banque fassent une
 synchronisation de leur inventaire après chaque changement dedans.
 
