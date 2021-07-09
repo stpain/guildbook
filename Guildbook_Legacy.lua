@@ -46,7 +46,7 @@ are supported.
         self.GuildFrame.GuildBankFrame = CreateFrame('FRAME', 'GuildbookGuildFrameCalendarFrame', GuildFrame, BackdropTemplateMixin and "BackdropTemplate")
     end
 
-    self.GuildFrame.GuildBankFrame.helpIcon = Guildbook:CreateHelperIcon(self.GuildFrame.GuildBankFrame, 'BOTTOMRIGHT', Guildbook.GuildFrame.GuildBankFrame, 'TOPRIGHT', -2, 2, 'Bank')
+    self.GuildFrame.GuildBankFrame.helpIcon = Guildbook:CreateHelperIcon(self.GuildFrame.GuildBankFrame, 'BOTTOMRIGHT', Guildbook.GuildFrame.GuildBankFrame, 'TOPRIGHT', -2, 2, L["GUILDBANKHELPTEXT"])
 
     self.GuildFrame.GuildBankFrame.bankCharacter = nil
 
