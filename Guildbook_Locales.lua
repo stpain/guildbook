@@ -587,7 +587,7 @@ elseif locale == 'frFR' then
 	L["SELECT_BANK_CHARACTER"]          = "Sélectionner la Banque"
 	L["DUNGEON"]                        = "Donjon"
 	L["RAID"]                           = "Raid"
-	L['PVP']							= 'JcJ'
+	L['PVP']			    = 'JcJ'
 	L["MEETING"]                        = "Réunion"
 	L["OTHER"]                          = "Autre"
 	L["GUILD_CALENDAR"]                 = "Calendrier de Guild"
@@ -602,6 +602,7 @@ elseif locale == 'frFR' then
 	L["ATTENDING"]                      = "Présent"
 	L["TENTATIVE"]                      = "Tentative"
 	L["DECLINE"]                        = "Décliner"
+        L["RESET_AVATAR"]		    = "Défaut"
 	
 	--keybinds
 	L["GENERAL"]			    = "Général"
@@ -611,37 +612,37 @@ elseif locale == 'frFR' then
 	L["RIGHTCLICK"]			    = '|cffffffffClique Droit|r Options'
 	
 	--raids name
-	L["MC"]								= "Coeur du Magma"
-	L["BWL"]							= "Repaire de l'Aile noire"
+	L["MC"]				    = "Coeur du Magma"
+	L["BWL"]			    = "Repaire de l'Aile noire"
 	L["AQ20"]                           = "AQ20"
-	L["AQ40"]							= "AQ40"
-	L["Naxxramas"]						= "Naxxramas"
-	L["ZG"]								= "Zul'Gurub"
-	L["Onyxia"]							= "Onyxia"
-	L["Magtheridon"]					= "Repaire de Magtheridon"
-	L["SSC"]							= "Caverne du sanctuaire du Serpent" --this is way too long wtf
-	L["TK"]								= "Donjon de la tempête"
-	L["Gruul"]							= "Repaire de Gruul"
-	L["Hyjal"]							= "Sommet d'Hyjal"
-	L["SWP"]							= "Plateau du Puits de soleil"
-	L["BT"]								= "Temple noir"
-	L["Karazhan"]						= "Karazhan"
+	L["AQ40"]			    = "AQ40"
+	L["Naxxramas"]			    = "Naxxramas"
+	L["ZG"]				    = "Zul'Gurub"
+	L["Onyxia"]			    = "Onyxia"
+	L["Magtheridon"]		    = "Repaire de Magtheridon"
+	L["SSC"]			    = "Caverne du sanctuaire du Serpent" --this is way too long wtf
+	L["TK"]				    = "Donjon de la tempête"
+	L["Gruul"]			    = "Repaire de Gruul"
+	L["Hyjal"]			    = "Sommet d'Hyjal"
+	L["SWP"]			    = "Plateau du Puits de soleil"
+	L["BT"]				    = "Temple noir"
+	L["Karazhan"]			    = "Karazhan"
 	
 	--availability (Data.lua)
-	L['Not Available'] 					= 'Indisponible'
-	L['Morning'] 						= 'Matin'
-	L['Afternoon'] 						= 'Après-midi'
-	L['Evening'] 						= 'Soir'
+	L['Not Available'] 		    = 'Indisponible'
+	L['Morning'] 			    = 'Matin'
+	L['Afternoon'] 			    = 'Après-midi'
+	L['Evening'] 			    = 'Soir'
 	
 	--world events
-	L["DARKMOON_FAIRE"]					= "Foire de Sombrelune"
-	L["DMF display"]					= '|cffffffffFoire de Sombrelune - '
-	L["LOVE IS IN THE AIR"]				= "De l'amour dans l'air"
-	L["CHILDRENS_WEEK"]					= "Semaine des enfants"				
-	L["MIDSUMMER_FIRE_FESTIVAL"]		= "Fête du Feu du solstice d'été"
-	L["HARVEST_FESTIVAL"]				= "Fête des moissons"
-	L["HALLOWS_END"]					= "Sanssaint "
-	L["FEAST_OF_WINTER_VEIL"]			= "Voile d'hiver"
+	L["DARKMOON_FAIRE"]		    = "Foire de Sombrelune"
+	L["DMF display"]		    = '|cffffffffFoire de Sombrelune - '
+	L["LOVE IS IN THE AIR"]		    = "De l'amour dans l'air"
+	L["CHILDRENS_WEEK"]		    = "Semaine des enfants"				
+	L["MIDSUMMER_FIRE_FESTIVAL"]	    = "Fête du Feu du solstice d'été"
+	L["HARVEST_FESTIVAL"]		    = "Fête des moissons"
+	L["HALLOWS_END"]		    = "Sanssaint "
+	L["FEAST_OF_WINTER_VEIL"]	    = "Voile d'hiver"
 
 
 
@@ -689,7 +690,8 @@ synchronisation de leur inventaire après chaque changement dedans.
 De multiples personnages banques sont supportés.|r
 ]]
 
-
+--[[ chinese
+]]
 
 elseif locale == "zhCN" then
 	L['OptionsAbout'] = 'Guildbook 选项。 感谢 祈福@獅心洛薩 的中文翻译'
@@ -1027,6 +1029,6 @@ Guildbook.ProfessionNames = {
 --BINDING_HEADER_GENERAL = "General"
 BINDING_CATEGORY_GUILDBOOK = "Guildbook"
 BINDING_HEADER_GENERAL 	= L["GENERAL"]
-BINDING_NAME_Open 		= L["OPEN"]
-BINDING_NAME_Chat 		= L["CHAT"]
+BINDING_NAME_Open 	= L["OPEN"]
+BINDING_NAME_Chat 	= L["CHAT"]
 BINDING_NAME_Calendar 	= L["CALENDAR"]
