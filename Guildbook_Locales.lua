@@ -257,6 +257,7 @@ L["YEARS"]                          = "years"
 L["MONTHS"]                         = "months"
 L["DAYS"]                           = "days"
 L["HOURS"]                          = "hours"
+L['< an hour']			    = '< an hour'
 
 L["GENERAL"]						= "General"
 
@@ -555,6 +556,11 @@ elseif locale == 'frFR' then
 	L["FRIDAY"]                         = "Vendredi"
 	L["SATURDAY"]                       = "Samedi"
 	L["SUNDAY"]                         = "Dimanche"
+		
+	L["YEARS"]                          = "années"
+	L["MONTHS"]                         = "mois"
+	L["DAYS"]                           = "jours"
+	L['< an hour']			    = 'moins d\'1h'
 
 
 	-- old stuff but might use again
@@ -593,9 +599,6 @@ elseif locale == 'frFR' then
 	L["ATTENDING"]                      = "Présent"
 	L["TENTATIVE"]                      = "Tentative"
 	L["DECLINE"]                        = "Décliner"
-	L["YEARS"]                          = "années"
-	L["MONTHS"]                         = "mois"
-	L["DAYS"]                           = "jours"
 	
 	--keybinds
 	L["GENERAL"]						= "Général"
