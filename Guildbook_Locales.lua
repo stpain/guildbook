@@ -259,7 +259,10 @@ L["DAYS"]                           = "days"
 L["HOURS"]                          = "hours"
 L['< an hour']			    = '< an hour'
 
-L["GENERAL"]						= "General"
+L["GENERAL"]			    = "General"
+L["LEFTCLICK"]			    = '|cffffffffLeft Click|r Open Guildbook'
+L["SHIFTLEFTCLICK"]		    = "Shift + "..'|cffffffffLeft Click|r Open Chat'
+L["RIGHTCLICK"]			    = '|cffffffffRight Click|r Options'
 
 L["MC"]								= "Molten Core"
 L["BWL"]							= "Blackwing Lair"
@@ -601,8 +604,11 @@ elseif locale == 'frFR' then
 	L["DECLINE"]                        = "Décliner"
 	
 	--keybinds
-	L["GENERAL"]						= "Général"
-	L["OPEN"]							= "Ouvrir"
+	L["GENERAL"]			    = "Général"
+	L["OPEN"]			    = "Ouvrir"
+	L["LEFTCLICK"]			    = '|cffffffffClique Gauche|r Ouvrir Guildbook'
+	L["SHIFTLEFTCLICK"]		    = "MAJ + "..'|cffffffffClique Gauche|r Open Chat'
+	L["RIGHTCLICK"]			    = '|cffffffffClique Droit|r Options'
 	
 	--raids name
 	L["MC"]								= "Coeur du Magma"
