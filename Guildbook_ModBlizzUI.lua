@@ -240,7 +240,7 @@ function Guildbook:ModBlizzUI()
                             if hoursOffline and hoursOffline > 0 then
                                 offline = string.format('%s %s', hoursOffline, L["HOURS"])
                             else
-                                offline = '< an hour'
+                                offline = L['< an hour']
                             end
                         end
                     end
