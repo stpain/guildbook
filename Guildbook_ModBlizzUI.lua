@@ -225,7 +225,7 @@ function Guildbook:ModBlizzUI()
             button.GuildbookColumnProfession2:SetText('')
             button.GuildbookColumnOnline:SetText('')
             local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, GUID = GetGuildRosterInfo(idx)
-            local offline = 'online'
+            local offline = L['Online']
             if isOnline == false then            
                 local yearsOffline, monthsOffline, daysOffline, hoursOffline = GetGuildRosterLastOnline(idx)
                 if yearsOffline and yearsOffline > 0 then
