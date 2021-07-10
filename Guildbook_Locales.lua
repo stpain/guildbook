@@ -160,13 +160,13 @@ L['OCTOBER']                        = 'October'
 L['NOVEMBER']                       = 'November'
 L['DECEMBER']                       = 'December'
 
-L["MONDAY"]							= "Monday"
-L["TUESDAY"]						= "Tuesday"
-L["WEDNESDAY"]						= "Wednesday"
-L["THURSDAY"]						= "Thursday"
-L["FRIDAY"]							= "Friday"
-L["SATURDAY"]						= "Saturday"
-L["SUNDAY"]							= "Sunday"
+L["MONDAY"]			    = "Monday"
+L["TUESDAY"]			    = "Tuesday"
+L["WEDNESDAY"]			    = "Wednesday"
+L["THURSDAY"]			    = "Thursday"
+L["FRIDAY"]			    = "Friday"
+L["SATURDAY"]			    = "Saturday"
+L["SUNDAY"]			    = "Sunday"
 
 
 -- old stuff but might use again
@@ -206,11 +206,33 @@ systems, events can be created for any date and will sync once they
 fall within 4 weeks of the current date|r.
 ]]
 
+--guildbank help icon
+L["GUILDBANKHELPTEXT"]	= [[
+Guild Bank
+
+|cffffffffGuildbook provides an in-game guild bank for guild 
+to share bank character's inventory.
+|r
+
+|cff00BFF3To use the Guild Bank, add the word 'Guildbank'
+to the Public Note of the character being used as a bank
+(this will add them to the dropdown menu).
+Said character must then open his bank 
+to sync his inventory with connected Guild Members.
+
+The guild bank sends/receives data when a player logs in, 
+only the most recent data is being used, thus bank characters
+should sync their inventory after every change within it.
+
+Multiple bank characters are supported.|r
+]]
+
 
 --legacy stuff
 L["SELECT_BANK_CHARACTER"]          = "Select bank character"
 L["DUNGEON"]                        = "Dungeon"
 L["RAID"]                           = "Raid"
+L['PVP']							= 'PVP'
 L["MEETING"]                        = "Meeting"
 L["OTHER"]                          = "Other"
 L["GUILD_CALENDAR"]                 = "Guild Calendar"
@@ -231,6 +253,39 @@ L["MONTHS"]                         = "months"
 L["DAYS"]                           = "days"
 L["HOURS"]                          = "hours"
 
+L["GENERAL"]						= "General"
+
+L["MC"]								= "Molten Core"
+L["BWL"]							= "Blackwing Lair"
+L["AQ20"]                           = "AQ20"
+L["AQ40"]							= "AQ40"
+L["Naxxramas"]						= "Naxxramas"
+L["ZG"]								= "Zul'Gurub"
+L["Onyxia"]							= "Onyxia"
+L["Magtheridon"]					= "Magtheridon's Lair"
+L["SSC"]							= "Serpentshrine Cavern"
+L["TK"]								= "Tempest Keep"
+L["Gruul"]							= "Gruul's Lair"
+L["Hyjal"]							= "Hyjal Summit"
+L["SWP"]							= "Sunwell Plateau"
+L["BT"]								= "Black Temple"
+L["Karazhan"]						= "Karazhan"
+
+--availability (Data.lua)
+L['Not Available'] 					= 'Not Available'
+L['Morning'] 						= 'Morning'
+L['Afternoon'] 						= 'Afternoon'
+L['Evening'] 						= 'Evening'
+
+--world events
+L["DARKMOON_FAIRE"]					= "Darkmoon Faire"
+L["DMF display"]					= '|cffffffffDarkmoon Faire - ' --this is needed for the calendar
+L["LOVE IS IN THE AIR"]				= "Love is in the air"
+L["CHILDRENS_WEEK"]					= "Children's Week"				
+L["MIDSUMMER_FIRE_FESTIVAL"]		= "Midsummer Fire Festival"
+L["HARVEST_FESTIVAL"]				= "Harvest Festival"
+L["HALLOWS_END"]					= "Hallows End"
+L["FEAST_OF_WINTER_VEIL"]			= "Feast of Winter Veil"
 
 -- grab the clients locale
 local locale = GetLocale()
@@ -364,7 +419,7 @@ if locale == "deDE" then
 ]]
 elseif locale == 'frFR' then
 
-    L['OptionsAbout'] = 'Guildbook options and about. Thanks to Belrand@Auberdine for the French translations'
+    L['OptionsAbout'] = 'Guildbook options et informations. Traduction française par Belrand@Auberdine'
 	L['Version'] = 'Version'
 	L['Author'] = 'Auteur: |cffffffffstpain (|r|cffF58CBACopperbolts|r |cffffffffand|r |cff0070DEKylanda|r|cffffffff) |r'
 
@@ -382,13 +437,13 @@ elseif locale == 'frFR' then
 
 	-- roster listview and tooltip, these are also sort keys hence the lowercase usage
 	L["name"]                           = "Nom"
-	L["level"]                          = "Niveau"
+	L["level"]                          = "Niv."
 	L["mainSpec"]                       = "Spé Principale"
 	L["prof1"]                          = "Métiers"
 	L["location"]                       = "Zone"
 	L["rankName"]                       = "Rang"
 	L["publicNote"]                     = "Note Publique"
-	L["class"]                          = "Classe"
+	L["class"]                          = "Classe" --doesn't fit
 	L["attunements"]                    = "Accès"
 
 
@@ -402,7 +457,7 @@ elseif locale == 'frFR' then
 	L["MAIN_SPEC"]                      = "Spé Principale"
 	L["OFF_SPEC"]                       = "Spé Secondaire"
 	L["PRIVACY"]                        = "Confidentialité"
-	L["PRIVACY_ABOUT"]                  = "Choisir avec quels Rangs vous souhaitez partager vos données."
+	L["PRIVACY_ABOUT"]                  = "Choisir à partir de quel Rang vous souhaitez partager vos données."
 	L["INVENTORY"]                      = "Inventaire"
 	L["TALENTS"]                        = "Talents"
 
@@ -487,7 +542,7 @@ elseif locale == 'frFR' then
 	L['OCTOBER']                        = 'Octobre'
 	L['NOVEMBER']                       = 'Novembre'
 	L['DECEMBER']                       = 'Décembre'
-
+	
 	L["MONDAY"]                         = "Lundi"
 	L["TUESDAY"]                        = "Mardi"
 	L["WEDNESDAY"]                      = "Mercredi"
@@ -515,32 +570,73 @@ elseif locale == 'frFR' then
 	L['ClassChart']                     = 'Classes (Tous les Membres)'
 	
 	--legacy stuff
-	L["SELECT_BANK_CHARACTER"]          = "Sélectionner le Perso Banque"
+	L["SELECT_BANK_CHARACTER"]          = "Sélectionner la Banque"
 	L["DUNGEON"]                        = "Donjon"
 	L["RAID"]                           = "Raid"
+	L['PVP']							= 'JcJ'
 	L["MEETING"]                        = "Réunion"
 	L["OTHER"]                          = "Autre"
 	L["GUILD_CALENDAR"]                 = "Calendrier de Guild"
 	L["INSTANCE_LOCKS"]                 = "Instances verrouilées"
 	L["CREATE_EVENT"]                   = "Créer événement"
-	L["DELETE_EVENT"]                   = "Supprimer événement"
+	L["DELETE_EVENT"]                   = "Suppr. événement"
 	L["EVENT"]                          = "Evénement"
 	L["EVENT_TYPE"]                     = "Type d'événement"
 	L["TITLE"]                          = "Titre"
 	L["DESCRIPTION"]                    = "Description"
-	L["UPDATE"]                         = "Mettre à jour"
+	L["UPDATE"]                         = "Mise à jour"
 	L["ATTENDING"]                      = "Présent"
 	L["TENTATIVE"]                      = "Tentative"
 	L["DECLINE"]                        = "Décliner"
 	L["YEARS"]                          = "années"
 	L["MONTHS"]                         = "mois"
 	L["DAYS"]                           = "jours"
+	
+	--keybinds
+	L["GENERAL"]						= "Général"
+	L["OPEN"]							= "Ouvrir"
+	
+	--raids name
+	L["MC"]								= "Coeur du Magma"
+	L["BWL"]							= "Repaire de l'Aile noire"
+	L["AQ20"]                           = "AQ20"
+	L["AQ40"]							= "AQ40"
+	L["Naxxramas"]						= "Naxxramas"
+	L["ZG"]								= "Zul'Gurub"
+	L["Onyxia"]							= "Onyxia"
+	L["Magtheridon"]					= "Repaire de Magtheridon"
+	L["SSC"]							= "Caverne du sanctuaire du Serpent" --this is way too long wtf
+	L["TK"]								= "Donjon de la tempête"
+	L["Gruul"]							= "Repaire de Gruul"
+	L["Hyjal"]							= "Sommet d'Hyjal"
+	L["SWP"]							= "Plateau du Puits de soleil"
+	L["BT"]								= "Temple noir"
+	L["Karazhan"]						= "Karazhan"
+	
+	--availability (Data.lua)
+	L['Not Available'] 					= 'Indisponible'
+	L['Morning'] 						= 'Matin'
+	L['Afternoon'] 						= 'Après-midi'
+	L['Evening'] 						= 'Soir'
+	
+	--world events
+	L["DARKMOON_FAIRE"]					= "Foire de Sombrelune"
+	L["DMF display"]					= '|cffffffffFoire de Sombrelune - '
+	L["LOVE IS IN THE AIR"]				= "De l'amour dans l'air"
+	L["CHILDRENS_WEEK"]					= "Semaine des enfants"				
+	L["MIDSUMMER_FIRE_FESTIVAL"]		= "Fête du Feu du solstice d'été"
+	L["HARVEST_FESTIVAL"]				= "Fête des moissons"
+	L["HALLOWS_END"]					= "Sanssaint "
+	L["FEAST_OF_WINTER_VEIL"]			= "Voile d'hiver"
+
+
 
 --------------------------------------------------------------------------------------------
 -- help text tooltips
 --------------------------------------------------------------------------------------------
+--calendar help icon
 	L['calendarHelpText'] = [[
-Calendar
+Calendrier
 
 |cffffffffGuildbook fournit un calendrier en jeu pour les guildes afin de
 planifier des événements. Il est vaguement basé sur une ancienne version du
@@ -557,6 +653,29 @@ entre les sessions des joueurs.
 Les données envoyées sont limitées à 4 semaines pour réduire la demande sur 
 les systèmes chat par l'addon, les événements peuvent être créés pour n'importe
 quelle date et se synchroniseront dans les 4 semaines suivant la date actuelle|r.
+]]
+
+--guildbank help icon
+	L["GUILDBANKHELPTEXT"]	= [[
+Guild Bank
+
+|cffffffffGuildbook fournit une banque de guilde en jeu 
+pour paratager les inventaires de votre personnage banque.
+|r
+
+|cff00BFF3Pour utiliser la Banque de Guilde, ajouter le mot 
+'Guildbank' à la note publique du personnage utilisé comme banque
+(ceci va l'ajouter au menu déroulant).
+Le dit personnage doit ensuite ouvrir sa banque pour lancer
+la synchronisation de son inventaire avec 
+les membres de la guilde connectés.
+
+La Banque de Guilde envoie/reçoit des données quand un joueur
+est en ligne, seul les données les plus récentes sont utilisées. 
+Il est donc conseillé que les personnages banque fassent une
+synchronisation de leur inventaire après chaque changement dedans.
+
+De multiples personnages banques sont supportés.|r
 ]]
 
 end
@@ -706,5 +825,9 @@ Guildbook.ProfessionNames = {
 
 
 -- key binding header
-BINDING_HEADER_GENERAL = "General"
+--BINDING_HEADER_GENERAL = "General"
 BINDING_CATEGORY_GUILDBOOK = "Guildbook"
+BINDING_HEADER_GENERAL 	= L["GENERAL"]
+BINDING_NAME_Open 		= L["OPEN"]
+BINDING_NAME_Chat 		= L["CHAT"]
+BINDING_NAME_Calendar 	= L["CALENDAR"]

@@ -46,7 +46,7 @@ are supported.
         self.GuildFrame.GuildBankFrame = CreateFrame('FRAME', 'GuildbookGuildFrameCalendarFrame', GuildFrame, BackdropTemplateMixin and "BackdropTemplate")
     end
 
-    self.GuildFrame.GuildBankFrame.helpIcon = Guildbook:CreateHelperIcon(self.GuildFrame.GuildBankFrame, 'BOTTOMRIGHT', Guildbook.GuildFrame.GuildBankFrame, 'TOPRIGHT', -2, 2, 'Bank')
+    self.GuildFrame.GuildBankFrame.helpIcon = Guildbook:CreateHelperIcon(self.GuildFrame.GuildBankFrame, 'BOTTOMRIGHT', Guildbook.GuildFrame.GuildBankFrame, 'TOPRIGHT', -2, 2, L["GUILDBANKHELPTEXT"])
 
     self.GuildFrame.GuildBankFrame.bankCharacter = nil
 
@@ -291,13 +291,13 @@ function Guildbook:SetupGuildCalendarFrame()
         L['SEPTEMBER'],
         L['OCTOBER'],
         L['NOVEMBER'],
-        L['DECEMBER'] 
+        L['DECEMBER']
     }
 
     local status = {
-        [0] = 'Decline',
-        [1] = 'Confirmed',
-        [2] = 'Tentative',
+        [0] = L["DECLINE"],
+        [1] = L["ATTENDING"],
+        [2] = L["TENTATIVE"],
     }
 
     local daysInMonth = {
@@ -319,21 +319,21 @@ function Guildbook:SetupGuildCalendarFrame()
 
 
     local raids = {
-        { name = [[Molten Core]], textureKey = "moltencore", },
-        { name = [[Blackwing lair]], textureKey = "blackwinglair", },
-        { name = [[AQ20]], textureKey = "ruinsofahnqiraj", },
-        { name = [[AQ40]], textureKey = "templeofahnqiraj", }, -- so anoying
-        { name = [[Naxxramas]], textureKey = "naxxramas", },
-        { name = [[Zul'Gurub]], textureKey = "zulgurub", },
-        { name = [[Onyxia]], textureKey = "onyxia", },
-        { name = [[Magtheridon's Lair]], textureKey = "magtheridonslair", },
-        { name = [[Serpentshrine Cavern]], textureKey = "coilfangreservoir", },
-        { name = [[Tempest Keep]], textureKey = "tempestkeep", },
-        { name = [[Gruul's Lair]], textureKey = "gruulslair", },
-        { name = [[The Battle for Mount Hyjal]], textureKey = "cavernsoftime", },
-        { name = [[Black Temple]], textureKey = "blacktemple", },
-        { name = [[Sunwell Plateau]], textureKey = "sunwellplateau", },
-        { name = [[Karazhan]], textureKey = "karazhan", },
+        { name = L["MC"], textureKey = "moltencore", },
+        { name = L["BWL"], textureKey = "blackwinglair", },
+        { name = L["AQ20"], textureKey = "ruinsofahnqiraj", },
+        { name = L["AQ40"], textureKey = "templeofahnqiraj", }, -- so anoying
+        { name = L["Naxxramas"], textureKey = "naxxramas", },
+        { name = L["ZG"], textureKey = "zulgurub", },
+        { name = L["Onyxia"], textureKey = "onyxia", },
+        { name = L["Magtheridon"], textureKey = "magtheridonslair", },
+        { name = L["SSC"], textureKey = "coilfangreservoir", },
+        { name = L["TK"], textureKey = "tempestkeep", },
+        { name = L["Gruul"], textureKey = "gruulslair", },
+        { name = L["Hyjal"], textureKey = "cavernsoftime", },
+        { name = L["BT"], textureKey = "blacktemple", },
+        { name = L["SWP"], textureKey = "sunwellplateau", },
+        { name = L["Karazhan"], textureKey = "karazhan", },
     }
 
     local raidsMenu = {}
@@ -350,10 +350,10 @@ function Guildbook:SetupGuildCalendarFrame()
         })
     end
 
-    -- this table is the drodown menu for the event type dropdown widget in the event pop out frame
+    -- this table is the dropdown menu for the event type dropdown widget in the event pop out frame
     local eventTypes = {
         { 
-            text = 'Dungeon', 
+            text = L["DUNGEON"], 
             notCheckable = true, 
             func = function(self) 
                 Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 3
@@ -361,7 +361,7 @@ function Guildbook:SetupGuildCalendarFrame()
             end, 
         },
         { 
-            text = 'Raid', 
+            text = L["RAID"], 
             notCheckable = true, 
             func = function(self) 
                 Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 1
@@ -371,7 +371,7 @@ function Guildbook:SetupGuildCalendarFrame()
             menuList = raidsMenu,
         },
         { 
-            text = 'PVP', 
+            text = L['PVP'], 
             notCheckable = true, 
             func = function(self) 
                 Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 2
@@ -379,7 +379,7 @@ function Guildbook:SetupGuildCalendarFrame()
             end, 
         },
         { 
-            text = 'Meeting', 
+            text = L["MEETING"], 
             notCheckable = true, 
             func = function(self) 
                 Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 4
@@ -387,7 +387,7 @@ function Guildbook:SetupGuildCalendarFrame()
             end,  
         },
         { 
-            text = 'Other', 
+            text = L["OTHER"], 
             notCheckable = true, 
             func = function(self) 
                 Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.eventType = 5
@@ -601,7 +601,7 @@ function Guildbook:SetupGuildCalendarFrame()
                     GameTooltip:AddLine(L['Events'])
                 --end
                 if f.dmf ~= false then
-                    GameTooltip:AddLine('|cffffffffDarkmoon Faire - '..f.dmf)
+                    GameTooltip:AddLine(L["DMF display"]..f.dmf)
                 end
                 if self.worldEvents then
                     for event, _ in pairs(self.worldEvents) do
@@ -744,20 +744,20 @@ function Guildbook:SetupGuildCalendarFrame()
                     dmf = 'Mulgore'
                 end
                 if i == 7 then
-                    day.worldEventTexture:SetTexture(Guildbook.CalendarWorldEvents['Darkmoon Faire'][dmf]['Start'])
+                    day.worldEventTexture:SetTexture(Guildbook.CalendarWorldEvents[L["DARKMOON_FAIRE"]][dmf]['Start'])
                     day.dmf = dmf
                 end
                 if i > 7 and i < 14 then
-                    day.worldEventTexture:SetTexture(Guildbook.CalendarWorldEvents['Darkmoon Faire'][dmf]['OnGoing'])
+                    day.worldEventTexture:SetTexture(Guildbook.CalendarWorldEvents[L["DARKMOON_FAIRE"]][dmf]['OnGoing'])
                     day.dmf = dmf
                 end
                 if i == 14 then
-                    day.worldEventTexture:SetTexture(Guildbook.CalendarWorldEvents['Darkmoon Faire'][dmf]['End'])
+                    day.worldEventTexture:SetTexture(Guildbook.CalendarWorldEvents[L["DARKMOON_FAIRE"]][dmf]['End'])
                     day.dmf = dmf
                 end
 
                 for eventName, event in pairs(Guildbook.CalendarWorldEvents) do
-                    if eventName ~= 'Darkmoon Faire' then
+                    if eventName ~= L["DARKMOON_FAIRE"] then
                         if (event.Start.month == self.date.month) and (event.Start.day == thisMonthDay) then
                             day.worldEventTexture:SetTexture(event.Texture.Start)
                             if not day.worldEvents[eventName] then
@@ -800,7 +800,7 @@ function Guildbook:SetupGuildCalendarFrame()
                         end
                     end
                     -- special case for christmas as it covers 2 years
-                    if eventName == 'Feast of Winter Veil' then
+                    if eventName == L["FEAST_OF_WINTER_VEIL"] then
                         if self.date.month == 12 then
                             if thisMonthDay == event.Start.day then
                                 day.worldEventTexture:SetTexture(event.Texture.Start)

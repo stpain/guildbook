@@ -40,7 +40,7 @@ Guildbook.Data.Months = {
     L['SEPTEMBER'],
     L['OCTOBER'],
     L['NOVEMBER'],
-    L['DECEMBER'] 
+    L['DECEMBER']
 }
 
 Guildbook.Data.DefaultGlobalSettings = {
@@ -145,7 +145,7 @@ Guildbook.Data.Class = {
         Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\DEATHKNIGHT", 
         RGB={ 0.77, 0.12, 0.23 }, 
         FontColour='|cffC41F3B', 
-        Specializations={'Frost','Blood','Unholy',} 
+        Specializations={L['Frost'],L['Blood'],L['Unholy'],} 
     },
     -- ['DEATH KNIGHT'] = { 
     --     FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:64:128:128:192|t", 
@@ -165,7 +165,7 @@ Guildbook.Data.Class = {
         Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\DRUID", 
         RGB={ 1.00, 0.49, 0.04 }, 
         FontColour='|cffFF7D0A', 
-        Specializations={'Balance','Restoration','Feral','Guardian',} 
+        Specializations={L['Balance'],L['Restoration'],L['Cat'] ,L['Bear'],} 
     },
     HUNTER = { 
         FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:0:64:64:128|t", 
@@ -175,7 +175,7 @@ Guildbook.Data.Class = {
         Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\HUNTER", 
         RGB={ 0.67, 0.83, 0.45 }, 
         FontColour='|cffABD473', 
-        Specializations={'Marksmanship','Beast Master','Survival',} 
+        Specializations={L['Marksmanship'],L['Beast Master'],L['Survival'],} 
     },
     MAGE = { 
         FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:64:128:0:64|t", 
@@ -185,7 +185,7 @@ Guildbook.Data.Class = {
         Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\MAGE", 
         RGB={ 0.25, 0.78, 0.92 }, 
         FontColour='|cff40C7EB', 
-        Specializations={'Fire','Frost','Arcane',} 
+        Specializations={L['Fire'],L['Frost'] ,L['Arcane'],} 
     },
     PALADIN = { 
         FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:0:64:128:192|t", 
@@ -205,7 +205,7 @@ Guildbook.Data.Class = {
         Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\PRIEST", 
         RGB={ 1.00, 1.00, 1.00 }, 
         FontColour='|cffFFFFFF', 
-        Specializations={'Holy','Discipline','Shadow',} 
+        Specializations={L['Holy'],L['Discipline'],L['Shadow'],} 
     },
     ROGUE = { 
         FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:128:192:0:64|t", 
@@ -215,7 +215,7 @@ Guildbook.Data.Class = {
         Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\ROGUE", 
         RGB={ 1.00, 0.96, 0.41 }, 
         FontColour='|cffFFF569', 
-        Specializations={'Assassination','Combat','Subtlety',} 
+        Specializations={L['Assassination'],L['Combat'],L['Subtlety'],} 
     },
     SHAMAN = { 
         FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:64:128:64:128|t", 
@@ -225,7 +225,7 @@ Guildbook.Data.Class = {
         Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\SHAMAN", 
         RGB={ 0.00, 0.44, 0.87 }, 
         FontColour='|cff0070DE', 
-        Specializations={'Elemental','Restoration','Enhancement',} 
+        Specializations={L['Elemental'],L['Restoration'],L['Enhancement'],} 
     },
     WARLOCK = { 
         FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:192:256:64:128|t", 
@@ -235,7 +235,7 @@ Guildbook.Data.Class = {
         Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\WARLOCK", 
         RGB={ 0.53, 0.53, 0.93 }, 
         FontColour='|cff8787ED', 
-        Specializations={'Affliction','Demonology','Destruction',} 
+        Specializations={L['Affliction'],L['Demonology'],L['Destruction'],} 
     },
     WARRIOR = { 
         FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:0:64:0:64|t", 
@@ -245,7 +245,7 @@ Guildbook.Data.Class = {
         Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\WARRIOR", 
         RGB={ 0.78, 0.61, 0.43 }, 
         FontColour='|cffC79C6E', 
-        Specializations={'Protection','Arms','Fury',} 
+        Specializations={L['Protection'],L['Arms'],L['Fury'],} 
     },
 }
 
@@ -624,92 +624,92 @@ Guildbook.Data.SpecFontStringIconLARGE = {
 
 Guildbook.Data.SpecToRole = {
     DRUID = { 
-        Restoration = 'Healer', 
-        Balance = 'Ranged', 
-        Cat = 'Melee',  
-        Bear = 'Tank', 
+        Restoration = L['Healer'], 
+        Balance = L['Ranged'], 
+        Cat = L['Melee'],  
+        Bear = L['Tank'] , 
         unknown = 'Unknown',
-        pvp = 'PvP', 
+        pvp = L['PVP'], 
         ['-'] = '-' 
     },
     SHAMAN = { 
-        Elemental = 'Ranged', 
-        Enhancement = 'Melee', 
-        Restoration = 'Healer', 
+        Elemental = L['Ranged'], 
+        Enhancement = L['Melee'], 
+        Restoration = L['Healer'], 
         unknown = 'Unknown', 
-        pvp = 'PvP', 
+        pvp = L['PVP'], 
         ['-'] = '-' 
     },
     HUNTER = { 
-        Marksmanship = 'Ranged', 
-        ['Beast Master'] = 'Ranged', 
-        Survival = 'Ranged', 
+        Marksmanship = L['Ranged'], 
+        ['Beast Master'] = L['Ranged'], 
+        Survival = L['Ranged'], 
         unknown = 'Unknown', 
-        pvp = 'PvP', 
+        pvp = L['PVP'], 
         ['-'] = '-' 
     },
     PALADIN = { 
-        Holy = 'Healer', 
-        Protection = 'Tank', 
-        Retribution = 'Melee', 
+        Holy = L['Healer'], 
+        Protection = L['Tank'] , 
+        Retribution = L['Melee'], 
         unknown = 'Unknown', 
-        pvp = 'PvP', 
+        pvp = L['PVP'], 
         ['-'] = '-' 
     },
     WARRIOR = { 
-        Arms = 'Melee', 
-        Fury = 'Melee', 
-        Protection = 'Tank', 
+        Arms = L['Melee'], 
+        Fury = L['Melee'], 
+        Protection = L['Tank'] , 
         unknown = 'Unknown', 
-        pvp = 'PvP', 
+        pvp = L['PVP'], 
         ['-'] = '-' 
     },
     ROGUE = { 
-        Assassination = 'Melee', 
-        Combat = 'Melee', 
-        Subtlety = 'Melee', 
+        Assassination = L['Melee'], 
+        Combat = L['Melee'], 
+        Subtlety = L['Melee'], 
         unknown = 'Unknown', 
-        pvp = 'PvP', 
+        pvp = L['PVP'], 
         ['-'] = '-' 
     },
     PRIEST = { 
-        Holy = 'Healer', 
-        Discipline = 'Healer', 
-        Shadow = 'Ranged', 
+        Holy = L['Healer'], 
+        Discipline = L['Healer'], 
+        Shadow = L['Ranged'], 
         unknown = 'Unknown', 
-        pvp = 'PvP', 
+        pvp = L['PVP'], 
         ['-'] = '-' 
     },
     WARLOCK = { 
-        Demonology = 'Ranged', 
-        Affliction = 'Ranged', 
-        Destruction = 'Ranged', 
+        Demonology = L['Ranged'], 
+        Affliction = L['Ranged'], 
+        Destruction = L['Ranged'], 
         unknown = 'Unknown', 
-        pvp = 'PvP', 
+        pvp = L['PVP'], 
         ['-'] = '-' 
     },
     MAGE = { 
-        Frost = 'Ranged', 
-        Fire = 'Ranged', 
-        Arcane = 'Ranged', 
+        Frost = L['Ranged'], 
+        Fire = L['Ranged'], 
+        Arcane = L['Ranged'], 
         unknown = 'Unknown', 
-        pvp = 'PvP', 
+        pvp = L['PVP'], 
         ['-'] = '-' 
     },
     DEATHKNIGHT = { 
-        Frost = 'Tank', 
-        Blood = 'Tank', 
-        Unholy = 'Melee', 
+        Frost = L['Tank'] , 
+        Blood = L['Tank'] , 
+        Unholy = L['Melee'], 
         unknown = 'Unknown', 
-        pvp = 'PvP', 
+        pvp = L['PVP'], 
         ['-'] = '-' 
     },
     ['DEATH KNIGHT'] = { 
-        Frost = 'Tank', 
-        Blood = 'Tank', 
-        Unholy = 'Melee', 
+        Frost = L['Tank'] , 
+        Blood = L['Tank'] , 
+        Unholy = L['Melee'], 
         unknown = 'Unknown', 
-        pvp = 'PvP', 
+        pvp = L['PVP'], 
         ['-'] = '-' 
     },
 }
@@ -758,10 +758,10 @@ Guildbook.Data.StatusIconStringsSMALL = {
 }
 
 Guildbook.Data.Availability = {
-    [0] = 'Not Available',
-    [1] = 'Morning',
-    [2] = 'Afternoon',
-    [3] = 'Evening',
+    [0] = L['Not Available'] ,
+    [1] = L['Morning'],
+    [2] = L['Afternoon'],
+    [3] = L['Evening'],
 }
 
 Guildbook.EquipmentSlots = { 
@@ -850,7 +850,7 @@ Guildbook.Data.ProfessionDescriptions = {
 }
 
 Guildbook.CalendarWorldEvents = {
-	['Darkmoon Faire'] = {
+	[L["DARKMOON_FAIRE"]] = {
 		['Elwynn'] = {
 			['Start'] = 235448,
 			['OnGoing'] = 235447,
@@ -862,7 +862,7 @@ Guildbook.CalendarWorldEvents = {
 			['End'] = 235449,
 		},
 	},
-	['Love is in the Air'] = {
+	[L["LOVE IS IN THE AIR"]] = {
 		['Start'] = { 
 			day = 7, 
 			month = 2,
@@ -877,7 +877,7 @@ Guildbook.CalendarWorldEvents = {
 			['End'] = 235466,
 		}
 	},
-	['Childrens Week'] = {
+	[L["CHILDRENS_WEEK"]] = {
 		['Start'] = { 
 			day = 1, 
 			month = 5,
@@ -892,7 +892,7 @@ Guildbook.CalendarWorldEvents = {
 			['End'] = 235443,
 		}
 	},
-	['Midsummer Fire Festival'] = {
+	[L["MIDSUMMER_FIRE_FESTIVAL"]] = {
 		['Start'] = { 
 			day = 20, 
 			month = 7,
@@ -907,7 +907,7 @@ Guildbook.CalendarWorldEvents = {
 			['End'] = 235472,
 		}
 	},
-	['Harvest Festival'] = {
+	[L["HARVEST_FESTIVAL"]] = {
 		['Start'] = { 
 			day = 27, 
 			month = 9,
@@ -922,7 +922,7 @@ Guildbook.CalendarWorldEvents = {
 			['End'] = 235463,
 		}
 	},
-	['Hallows End'] = {
+	[L["HALLOWS_END"]] = {
 		['Start'] = { 
 			day = 18, 
 			month = 10,
@@ -937,7 +937,7 @@ Guildbook.CalendarWorldEvents = {
 			['End'] = 235460,
 		}
 	},
-	['Feast of Winter Veil'] = {
+	[L["FEAST_OF_WINTER_VEIL"]] = {
 		['Start'] = { 
 			day = 15, 
 			month = 12,
