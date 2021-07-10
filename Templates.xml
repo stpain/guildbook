@@ -5,15 +5,125 @@
 
             </Layer>
             <Layer level="ARTWORK">
-
+                <Texture parentKey="headerBackground" atlas="AdventureMapLabel-Large" useAtlasSize="false">
+                    <Size x="700" y="26"/>
+                    <Anchors>
+                        <Anchor point="TOP" x="0" y="1"/>
+                    </Anchors>
+                </Texture>
             </Layer>
             <Layer level="OVERLAY">
+                <FontString parentKey="header" inherits="GameFontNormalLarge">
+                    <Color r="1" g="1" b="1"/>
+                    <Anchors>
+                        <Anchor point="TOP" x="0" y="-3"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Frames> 
+            <Frame parentKey="avatar1" parentArray="avatars" inherits="GuildbookProfileSummaryRowAvatarTemplate">
+                <Anchors>
+                    <Anchor point="LEFT" x="20" y="0"/>
+                </Anchors>
+            </Frame>
+            <Frame parentKey="avatar2" parentArray="avatars" inherits="GuildbookProfileSummaryRowAvatarTemplate">
+                <Anchors>
+                    <Anchor point="LEFT" relativeKey="$parent.avatar1" relativePoint="RIGHT" x="0" y="0"/>
+                </Anchors>
+            </Frame>
+            <Frame parentKey="avatar3" parentArray="avatars" inherits="GuildbookProfileSummaryRowAvatarTemplate">
+                <Anchors>
+                    <Anchor point="LEFT" relativeKey="$parent.avatar2" relativePoint="RIGHT" x="0" y="0"/>
+                </Anchors>
+            </Frame>
+            <Frame parentKey="avatar4" parentArray="avatars" inherits="GuildbookProfileSummaryRowAvatarTemplate">
+                <Anchors>
+                    <Anchor point="LEFT" relativeKey="$parent.avatar3" relativePoint="RIGHT" x="0" y="0"/>
+                </Anchors>
+            </Frame>
+            <Frame parentKey="avatar5" parentArray="avatars" inherits="GuildbookProfileSummaryRowAvatarTemplate">
+                <Anchors>
+                    <Anchor point="LEFT" relativeKey="$parent.avatar4" relativePoint="RIGHT" x="0" y="0"/>
+                </Anchors>
+            </Frame>
+            <Frame parentKey="avatar6" parentArray="avatars" inherits="GuildbookProfileSummaryRowAvatarTemplate">
+                <Anchors>
+                    <Anchor point="LEFT" relativeKey="$parent.avatar5" relativePoint="RIGHT" x="0" y="0"/>
+                </Anchors>
+            </Frame>
+            <Frame parentKey="avatar7" parentArray="avatars" inherits="GuildbookProfileSummaryRowAvatarTemplate">
+                <Anchors>
+                    <Anchor point="LEFT" relativeKey="$parent.avatar6" relativePoint="RIGHT" x="0" y="0"/>
+                </Anchors>
+            </Frame>
+            <Frame parentKey="avatar8" parentArray="avatars" inherits="GuildbookProfileSummaryRowAvatarTemplate">
+                <Anchors>
+                    <Anchor point="LEFT" relativeKey="$parent.avatar7" relativePoint="RIGHT" x="0" y="0"/>
+                </Anchors>
+            </Frame>
+        </Frames>
+    </Frame>
 
+    <Frame name="GuildbookProfileSummaryRowAvatarTemplate" mixin="GuildbookProfileSummaryRowAvatarTemplateMixin" virtual="true" enableMouse="true" useParentLevel="true">
+        <Animations>
+            <AnimationGroup parentKey="anim" looping="REPEAT">
+                <Rotation parentKey="rotate" childKey="whirl"  duration="1.25" degrees="-360">                    <Origin point="CENTER" x="0" y="0"/>
+                </Rotation>
+            </AnimationGroup>
+        </Animations>
+        <Size x="100" y="100"/>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="border" atlas="auctionhouse-itemicon-border-white">
+                    <Size x="80" y="80"/>
+                    <Anchors>
+                        <Anchor point="CENTER" x="0" y="-4"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="HIGHLIGHT" textureSubLevel="-6">
+                <Texture parentKey="whirl" atlas="ArtifactsFX-SpinningGlowys">
+                    <Size x="90" y="90"/>
+                    <Anchors>
+                        <Anchor point="CENTER" x="0" y="-4"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="ARTWORK">
+				<Texture parentKey="avatar">
+                    <Size x="60" y="60"/>
+                    <Anchors>
+						<Anchor point="CENTER" x="0" y="-4"/>
+					</Anchors>
+                </Texture>
+                <MaskTexture parentKey="mask" file="Interface/CHARACTERFRAME/TempPortraitAlphaMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+                    <Size x="50" y="50"/>
+                    <Anchors>
+                        <Anchor point="CENTER" x="0" y="-4"/>
+                    </Anchors>
+                    <MaskedTextures>
+                        <MaskedTexture childKey="avatar"/>
+                    </MaskedTextures>
+                </MaskTexture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <FontString parentKey="name" inherits="GameFontNormal">
+                    <!-- <Color r="1" g="1" b="1"/> -->
+                    <Anchors>
+                        <Anchor point="BOTTOM" x="0" y="1"/>
+                    </Anchors>
+                </FontString>
             </Layer>
             <Frames>
 
             </Frames>
         </Layers>
+        <Scripts>
+            <OnMouseUp method="OnMouseUp"/>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+        </Scripts>
     </Frame>
 
     <Frame name="GuildbookListviewItem" mixin="GuildbookListviewItemMixin" virtual="true" enableMouse="true">
@@ -219,6 +329,15 @@
                                 <Anchor point="BOTTOMRIGHT" x="2" y="-2"/>
                             </Anchors>
                         </Texture>
+                        <MaskTexture parentKey="mask" file="Interface/CHARACTERFRAME/TempPortraitAlphaMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="1" y="-1"/>
+                                <Anchor point="BOTTOMRIGHT" x="-1" y="1"/>
+                            </Anchors>
+                            <MaskedTextures>
+                                <MaskedTexture childKey="background"/>
+                            </MaskedTextures>
+                        </MaskTexture>
                     </Layer>
                 </Layers>
                 <KeyValues>

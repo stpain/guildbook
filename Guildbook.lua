@@ -407,11 +407,13 @@ function GuildbookRosterListviewItemMixin:SetCharacter(character)
         mainSpec = "Feral"
     elseif character.mainSpec == "Beast Master" then
         mainSpec = "BeastMastery"
+    elseif character.mainSpec == "Combat" then
+        mainSpec = "Outlaw"
     end
     if character.mainSpec ~= "-" then
         self.MainSpecIcon:SetAtlas(string.format("GarrMission_ClassIcon-%s-%s", character.class, mainSpec and mainSpec or character.mainSpec))
         self.MainSpecIcon:Show()
-        self.MainSpec:SetText(character.mainSpec)
+        self.MainSpec:SetText(L[character.mainSpec])
     else
         self.MainSpecIcon:Hide()
     end
@@ -439,10 +441,12 @@ function GuildbookRosterListviewItemMixin:SetCharacter(character)
     self.Rank:SetText(character.rankName)
     self.PublicNote:SetText(character.publicNote)
 
-    if GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][self.character.guid] and GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][self.character.guid].profile and GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][self.character.guid].profile.avatar then
-        self.openProfile.background:SetTexture(GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][self.character.guid].profile.avatar)
+    local char = gb:GetCharacterFromCache(character.guid)
+
+    if char and char.profile and char.profile.avatar then
+        self.openProfile.background:SetTexture(char.profile.avatar)
     else
-        self.openProfile.background:SetAtlas("GarrMission_MissionIcon-Recruit")
+        self.openProfile.background:SetAtlas(string.format("raceicon-%s-%s", char.Race:lower(), char.Gender:lower()))
     end
 
 end
@@ -584,6 +588,7 @@ function GuildbookMixin:OnLoad()
 
     self.ribbon:SetFrameLevel(self:GetFrameLevel() - 1)
     self.ribbon.profiles.func = function()
+        self.profiles:ShowSummary(true)
         navigateTo(self.profiles)
     end
     self.ribbon.tradeskills.func = function()
@@ -704,7 +709,6 @@ function GuildbookAvatarPickerMixin:OnLoad()
             f.avatar = self.avatars[i]
 
             f.func = function()
-                GuildbookUI.profiles.contentPane.scrollChild.profile.avatar.Background:SetTexture(f.avatar.fileID)
                 if not GUILDBOOK_CHARACTER then
                     GUILDBOOK_CHARACTER = {}
                 end
@@ -712,12 +716,29 @@ function GuildbookAvatarPickerMixin:OnLoad()
                     GUILDBOOK_CHARACTER.profile = {}
                 end
                 GUILDBOOK_CHARACTER.profile.avatar = f.avatar.fileID
+                GuildbookUI.profiles.contentPane.scrollChild.profile.avatar.Background:SetTexture(f.avatar.fileID)
+                GuildbookUI.ribbon.myProfile.background:SetTexture(f.avatar.fileID)
+                gb:SetCharacterInfo(UnitGUID("player"), "profile", GUILDBOOK_CHARACTER.profile)
             end
 
             self.gridview[i] = f;
             i = i + 1;
         end
     end
+
+    self.resetAvatar:SetText(L["RESET_AVATAR"])
+    self.resetAvatar:SetScript("OnClick", function()
+        if not GUILDBOOK_CHARACTER then
+            GUILDBOOK_CHARACTER = {}
+        end
+        if not GUILDBOOK_CHARACTER.profile then
+            GUILDBOOK_CHARACTER.profile = {}
+        end
+        GUILDBOOK_CHARACTER.profile.avatar = nil
+        SetPortraitTexture(GuildbookUI.profiles.contentPane.scrollChild.profile.avatar.Background, "player")
+        SetPortraitTexture(GuildbookUI.ribbon.myProfile.background, "player")
+        gb:SetCharacterInfo(UnitGUID("player"), "profile", GUILDBOOK_CHARACTER.profile)
+    end)
 
     self.scrollBar:SetMinMaxValues(1, #self.avatars-17)
 end
@@ -889,11 +910,12 @@ function GuildbookProfessionListviewMixin:OnLoad()
                 end
                 scanPlayerBags()
                 if #GuildbookMixin.charactersWithProfession > 0 then
+                    local delay = 0.1
                     wipe(GuildbookUI.tradeskills.recipesListview.recipes)
                     GuildbookRecipesListviewMixin:ClearRows()
                     local recipes = {}
                     local i = 1;
-                    C_Timer.NewTicker(0.01, function()
+                    C_Timer.NewTicker(delay, function()
                         local character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][GuildbookMixin.charactersWithProfession[i]]
                         if character[prof.Name]  then
                             for itemID, reagents in pairs(character[prof.Name]) do
@@ -907,7 +929,7 @@ function GuildbookProfessionListviewMixin:OnLoad()
                         end
                         i = i + 1;
                     end, #GuildbookMixin.charactersWithProfession)
-                    C_Timer.After(0.01 * (#GuildbookMixin.charactersWithProfession + 1), function()
+                    C_Timer.After(delay * (#GuildbookMixin.charactersWithProfession + 1), function()
                         GuildbookUI.tradeskills.recipesListview:LoadRecipes()
                     end)
                 end
@@ -1092,8 +1114,6 @@ function GuildbookRecipesListviewMixin:LoadRecipes()
     end
     C_Timer.After(1, function()
         if self.searchResultRecipeID then
-            -- local a,b = self.scrollBar:GetMinMaxValues()
-            -- print(a,b)
             local key = 1;
             for k, recipe in ipairs(self.recipes) do
                 if recipe.name == self.searchResultRecipeID then
@@ -1101,7 +1121,7 @@ function GuildbookRecipesListviewMixin:LoadRecipes()
                 end
             end
             local i = 1;
-            C_Timer.NewTicker(0.01, function()
+            C_Timer.NewTicker(0.005, function()
                 self.scrollBar:SetValue(i)
                 --print("scrollBar value", i, "index", key)
                 i = i + 1;
@@ -1583,6 +1603,7 @@ function GuildbookRosterMixin:RowOpenProfile_OnMouseDown(row)
 end
 
 function GuildbookRosterMixin:RowOpenProfile_OnMouseUp(row)
+    self:GetParent().profiles:ShowSummary(false)
     navigateTo(self:GetParent().profiles)
 end
 
@@ -2021,6 +2042,7 @@ GuildbookProfilesMixin = {}
 GuildbookProfilesMixin.character = nil;
 GuildbookProfilesMixin.characterModels = {}
 GuildbookProfilesMixin.NUM_TALENT_ROWS = 9.0
+GuildbookProfilesMixin.summaryRows = {}
 GuildbookProfilesMixin.characterStats = {
     ["attributes"] = {
         { key = "Strength", displayName = "Strength", },
@@ -2070,6 +2092,7 @@ function GuildbookProfilesMixin:OnLoad()
 
     self:CreateTalentUI()
     self:CreateStatsUI()
+    self:CreateSummaryUI()
 
     self.defaultModel = CreateFrame('PlayerModel', "GuildbookProfilesdefaultModel", self.sidePane, BackdropTemplateMixin and "BackdropTemplate")
     self.defaultModel:SetPoint('TOP', 0, 0)
@@ -2094,6 +2117,146 @@ function GuildbookProfilesMixin:OnLoad()
         GuildbookUI.profiles:MyProfile_OnEditChanged("realBio", self:GetText())
     end)
 
+end
+
+local profileSummaryAvatarPositions = {
+    [1] = {0},
+    [2] = {-55, 55},
+    [3] = {-110, 0, 110,},
+    [4] = {-110, -55, 0, 55, 110},
+    [5] = {},
+    [6] = {},
+    [7] = {},
+    [8] = {},
+}
+
+function GuildbookProfilesMixin:SummaryScrollBar_OnValueChanged()
+    self:RefreshProfileSummary()
+end
+
+function GuildbookProfilesMixin:CreateSummaryUI()
+    local rowHeight = 114
+    for i = 1, 4 do
+        local f = CreateFrame("FRAME", "GuildbookProfilesSummaryRow"..i, self.summaryPane, "GuildbookProfilesRowTemplate")
+        f:SetHeight(rowHeight)
+        f:SetPoint("TOPLEFT", 0, (i-1) * -rowHeight)
+        f:SetPoint("TOPRIGHT", 0, (i-1) * -rowHeight)
+
+        f.header:SetText("test")
+
+        self.summaryRows[i] = f
+    end
+end
+
+function GuildbookProfilesMixin:ShowSummary(show)
+    if show == true then
+        self.sidePane:Hide()
+        self.contentPane:Hide()
+        self.background:SetTexture(nil)
+        self.summaryPane:Show()
+
+        self:LoadSummary()
+    else
+        self.sidePane:Show()
+        self.contentPane:Show()
+        self.summaryPane:Hide()
+    end
+end
+
+function GuildbookProfilesMixin:RefreshProfileSummary()
+    local scrollPos = math.floor(self.summaryPane.scrollBar:GetValue()) -1
+    for r = 1, 4 do
+        local row = self.summaryRows[r]
+        for _, avatar in ipairs(row.avatars) do
+            avatar:ClearAllPoints()
+            avatar:Hide()
+        end
+        local x = 1;
+        for k, char in ipairs(self.members) do
+            if char.rowIndex == r+scrollPos then
+                local character = gb:GetCharacterFromCache(char.guid)
+                row.header:SetText(character.RankName)
+                if row.avatars[x] then
+                    row.avatars[x].guid = char.guid
+                    if character.profile and character.profile.avatar then
+                        row.avatars[x].avatar:SetTexture(character.profile.avatar)
+                    else
+                        row.avatars[x].avatar:SetAtlas(string.format("raceicon-%s-%s", character.Race, character.Gender))
+                    end
+                    row.avatars[x].name:SetText(Guildbook.Data.Class[character.Class:upper()].FontColour..character.Name)
+                    local rgb = Guildbook.Data.Class[character.Class].RGB
+                    row.avatars[x].border:SetVertexColor(rgb[1], rgb[2], rgb[3])
+                    row.avatars[x]:Show()
+                    if x == 1 then
+                        row.avatars[x]:SetPoint("CENTER", 0, 0)
+                    else
+                        row.avatars[1]:SetPoint("CENTER", ((x-1)*-50), 0)
+                        row.avatars[x]:SetPoint("LEFT", row.avatars[x-1], "RIGHT", 0, 0)
+                    end
+                    x = x + 1;
+                end
+            end
+        end
+    end
+end
+
+function GuildbookProfilesMixin:LoadSummary()
+    if gb.addonLoaded == false then
+        return
+    end
+    if not GUILD_NAME then
+        return
+    end
+    local rankCounts = {}
+    local ranks = {}
+    self.members = {}
+    for i = 1, GuildControlGetNumRanks() do
+        local rank = GuildControlGetRankName(i)
+        ranks[i] = rank;
+    end
+    local totalMembers, onlineMembers, _ = GetNumGuildMembers()
+    for i = 1, totalMembers do
+        --local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, guid = GetGuildRosterInfo(i)
+        local name, rankName, rankIndex, level, class, zone, publicNote, officerNote, isOnline, _, _, _, _, _, _, _, guid = GetGuildRosterInfo(i)
+        table.insert(self.members, {
+            rank = rankIndex,
+            guid = guid,
+            name = name,
+        })
+    end
+    table.sort(self.members, function(a,b)
+        if a.rank == b.rank then
+            return a.name < b.name
+        else
+            return a.rank < b.rank
+        end
+    end)
+
+    local rowIndex = 1
+    local i = 1;
+    for k, character in ipairs(self.members) do
+        if k > 1 then
+            if character.rank ~= self.members[k-1].rank then
+                rowIndex = rowIndex + 1;
+                character.rowIndex = rowIndex
+                i = 1;
+            else
+                if i % 9 == 0 then -- if this is more than 8 move onto the next row
+                    rowIndex = rowIndex + 1;
+                    character.rowIndex = rowIndex
+                    i = 1;
+                else
+                    character.rowIndex = rowIndex
+                    i = i + 1;
+                end
+            end
+        else
+            character.rowIndex = 1;
+        end
+    end
+    self.summaryPane.scrollBar:SetMinMaxValues(1, (rowIndex > 4) and rowIndex-3 or 1)
+    self.summaryPane.scrollBar:SetValue(1)
+    self:RefreshProfileSummary()
 end
 
 
@@ -2199,8 +2362,9 @@ function GuildbookProfilesMixin:LoadCharacter(player)
     if not GUILD_NAME then
         return;
     end
+    self:ShowSummary(false) -- hide the profile summary frame and show side/content
+    navigateTo(self)
     if player and player == "player" then
-        navigateTo(self)
         self.character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][UnitGUID("player")]
         local mainSpec, offSpec = {}, {}
         for _, spec in ipairs(gb.Data.Class[self.character.Class].Specializations) do
@@ -2209,8 +2373,8 @@ function GuildbookProfilesMixin:LoadCharacter(player)
                 func = function()
                     self.character.MainSpec = spec
                     GUILDBOOK_CHARACTER.MainSpec = spec
-                    self.contentPane.scrollChild.profile.mainSpec:SetText(spec)
-                    self.contentPane.scrollChild.profile.mainSpecDropDown.Text:SetText(spec)
+                    self.contentPane.scrollChild.profile.mainSpec:SetText(L[spec])
+                    self.contentPane.scrollChild.profile.mainSpecDropDown.Text:SetText(L[spec])
                 end
             })
             table.insert(offSpec, {
@@ -2218,8 +2382,8 @@ function GuildbookProfilesMixin:LoadCharacter(player)
                 func = function()
                     self.character.OffSpec = spec
                     GUILDBOOK_CHARACTER.OffSpec = spec
-                    self.contentPane.scrollChild.profile.offSpec:SetText(spec)
-                    self.contentPane.scrollChild.profile.offSpecDropDown.Text:SetText(spec)
+                    self.contentPane.scrollChild.profile.offSpec:SetText(L[spec])
+                    self.contentPane.scrollChild.profile.offSpecDropDown.Text:SetText(L[spec])
                 end
             })
         end
@@ -2434,8 +2598,8 @@ function GuildbookProfilesMixin:LoadProfile()
         self.contentPane.scrollChild.profile.mainCharacter:SetText(GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][self.character.MainCharacter].Name or "-")
     end
 
-    self.contentPane.scrollChild.profile.mainSpec:SetText(self.character.MainSpec or "")
-    self.contentPane.scrollChild.profile.offSpec:SetText(self.character.OffSpec or "")
+    self.contentPane.scrollChild.profile.mainSpec:SetText(L[self.character.MainSpec] or "")
+    self.contentPane.scrollChild.profile.offSpec:SetText(L[self.character.OffSpec] or "")
 end
 
 function GuildbookProfilesMixin:HideProfile()
@@ -3076,7 +3240,7 @@ function GuildbookSearchMixin:Search(term)
                 info = string.format("%s %s", character.MainSpec or "", character.Class:sub(1,1):upper()..character.Class:sub(2):lower()),
                 func = function()
                     GuildbookUI.profiles.character = character;
-                    navigateTo(GuildbookUI.profiles)
+                    --navigateTo(GuildbookUI.profiles)
                     GuildbookUI.profiles:LoadCharacter()
                 end,
             })

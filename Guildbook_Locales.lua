@@ -98,6 +98,8 @@ L["BAGS"]                           = "Bags"
 L["BANK"]                           = "Bank"
 L["STATS"]                          = "Statistics"
 
+L["RESET_AVATAR"]					= "Reset avatar"
+
 L["PRIVACY_HEADER"]                 = "Privacy settings"
 
 -- class and spec
@@ -122,9 +124,12 @@ L['Unholy']                         = 'Unholy'
 L['Restoration']                    = 'Restoration'
 L['Enhancement']                    = 'Enhancement'
 L['Elemental']                      = 'Elemental'
+L["Warden"]							= "Warden"
 L['Cat']                            = 'Cat'
 L['Bear']                           = 'Bear'
 L['Balance']                        = 'Balance'
+L['Guardian']                       = 'Guardian'
+L["Feral"]							= "Feral"
 --rogue
 L['Assassination']                  = 'Assassination'
 L['Combat']                         = 'Combat'
@@ -631,10 +636,6 @@ elseif locale == 'frFR' then
 
 
 
---------------------------------------------------------------------------------------------
--- help text tooltips
---------------------------------------------------------------------------------------------
---calendar help icon
 	L['calendarHelpText'] = [[
 Calendrier
 
@@ -654,6 +655,7 @@ Les données envoyées sont limitées à 4 semaines pour réduire la demande sur
 les systèmes chat par l'addon, les événements peuvent être créés pour n'importe
 quelle date et se synchroniseront dans les 4 semaines suivant la date actuelle|r.
 ]]
+
 
 --guildbank help icon
 	L["GUILDBANKHELPTEXT"]	= [[
@@ -677,6 +679,194 @@ synchronisation de leur inventaire après chaque changement dedans.
 
 De multiples personnages banques sont supportés.|r
 ]]
+
+
+
+elseif locale == "zhCN" then
+	L['OptionsAbout'] = 'Guildbook 选项。 感谢 祈福@獅心洛薩 的中文翻译'
+	L['Version'] = '版本'
+	L['Author'] = '作者: |cffffffffstpain (|r|cffF58CBACopperbolts|r |cffffffffand|r |cff0070DEKylanda|r|cffffffff)|r'
+
+	L["GUILDBOOK_LOADER_HEADER"]        = "欢迎来到 Guildbook"
+	L["TOOLTIP_ITEM_RECIPE_HEADER"]     = "用于以下用途"
+
+	--mod blizz guild roster
+	L['Online']                         = '最后上线'
+	L['MainSpec']                       = '主天赋'
+	L['Rank']                           = '会阶'
+	L['Note']                           = '备注'
+	L['Profession1']                    = '专业 1'
+	L['Profession2']                    = '专业 2'
+
+
+	-- roster listview and tooltip, these are also sort keys hence the lowercase usage
+	L["name"]                           = "名字"
+	L["level"]                          = "等级"
+	L["mainSpec"]                       = "主天赋"
+	L["prof1"]                          = "专业"
+	L["location"]                       = "地区"
+	L["rankName"]                       = "会阶"
+	L["publicNote"]                     = "备注"
+	L["class"]                          = "职业"
+	L["attunements"]                    = "Attunements"
+
+
+	-- xml strings
+	L["PROFILE_TITLE"]                  = "个人信息"
+	L["REAL_NAME"]                      = "名字"
+	L["REAL_DOB"]                       = "生日"
+	L["REAL_BIO"]                       = "简介"
+	L["AVATAR"]                         = "头像"
+	L["MAIN_CHARACTER"]                 = "主角色"
+	L["MAIN_SPEC"]                      = "主天赋"
+	L["OFF_SPEC"]                       = "副天赋"
+	L["PRIVACY"]                        = "隐私"
+	L["PRIVACY_ABOUT"]                  = "设置您要与之共享数据的最低公会级别."
+	L["INVENTORY"]                      = "装备"
+	L["TALENTS"]                        = "天赋"
+
+	L["PROFILES"]                       = "个人信息"
+	L["TRADESKILLS"]                    = "商业技能（专业）"
+	L["CHAT"]                           = "聊天"
+	L["ROSTER"]                         = "名册"
+	L["CALENDAR"]                       = "日历"
+	L["SEARCH"]                         = "搜索"
+	L["MY_PROFILE"]                     = "我的信息"
+	L["OPEN_PROFILE"]                   = "打开个人信息"
+	L["OPEN_CHAT"]                      = "打开聊天"
+	L["INVITE_TO_GROUP"]                = "邀请"
+	L["SEND_TRADE_ENQUIRY"]             = "询问关于此物品的信息"
+	L["REFRESH_ROSTER"]                 = "刷新公会名册"
+	L["EDIT"]                           = "编辑个人信息"
+	L["GUILD_BANK"]                     = "公会银行（传统功能）"
+	L["ALTS"]                           = "其他角色"
+	L["USE_MAIN_PROFILE"]               = "使用主角色的个人信息"
+	L["MY_SACKS"]                       = "我的背包（所有角色）"
+	L["BAGS"]                           = "背包"
+	L["BANK"]                           = "银行"
+	L["STATS"]                          = "统计数据"
+
+	L["PRIVACY_HEADER"]                 = "隐私设置"
+
+	-- class and spec
+	L['DEATHKNIGHT']                    = '死亡骑士'
+	L['DRUID']                          = '德鲁伊'
+	L['HUNTER']                         = '猎人'
+	L['MAGE']                           = '法师'
+	L['PALADIN']                        = '圣骑士'
+	L['PRIEST']                         = '牧师'
+	L['SHAMAN']                         = '萨满'
+	L['ROGUE']                          = '潜行者'
+	L['WARLOCK']                        = '术士'
+	L['WARRIOR']                        = '战士'
+	--mage/dk
+	L['Arcane']                         = '奥术'
+	L['Fire']                           = '火焰'
+	L['Frost']                          = '冰霜'
+	L['Blood']                          = '鲜血'
+	L['Unholy']                         = '邪恶'
+	--druid/shaman
+	L['Restoration']                    = '恢复'
+	L['Enhancement']                    = '增强'
+	L['Elemental']                      = '元素'
+	L['Cat']                            = '猫'
+	L['Bear']                           = '熊'
+	L['Balance']                        = '平衡'
+	--rogue
+	L['Assassination']                  = '奇袭'
+	L['Combat']                         = '战斗'
+	L['Subtlety']                       = '敏锐'
+	--hunter
+	L['Marksmanship']                   = '射击'
+	L['Beast Master']                   = '野兽控制'
+	L['Survival']                       = '生存'
+	--warlock
+	L['Destruction']                    = '毁灭'
+	L['Affliction']                     = '痛苦'
+	L['Demonology']                     = '恶魔学识'
+	--warrior/paladin/priest
+	L['Fury']                           = '狂怒'
+	L['Arms']                           = '武器'
+	L['Protection']                     = '防御'
+	L['Retribution']                    = '惩戒'
+	L['Holy']                           = '神圣'
+	L['Discipline']                     = '戒律'
+	L['Shadow']                         = '暗影'
+
+	--date time
+	L['January']                        = '一月'
+	L['February']                       = '二月'
+	L['March']                          = '三月'
+	L['April']                          = '四月'
+	L['May']                            = '五月'
+	L['June']                           = '六月'
+	L['July']                           = '七月'
+	L['August']                         = '八月'
+	L['September']                      = '九月'
+	L['October']                        = '十月'
+	L['November']                       = '十一月'
+	L['December']                       = '十二月'
+
+
+	-- old stuff but might use again
+	L['GuildBank']                      = '公会银行'
+	L['Events']                         = '活动'
+	L['WorldEvents']                    = '世界活动'
+	L['Attunements']                    = 'Attunements'
+	L["Guild"]                          = "公会"
+
+
+	L['Roles']                          = '职责'
+	L['Tank']                           = '坦克'
+	L['Melee']                          = 'Melee'
+	L['Ranged']                         = '近战'
+	L['Healer']                         = '治疗'
+	L['ClassRoleSummary']               = '职业和角色摘要'
+	L['RoleChart']                      = '职责（在线会员）'
+	L['ClassChart']                     = '职业（所有成员）'
+
+	-- calendar help icon
+	L['calendarHelpText'] = [[
+	Calendar
+
+	|cffffffffGuildbook 为公会提供了一个游戏内日历来安排活动。 它基于旧版本的暴雪
+	日历，并以类似的方式运行。 目前每天最多会显示 3 个事件（将添加访
+	问更多选项）在当天的日历上。|r
+
+	|cff00BFF3当玩家登录、创建或删除事件以及修改事件时，日历会发送/接收数据。事件应该
+	与公会成员同步，尽管这不能保证,因为它依赖于玩家会话之间有足够的重叠。
+
+	发送的数据限制为 4 周，以减少对插件聊天系统的需求，可以为任何日期创建事件，
+	并在当前日期的 4 周内同步.|r
+	]]
+
+
+	--legacy stuff
+	L["SELECT_BANK_CHARACTER"]          = "选择作为公会银行的角色"
+	L["DUNGEON"]                        = "副本"
+	L["RAID"]                           = "团队副本"
+	L["MEETING"]                        = "会议"
+	L["OTHER"]                          = "其他"
+	L["GUILD_CALENDAR"]                 = "公会日历"
+	L["INSTANCE_LOCKS"]                 = "副本进度"
+	L["CREATE_EVENT"]                   = "创建活动"
+	L["DELETE_EVENT"]                   = "删除活动"
+	L["EVENT"]                          = "活动"
+	L["EVENT_TYPE"]                     = "活动类型"
+	L["TITLE"]                          = "标题"
+	L["DESCRIPTION"]                    = "说明"
+	L["UPDATE"]                         = "更新"
+	L["ATTENDING"]                      = "参加"
+	L["TENTATIVE"]                      = "替补"
+	L["DECLINE"]                        = "退出"
+
+	L["YEARS"]                          = "年"
+	L["MONTHS"]                         = "月"
+	L["DAYS"]                           = "天"
+	L["HOURS"]                          = "小时"
+
+
+
 
 end
 

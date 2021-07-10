@@ -410,6 +410,7 @@ function Guildbook:Load()
     DEBUG("func", "Load", "loading addon")
 
     self:GetCharacterProfessions()
+    self:GetPaperDollStats()
     self:CheckPrivacyRankSettings() -- this will make sure rank changes are handled, just set any privacy rule to the lowest rank if its wrong
 
     local ldb = LibStub("LibDataBroker-1.1")
@@ -1010,6 +1011,7 @@ function Guildbook:GetPaperDollStats()
                 end
             end
         end
+        self:SetCharacterInfo(UnitGUID("player"), "PaperDollStats", GUILDBOOK_CHARACTER['PaperDollStats'])
     end
 end
 
@@ -1037,6 +1039,8 @@ function Guildbook:GetCharacterFromCache(guid)
             else
                 return false;
             end
+        else
+            return false;
         end
     end
 end
@@ -1070,6 +1074,34 @@ function Guildbook:GetCharacterInfo(guid, key)
         if guildName and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] then
             return GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][key];
         end
+    end
+end
+
+local playersUpdated = {}
+function Guildbook:UpdatePlayer(player)
+    if not player then
+        return
+    end
+    if playersUpdated[player] then
+        if (GetTime() - playersUpdated[player]) > 30 then -- 30s cooldown on sending data
+            self:SendCharacterData(player, "WHISPER")
+            self:SendInventoryInfo(player, "WHISPER")
+            self:SendTalentInfo(player, "WHISPER")
+            self:SendProfileInfo(player, "WHISPER")
+            self:CheckPrivacyRankSettings()
+    
+            playersUpdated[player] = GetTime()
+        else
+
+        end
+    else
+        self:SendCharacterData(player, "WHISPER")
+        self:SendInventoryInfo(player, "WHISPER")
+        self:SendTalentInfo(player, "WHISPER")
+        self:SendProfileInfo(player, "WHISPER")
+        self:CheckPrivacyRankSettings()
+
+        playersUpdated[player] = GetTime()
     end
 end
 
@@ -1426,6 +1458,9 @@ end
 -- any entries not found the current guild roster will be removed (=nil)
 function Guildbook:ScanGuildRoster(callback)
     local guild = self:GetGuildName()
+    if not guild then 
+        return 
+    end
     if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache then
         if not GUILDBOOK_GLOBAL.GuildRosterCache[guild] then
             GUILDBOOK_GLOBAL.GuildRosterCache[guild] = {}
@@ -1436,16 +1471,17 @@ function Guildbook:ScanGuildRoster(callback)
         end
         local memberGUIDs = {}
         local currentGUIDs = {}
-        local guidsToRemove = {}
+        local onlineMembersT = {}
         local newGUIDs = {}
         local totalMembers, onlineMembers, _ = GetNumGuildMembers()
         GUILDBOOK_GLOBAL['RosterExcel'] = {}
         for i = 1, totalMembers do
             --local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, guid = GetGuildRosterInfo(i)
             local name, rankName, _, level, class, zone, publicNote, officerNote, isOnline, _, _, _, _, _, _, _, guid = GetGuildRosterInfo(i)
+            name = Ambiguate(name, 'none')
             if not GUILDBOOK_GLOBAL.GuildRosterCache[guild][guid] then
                 GUILDBOOK_GLOBAL.GuildRosterCache[guild][guid] = {
-                    Name = Ambiguate(name, 'none'),
+                    Name = name,
                     Class = class,
                     Level = level,
                     PublicNote = publicNote,
@@ -1470,6 +1506,9 @@ function Guildbook:ScanGuildRoster(callback)
             end
             currentGUIDs[i] = { GUID = guid, lvl = level, exists = true, online = isOnline, rank = rankName, pubNote = publicNote, offNote = officerNote}
             memberGUIDs[guid] = true;
+            if isOnline then
+                table.insert(onlineMembersT, name)
+            end
             --name = Ambiguate(name, 'none')
             --table.insert(GUILDBOOK_GLOBAL['RosterExcel'], string.format("%s,%s,%s,%s,%s", name, class, rankName, level, publicNote))
         end
@@ -1614,6 +1653,16 @@ function Guildbook:ScanGuildRoster(callback)
 end
 
 
+function Guildbook:RequestOnlineMembersProfessionData(onlineMembers)
+    if not onlineMembers then
+        return
+    end
+    if type(onlineMembers) ~= "table" then
+        return
+    end
+    local numOnline = #onlineMembers
+
+end
 
 --- scan the players professions
 -- get the name of any professions the player has, the profession level
@@ -1798,41 +1847,6 @@ function Guildbook:IsGuildMemberOnline(player)
 end
 
 
-function Guildbook:GetCharacterDataPayload()
-    local guid = UnitGUID('player')
-    local ilvl = self:GetItemLevel()
-    self:GetCharacterProfessions() -- this gets the basic prof info for primary and seconday professions
-    self:GetPaperDollStats() -- this gets the paperdoll stats
-
-    local response = {
-        type = 'CHARACTER_DATA_RESPONSE',
-        payload = {
-            GUID = guid,
-            ItemLevel = ilvl,
-            Profession1Level = GUILDBOOK_CHARACTER["Profession1Level"],
-            OffSpec = GUILDBOOK_CHARACTER["OffSpec"],
-            Profession1 = GUILDBOOK_CHARACTER["Profession1"],
-            MainCharacter = GUILDBOOK_CHARACTER["MainCharacter"],
-            MainSpec = GUILDBOOK_CHARACTER["MainSpec"],
-            MainSpecIsPvP = GUILDBOOK_CHARACTER["MainSpecIsPvP"],
-            Profession2Level = GUILDBOOK_CHARACTER["Profession2Level"],
-            Profession2 = GUILDBOOK_CHARACTER["Profession2"],
-            OffSpecIsPvP = GUILDBOOK_CHARACTER["OffSpecIsPvP"],
-            CookingLevel = GUILDBOOK_CHARACTER["CookingLevel"],
-            FishingLevel = GUILDBOOK_CHARACTER["FishingLevel"],
-            FirstAidLevel = GUILDBOOK_CHARACTER["FirstAidLevel"],
-
-            CharStats = GUILDBOOK_CHARACTER['PaperDollStats']
-        }
-    }
-    return response
-end
-
-
-
-
-
-
 
 
 
@@ -1953,7 +1967,10 @@ function Guildbook:OnPrivacyReceived(data, distribution, sender)
     if data.senderGUID and data.senderGUID ~= UnitGUID("player") then
         local guildName = Guildbook:GetGuildName()
         if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[guildName] and GUILDBOOK_GLOBAL.GuildRosterCache[guildName][data.senderGUID] then
-            local character = GUILDBOOK_GLOBAL.GuildRosterCache[guildName][data.senderGUID]
+            local character = self:GetCharacterFromCache(data.senderGUID)
+            if not character then
+                return;
+            end
             local ranks = {}
             for i = 1, GuildControlGetNumRanks() do
                 ranks[GuildControlGetRankName(i)] = i;
@@ -2021,24 +2038,33 @@ function Guildbook:SendProfileRequest(target)
     self:Transmit(request, "WHISPER", target, "NORMAL")
 end
 
-function Guildbook:OnProfileRequest(request, distribution, sender)
+
+function Guildbook:SendProfileInfo(target, channel)
     if GUILDBOOK_CHARACTER and GUILDBOOK_CHARACTER.profile then
         local response = {
             type = "PROFILE_INFO_RESPONSE",
             payload = GUILDBOOK_CHARACTER.profile
         }
-        if self:ShareWithPlayer(sender, "shareProfileMinRank") == true then
-            self:Transmit(response, "WHISPER", sender, "BULK")
+        if self:ShareWithPlayer(target, "shareProfileMinRank") == true then
+            self:Transmit(response, channel, target, "BULK")
         else
             self:Transmit({
                 type = "PRIVACY_ERROR",
                 payload = 2,
             },
-            "WHISPER", 
-            sender, 
+            channel, 
+            target, 
             "NORMAL")
         end
     end
+end
+
+
+function Guildbook:OnProfileRequest(request, distribution, sender)
+    if distribution ~= "WHISPER" then
+        return
+    end
+    self:SendProfileInfo(sender, "WHISPER")
 end
 
 function Guildbook:OnProfileReponse(response, distribution, sender)
@@ -2069,11 +2095,8 @@ function Guildbook:SendTalentInfoRequest(target, spec)
     self:Transmit(request, "WHISPER", target, "NORMAL")
 end
 
-function Guildbook:OnTalentInfoRequest(request, distribution, sender)
-    if distribution ~= "WHISPER" then
-        return
-    end
-    Guildbook:GetCharacterTalentInfo('primary')
+function Guildbook:SendTalentInfo(target, channel)
+    self:GetCharacterTalentInfo('primary')
     if GUILDBOOK_CHARACTER and GUILDBOOK_CHARACTER['Talents'] then
         local response = {
             type = "TALENT_INFO_RESPONSE",
@@ -2082,18 +2105,25 @@ function Guildbook:OnTalentInfoRequest(request, distribution, sender)
                 talents = GUILDBOOK_CHARACTER['Talents'],
             }
         }
-        if self:ShareWithPlayer(sender, "shareTalentsMinRank") == true then
-            self:Transmit(response, "WHISPER", sender, "BULK")
+        if self:ShareWithPlayer(target, "shareTalentsMinRank") == true then
+            self:Transmit(response, channel, target, "BULK")
         else
             self:Transmit({
                 type = "PRIVACY_ERROR",
                 payload = 1,
             },
-            "WHISPER", 
-            sender, 
+            channel, 
+            target, 
             "NORMAL")
         end
     end
+end
+
+function Guildbook:OnTalentInfoRequest(request, distribution, sender)
+    if distribution ~= "WHISPER" then
+        return
+    end
+    self:SendTalentInfo(sender, "WHISPER")
 end
 
 function Guildbook:OnTalentInfoReceived(response, distribution, sender)
@@ -2121,11 +2151,7 @@ function Guildbook:SendInventoryRequest(target)
     self:Transmit(request, 'WHISPER', target, 'NORMAL')
 end
 
-
-function Guildbook:OnCharacterInventoryRequest(data, distribution, sender)
-    if distribution ~= 'WHISPER' then
-        return
-    end
+function Guildbook:SendInventoryInfo(target, channel)
     self:GetCharacterInventory()
     C_Timer.After(0.5, function()
         if GUILDBOOK_CHARACTER and GUILDBOOK_CHARACTER['Inventory'] then
@@ -2136,19 +2162,26 @@ function Guildbook:OnCharacterInventoryRequest(data, distribution, sender)
                     inventory = GUILDBOOK_CHARACTER['Inventory'], --send it all for now
                 }
             }
-            if self:ShareWithPlayer(sender, "shareInventoryMinRank") == true then
-                self:Transmit(response, "WHISPER", sender, "BULK")
+            if self:ShareWithPlayer(target, "shareInventoryMinRank") == true then
+                self:Transmit(response, channel, target, "BULK")
             else
                 self:Transmit({
                     type = "PRIVACY_ERROR",
                     payload = 0,
                 },
-                "WHISPER", 
-                sender, 
+                channel, 
+                target, 
                 "NORMAL")
             end
         end
     end)
+end
+
+function Guildbook:OnCharacterInventoryRequest(data, distribution, sender)
+    if distribution ~= 'WHISPER' then
+        return
+    end
+    self:SendInventoryInfo(sender, "WHISPER")
 end
 
 
@@ -2245,13 +2278,10 @@ function Guildbook:CharacterDataRequest(target)
         type = 'CHARACTER_DATA_REQUEST'
     }
     self:Transmit(request, 'WHISPER', target, 'NORMAL')
-    --DEBUG('comms_out', 'CharacterDataRequest', string.format("sent character data request to %s", target))
 end
 
-function Guildbook:OnCharacterDataRequested(request, distribution, sender)
-    if distribution ~= 'WHISPER' then
-        return
-    end
+
+function Guildbook:SendCharacterData(target, channel)
     local guid = UnitGUID('player')
     local ilvl = self:GetItemLevel()
     self:GetCharacterProfessions() -- this gets the basic prof info for primary and seconday professions
@@ -2278,8 +2308,16 @@ function Guildbook:OnCharacterDataRequested(request, distribution, sender)
                 CharStats = GUILDBOOK_CHARACTER['PaperDollStats']
             }
         }
-        self:Transmit(response, 'WHISPER', sender, 'BULK')
+        self:Transmit(response, channel, target, 'BULK')
     end)
+end
+
+
+function Guildbook:OnCharacterDataRequested(request, distribution, sender)
+    if distribution ~= 'WHISPER' then
+        return
+    end
+    self:SendCharacterData(sender, "WHISPER")
 end
 
 function Guildbook:OnCharacterDataReceived(data, distribution, sender)
@@ -2855,7 +2893,10 @@ function Guildbook:CHAT_MSG_SYSTEM(...)
     local msg = ...
     local onlineMsg = ERR_FRIEND_ONLINE_SS:gsub("%[",""):gsub("%]",""):gsub("%%s", ".*")
     if msg:find(onlineMsg) then
-        --print("online")
+        local name, _ = strsplit(" ", msg)
+        local brokenLink = name:sub(2, #name-1)
+        local player = brokenLink:sub(brokenLink:find(":")+1, brokenLink:find("%[")-1)
+        self:UpdatePlayer(player)
     end
     local offlineMsg = ERR_FRIEND_OFFLINE_S:gsub("%%s", ".*")
     if msg:find(offlineMsg) then

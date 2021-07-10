@@ -320,3 +320,27 @@ function GuildbookDropdownFlyoutMixin:OnShow()
     end
 
 end
+
+
+
+
+GuildbookProfileSummaryRowAvatarTemplateMixin = {}
+
+function GuildbookProfileSummaryRowAvatarTemplateMixin:OnEnter()
+    if self:IsVisible() then
+        self.anim:Play()
+    end
+end
+
+function GuildbookProfileSummaryRowAvatarTemplateMixin:OnLeave()
+    self.anim:Stop()
+end
+
+function GuildbookProfileSummaryRowAvatarTemplateMixin:OnMouseUp()
+    if self.guid then
+        GuildbookUI.profiles.character = gb:GetCharacterFromCache(self.guid)
+        if GuildbookUI.profiles.character then
+            GuildbookUI.profiles:LoadCharacter()
+        end
+    end
+end

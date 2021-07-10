@@ -159,7 +159,11 @@ are supported.
             f.count:SetPoint('BOTTOMRIGHT', -4, 3)
             f.count:SetTextColor(1,1,1,1)
             f.itemID = nil
-
+            f:SetScript("OnMouseDown", function(self)
+                if IsShiftKeyDown() and self.link then
+                    HandleModifiedItemClick(self.link)
+                end
+            end)
             f:SetScript('OnEnter', function(self)
                 if self.itemID then
                     GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
@@ -207,13 +211,37 @@ are supported.
         local c = 0
         for id, count in pairs(data) do
             local itemID, itemType, itemSubType, itemEquipLoc, icon, itemClassID, itemSubClassID = GetItemInfoInstant(id)
-            table.insert(Guildbook.GuildFrame.GuildBankFrame.BankData, {
-                ItemID = id,
-                Count = count,
-                Class = itemClassID,
-                SubClass = itemSubClassID,
-                Icon = icon,
-            })
+            local _, link = GetItemInfo(id)
+            if not link then
+                local item = Item:CreateFromItemID(id)
+                item:ContinueOnItemLoad(function()
+                    link = item:GetItemLink()
+                    table.insert(Guildbook.GuildFrame.GuildBankFrame.BankData, {
+                        ItemID = id,
+                        Count = count,
+                        Class = itemClassID,
+                        SubClass = itemSubClassID,
+                        Icon = icon,
+                        Link = link,
+                    })
+                    table.sort(Guildbook.GuildFrame.GuildBankFrame.BankData, function(a, b)
+                        if a.Class == b.Class then
+                            return a.SubClass < b.SubClass;
+                        else
+                            return a.Class < b.Class;
+                        end
+                    end)
+                end)
+            else
+                table.insert(Guildbook.GuildFrame.GuildBankFrame.BankData, {
+                    ItemID = id,
+                    Count = count,
+                    Class = itemClassID,
+                    SubClass = itemSubClassID,
+                    Icon = icon,
+                    Link = link,
+                })
+            end
             c = c + 1
         end
         -- sort table by item class  https://wow.gamepedia.com/ItemType
@@ -238,11 +266,13 @@ are supported.
                     self.BankSlots[i].icon:SetTexture(item.Icon)
                     self.BankSlots[i].count:SetText(item.Count)
                     self.BankSlots[i].itemID = item.ItemID
+                    self.BankSlots[i].link = item.Link
                     --DEBUG('GuildBankFrame:RefreshSlots', string.format('updating slot %s with item id %s', i, item.ItemID))
                 else
                     self.BankSlots[i].icon:SetTexture(nil)
                     self.BankSlots[i].count:SetText(' ')
                     self.BankSlots[i].itemID = nil
+                    self.BankSlots[i].link = nil
                 end
 
             end
@@ -546,8 +576,8 @@ function Guildbook:SetupGuildCalendarFrame()
             -- set this as top layer so its clear there is an event
             f.guildEventTexture = f:CreateTexture('$parentGuildEventBackground', 'ARTWORK')
             -- f.guildEventTexture:SetAllPoints(f)
-            f.guildEventTexture:SetPoint('TOPLEFT', -2, 1)
-            f.guildEventTexture:SetPoint('BOTTOMRIGHT', -1,0)
+            f.guildEventTexture:SetPoint('TOPLEFT', -2, 3)
+            f.guildEventTexture:SetPoint('BOTTOMRIGHT', 0,0)
             f.guildEventTexture:SetAlpha(1)
             f.guildEventTexture:SetTexCoord(0.0, 0.64, 0.0, 0.7)
 
