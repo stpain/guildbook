@@ -412,7 +412,7 @@
                     <!-- <Frame parentKey="" useParentLevel="true">
                         <Anchors>
                             <Anchor point="TOPLEFT" x="0" y="-25"/>
-                            <Anchor point="BOTTOMRIGHT" x="0" y="0"/> _GarrMissionLocation-TownAlliance-Back
+                            <Anchor point="BOTTOMRIGHT" x="0" y="0"/> _GarrMissionLocation-TownAlliance-Back _GarrMissionLocation-TownHorde-Back
                         </Anchors>
                     </Frame> -->
 
@@ -701,6 +701,16 @@
                                                     <Anchors>
                                                         <Anchor relativeKey="$parent.mainCharacterLabel" relativePoint="RIGHT" point="LEFT" x="20" y="0"/>
                                                     </Anchors>
+                                                </FontString>
+                                                <FontString parentKey="altCharactersLabel" parentArray="localStrings" inherits="GameFontNormal" justifyH="LEFT">
+                                                    <Color r="1" g="1" b="1"/>
+                                                    <Size x="75" y="30"/>
+                                                    <Anchors>
+                                                        <Anchor relativeKey="$parent.mainCharacterLabel" relativePoint="BOTTOMLEFT" point="TOPLEFT" x="0" y="-10"/>
+                                                    </Anchors>
+                                                    <KeyValues>
+                                                        <KeyValue key="locale" value="ALT_CHARACTERS" type="string"/>
+                                                    </KeyValues>
                                                 </FontString>
                                             </Layer>
                                         </Layers>
@@ -1057,7 +1067,7 @@
                 </Scripts>
             </Frame>
 
-            <Frame parentKey="tradeskills" parentArray="frames" hidden="true">
+            <Frame parentKey="tradeskills" mixin="GuildbookTradeskillsMixin" parentArray="frames" hidden="true">
                 <Anchors>
                     <Anchor point="TOPLEFT" relativeKey="$parent.ribbon" relativePoint="BOTTOMLEFT" x="0" y="0"/>
                     <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
@@ -1148,23 +1158,36 @@
                                     <Anchors>
                                         <Anchor point="LEFT" x="5" y="0"/>
                                     </Anchors>
+                                    <KeyValues>
+                                        <KeyValue key="locale" value="TRADESKILLS" type="string"/>
+                                    </KeyValues>
                                 </FontString>
                                 <FontString parentArray="headers" parentKey="recipeListviewHeader" inherits="GameFontNormal" text="Recipes">
                                     <Color r="1" g="1" b="1"/>
                                     <Anchors>
                                         <Anchor point="LEFT" x="185" y="0"/>
                                     </Anchors>
+                                    <KeyValues>
+                                        <KeyValue key="locale" value="TRADESKILLS_RECIPES" type="string"/>
+                                    </KeyValues>
                                 </FontString>
                                 <FontString parentArray="headers" parentKey="charactersListviewHeader" inherits="GameFontNormal" text="Characters">
                                     <Color r="1" g="1" b="1"/>
                                     <Anchors>
                                         <Anchor point="LEFT" x="695" y="0"/>
                                     </Anchors>
+                                    <KeyValues>
+                                        <KeyValue key="locale" value="TRADESKILLS_CHARACTERS" type="string"/>
+                                    </KeyValues>
                                 </FontString>
                             </Layer>
                         </Layers>
                     </Frame>
                 </Frames>
+                <Scripts>
+                    <OnLoad method="OnLoad"/>
+                    <!-- <OnShow method="OnShow"/> -->
+                </Scripts>
             </Frame>
 
             <Frame parentKey="chat" mixin="GuildbookChatsMixin" parentArray="frames" hidden="true">

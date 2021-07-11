@@ -215,7 +215,7 @@ Guildbook.Data.Class = {
         Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\ROGUE", 
         RGB={ 1.00, 0.96, 0.41 }, 
         FontColour='|cffFFF569', 
-        Specializations={L['Assassination'],L['Combat'],L['Subtlety'],} 
+        Specializations={L['Assassination'],L['Combat'],L['Subtlety'],} -- outlaw could need adding in here
     },
     SHAMAN = { 
         FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:64:128:64:128|t", 
@@ -583,6 +583,7 @@ Guildbook.Data.SpecFontStringIconLARGE = {
         ['-'] = '', 
         Assassination = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:126:188:0:63|t", 
         Combat = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:126:188:63:126|t", 
+        Outlaw = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:126:188:63:126|t", 
         Subtlety = "|TInterface\\Addons\\Guildbook\\Icons\\Specialization\\Textures:28:28:0:0:1024:256:126:188:126:188|t"
     },
     MAGE = { 

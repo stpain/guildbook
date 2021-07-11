@@ -772,6 +772,21 @@ end
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- tradeskill mixin
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+GuildbookTradeskillsMixin = {}
+
+function GuildbookTradeskillsMixin:OnLoad()
+    for _, fs in ipairs(self.ribbon.headers) do
+        fs:SetText(L[fs.locale])
+    end    
+end
+
+
+
+
+
+
+
 GuildbookProfessionListviewMixin = {}
 GuildbookProfessionListviewMixin.recipesProcessed = 0;
 GuildbookProfessionListviewMixin.profButtons = {}
@@ -2164,8 +2179,25 @@ function GuildbookProfilesMixin:ShowSummary(show)
 end
 
 function GuildbookProfilesMixin:RefreshProfileSummary()
+    if gb.addonLoaded == false then
+        return
+    end
+    if not GUILD_NAME then
+        return
+    end
+    if not self.members then
+        return
+    end
     local scrollPos = math.floor(self.summaryPane.scrollBar:GetValue()) -1
+    local rowRankHandled = false;
     for r = 1, 4 do
+        local row = self.summaryRows[r]
+        row.header:SetText(" ")
+        row.header:Hide()
+        row.headerBackground:Hide()
+    end
+    for r = 1, 4 do
+        rowRankHandled = false;
         local row = self.summaryRows[r]
         for _, avatar in ipairs(row.avatars) do
             avatar:ClearAllPoints()
@@ -2175,7 +2207,19 @@ function GuildbookProfilesMixin:RefreshProfileSummary()
         for k, char in ipairs(self.members) do
             if char.rowIndex == r+scrollPos then
                 local character = gb:GetCharacterFromCache(char.guid)
-                row.header:SetText(character.RankName)
+                if rowRankHandled == false then
+                    if char.isNewRank == true then
+                        rowRankHandled = true
+                        row.header:SetText(character.RankName)
+                        row.header:Show()
+                        row.headerBackground:Show()
+                    end
+                end
+                if k == 1 then
+                    row.header:SetText(character.RankName)
+                    row.header:Show()
+                    row.headerBackground:Show()
+                end
                 if row.avatars[x] then
                     row.avatars[x].guid = char.guid
                     if character.profile and character.profile.avatar then
@@ -2207,13 +2251,22 @@ function GuildbookProfilesMixin:LoadSummary()
     if not GUILD_NAME then
         return
     end
-    local rankCounts = {}
-    local ranks = {}
-    self.members = {}
-    for i = 1, GuildControlGetNumRanks() do
-        local rank = GuildControlGetRankName(i)
-        ranks[i] = rank;
+    -- local rankCounts = {}
+    -- local ranks = {}
+
+    -- for i = 1, GuildControlGetNumRanks() do
+    --     local rank = GuildControlGetRankName(i)
+    --     ranks[i] = rank;
+    -- end
+
+
+    if gb.player.faction then
+        local faction = gb.player.faction:sub(1,1):upper()..gb.player.faction:sub(2)
+        self.summaryPane.background:SetAtlas(string.format("_GarrMissionLocation-Town%s-Back", faction))
+    else
+        self.summaryPane.background:SetAtlas("_GarrMissionLocation-Stormheim-Mid")
     end
+    self.members = {}
     local totalMembers, onlineMembers, _ = GetNumGuildMembers()
     for i = 1, totalMembers do
         --local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, guid = GetGuildRosterInfo(i)
@@ -2239,6 +2292,7 @@ function GuildbookProfilesMixin:LoadSummary()
             if character.rank ~= self.members[k-1].rank then
                 rowIndex = rowIndex + 1;
                 character.rowIndex = rowIndex
+                character.isNewRank = true
                 i = 1;
             else
                 if i % 9 == 0 then -- if this is more than 8 move onto the next row
@@ -2252,6 +2306,7 @@ function GuildbookProfilesMixin:LoadSummary()
             end
         else
             character.rowIndex = 1;
+            character.hasRankHeader = true
         end
     end
     self.summaryPane.scrollBar:SetMinMaxValues(1, (rowIndex > 4) and rowIndex-3 or 1)

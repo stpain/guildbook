@@ -16,7 +16,7 @@
                 <FontString parentKey="header" inherits="GameFontNormalLarge">
                     <Color r="1" g="1" b="1"/>
                     <Anchors>
-                        <Anchor point="TOP" x="0" y="-3"/>
+                        <Anchor point="TOP" x="0" y="-4"/>
                     </Anchors>
                 </FontString>
             </Layer>

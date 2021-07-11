@@ -699,7 +699,7 @@ function Guildbook:RequestTradeskillData()
         if character.Cooking and type(character.Cooking) == "table" then
             for recipeID, reagents in pairs(character.Cooking) do
                 if not self.recipeIdsQueried[recipeID] then
-                    DEBUG("func", "RequestTradeskillData", "adding COOKING to query: "..recipeID)
+                    --DEBUG("func", "RequestTradeskillData", "adding COOKING to query: "..recipeID)
                     self.recipeIdsQueried[recipeID] = true;
                     table.insert(recipeIdsToQuery, {
                         recipeID = recipeID,
@@ -1082,8 +1082,20 @@ function Guildbook:UpdatePlayer(player)
     if not player then
         return
     end
-    if playersUpdated[player] then
-        if (GetTime() - playersUpdated[player]) > 30 then -- 30s cooldown on sending data
+    C_Timer.After(1, function()
+        if playersUpdated[player] then
+            if (GetTime() - playersUpdated[player]) > 30 then -- 30s cooldown on sending data
+                self:SendCharacterData(player, "WHISPER")
+                self:SendInventoryInfo(player, "WHISPER")
+                self:SendTalentInfo(player, "WHISPER")
+                self:SendProfileInfo(player, "WHISPER")
+                self:CheckPrivacyRankSettings()
+        
+                playersUpdated[player] = GetTime()
+            else
+    
+            end
+        else
             self:SendCharacterData(player, "WHISPER")
             self:SendInventoryInfo(player, "WHISPER")
             self:SendTalentInfo(player, "WHISPER")
@@ -1091,18 +1103,8 @@ function Guildbook:UpdatePlayer(player)
             self:CheckPrivacyRankSettings()
     
             playersUpdated[player] = GetTime()
-        else
-
         end
-    else
-        self:SendCharacterData(player, "WHISPER")
-        self:SendInventoryInfo(player, "WHISPER")
-        self:SendTalentInfo(player, "WHISPER")
-        self:SendProfileInfo(player, "WHISPER")
-        self:CheckPrivacyRankSettings()
-
-        playersUpdated[player] = GetTime()
-    end
+    end)
 end
 
 --- return the players guild name if they belong to one
@@ -1146,7 +1148,12 @@ function Guildbook:ShareWithPlayer(player, rule)
         ranks[GuildControlGetRankName(i)] = i;
     end
     local privacyRank = GUILDBOOK_GLOBAL.config.privacy[rule]
-    local senderRank = GuildControlGetRankName(C_GuildInfo.GetGuildRankOrder(self:GetGuildMemberGUID(player)))
+    local target = self:GetGuildMemberGUID(player)
+    if not target then
+        return
+    end
+    target = Ambiguate(target, "none")
+    local senderRank = GuildControlGetRankName(C_GuildInfo.GetGuildRankOrder(target))
     if ranks[senderRank] and ranks[privacyRank] and (ranks[senderRank] <= ranks[privacyRank]) then
         return true;
     end
@@ -1471,9 +1478,11 @@ function Guildbook:ScanGuildRoster(callback)
         end
         local memberGUIDs = {}
         local currentGUIDs = {}
-        local onlineMembersT = {}
+        if not self.onlineMembers then
+            self.onlineMembers = {}
+        end
         local newGUIDs = {}
-        local totalMembers, onlineMembers, _ = GetNumGuildMembers()
+        local totalMembers, onlineMember, _ = GetNumGuildMembers()
         GUILDBOOK_GLOBAL['RosterExcel'] = {}
         for i = 1, totalMembers do
             --local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, guid = GetGuildRosterInfo(i)
@@ -1506,9 +1515,7 @@ function Guildbook:ScanGuildRoster(callback)
             end
             currentGUIDs[i] = { GUID = guid, lvl = level, exists = true, online = isOnline, rank = rankName, pubNote = publicNote, offNote = officerNote}
             memberGUIDs[guid] = true;
-            if isOnline then
-                table.insert(onlineMembersT, name)
-            end
+            self.onlineMembers[name] = isOnline
             --name = Ambiguate(name, 'none')
             --table.insert(GUILDBOOK_GLOBAL['RosterExcel'], string.format("%s,%s,%s,%s,%s", name, class, rankName, level, publicNote))
         end
@@ -1827,23 +1834,26 @@ function Guildbook:GetGuildMemberGUID(player)
     return false;
 end
 
-function Guildbook:IsGuildMemberOnline(player)
-    local online = false
-    local zone;
-    local guildName = Guildbook:GetGuildName()
-    if guildName then
-        local totalMembers, onlineMembers, _ = GetNumGuildMembers()
-        for i = 1, totalMembers do
-            local name, rankName, rankIndex, level, classDisplayName, _zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, GUID = GetGuildRosterInfo(i)
-            --DEBUG('func', 'IsGuildMemberOnline', string.format("player %s is online %s", name, tostring(isOnline)))
-            if Ambiguate(name, 'none') == Ambiguate(player, 'none') then
-                online = isOnline
-                zone = _zone
-                --print("found", name, "is online")
+function Guildbook:IsGuildMemberOnline(player, guid)
+    -- if self.onlineMembers and self.onlineMembers[player] then
+    --     DEBUG("func", "IsPlayerOnline", string.format("%s is online: %s", player, tostring(self.onlineMembers[player])))
+    --     return self.onlineMembers[player];
+    -- end
+        -- leaving this for now
+        local online = false
+        local guildName = Guildbook:GetGuildName()
+        if guildName then
+            local totalMembers, onlineMembers, _ = GetNumGuildMembers()
+            for i = 1, totalMembers do
+                local name, _, _, _, _, zone, _, _, isOnline = GetGuildRosterInfo(i)
+                name = Ambiguate(name, "none")
+                --DEBUG('func', 'IsGuildMemberOnline', string.format("player %s is online %s", name, tostring(isOnline)))
+                if name == Ambiguate(player, 'none') then
+                    return isOnline, zone;
+                end
             end
         end
-    end
-    return online, zone
+        return false, "offline"
 end
 
 
@@ -1874,15 +1884,42 @@ function Guildbook:Transmit(data, channel, target, priority)
     if not self:GetGuildName() then
         return;
     end
-    if target ~= nil then
-        if self:IsGuildMemberOnline(target) == false then
-            DEBUG('error', 'Guildbook:Transmit', string.format("player %s is not online", target))
-            return
-        end
-    end
-    -- add the current build number
     data["version"] = tostring(self.version);
     data["senderGUID"] = UnitGUID("player")
+    if channel == 'WHISPER' then
+        target = Ambiguate(target, 'none')
+    end
+    if target ~= nil then
+        local totalMembers, _, _ = GetNumGuildMembers()
+        for i = 1, totalMembers do
+            local name, _, _, _, _, _, _, _, isOnline = GetGuildRosterInfo(i)
+            name = Ambiguate(name, "none")
+            if name == target then
+                if isOnline == true then
+                    local serialized = LibSerialize:Serialize(data);
+                    local compressed = LibDeflate:CompressDeflate(serialized);
+                    local encoded    = LibDeflate:EncodeForWoWAddonChannel(compressed);
+                
+                    if addonName and encoded and channel and priority then
+                        DEBUG('comms_out', 'SendCommMessage_TargetOnline', string.format("type: %s, channel: %s target: %s, prio: %s", data.type or 'nil', channel, (target or 'nil'), priority))
+                        self:SendCommMessage(addonName, encoded, channel, target, priority)
+                    end
+                else
+                    DEBUG('error', 'SendCommMessage_TargetOffline', string.format("type: %s, channel: %s target: %s, prio: %s", data.type or 'nil', channel, (target or 'nil'), priority))
+                end
+            end
+        end
+    else
+        local serialized = LibSerialize:Serialize(data);
+        local compressed = LibDeflate:CompressDeflate(serialized);
+        local encoded    = LibDeflate:EncodeForWoWAddonChannel(compressed);
+    
+        if addonName and encoded and channel and priority then
+            DEBUG('comms_out', 'SendCommMessage_NoTarget', string.format("type: %s, channel: %s target: %s, prio: %s", data.type or 'nil', channel, (target or 'nil'), priority))
+            self:SendCommMessage(addonName, encoded, channel, target, priority)
+        end
+    end
+
 
     -- local ok, serialized = pcall(LibSerialize.Serialize, LibSerialize, data)
     -- if not ok then
@@ -1891,16 +1928,14 @@ function Guildbook:Transmit(data, channel, target, priority)
     --     return
     -- end
 
-    local serialized = LibSerialize:Serialize(data);
-    local compressed = LibDeflate:CompressDeflate(serialized);
-    local encoded    = LibDeflate:EncodeForWoWAddonChannel(compressed);
-    if channel == 'WHISPER' then
-        target = Ambiguate(target, 'none')
-    end
-    if addonName and encoded and channel and priority then
-        DEBUG('comms_out', 'SendCommMessage', string.format("type: %s, channel: %s target: %s, prio: %s", data.type or 'nil', channel, (target or 'nil'), priority))
-        self:SendCommMessage(addonName, encoded, channel, target, priority)
-    end
+    -- local serialized = LibSerialize:Serialize(data);
+    -- local compressed = LibDeflate:CompressDeflate(serialized);
+    -- local encoded    = LibDeflate:EncodeForWoWAddonChannel(compressed);
+
+    -- if addonName and encoded and channel and priority then
+    --     DEBUG('comms_out', 'SendCommMessage', string.format("type: %s, channel: %s target: %s, prio: %s", data.type or 'nil', channel, (target or 'nil'), priority))
+    --     self:SendCommMessage(addonName, encoded, channel, target, priority)
+    -- end
 end
 
 function Guildbook:SendVersionData()
@@ -1928,6 +1963,9 @@ function Guildbook:OnVersionInfoRecieved(data, distribution, sender)
             end
         end
     end
+    C_Timer.After(30, function()
+        self:UpdatePlayer(sender)
+    end)
 end
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1965,52 +2003,49 @@ function Guildbook:OnPrivacyReceived(data, distribution, sender)
         return
     end
     if data.senderGUID and data.senderGUID ~= UnitGUID("player") then
-        local guildName = Guildbook:GetGuildName()
-        if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[guildName] and GUILDBOOK_GLOBAL.GuildRosterCache[guildName][data.senderGUID] then
-            local character = self:GetCharacterFromCache(data.senderGUID)
-            if not character then
-                return;
+        local character = self:GetCharacterFromCache(data.senderGUID)
+        if not character then
+            return;
+        end
+        local ranks = {}
+        for i = 1, GuildControlGetNumRanks() do
+            ranks[GuildControlGetRankName(i)] = i;
+        end
+        local myRank = GuildControlGetRankName(C_GuildInfo.GetGuildRankOrder(UnitGUID("player")))
+        if not ranks[myRank] then
+            return
+        end
+        if data.payload.privacy.shareProfileMinRank and ranks[data.payload.privacy.shareProfileMinRank] and type(ranks[data.payload.privacy.shareProfileMinRank]) == "number" then
+            if ranks[myRank] > ranks[data.payload.privacy.shareProfileMinRank] then
+                character.profile = nil;
+                DEBUG("error", "OnPrivacyReceived", string.format("removed %s profile data"), character.Name)
             end
-            local ranks = {}
-            for i = 1, GuildControlGetNumRanks() do
-                ranks[GuildControlGetRankName(i)] = i;
+        else
+            if data.payload.privacy.shareProfileMinRank and data.payload.privacy.shareProfileMinRank == "none" then
+                character.profile = nil;
+                DEBUG("error", "OnPrivacyReceived", string.format("removed %s profile data"), character.Name)
             end
-            local myRank = GuildControlGetRankName(C_GuildInfo.GetGuildRankOrder(UnitGUID("player")))
-            if not ranks[myRank] then
-                return
+        end
+        if data.payload.privacy.shareInventoryMinRank and ranks[data.payload.privacy.shareInventoryMinRank] and type(ranks[data.payload.privacy.shareInventoryMinRank]) == "number" then
+            if ranks[myRank] > ranks[data.payload.privacy.shareInventoryMinRank] then
+                character.Inventory = nil;
+                DEBUG("error", "OnPrivacyReceived", string.format("removed %s inventory data"), character.Name)
             end
-            if data.payload.privacy.shareProfileMinRank and ranks[data.payload.privacy.shareProfileMinRank] and type(ranks[data.payload.privacy.shareProfileMinRank]) == "number" then
-                if ranks[myRank] > ranks[data.payload.privacy.shareProfileMinRank] then
-                    character.profile = nil;
-                    DEBUG("error", "OnPrivacyReceived", string.format("removed %s profile data"), character.Name)
-                end
-            else
-                if data.payload.privacy.shareProfileMinRank and data.payload.privacy.shareProfileMinRank == "none" then
-                    character.profile = nil;
-                    DEBUG("error", "OnPrivacyReceived", string.format("removed %s profile data"), character.Name)
-                end
+        else
+            if data.payload.privacy.shareInventoryMinRank and data.payload.privacy.shareInventoryMinRank == "none" then
+                character.Inventory = nil;
+                DEBUG("error", "OnPrivacyReceived", string.format("removed %s inventory data"), character.Name)
             end
-            if data.payload.privacy.shareInventoryMinRank and ranks[data.payload.privacy.shareInventoryMinRank] and type(ranks[data.payload.privacy.shareInventoryMinRank]) == "number" then
-                if ranks[myRank] > ranks[data.payload.privacy.shareInventoryMinRank] then
-                    character.Inventory = nil;
-                    DEBUG("error", "OnPrivacyReceived", string.format("removed %s inventory data"), character.Name)
-                end
-            else
-                if data.payload.privacy.shareInventoryMinRank and data.payload.privacy.shareInventoryMinRank == "none" then
-                    character.Inventory = nil;
-                    DEBUG("error", "OnPrivacyReceived", string.format("removed %s inventory data"), character.Name)
-                end
+        end
+        if data.payload.privacy.shareTalentsMinRank and ranks[data.payload.privacy.shareTalentsMinRank] and type(ranks[data.payload.privacy.shareTalentsMinRank]) == "number" then
+            if ranks[myRank] > ranks[data.payload.privacy.shareTalentsMinRank] then
+                character.Talents = nil;
+                DEBUG("error", "OnPrivacyReceived", string.format("removed %s talents data"), character.Name)
             end
-            if data.payload.privacy.shareTalentsMinRank and ranks[data.payload.privacy.shareTalentsMinRank] and type(ranks[data.payload.privacy.shareTalentsMinRank]) == "number" then
-                if ranks[myRank] > ranks[data.payload.privacy.shareTalentsMinRank] then
-                    character.Talents = nil;
-                    DEBUG("error", "OnPrivacyReceived", string.format("removed %s talents data"), character.Name)
-                end
-            else
-                if data.payload.privacy.shareTalentsMinRank and data.payload.privacy.shareTalentsMinRank == "none" then
-                    character.Talents = nil;
-                    DEBUG("error", "OnPrivacyReceived", string.format("removed %s talents data"), character.Name)
-                end
+        else
+            if data.payload.privacy.shareTalentsMinRank and data.payload.privacy.shareTalentsMinRank == "none" then
+                character.Talents = nil;
+                DEBUG("error", "OnPrivacyReceived", string.format("removed %s talents data"), character.Name)
             end
         end
     end
@@ -2075,7 +2110,7 @@ function Guildbook:OnProfileReponse(response, distribution, sender)
         local guildName = Guildbook:GetGuildName()
         if guildName and GUILDBOOK_GLOBAL['GuildRosterCache'] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
             if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][response.senderGUID] then
-                GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][response.senderGUID].profile = response.payload.profile;
+                GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][response.senderGUID].profile = response.payload;
             end
         end
 
@@ -2896,11 +2931,30 @@ function Guildbook:CHAT_MSG_SYSTEM(...)
         local name, _ = strsplit(" ", msg)
         local brokenLink = name:sub(2, #name-1)
         local player = brokenLink:sub(brokenLink:find(":")+1, brokenLink:find("%[")-1)
-        self:UpdatePlayer(player)
+        if player then
+            --GuildRoster()
+            if not self.onlineMembers then
+                self.onlineMembers = {}
+            end
+            self.onlineMembers[player] = true
+            DEBUG("event", "CHAT_MSG_SYSTEM", string.format("set %s as online", player))
+            -- this is random BUT with everyone sending data at 1 player this will at least space them out a bit
+            -- the player isnt likely to open guildbook as their first task when logging index
+            C_Timer.After(math.random(15, 60), function()
+                --self:UpdatePlayer(player)
+            end)
+        end
     end
     local offlineMsg = ERR_FRIEND_OFFLINE_S:gsub("%%s", ".*")
     if msg:find(offlineMsg) then
-        --print("offline")
+        local player, _ = strsplit(" ", msg)
+        if player then
+            if not self.onlineMembers then
+                self.onlineMembers = {}
+            end
+            self.onlineMembers[player] = false
+            DEBUG("event", "CHAT_MSG_SYSTEM", string.format("set %s as offline", player))
+        end
     end
 end
 
