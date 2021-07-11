@@ -448,9 +448,9 @@ function Guildbook:Load()
         OnTooltipShow = function(tooltip)
             if not tooltip or not tooltip.AddLine then return end
             tooltip:AddLine(tostring('|cff0070DE'..addonName))
-            tooltip:AddDoubleLine('|cffffffffLeft Click|r Open Guildbook')
-            tooltip:AddDoubleLine("Shift + "..'|cffffffffLeft Click|r Open Chat')
-            tooltip:AddDoubleLine('|cffffffffRight Click|r Options')
+            tooltip:AddDoubleLine(L["LEFTCLICK"])
+            tooltip:AddDoubleLine(L["SHIFTLEFTCLICK"])
+            tooltip:AddDoubleLine(L["RIGHTCLICK"])
         end,
     })
     self.MinimapIcon = LibStub("LibDBIcon-1.0")
