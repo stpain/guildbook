@@ -949,6 +949,7 @@ function Guildbook:GetPaperDollStats()
         GUILDBOOK_CHARACTER['PaperDollStats'].MeleeCrit = self:TrimNumber(GetCritChance());
 			
 	GUILDBOOK_CHARACTER['PaperDollStats'].Haste = self:TrimNumber(GetHaste());
+	GUILDBOOK_CHARACTER['PaperDollStats'].ManaRegen = self:TrimNumber(GetManaRegen());
 
         -- GUILDBOOK_CHARACTER['PaperDollStats'].SpellDamage = {}
         -- GUILDBOOK_CHARACTER['PaperDollStats'].SpellCrit = {}
