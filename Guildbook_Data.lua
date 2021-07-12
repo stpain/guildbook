@@ -145,7 +145,7 @@ Guildbook.Data.Class = {
         Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\DEATHKNIGHT", 
         RGB={ 0.77, 0.12, 0.23 }, 
         FontColour='|cffC41F3B', 
-        Specializations={L['Frost'],L['Blood'],L['Unholy'],} 
+        Specializations={'Frost','Blood','Unholy',} 
     },
     -- ['DEATH KNIGHT'] = { 
     --     FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:64:128:128:192|t", 
@@ -165,7 +165,7 @@ Guildbook.Data.Class = {
         Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\DRUID", 
         RGB={ 1.00, 0.49, 0.04 }, 
         FontColour='|cffFF7D0A', 
-        Specializations={L['Balance'],L['Restoration'],L['Cat'] ,L['Bear'],} 
+        Specializations={'Balance','Restoration','Cat' ,'Bear',} 
     },
     HUNTER = { 
         FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:0:64:64:128|t", 
@@ -175,7 +175,7 @@ Guildbook.Data.Class = {
         Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\HUNTER", 
         RGB={ 0.67, 0.83, 0.45 }, 
         FontColour='|cffABD473', 
-        Specializations={L['Marksmanship'],L['Beast Master'],L['Survival'],} 
+        Specializations={'Marksmanship','Beast Master','Survival',} 
     },
     MAGE = { 
         FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:64:128:0:64|t", 
@@ -185,7 +185,7 @@ Guildbook.Data.Class = {
         Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\MAGE", 
         RGB={ 0.25, 0.78, 0.92 }, 
         FontColour='|cff40C7EB', 
-        Specializations={L['Fire'],L['Frost'] ,L['Arcane'],} 
+        Specializations={'Fire','Frost' ,'Arcane',} 
     },
     PALADIN = { 
         FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:0:64:128:192|t", 
@@ -205,7 +205,7 @@ Guildbook.Data.Class = {
         Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\PRIEST", 
         RGB={ 1.00, 1.00, 1.00 }, 
         FontColour='|cffFFFFFF', 
-        Specializations={L['Holy'],L['Discipline'],L['Shadow'],} 
+        Specializations={'Holy','Discipline','Shadow',} 
     },
     ROGUE = { 
         FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:128:192:0:64|t", 
@@ -215,7 +215,7 @@ Guildbook.Data.Class = {
         Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\ROGUE", 
         RGB={ 1.00, 0.96, 0.41 }, 
         FontColour='|cffFFF569', 
-        Specializations={L['Assassination'],L['Combat'],L['Subtlety'],} -- outlaw could need adding in here
+        Specializations={'Assassination','Combat','Subtlety',} -- outlaw could need adding in here
     },
     SHAMAN = { 
         FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:64:128:64:128|t", 
@@ -225,7 +225,7 @@ Guildbook.Data.Class = {
         Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\SHAMAN", 
         RGB={ 0.00, 0.44, 0.87 }, 
         FontColour='|cff0070DE', 
-        Specializations={L['Elemental'],L['Restoration'],L['Enhancement'],} 
+        Specializations={'Elemental','Restoration','Enhancement',} 
     },
     WARLOCK = { 
         FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:192:256:64:128|t", 
@@ -235,7 +235,7 @@ Guildbook.Data.Class = {
         Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\WARLOCK", 
         RGB={ 0.53, 0.53, 0.93 }, 
         FontColour='|cff8787ED', 
-        Specializations={L['Affliction'],L['Demonology'],L['Destruction'],} 
+        Specializations={'Affliction','Demonology','Destruction',} 
     },
     WARRIOR = { 
         FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:0:64:0:64|t", 
@@ -245,7 +245,7 @@ Guildbook.Data.Class = {
         Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\WARRIOR", 
         RGB={ 0.78, 0.61, 0.43 }, 
         FontColour='|cffC79C6E', 
-        Specializations={L['Protection'],L['Arms'],L['Fury'],} 
+        Specializations={'Protection','Arms','Fury',} 
     },
 }
 

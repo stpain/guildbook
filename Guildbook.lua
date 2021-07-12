@@ -2060,45 +2060,45 @@ GuildbookProfilesMixin.NUM_TALENT_ROWS = 9.0
 GuildbookProfilesMixin.summaryRows = {}
 GuildbookProfilesMixin.characterStats = {
     ["attributes"] = {
-        { key = "Strength", displayName = "Strength", },
-        { key = "Agility", displayName = "Agility", },
-        { key = "Stamina", displayName = "Stamina", },
-        { key = "Intellect", displayName = "Intellect", },
-        { key = "Spirit", displayName = "Spirit", },
+        { key = "Strength", displayName = L["STRENGTH"], },
+        { key = "Agility", displayName = L["AGILITY"], },
+        { key = "Stamina", displayName = L["STAMINA"], },
+        { key = "Intellect", displayName = L["INTELLECT"], },
+        { key = "Spirit", displayName = L["SPIRIT"], },
     },
     ["defence"] = {
-        { key = "Armor", displayName = "Armor", },
-        { key = "Defence", displayName = "Defense", },
-        { key = "Dodge", displayName = "Dodge", },
-        { key = "Parry", displayName = "Parry", },
-        { key = "Block", displayName = "Block", },
+        { key = "Armor", displayName = L["ARMOR"], },
+        { key = "Defence", displayName = L["DEFENSE"], },
+        { key = "Dodge", displayName = L["DODGE"], },
+        { key = "Parry", displayName = L["PARRY"], },
+        { key = "Block", displayName = L["BLOCK"], },
     },
     ["melee"] = {
-        { key = "Expertise", displayName = "Expertise", },
-        { key = "MeleeHit", displayName = "Hit chance", },
-        { key = "MeleeCrit", displayName = "Crit chance", },
-        { key = "MeleeDmgMH", displayName = "Main hand damage", },
-        { key = "MeleeDmgOH", displayName = "Off hand damage", },
-        { key = "MeleeDpsMH", displayName = "Main hand dps", },
-        { key = "MeleeDpsOH", displayName = "Off hand dps", },
+        { key = "Expertise", displayName = L["EXPERTISE"], },
+        { key = "MeleeHit", displayName = L["HIT_CHANCE"], },
+        { key = "MeleeCrit", displayName = L["MELEE_CRIT"], },
+        { key = "MeleeDmgMH", displayName = L["MH_DMG"], },
+        { key = "MeleeDmgOH", displayName = L["OH_DMG"], },
+        { key = "MeleeDpsMH", displayName = L["MH_DPS"], },
+        { key = "MeleeDpsOH", displayName = L["OH_DPS"], },
     },
     ["ranged"] = {
-        { key = "MeleeHit", displayName = "Hit chance", },
-        { key = "RangedCrit", displayName = "Crit chance", },
-        { key = "RangedDmg", displayName = "Damage", },
-        { key = "RangedDps", displayName = "Dps", },
+        { key = "RangedHit", displayName = L["RANGED_HIT"], },
+        { key = "RangedCrit", displayName = L["RANGED_CRIT"], },
+        { key = "RangedDmg", displayName = L["RANGED_DMG"], },
+        { key = "RangedDps", displayName = L["RANGED_DPS"], },
     },
     ["spells"] = {
-        { key = "Haste", displayName = "Haste", },
-        { key = "ManaRegen", displayName = "Mana regen", },
-        { key = "SpellHit", displayName = "Hit chance", },
-        { key = "HealingBonus", displayName = "Healing bonus", },
-        { key = "SpellDmgHoly", displayName = "Holy", },
-        { key = "SpellDmgFrost", displayName = "Frost", },
-        { key = "SpellDmgShadow", displayName = "Shadow", },
-        { key = "SpellDmgArcane", displayName = "Arcane", },
-        { key = "SpellDmgFire", displayName = "Fire", },
-        { key = "SpellDmgNature", displayName = "Nature", },
+        { key = "Haste", displayName = L["SPELL_HASTE"], },
+        { key = "ManaRegen", displayName = L["MANA_REGEN"], },
+        { key = "SpellHit", displayName = L["SPELL_HIT"], },
+        { key = "HealingBonus", displayName = L["HEALING_BONUS"], },
+        { key = "SpellDmgHoly", displayName = L["SPELL_DMG_HOLY"], },
+        { key = "SpellDmgFrost", displayName = L["SPELL_DMG_FROST"], },
+        { key = "SpellDmgShadow", displayName = L["SPELL_DMG_SHADOW"], },
+        { key = "SpellDmgArcane", displayName = L["SPELL_DMG_ARCANE"], },
+        { key = "SpellDmgFire", displayName = L["SPELL_DMG_FIRE"], },
+        { key = "SpellDmgNature", displayName = L["SPELL_DMG_NATURE"], },
     }
 }
 
@@ -2424,7 +2424,7 @@ function GuildbookProfilesMixin:LoadCharacter(player)
         local mainSpec, offSpec = {}, {}
         for _, spec in ipairs(gb.Data.Class[self.character.Class].Specializations) do
             table.insert(mainSpec, {
-                text = spec,
+                text = L[spec],
                 func = function()
                     self.character.MainSpec = spec
                     GUILDBOOK_CHARACTER.MainSpec = spec
