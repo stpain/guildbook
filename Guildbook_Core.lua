@@ -943,10 +943,12 @@ function Guildbook:GetPaperDollStats()
         --local base, casting = GetManaRegen();
         GUILDBOOK_CHARACTER['PaperDollStats'].SpellHit = self:TrimNumber(GetCombatRatingBonus(CR_HIT_SPELL) + GetSpellHitModifier());
         GUILDBOOK_CHARACTER['PaperDollStats'].MeleeHit = self:TrimNumber(GetCombatRatingBonus(CR_HIT_MELEE)+GetHitModifier());
-		GUILDBOOK_CHARACTER['PaperDollStats'].RangedHit = self:TrimNumber(GetCombatRatingBonus(CR_HIT_RANGED));
+	GUILDBOOK_CHARACTER['PaperDollStats'].RangedHit = self:TrimNumber(GetCombatRatingBonus(CR_HIT_RANGED));
 
         GUILDBOOK_CHARACTER['PaperDollStats'].RangedCrit = self:TrimNumber(GetRangedCritChance());
         GUILDBOOK_CHARACTER['PaperDollStats'].MeleeCrit = self:TrimNumber(GetCritChance());
+			
+	GUILDBOOK_CHARACTER['PaperDollStats'].Haste = self:TrimNumber(GetHaste());
 
         -- GUILDBOOK_CHARACTER['PaperDollStats'].SpellDamage = {}
         -- GUILDBOOK_CHARACTER['PaperDollStats'].SpellCrit = {}
