@@ -111,19 +111,19 @@ L["RESET_AVATAR"]					= "Reset avatar"
 
 L["PRIVACY_HEADER"]                 = "Privacy settings"
 
-
+--attributes
 L["STRENGTH"]						= "Strength"
 L["AGILITY"]						= "Agility"
 L["STAMINA"]						= "Stamina"
 L["INTELLECT"]						= "Intellect"
 L["SPIRIT"]							= "Spirit"
-
+--defence
 L["ARMOR"]							= "Armor"
 L["DEFENSE"]						= "Defence"
 L["DODGE"]							= "Dodge"
 L["PARRY"]							= "Parry"
 L["BLOCK"]							= "Block"
-
+--melee
 L["EXPERTISE"]						= "Expertise"
 L["HIT_CHANCE"]						= "Hit"
 L["MELEE_CRIT"]						= "Crit"
@@ -131,12 +131,12 @@ L["MH_DMG"]							= "Main hand dmg"
 L["OH_DMG"] 						= "Off hand dmg"
 L["MH_DPS"] 						= "Main hand dps"
 L["OH_DPS"] 						= "Off hand dps"
-
+--ranged
 L["RANGED_HIT"] 					= "Hit"
 L["RANGED_CRIT"] 					= "Crit"
 L["RANGED_DMG"] 					= "Damage"
 L["RANGED_DPS"] 					= "Dps"
-
+--spells
 L["SPELL_HASTE"] 					= "Haste"
 L["MANA_REGEN"] 					= "Mana Regen"
 L["MANA_REGEN_CASTING"] 			= "Mana Regen (casting)"
@@ -482,6 +482,11 @@ elseif locale == 'frFR' then
     L['OptionsAbout'] = 'Guildbook options et informations. Traduction française par Belrand@Auberdine'
 	L['Version'] = 'Version'
 	L['Author'] = 'Auteur: |cffffffffstpain (|r|cffF58CBACopperbolts|r |cffffffffand|r |cff0070DEKylanda|r|cffffffff) |r'
+		
+	L["NEW_VERSION_1"] = "Une nouvelle version est disponible, probablement pour réparer certaines choses...ou en casser d'autres!"
+	L["NEW_VERSION_2"] = "Il y a une nouvelle version de Guildbook, disponible en téléchargement chez tous les bons distributeurs d'Addons!"
+	L["NEW_VERSION_3"] = "Haha, si vous pensiez que la dernière MàJ ne changeait pas grand chose, vous devriez télécharger la nouvelle, elle fera probablement la même chose...ou moins!"
+	L["NEW_VERSION_4"] = "La Horde est rouge, l'Alliance est bleue, télécharge la nouvelle mise à jour sale paresseux!"
 
 	L["GUILDBOOK_LOADER_HEADER"]        = "Bienvenue sur Guildbook"
 	L["TOOLTIP_ITEM_RECIPE_HEADER"]     = "Utilisé pour:"
@@ -588,6 +593,44 @@ elseif locale == 'frFR' then
 	L['Holy']                           = 'Sacré'
 	L['Discipline']                     = 'Discipline'
 	L['Shadow']                         = 'Ombre'
+		
+	--attributes
+	L["STRENGTH"]				= "Force"
+	L["AGILITY"]				= "Agilité"
+	L["STAMINA"]				= "Endurance"
+	L["INTELLECT"]				= "Intelligence"
+	L["SPIRIT"]				= "Esprit"
+	--defence
+	L["ARMOR"]				= "Armure"
+	L["DEFENSE"]				= "Défense"
+	L["DODGE"]				= "Esquive"
+	L["PARRY"]				= "Parade"
+	L["BLOCK"]				= "Blocage"
+	--melee
+	L["EXPERTISE"]				= "Expertise"
+	L["HIT_CHANCE"]				= "Chance de toucher"
+	L["MELEE_CRIT"]				= "Chance de crit"
+	L["MH_DMG"]				= "Dégâts main droite"
+	L["OH_DMG"]				= "Dégâts main gauche"
+	L["MH_DPS"]				= "DPS main droite"
+	L["OH_DPS"]				= "DPS main gauche"
+	--ranged
+	L["RANGED_HIT"]				= "Chance de toucher"
+	L["RANGED_CRIT"]			= "Chance de crit"
+	L["RANGED_DMG"]				= "Dégâts"
+	L["RANGED_DPS"]				= "DPS"
+	--spells
+	L["SPELL_HASTE"]			= "Hâte"
+	L["MANA_REGEN"]				= "Régen mana"
+	L["MANA_REGEN_CASTING"] 		= "Régen mana(incantation)"
+	L["SPELL_HIT"]				= "Chance de toucher"
+	L["HEALING_BONUS"]			= "Pouvoir de guérison"
+	L["SPELL_DMG_HOLY"]			= "Sacré"
+	L["SPELL_DMG_FROST"]			= "Givre"
+	L["SPELL_DMG_SHADOW"]			= "Ombre"
+	L["SPELL_DMG_ARCANE"]			= "Arcane"
+	L["SPELL_DMG_FIRE"]			= "Feu"
+	L["SPELL_DMG_NATURE"]			= "Nature"
 
 	--date time
 	L['JANUARY']                        = 'Janvier'
@@ -614,7 +657,7 @@ elseif locale == 'frFR' then
 	L["YEARS"]                          = "années"
 	L["MONTHS"]                         = "mois"
 	L["DAYS"]                           = "jours"
-	L['< an hour']			    		= 'moins d\'1h'
+	L['< an hour']			    = 'moins d\'1h'
 
 
 	-- old stuff but might use again
@@ -653,7 +696,7 @@ elseif locale == 'frFR' then
 	L["ATTENDING"]                      = "Présent"
 	L["TENTATIVE"]                      = "Tentative"
 	L["DECLINE"]                        = "Décliner"
-    L["RESET_AVATAR"]		    		= "Défaut"
+	L["RESET_AVATAR"]		    		= "Défaut"
 	
 	--keybinds
 	L["GENERAL"]			    = "Général"
