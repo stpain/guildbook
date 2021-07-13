@@ -508,7 +508,7 @@ elseif locale == 'frFR' then
 	L["location"]                       = "Zone"
 	L["rankName"]                       = "Rang"
 	L["publicNote"]                     = "Note Publique"
-	L["class"]                          = "Classe" --doesn't fit
+	L["class"]                          = "Class." --this fit better but "Classe" is more appropriate
 	L["attunements"]                    = "Accès"
 
 
@@ -570,9 +570,12 @@ elseif locale == 'frFR' then
 	L['Restoration']                    = 'Restauration'
 	L['Enhancement']                    = 'Amélioration'
 	L['Elemental']                      = 'Elémentaire'
+	L["Warden"]			    = "Protecteur"
 	L['Cat']                            = 'Chat'
 	L['Bear']                           = 'Ours'
+	L['Guardian']                       = 'Gardien'
 	L['Balance']                        = 'Equilibre'
+	L["Feral"]			    = "Farouche"
 	--rogue
 	L['Assassination']                  = 'Assassinat'
 	L['Combat']                         = 'Combat'
