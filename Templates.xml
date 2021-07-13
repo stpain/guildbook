@@ -68,7 +68,8 @@
     <Frame name="GuildbookProfileSummaryRowAvatarTemplate" mixin="GuildbookProfileSummaryRowAvatarTemplateMixin" virtual="true" enableMouse="true" useParentLevel="true">
         <Animations>
             <AnimationGroup parentKey="anim" looping="REPEAT">
-                <Rotation parentKey="rotate" childKey="whirl"  duration="1.25" degrees="-360">                    <Origin point="CENTER" x="0" y="0"/>
+                <Rotation parentKey="rotate" childKey="whirl"  duration="1.25" degrees="-360">
+                    <Origin point="CENTER" x="0" y="0"/>
                 </Rotation>
             </AnimationGroup>
         </Animations>
@@ -368,7 +369,7 @@
     <Frame name="GuildbookAvatarFrame" mixin="GuildbookAvatarMixin" enableMouse="true" virtual="true">
         <Layers>
 			<Layer level="BACKGROUND">
-				<Texture parentKey="Background"  setAllPoints="true"/>
+				<Texture parentKey="Background" setAllPoints="true"/>
 			</Layer>
 			<Layer level="HIGHLIGHT">
 				<Texture parentKey="Highlight" atlas="GarrMission_CurrentEncounter-Glow">

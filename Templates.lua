@@ -326,9 +326,35 @@ end
 
 GuildbookProfileSummaryRowAvatarTemplateMixin = {}
 
+function GuildbookProfileSummaryRowAvatarTemplateMixin:SetCharacter(guid)
+    if not guid then
+        return
+    end
+    self.character = gb:GetCharacterFromCache(guid)
+    if not self.character then
+        return
+    end
+    if self.character.profile and self.character.profile.avatar then
+        self.avatar:SetTexture(self.character.profile.avatar)
+    else
+        self.avatar:SetAtlas(string.format("raceicon-%s-%s", self.character.Race, self.character.Gender))
+    end
+    self.name:SetText(gb.Data.Class[self.character.Class:upper()].FontColour..self.character.Name)
+    local rgb = gb.Data.Class[self.character.Class].RGB
+    self.border:SetVertexColor(rgb[1], rgb[2], rgb[3])
+end
+
 function GuildbookProfileSummaryRowAvatarTemplateMixin:OnEnter()
-    if self:IsVisible() then
-        self.anim:Play()
+    if self.playAnim then
+        if self:IsVisible() then
+            self.whirl:Show()
+            self.anim:Play()
+        end
+    else
+        self.whirl:Hide()
+    end
+    if self.showTooltip then
+        
     end
 end
 
@@ -337,8 +363,8 @@ function GuildbookProfileSummaryRowAvatarTemplateMixin:OnLeave()
 end
 
 function GuildbookProfileSummaryRowAvatarTemplateMixin:OnMouseUp()
-    if self.guid then
-        GuildbookUI.profiles.character = gb:GetCharacterFromCache(self.guid)
+    if self.character then
+        GuildbookUI.profiles.character = self.character
         if GuildbookUI.profiles.character then
             GuildbookUI.profiles:LoadCharacter()
         end

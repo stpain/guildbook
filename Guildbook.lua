@@ -716,7 +716,7 @@ function GuildbookAvatarPickerMixin:OnLoad()
                     GUILDBOOK_CHARACTER.profile = {}
                 end
                 GUILDBOOK_CHARACTER.profile.avatar = f.avatar.fileID
-                GuildbookUI.profiles.contentPane.scrollChild.profile.avatar.Background:SetTexture(f.avatar.fileID)
+                GuildbookUI.profiles.contentPane.scrollChild.profile.avatar.avatar:SetTexture(f.avatar.fileID)
                 GuildbookUI.ribbon.myProfile.background:SetTexture(f.avatar.fileID)
                 gb:SetCharacterInfo(UnitGUID("player"), "profile", GUILDBOOK_CHARACTER.profile)
             end
@@ -735,7 +735,7 @@ function GuildbookAvatarPickerMixin:OnLoad()
             GUILDBOOK_CHARACTER.profile = {}
         end
         GUILDBOOK_CHARACTER.profile.avatar = nil
-        SetPortraitTexture(GuildbookUI.profiles.contentPane.scrollChild.profile.avatar.Background, "player")
+        SetPortraitTexture(GuildbookUI.profiles.contentPane.scrollChild.profile.avatar.avatar, "player")
         SetPortraitTexture(GuildbookUI.ribbon.myProfile.background, "player")
         gb:SetCharacterInfo(UnitGUID("player"), "profile", GUILDBOOK_CHARACTER.profile)
     end)
@@ -2134,6 +2134,19 @@ function GuildbookProfilesMixin:OnLoad()
         GuildbookUI.profiles:MyProfile_OnEditChanged("realBio", self:GetText())
     end)
 
+    local scaler = 0.85 -- size 100, border 80, whirl 90, avatar 60, mask 50
+    for k, avatar in ipairs(self.contentPane.scrollChild.profile.altCharactersContainer.avatars) do
+        local w, h = avatar:GetSize()
+        avatar:SetSize(w * scaler, h * scaler)
+        avatar:SetScale(scaler)
+        avatar.name:SetPoint("BOTTOM", 0, -8)
+    end
+
+    self.contentPane.scrollChild.profile.avatar:SetScale(1.8)
+    self.contentPane.scrollChild.profile.avatar:SetSize(60,60)
+    -- self.contentPane.scrollChild.profile.avatar:ClearAllPoints()
+    -- self.contentPane.scrollChild.profile.avatar:SetPoint("CENTER")
+
 end
 
 local profileSummaryAvatarPositions = {
@@ -2159,7 +2172,10 @@ function GuildbookProfilesMixin:CreateSummaryUI()
         f:SetPoint("TOPLEFT", 0, (i-1) * -rowHeight)
         f:SetPoint("TOPRIGHT", 0, (i-1) * -rowHeight)
 
-        f.header:SetText("test")
+        for _, avatar in ipairs(f.avatars) do
+            avatar.playAnim = true
+            avatar.showTooltip = false
+        end
 
         self.summaryRows[i] = f
     end
@@ -2223,15 +2239,7 @@ function GuildbookProfilesMixin:RefreshProfileSummary()
                     row.headerBackground:Show()
                 end
                 if row.avatars[x] then
-                    row.avatars[x].guid = char.guid
-                    if character.profile and character.profile.avatar then
-                        row.avatars[x].avatar:SetTexture(character.profile.avatar)
-                    else
-                        row.avatars[x].avatar:SetAtlas(string.format("raceicon-%s-%s", character.Race, character.Gender))
-                    end
-                    row.avatars[x].name:SetText(Guildbook.Data.Class[character.Class:upper()].FontColour..character.Name)
-                    local rgb = Guildbook.Data.Class[character.Class].RGB
-                    row.avatars[x].border:SetVertexColor(rgb[1], rgb[2], rgb[3])
+                    row.avatars[x]:SetCharacter(char.guid)
                     row.avatars[x]:Show()
                     if x == 1 then
                         row.avatars[x]:SetPoint("CENTER", 0, 0)
@@ -2635,7 +2643,7 @@ function GuildbookProfilesMixin:LoadProfile()
     if self.character.profile then
         for k, v in pairs(self.character.profile) do
             if k == "avatar" then
-                self.contentPane.scrollChild.profile[k].Background:SetTexture(v)
+                self.contentPane.scrollChild.profile[k].avatar:SetTexture(v)
                 self.contentPane.scrollChild.profile[k]:Show()
             else
                 if self.contentPane.scrollChild.profile[k] then
@@ -2657,10 +2665,27 @@ function GuildbookProfilesMixin:LoadProfile()
 
     self.contentPane.scrollChild.profile.mainSpec:SetText(L[self.character.MainSpec] or "")
     self.contentPane.scrollChild.profile.offSpec:SetText(L[self.character.OffSpec] or "")
+
+    for _, avatar in ipairs(self.contentPane.scrollChild.profile.altCharactersContainer.avatars) do
+        avatar:Hide()
+    end
+
+    if self.character.Alts and #self.character.Alts > 0 then
+        local i = 1;
+        for _, guid in ipairs(self.character.Alts) do
+            local avatar = self.contentPane.scrollChild.profile.altCharactersContainer.avatars[i]
+            if gb:GetCharacterInfo(guid, "Name") ~= self.character.Name then
+                avatar:SetCharacter(guid)
+                avatar:Show()
+                i = i + 1;
+            end
+        end
+    end
+
 end
 
 function GuildbookProfilesMixin:HideProfile()
-    self.contentPane.scrollChild.profile.avatar.Background:SetTexture(nil)
+    self.contentPane.scrollChild.profile.avatar.avatar:SetTexture(nil)
     for _, fs in ipairs(self.contentPane.scrollChild.profile.displayStrings) do
         fs:SetText("")
     end

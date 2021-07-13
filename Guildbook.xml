@@ -568,7 +568,7 @@
                                 <Frames>
 
                                     <Frame parentKey="profile" parentArray="frames">
-                                        <Size y="300"/>
+                                        <Size y="350"/>
                                         <Layers>
                                             <Layer level="BACKGROUND">
 
@@ -706,7 +706,7 @@
                                                     <Color r="1" g="1" b="1"/>
                                                     <Size x="75" y="30"/>
                                                     <Anchors>
-                                                        <Anchor relativeKey="$parent.mainCharacterLabel" relativePoint="BOTTOMLEFT" point="TOPLEFT" x="0" y="-10"/>
+                                                        <Anchor relativeKey="$parent.mainCharacterLabel" relativePoint="BOTTOMLEFT" point="TOPLEFT" x="0" y="-20"/>
                                                     </Anchors>
                                                     <KeyValues>
                                                         <KeyValue key="locale" value="ALT_CHARACTERS" type="string"/>
@@ -799,18 +799,19 @@
                                                 </Anchors>
                                             </ScrollFrame>
 
-                                            <Frame parentKey="avatar" inherits="GuildbookAvatarFrame">
-                                                <Size x="80" y="80"/>
+                                            <!-- <Frame parentKey="avatar" inherits="GuildbookAvatarFrame"> -->
+                                            <Frame parentKey="avatar" inherits="GuildbookProfileSummaryRowAvatarTemplate">
+                                                <Size x="60" y="60"/>
                                                 <Anchors>
-                                                    <Anchor relativeKey="$parent.avatarLabel" relativePoint="TOPRIGHT" point="TOPLEFT" x="20" y="0"/>
+                                                    <Anchor relativeKey="$parent.avatarLabel" relativePoint="TOPRIGHT" point="TOPLEFT" x="0" y="0"/>
                                                 </Anchors>
                                                 <Scripts>
-                                                    <OnEnter>
+                                                    <!-- <OnEnter>
                                                         self.Highlight:Hide()
                                                     </OnEnter>
                                                     <OnLeave>
                                                         self.Highlight:Show()
-                                                    </OnLeave>
+                                                    </OnLeave> -->
                                                     <OnMouseDown>
                                                         if self:GetParent().edit.editOpen == true then
                                                             GuildbookUI.profiles.avatarPicker:Show()
@@ -824,6 +825,84 @@
                                                 <Anchors>
                                                     <Anchor relativeKey="$parent.mainCharacterLabel" relativePoint="RIGHT" point="LEFT" x="20" y="0"/>
                                                 </Anchors>
+                                            </Frame>
+
+                                            <Frame parentKey="altCharactersContainer">
+                                                <Size y="50"/>
+                                                <Anchors>
+                                                    <Anchor relativeKey="$parent.altCharactersLabel" relativePoint="RIGHT" point="LEFT" x="20" y="0"/>
+                                                    <Anchor point="RIGHT" x="-5" y="0"/>
+                                                </Anchors>
+                                                <Frames> 
+                                                    <Frame parentKey="avatar1" parentArray="avatars" inherits="GuildbookProfileSummaryRowAvatarTemplate">
+                                                        <Anchors>
+                                                            <Anchor point="LEFT" x="5" y="0"/>
+                                                        </Anchors>
+                                                    </Frame>
+                                                    <Frame parentKey="avatar2" parentArray="avatars" inherits="GuildbookProfileSummaryRowAvatarTemplate">
+                                                        <Anchors>
+                                                            <Anchor point="LEFT" relativeKey="$parent.avatar1" relativePoint="RIGHT" x="0" y="0"/>
+                                                        </Anchors>
+                                                    </Frame>
+                                                    <Frame parentKey="avatar3" parentArray="avatars" inherits="GuildbookProfileSummaryRowAvatarTemplate">
+                                                        <Anchors>
+                                                            <Anchor point="LEFT" relativeKey="$parent.avatar2" relativePoint="RIGHT" x="0" y="0"/>
+                                                        </Anchors>
+                                                    </Frame>
+                                                    <Frame parentKey="avatar4" parentArray="avatars" inherits="GuildbookProfileSummaryRowAvatarTemplate">
+                                                        <Anchors>
+                                                            <Anchor point="LEFT" relativeKey="$parent.avatar3" relativePoint="RIGHT" x="0" y="0"/>
+                                                        </Anchors>
+                                                    </Frame>
+                                                    <Frame parentKey="avatar5" parentArray="avatars" inherits="GuildbookProfileSummaryRowAvatarTemplate">
+                                                        <Anchors>
+                                                            <Anchor point="LEFT" relativeKey="$parent.avatar4" relativePoint="RIGHT" x="0" y="0"/>
+                                                        </Anchors>
+                                                    </Frame>
+                                                    <Frame parentKey="avatar6" parentArray="avatars" inherits="GuildbookProfileSummaryRowAvatarTemplate">
+                                                        <Anchors>
+                                                            <Anchor point="LEFT" relativeKey="$parent.avatar5" relativePoint="RIGHT" x="0" y="0"/>
+                                                        </Anchors>
+                                                    </Frame>
+                                                    <Frame parentKey="avatar7" parentArray="avatars" inherits="GuildbookProfileSummaryRowAvatarTemplate">
+                                                        <Anchors>
+                                                            <Anchor point="LEFT" relativeKey="$parent.avatar6" relativePoint="RIGHT" x="0" y="0"/>
+                                                        </Anchors>
+                                                    </Frame>
+                                                    <Frame parentKey="avatar8" parentArray="avatars" inherits="GuildbookProfileSummaryRowAvatarTemplate">
+                                                        <Anchors>
+                                                            <Anchor point="LEFT" relativeKey="$parent.avatar7" relativePoint="RIGHT" x="0" y="0"/>
+                                                        </Anchors>
+                                                    </Frame>
+                                                    <Frame parentKey="avatar9" parentArray="avatars" inherits="GuildbookProfileSummaryRowAvatarTemplate">
+                                                        <Anchors>
+                                                            <Anchor point="LEFT" relativeKey="$parent.avatar8" relativePoint="RIGHT" x="0" y="0"/>
+                                                        </Anchors>
+                                                    </Frame>
+                                                    <Frame parentKey="scrollRight" enableMouse="true">
+                                                        <Size x="35"/>
+                                                        <Anchors>
+                                                            <Anchor point="TOPRIGHT" x="0" y="0"/>
+                                                            <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                                                        </Anchors>
+                                                        <Layers>
+                                                            <Layer level="ARTWORK" textureSubLevel="-1">
+                                                                <Texture parentKey="glow" atlas="NPE_ArrowRightGlow" hidden="true"/>
+                                                            </Layer>
+                                                            <Layer level="ARTWORK">
+                                                                <Texture atlas="NPE_ArrowRight"/>
+                                                            </Layer>
+                                                        </Layers>
+                                                        <Scripts>
+                                                            <OnEnter>
+                                                                self.glow:Show()
+                                                            </OnEnter>
+                                                            <OnLeave>
+                                                                self.glow:Hide()
+                                                            </OnLeave>
+                                                        </Scripts>
+                                                    </Frame>
+                                                </Frames>
                                             </Frame>
 
                                             <Frame parentKey="mainSpecDropDown" parentArray="displayEdit" inherits="GuildbookDropdown" hidden="true">

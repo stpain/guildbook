@@ -612,6 +612,12 @@ function Guildbook:GetEnglishProf(prof)
     end
 end
 
+function Guildbook.CapitalizeString(s)
+    if type(s) == "string" then
+        return string.gsub(s, '^%a', string.upper)
+    end
+end
+
 function Guildbook:MakeFrameMoveable(frame)
     frame:SetMovable(true)
     frame:EnableMouse(true)
