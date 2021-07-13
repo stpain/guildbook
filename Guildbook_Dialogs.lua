@@ -180,7 +180,7 @@ StaticPopupDialogs['GuildbookGatheringDatabaseEditObject'] = {
 }
 
 StaticPopupDialogs['GuildbookUpdateAvailable'] = {
-    text = 'Guildbook, new version available\n\nCurrent version %s\nNew version %s',
+    text = 'Guildbook: %s',
     button1 = 'OK',
     hasEditBox = true,
     OnShow = function(self)

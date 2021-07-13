@@ -376,10 +376,10 @@ function Guildbook:PLAYER_ENTERING_WORLD()
     GuildRoster() -- this will trigger a roster scan but we set addonLoaded as false to skip the auto roster scan
     C_Timer.After(1, function()
         self:ScanGuildRoster(function()
-            Guildbook:Load() -- once the roster has been scanned continue to load
+            Guildbook:Load() -- once the roster has been scanned continue to load, its a bit meh but it means we get a full roster scan before loading
         end)
     end)
-    -- store some info
+    -- store some info, used for character models, faction textures etc
     self.player = {
         faction = nil,
         race = nil,
@@ -401,6 +401,7 @@ function Guildbook:PLAYER_ENTERING_WORLD()
             self.player.faction = C_CreatureInfo.GetFactionInfo(raceID).groupTag
         end
     end)
+    self.EventFrame:UnregisterEvent("PLAYER_ENTERING_WORLD")
 end
 
 
@@ -448,9 +449,10 @@ function Guildbook:Load()
         OnTooltipShow = function(tooltip)
             if not tooltip or not tooltip.AddLine then return end
             tooltip:AddLine(tostring('|cff0070DE'..addonName))
-            tooltip:AddDoubleLine(L["LEFTCLICK"])
-            tooltip:AddDoubleLine(L["SHIFTLEFTCLICK"])
-            tooltip:AddDoubleLine(L["RIGHTCLICK"])
+            tooltip:AddDoubleLine(L["MINIMAP_TOOLTIP_LEFTCLICK"])
+            tooltip:AddDoubleLine(L["MINIMAP_TOOLTIP_LEFTCLICK_SHIFT"])
+            tooltip:AddDoubleLine(L["MINIMAP_TOOLTIP_RIGHTCLICK"])
+            tooltip:AddDoubleLine(L["MINIMAP_TOOLTIP_MIDDLECLICK"])
         end,
     })
     self.MinimapIcon = LibStub("LibDBIcon-1.0")
@@ -530,7 +532,7 @@ function Guildbook:Load()
         DEBUG('func', "Load", 'minimap calendar icon saved var setting: false, hiding minimap calendar button')
     end
 
-    Guildbook:SendPrivacyInfo("GUILD", nil)
+    Guildbook:SendPrivacyInfo(nil, "GUILD")
     DEBUG("func", "Load", "sending privacy settings")
 
     -- stagger some start up calls to prevent chat spam, use 3s interval
@@ -942,21 +944,28 @@ function Guildbook:GetPaperDollStats()
         --local expertise, offhandExpertise, rangedExpertise = GetExpertise();
         --local base, casting = GetManaRegen();
         GUILDBOOK_CHARACTER['PaperDollStats'].SpellHit = self:TrimNumber(GetCombatRatingBonus(CR_HIT_SPELL) + GetSpellHitModifier());
-        GUILDBOOK_CHARACTER['PaperDollStats'].MeleeHit = self:TrimNumber(GetCombatRatingBonus(CR_HIT_MELEE)+GetHitModifier());
-	GUILDBOOK_CHARACTER['PaperDollStats'].RangedHit = self:TrimNumber(GetCombatRatingBonus(CR_HIT_RANGED));
+        GUILDBOOK_CHARACTER['PaperDollStats'].MeleeHit = self:TrimNumber(GetCombatRatingBonus(CR_HIT_MELEE) + GetHitModifier());
+	    GUILDBOOK_CHARACTER['PaperDollStats'].RangedHit = self:TrimNumber(GetCombatRatingBonus(CR_HIT_RANGED));
 
         GUILDBOOK_CHARACTER['PaperDollStats'].RangedCrit = self:TrimNumber(GetRangedCritChance());
         GUILDBOOK_CHARACTER['PaperDollStats'].MeleeCrit = self:TrimNumber(GetCritChance());
-			
-	GUILDBOOK_CHARACTER['PaperDollStats'].Haste = self:TrimNumber(GetHaste());
-	GUILDBOOK_CHARACTER['PaperDollStats'].ManaRegen = self:TrimNumber(GetManaRegen());
+
+	    GUILDBOOK_CHARACTER['PaperDollStats'].Haste = self:TrimNumber(GetHaste());
+        local base, casting = GetManaRegen()
+	    GUILDBOOK_CHARACTER['PaperDollStats'].ManaRegen = self:TrimNumber(base);
+	    GUILDBOOK_CHARACTER['PaperDollStats'].ManaRegenCasting = self:TrimNumber(casting);
 
         -- GUILDBOOK_CHARACTER['PaperDollStats'].SpellDamage = {}
         -- GUILDBOOK_CHARACTER['PaperDollStats'].SpellCrit = {}
+        local minCrit = 100
         for id, school in pairs(spellSchools) do
-            GUILDBOOK_CHARACTER['PaperDollStats']['SpellDmg'..school] = self:TrimNumber(GetSpellBonusDamage(id));        
+            if GetSpellCritChance(id) < minCrit then
+                minCrit = GetSpellCritChance(id)
+            end
+            GUILDBOOK_CHARACTER['PaperDollStats']['SpellDmg'..school] = self:TrimNumber(GetSpellBonusDamage(id));
             GUILDBOOK_CHARACTER['PaperDollStats']['SpellCrit'..school] = self:TrimNumber(GetSpellCritChance(id));
         end
+        GUILDBOOK_CHARACTER['PaperDollStats'].SpellCrit = self:TrimNumber(minCrit)
 
         GUILDBOOK_CHARACTER['PaperDollStats'].HealingBonus = self:TrimNumber(GetSpellBonusHealing());
 
@@ -1005,16 +1014,16 @@ function Guildbook:GetPaperDollStats()
             --DEBUG('func', 'GetPaperDollStats', string.format("%s = %s", stat, b))
         end
 
-        for k, v in pairs(GUILDBOOK_CHARACTER['PaperDollStats']) do
-            if type(v) ~= 'table' then
-                --DEBUG('func', 'GetPaperDollStats', string.format("%s = %s", k, string.format("%.2f", v)))
-            else
-                for x, y in pairs(v) do
-                    local trimmed = string.format("%.2f", y)
-                    --DEBUG('func', 'GetPaperDollStats', string.format("%s = %s", x, string.format("%.2f", y)))
-                end
-            end
-        end
+        -- for k, v in pairs(GUILDBOOK_CHARACTER['PaperDollStats']) do
+        --     if type(v) ~= 'table' then
+        --         --DEBUG('func', 'GetPaperDollStats', string.format("%s = %s", k, string.format("%.2f", v)))
+        --     else
+        --         for x, y in pairs(v) do
+        --             local trimmed = string.format("%.2f", y)
+        --             --DEBUG('func', 'GetPaperDollStats', string.format("%s = %s", x, string.format("%.2f", y)))
+        --         end
+        --     end
+        -- end
         self:SetCharacterInfo(UnitGUID("player"), "PaperDollStats", GUILDBOOK_CHARACTER['PaperDollStats'])
     end
 end
@@ -1081,34 +1090,43 @@ function Guildbook:GetCharacterInfo(guid, key)
     end
 end
 
+---sends all character data (inventory, profile, talents and privacy) using a 3 second stagger
+---@param player string character to send data to
+---@param mod number a stagger modifier, if nil defaults as 1
+function Guildbook:SendAllCharacterData_Staggered(player, mod)
+    if not mod then 
+        mod = 1
+    end
+    DEBUG("func", "SendAllCharacterData_Staggered", "sending data to "..player)
+    self:SendCharacterData(player, "WHISPER")
+    C_Timer.After(3 * mod, function()
+        self:SendInventoryInfo(player, "WHISPER")
+    end)
+    C_Timer.After(6 * mod, function()
+        self:SendTalentInfo(player, "WHISPER")
+    end)
+    C_Timer.After(9 * mod, function()
+        self:SendProfileInfo(player, "WHISPER")
+    end)
+    C_Timer.After(12 * mod, function()
+        self:SendPrivacyInfo(player, "WHISPER")
+    end)
+end
+
 local playersUpdated = {}
 function Guildbook:UpdatePlayer(player)
     if not player then
         return
     end
-    C_Timer.After(1, function()
-        if playersUpdated[player] then
-            if (GetTime() - playersUpdated[player]) > 30 then -- 30s cooldown on sending data
-                self:SendCharacterData(player, "WHISPER")
-                self:SendInventoryInfo(player, "WHISPER")
-                self:SendTalentInfo(player, "WHISPER")
-                self:SendProfileInfo(player, "WHISPER")
-                self:CheckPrivacyRankSettings()
-        
-                playersUpdated[player] = GetTime()
-            else
-    
-            end
-        else
-            self:SendCharacterData(player, "WHISPER")
-            self:SendInventoryInfo(player, "WHISPER")
-            self:SendTalentInfo(player, "WHISPER")
-            self:SendProfileInfo(player, "WHISPER")
-            self:CheckPrivacyRankSettings()
-    
+    if playersUpdated[player] then
+        if (GetTime() - playersUpdated[player]) > 30 then
+            self:SendAllCharacterData_Staggered(player)
             playersUpdated[player] = GetTime()
         end
-    end)
+    else
+        self:SendAllCharacterData_Staggered(player)
+        playersUpdated[player] = GetTime()
+    end
 end
 
 --- return the players guild name if they belong to one
@@ -1953,18 +1971,25 @@ function Guildbook:SendVersionData()
     self:Transmit(version, "GUILD", nil, "NORMAL")
 end
 
-
+local versionsChecked = {}
 function Guildbook:OnVersionInfoRecieved(data, distribution, sender)
     if data.senderGUID == UnitGUID("player") then
         --return;
     end
     if data.payload then
         if tonumber(self.version) < tonumber(data.payload) then
-            if IsInInstance() or InCombatLockdown() then
-                self:PrintMessage("new version available, probably fixes a few things, might break something else though!")
-            else
-                StaticPopup_Show("GuildbookUpdateAvailable", self.version, data.payload)
-            end
+            if not versionsChecked[data.payload] then
+                local msgID = math.random(4)
+                self:PrintMessage(L["NEW_VERSION_"..msgID])
+                -- if IsInInstance() or InCombatLockdown() then
+                --     self:PrintMessage(L["NEW_VERSION_"..msgID])
+                -- else
+                --     StaticPopup_Show("GuildbookUpdateAvailable", L["NEW_VERSION_"..msgID])
+                -- end
+                versionsChecked[data.payload] = true;
+            end            
+        elseif tonumber(self.version) > tonumber(data.payload) then
+            self:SendVersionData()
         end
     end
     C_Timer.After(30, function()
@@ -1977,7 +2002,7 @@ end
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 local lastPrivacyTransmit = -1000
 local privacyTransmitQueued = false
-function Guildbook:SendPrivacyInfo(channel, target)
+function Guildbook:SendPrivacyInfo(target, channel)
     if not GUILDBOOK_GLOBAL.config and not GUILDBOOK_GLOBAL.config.privacy then
         return;
     end
@@ -2190,6 +2215,9 @@ function Guildbook:SendInventoryRequest(target)
     self:Transmit(request, 'WHISPER', target, 'NORMAL')
 end
 
+---sends your characters inventory to the target - checks if target has permission to view data
+---@param target string the name of player to send data to
+---@param channel string the chat channel to use
 function Guildbook:SendInventoryInfo(target, channel)
     self:GetCharacterInventory()
     C_Timer.After(0.5, function()
@@ -2936,17 +2964,11 @@ function Guildbook:CHAT_MSG_SYSTEM(...)
         local brokenLink = name:sub(2, #name-1)
         local player = brokenLink:sub(brokenLink:find(":")+1, brokenLink:find("%[")-1)
         if player then
-            --GuildRoster()
             if not self.onlineMembers then
                 self.onlineMembers = {}
             end
             self.onlineMembers[player] = true
             DEBUG("event", "CHAT_MSG_SYSTEM", string.format("set %s as online", player))
-            -- this is random BUT with everyone sending data at 1 player this will at least space them out a bit
-            -- the player isnt likely to open guildbook as their first task when logging index
-            C_Timer.After(math.random(15, 60), function()
-                --self:UpdatePlayer(player)
-            end)
         end
     end
     local offlineMsg = ERR_FRIEND_OFFLINE_S:gsub("%%s", ".*")

@@ -39,6 +39,11 @@ L['OptionsAbout'] = 'Guildbook options and about. Thanks to Belrand@Auberdine fo
 L['Version'] = 'Version'
 L['Author'] = 'Author: |cffffffffstpain (|r|cffF58CBACopperbolts|r |cffffffffand|r |cff0070DEKylanda|r|cffffffff)|r'
 
+L["NEW_VERSION_1"] = "new version available, probably fixes a few things, might break something else though!"
+L["NEW_VERSION_2"] = "there is a totally new awesome version of guildbook, available to downlaod from all good addon providers!"
+L["NEW_VERSION_3"] = "lol, if you thought the last update did not a lot, you should get the new one, probably does about the same.....or less!"
+L["NEW_VERSION_4"] = "hordies are red, alliance are blue, guildbook updates just for you!"
+
 L["GUILDBOOK_LOADER_HEADER"]        = "Welcome to Guildbook"
 L["TOOLTIP_ITEM_RECIPE_HEADER"]     = "Used for the following"
 
@@ -105,6 +110,47 @@ L["STATS"]                          = "Statistics"
 L["RESET_AVATAR"]					= "Reset avatar"
 
 L["PRIVACY_HEADER"]                 = "Privacy settings"
+
+
+L["STRENGTH"]						= "Strength"
+L["AGILITY"]						= "Agility"
+L["STAMINA"]						= "Stamina"
+L["INTELLECT"]						= "Intellect"
+L["SPIRIT"]							= "Spirit"
+
+L["ARMOR"]							= "Armor"
+L["DEFENSE"]						= "Defence"
+L["DODGE"]							= "Dodge"
+L["PARRY"]							= "Parry"
+L["BLOCK"]							= "Block"
+
+L["EXPERTISE"]						= "Expertise"
+L["HIT_CHANCE"]						= "Hit"
+L["MELEE_CRIT"]						= "Crit"
+L["MH_DMG"]							= "Main hand dmg"
+L["OH_DMG"] 						= "Off hand dmg"
+L["MH_DPS"] 						= "Main hand dps"
+L["OH_DPS"] 						= "Off hand dps"
+
+L["RANGED_HIT"] 					= "Hit"
+L["RANGED_CRIT"] 					= "Crit"
+L["RANGED_DMG"] 					= "Damage"
+L["RANGED_DPS"] 					= "Dps"
+
+L["SPELL_HASTE"] 					= "Haste"
+L["MANA_REGEN"] 					= "Mana Regen"
+L["MANA_REGEN_CASTING"] 			= "Mana Regen (casting)"
+L["SPELL_HIT"] 						= "Hit"
+L["SPELL_CRIT"] 					= "Crit"
+L["HEALING_BONUS"] 					= "Healing bonus"
+L["SPELL_DMG_HOLY"] 				= "Holy"
+L["SPELL_DMG_FROST"] 				= "Frost"
+L["SPELL_DMG_SHADOW"] 				= "Shadow"
+L["SPELL_DMG_ARCANE"] 				= "Arcane"
+L["SPELL_DMG_FIRE"] 				= "Fire"
+L["SPELL_DMG_NATURE"] 				= "Nature"
+
+
 
 -- class and spec
 -- class is upper case
@@ -261,12 +307,13 @@ L["YEARS"]                          = "years"
 L["MONTHS"]                         = "months"
 L["DAYS"]                           = "days"
 L["HOURS"]                          = "hours"
-L['< an hour']			    = '< an hour'
+L['< an hour']			    		= '< an hour'
 
-L["GENERAL"]			    = "General"
-L["LEFTCLICK"]			    = '|cffffffffLeft Click|r Open Guildbook'
-L["SHIFTLEFTCLICK"]		    = "Shift + "..'|cffffffffLeft Click|r Open Chat'
-L["RIGHTCLICK"]			    = '|cffffffffRight Click|r Options'
+L["GENERAL"]			    		= "General"
+L["MINIMAP_TOOLTIP_LEFTCLICK"]		= '|cffffffffLeft Click|r Open Guildbook'
+L["MINIMAP_TOOLTIP_LEFTCLICK_SHIFT"]= "Shift + "..'|cffffffffLeft Click|r Open Chat'
+L["MINIMAP_TOOLTIP_RIGHTCLICK"]		= '|cffffffffRight Click|r Options'
+L["MINIMAP_TOOLTIP_MIDDLECLICK"]	= "|cffffffffMiddle Click|r Open Blizzard roster"
 
 L["MC"]								= "Molten Core"
 L["BWL"]							= "Blackwing Lair"
@@ -567,7 +614,7 @@ elseif locale == 'frFR' then
 	L["YEARS"]                          = "années"
 	L["MONTHS"]                         = "mois"
 	L["DAYS"]                           = "jours"
-	L['< an hour']			    = 'moins d\'1h'
+	L['< an hour']			    		= 'moins d\'1h'
 
 
 	-- old stuff but might use again
@@ -606,14 +653,15 @@ elseif locale == 'frFR' then
 	L["ATTENDING"]                      = "Présent"
 	L["TENTATIVE"]                      = "Tentative"
 	L["DECLINE"]                        = "Décliner"
-        L["RESET_AVATAR"]		    = "Défaut"
+    L["RESET_AVATAR"]		    		= "Défaut"
 	
 	--keybinds
 	L["GENERAL"]			    = "Général"
 	L["OPEN"]			    = "Ouvrir"
-	L["LEFTCLICK"]			    = '|cffffffffClique Gauche|r Ouvrir Guildbook'
-	L["SHIFTLEFTCLICK"]		    = "MAJ + "..'|cffffffffClique Gauche|r Open Chat'
-	L["RIGHTCLICK"]			    = '|cffffffffClique Droit|r Options'
+	L["MINIMAP_TOOLTIP_LEFTCLICK"]			    = '|cffffffffClique Gauche|r Ouvrir Guildbook'
+	L["MINIMAP_TOOLTIP_LEFTCLICK_SHIFT"]		    = "MAJ + "..'|cffffffffClique Gauche|r Open Chat'
+	L["MINIMAP_TOOLTIP_RIGHTCLICK"]			    = '|cffffffffClique Droit|r Options'
+	L["MINIMAP_TOOLTIP_MIDDLECLICK"]	= "|cffffffffMiddle Click|r Open Blizzard roster"
 	
 	--raids name
 	L["MC"]				    = "Coeur du Magma"

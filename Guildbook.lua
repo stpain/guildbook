@@ -2078,8 +2078,8 @@ GuildbookProfilesMixin.characterStats = {
         { key = "MeleeHit", displayName = L["HIT_CHANCE"], },
         { key = "MeleeCrit", displayName = L["MELEE_CRIT"], },
         { key = "MeleeDmgMH", displayName = L["MH_DMG"], },
-        { key = "MeleeDmgOH", displayName = L["OH_DMG"], },
         { key = "MeleeDpsMH", displayName = L["MH_DPS"], },
+        { key = "MeleeDmgOH", displayName = L["OH_DMG"], },
         { key = "MeleeDpsOH", displayName = L["OH_DPS"], },
     },
     ["ranged"] = {
@@ -2091,7 +2091,9 @@ GuildbookProfilesMixin.characterStats = {
     ["spells"] = {
         { key = "Haste", displayName = L["SPELL_HASTE"], },
         { key = "ManaRegen", displayName = L["MANA_REGEN"], },
+        { key = "ManaRegenCasting", displayName = L["MANA_REGEN_CASTING"], },
         { key = "SpellHit", displayName = L["SPELL_HIT"], },
+        { key = "SpellCrit", displayName = L["SPELL_CRIT"], },
         { key = "HealingBonus", displayName = L["HEALING_BONUS"], },
         { key = "SpellDmgHoly", displayName = L["SPELL_DMG_HOLY"], },
         { key = "SpellDmgFrost", displayName = L["SPELL_DMG_FROST"], },
@@ -2433,7 +2435,7 @@ function GuildbookProfilesMixin:LoadCharacter(player)
                 end
             })
             table.insert(offSpec, {
-                text = spec,
+                text = L[spec],
                 func = function()
                     self.character.OffSpec = spec
                     GUILDBOOK_CHARACTER.OffSpec = spec
@@ -2840,6 +2842,8 @@ function GuildbookProfilesMixin:LoadStats()
                         if stat.key == "Defence" and self.character.PaperDollStats[stat.key].Base and self.character.PaperDollStats[stat.key].Mod then
                             local def = self.character.PaperDollStats[stat.key].Base + self.character.PaperDollStats[stat.key].Mod
                             f[stat.key]:SetText(def)
+                        elseif (stat.key):find("ManaRegen") then
+                            f[stat.key]:SetText(gb:TrimNumber(self.character.PaperDollStats[stat.key] * 5))
                         else
                             f[stat.key]:SetText(self.character.PaperDollStats[stat.key])
                         end
