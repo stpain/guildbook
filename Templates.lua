@@ -270,7 +270,6 @@ function GuildbookDropdownFlyoutMixin:OnLoad()
         gb.dropdownFlyouts = {}
     end
     table.insert(gb.dropdownFlyouts, self)
-
 end
 
 function GuildbookDropdownFlyoutMixin:OnLeave()
