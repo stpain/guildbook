@@ -243,6 +243,10 @@ function GuildbookDropdownButtonMixin:OnMouseDown()
     self.ButtonUp:Hide()
     self.ButtonDown:Show()
 
+    for k, dd in ipairs(gb.dropdownWidgets) do
+        dd.Flyout:Hide()
+    end
+
     local flyout = self:GetParent().Flyout
     if flyout:IsVisible() then
         flyout:Hide()
@@ -261,6 +265,14 @@ end
 
 GuildbookDropdownFlyoutMixin = {}
 
+function GuildbookDropdownFlyoutMixin:OnLoad()
+    if not gb.dropdownFlyouts then
+        gb.dropdownFlyouts = {}
+    end
+    table.insert(gb.dropdownFlyouts, self)
+
+end
+
 function GuildbookDropdownFlyoutMixin:OnLeave()
     self.delay = C_Timer.NewTicker(DROPDOWN_CLOSE_DELAY, function()
         if not self:IsMouseOver() then
@@ -270,6 +282,11 @@ function GuildbookDropdownFlyoutMixin:OnLeave()
 end
 
 function GuildbookDropdownFlyoutMixin:OnShow()
+
+    for k, flyout in ipairs(gb.dropdownFlyouts) do
+        flyout:Hide()
+    end
+    self:Show()
 
     self:SetFrameStrata("DIALOG")
 

@@ -195,7 +195,8 @@
 				<Texture parentKey="Background" atlas="Talent-Background" useAtlasSize="false" setAllPoints="true"/>
 			</Layer>
 			<Layer level="HIGHLIGHT">
-				<Texture parentKey="Highlight" atlas="GarrMission_ListGlow-Highlight" useAtlasSize="false" setAllPoints="true"/>
+				<!-- <Texture parentKey="Highlight" atlas="GarrMission_ListGlow-Highlight" useAtlasSize="false" setAllPoints="true"/> -->
+				<Texture parentKey="Highlight" atlas="search-highlight-large" useAtlasSize="false" setAllPoints="true"/>
 			</Layer>
             <Layer level="OVERLAY">
 				<Texture parentKey="ClassIcon">
@@ -518,7 +519,7 @@
 				<Texture parentKey="Background" atlas="Talent-Background" useAtlasSize="false" setAllPoints="true"/>
 			</Layer>
 			<Layer level="HIGHLIGHT">
-				<Texture parentKey="Highlight" atlas="GarrMission_ListGlow-Highlight" useAtlasSize="false" setAllPoints="true"/>
+				<Texture parentKey="Highlight" atlas="search-highlight-large" useAtlasSize="false" setAllPoints="true"/>
 			</Layer>
 			<Layer level="BORDER" textureSubLevel="1"> 
 				<Texture parentKey="Selected" atlas="GarrMission_ListGlow-Select" useAtlasSize="false" setAllPoints="true" hidden="true"/>
@@ -782,7 +783,7 @@
 				<Texture parentKey="Background" atlas="Talent-Background" useAtlasSize="false" setAllPoints="true"/>
 			</Layer>
 			<Layer level="HIGHLIGHT">
-				<Texture parentKey="Highlight" atlas="GarrMission_ListGlow-Highlight" useAtlasSize="false" setAllPoints="true"/>
+				<Texture parentKey="Highlight" atlas="search-highlight-large" useAtlasSize="false" setAllPoints="true"/>
 			</Layer>
             <Layer level="ARTWORK">
                 <Texture parentKey="Icon">
@@ -1097,7 +1098,7 @@
 				<Texture parentKey="Background" atlas="Talent-Background" useAtlasSize="false" setAllPoints="true"/>
 			</Layer>
 			<Layer level="HIGHLIGHT">
-				<Texture parentKey="Highlight" atlas="GarrMission_ListGlow-Highlight" useAtlasSize="false" setAllPoints="true"/>
+				<Texture parentKey="Highlight" atlas="search-highlight-large" useAtlasSize="false" setAllPoints="true"/>
 			</Layer>
             <Layer level="ARTWORK">
                 <Texture parentKey="icon">
@@ -1157,6 +1158,7 @@
 		<Scripts>
 			<OnShow method="OnShow"/>
 			<OnLeave method="OnLeave"/>
+			<OnLoad method="OnLoad"/>
 		</Scripts>
 	</Frame>
 

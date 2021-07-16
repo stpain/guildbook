@@ -43,6 +43,24 @@ Guildbook.Data.Months = {
     L['DECEMBER']
 }
 
+Guildbook.Data.DefaultConfigSettings = {
+    privacy = {
+        shareInventoryMinRank = "none",
+        shareTalentsMinRank = "none",
+        shareProfileMinRank = "none",
+    },
+    modifyDefaultGuildRoster = true,
+    showTooltipTradeskills = true,
+    showTooltipTradeskillsRecipes = true,
+    showMinimapButton = true,
+    showMinimapCalendarButton = true,
+    showTooltipCharacterInfo = true,
+    showTooltipMainCharacter = true,
+    showTooltipMainSpec = true,
+    showTooltipProfessions = true,
+    parsePublicNotes = false,
+}
+
 Guildbook.Data.DefaultGlobalSettings = {
     Debug = false,
     GuildRosterCache = {},

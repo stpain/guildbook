@@ -52,7 +52,7 @@ Guildbook.GuildBankCommit = {
 }
 Guildbook.NUM_TALENT_ROWS = 7.0
 Guildbook.COMMS_DELAY = 0.0
-
+Guildbook.COMM_LOCK_COOLDOWN = 20.0
 local DEBUG = Guildbook.DEBUG
 
 
@@ -182,6 +182,7 @@ function Guildbook:Init()
             showTooltipMainSpec = true,
             showTooltipProfessions = true,
             parsePublicNotes = false,
+            showInfoMessages = true,
         }
         DEBUG('func', 'init', "created default config table")
     end
@@ -205,8 +206,14 @@ function Guildbook:Init()
                 showTooltipMainSpec = true,
                 showTooltipProfessions = true,
                 parsePublicNotes = false,
+                showInfoMessages = true,
             }
         end
+    end
+
+    if not GUILDBOOK_GLOBAL.config.showInfoMessages then
+        GUILDBOOK_GLOBAL.config.showInfoMessages = true
+        GuildbookOptionsShowInfoMessages:SetChecked(true)
     end
 
     local config = GUILDBOOK_GLOBAL.config
@@ -220,6 +227,8 @@ function Guildbook:Init()
     GuildbookOptionsTooltipInfoMainSpec:SetChecked(config.showTooltipMainSpec)
     GuildbookOptionsTooltipInfoProfessions:SetChecked(config.showTooltipProfessions)
     GuildbookOptionsTooltipInfoMainCharacter:SetChecked(config.showTooltipMainCharacter)
+
+    GuildbookOptionsShowInfoMessages:SetChecked(config.showInfoMessages and config.showInfoMessages or false)
 
     if config.showTooltipCharacterInfo == false then
         GuildbookOptionsTooltipInfoMainSpec:Disable()
@@ -1061,6 +1070,8 @@ function Guildbook:GetCharacterFromCache(guid)
         else
             return false;
         end
+    else
+        return false;
     end
 end
 
@@ -1147,7 +1158,15 @@ end
 --- print a message
 -- @param msg string the message to print
 function Guildbook:PrintMessage(msg)
-    print(string.format('[%sGuildbook|r] %s', Guildbook.FONT_COLOUR, msg))
+    if not GUILDBOOK_GLOBAL then
+        return;
+    end
+    if not GUILDBOOK_GLOBAL.config then
+        return;
+    end
+    if GUILDBOOK_GLOBAL.config.showInfoMessages then
+        print(string.format('[%sGuildbook|r] %s', Guildbook.FONT_COLOUR, msg))
+    end
 end
 
 ---check if you share data with this players rank
@@ -1383,12 +1402,12 @@ function Guildbook:ScanTradeSkill()
             if i == c then
                 self:SetCharacterInfo(UnitGUID("player"), prof, GUILDBOOK_CHARACTER[prof])
                 local elapsed = GetTime() - Guildbook.lastProfTransmit
-                if elapsed > 15 then
+                if elapsed > Guildbook.COMM_LOCK_COOLDOWN then
                     self:SendTradeskillData(prof, "GUILD", nil)
                     Guildbook.lastProfTransmit = GetTime()
                     DEBUG("func", "Scantradeskill", "sending data for "..prof)
                 else
-                    DEBUG("func", "Scantradeskill", string.format("%s remaining before comm lock off", 15-elapsed))
+                    DEBUG("func", "Scantradeskill", string.format("%s remaining before comm lock off", Guildbook.COMM_LOCK_COOLDOWN-elapsed))
                 end
             end
             i = i + 1;
@@ -1441,12 +1460,12 @@ function Guildbook:ScanCraftSkills_Enchanting()
             if i == c then
                 self:SetCharacterInfo(UnitGUID("player"), "Enchanting", GUILDBOOK_CHARACTER.Enchanting)
                 local elapsed = GetTime() - Guildbook.lastProfTransmit
-                if elapsed > 15 then
+                if elapsed > Guildbook.COMM_LOCK_COOLDOWN then
                     self:SendTradeskillData("Enchanting", "GUILD", nil)
                     Guildbook.lastProfTransmit = GetTime()
                     DEBUG("func", "Scantradeskill", "sending data for Enchanting")
                 else
-                    DEBUG("func", "Scantradeskill", string.format("%s remaining before comm lock off", 15-elapsed))
+                    DEBUG("func", "Scantradeskill", string.format("%s remaining before comm lock off", Guildbook.COMM_LOCK_COOLDOWN-elapsed))
                 end
             end
             i = i + 1;
@@ -1986,12 +2005,7 @@ function Guildbook:OnVersionInfoRecieved(data, distribution, sender)
         if tonumber(self.version) < tonumber(data.payload) then
             if not versionsChecked[data.payload] then
                 local msgID = math.random(4)
-                self:PrintMessage(L["NEW_VERSION_"..msgID])
-                -- if IsInInstance() or InCombatLockdown() then
-                --     self:PrintMessage(L["NEW_VERSION_"..msgID])
-                -- else
-                --     StaticPopup_Show("GuildbookUpdateAvailable", L["NEW_VERSION_"..msgID])
-                -- end
+                print(string.format('[%sGuildbook|r] %s', Guildbook.FONT_COLOUR, L["NEW_VERSION_"..msgID]))
                 versionsChecked[data.payload] = true;
             end            
         elseif tonumber(self.version) > tonumber(data.payload) then
@@ -2053,34 +2067,34 @@ function Guildbook:OnPrivacyReceived(data, distribution, sender)
         if data.payload.privacy.shareProfileMinRank and ranks[data.payload.privacy.shareProfileMinRank] and type(ranks[data.payload.privacy.shareProfileMinRank]) == "number" then
             if ranks[myRank] > ranks[data.payload.privacy.shareProfileMinRank] then
                 character.profile = nil;
-                DEBUG("error", "OnPrivacyReceived", string.format("removed %s profile data"), character.Name)
+                DEBUG("error", "OnPrivacyReceived", string.format("removed %s profile data", character.Name))
             end
         else
             if data.payload.privacy.shareProfileMinRank and data.payload.privacy.shareProfileMinRank == "none" then
                 character.profile = nil;
-                DEBUG("error", "OnPrivacyReceived", string.format("removed %s profile data"), character.Name)
+                DEBUG("error", "OnPrivacyReceived", string.format("removed %s profile data", character.Name))
             end
         end
         if data.payload.privacy.shareInventoryMinRank and ranks[data.payload.privacy.shareInventoryMinRank] and type(ranks[data.payload.privacy.shareInventoryMinRank]) == "number" then
             if ranks[myRank] > ranks[data.payload.privacy.shareInventoryMinRank] then
                 character.Inventory = nil;
-                DEBUG("error", "OnPrivacyReceived", string.format("removed %s inventory data"), character.Name)
+                DEBUG("error", "OnPrivacyReceived", string.format("removed %s inventory data", character.Name))
             end
         else
             if data.payload.privacy.shareInventoryMinRank and data.payload.privacy.shareInventoryMinRank == "none" then
                 character.Inventory = nil;
-                DEBUG("error", "OnPrivacyReceived", string.format("removed %s inventory data"), character.Name)
+                DEBUG("error", "OnPrivacyReceived", string.format("removed %s inventory data", character.Name))
             end
         end
         if data.payload.privacy.shareTalentsMinRank and ranks[data.payload.privacy.shareTalentsMinRank] and type(ranks[data.payload.privacy.shareTalentsMinRank]) == "number" then
             if ranks[myRank] > ranks[data.payload.privacy.shareTalentsMinRank] then
                 character.Talents = nil;
-                DEBUG("error", "OnPrivacyReceived", string.format("removed %s talents data"), character.Name)
+                DEBUG("error", "OnPrivacyReceived", string.format("removed %s talents data", character.Name))
             end
         else
             if data.payload.privacy.shareTalentsMinRank and data.payload.privacy.shareTalentsMinRank == "none" then
                 character.Talents = nil;
-                DEBUG("error", "OnPrivacyReceived", string.format("removed %s talents data"), character.Name)
+                DEBUG("error", "OnPrivacyReceived", string.format("removed %s talents data", character.Name))
             end
         end
     end
@@ -2319,25 +2333,34 @@ function Guildbook:OnTradeSkillsReceived(response, distribution, sender)
     --DEBUG('comms_in', 'OnTradeSkillsReceived', string.format("prof data from %s", sender))
     if response.payload.profession and type(response.payload.recipes) == 'table' then
         C_Timer.After(Guildbook.COMMS_DELAY, function()
-            local guildName = Guildbook:GetGuildName()
-            if guildName and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] and GUILDBOOK_GLOBAL.GuildRosterCache[guildName][response.senderGUID] then
-                local character = GUILDBOOK_GLOBAL.GuildRosterCache[guildName][response.senderGUID]
-                local i = 0;
-                for k, v in pairs(response.payload.recipes) do
-                    i = i + 1;
-                end
-                if character.Profession1 == "-" then
-                    if character.Profession2 == "-" and (character.Profession1 ~= response.payload.profession) then
-                        Guildbook:CharacterDataRequest(sender)
-                    end
-                end
-                character[response.payload.profession] = response.payload.recipes
-                GuildbookUI.statusText:SetText(string.format("received tradeskill response from %s, got %s %s recipes", sender, i, response.payload.profession))
-                DEBUG('func', 'OnTradeSkillsReceived', 'updating db, set: '..sender..' prof: '..response.payload.profession)
-                C_Timer.After(1, function()
-                    self:RequestTradeskillData()
-                end)
+            local character = self:GetCharacterFromCache(response.senderGUID)
+            if not character then
+                return
             end
+            local i, j = 0, 0;
+            local prof = response.payload.profession
+            if not character[prof] then
+                character[prof] = {}
+            end
+            for recipeID, reagents in pairs(response.payload.recipes) do
+                if not character[prof][recipeID] then
+                    character[prof][recipeID] = reagents
+                    j = j +1;
+                end
+                i = i + 1;
+            end
+            -- now check the prof exists as a key
+            if character.Profession1 == "-" then
+                if character.Profession2 == "-" and (character.Profession1 ~= response.payload.profession) then
+                    Guildbook:CharacterDataRequest(sender) -- this is to get the prof name added as a key
+                end
+            end
+            --character[response.payload.profession] = response.payload.recipes
+            GuildbookUI.statusText:SetText(string.format("tradeskill data from %s, [|cffffffff%s|r] %s total recipes, %s new recipes", sender, prof, i, j))
+            DEBUG('func', 'OnTradeSkillsReceived', 'updating db, set: '..sender..' prof: '..response.payload.profession)
+            C_Timer.After(1, function()
+                self:RequestTradeskillData()
+            end)
         end)
     end
 end

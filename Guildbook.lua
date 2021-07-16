@@ -632,6 +632,9 @@ function GuildbookMixin:OnLoad()
     self.ribbon.stats.func = function()
         navigateTo(self.stats)
     end
+    self.ribbon.helpAbout.func = function()
+        navigateTo(self.helpAbout)
+    end
 
     self.profiles.contentPane.scrollChild:SetSize(650, 480)
 
@@ -3658,4 +3661,25 @@ function GuildbookPrivacyMixin:OnShow()
             gb:SendPrivacyInfo("GUILD", nil)
         end,
     })
+end
+
+
+
+
+
+
+
+
+GuildbookHelpAboutMixin = {}
+
+function GuildbookHelpAboutMixin:OnLoad()
+    local w = self:GetWidth()
+    self.scrollFrame.scrollChild:SetSize(w-70, 800)
+    self.scrollFrame.scrollChild.credits:SetSize(w-70, 800)
+
+    self.scrollFrame.scrollChild.credits:SetText(L["HELP_ABOUT_CREDITS"])
+end
+
+function GuildbookHelpAboutMixin:OnShow()
+    
 end

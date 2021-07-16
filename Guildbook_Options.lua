@@ -50,6 +50,16 @@ end
 --     end
 -- end
 
+function GuildbookOptionsShowInfoMessages_OnClick(self)
+    if not GUILDBOOK_GLOBAL then
+        return
+    end
+    if not GUILDBOOK_GLOBAL.config then
+        GUILDBOOK_GLOBAL.config = {}
+    end
+    GUILDBOOK_GLOBAL.config.showInfoMessages = self:GetChecked()
+end
+
 function GuildbookOptionsShowMinimapButton_OnClick(self)
     if not GUILDBOOK_GLOBAL then
         return

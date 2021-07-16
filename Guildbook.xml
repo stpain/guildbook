@@ -370,6 +370,26 @@
                         </Scripts>
                     </Frame>
 
+                    <Frame parentKey="helpAbout" inherits="GuildbookSmallHighlightButton" enableMouse="true">
+                        <Size x="30" y="30"/>
+                        <Anchors>
+                            <Anchor point="RIGHT" x="-113" y="0"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture parentKey="background" setAllPoints="true" atlas="questlegendaryturnin"/>
+                            </Layer>
+                        </Layers>
+                        <KeyValues>
+                            <KeyValue key="tooltipText" value="HELP_ABOUT"/>
+                        </KeyValues>
+                        <Scripts>
+                            <OnMouseDown>
+                                GuildbookButtonMixin.OnMouseDown(self)
+                            </OnMouseDown>
+                        </Scripts>
+                    </Frame>
+
                     <EditBox parentKey="searchBox" inherits="InputBoxTemplate" autoFocus="false">
                         <Size x="200" y="20"/>
                         <Anchors>
@@ -1723,6 +1743,53 @@
                             <Anchor point="RIGHT" relativeKey="$parent.talentsSharingInfo" relativePoint="LEFT" x="-30" y="0"/>
                         </Anchors>
                     </Frame>
+                </Frames>
+                <Scripts>
+                    <OnLoad method="OnLoad"/>
+                    <OnShow method="OnShow"/>
+                </Scripts>
+            </Frame>
+
+
+            <Frame parentKey="helpAbout" mixin="GuildbookHelpAboutMixin" parentArray="frames" hidden="true">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.ribbon" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND" textureSubLevel="1">
+                        <Texture parentKey="background" atlas="Legionfall_Background" tile="true" setAllPoints="true" alpha="0.8">
+                            <!-- <Color r="0" g="0" b="0"/> -->
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Frames>
+                    <ScrollFrame parentKey="scrollFrame"  inherits="UIPanelScrollFrameTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" x="30" y="-40"/>
+                            <Anchor point="BOTTOMLEFT" x="30" y="80"/>
+                            <Anchor point="RIGHT" x="-40" y="0"/>
+                        </Anchors>
+                        <ScrollChild>
+                            <Frame parentKey="scrollChild">
+                                <Anchors>
+                                    <Anchor point="LEFT" x="0" y="0"/>
+                                    <Anchor point="RIGHT" x="0" y="0"/>
+                                </Anchors>
+                                <Layers>
+                                    <Layer level="OVERLAY">
+                                        <FontString parentKey="credits" inherits="QuestFontHighlight" justifyV="TOP" justifyH="LEFT">
+                                            <Color r="0.121" g="0.054" b="0.007"/>
+                                            <Anchors>
+                                                <Anchor point="TOPLEFT" x="0" y="0"/>
+                                                <Anchor point="TOPRIGHT" x="0" y="0"/>
+                                            </Anchors>
+                                        </FontString>
+                                    </Layer>
+                                </Layers>
+                            </Frame>
+                        </ScrollChild>
+                    </ScrollFrame>
                 </Frames>
                 <Scripts>
                     <OnLoad method="OnLoad"/>

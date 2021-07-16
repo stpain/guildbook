@@ -30,6 +30,9 @@ the copyright holders.
     if anyone modifies this could they please drop me a message on curse or git so i can include any translations
 ]]
 
+-- add this to proper helpAbout section when finished 
+--Written by Kylanda@Pyrewood Village, translations
+--French, Belrand@Auberdine
 
 local addonName, Guildbook = ...
 
@@ -46,6 +49,38 @@ L["NEW_VERSION_4"] = "hordies are red, alliance are blue, guildbook updates just
 
 L["GUILDBOOK_LOADER_HEADER"]        = "Welcome to Guildbook"
 L["TOOLTIP_ITEM_RECIPE_HEADER"]     = "Used for the following"
+
+L["HELP_ABOUT"]						= "Help & about"
+
+-- this is just a quick thing, will make the how section more fleshed out
+-- this is a nasty way to do this, its horrible and i need to make the help & about much better
+local tradeskillIcon = CreateAtlasMarkup("Mobile-Blacksmithing", 16, 16)
+local tradeskillHelp = 
+[[
+Tradeskills (Professions)
+Guildbook will share your tradeskill recipes with other guild members. 
+Open your tradeskill to trigger the scan of the recipes. Wait patiently as it scans (~100 recipes per second). This will save to your character and account database for the guild and sends to online guild members. 
+Once this process is complete, future data will be sent to all online guild members when you log in. You can also push data by opening a tradeskill (cooldown enabled to prevent spam)
+
+]]
+local profileIcon = CreateAtlasMarkup("GarrMission_MissionIcon-Recruit", 16, 16)
+local profileHelp = 
+[[
+Profile:
+Edit as you wish, add your personal information or not.
+Show your main spec, list your alts.
+
+]]
+local searchIcon = CreateAtlasMarkup("shop-games-magnifyingglass", 16, 16)
+local searchHelp = 
+[[
+Search:
+Use this feature to browse your guild database- Find a recipe, pattern, character name.
+
+]]
+L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s", tradeskillIcon, tradeskillHelp, profileIcon, profileHelp, searchIcon, searchHelp)
+
+
 
 --mod blizz guild roster
 L['Online']                         = 'Online'
