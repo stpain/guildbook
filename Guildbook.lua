@@ -393,7 +393,52 @@ function GuildbookRosterListviewItemMixin:SetOffline(online)
     end
 end
 
+local function loadGuildMemberTradeskills(guid, prof)
+    local delay = 0.01
+    local recipes = {}
+    local character = gb:GetCharacterFromCache(guid)
+    if not character then
+        return
+    end
+    if prof == "Enginnering" then prof = "Engineering" end -- fix it back
+    if not character[prof] then
+        return
+    end
+    local i = 0;
+    for k,v in pairs(character[prof]) do
+        i = i + 1;
+    end
+    GuildbookUI:OpenTo("tradeskills")
+    GuildbookRecipesListviewMixin:ClearRows()
+    GuildbookCharactersListviewMixin:ClearRows()
+    GuildbookUI.tradeskills.recipesListview.spinner:Hide()
+    GuildbookUI.tradeskills.recipesListview.anim:Stop()
+    GuildbookUI.tradeskills.recipesListview.spinner:Show()
+    GuildbookUI.tradeskills.recipesListview.anim:Play()
+    wipe(GuildbookUI.tradeskills.recipesListview.recipes)
+    C_Timer.NewTicker(delay, function()
+        for itemID, reagents in pairs(character[prof]) do
+            if not recipes[itemID] then
+                recipes[itemID] = true;
+                GuildbookProfessionListviewMixin:AddRecipe(GuildbookUI.tradeskills.recipesListview.recipes, prof, itemID, reagents)
+            end
+        end
+    end, i)
+    C_Timer.After(delay * (i + 1), function()
+        GuildbookUI.tradeskills.recipesListview:LoadRecipes(string.format("%s [%s]", character.Name, gb:GetLocaleProf(prof)), true)
+        GuildbookUI.tradeskills.ribbon.shareCharactersRecipes.func = function()
+            CooldownFrame_Set(GuildbookUI.tradeskills.ribbon.shareCharactersRecipes.cooldown, GetTime(), 30, true, true, 1)
+            gb:SendTradeskillData(guid, character[prof], prof, "GUILD", nil)
+            GuildbookUI.tradeskills.ribbon.shareCharactersRecipes.disabled = true;
+        end
+    end)
+end
+
+
+-- this function needs to be cleaned up, its using a nasty set of variables
 function GuildbookRosterListviewItemMixin:SetCharacter(character)
+    self.guid = character.guid
+
     self.character = character;
     self.ClassIcon:SetAtlas(string.format("GarrMission_ClassIcon-%s", character.class))
     self.ClassIcon:Show()
@@ -422,7 +467,12 @@ function GuildbookRosterListviewItemMixin:SetCharacter(character)
         prof1 = "Enginnering";
     end
     if character.prof1 ~= "-" then
-        self.Prof1:SetAtlas(string.format("Mobile-%s", prof1 and prof1 or character.prof1))
+        local prof = prof1 and prof1 or character.prof1
+        self.Prof1.icon:SetAtlas(string.format("Mobile-%s", prof))
+        self.Prof1.tooltipText = gb:GetLocaleProf(prof)
+        self.Prof1.func = function (self)
+            loadGuildMemberTradeskills(character.guid, prof)
+        end
         self.Prof1:Show()
     else
         self.Prof1:Hide()
@@ -432,7 +482,12 @@ function GuildbookRosterListviewItemMixin:SetCharacter(character)
         prof2 = "Enginnering";
     end
     if character.prof2 ~= "-" then
-        self.Prof2:SetAtlas(string.format("Mobile-%s", prof2 and prof2 or character.prof2))
+        local prof = prof2 and prof2 or character.prof2
+        self.Prof2.icon:SetAtlas(string.format("Mobile-%s", prof))
+        self.Prof2.tooltipText = gb:GetLocaleProf(prof)
+        self.Prof2.func = function ()
+            loadGuildMemberTradeskills(character.guid, prof)
+        end
         self.Prof2:Show()
     else
         self.Prof2:Hide()
@@ -809,7 +864,12 @@ local professions = {
     { id = 185, Name = 'Cooking', Atlas = "Mobile-Cooking", },
 }
 
-local function addRecipe(t, prof, recipeID, reagents)
+---this will process a tradeskill recipeID to acquire the link, rarity and expansion info
+---@param t table the table to add processed recipeIDs to
+---@param prof string the profession name currently being accesed
+---@param recipeID number the recipe ID to add
+---@param reagents table the reagents data for the recipe ID
+function GuildbookProfessionListviewMixin:AddRecipe(t, prof, recipeID, reagents)
     local _link = false;
     local _rarity = false;
     local _enchant = false;
@@ -928,6 +988,10 @@ function GuildbookProfessionListviewMixin:OnLoad()
                 end
                 scanPlayerBags()
                 if #GuildbookMixin.charactersWithProfession > 0 then
+                    GuildbookUI.tradeskills.recipesListview.spinner:Hide()
+                    GuildbookUI.tradeskills.recipesListview.anim:Stop()
+                    GuildbookUI.tradeskills.recipesListview.spinner:Show()
+                    GuildbookUI.tradeskills.recipesListview.anim:Play()
                     local delay = 0.1
                     wipe(GuildbookUI.tradeskills.recipesListview.recipes)
                     GuildbookRecipesListviewMixin:ClearRows()
@@ -939,7 +1003,7 @@ function GuildbookProfessionListviewMixin:OnLoad()
                             for itemID, reagents in pairs(character[prof.Name]) do
                                 if not recipes[itemID] then
                                     recipes[itemID] = true;
-                                    addRecipe(GuildbookUI.tradeskills.recipesListview.recipes, prof.Name, itemID, reagents)
+                                    self:AddRecipe(GuildbookUI.tradeskills.recipesListview.recipes, prof.Name, itemID, reagents)
                                 end
                             end
                         else
@@ -948,7 +1012,7 @@ function GuildbookProfessionListviewMixin:OnLoad()
                         i = i + 1;
                     end, #GuildbookMixin.charactersWithProfession)
                     C_Timer.After(delay * (#GuildbookMixin.charactersWithProfession + 1), function()
-                        GuildbookUI.tradeskills.recipesListview:LoadRecipes()
+                        GuildbookUI.tradeskills.recipesListview:LoadRecipes(string.format("%s [%s]", L["TRADESKILL_GUILD_RECIPES"], gb:GetLocaleProf(prof.Name)))
                     end)
                 end
             end
@@ -1067,6 +1131,7 @@ function GuildbookRecipesListviewMixin:ClearSelected()
     end
 end
 
+---used to clear/hide the recipes listview while waiting for new list to load
 function GuildbookRecipesListviewMixin:ClearRows()
     for _, row in ipairs(self.rows) do
         row.Text:SetText("")
@@ -1078,8 +1143,17 @@ function GuildbookRecipesListviewMixin:ClearRows()
     end
 end
 
-function GuildbookRecipesListviewMixin:LoadRecipes()
-    --self:ClearRows()
+function GuildbookRecipesListviewMixin:LoadRecipes(infoMessage, showShareCharacterButton)
+    if infoMessage then
+        self:GetParent().ribbon.recipeListviewInfo:SetText(infoMessage)
+    else
+        self:GetParent().ribbon.recipeListviewInfo:SetText(" ")
+    end
+    if not showShareCharacterButton then
+        self:GetParent().ribbon.shareCharactersRecipes:Hide()
+    else
+        self:GetParent().ribbon.shareCharactersRecipes:Show()
+    end
     if self.recipes and next(self.recipes) then
         table.sort(self.recipes, function(a,b)
             if a.expansion == b.expansion then
@@ -1123,13 +1197,20 @@ function GuildbookRecipesListviewMixin:LoadRecipes()
                             j = j + 1;
                         end
                     end
+                    self.rows[i].anim:Play()
                 end
-                self.rows[i].anim:Play()
+                if i == NUM_RECIPE_ROWS then
+                    C_Timer.After(0.75, function()
+                        self.spinner:Hide()
+                        self.anim:Stop()
+                    end)
+                end
             end
         end)
         self.scrollBar:SetMinMaxValues(1,(#self.recipes>NUM_RECIPE_ROWS) and #self.recipes-(NUM_RECIPE_ROWS-1) or 1)
         self.scrollBar:SetValue(1)
     end
+    --this bit just scrolls to the search for recipe
     C_Timer.After(1, function()
         if self.searchResultRecipeID then
             local key = 1;
@@ -1141,7 +1222,6 @@ function GuildbookRecipesListviewMixin:LoadRecipes()
             local i = 1;
             C_Timer.NewTicker(0.005, function()
                 self.scrollBar:SetValue(i)
-                --print("scrollBar value", i, "index", key)
                 i = i + 1;
                 if i > key then
     

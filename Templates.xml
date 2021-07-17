@@ -232,22 +232,24 @@
 					</Anchors>
 					<Color r="1" g="1" b="1"/>
 				</FontString>
-				<Texture parentKey="Prof1">
+
+				<!-- <Texture parentKey="Prof1">
                     <Size x="25" y="25"/>
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.MainSpec" x="5" y="0"/>
 					</Anchors>
-				</Texture>
-				<Texture parentKey="Prof2">
+				</Texture> -->
+				<!-- <Texture parentKey="Prof2">
                     <Size x="25" y="25"/>
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Prof1" x="5" y="0"/>
 					</Anchors>
-				</Texture>
+				</Texture> -->
+
 				<FontString parentArray="fontstrings" parentKey="Location" inherits="GameFontNormal" justifyH="LEFT">
                     <Size x="110" y="22"/>
 					<Anchors>
-						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Prof2" x="10" y="0"/>
+						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.MainSpec" x="70" y="0"/>
 					</Anchors>
 					<Color r="1" g="1" b="1"/>
 				</FontString>
@@ -268,6 +270,49 @@
             </Layer>
         </Layers>
         <Frames>
+            <Frame parentKey="Prof1" inherits="GuildbookSmallHighlightButton" enableMouse="true">
+                <Size x="25" y="25"/>
+                <Anchors>
+                    <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.MainSpec" x="5" y="0"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="icon">
+                            <Size x="25" y="25"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Scripts>   
+                    <OnMouseDown>
+                        GuildbookButtonMixin.OnMouseDown(self)
+                    </OnMouseDown>
+                </Scripts>
+            </Frame>
+            <Frame parentKey="Prof2" inherits="GuildbookSmallHighlightButton" enableMouse="true">
+                <Size x="25" y="25"/>
+                <Anchors>
+                    <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Prof1" x="5" y="0"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="icon">
+                            <Size x="25" y="25"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Scripts>   
+                    <OnMouseDown>
+                        GuildbookButtonMixin.OnMouseDown(self)
+                    </OnMouseDown>
+                </Scripts>
+            </Frame>
+
             <Frame parentKey="inviteToGroup" inherits="GuildbookSmallHighlightButton" enableMouse="true">
                 <Size x="25" y="25"/>
                 <Anchors>
@@ -522,7 +567,7 @@
 				<Texture parentKey="Highlight" atlas="search-highlight-large" useAtlasSize="false" setAllPoints="true"/>
 			</Layer>
 			<Layer level="BORDER" textureSubLevel="1"> 
-				<Texture parentKey="Selected" atlas="GarrMission_ListGlow-Select" useAtlasSize="false" setAllPoints="true" hidden="true"/>
+				<Texture parentKey="Selected" atlas="search-select" useAtlasSize="false" setAllPoints="true" hidden="true"/>
 			</Layer>
             <Layer level="OVERLAY">
 				<FontString parentKey="Text" inherits="GameFontNormal">

@@ -1196,9 +1196,20 @@
                         <Anchors>
                             <Anchor point="BOTTOMLEFT" x="185" y="5"/>
                         </Anchors>
+                        <Animations>
+                            <AnimationGroup parentKey="anim" looping="REPEAT">
+                                <Rotation parentKey="rotate" childKey="spinner" duration="0.6" degrees="-360">
+                                    <Origin point="CENTER" x="0" y="0"/>
+                                </Rotation>
+                            </AnimationGroup>
+                        </Animations>
                         <Layers>
-                            <Layer>
-                                <!-- <Texture atlas="insetshadow" useAtlasSize="false" setAllPoints="true"/> -->
+                            <Layer level="BACKGROUND">
+                                <Texture parentKey="spinner" atlas="auctionhouse-ui-loadingspinner" useAtlasSize="true">
+                                    <Anchors>
+                                        <Anchor point="CENTER" x="0" y="0"/>
+                                    </Anchors>
+                                </Texture>
                             </Layer>
                         </Layers>
                         <Frames>
@@ -1252,7 +1263,7 @@
                         </Anchors>
                         <Layers>
                             <Layer level="OVERLAY">
-                                <FontString parentArray="headers" parentKey="professionListviewHeader" inherits="GameFontNormal" text="Professions">
+                                <FontString parentArray="headers" parentKey="professionListviewHeader" inherits="GameFontNormalLarge" text="Professions">
                                     <Color r="1" g="1" b="1"/>
                                     <Anchors>
                                         <Anchor point="LEFT" x="5" y="0"/>
@@ -1261,7 +1272,7 @@
                                         <KeyValue key="locale" value="TRADESKILLS" type="string"/>
                                     </KeyValues>
                                 </FontString>
-                                <FontString parentArray="headers" parentKey="recipeListviewHeader" inherits="GameFontNormal" text="Recipes">
+                                <FontString parentArray="headers" parentKey="recipeListviewHeader" inherits="GameFontNormalLarge" text="Recipes">
                                     <Color r="1" g="1" b="1"/>
                                     <Anchors>
                                         <Anchor point="LEFT" x="185" y="0"/>
@@ -1270,7 +1281,14 @@
                                         <KeyValue key="locale" value="TRADESKILLS_RECIPES" type="string"/>
                                     </KeyValues>
                                 </FontString>
-                                <FontString parentArray="headers" parentKey="charactersListviewHeader" inherits="GameFontNormal" text="Characters">
+                                <FontString parentArray="headers" parentKey="recipeListviewInfo" inherits="GameFontNormal" text="s" justifyH="RIGHT">
+                                    <Color r="1" g="1" b="1"/>
+                                    <Size x="375" y="30"/>
+                                    <Anchors>
+                                        <Anchor point="LEFT" x="290" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentArray="headers" parentKey="charactersListviewHeader" inherits="GameFontNormalLarge" text="Characters">
                                     <Color r="1" g="1" b="1"/>
                                     <Anchors>
                                         <Anchor point="LEFT" x="695" y="0"/>
@@ -1281,6 +1299,42 @@
                                 </FontString>
                             </Layer>
                         </Layers>
+                        <!-- socialqueuing-icon-group -->
+                        <Frames>
+                            <Frame parentKey="shareCharactersRecipes" inherits="GuildbookSmallHighlightButton" hidden="false">
+                                <Size x="20" y="20"/>
+                                <Anchors>
+                                    <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.recipeListviewInfo" x="3" y="0"/>
+                                </Anchors>
+                                <Layers>
+                                    <Layer level="BACKGROUND">
+                                        <Texture atlas="socialqueuing-icon-group" setAllPoints="true"/>
+                                    </Layer>
+                                </Layers>
+                                <KeyValues>
+                                    <KeyValue key="tooltipText" value="TRADESKILLS_SHARE_RECIPES" type="string"/>
+                                </KeyValues>
+                                <Frames>
+                                    <Cooldown parentKey="cooldown" inherits="CooldownFrameTemplate" setAllPoints="true">
+                                        <SwipeTexture>
+                                            <Color r="0" g="0" b="0" a="0.6"/>
+                                        </SwipeTexture>
+                                        <Anchors>
+                                            <Anchor point="CENTER" x="0" y="0"/>
+                                        </Anchors>
+                                        <Scripts>
+                                            <OnLoad>
+                                                self:SetUseCircularEdge(true)
+                                            </OnLoad>
+                                            <OnCooldownDone>
+                                                self:GetParent().disabled = false;
+                                                print("disabled = false")
+                                            </OnCooldownDone>
+                                        </Scripts>
+                                    </Cooldown>
+                                </Frames>
+                            </Frame>
+                        </Frames>
                     </Frame>
                 </Frames>
                 <Scripts>

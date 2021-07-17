@@ -19,10 +19,16 @@ function GuildbookButtonMixin:OnShow()
 end
 
 function GuildbookButtonMixin:OnMouseDown()
+    if self.disabled then
+        return;
+    end
     self:AdjustPointsOffset(-1,-1)
 end
 
 function GuildbookButtonMixin:OnMouseUp()
+    if self.disabled then
+        return;
+    end
     self:AdjustPointsOffset(1,1)
     if self.func then
         C_Timer.After(0, self.func)

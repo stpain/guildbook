@@ -60,7 +60,8 @@ local tradeskillHelp =
 Tradeskills (Professions)
 Guildbook will share your tradeskill recipes with other guild members. 
 Open your tradeskill to trigger the scan of the recipes. Wait patiently as it scans (~100 recipes per second). This will save to your character and account database for the guild and sends to online guild members. 
-Once this process is complete, future data will be sent to all online guild members when you log in. You can also push data by opening a tradeskill (cooldown enabled to prevent spam)
+Once this process is complete, future data will be sent to all online guild members when you log in. You can also push data by opening a tradeskill (cooldown enabled to prevent spam).
+If you need to share recipes from an offline guild member, select their tradeskill from the roster, once loaded click the button in the top right of the recipes listview (cooldown enabled to prevent spam).
 
 ]]
 local profileIcon = CreateAtlasMarkup("GarrMission_MissionIcon-Recruit", 16, 16)
@@ -121,6 +122,8 @@ L["TALENTS"]                        = "Talents"
 L["TRADESKILLS"]					= "Professions"
 L["TRADESKILLS_RECIPES"]			= "Recipes"
 L["TRADESKILLS_CHARACTERS"]			= "Characters"
+L["TRADESKILL_GUILD_RECIPES"]		= "Guild Recipes"
+L["TRADESKILLS_SHARE_RECIPES"]		= "Share this characters recipes"
 
 L["PROFILES"]                       = "Profiles"
 L["CHAT"]                           = "Chat"

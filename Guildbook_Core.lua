@@ -549,7 +549,7 @@ function Guildbook:Load()
         if GUILDBOOK_CHARACTER and GUILDBOOK_CHARACTER.Profession1 then
             local prof = GUILDBOOK_CHARACTER.Profession1
             if GUILDBOOK_CHARACTER[prof] and next(GUILDBOOK_CHARACTER[prof]) ~= nil then
-                self:SendTradeskillData(prof, "GUILD", nil)
+                self:SendTradeskillData(UnitGUID("player"), GUILDBOOK_CHARACTER[prof], prof, "GUILD", nil)
                 Guildbook.lastProfTransmit = GetTime()
                 DEBUG("func", "Load", string.format("sending %s data", prof))
             end
@@ -559,7 +559,7 @@ function Guildbook:Load()
         if GUILDBOOK_CHARACTER and GUILDBOOK_CHARACTER.Profession2 then
             local prof = GUILDBOOK_CHARACTER.Profession2
             if GUILDBOOK_CHARACTER[prof] and next(GUILDBOOK_CHARACTER[prof]) ~= nil then
-                self:SendTradeskillData(prof, "GUILD", nil)
+                self:SendTradeskillData(UnitGUID("player"), GUILDBOOK_CHARACTER[prof], prof, "GUILD", nil)
                 Guildbook.lastProfTransmit = GetTime()
                 DEBUG("func", "Load", string.format("sending %s data", prof))
             end
@@ -567,7 +567,7 @@ function Guildbook:Load()
     end)
     C_Timer.After(9, function()
         if GUILDBOOK_CHARACTER.Cooking and type(GUILDBOOK_CHARACTER.Cooking) == "table" and next(GUILDBOOK_CHARACTER.Cooking) ~= nil then
-            self:SendTradeskillData("Cooking", "GUILD", nil)
+            self:SendTradeskillData(UnitGUID("player"), GUILDBOOK_CHARACTER["Cooking"], "Cooking", "GUILD", nil)
             Guildbook.lastProfTransmit = GetTime()
             DEBUG("func", "Load", string.format("sending %s data", "cooking"))
         end    
@@ -619,6 +619,15 @@ function Guildbook:GetEnglishProf(prof)
     if id then
         return Guildbook.ProfessionNames.enUS[id]
     end
+end
+
+function Guildbook:GetLocaleProf(prof)
+    for id, name in pairs(self.ProfessionNames["enUS"]) do
+        if name == prof then
+            return self.ProfessionNames[locale][id]
+        end
+    end
+    return prof;
 end
 
 function Guildbook.CapitalizeString(s)
@@ -1403,7 +1412,7 @@ function Guildbook:ScanTradeSkill()
                 self:SetCharacterInfo(UnitGUID("player"), prof, GUILDBOOK_CHARACTER[prof])
                 local elapsed = GetTime() - Guildbook.lastProfTransmit
                 if elapsed > Guildbook.COMM_LOCK_COOLDOWN then
-                    self:SendTradeskillData(prof, "GUILD", nil)
+                    self:SendTradeskillData(UnitGUID("player"), GUILDBOOK_CHARACTER[prof], prof, "GUILD", nil)
                     Guildbook.lastProfTransmit = GetTime()
                     DEBUG("func", "Scantradeskill", "sending data for "..prof)
                 else
@@ -1461,7 +1470,7 @@ function Guildbook:ScanCraftSkills_Enchanting()
                 self:SetCharacterInfo(UnitGUID("player"), "Enchanting", GUILDBOOK_CHARACTER.Enchanting)
                 local elapsed = GetTime() - Guildbook.lastProfTransmit
                 if elapsed > Guildbook.COMM_LOCK_COOLDOWN then
-                    self:SendTradeskillData("Enchanting", "GUILD", nil)
+                    self:SendTradeskillData(UnitGUID("player"), GUILDBOOK_CHARACTER["Enchanting"], "Enchanting", "GUILD", nil)
                     Guildbook.lastProfTransmit = GetTime()
                     DEBUG("func", "Scantradeskill", "sending data for Enchanting")
                 else
@@ -2018,6 +2027,31 @@ function Guildbook:OnVersionInfoRecieved(data, distribution, sender)
 end
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- send anything comms
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+function Guildbook:DB_SendCharacterData(guid, key, info, channel, target, priority)
+    if not guid then
+        return
+    end
+
+    local transmition = {
+        type = "GBDB",
+        payload = {
+            guid = guid,
+            key = key,
+            info = info,
+        }
+    }
+
+    self:Transmit(transmition, channel, target, priority)
+end
+
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- privacy comms
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 local lastPrivacyTransmit = -1000
@@ -2314,12 +2348,13 @@ function Guildbook:OnTradeSkillsRequested(request, distribution, sender)
     end
 end
 
-function Guildbook:SendTradeskillData(prof, channel, target)
+function Guildbook:SendTradeskillData(guid, recipes, prof, channel, target)
     local response = {
         type    = "TRADESKILLS_RESPONSE",
         payload = {
+            guid = guid,
             profession = prof,
-            recipes = GUILDBOOK_CHARACTER[prof],
+            recipes = recipes,
         }
     }
     self:Transmit(response, channel, target, "BULK")
@@ -2333,7 +2368,12 @@ function Guildbook:OnTradeSkillsReceived(response, distribution, sender)
     --DEBUG('comms_in', 'OnTradeSkillsReceived', string.format("prof data from %s", sender))
     if response.payload.profession and type(response.payload.recipes) == 'table' then
         C_Timer.After(Guildbook.COMMS_DELAY, function()
-            local character = self:GetCharacterFromCache(response.senderGUID)
+            local character;
+            if response.payload.guid then
+                character = self:GetCharacterFromCache(response.payload.guid)
+            else
+                character = self:GetCharacterFromCache(response.senderGUID)
+            end
             if not character then
                 return
             end
@@ -2356,8 +2396,8 @@ function Guildbook:OnTradeSkillsReceived(response, distribution, sender)
                 end
             end
             --character[response.payload.profession] = response.payload.recipes
-            GuildbookUI.statusText:SetText(string.format("tradeskill data from %s, [|cffffffff%s|r] %s total recipes, %s new recipes", sender, prof, i, j))
-            DEBUG('func', 'OnTradeSkillsReceived', 'updating db, set: '..sender..' prof: '..response.payload.profession)
+            GuildbookUI.statusText:SetText(string.format("%s data for [|cffffffff%s|r] sent by %s", prof, character.Name, sender))
+            DEBUG('func', 'OnTradeSkillsReceived', 'updating db, set: '..character.Name..' prof: '..response.payload.profession)
             C_Timer.After(1, function()
                 self:RequestTradeskillData()
             end)
