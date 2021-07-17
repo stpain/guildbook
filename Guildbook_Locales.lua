@@ -571,7 +571,6 @@ elseif locale == 'frFR' then
 	L["TRADESKILLS_SHARE_RECIPES"]	    = "Partager les recettes du personnage"
 
 	L["PROFILES"]                       = "Profiles"
-	L["TRADESKILLS"]                    = "Métiers (Recettes)"
 	L["CHAT"]                           = "Chat"
 	L["ROSTER"]                         = "Roster"
 	L["CALENDAR"]                       = "Calendrier"
