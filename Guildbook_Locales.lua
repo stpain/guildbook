@@ -563,6 +563,12 @@ elseif locale == 'frFR' then
 	L["PRIVACY_ABOUT"]                  = "Choisir à partir de quel Rang vous souhaitez partager vos données."
 	L["INVENTORY"]                      = "Inventaire"
 	L["TALENTS"]                        = "Talents"
+		
+	L["TRADESKILLS"]		    = "Mériers"
+	L["TRADESKILLS_RECIPES"]	    = "Recettess"
+	L["TRADESKILLS_CHARACTERS"]	    = "Personnages"
+	L["TRADESKILL_GUILD_RECIPES"]	    = "Recettes en Guilde"
+	L["TRADESKILLS_SHARE_RECIPES"]	    = "Partager les recettes du personnage"
 
 	L["PROFILES"]                       = "Profiles"
 	L["TRADESKILLS"]                    = "Métiers (Recettes)"
