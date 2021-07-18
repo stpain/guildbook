@@ -249,8 +249,10 @@ function GuildbookDropdownButtonMixin:OnMouseDown()
     self.ButtonUp:Hide()
     self.ButtonDown:Show()
 
-    for k, dd in ipairs(gb.dropdownWidgets) do
-        dd.Flyout:Hide()
+    if gb.dropdownWidgets and #gb.dropdownWidgets > 0 then -- quick fix, need to make sure all dropdowns/flyouts are in table
+        for k, dd in ipairs(gb.dropdownWidgets) do
+            dd.Flyout:Hide()
+        end
     end
 
     local flyout = self:GetParent().Flyout
