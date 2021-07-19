@@ -3624,14 +3624,14 @@ function GuildbookPrivacyMixin:OnShow()
             k = k()
         end
         if k == "none" then
-            fs:SetText("Sharing with nobody")
+            fs:SetText(L["SHARING_NOBODY"])
             return;
         end
         if type(k) ~= "number" then
             fs:SetText("an error has occured, setting as lowest rank available")
             k = GuildControlGetNumRanks()
         end
-        local t = "Sharing with"
+        local t = L["SHARING_WITH"]
         for i, r in ipairs(self.ranks) do
             if i <= k then
                 t = t..", "..r
@@ -3718,7 +3718,7 @@ function GuildbookPrivacyMixin:OnShow()
         })
     end
     table.insert(self.shareProfile.menu, {
-        text = "None",
+        text = L["NONE"],
         func = function()
             GUILDBOOK_GLOBAL.config.privacy.shareProfileMinRank = "none";
             updateInfo(self.profileSharingInfo, "none")
@@ -3726,7 +3726,7 @@ function GuildbookPrivacyMixin:OnShow()
         end,
     })
     table.insert(self.shareInventory.menu, {
-        text = "None",
+        text = L["NONE"],
         func = function()
             GUILDBOOK_GLOBAL.config.privacy.shareInventoryMinRank = "none";
             updateInfo(self.inventorySharingInfo, "none")
@@ -3734,7 +3734,7 @@ function GuildbookPrivacyMixin:OnShow()
         end,
     })
     table.insert(self.shareTalents.menu, {
-        text = "None",
+        text = L["NONE"],
         func = function()
             GUILDBOOK_GLOBAL.config.privacy.shareTalentsMinRank = "none";
             updateInfo(self.talentsSharingInfo, "none")
