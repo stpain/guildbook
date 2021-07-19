@@ -148,6 +148,9 @@ L["STATS"]                          = "Statistics"
 L["RESET_AVATAR"]					= "Reset avatar"
 
 L["PRIVACY_HEADER"]                 = "Privacy settings"
+L["NONE"]                           = "None"
+L["SHARING_NOBODY"]		    = "Sharing with nobody"
+L["SHARING_WITH"]		    = "Sharing with"
 
 --attributes
 L["STRENGTH"]						= "Strength"
@@ -586,6 +589,9 @@ elseif locale == 'frFR' then
 	L["STATS"]                          = "Statistiques"
 
 	L["PRIVACY_HEADER"]                 = "Paramètres de confidentialité"
+	L["NONE"] 			    = "Aucun"
+	L["SHARING_NOBODY"]		    = "Partager avec personne"
+	L["SHARING_WITH"]		    = "Partager avec"
 
 	-- class and spec
 	L['DEATHKNIGHT']                    = 'Chevalier de la mort'
