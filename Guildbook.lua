@@ -640,7 +640,8 @@ function GuildbookMixin:OnLoad()
     SetPortraitToTexture(GuildbookUIPortrait,134068)
     --GuildbookUITitleText:SetText("v0.0.1")
 
-
+    table.insert(UISpecialFrames, 'GuildbookUI');
+    
     self.ribbon:SetFrameLevel(self:GetFrameLevel() - 1)
     self.ribbon.profiles.func = function()
         self.profiles:ShowSummary(true)
