@@ -125,6 +125,12 @@ L["TRADESKILLS_CHARACTERS"]			= "Characters"
 L["TRADESKILL_GUILD_RECIPES"]		= "Guild Recipes"
 L["TRADESKILLS_SHARE_RECIPES"]		= "Share this characters recipes"
 
+L["GUILDBANK_SORT_LINK"]			= "Link"
+L["GUILDBANK_SORT_TYPE"]			= "Type"
+L["GUILDBANK_SORT_SUBTYPE"]			= "Subtype"
+L["GUILDBANK_SORT_BANK"]			= "Source"
+L["GUILDBANK_REFRESH"]				= "Refresh"
+
 L["PROFILES"]                       = "Profiles"
 L["CHAT"]                           = "Chat"
 L["ROSTER"]                         = "Roster"

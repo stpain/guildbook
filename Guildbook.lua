@@ -675,11 +675,11 @@ function GuildbookMixin:OnLoad()
     end
     self.ribbon.guildBank.func = function()
         navigateTo(self.guildBank)
-        gb.GuildFrame.GuildBankFrame:ClearAllPoints()
-        gb.GuildFrame.GuildBankFrame:SetParent(self.guildBank)
-        gb.GuildFrame.GuildBankFrame:SetPoint("TOPLEFT", 0, -26)
-        gb.GuildFrame.GuildBankFrame:SetPoint("BOTTOMRIGHT", -2, 0)
-        gb.GuildFrame.GuildBankFrame:Show()
+        -- gb.GuildFrame.GuildBankFrame:ClearAllPoints()
+        -- gb.GuildFrame.GuildBankFrame:SetParent(self.guildBank)
+        -- gb.GuildFrame.GuildBankFrame:SetPoint("TOPLEFT", 0, -26)
+        -- gb.GuildFrame.GuildBankFrame:SetPoint("BOTTOMRIGHT", -2, 0)
+        -- gb.GuildFrame.GuildBankFrame:Show()
     end
     self.ribbon.search.func = function()
         navigateTo(self.search)
@@ -3746,7 +3746,230 @@ end
 
 
 
+GuildbookGuildBankMixin = {}
+GuildbookGuildBankMixin.rows = {}
+GuildbookGuildBankMixin.items = {}
 
+function GuildbookGuildBankMixin:OnLoad()
+    
+    for i = 1, 14 do
+        local f = CreateFrame("FRAME", nil, self.listview, "GuildbookGuildBankListviewItem")
+        f:SetPoint("TOPLEFT", 5, ((i-1)*-30)-2)
+        f:SetSize(880, 30)
+
+        self.rows[i] = f
+    end
+
+    for _, button in pairs(self.sortButtons) do
+        button:RegisterForClicks("AnyDown")
+        -- local font, size, flags = button.Text:GetFont()
+        -- button.Text:SetFont(font, 10, flags)
+        button:SetText("|cffffffff"..L[button.label])
+
+    end
+
+    self.refresh:SetText("|cffffffff"..L["GUILDBANK_REFRESH"])
+    self.refresh:SetScript("OnClick", function()
+        self:RequestBankData()
+    end)
+
+end
+
+function GuildbookGuildBankMixin:OnShow()
+    -- dont always spam chat comms when showing
+    if #self.items == 0 then
+        self:RequestBankData()
+    end
+end
+
+function GuildbookGuildBankMixin:RequestBankData()
+    self:ClearRows()
+
+    self.listview.spinner:Show()
+    self.listview.anim:Play()
+    --GuildRoster()
+    local guildBankCharacters = {}
+    local totalMembers, onlineMembers, _ = GetNumGuildMembers()
+    for i = 1, totalMembers do
+        local name, _, _, _, _, _, publicNote, _, isOnline, _, _, _, _, _, _, _, guid = GetGuildRosterInfo(i)
+        if publicNote:lower():find('guildbank') then
+            name = Ambiguate(name, 'none')
+            table.insert(guildBankCharacters, name)
+        end
+    end
+    local delay = 1.5
+    local idx = 1
+    if guildBankCharacters and #guildBankCharacters > 0 then
+        C_Timer.NewTicker(delay, function()
+            if guildBankCharacters[idx]then
+                local bank = guildBankCharacters[idx]
+
+                gb.BankRequests = {}
+                gb:RequestGuildBankCommits(bank)
+
+                C_Timer.After(1.0, function()
+                    gb:RequestGuildBankItems(gb.BankCharacters[bank].Source, bank)
+                end)
+
+
+                idx = idx + 1;
+            end
+        end, #guildBankCharacters)
+
+        C_Timer.After((delay * #guildBankCharacters) + 1.0, function()
+            self:RequestBankItemInfo()
+        end)
+    end
+end
+
+function GuildbookGuildBankMixin:RequestBankItemInfo()
+    local itemCount = 0;
+    if GUILDBOOK_GLOBAL.GuildBank then
+        for bank, info in pairs(GUILDBOOK_GLOBAL.GuildBank) do
+            for itemID, count in pairs(info.Data) do
+                itemCount = itemCount + 1;
+            end
+            itemCount = itemCount + 1;
+        end
+    end
+    self.items = {}
+    local i = 0;
+    if GUILDBOOK_GLOBAL.GuildBank then
+        for bank, info in pairs(GUILDBOOK_GLOBAL.GuildBank) do
+            i = i + 1;
+            table.insert(self.items, {
+                ItemID = -1,
+                Count = 1,
+                Type = GetCoinTextureString(info.Money),
+                SubType = "",
+                Class = -1,
+                SubClass = info.Money,
+                Icon = 133784,
+                Link = nil,
+                Bank = bank,
+            })
+            for itemID, count in pairs(info.Data) do
+                i = i + 1;
+                local itemID, itemType, itemSubType, itemEquipLoc, icon, itemClassID, itemSubClassID = GetItemInfoInstant(itemID)
+                local _, link = GetItemInfo(itemID)
+                if not link then
+                    local item = Item:CreateFromItemID(itemID)
+                    item:ContinueOnItemLoad(function()
+                        link = item:GetItemLink()
+                        table.insert(self.items, {
+                            ItemID = itemID,
+                            Count = count,
+                            Type = itemType,
+                            SubType = itemSubType,
+                            Class = itemClassID,
+                            SubClass = itemSubClassID,
+                            Icon = icon,
+                            Link = link,
+                            Bank = bank,
+                        })
+                        if i == itemCount then
+                            self:LoadBankItems(itemCount)
+                        end
+                    end)
+                else
+                    table.insert(self.items, {
+                        ItemID = itemID,
+                        Count = count,
+                        Type = itemType,
+                        SubType = itemSubType,
+                        Class = itemClassID,
+                        SubClass = itemSubClassID,
+                        Icon = icon,
+                        Link = link,
+                        Bank = bank,
+                    })
+                    if i == itemCount then
+                        self:LoadBankItems(itemCount)
+                    end
+                end
+            end
+        end
+    end
+end
+
+function GuildbookGuildBankMixin:ClearRows()
+    for i = 1, 14 do
+        self.rows[i].link = nil
+        self.rows[i].Icon:SetTexture(nil)
+        self.rows[i].Link:SetText(" ")
+        self.rows[i].Count:SetText(" ")
+        self.rows[i].Type:SetText(" ")
+        self.rows[i].SubType:SetText(" ")
+        self.rows[i].Bank:SetText(" ")
+        self.rows[i].Index:SetText(" ")
+        self.rows[i]:SetAlpha(0)
+    end
+end
+
+function GuildbookGuildBankMixin:LoadBankItems(itemCount)
+    self.listview.scrollBar:SetMinMaxValues(1, (itemCount < 14) and 1 or itemCount-13)
+    self.listview.scrollBar:SetValue(1)
+    -- for now
+    table.sort(self.items, function(a, b)
+        if a.Class == b.Class then
+            return a.SubClass < b.SubClass;
+        else
+            return a.Class < b.Class;
+        end
+    end)
+
+    for i = 1, 14 do
+        local scrollPos = math.floor(self.listview.scrollBar:GetValue()) - 1;
+        if self.items[i + scrollPos] then
+            self.rows[i].link = self.items[i + scrollPos].Link
+            self.rows[i].Icon:SetTexture(self.items[i + scrollPos].Icon)
+            self.rows[i].Link:SetText(self.items[i + scrollPos].Link)
+            self.rows[i].Count:SetText("x"..self.items[i + scrollPos].Count)
+            self.rows[i].Type:SetText(self.items[i + scrollPos].Type)
+            self.rows[i].SubType:SetText(self.items[i + scrollPos].SubType)
+            self.rows[i].Bank:SetText(self.items[i + scrollPos].Bank)
+
+            self.rows[i].Index:SetText(i + scrollPos)
+
+            self.rows[i].anim:Play()
+        end
+    end
+
+    -- C_Timer.After(0.5, function()
+    --     self.listview.spinner:Hide()
+    --     self.listview.anim:Stop()
+    -- end)
+
+    self.listview.spinner:Hide()
+    self.listview.anim:Stop()
+end
+
+
+
+function GuildbookGuildBankMixin:OnMouseWheel(delta)
+    local x = self.listview.scrollBar:GetValue()
+    self.listview.scrollBar:SetValue(x - delta)
+end
+
+
+function GuildbookGuildBankMixin:ScrollBar_OnValueChanged()
+    if self.items then
+        for i = 1, 14 do
+            local scrollPos = math.floor(self.listview.scrollBar:GetValue()) - 1;
+            if self.items[i + scrollPos] then
+                self.rows[i].link = self.items[i + scrollPos].Link
+                self.rows[i].Icon:SetTexture(self.items[i + scrollPos].Icon)
+                self.rows[i].Link:SetText(self.items[i + scrollPos].Link)
+                self.rows[i].Count:SetText("x"..self.items[i + scrollPos].Count)
+                self.rows[i].Type:SetText(self.items[i + scrollPos].Type)
+                self.rows[i].SubType:SetText(self.items[i + scrollPos].SubType)
+                self.rows[i].Bank:SetText(self.items[i + scrollPos].Bank)
+    
+                self.rows[i].Index:SetText(i + scrollPos)
+            end
+        end
+    end
+end
 
 
 
