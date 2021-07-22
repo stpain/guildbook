@@ -1620,84 +1620,47 @@
                             <!-- <Color r="0" g="0" b="0"/> -->
                         </Texture>
                     </Layer>
+                    <Layer level="OVERLAY">
+                        <FontString parentKey="item" inherits="GameFontNormal" text="s" justifyH="LEFT">
+                            <Color r="1" g="1" b="1"/>
+                            <Size x="300" y="24"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="8" y="-2"/>
+                            </Anchors>
+                        </FontString>
+                        <FontString parentKey="count" inherits="GameFontNormal" text="s" justifyH="CENTER">
+                            <Color r="1" g="1" b="1"/>
+                            <Size x="50" y="24"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="310" y="-2"/>
+                            </Anchors>
+                        </FontString>
+                        <FontString parentKey="subType" inherits="GameFontNormal" text="s" justifyH="LEFT">
+                            <Color r="1" g="1" b="1"/>
+                            <Size x="150" y="24"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="520" y="-2"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
                 </Layers>
                 <Frames>
-                    <Button parentKey="sortLink" parentArray="sortButtons" inherits="UIPanelButtonTemplate">
-                        <Size x="360" y="24"/>
-                        <Anchors>
-                            <Anchor point="TOPLEFT" x="8" y="-2"/>
-                        </Anchors>
-                        <KeyValues>
-                            <KeyValue key="label" value="GUILDBANK_SORT_LINK" type="string"/>
-                            <KeyValue key="sort" value="Link" type="string"/>
-                        </KeyValues>
-                        <Frames>
-                            <Frame parentKey="flyout" inherits="GuildbookDropdownFlyout">
-                                <Size x="100" y="24"/>
-                                <Anchors>
-                                    <Anchor point="BOTTOM" x="0" y="0"/>
-                                </Anchors>
-                            </Frame>
-                        </Frames>
-                    </Button>
-                    <Button parentKey="sortType" parentArray="sortButtons" inherits="UIPanelButtonTemplate">
+                    <Frame parentKey="sortType" inherits="GuildbookDropdown">
                         <Size x="150" y="24"/>
                         <Anchors>
-                            <Anchor point="LEFT" relativeKey="$parent.sortLink" relativePoint="RIGHT" x="2" y="0"/>
+                            <Anchor point="LEFT" relativeKey="$parent.count" relativePoint="RIGHT" x="2" y="2"/>
                         </Anchors>
-                        <KeyValues>
-                            <KeyValue key="label" value="GUILDBANK_SORT_TYPE" type="string"/>
-                            <KeyValue key="sort" value="Type" type="string"/>
-                        </KeyValues>
-                        <Frames>
-                            <Frame parentKey="flyout" inherits="GuildbookDropdownFlyout">
-                                <Size x="100" y="24"/>
-                                <Anchors>
-                                    <Anchor point="BOTTOM" x="0" y="0"/>
-                                </Anchors>
-                            </Frame>
-                        </Frames>
-                    </Button>
-                    <Button parentKey="sortSubType" parentArray="sortButtons" inherits="UIPanelButtonTemplate">
-                        <Size x="150" y="24"/>
-                        <Anchors>
-                            <Anchor point="LEFT" relativeKey="$parent.sortType" relativePoint="RIGHT" x="2" y="0"/>
-                        </Anchors>
-                        <KeyValues>
-                            <KeyValue key="label" value="GUILDBANK_SORT_SUBTYPE" type="string"/>
-                            <KeyValue key="sort" value="Type" type="string"/>
-                        </KeyValues>
-                        <Frames>
-                            <Frame parentKey="flyout" inherits="GuildbookDropdownFlyout">
-                                <Size x="100" y="24"/>
-                                <Anchors>
-                                    <Anchor point="BOTTOM" x="0" y="0"/>
-                                </Anchors>
-                            </Frame>
-                        </Frames>
-                    </Button>
-                    <Button parentKey="sortBank" parentArray="sortButtons" inherits="UIPanelButtonTemplate">
+                    </Frame>
+                    <Frame parentKey="sortBank" inherits="GuildbookDropdown">
                         <Size x="160" y="24"/>
                         <Anchors>
-                            <Anchor point="LEFT" relativeKey="$parent.sortSubType" relativePoint="RIGHT" x="2" y="0"/>
+                            <Anchor point="LEFT" relativeKey="$parent.sortType" relativePoint="RIGHT" x="152" y="0"/>
                         </Anchors>
-                        <KeyValues>
-                            <KeyValue key="label" value="GUILDBANK_SORT_BANK" type="string"/>
-                            <KeyValue key="sort" value="Type" type="string"/>
-                        </KeyValues>
-                        <Frames>
-                            <Frame parentKey="flyout" inherits="GuildbookDropdownFlyout">
-                                <Size x="100" y="24"/>
-                                <Anchors>
-                                    <Anchor point="BOTTOM" x="0" y="0"/>
-                                </Anchors>
-                            </Frame>
-                        </Frames>
-                    </Button>
+                    </Frame>
                     <Button parentKey="refresh" inherits="UIPanelButtonTemplate">
-                        <Size x="70" y="24"/>
+                        <Size x="65" y="24"/>
                         <Anchors>
-                            <Anchor point="LEFT" relativeKey="$parent.sortBank" relativePoint="RIGHT" x="2" y="0"/>
+                            <Anchor point="LEFT" relativeKey="$parent.sortBank" relativePoint="RIGHT" x="2" y="-2"/>
                         </Anchors>
                         <KeyValues>
                             <KeyValue key="label" value="GUILDBANK_REFRESH" type="string"/>
@@ -1722,6 +1685,15 @@
                                         <Anchor point="CENTER" x="0" y="0"/>
                                     </Anchors>
                                 </Texture>
+                            </Layer>
+                            <Layer level="OVERLAY">
+                                <FontString parentKey="task" inherits="GameFontNormal" text="" justifyH="CENTER">
+                                    <Color r="1" g="1" b="1"/>
+                                    <Size x="300" y="24"/>
+                                    <Anchors>
+                                        <Anchor point="CENTER" x="0" y="0"/>
+                                    </Anchors>
+                                </FontString>
                             </Layer>
                         </Layers>
                         <Frames>

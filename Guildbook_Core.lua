@@ -111,7 +111,7 @@ function Guildbook:Init()
             "GuildCalendarFrame",
         }
     end
-    self:SetupGuildBankFrame()
+    --self:SetupGuildBankFrame()
     self:SetupGuildCalendarFrame()
 
     --create stored variable tables
