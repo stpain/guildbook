@@ -3241,25 +3241,25 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
 --==================================
     elseif data.type == 'GUILD_BANK_COMMIT_REQUEST' then
         if not Guildbook.GuildFrame.GuildBankFrame then
-            return
+            --return
         end
         self:OnGuildBankCommitRequested(data, distribution, sender)
 
     elseif data.type == 'GUILD_BANK_COMMIT_RESPONSE' then
         if not Guildbook.GuildFrame.GuildBankFrame then
-            return
+            --return
         end
         self:OnGuildBankCommitReceived(data, distribution, sender)
 
     elseif data.type == 'GUILD_BANK_DATA_REQUEST' then
         if not Guildbook.GuildFrame.GuildBankFrame then
-            return
+            --return
         end
         self:OnGuildBankDataRequested(data, distribution, sender)
 
     elseif data.type == 'GUILD_BANK_DATA_RESPONSE' then
         if not Guildbook.GuildFrame.GuildBankFrame then
-            return
+            --return
         end
         self:OnGuildBankDataReceived(data, distribution, sender)
 --==================================
