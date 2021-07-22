@@ -2596,6 +2596,9 @@ end
 
 -- this will be used in loop, for bank, info in pairs(Guildbook.BankCharacters) do. info = { Commit = commit time, Source = player with newest data }
 function Guildbook:RequestGuildBankItems(source, bank)
+    if not source then
+        return;
+    end
     local request = {
         type = 'GUILD_BANK_DATA_REQUEST',
         payload = bank,

@@ -3829,7 +3829,7 @@ function GuildbookGuildBankMixin:RequestBankData()
             })
         end
     end
-    local delay = 1.75
+    local delay = 1.5
     local idx = 1
     if guildBankCharacters and #guildBankCharacters > 0 then
         C_Timer.NewTicker(delay, function()
@@ -3840,9 +3840,11 @@ function GuildbookGuildBankMixin:RequestBankData()
                 gb:RequestGuildBankCommits(bank)
                 self.listview.task:SetText(L["GUILDBANK_REQUEST_COMMITS"]..bank)
 
-                C_Timer.After(1.0, function()
-                    gb:RequestGuildBankItems(gb.BankCharacters[bank].Source, bank)
-                    self.listview.task:SetText(L["GUILDBANK_REQUEST_INFO"]..gb.BankCharacters[bank].Source)
+                C_Timer.After(1.5, function()
+                    if gb.BankCharacters[bank].Source then
+                        gb:RequestGuildBankItems(gb.BankCharacters[bank].Source, bank)
+                        self.listview.task:SetText(L["GUILDBANK_REQUEST_INFO"]..gb.BankCharacters[bank].Source)
+                    end
                 end)
 
 
