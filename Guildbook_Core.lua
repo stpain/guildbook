@@ -62,6 +62,7 @@ local DEBUG = Guildbook.DEBUG
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 SLASH_GUILDBOOK1 = '/guildbook'
 SLASH_GUILDBOOK2 = '/gbk'
+SLASH_GUILDBOOK3 = '/gb'
 SlashCmdList['GUILDBOOK'] = function(msg)
     --print("["..msg.."]")
     if msg == 'open' then
@@ -654,7 +655,7 @@ function Guildbook:RequestTradeskillData()
     if self.addonLoaded == false then
         return;
     end
-    local delay = GUILDBOOK_GLOBAL['Debug'] and 0.01 or 0.25
+    local delay = GUILDBOOK_GLOBAL['Debug'] and 0.05 or 0.5
     local recipeIdsToQuery = {}
     if not self.tradeskillRecipes then
         self.tradeskillRecipes = {}
@@ -1941,6 +1942,12 @@ function Guildbook:Transmit(data, channel, target, priority)
     local inInstance, _ = IsInInstance()
     if inInstance then
         GuildbookUI.statusText:SetText("unable to transmit data while in an instance")
+        return;
+    end
+    local inLockdown = InCombatLockdown()
+    if inLockdown then
+        GuildbookUI.statusText:SetText("unable to transmit data during combat lockdown")
+        return;
     end
     if not self:GetGuildName() then
         return;
@@ -3156,10 +3163,20 @@ end
 
 
 
-
-
 --- handle comms
 function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
+
+    local inInstance, _ = IsInInstance()
+    if inInstance then
+        GuildbookUI.statusText:SetText(string.format("blocked comms from %s while in instance", sender))
+        return;
+    end
+    local inLockdown = InCombatLockdown()
+    if inLockdown then
+        GuildbookUI.statusText:SetText(string.format("blocked comms from %s while in combat", sender))
+        return;
+    end
+
     if prefix ~= addonName then 
         return 
     end
