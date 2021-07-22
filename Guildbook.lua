@@ -1370,11 +1370,19 @@ function GuildbookRosterMixin:OnLoad()
         class = {},
         rankName = {},
     }
+    table.insert(self.buttonDropdownMenus.class, {
+        text = L["ROSTER_ALL_CLASSES"],
+        func = function()
+            self.rosterFilterKey = nil;
+            self.rosterFilterValue = nil;
+            self:ParseGuildRoster()
+        end,
+    })
     for i = GetNumClasses(), 1, -1 do
         local className, classFile, classID = GetClassInfo(i)
         if className then
             table.insert(self.buttonDropdownMenus.class, {
-                text = string.format("%s %s", gb.Data.Class[classFile].FontStringIconSMALL, className),
+                text = className, -- string.format("%s %s", gb.Data.Class[classFile].FontStringIconSMALL, className),
                 func = function()
                     self.rosterFilterKey = "Class";
                     self.rosterFilterValue = classFile;
@@ -1383,14 +1391,6 @@ function GuildbookRosterMixin:OnLoad()
             })
         end
     end
-    table.insert(self.buttonDropdownMenus.class, {
-        text = "All classes",
-        func = function()
-            self.rosterFilterKey = nil;
-            self.rosterFilterValue = nil;
-            self:ParseGuildRoster()
-        end,
-    })
     local mixin = self;
     for _, button in pairs(self.sortButtons) do
         button:RegisterForClicks("AnyDown")
@@ -1437,6 +1437,14 @@ function GuildbookRosterMixin:ParseGuildRoster()
     local totalMembers, _, _ = GetNumGuildMembers()
     local ranks = {}
     wipe(self.buttonDropdownMenus.rankName)
+    table.insert(self.buttonDropdownMenus.rankName, {
+        text = L["ROSTER_ALL_RANKS"],
+        func = function()
+            self.rosterFilterKey = nil;
+            self.rosterFilterValue = nil;
+            self:ParseGuildRoster()
+        end,
+    })
     for i = 1, totalMembers do
         local _, _rankName, _, _, _, _zone, _, _, _isOnline, _, _, _, _, _, _, _, GUID = GetGuildRosterInfo(i)
         if GUID then
@@ -1460,14 +1468,6 @@ function GuildbookRosterMixin:ParseGuildRoster()
             end
         end
     end
-    table.insert(self.buttonDropdownMenus.rankName, {
-        text = "All ranks",
-        func = function()
-            self.rosterFilterKey = nil;
-            self.rosterFilterValue = nil;
-            self:ParseGuildRoster()
-        end,
-    })
 end
 
 function GuildbookRosterMixin:ClearRosterRows()
@@ -3829,28 +3829,43 @@ function GuildbookGuildBankMixin:RequestBankData()
             })
         end
     end
-    local delay = 1.75
-    local idx = 1
+
+    local delay = 2.0
+    local idx = 2
     if guildBankCharacters and #guildBankCharacters > 0 then
-        C_Timer.NewTicker(delay, function()
-            if guildBankCharacters[idx]then
-                local bank = guildBankCharacters[idx]
 
-                gb.BankRequests = {}
-                gb:RequestGuildBankCommits(bank)
-                self.listview.task:SetText(L["GUILDBANK_REQUEST_COMMITS"]..bank)
+        -- fire off the first request
+        local bank = guildBankCharacters[1]
+        gb:RequestGuildBankCommits(bank)
+        self.listview.task:SetText(L["GUILDBANK_REQUEST_COMMITS"]..bank)
 
-                C_Timer.After(1.25, function()
-                    if gb.BankCharacters[bank].Source then
-                        gb:RequestGuildBankItems(gb.BankCharacters[bank].Source, bank)
-                        self.listview.task:SetText(L["GUILDBANK_REQUEST_INFO"]..gb.BankCharacters[bank].Source)
-                    end
-                end)
-
-
-                idx = idx + 1;
+        C_Timer.After(1.25, function()
+            if gb.BankCharacters[bank].Source then
+                gb:RequestGuildBankItems(gb.BankCharacters[bank].Source, bank)
+                self.listview.task:SetText(L["GUILDBANK_REQUEST_INFO"]..gb.BankCharacters[bank].Source)
             end
-        end, #guildBankCharacters)
+        end)
+
+        -- stagger any extra requests
+        if #guildBankCharacters > 1 then
+            C_Timer.NewTicker(delay, function()
+                if guildBankCharacters[idx]then
+                    local bank = guildBankCharacters[idx]
+
+                    gb.BankRequests = {}
+                    gb:RequestGuildBankCommits(bank)
+                    self.listview.task:SetText(L["GUILDBANK_REQUEST_COMMITS"]..bank)
+
+                    C_Timer.After(1.25, function()
+                        if gb.BankCharacters[bank].Source then
+                            gb:RequestGuildBankItems(gb.BankCharacters[bank].Source, bank)
+                            self.listview.task:SetText(L["GUILDBANK_REQUEST_INFO"]..gb.BankCharacters[bank].Source)
+                        end
+                    end)
+                    idx = idx + 1;
+                end
+            end, #guildBankCharacters - 1)
+        end
 
         C_Timer.After((delay * #guildBankCharacters) + 1.0, function()
             self:RequestBankItemInfo()

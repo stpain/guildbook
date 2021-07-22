@@ -54,10 +54,18 @@ L["HELP_ABOUT"]						= "Help & about"
 
 -- this is just a quick thing, will make the how section more fleshed out
 -- this is a nasty way to do this, its horrible and i need to make the help & about much better
+
+local slashCommandsIcon = CreateTextureMarkup(136377, 64, 64, 16, 16, 0, 1, 0, 1, 0, 0)
+local slashCommandsHelp = [[
+Slash commands:
+/guildbook open - this will open Guildbook
+/guildbook [interface] - this will open to a specific area (roster, tradeskills, chat, profiles, calendar, stats, guildbank, search, privacy)
+
+]]
 local tradeskillIcon = CreateAtlasMarkup("Mobile-Blacksmithing", 16, 16)
 local tradeskillHelp = 
 [[
-Tradeskills (Professions)
+Tradeskills (Professions):
 Guildbook will share your tradeskill recipes with other guild members. 
 Open your tradeskill to trigger the scan of the recipes. Wait patiently as it scans (~100 recipes per second). This will save to your character and account database for the guild and sends to online guild members. 
 Once this process is complete, future data will be sent to all online guild members when you log in. You can also push data by opening a tradeskill (cooldown enabled to prevent spam).
@@ -79,7 +87,15 @@ Search:
 Use this feature to browse your guild database- Find a recipe, pattern, character name.
 
 ]]
-L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s", tradeskillIcon, tradeskillHelp, profileIcon, profileHelp, searchIcon, searchHelp)
+local bankIcon = CreateAtlasMarkup("ShipMissionIcon-Treasure-Map", 16, 16)
+local bankHelp = [[
+Guild bank:
+The guild bank feature works using a commit system, whenever a guildbank character views their bank, the data is sent to all online guild members as a 'commit'. When you view the guild bank, Guildbook will send a request to online guild members for their commit timestamp and then select the member with the latest commit.
+Guildbook then sends a request to that member for the commit data.
+
+As this process involves a lot of comms, there is a cooldown of 30s between requesting bank data, and the request process is staggered so that comms messages dont cause issues for other addons.
+]]
+L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s", slashCommandsIcon, slashCommandsHelp, tradeskillIcon, tradeskillHelp, profileIcon, profileHelp, searchIcon, searchHelp, bankIcon, bankHelp)
 
 
 
@@ -118,6 +134,9 @@ L["PRIVACY"]                        = "Privacy"
 L["PRIVACY_ABOUT"]                  = "Set the lowest rank you wish to share data with."
 L["INVENTORY"]                      = "Inventory"
 L["TALENTS"]                        = "Talents"
+
+L["ROSTER_ALL_CLASSES"]				= "All"
+L["ROSTER_ALL_RANKS"]				= "All"
 
 L["TRADESKILLS"]					= "Professions"
 L["TRADESKILLS_RECIPES"]			= "Recipes"

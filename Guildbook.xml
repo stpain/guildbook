@@ -1475,9 +1475,9 @@
                         </Scripts>
                     </Frame> -->
                     <Button parentKey="sortClass" parentArray="sortButtons" inherits="UIPanelButtonTemplate">
-                        <Size x="35" y="24"/>
+                        <Size x="50" y="24"/>
                         <Anchors>
-                            <Anchor point="BOTTOMLEFT" x="6" y="428"/>
+                            <Anchor point="BOTTOMLEFT" x="4" y="428"/>
                         </Anchors>
                         <KeyValues>
                             <KeyValue key="sort" value="class" type="string"/>
@@ -1492,9 +1492,9 @@
                         </Frames>
                     </Button>
                     <Button parentKey="sortName" parentArray="sortButtons" inherits="UIPanelButtonTemplate">
-                        <Size x="113" y="24"/>
+                        <Size x="100" y="24"/>
                         <Anchors>
-                            <Anchor point="BOTTOMLEFT" x="40" y="428"/>
+                            <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.sortClass" x="-1" y="0"/>
                         </Anchors>
                         <KeyValues>
                             <KeyValue key="sort" value="name" type="string"/>

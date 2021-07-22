@@ -61,11 +61,14 @@ local DEBUG = Guildbook.DEBUG
 --slash commands
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 SLASH_GUILDBOOK1 = '/guildbook'
+SLASH_GUILDBOOK2 = '/gbk'
 SlashCmdList['GUILDBOOK'] = function(msg)
+    --print("["..msg.."]")
     if msg == 'open' then
         GuildbookUI:Show()
 
-    elseif msg == '-profs' then
+    elseif GuildbookUI[msg] then
+        GuildbookUI:OpenTo(msg)
 
     end
 end
