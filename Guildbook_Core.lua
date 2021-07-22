@@ -71,6 +71,9 @@ SlashCmdList['GUILDBOOK'] = function(msg)
     elseif GuildbookUI[msg] then
         GuildbookUI:OpenTo(msg)
 
+
+    elseif msg == "test" then
+
     end
 end
 
@@ -1372,6 +1375,55 @@ function Guildbook:ScanPlayerContainers()
 end
 
 
+local profSpecData = {
+    --Alchemy:
+    [28672] = 171,
+    [28677] = 171,
+    [28675] = 171,
+
+    --Engineering:
+    [20222] = 202,
+    [20219] = 202,
+
+    --Tailoring:
+    [26798] = 197,
+    [26797] = 197,
+    [26801] = 197,
+
+    --Blacksmithing:
+    [9788] = 164,
+    [17039] = 164,
+    [17040] = 164,
+    [17041] = 164,
+    [9787] = 164,
+
+    --Leatherworking:
+    [10656] = 165,
+    [10658] = 165,
+    [10660] = 165,
+}
+function Guildbook:ScanForTradeskillSpec()
+    if not GUILDBOOK_CHARACTER.Profession1Spec then
+        GUILDBOOK_CHARACTER.Profession1Spec = false
+    end
+    if not GUILDBOOK_CHARACTER.Profession2Spec then
+        GUILDBOOK_CHARACTER.Profession2Spec = false
+    end
+    local _, _, offset, numSlots = GetSpellTabInfo(1)
+    for j = offset+1, offset+numSlots do
+        local _, spellID = GetSpellBookItemInfo(j, BOOKTYPE_SPELL)
+        if profSpecData[spellID] then
+            local engProf = Guildbook.ProfessionNames.enUS[profSpecData[spellID]]
+            if GUILDBOOK_CHARACTER and GUILDBOOK_CHARACTER.Profession1 and (GUILDBOOK_CHARACTER.Profession1 == engProf) then
+                GUILDBOOK_CHARACTER.Profession1Spec = spellID
+            elseif GUILDBOOK_CHARACTER and GUILDBOOK_CHARACTER.Profession2 and (GUILDBOOK_CHARACTER.Profession2 == engProf) then
+                GUILDBOOK_CHARACTER.Profession2Spec = spellID
+            end
+        end
+    end
+end
+
+
 --- scan the players trade skills
 --- this is used to get data about the players professions, recipes and reagents
 function Guildbook:ScanTradeSkill()
@@ -1619,6 +1671,13 @@ function Guildbook:ScanGuildRoster(callback)
                         info.RankName = currentGUIDs[i].rank;
                         info.Level = currentGUIDs[i].lvl;
 
+                        if not info.MainSpec then
+                            info.MainSpec = "-"
+                        end
+                        if info.MainSpec == nil then
+                            info.MainSpec = "-"
+                        end
+
                         -- this was a bug found where i used Prof1 instead of Profession1
                         if not info.Profession1 then
                             info.Profession1 = (info.Prof1 and info.Prof1 or "-")
@@ -1808,8 +1867,10 @@ function Guildbook:GetCharacterTalentInfo(activeTalents)
         wipe(GUILDBOOK_CHARACTER['Talents'])
         GUILDBOOK_CHARACTER['Talents'][activeTalents] = {}
         -- will need dual spec set up for wrath
+        local tabs = {}
         for tabIndex = 1, GetNumTalentTabs() do
             local spec, texture, pointsSpent, fileName = GetTalentTabInfo(tabIndex)
+            table.insert(tabs, {points = pointsSpent, spec = spec})
             for talentIndex = 1, GetNumTalents(tabIndex) do
                 local name, iconTexture, row, column, rank, maxRank, isExceptional, available = GetTalentInfo(tabIndex, talentIndex)
                 table.insert(GUILDBOOK_CHARACTER['Talents'][activeTalents], {
@@ -1824,6 +1885,10 @@ function Guildbook:GetCharacterTalentInfo(activeTalents)
                 --DEBUG('func', 'GetCharacterTalentInfo', string.format("Tab %s: %s %s points", tabIndex, name, rank))
             end
         end
+        table.sort(tabs, function(a,b)
+            return a.points > b.points
+        end)
+        --print(tabs[1].spec)
         self:SetCharacterInfo(UnitGUID("player"), "Talents", GUILDBOOK_CHARACTER.Talents)
     end
 end
@@ -1939,8 +2004,8 @@ end
 -- comms
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function Guildbook:Transmit(data, channel, target, priority)
-    local inInstance, _ = IsInInstance()
-    if inInstance then
+    local inInstance, instanceType = IsInInstance()
+    if not instanceType == "none" then
         GuildbookUI.statusText:SetText("unable to transmit data while in an instance")
         return;
     end
@@ -2447,20 +2512,23 @@ function Guildbook:SendCharacterData(target, channel)
     local ilvl = self:GetItemLevel()
     self:GetCharacterProfessions() -- this gets the basic prof info for primary and seconday professions
     self:GetPaperDollStats() -- this gets the paperdoll stats
+    self:ScanForTradeskillSpec()
     C_Timer.After(1.0, function()
         local response = {
             type = 'CHARACTER_DATA_RESPONSE',
             payload = {
                 GUID = guid,
                 ItemLevel = ilvl,
-                Profession1Level = GUILDBOOK_CHARACTER["Profession1Level"],
-                OffSpec = GUILDBOOK_CHARACTER["OffSpec"],
                 Profession1 = GUILDBOOK_CHARACTER["Profession1"],
+                Profession1Level = GUILDBOOK_CHARACTER["Profession1Level"],
+                Profession1Spec = GUILDBOOK_CHARACTER["Profession1Spec"],
+                Profession2 = GUILDBOOK_CHARACTER["Profession2"],
+                Profession2Level = GUILDBOOK_CHARACTER["Profession2Level"],
+                Profession2Spec = GUILDBOOK_CHARACTER["Profession2Spec"],
+                OffSpec = GUILDBOOK_CHARACTER["OffSpec"],
                 MainCharacter = GUILDBOOK_CHARACTER["MainCharacter"],
                 MainSpec = GUILDBOOK_CHARACTER["MainSpec"],
                 MainSpecIsPvP = GUILDBOOK_CHARACTER["MainSpecIsPvP"],
-                Profession2Level = GUILDBOOK_CHARACTER["Profession2Level"],
-                Profession2 = GUILDBOOK_CHARACTER["Profession2"],
                 OffSpecIsPvP = GUILDBOOK_CHARACTER["OffSpecIsPvP"],
                 CookingLevel = GUILDBOOK_CHARACTER["CookingLevel"],
                 FishingLevel = GUILDBOOK_CHARACTER["FishingLevel"],
@@ -2498,6 +2566,17 @@ function Guildbook:OnCharacterDataReceived(data, distribution, sender)
         character.OffSpecIsPvP = data.payload.OffSpecIsPvP
         character.Profession1 = data.payload.Profession1
         character.Profession2 = data.payload.Profession2
+
+        if data.payload.Profession1Spec then
+            character.Profession1Spec = data.payload.Profession1Spec
+        else
+            character.Profession1Spec = false
+        end
+        if data.payload.Profession2Spec then
+            character.Profession2Spec = data.payload.Profession2Spec
+        else
+            character.Profession2Spec = false
+        end
 
         -- number values
         for k, v in ipairs({"ItemLevel", "Profession1Level", "Profession2Level", 'CookingLevel', 'FishingLevel', 'FirstAidLevel'}) do
@@ -3166,8 +3245,8 @@ end
 --- handle comms
 function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
 
-    local inInstance, _ = IsInInstance()
-    if inInstance then
+    local inInstance, instanceType = IsInInstance()
+    if not instanceType == "none" then
         GuildbookUI.statusText:SetText(string.format("blocked comms from %s while in instance", sender))
         return;
     end
