@@ -1475,9 +1475,9 @@
                         </Scripts>
                     </Frame> -->
                     <Button parentKey="sortClass" parentArray="sortButtons" inherits="UIPanelButtonTemplate">
-                        <Size x="35" y="24"/>
+                        <Size x="50" y="24"/>
                         <Anchors>
-                            <Anchor point="BOTTOMLEFT" x="6" y="428"/>
+                            <Anchor point="BOTTOMLEFT" x="4" y="428"/>
                         </Anchors>
                         <KeyValues>
                             <KeyValue key="sort" value="class" type="string"/>
@@ -1492,9 +1492,9 @@
                         </Frames>
                     </Button>
                     <Button parentKey="sortName" parentArray="sortButtons" inherits="UIPanelButtonTemplate">
-                        <Size x="113" y="24"/>
+                        <Size x="100" y="24"/>
                         <Anchors>
-                            <Anchor point="BOTTOMLEFT" x="40" y="428"/>
+                            <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.sortClass" x="-1" y="0"/>
                         </Anchors>
                         <KeyValues>
                             <KeyValue key="sort" value="name" type="string"/>
@@ -1609,7 +1609,7 @@
                 </Layers>
             </Frame>
 
-            <Frame parentKey="guildBank" parentArray="frames" hidden="true">
+            <Frame parentKey="guildBank" parentArray="frames" mixin="GuildbookGuildBankMixin" hidden="true">
                 <Anchors>
                     <Anchor point="TOPLEFT" relativeKey="$parent.ribbon" relativePoint="BOTTOMLEFT" x="0" y="0"/>
                     <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
@@ -1620,7 +1620,106 @@
                             <!-- <Color r="0" g="0" b="0"/> -->
                         </Texture>
                     </Layer>
+                    <Layer level="OVERLAY">
+                        <FontString parentKey="item" inherits="GameFontNormal" text="s" justifyH="LEFT">
+                            <Color r="1" g="1" b="1"/>
+                            <Size x="300" y="24"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="8" y="-2"/>
+                            </Anchors>
+                        </FontString>
+                        <FontString parentKey="count" inherits="GameFontNormal" text="s" justifyH="CENTER">
+                            <Color r="1" g="1" b="1"/>
+                            <Size x="50" y="24"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="310" y="-2"/>
+                            </Anchors>
+                        </FontString>
+                        <FontString parentKey="subType" inherits="GameFontNormal" text="s" justifyH="LEFT">
+                            <Color r="1" g="1" b="1"/>
+                            <Size x="150" y="24"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="520" y="-2"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
                 </Layers>
+                <Frames>
+                    <Frame parentKey="sortType" inherits="GuildbookDropdown">
+                        <Size x="150" y="24"/>
+                        <Anchors>
+                            <Anchor point="LEFT" relativeKey="$parent.count" relativePoint="RIGHT" x="2" y="2"/>
+                        </Anchors>
+                    </Frame>
+                    <Frame parentKey="sortBank" inherits="GuildbookDropdown">
+                        <Size x="160" y="24"/>
+                        <Anchors>
+                            <Anchor point="LEFT" relativeKey="$parent.sortType" relativePoint="RIGHT" x="152" y="0"/>
+                        </Anchors>
+                    </Frame>
+                    <Button parentKey="refresh" inherits="UIPanelButtonTemplate">
+                        <Size x="65" y="24"/>
+                        <Anchors>
+                            <Anchor point="LEFT" relativeKey="$parent.sortBank" relativePoint="RIGHT" x="2" y="-2"/>
+                        </Anchors>
+                        <KeyValues>
+                            <KeyValue key="label" value="GUILDBANK_REFRESH" type="string"/>
+                        </KeyValues>
+                    </Button>
+                    <Frame parentKey="listview">
+                        <Animations>
+                            <AnimationGroup parentKey="anim" looping="REPEAT">
+                                <Rotation parentKey="rotate" childKey="spinner" duration="0.6" degrees="-360">
+                                    <Origin point="CENTER" x="0" y="0"/>
+                                </Rotation>
+                            </AnimationGroup>
+                        </Animations>
+                        <Size x="890" y="424"/>
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT" x="5" y="5"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture parentKey="spinner" atlas="auctionhouse-ui-loadingspinner" useAtlasSize="true">
+                                    <Anchors>
+                                        <Anchor point="CENTER" x="0" y="0"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                            <Layer level="OVERLAY">
+                                <FontString parentKey="task" inherits="GameFontNormal" text="" justifyH="CENTER">
+                                    <Color r="1" g="1" b="1"/>
+                                    <Size x="300" y="24"/>
+                                    <Anchors>
+                                        <Anchor point="CENTER" x="0" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                        <Frames>
+                            <Slider parentKey="scrollBar" inherits="UIPanelScrollBarTemplate" orientation="VERTICAL">
+                                <Anchors>
+                                    <Anchor point="TOPRIGHT" x="16" y="-16"/>
+                                    <Anchor point="BOTTOMRIGHT" x="16" y="16"/>
+                                </Anchors>
+                                <Scripts>
+                                    <OnValueChanged>
+                                        self:GetParent():GetParent():ScrollBar_OnValueChanged()
+                                    </OnValueChanged>
+                                </Scripts>
+                            </Slider>
+                        </Frames>
+                        <Scripts>
+                            <OnMouseWheel>
+                                self:GetParent():OnMouseWheel(delta)
+                            </OnMouseWheel>
+                        </Scripts>
+                    </Frame>
+                </Frames>
+                <Scripts>
+                    <OnShow method="OnShow"/>
+                    <OnLoad method="OnLoad"/>
+                </Scripts>
             </Frame>
 
             <Frame parentKey="search" parentArray="frames" mixin="GuildbookSearchMixin" hidden="true" enableMouse="true">

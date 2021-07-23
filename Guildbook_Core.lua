@@ -61,11 +61,18 @@ local DEBUG = Guildbook.DEBUG
 --slash commands
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 SLASH_GUILDBOOK1 = '/guildbook'
+SLASH_GUILDBOOK2 = '/gbk'
+SLASH_GUILDBOOK3 = '/gb'
 SlashCmdList['GUILDBOOK'] = function(msg)
+    --print("["..msg.."]")
     if msg == 'open' then
         GuildbookUI:Show()
 
-    elseif msg == '-profs' then
+    elseif GuildbookUI[msg] then
+        GuildbookUI:OpenTo(msg)
+
+
+    elseif msg == "test" then
 
     end
 end
@@ -111,7 +118,7 @@ function Guildbook:Init()
             "GuildCalendarFrame",
         }
     end
-    self:SetupGuildBankFrame()
+    --self:SetupGuildBankFrame()
     self:SetupGuildCalendarFrame()
 
     --create stored variable tables
@@ -208,11 +215,13 @@ function Guildbook:Init()
                 parsePublicNotes = false,
                 showInfoMessages = true,
             }
+            DEBUG('func', 'init', "config update false, adding config table")
         end
     end
 
-    if not GUILDBOOK_GLOBAL.config.showInfoMessages then
+    if GUILDBOOK_GLOBAL.config.showInfoMessages == nil then
         GUILDBOOK_GLOBAL.config.showInfoMessages = true
+        DEBUG('func', 'init', "no info message value, adding as true")
         GuildbookOptionsShowInfoMessages:SetChecked(true)
     end
 
@@ -649,7 +658,7 @@ function Guildbook:RequestTradeskillData()
     if self.addonLoaded == false then
         return;
     end
-    local delay = GUILDBOOK_GLOBAL['Debug'] and 0.01 or 0.25
+    local delay = GUILDBOOK_GLOBAL['Debug'] and 0.05 or 0.5
     local recipeIdsToQuery = {}
     if not self.tradeskillRecipes then
         self.tradeskillRecipes = {}
@@ -1173,7 +1182,7 @@ function Guildbook:PrintMessage(msg)
     if not GUILDBOOK_GLOBAL.config then
         return;
     end
-    if GUILDBOOK_GLOBAL.config.showInfoMessages then
+    if GUILDBOOK_GLOBAL.config.showInfoMessages == true then
         print(string.format('[%sGuildbook|r] %s', Guildbook.FONT_COLOUR, msg))
     end
 end
@@ -1363,6 +1372,55 @@ function Guildbook:ScanPlayerContainers()
         --DEBUG('comms_out', 'ScanPlayerContainers', 'sending guild bank data due to new commit')
 
     --end
+end
+
+
+local profSpecData = {
+    --Alchemy:
+    [28672] = 171,
+    [28677] = 171,
+    [28675] = 171,
+
+    --Engineering:
+    [20222] = 202,
+    [20219] = 202,
+
+    --Tailoring:
+    [26798] = 197,
+    [26797] = 197,
+    [26801] = 197,
+
+    --Blacksmithing:
+    [9788] = 164,
+    [17039] = 164,
+    [17040] = 164,
+    [17041] = 164,
+    [9787] = 164,
+
+    --Leatherworking:
+    [10656] = 165,
+    [10658] = 165,
+    [10660] = 165,
+}
+function Guildbook:ScanForTradeskillSpec()
+    if not GUILDBOOK_CHARACTER.Profession1Spec then
+        GUILDBOOK_CHARACTER.Profession1Spec = false
+    end
+    if not GUILDBOOK_CHARACTER.Profession2Spec then
+        GUILDBOOK_CHARACTER.Profession2Spec = false
+    end
+    local _, _, offset, numSlots = GetSpellTabInfo(1)
+    for j = offset+1, offset+numSlots do
+        local _, spellID = GetSpellBookItemInfo(j, BOOKTYPE_SPELL)
+        if profSpecData[spellID] then
+            local engProf = Guildbook.ProfessionNames.enUS[profSpecData[spellID]]
+            if GUILDBOOK_CHARACTER and GUILDBOOK_CHARACTER.Profession1 and (GUILDBOOK_CHARACTER.Profession1 == engProf) then
+                GUILDBOOK_CHARACTER.Profession1Spec = spellID
+            elseif GUILDBOOK_CHARACTER and GUILDBOOK_CHARACTER.Profession2 and (GUILDBOOK_CHARACTER.Profession2 == engProf) then
+                GUILDBOOK_CHARACTER.Profession2Spec = spellID
+            end
+        end
+    end
 end
 
 
@@ -1613,6 +1671,13 @@ function Guildbook:ScanGuildRoster(callback)
                         info.RankName = currentGUIDs[i].rank;
                         info.Level = currentGUIDs[i].lvl;
 
+                        if not info.MainSpec then
+                            info.MainSpec = "-"
+                        end
+                        if info.MainSpec == nil then
+                            info.MainSpec = "-"
+                        end
+
                         -- this was a bug found where i used Prof1 instead of Profession1
                         if not info.Profession1 then
                             info.Profession1 = (info.Prof1 and info.Prof1 or "-")
@@ -1802,8 +1867,10 @@ function Guildbook:GetCharacterTalentInfo(activeTalents)
         wipe(GUILDBOOK_CHARACTER['Talents'])
         GUILDBOOK_CHARACTER['Talents'][activeTalents] = {}
         -- will need dual spec set up for wrath
+        local tabs = {}
         for tabIndex = 1, GetNumTalentTabs() do
             local spec, texture, pointsSpent, fileName = GetTalentTabInfo(tabIndex)
+            table.insert(tabs, {points = pointsSpent, spec = spec})
             for talentIndex = 1, GetNumTalents(tabIndex) do
                 local name, iconTexture, row, column, rank, maxRank, isExceptional, available = GetTalentInfo(tabIndex, talentIndex)
                 table.insert(GUILDBOOK_CHARACTER['Talents'][activeTalents], {
@@ -1818,6 +1885,10 @@ function Guildbook:GetCharacterTalentInfo(activeTalents)
                 --DEBUG('func', 'GetCharacterTalentInfo', string.format("Tab %s: %s %s points", tabIndex, name, rank))
             end
         end
+        table.sort(tabs, function(a,b)
+            return a.points > b.points
+        end)
+        --print(tabs[1].spec)
         self:SetCharacterInfo(UnitGUID("player"), "Talents", GUILDBOOK_CHARACTER.Talents)
     end
 end
@@ -1933,9 +2004,15 @@ end
 -- comms
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function Guildbook:Transmit(data, channel, target, priority)
-    local inInstance, _ = IsInInstance()
-    if inInstance then
+    local inInstance, instanceType = IsInInstance()
+    if not instanceType == "none" then
         GuildbookUI.statusText:SetText("unable to transmit data while in an instance")
+        return;
+    end
+    local inLockdown = InCombatLockdown()
+    if inLockdown then
+        GuildbookUI.statusText:SetText("unable to transmit data during combat lockdown")
+        return;
     end
     if not self:GetGuildName() then
         return;
@@ -2031,20 +2108,33 @@ end
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
+function Guildbook:DB_RequestCharacterData(guid, key, channel, target, priority)
+    if not guid then
+        return
+    end
+    local transmition = {
+        type = "db_get",
+        payload = {
+            guid = guid,
+            key = key,
+        }
+    }
+    self:Transmit(transmition, channel, target, priority)
+end
+
+
 function Guildbook:DB_SendCharacterData(guid, key, info, channel, target, priority)
     if not guid then
         return
     end
-
     local transmition = {
-        type = "GBDB",
+        type = "db_set",
         payload = {
             guid = guid,
             key = key,
             info = info,
         }
     }
-
     self:Transmit(transmition, channel, target, priority)
 end
 
@@ -2422,20 +2512,23 @@ function Guildbook:SendCharacterData(target, channel)
     local ilvl = self:GetItemLevel()
     self:GetCharacterProfessions() -- this gets the basic prof info for primary and seconday professions
     self:GetPaperDollStats() -- this gets the paperdoll stats
+    self:ScanForTradeskillSpec()
     C_Timer.After(1.0, function()
         local response = {
             type = 'CHARACTER_DATA_RESPONSE',
             payload = {
                 GUID = guid,
                 ItemLevel = ilvl,
-                Profession1Level = GUILDBOOK_CHARACTER["Profession1Level"],
-                OffSpec = GUILDBOOK_CHARACTER["OffSpec"],
                 Profession1 = GUILDBOOK_CHARACTER["Profession1"],
+                Profession1Level = GUILDBOOK_CHARACTER["Profession1Level"],
+                Profession1Spec = GUILDBOOK_CHARACTER["Profession1Spec"],
+                Profession2 = GUILDBOOK_CHARACTER["Profession2"],
+                Profession2Level = GUILDBOOK_CHARACTER["Profession2Level"],
+                Profession2Spec = GUILDBOOK_CHARACTER["Profession2Spec"],
+                OffSpec = GUILDBOOK_CHARACTER["OffSpec"],
                 MainCharacter = GUILDBOOK_CHARACTER["MainCharacter"],
                 MainSpec = GUILDBOOK_CHARACTER["MainSpec"],
                 MainSpecIsPvP = GUILDBOOK_CHARACTER["MainSpecIsPvP"],
-                Profession2Level = GUILDBOOK_CHARACTER["Profession2Level"],
-                Profession2 = GUILDBOOK_CHARACTER["Profession2"],
                 OffSpecIsPvP = GUILDBOOK_CHARACTER["OffSpecIsPvP"],
                 CookingLevel = GUILDBOOK_CHARACTER["CookingLevel"],
                 FishingLevel = GUILDBOOK_CHARACTER["FishingLevel"],
@@ -2474,6 +2567,17 @@ function Guildbook:OnCharacterDataReceived(data, distribution, sender)
         character.Profession1 = data.payload.Profession1
         character.Profession2 = data.payload.Profession2
 
+        if data.payload.Profession1Spec then
+            character.Profession1Spec = data.payload.Profession1Spec
+        else
+            character.Profession1Spec = false
+        end
+        if data.payload.Profession2Spec then
+            character.Profession2Spec = data.payload.Profession2Spec
+        else
+            character.Profession2Spec = false
+        end
+
         -- number values
         for k, v in ipairs({"ItemLevel", "Profession1Level", "Profession2Level", 'CookingLevel', 'FishingLevel', 'FirstAidLevel'}) do
             if data.payload[v] then
@@ -2495,19 +2599,35 @@ end
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- guild bank comms
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-function Guildbook:SendGuildBankCommitRequest(bankCharacter)
-    DEBUG('func', 'SendGuildBankCommitRequest', 'clearing data from temp table')
-    Guildbook.GuildBankCommit['Commit'] = nil
-    Guildbook.GuildBankCommit['Character'] = nil
-    Guildbook.GuildBankCommit['BankCharacter'] = nil
+Guildbook.BankCharacters = {}
+Guildbook.BankRequests = {}
+-- update for new guild bank ui
+-- send request for each character > add character to table as normal
+
+function Guildbook:RequestGuildBankCommits(character)
+    self.BankCharacters[character] = {}
     local request = {
         type = 'GUILD_BANK_COMMIT_REQUEST',
-        payload = bankCharacter,
+        payload = character,
     }
-    DEBUG('comms_out', 'SendGuildBankCommitRequest', string.format('SendGuildBankCommitRequest > character=%s', bankCharacter))
+    DEBUG("func", "RequestGuildBankCommits", string.format("request guild bank commits for %s", character))
     self:Transmit(request, 'GUILD', nil, 'NORMAL')
 end
 
+-- function Guildbook:SendGuildBankCommitRequest(bankCharacter)
+--     DEBUG('func', 'SendGuildBankCommitRequest', 'clearing data from temp table')
+--     Guildbook.GuildBankCommit['Commit'] = nil
+--     Guildbook.GuildBankCommit['Character'] = nil
+--     Guildbook.GuildBankCommit['BankCharacter'] = nil
+--     local request = {
+--         type = 'GUILD_BANK_COMMIT_REQUEST',
+--         payload = bankCharacter,
+--     }
+--     DEBUG('comms_out', 'SendGuildBankCommitRequest', string.format('SendGuildBankCommitRequest > character=%s', bankCharacter))
+--     self:Transmit(request, 'GUILD', nil, 'NORMAL')
+-- end
+
+-- this will still work as its just checking the saved var data for a bank character commit
 function Guildbook:OnGuildBankCommitRequested(data, distribution, sender)
     if distribution == 'GUILD' then
         if GUILDBOOK_GLOBAL["GuildBank"] and GUILDBOOK_GLOBAL["GuildBank"][data.payload] and GUILDBOOK_GLOBAL["GuildBank"][data.payload].Commit then
@@ -2518,42 +2638,77 @@ function Guildbook:OnGuildBankCommitRequested(data, distribution, sender)
                     Character = data.payload
                 }
             }
-            DEBUG('comms_out', 'OnGuildBankCommitRequested', string.format('character=%s, commit=%s', data.payload, GUILDBOOK_GLOBAL["GuildBank"][data.payload].Commit))
+            DEBUG('comms_out', 'OnGuildBankCommitRequested', string.format("%s has requested guild bank commits for %s", sender, data.payload))
             self:Transmit(response, 'WHISPER', sender, 'NORMAL')
         end
     end
 end
 
+-- use the new table
+local lastCommitResponse = -1000;
 function Guildbook:OnGuildBankCommitReceived(data, distribution, sender)
     if distribution == 'WHISPER' then
-        DEBUG('comms_in', 'OnGuildBankCommitReceived', string.format('Received a commit for bank character %s from %s - commit time: %s', data.payload.Character, sender, data.payload.Commit))
-        if Guildbook.GuildBankCommit['Commit'] == nil then
-            Guildbook.GuildBankCommit['Commit'] = data.payload.Commit
-            Guildbook.GuildBankCommit['Character'] = sender
-            Guildbook.GuildBankCommit['BankCharacter'] = data.payload.Character
-            DEBUG('comms_in', 'OnGuildBankCommitReceived', string.format('First response added to temp table, %s->%s', sender, data.payload.Commit))
+        lastCommitResponse = GetTime()
+        DEBUG("func", "OnGuildBankCommitReceived", string.format("sender: %s commit time: %s", sender, data.payload.Commit))
+        if not self.BankCharacters[data.payload.Character].Commit then
+            self.BankCharacters[data.payload.Character].Commit = data.payload.Commit;
+            self.BankCharacters[data.payload.Character].Source = sender;
+            DEBUG("func", "OnGuildBankCommitReceived", string.format("%s has latest commit time", sender))
         else
-            if tonumber(data.payload.Commit) > tonumber(Guildbook.GuildBankCommit['Commit']) then
-                Guildbook.GuildBankCommit['Commit'] = data.payload.Commit
-                Guildbook.GuildBankCommit['Character'] = sender
-                Guildbook.GuildBankCommit['BankCharacter'] = data.payload.Character
-                DEBUG('comms_in', 'OnGuildBankCommitReceived', string.format('Response commit is newer than temp table commit, updating info - %s->%s', sender, data.payload.Commit))
+            if tonumber(data.payload.Commit) > tonumber(self.BankCharacters[data.payload.Character].Commit) then
+                self.BankCharacters[data.payload.Character].Commit = data.payload.Commit;
+                self.BankCharacters[data.payload.Character].Source = sender;
+                DEBUG("func", "OnGuildBankCommitReceived", string.format("%s has latest commit time", sender))
             end
         end
     end
 end
 
-function Guildbook:SendGuildBankDataRequest()
-    if Guildbook.GuildBankCommit['Character'] ~= nil then
-        local request = {
-            type = 'GUILD_BANK_DATA_REQUEST',
-            payload = Guildbook.GuildBankCommit['BankCharacter']
-        }
-        self:Transmit(request, 'WHISPER', Guildbook.GuildBankCommit['Character'], 'NORMAL')
-        DEBUG('comms_out', 'SendGuildBankDataRequest', string.format('Sending request for guild bank data to %s for bank character %s', Guildbook.GuildBankCommit['Character'], Guildbook.GuildBankCommit['BankCharacter']))
+-- function Guildbook:OnGuildBankCommitReceived(data, distribution, sender)
+--     if distribution == 'WHISPER' then
+--         DEBUG('comms_in', 'OnGuildBankCommitReceived', string.format('Received a commit for bank character %s from %s - commit time: %s', data.payload.Character, sender, data.payload.Commit))
+--         if Guildbook.GuildBankCommit['Commit'] == nil then
+--             Guildbook.GuildBankCommit['Commit'] = data.payload.Commit
+--             Guildbook.GuildBankCommit['Character'] = sender
+--             Guildbook.GuildBankCommit['BankCharacter'] = data.payload.Character
+--             DEBUG('comms_in', 'OnGuildBankCommitReceived', string.format('First response added to temp table, %s->%s', sender, data.payload.Commit))
+--         else
+--             if tonumber(data.payload.Commit) > tonumber(Guildbook.GuildBankCommit['Commit']) then
+--                 Guildbook.GuildBankCommit['Commit'] = data.payload.Commit
+--                 Guildbook.GuildBankCommit['Character'] = sender
+--                 Guildbook.GuildBankCommit['BankCharacter'] = data.payload.Character
+--                 DEBUG('comms_in', 'OnGuildBankCommitReceived', string.format('Response commit is newer than temp table commit, updating info - %s->%s', sender, data.payload.Commit))
+--             end
+--         end
+--     end
+-- end
+
+-- this will be used in loop, for bank, info in pairs(Guildbook.BankCharacters) do. info = { Commit = commit time, Source = player with newest data }
+function Guildbook:RequestGuildBankItems(source, bank)
+    if not source then
+        return;
     end
+    local request = {
+        type = 'GUILD_BANK_DATA_REQUEST',
+        payload = bank,
+    }
+    DEBUG('comms_out', 'RequestGuildBankItems', string.format("requesting guild bank items from %s", source))
+    self:Transmit(request, 'WHISPER', source, 'NORMAL')
 end
 
+
+-- function Guildbook:SendGuildBankDataRequest()
+--     if Guildbook.GuildBankCommit['Character'] ~= nil then
+--         local request = {
+--             type = 'GUILD_BANK_DATA_REQUEST',
+--             payload = Guildbook.GuildBankCommit['BankCharacter']
+--         }
+--         self:Transmit(request, 'WHISPER', Guildbook.GuildBankCommit['Character'], 'NORMAL')
+--         DEBUG('comms_out', 'SendGuildBankDataRequest', string.format('Sending request for guild bank data to %s for bank character %s', Guildbook.GuildBankCommit['Character'], Guildbook.GuildBankCommit['BankCharacter']))
+--     end
+-- end
+
+-- this should remain the same as its ust returning data using a character name as key
 function Guildbook:OnGuildBankDataRequested(data, distribution, sender)
     if distribution == 'WHISPER' then
         local response = {
@@ -2570,6 +2725,7 @@ function Guildbook:OnGuildBankDataRequested(data, distribution, sender)
     end
 end
 
+-- this should also remain the same as we just save the data
 function Guildbook:OnGuildBankDataReceived(data, distribution, sender)
     if distribution == 'WHISPER' or distribution == 'GUILD' then
         if not GUILDBOOK_GLOBAL["GuildBank"] then
@@ -2588,8 +2744,10 @@ function Guildbook:OnGuildBankDataReceived(data, distribution, sender)
             }
         end
     end
-    self.GuildFrame.GuildBankFrame:ProcessBankData(data.payload.Data, data.payload.Money)
-    self.GuildFrame.GuildBankFrame:RefreshSlots()
+    -- self.GuildFrame.GuildBankFrame:ProcessBankData(data.payload.Data, data.payload.Money)
+    -- self.GuildFrame.GuildBankFrame:RefreshSlots()
+
+    -- how do we know the timing of all this????
 end
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -3084,10 +3242,20 @@ end
 
 
 
-
-
 --- handle comms
 function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
+
+    local inInstance, instanceType = IsInInstance()
+    if not instanceType == "none" then
+        GuildbookUI.statusText:SetText(string.format("blocked comms from %s while in instance", sender))
+        return;
+    end
+    local inLockdown = InCombatLockdown()
+    if inLockdown then
+        GuildbookUI.statusText:SetText(string.format("blocked comms from %s while in combat", sender))
+        return;
+    end
+
     if prefix ~= addonName then 
         return 
     end
@@ -3172,25 +3340,25 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
 --==================================
     elseif data.type == 'GUILD_BANK_COMMIT_REQUEST' then
         if not Guildbook.GuildFrame.GuildBankFrame then
-            return
+            --return
         end
         self:OnGuildBankCommitRequested(data, distribution, sender)
 
     elseif data.type == 'GUILD_BANK_COMMIT_RESPONSE' then
         if not Guildbook.GuildFrame.GuildBankFrame then
-            return
+            --return
         end
         self:OnGuildBankCommitReceived(data, distribution, sender)
 
     elseif data.type == 'GUILD_BANK_DATA_REQUEST' then
         if not Guildbook.GuildFrame.GuildBankFrame then
-            return
+            --return
         end
         self:OnGuildBankDataRequested(data, distribution, sender)
 
     elseif data.type == 'GUILD_BANK_DATA_RESPONSE' then
         if not Guildbook.GuildFrame.GuildBankFrame then
-            return
+            --return
         end
         self:OnGuildBankDataReceived(data, distribution, sender)
 --==================================

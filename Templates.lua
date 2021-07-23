@@ -200,8 +200,11 @@ function GuildbookDropDownFlyoutButtonMixin:GetText(text)
 end
 
 function GuildbookDropDownFlyoutButtonMixin:OnMouseDown()
+    local text = self.Text:GetText()
     if self.func then
         self:func()
+        self:GetParent():GetParent().Text:SetTextColor(1,1,1,1)
+        self:GetParent():GetParent().Text:SetText(text)
     end
     if self:GetParent().delay then
         self:GetParent().delay:Cancel()
@@ -223,6 +226,11 @@ function GuildbookDropdownMixin:OnLoad()
         self.Background:SetSize(self:GetWidth(), self:GetHeight())
     end
     self.Button:SetHeight(self:GetHeight())
+
+    if not gb.dropdownWidgets then
+        gb.dropdownWidgets = {}
+    end
+    table.insert(gb.dropdownWidgets, self)
 end
 
 function GuildbookDropdownMixin:OnShow()
