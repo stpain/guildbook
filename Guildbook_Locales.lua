@@ -143,6 +143,7 @@ L["TRADESKILLS_RECIPES"]			= "Recipes"
 L["TRADESKILLS_CHARACTERS"]			= "Characters"
 L["TRADESKILL_GUILD_RECIPES"]		= "Guild Recipes"
 L["TRADESKILLS_SHARE_RECIPES"]		= "Share this characters recipes"
+L["CAN_CRAFT"]                          = "[Guildbook] are you able to craft %s ?"
 
 L["GUILDBANK_HEADER_ITEM"]			= "Item link"
 L["GUILDBANK_HEADER_COUNT"]			= "Count"
@@ -620,6 +621,7 @@ elseif locale == 'frFR' then
 	L["TRADESKILLS_CHARACTERS"]	    = "Personnages"
 	L["TRADESKILL_GUILD_RECIPES"]	    = "Recettes en Guilde"
 	L["TRADESKILLS_SHARE_RECIPES"]	    = "Partager les recettes du personnage"
+	L["CAN_CRAFT"]                      = "[Guildbook] Peux-tu faire %s ?"
 		
 	L["ROSTER_ALL_CLASSES"]			= "Toutes"
 	L["ROSTER_ALL_RANKS"]			= "Tous"
