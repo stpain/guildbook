@@ -592,6 +592,7 @@ elseif locale == 'frFR' then
 	L["REAL_BIO"]                       = "Biographie"
 	L["AVATAR"]                         = "Avatar"
 	L["MAIN_CHARACTER"]                 = "Personnage Principal"
+	L["ALT_CHARACTERS"]                 = "Autres Persos"
 	L["MAIN_SPEC"]                      = "Spé Principale"
 	L["OFF_SPEC"]                       = "Spé Secondaire"
 	L["PRIVACY"]                        = "Confidentialité"
