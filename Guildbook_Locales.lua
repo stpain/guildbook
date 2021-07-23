@@ -895,7 +895,8 @@ local slashCommandsIcon = CreateTextureMarkup(136377, 64, 64, 16, 16, 0, 1, 0, 1
 local slashCommandsHelp = [[
 Commandes slashs:
 /guildbook open : Cela va ouvrir Guildbook
-/guildbook [interface] : Cela va ouvrir un onglet spécifique de Guildbook(profiles:Profiles, tradeskills:Métiers, chat:Chat, roster:Roster, calendar:Calendrier, stats:Stats, guildbank:Banque de Guilde, Recherche, Confidentialité)
+/guildbook [interface] : Cela va ouvrir un onglet spécifique de Guildbook(profiles:Profiles, tradeskills:Métiers, chat:Chat, roster:Roster, calendar:Calendrier, stats:Stats, guildbank:Banque de Guilde, search:Recherche, privacy:Confidentialité)
+Exemple: "/guildbook search" va ouvrir l'onglet de recherche.
 ]]
 local tradeskillIcon = CreateAtlasMarkup("Mobile-Blacksmithing", 16, 16)
 local tradeskillHelp = 
