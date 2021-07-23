@@ -581,7 +581,7 @@ elseif locale == 'frFR' then
 	L["location"]                       = "Zone"
 	L["rankName"]                       = "Rang"
 	L["publicNote"]                     = "Note Publique"
-	L["class"]                          = "Class." --this fit better but "Classe" is more appropriate
+	L["class"]                          = "Classe"
 	L["attunements"]                    = "Accès"
 
 
@@ -598,12 +598,30 @@ elseif locale == 'frFR' then
 	L["PRIVACY_ABOUT"]                  = "Choisir à partir de quel Rang vous souhaitez partager vos données."
 	L["INVENTORY"]                      = "Inventaire"
 	L["TALENTS"]                        = "Talents"
+	
+	--guildbank
+	L["GUILDBANK_HEADER_ITEM"]			= "Objets"
+	L["GUILDBANK_HEADER_COUNT"]			= "Nombre"
+	L["GUILDBANK_SORT_TYPE"]			= "Catégorie"
+	L["GUILDBANK_HEADER_SUBTYPE"]			= "Sous-catégorie"
+	L["GUILDBANK_SORT_BANK"]			= "Source"
+	L["GUILDBANK_REFRESH"]				= "Actualiser"
+	L["GUILDBANK_ALL_BANKS"]			= "Toutes les banques"
+	L["GUILDBANK_ALL_TYPES"]			= "Toutes les catégories"
+	L["GUILDBANK_REQUEST_COMMITS"]			= "requête d'un commit de "
+	L["GUILDBANK_REQUEST_INFO"]			= "requête de données de "
+	L["GUILDBANK_FUNDS"]				= "Or disponible"
+	L["GUILDBANK_CURRENCY"]				= "Monnaie"
 		
+	--tadeskills
 	L["TRADESKILLS"]		    = "Mériers"
 	L["TRADESKILLS_RECIPES"]	    = "Recettess"
 	L["TRADESKILLS_CHARACTERS"]	    = "Personnages"
 	L["TRADESKILL_GUILD_RECIPES"]	    = "Recettes en Guilde"
 	L["TRADESKILLS_SHARE_RECIPES"]	    = "Partager les recettes du personnage"
+		
+	L["ROSTER_ALL_CLASSES"]			= "Toutes"
+	L["ROSTER_ALL_RANKS"]			= "Tous"
 
 	L["PROFILES"]                       = "Profiles"
 	L["CHAT"]                           = "Chat"
@@ -788,7 +806,7 @@ elseif locale == 'frFR' then
 	L["MINIMAP_TOOLTIP_LEFTCLICK"]			    = '|cffffffffClique Gauche|r Ouvrir Guildbook'
 	L["MINIMAP_TOOLTIP_LEFTCLICK_SHIFT"]		    = "MAJ + "..'|cffffffffClique Gauche|r Open Chat'
 	L["MINIMAP_TOOLTIP_RIGHTCLICK"]			    = '|cffffffffClique Droit|r Options'
-	L["MINIMAP_TOOLTIP_MIDDLECLICK"]	= "|cffffffffMiddle Click|r Open Blizzard roster"
+	L["MINIMAP_TOOLTIP_MIDDLECLICK"]	= "|cffffffffMiddle Click|r Ouvrir l'onglet de guilde Blizzard"
 	
 	--raids name
 	L["MC"]				    = "Coeur du Magma"
@@ -873,14 +891,20 @@ De multiples personnages banques sont supportés.|r
 
 -- this is just a quick thing, will make the how section more fleshed out
 -- this is a nasty way to do this, its horrible and i need to make the help & about much better
+local slashCommandsIcon = CreateTextureMarkup(136377, 64, 64, 16, 16, 0, 1, 0, 1, 0, 0)
+local slashCommandsHelp = [[
+Commandes slashs:
+/guildbook open : Cela va ouvrir Guildbook
+/guildbook [interface] : Cela va ouvrir un onglet spécifique de Guildbook(profiles:Profiles, tradeskills:Métiers, chat:Chat, roster:Roster, calendar:Calendrier, stats:Stats, guildbank:Banque de Guilde, Recherche, Confidentialité)
+]]
 local tradeskillIcon = CreateAtlasMarkup("Mobile-Blacksmithing", 16, 16)
 local tradeskillHelp = 
 [[
 Métiers
 Guildbook va partager les recettes de votre métier avec les autres membres de la guilde.
 Ouvrer votre fenêtre de métier pour lancer le scan des recettes. Attender patiemment que tout se scan (~100 recettes par seconde). Cela sauvegardera à la base de donnée du Personnage (et Compte) pour la Guilde en l'enverra aux autres membres en ligne.
-Une fois ce procédé complété, les données futures seront envoyés aux autres membres en ligne lors de vos connexions. Vous pouvez aussi envoyer les données manuellement en ouvrant la fenêtre d'un métier 
-Si vous avez besoin de partager les recettes d'un membre hors ligne, sélectionner leur profession via le roster, une fois chargée cliquer sur le bouton en haut a droite de la liste des recetess, à gauche de "Personnages" (temps de recharge activé pour éviter le spam).
+Une fois ce procédé complété, les données futures seront envoyés aux autres membres en ligne lors de vos connexions. Vous pouvez aussi envoyer les données manuellement en ouvrant la fenêtre d'un métier (temps d'attente activé pour éviter le spam).
+Si vous avez besoin de partager les recettes d'un membre hors ligne, sélectionner leur profession via le roster, une fois chargée cliquer sur le bouton en haut a droite de la liste des recetess, à gauche de "Personnages" (temps d'attente activé pour éviter le spam).
 ]]
 local profileIcon = CreateAtlasMarkup("GarrMission_MissionIcon-Recruit", 16, 16)
 local profileHelp = 
@@ -895,7 +919,7 @@ local searchHelp =
 Recherche:
 Utiliser cette fonction pour explorer la base de données de votre Guilde - Trouver une recette, schéma, nom de personnage.
 ]]
-L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s", tradeskillIcon, tradeskillHelp, profileIcon, profileHelp, searchIcon, searchHelp)		
+L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s", slashCommandsIcon, slashCommandsHelp, tradeskillIcon, tradeskillHelp, profileIcon, profileHelp, searchIcon, searchHelp, bankIcon, bankHelp)	
 		
 --[[ chinese
 ]]
