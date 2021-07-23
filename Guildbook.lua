@@ -126,7 +126,7 @@ function GuildbookCharacterListviewItemMixin:SendMessage_OnMouseDown()
     local point, relativeTo, relativePoint, xOfs, yOfs = self.sendMessage:GetPoint()
 	self.sendMessage:ClearAllPoints()
 	self.sendMessage:SetPoint(point, relativeTo, relativePoint, xOfs - 1, yOfs - 1)
-    local msg = string.format("[Guildbook] are you able to craft %s", self.itemLink)
+    local msg = string.format(L["CAN_CRAFT"], self.itemLink)
     SendChatMessage(msg, "WHISPER", nil, self.character.name)
 end
 
