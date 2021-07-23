@@ -975,6 +975,8 @@ function Guildbook:GetPaperDollStats()
         GUILDBOOK_CHARACTER['PaperDollStats'].Dodge = self:TrimNumber(GetDodgeChance());
 
         --local expertise, offhandExpertise, rangedExpertise = GetExpertise();
+	GUILDBOOK_CHARACTER['PaperDollStats'].Expertise = self:TrimNumber(GetCombatRatingBonus(CR_EXPERTISE));
+			
         --local base, casting = GetManaRegen();
         GUILDBOOK_CHARACTER['PaperDollStats'].SpellHit = self:TrimNumber(GetCombatRatingBonus(CR_HIT_SPELL) + GetSpellHitModifier());
         GUILDBOOK_CHARACTER['PaperDollStats'].MeleeHit = self:TrimNumber(GetCombatRatingBonus(CR_HIT_MELEE) + GetHitModifier());
