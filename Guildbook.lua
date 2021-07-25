@@ -661,7 +661,10 @@ function GuildbookMixin:OnLoad()
     self.backgroundModel:SetModel("creature/illidan/illidan.m2")
     self.backgroundModel:SetPosition(0,0,-0.2)
     self.backgroundModel:SetKeepModelOnHide(true)
-
+    self.backgroundModel:Hide()
+    for _, f in pairs(GuildbookUI.frames) do
+        f:Hide()
+    end
     tinsert(UISpecialFrames, self:GetName());
 
 
@@ -3410,6 +3413,15 @@ end
 
 function GuildbookSearchMixin:Search(term)
     navigateTo(self)
+
+    if term == "iamprepared" then
+        for _, f in ipairs(GuildbookUI.frames) do
+            f:Hide()
+            self:GetParent().backgroundModel:Show()
+            self:GetParent().ribbon.searchBox:SetText("")
+            PlaySoundFile(552503, "Master")
+        end
+    end
 
     local resultKeys = {
         ["character"] = 2,
