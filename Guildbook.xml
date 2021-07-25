@@ -56,6 +56,15 @@
         </Anchors>
 
         <Layers>
+            <!-- <Layer level="BACKGROUND">
+                <Texture parentKey="background" atlas="_GarrMissionLocation-Valsharah-Mid" alpha="0.9">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="0" y="-55"/>
+                        <Anchor point="BOTTOMRIGHT" x="-4" y="0"/>
+                    </Anchors>
+                    <TexCoords left="0.15" right="0.85" top="0.0" bottom="1.0"/>
+                </Texture>
+            </Layer> -->
             <Layer level="OVERLAY">
                 <FontString parentKey="statusText" inherits="GameFontNormalSmall" justifyH="RIGHT" text="load text">
                     <Size x="700" y="10"/>
@@ -67,6 +76,16 @@
         </Layers>
 
         <Frames>
+
+<!-- 
+            <PlayerModel parentKey="backgroundModel" enableMouse="true">
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="0" y="-55"/>
+                    <Anchor point="BOTTOMRIGHT" x="-4" y="0"/>
+                </Anchors>
+            </PlayerModel> -->
+
+
 
             <StatusBar parentKey="statusBar" useParentLevel="true" minValue="0" maxValue="1" defaultValue="0" orientation="HORIZONTAL">
                 <Size y="30"/>
@@ -111,7 +130,7 @@
 
             <!-- <Frame parentKey="dropdown" inherits="GuildbookDropdown">
                 <Anchors>
-                    <Anchor point="TOP" x="0" y="50"/>
+                    <Anchor point="TOP" x="0" y="50"/> _GarrMissionLocation-Valsharah-Mid
                 </Anchors>
             </Frame> -->
 
@@ -214,7 +233,7 @@
                             <KeyValue key="tooltipText" value="CALENDAR" type="string"/>
                         </KeyValues>
                     </Frame>
-                    <Frame parentKey="guildBank" inherits="GuildbookSmallHighlightButton" hidden="false">
+                    <Frame parentKey="guildbank" inherits="GuildbookSmallHighlightButton" hidden="false">
                         <Anchors>
                             <Anchor point="LEFT" x="210" y="0"/>
                         </Anchors>
@@ -404,7 +423,7 @@
                 </Frames>
             </Frame>
 
-            <Frame parentKey="profiles" parentArray="frames" mixin="GuildbookProfilesMixin" useParentLevel="true">
+            <Frame parentKey="profiles" parentArray="frames" mixin="GuildbookProfilesMixin" useParentLevel="true" hidden="true">
                 <Anchors>
                     <Anchor point="TOPLEFT" relativeKey="$parent.ribbon" relativePoint="BOTTOMLEFT" x="0" y="0"/>
                     <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
@@ -1205,7 +1224,7 @@
                         </Animations>
                         <Layers>
                             <Layer level="BACKGROUND">
-                                <Texture parentKey="spinner" atlas="auctionhouse-ui-loadingspinner" useAtlasSize="true">
+                                <Texture parentKey="spinner" atlas="auctionhouse-ui-loadingspinner" useAtlasSize="true" hidden="true">
                                     <Anchors>
                                         <Anchor point="CENTER" x="0" y="0"/>
                                     </Anchors>
@@ -1436,7 +1455,6 @@
                 </Scripts>
             </Frame>
 
-
             <Frame parentKey="roster" mixin="GuildbookRosterMixin" parentArray="frames" hidden="true">
                 <Anchors>
                     <Anchor point="TOPLEFT" relativeKey="$parent.ribbon" relativePoint="BOTTOMLEFT" x="0" y="0"/>
@@ -1609,7 +1627,7 @@
                 </Layers>
             </Frame>
 
-            <Frame parentKey="guildBank" parentArray="frames" mixin="GuildbookGuildBankMixin" hidden="true">
+            <Frame parentKey="guildbank" parentArray="frames" mixin="GuildbookGuildBankMixin" hidden="true">
                 <Anchors>
                     <Anchor point="TOPLEFT" relativeKey="$parent.ribbon" relativePoint="BOTTOMLEFT" x="0" y="0"/>
                     <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
@@ -1687,11 +1705,18 @@
                                 </Texture>
                             </Layer>
                             <Layer level="OVERLAY">
-                                <FontString parentKey="task" inherits="GameFontNormal" text="" justifyH="CENTER">
+                                <FontString parentKey="commits" inherits="GameFontNormal" text="" justifyV="CENTER" justifyH="LEFT">
                                     <Color r="1" g="1" b="1"/>
-                                    <Size x="300" y="24"/>
+                                    <Size x="300" y="300"/>
                                     <Anchors>
-                                        <Anchor point="CENTER" x="0" y="0"/>
+                                        <Anchor point="CENTER" x="-150" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="data" inherits="GameFontNormal" text="" justifyV="CENTER" justifyH="LEFT">
+                                    <Color r="1" g="1" b="1"/>
+                                    <Size x="300" y="300"/>
+                                    <Anchors>
+                                        <Anchor point="CENTER" x="150" y="0"/>
                                     </Anchors>
                                 </FontString>
                             </Layer>
@@ -1828,8 +1853,6 @@
                 </Scripts>
             </Frame>
 
-<!-- transmog-icon-hidden -->
-
             <Frame parentKey="privacy" mixin="GuildbookPrivacyMixin" parentArray="frames" hidden="true">
                 <Anchors>
                     <Anchor point="TOPLEFT" relativeKey="$parent.ribbon" relativePoint="BOTTOMLEFT" x="0" y="0"/>
@@ -1902,7 +1925,6 @@
                     <OnShow method="OnShow"/>
                 </Scripts>
             </Frame>
-
 
             <Frame parentKey="helpAbout" mixin="GuildbookHelpAboutMixin" parentArray="frames" hidden="true">
                 <Anchors>

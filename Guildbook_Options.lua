@@ -60,6 +60,26 @@ function GuildbookOptionsShowInfoMessages_OnClick(self)
     GUILDBOOK_GLOBAL.config.showInfoMessages = self:GetChecked()
 end
 
+function GuildbookOptionsBlockCommsDuringCombat_OnClick(self)
+    if not GUILDBOOK_GLOBAL then
+        return
+    end
+    if not GUILDBOOK_GLOBAL.config then
+        GUILDBOOK_GLOBAL.config = {}
+    end
+    GUILDBOOK_GLOBAL.config.blockCommsDuringCombat = self:GetChecked()
+end
+
+function GuildbookOptionsBlockCommsDuringInstance_OnClick(self)
+    if not GUILDBOOK_GLOBAL then
+        return
+    end
+    if not GUILDBOOK_GLOBAL.config then
+        GUILDBOOK_GLOBAL.config = {}
+    end
+    GUILDBOOK_GLOBAL.config.blockCommsDuringInstance = self:GetChecked()
+end
+
 function GuildbookOptionsShowMinimapButton_OnClick(self)
     if not GUILDBOOK_GLOBAL then
         return

@@ -60,6 +60,7 @@ local DEBUG = Guildbook.DEBUG
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 --slash commands
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
+local prepared= false;
 SLASH_GUILDBOOK1 = '/guildbook'
 SLASH_GUILDBOOK2 = '/gbk'
 SLASH_GUILDBOOK3 = '/gb'
@@ -67,6 +68,10 @@ SlashCmdList['GUILDBOOK'] = function(msg)
     --print("["..msg.."]")
     if msg == 'open' then
         GuildbookUI:Show()
+        if not prepared then
+            PlaySoundFile(552503, "Master")
+            prepared = true;
+        end
 
     elseif GuildbookUI[msg] then
         GuildbookUI:OpenTo(msg)
@@ -190,6 +195,8 @@ function Guildbook:Init()
             showTooltipProfessions = true,
             parsePublicNotes = false,
             showInfoMessages = true,
+            blockCommsDuringCombat = false,
+            blockCommsDuringInstance = false,
         }
         DEBUG('func', 'init', "created default config table")
     end
@@ -214,6 +221,8 @@ function Guildbook:Init()
                 showTooltipProfessions = true,
                 parsePublicNotes = false,
                 showInfoMessages = true,
+                blockCommsDuringCombat = true,
+                blockCommsDuringInstance = true,
             }
             DEBUG('func', 'init', "config update false, adding config table")
         end
@@ -223,6 +232,17 @@ function Guildbook:Init()
         GUILDBOOK_GLOBAL.config.showInfoMessages = true
         DEBUG('func', 'init', "no info message value, adding as true")
         GuildbookOptionsShowInfoMessages:SetChecked(true)
+    end
+
+    if GUILDBOOK_GLOBAL.config.blockCommsDuringCombat == nil then
+        GUILDBOOK_GLOBAL.config.blockCommsDuringCombat = true;
+        DEBUG('func', 'init', "no blockCommsDuringCombat, adding as true")
+        GuildbookOptionsBlockCommsDuringCombat:SetChecked(true)
+    end
+    if GUILDBOOK_GLOBAL.config.blockCommsDuringInstance == nil then
+        GUILDBOOK_GLOBAL.config.blockCommsDuringInstance = true;
+        DEBUG('func', 'init', "no blockCommsDuringInstance, adding as true")
+        GuildbookOptionsBlockCommsDuringInstance:SetChecked(true)
     end
 
     local config = GUILDBOOK_GLOBAL.config
@@ -237,7 +257,10 @@ function Guildbook:Init()
     GuildbookOptionsTooltipInfoProfessions:SetChecked(config.showTooltipProfessions)
     GuildbookOptionsTooltipInfoMainCharacter:SetChecked(config.showTooltipMainCharacter)
 
-    GuildbookOptionsShowInfoMessages:SetChecked(config.showInfoMessages and config.showInfoMessages or false)
+    GuildbookOptionsShowInfoMessages:SetChecked(config.showInfoMessages)
+
+    GuildbookOptionsBlockCommsDuringCombat:SetChecked(config.blockCommsDuringCombat)
+    GuildbookOptionsBlockCommsDuringInstance:SetChecked(config.blockCommsDuringInstance)
 
     if config.showTooltipCharacterInfo == false then
         GuildbookOptionsTooltipInfoMainSpec:Disable()
@@ -428,6 +451,7 @@ end
 function Guildbook:Load()
     DEBUG("func", "Load", "loading addon")
 
+    self:GetCharacterTalentInfo("primary")
     self:GetCharacterProfessions()
     self:GetPaperDollStats()
     self:CheckPrivacyRankSettings() -- this will make sure rank changes are handled, just set any privacy rule to the lowest rank if its wrong
@@ -658,7 +682,7 @@ function Guildbook:RequestTradeskillData()
     if self.addonLoaded == false then
         return;
     end
-    local delay = GUILDBOOK_GLOBAL['Debug'] and 0.05 or 0.5
+    local delay = GUILDBOOK_GLOBAL['Debug'] and 0.05 or 0.25
     local recipeIdsToQuery = {}
     if not self.tradeskillRecipes then
         self.tradeskillRecipes = {}
@@ -1872,7 +1896,8 @@ function Guildbook:GetCharacterTalentInfo(activeTalents)
         local tabs = {}
         for tabIndex = 1, GetNumTalentTabs() do
             local spec, texture, pointsSpent, fileName = GetTalentTabInfo(tabIndex)
-            table.insert(tabs, {points = pointsSpent, spec = spec})
+            local engSpec = Guildbook.Data.TalentBackgroundToSpec[fileName]
+            table.insert(tabs, {points = pointsSpent, spec = engSpec})
             for talentIndex = 1, GetNumTalents(tabIndex) do
                 local name, iconTexture, row, column, rank, maxRank, isExceptional, available = GetTalentInfo(tabIndex, talentIndex)
                 table.insert(GUILDBOOK_CHARACTER['Talents'][activeTalents], {
@@ -1887,9 +1912,14 @@ function Guildbook:GetCharacterTalentInfo(activeTalents)
                 --DEBUG('func', 'GetCharacterTalentInfo', string.format("Tab %s: %s %s points", tabIndex, name, rank))
             end
         end
+        -- find the tab with most points and set spec if not already set, the user can always change this if wrong and this will probably cause them to actually update it.
         table.sort(tabs, function(a,b)
             return a.points > b.points
         end)
+        if GUILDBOOK_CHARACTER.MainSpec == "-" then
+            GUILDBOOK_CHARACTER.MainSpec = tabs[1].spec
+            self:SetCharacterInfo(UnitGUID("player"), "MainSpec", tabs[1].spec)
+        end
         --print(tabs[1].spec)
         self:SetCharacterInfo(UnitGUID("player"), "Talents", GUILDBOOK_CHARACTER.Talents)
     end
@@ -2008,13 +2038,17 @@ end
 function Guildbook:Transmit(data, channel, target, priority)
     local inInstance, instanceType = IsInInstance()
     if not instanceType == "none" then
-        GuildbookUI.statusText:SetText("unable to transmit data while in an instance")
-        return;
+        if GUILDBOOK_GLOBAL.config and GUILDBOOK_GLOBAL.config.blockCommsDuringInstance == true then
+            GuildbookUI.statusText:SetText("blocked data comms while in an instance")
+            return;
+        end
     end
     local inLockdown = InCombatLockdown()
     if inLockdown then
-        GuildbookUI.statusText:SetText("unable to transmit data during combat lockdown")
-        return;
+        if GUILDBOOK_GLOBAL.config and GUILDBOOK_GLOBAL.config.blockCommsDuringCombat == true then
+            GuildbookUI.statusText:SetText("blocked data comms while in combat")
+            return;
+        end
     end
     if not self:GetGuildName() then
         return;
@@ -2512,6 +2546,7 @@ end
 function Guildbook:SendCharacterData(target, channel)
     local guid = UnitGUID('player')
     local ilvl = self:GetItemLevel()
+    self:GetCharacterTalentInfo("primary") -- this can find the main spec if its not already set
     self:GetCharacterProfessions() -- this gets the basic prof info for primary and seconday professions
     self:GetPaperDollStats() -- this gets the paperdoll stats
     self:ScanForTradeskillSpec()
@@ -3237,6 +3272,24 @@ function Guildbook:BANKFRAME_OPENED()
     self:ScanPlayerBank()
 end
 
+-- added this to the closed event to be extra accurate
+local bankScanned = false;
+function Guildbook:BANKFRAME_CLOSED()
+    if bankScanned == false then
+        DEBUG("event", "BANKFRAME_CLOSED", "scanning items")
+        for i = 1, GetNumGuildMembers() do
+            local _, _, _, _, _, _, publicNote, _, _, _, _, _, _, _, _, _, GUID = GetGuildRosterInfo(i)
+            if publicNote:lower():find('guildbank') and GUID == UnitGUID('player') then
+                self:ScanPlayerContainers()
+            end
+        end
+        self:ScanPlayerBank()
+        bankScanned = true;
+    else
+        bankScanned = false;
+    end
+end
+
 
 function Guildbook:PLAYER_EQUIPMENT_CHANGED()
     self:GetCharacterInventory()
@@ -3249,13 +3302,17 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
 
     local inInstance, instanceType = IsInInstance()
     if not instanceType == "none" then
-        GuildbookUI.statusText:SetText(string.format("blocked comms from %s while in instance", sender))
-        return;
+        if GUILDBOOK_GLOBAL.config and GUILDBOOK_GLOBAL.config.blockCommsDuringInstance == true then
+            GuildbookUI.statusText:SetText("blocked data comms while in an instance")
+            return;
+        end
     end
     local inLockdown = InCombatLockdown()
     if inLockdown then
-        GuildbookUI.statusText:SetText(string.format("blocked comms from %s while in combat", sender))
-        return;
+        if GUILDBOOK_GLOBAL.config and GUILDBOOK_GLOBAL.config.blockCommsDuringCombat == true then
+            GuildbookUI.statusText:SetText("blocked data comms while in combat")
+            return;
+        end
     end
 
     if prefix ~= addonName then 
@@ -3432,6 +3489,7 @@ Guildbook.EventFrame:RegisterEvent('TRADE_SKILL_UPDATE')
 Guildbook.EventFrame:RegisterEvent('CRAFT_UPDATE')
 Guildbook.EventFrame:RegisterEvent('RAID_ROSTER_UPDATE')
 Guildbook.EventFrame:RegisterEvent('BANKFRAME_OPENED')
+Guildbook.EventFrame:RegisterEvent('BANKFRAME_CLOSED')
 Guildbook.EventFrame:RegisterEvent('BAG_UPDATE')
 Guildbook.EventFrame:RegisterEvent('CHAT_MSG_GUILD')
 Guildbook.EventFrame:RegisterEvent('CHAT_MSG_WHISPER')

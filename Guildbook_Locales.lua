@@ -1182,6 +1182,22 @@ Guildbook.ProfessionNames = {
 		[755] = "Joyería",
 		[773] = "Inscripción",
 	},
+	-- discovered this locale exists also maybe esAL ?
+	esES = {
+        [164] = "Herrería",
+        [165] = "Peletería",
+        [171] = "Alquimia",
+        [182] = "Herboristería",
+        [185] = "Cocina",
+        [186] = "Minería",
+        [197] = "Sastrería",
+        [202] = "Ingeniería",
+        [333] = "Encantamiento",
+        [356] = "Pesca",
+        [393] = "Desuello",
+        [755] = "Joyería",
+        [773] = "Inscripción",
+    },
 	ptBR = {
 		[164] = "Ferraria",
 		[165] = "Couraria",

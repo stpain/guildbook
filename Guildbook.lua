@@ -621,6 +621,7 @@ local function navigateTo(frame)
     for _, f in pairs(GuildbookUI.frames) do
         f:Hide()
     end
+    GuildbookUI.backgroundModel:Hide()
     frame:Show()
 end
 
@@ -650,6 +651,18 @@ function GuildbookMixin:OnLoad()
     self:RegisterForDrag("LeftButton")
     SetPortraitToTexture(GuildbookUIPortrait,134068)
     --GuildbookUITitleText:SetText("v0.0.1")
+
+    self.backgroundModel = CreateFrame('PlayerModel', "GuildbookBackgroundModel", self, BackdropTemplateMixin and "BackdropTemplate")
+    self.backgroundModel:SetPoint('TOPLEFT', 0, -55)
+    self.backgroundModel:SetPoint('BOTTOMRIGHT', 0, 0)
+    --self.backgroundModel:SetModel("interface/buttons/talktomequestion_white.m2")
+    --self.backgroundModel:SetModel("creature/arthaslichking/arthaslichking.m2")
+    --self.backgroundModel:SetModel("environments/stars/shadowmoonillidan.m2")
+    self.backgroundModel:SetModel("creature/illidan/illidan.m2")
+    self.backgroundModel:SetPosition(0,0,-0.2)
+    self.backgroundModel:SetKeepModelOnHide(true)
+
+    tinsert(UISpecialFrames, self:GetName());
 
 
     self.ribbon:SetFrameLevel(self:GetFrameLevel() - 1)
@@ -684,8 +697,8 @@ function GuildbookMixin:OnLoad()
         gb.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('TOPLEFT', self.calendar, 'TOPRIGHT', 4, 50)
         gb.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('BOTTOMRIGHT', self.calendar, 'BOTTOMRIGHT', 254, 0)
     end
-    self.ribbon.guildBank.func = function()
-        navigateTo(self.guildBank)
+    self.ribbon.guildbank.func = function()
+        navigateTo(self.guildbank)
         -- gb.GuildFrame.GuildBankFrame:ClearAllPoints()
         -- gb.GuildFrame.GuildBankFrame:SetParent(self.guildBank)
         -- gb.GuildFrame.GuildBankFrame:SetPoint("TOPLEFT", 0, -26)
@@ -3811,7 +3824,8 @@ function GuildbookGuildBankMixin:RequestBankData()
     wipe(self.buttonDropdownMenus.Type)
     wipe(self.buttonDropdownMenus.Bank)
     self.listview.spinner:Show()
-    self.listview.task:Show()
+    self.listview.commits:Show()
+    self.listview.data:Show()
     self.listview.anim:Play()
     --GuildRoster()
     local guildBankCharacters = {}
@@ -3842,19 +3856,39 @@ function GuildbookGuildBankMixin:RequestBankData()
         end
     end
 
+    local commitsText, dataText = "", ""
+    self.listview.commits:SetText(commitsText)
+    self.listview.data:SetText(dataText)
     local delay = 2.0
     local idx = 2
     if guildBankCharacters and #guildBankCharacters > 0 then
 
+        --remove old banks
+        if GUILDBOOK_GLOBAL.GuildBank then
+            for bank, info in pairs(GUILDBOOK_GLOBAL.GuildBank) do
+                local exists = false
+                for _, b in ipairs(guildBankCharacters) do
+                    if b == bank then
+                        exists = true
+                    end
+                end
+                if exists == false then
+                    GUILDBOOK_GLOBAL.GuildBank[bank] = nil
+                end
+            end
+        end
+
         -- fire off the first request
         local bank = guildBankCharacters[1]
         gb:RequestGuildBankCommits(bank)
-        self.listview.task:SetText(L["GUILDBANK_REQUEST_COMMITS"]..bank)
+        commitsText = commitsText..L["GUILDBANK_REQUEST_COMMITS"]..bank.."\n"
+        self.listview.commits:SetText(commitsText)
 
         C_Timer.After(1.25, function()
             if gb.BankCharacters[bank].Source then
                 gb:RequestGuildBankItems(gb.BankCharacters[bank].Source, bank)
-                self.listview.task:SetText(L["GUILDBANK_REQUEST_INFO"]..gb.BankCharacters[bank].Source)
+                dataText = dataText..L["GUILDBANK_REQUEST_INFO"]..gb.BankCharacters[bank].Source.." ["..bank.."]\n"
+                self.listview.data:SetText(dataText)
             end
         end)
 
@@ -3866,12 +3900,14 @@ function GuildbookGuildBankMixin:RequestBankData()
 
                     gb.BankRequests = {}
                     gb:RequestGuildBankCommits(bank)
-                    self.listview.task:SetText(L["GUILDBANK_REQUEST_COMMITS"]..bank)
+                    commitsText = commitsText..L["GUILDBANK_REQUEST_COMMITS"]..bank.."\n"
+                    self.listview.commits:SetText(commitsText)
 
                     C_Timer.After(1.25, function()
                         if gb.BankCharacters[bank].Source then
                             gb:RequestGuildBankItems(gb.BankCharacters[bank].Source, bank)
-                            self.listview.task:SetText(L["GUILDBANK_REQUEST_INFO"]..gb.BankCharacters[bank].Source)
+                            dataText = dataText..L["GUILDBANK_REQUEST_INFO"]..gb.BankCharacters[bank].Source.." ["..bank.."]\n"
+                            self.listview.data:SetText(dataText)
                         end
                     end)
                     idx = idx + 1;
@@ -4003,7 +4039,8 @@ function GuildbookGuildBankMixin:LoadBankItems(itemCount)
 
     self:SortListview()
     self.listview.spinner:Hide()
-    self.listview.task:Hide()
+    self.listview.commits:Hide()
+    self.listview.data:Hide()
     self.listview.anim:Stop()
 end
 
