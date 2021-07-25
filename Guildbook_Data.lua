@@ -183,7 +183,7 @@ Guildbook.Data.Class = {
         Icon="Interface\\Addons\\Guildbook\\Icons\\Class\\DRUID", 
         RGB={ 1.00, 0.49, 0.04 }, 
         FontColour='|cffFF7D0A', 
-        Specializations={'Balance','Restoration','Cat' ,'Bear',} 
+        Specializations={'Balance','Restoration','Cat' ,'Bear',}
     },
     HUNTER = { 
         FontStringIconSMALL="|TInterface\\WorldStateFrame\\ICONS-CLASSES:16:16:0:2:256:256:0:64:64:128|t", 
@@ -352,6 +352,39 @@ Guildbook.Data.TalentBackgrounds = {
 	["WarriorArms"] = "Interface\\Addons\\Guildbook\\Icons\\Specialization\\WARRIOR\\Arms",  
 	["WarriorFury"] = "Interface\\Addons\\Guildbook\\Icons\\Specialization\\WARRIOR\\Fury",  
 	["WarriorProtection"] = "Interface\\Addons\\Guildbook\\Icons\\Specialization\\WARRIOR\\Protection", 
+}
+
+Guildbook.Data.TalentBackgroundToSpec = {
+	["DeathKnightBlood"] = "Blood",
+	["DeathKnightFrost"] = "Frost",
+	["DeathKnightUnholy"] = "Unholy",
+	["DruidBalance"] = "Balance",
+	["DruidFeralCombat"] = "Bear",
+	["DruidRestoration"] = "Restoration",
+	["HunterBeastMastery"] = "BeastMaster",
+	["HunterMarksmanship"] = "IMarksmanship",
+	["HunterSurvival"] = "Survival",
+	["MageArcane"] = "Arcane",
+	["MageFire"] = "Fire",
+	["MageFrost"] = "Frost",
+	["PaladinCombat"] = "Retribution",
+	["PaladinHoly"] = "Holy",
+	["PaladinProtection"] = "Protection",
+	["PriestDiscipline"] = "Discipline",
+	["PriestHoly"] = "Holy",
+	["PriestShadow"] = "Shadow",
+	["RogueAssassination"] = "Assassination",
+	["RogueCombat"] = "Combat",
+	["RogueSubtlety"] = "Subtlety",
+	["ShamanElementalCombat"] = "Elemental",
+	["ShamanEnhancement"] = "Enhancement",
+	["ShamanRestoration"] = "Restoration",
+	["WarlockCurses"] = "Affliction",
+	["WarlockDestruction"] = "Destruction",
+	["WarlockSummoning"] = "Demonology",
+	["WarriorArms"] = "Arms",
+	["WarriorFury"] = "Fury",
+	["WarriorProtection"] = "Protection",
 }
 
 Guildbook.Data.Profession = {

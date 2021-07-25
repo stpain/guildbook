@@ -64,7 +64,7 @@ the copyright holders.
                     <FontHeight val="11"/>
                     <Anchors>
                         <Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-                            <offset x="16" y="-100"/>
+                            <offset x="16" y="-90"/>
                         </Anchor>
                     </Anchors>
                 </FontString>               
@@ -120,7 +120,7 @@ the copyright holders.
                 </Layers>                
                 <Anchors>
                     <Anchor point="TOPLEFT">
-                        <Offset x="16" y="-120"/>
+                        <Offset x="16" y="-110"/>
                     </Anchor>
                 </Anchors>
                 <Scripts>
@@ -178,7 +178,7 @@ the copyright holders.
                 </Layers>                
                 <Anchors>
                     <Anchor point="TOPLEFT">
-                        <Offset x="200" y="-120"/>
+                        <Offset x="200" y="-110"/>
                     </Anchor>
                 </Anchors>
                 <Scripts>
@@ -207,7 +207,7 @@ the copyright holders.
                 </Layers>                
                 <Anchors>
                     <Anchor point="TOPLEFT">
-                        <Offset x="400" y="-120"/>
+                        <Offset x="400" y="-110"/>
                     </Anchor>
                 </Anchors>
                 <Scripts>
@@ -216,6 +216,65 @@ the copyright holders.
                     </OnLoad>
                     <OnClick>
                         GuildbookOptionsShowInfoMessages_OnClick(self)
+                    </OnClick>
+                </Scripts>
+            </CheckButton>
+
+            <CheckButton name="$parentBlockCommsDuringCombat" inherits="ChatConfigCheckButtonTemplate" >
+                <Size x="24" y="24"/>
+                <Layers>
+                    <Layer>
+                        <FontString name="$parentText" text="Block data comms during combat" inherits="GameFontNormal">
+                            <Color r="1" g="1" b="1" a="1"/>
+                            <FontHeight val="12"/>
+                            <Anchors>
+                                <Anchor point="LEFT">
+                                    <offset x="24" y="0"/>
+                                </Anchor>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>                
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentShowMinimapCalendarButton" relativePoint="BOTTOMLEFT">
+                        <Offset x="0" y="-2"/>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self.tooltip = 'Guildbook will block all incoming and outgoing data comms while you are in combat lockdown. Guild members wont be able to make requests that target you.'
+                    </OnLoad>
+                    <OnClick>
+                        GuildbookOptionsBlockCommsDuringCombat_OnClick(self)
+                    </OnClick>
+                </Scripts>
+            </CheckButton>
+            <CheckButton name="$parentBlockCommsDuringInstance" inherits="ChatConfigCheckButtonTemplate" >
+                <Size x="24" y="24"/>
+                <Layers>
+                    <Layer>
+                        <FontString name="$parentText" text="Block data comms when in an instance" inherits="GameFontNormal">
+                            <Color r="1" g="1" b="1" a="1"/>
+                            <FontHeight val="12"/>
+                            <Anchors>
+                                <Anchor point="LEFT">
+                                    <offset x="24" y="0"/>
+                                </Anchor>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>                
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parentBlockCommsDuringCombat" relativePoint="RIGHT">
+                        <Offset x="280" y="0"/>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self.tooltip = 'Guildbook will block all incoming and outgoing data comms while you are in an instance. Guild members wont be able to make requests that target you.'
+                    </OnLoad>
+                    <OnClick>
+                        GuildbookOptionsBlockCommsDuringInstance_OnClick(self)
                     </OnClick>
                 </Scripts>
             </CheckButton>
