@@ -1700,7 +1700,7 @@ function GuildbookRosterMixin:SortRoster()
 end
 
 function GuildbookRosterMixin:RowInviteToGroup_OnMouseDown(row)
-    InviteToGroup(row.character.name)
+    InviteToGroup(row.character.Name)
 end
 
 function GuildbookRosterMixin:RowOpenToChat_OnMouseDown(row)
@@ -3421,12 +3421,14 @@ function GuildbookSearchMixin:Search(term)
             self:GetParent().ribbon.searchBox:SetText("")
             PlaySoundFile(552503, "Master")
         end
+        return;
     end
 
     local resultKeys = {
-        ["character"] = 2,
-        ["inventory"] = 3,
+        ["character"] = 3,
+        ["inventory"] = 4,
         ["tradeskill"] = 1,
+        ["guildbank"] = 2,
     }
 
     self.processed = {}
@@ -3497,6 +3499,29 @@ function GuildbookSearchMixin:Search(term)
     else
         DEBUG("func", "Search", "tradeskillRecipes NOT exists > 0")
     end
+
+
+    local bankItemsSeen = {}
+    if self:GetParent().guildbank.items and #self:GetParent().guildbank.items > 0 then
+        local items = self:GetParent().guildbank.items
+        for k, item in ipairs(items) do
+            if item.Link and item.Link:lower():find(term:lower()) and not bankItemsSeen[item.ItemID] then
+                table.insert(self.results, {
+                    resultKey = resultKeys["guildbank"],
+                    title = item.Link,
+                    icon = item.Icon,
+                    iconType = "fileID",
+                    info = string.format("%s x%s [%s]", L['GUILDBANK'], item.Count, item.Bank),
+                    func = function()
+
+                    end,
+                })
+                bankItemsSeen[item.ItemID] = true;
+            end
+        end
+    end
+
+
 
     self.listview.scrollBar:SetValue(1)
     if self.results and #self.results > 0 then
