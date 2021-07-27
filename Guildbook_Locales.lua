@@ -145,6 +145,7 @@ L["TRADESKILL_GUILD_RECIPES"]		= "Guild Recipes"
 L["TRADESKILLS_SHARE_RECIPES"]		= "Share this characters recipes"
 L["CAN_CRAFT"]                          = "[Guildbook] are you able to craft %s ?"
 
+L['GUILDBANK']						= "Guild bank"
 L["GUILDBANK_HEADER_ITEM"]			= "Item link"
 L["GUILDBANK_HEADER_COUNT"]			= "Count"
 L["GUILDBANK_SORT_TYPE"]			= "Type"

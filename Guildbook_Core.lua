@@ -68,8 +68,8 @@ SlashCmdList['GUILDBOOK'] = function(msg)
     --print("["..msg.."]")
     if msg == 'open' then
         GuildbookUI:Show()
-        if not prepared then
-            PlaySoundFile(552503, "Master")
+        if not prepared and GuildbookUI.backgroundModel:IsVisible() then
+            --PlaySoundFile(552503, "Master")
             prepared = true;
         end
 

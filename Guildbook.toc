@@ -1,6 +1,6 @@
 ## Interface: 20501
 ## Author: Copperbolts
-## Version: 4.9631
+## Version: 4.9641
 ## Title: |cff0070DEGuildbook|r
 ## Notes: Guildbook for Guilds!
 ## SavedVariables: GUILDBOOK_GLOBAL
