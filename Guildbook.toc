@@ -1,6 +1,6 @@
 ## Interface: 20501
 ## Author: Copperbolts
-## Version: 4.9641
+## Version: 4.965
 ## Title: |cff0070DEGuildbook|r
 ## Notes: Guildbook for Guilds!
 ## SavedVariables: GUILDBOOK_GLOBAL
@@ -18,21 +18,22 @@ Libs\AceComm-3.0\AceComm-3.0.xml
 Libs\LibSerialize\lib.xml
 Libs\LibCraftInfo-1.0\LibCraftInfo-1.0.xml
 
-Guildbook_Debugger.lua
+Debugger.lua
 
-Guildbook_Locales.lua
-Guildbook_ModBlizzUI.lua
-Guildbook_Data.lua
-Guildbook_Core.lua
-Guildbook_Legacy.lua
-Guildbook_Dialogs.lua
-Guildbook_Options.lua
-Guildbook_Options.xml
+Locales.lua
+ModBlizzUI.lua
+Data.lua
+Core.lua
+Calendar.lua
+Dialogs.lua
+Options.lua
 
 Templates.lua
 Templates.xml
 
 Guildbook.lua
 Guildbook.xml
+
+Options.xml
 
 #TextureViewer.lua

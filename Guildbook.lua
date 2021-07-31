@@ -2,8 +2,6 @@
 
 local _, gb = ...
 
-
-
 local L = gb.Locales
 local DEBUG = gb.DEBUG
 
@@ -20,24 +18,71 @@ local frameBackdrop = {
 	insets = { left = 8, right = 8, top = 8, bottom = 8 }
 }
 
-GuildbookLoaderMixin = {}
+GuildbookDataShareMixin = {}
 
-function GuildbookLoaderMixin:OnLoad()
+function GuildbookDataShareMixin:OnLoad()
     self:RegisterForDrag("LeftButton")
-    self:SetPoint("CENTER", 0, 0)
     self:SetBackdrop(frameBackdrop)
 
-    self.header:SetText(L["GUILDBOOK_LOADER_HEADER"])
-
-    self.load:SetText("OK")
-    self.load:SetScript("OnClick", function()
+    self.close:SetText("X")
+    self.close:SetScript("OnClick", function()
         self:Hide()
+    end)
+
+    self.dataString.EditBox:SetScript("OnEditFocusGained", function(self)
+        self:HighlightText()
+    end)
+    self.dataString.CharCount:ClearAllPoints()
+    self.dataString.CharCount:SetPoint("TOPRIGHT", self.dataString, "BOTTOMRIGHT", 0, -25)
+
+    self.header:SetText(L["GUILDBOOK_DATA_SHARE_HEADER"])
+
+    self.import:SetText("Import")
+    self.import:SetScript("OnClick", function()
+        local data = self.dataString.EditBox:GetText()
+        if not data then
+            return
+        end
+        gb:ImportGuildTradeskillRecipes(data)
+    end)
+
+    self.export:SetText("Export")
+    self.export:SetScript("OnClick", function()
+        local s = gb:SerializeGuildTradeskillRecipes()
+        GuildbookDataShare.dataString.EditBox:SetText(s)
     end)
 end
 
-function GuildbookLoaderMixin:OnShow()
+function GuildbookDataShareMixin:OnShow()
 
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -154,6 +199,23 @@ end
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- recipe listview
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -250,8 +312,25 @@ end
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- roster listview
+-- roster
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 GuildbookRosterListviewItemMixin = {}
 GuildbookRosterListviewItemMixin.tooltipIcon = CreateFrame("FRAME", "GuildbookRosterListviewItemTooltipIcon")
@@ -302,11 +381,23 @@ function GuildbookRosterListviewItemMixin:OnEnter()
         end
     end
 
-    GameTooltip:AddDoubleLine(L['Professions'], "       ")
-    GameTooltip:AddDoubleLine(character.Profession1 or "-", character.Profession1Level or 0, 1,1,1,1, 1,1,1,1)
-    --GameTooltip_ShowStatusBar(GameTooltip, 0, 300, 245)
-    --GameTooltip_ShowProgressBar(GameTooltip, 0, 300, 245)
-    GameTooltip:AddDoubleLine(character.Profession2 or "-", character.Profession2Level or 0, 1,1,1,1, 1,1,1,1)
+    local function formatTradeskill(prof, spec)
+        if spec then
+            return string.format("%s [|cff40C7EB%s|r]", prof, (GetSpellInfo(spec)));
+        elseif prof then
+            return prof;
+        else
+            return "-";
+        end
+    end
+
+    GameTooltip:AddLine(L["TRADESKILLS"])
+    --local prof1 = character.Profession1Spec and string.format("%s [|cff40C7EB%s|r]", character.Profession1, GetSpellInfo(self.character.Profession1Spec)) or (character.Profession1 and character.Profession1 or "-")
+    GameTooltip:AddDoubleLine(formatTradeskill(character.Profession1, character.Profession1Spec), character.Profession1Level or 0, 1,1,1,1, 1,1,1,1)
+    -- GameTooltip_ShowStatusBar(GameTooltip, 0, 300, 245)
+    -- GameTooltip_ShowProgressBar(GameTooltip, 0, 300, 245)
+    --local prof2 = character.Profession2Spec and string.format("%s [|cff40C7EB%s|r]", character.Profession2, GetSpellInfo(self.character.Profession2Spec)) or (character.Profession2 and character.Profession2 or "-")
+    GameTooltip:AddDoubleLine(formatTradeskill(character.Profession2, character.Profession2Spec), character.Profession2Level or 0, 1,1,1,1, 1,1,1,1)
     -- if self.PublicNote:GetText() and #self.PublicNote:GetText() > 0 then
     --     GameTooltip:AddLine(" ")
     --     GameTooltip:AddDoubleLine(L['publicNote'], "|cffffffff"..self.PublicNote:GetText())
@@ -450,7 +541,7 @@ function GuildbookRosterListviewItemMixin:SetCharacter(member)
         mainSpec = "Guardian"
     elseif self.character.MainSpec == "Cat" then
         mainSpec = "Feral"
-    elseif self.character.MainSpec == "Beast Master" then
+    elseif self.character.MainSpec == "Beast Master" or self.character.MainSpec == "BeastMaster" then
         mainSpec = "BeastMastery"
     elseif self.character.MainSpec == "Combat" then
         mainSpec = "Outlaw"
@@ -531,6 +622,25 @@ end
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 GuildbookAvatarMixin = {}
 
 function GuildbookAvatarMixin:OnLoad()
@@ -556,8 +666,30 @@ end
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- main mixin
+-- main
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 GuildbookMixin = {}
 GuildbookMixin.selectedProfession = nil;
@@ -652,6 +784,9 @@ function GuildbookMixin:OnLoad()
     SetPortraitToTexture(GuildbookUIPortrait,134068)
     --GuildbookUITitleText:SetText("v0.0.1")
 
+    GuildbookDataShare:SetParent(GuildbookUI.tradeskills)
+    GuildbookDataShare:SetPoint("LEFT", GuildbookUI.tradeskills, "RIGHT", 20, 0)
+
     self.backgroundModel = CreateFrame('PlayerModel', "GuildbookBackgroundModel", self, BackdropTemplateMixin and "BackdropTemplate")
     self.backgroundModel:SetPoint('TOPLEFT', 0, -55)
     self.backgroundModel:SetPoint('BOTTOMRIGHT', 0, 0)
@@ -719,6 +854,10 @@ function GuildbookMixin:OnLoad()
     end
 
     self.profiles.contentPane.scrollChild:SetSize(650, 480)
+
+    self.tradeskills.ribbon.exportTradeskills.func = function()
+        GuildbookDataShare:Show()
+    end
 
 end
 
@@ -1084,12 +1223,24 @@ local function getPlayersWithRecipe(recipeID)
     if not recipeID then
         return
     end
+    local members = {}
+    if GUILD_NAME then
+        local totalMembers, onlineMembers, _ = GetNumGuildMembers()
+        for i = 1, totalMembers do
+            local name, _, _, _, _, zone, _, _, isOnline = GetGuildRosterInfo(i)
+            name = Ambiguate(name, "none")
+            members[name] = { online = isOnline, zone = zone}
+        end
+    else
+        return;
+    end
     local characters = {}
     for k, guid in ipairs(GuildbookMixin.charactersWithProfession) do
         local character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][guid]
         if character[GuildbookMixin.selectedProfession] then
             if character[GuildbookMixin.selectedProfession][recipeID] then
-                local _online, _zone = gb:IsGuildMemberOnline(character.Name)
+                --local _online, _zone = gb:IsGuildMemberOnline(character.Name)
+                local _online, _zone = members[character.Name].online, members[character.Name].zone
                 table.insert(characters, {
                     name = character.Name,
                     guid = guid,
@@ -1371,8 +1522,25 @@ end
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- roster listview
+-- roster
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 GuildbookRosterMixin = {}
 GuildbookRosterMixin.rows = {}
@@ -1750,8 +1918,25 @@ end
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- chats
+-- chat
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 GuildbookChatsMixin = {}
 GuildbookChatsMixin.chat = "guild"; -- use as default
@@ -1969,6 +2154,13 @@ function GuildbookChatsMixin:SetChatContent(id, chatName)
     end
 end
 
+
+
+
+
+
+
+
 GuildbookChatsListviewMixin = {}
 
 function GuildbookChatsListviewMixin:LoadChat()
@@ -2001,6 +2193,11 @@ function GuildbookChatsListviewMixin:ChatsListviewScrollBar_OnValueChanged(scrol
         end
     end
 end
+
+
+
+
+
 
 
 GuildbookChatContentMixin = {}
@@ -2141,6 +2338,23 @@ function GuildbookChatContentMixin:ChatContentScrollBar_OnValueChanged()
         end
     end
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3136,6 +3350,40 @@ end
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- my sacks (old addon being merged, or just removed at some point)
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 GuildbookMySacksListviewItemMixin = {}
 
 function GuildbookMySacksListviewItemMixin:UpdateItem()
@@ -3381,6 +3629,34 @@ end
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- search
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 GuildbookSearchMixin = {}
 GuildbookSearchMixin.rows = {}
 
@@ -3659,6 +3935,43 @@ function GuildbookStatsMixin:OnShow()
 end
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- privacy
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 GuildbookPrivacyMixin = {}
 
 function GuildbookPrivacyMixin:OnLoad()
@@ -3808,6 +4121,41 @@ end
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- guild bank
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 GuildbookGuildBankMixin = {}
 GuildbookGuildBankMixin.rows = {}
 GuildbookGuildBankMixin.items = {}
@@ -4166,6 +4514,42 @@ end
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- help and about
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 GuildbookHelpAboutMixin = {}
 
 function GuildbookHelpAboutMixin:OnLoad()

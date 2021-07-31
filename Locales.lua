@@ -38,15 +38,20 @@ local addonName, Guildbook = ...
 
 -- locales table
 local L = {}
+
+--options page
 L['OptionsAbout'] = 'Guildbook options and about. Thanks to Belrand@Auberdine for the French translations'
 L['Version'] = 'Version'
 L['Author'] = 'Author: |cffffffffstpain (|r|cffF58CBACopperbolts|r |cffffffffand|r |cff0070DEKylanda|r|cffffffff)|r'
+
+
 
 L["NEW_VERSION_1"] = "new version available, probably fixes a few things, might break something else though!"
 L["NEW_VERSION_2"] = "there is a totally new awesome version of guildbook, available to downlaod from all good addon providers!"
 L["NEW_VERSION_3"] = "lol, if you thought the last update did not a lot, you should get the new one, probably does about the same.....or less!"
 L["NEW_VERSION_4"] = "hordies are red, alliance are blue, guildbook updates just for you!"
 
+L["GUILDBOOK_DATA_SHARE_HEADER"]	= "Guildbook data share \n\nYou can share your tradeskill data by clicking export to generate a data string. Then copy/paste this to somewhere like discord. \nTo import tradeskill data paste a data string into the box below and click import."
 L["GUILDBOOK_LOADER_HEADER"]        = "Welcome to Guildbook"
 L["TOOLTIP_ITEM_RECIPE_HEADER"]     = "Used for the following"
 
@@ -54,7 +59,6 @@ L["HELP_ABOUT"]						= "Help & about"
 
 -- this is just a quick thing, will make the how section more fleshed out
 -- this is a nasty way to do this, its horrible and i need to make the help & about much better
-
 local slashCommandsIcon = CreateTextureMarkup(136377, 64, 64, 16, 16, 0, 1, 0, 1, 0, 0)
 local slashCommandsHelp = [[
 Slash commands:
@@ -99,7 +103,7 @@ L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s", slas
 
 
 
---mod blizz guild roster
+--mod blizz guild roster, these are key/values in the ModBlizz file that add extra columns
 L['Online']                         = 'Online'
 L['MainSpec']                       = 'Main Spec'
 L['Rank']                           = 'Rank'
@@ -108,7 +112,7 @@ L['Profession1']                    = 'Profession 1'
 L['Profession2']                    = 'Profession 2'
 
 
--- roster listview and tooltip, these are also sort keys hence the lowercase usage
+-- roster listview and tooltip, these are also sort keys and should be lower case
 L["name"]                           = "Name"
 L["level"]                          = "Level"
 L["mainSpec"]                       = "Main Spec"
@@ -143,6 +147,7 @@ L["TRADESKILLS_RECIPES"]			= "Recipes"
 L["TRADESKILLS_CHARACTERS"]			= "Characters"
 L["TRADESKILL_GUILD_RECIPES"]		= "Guild Recipes"
 L["TRADESKILLS_SHARE_RECIPES"]		= "Share this characters recipes"
+L["TRADESKILLS_EXPORT_RECIPES"]		= "Import or export tradeskill data"
 
 L['GUILDBANK']						= "Guild bank"
 L["GUILDBANK_HEADER_ITEM"]			= "Item link"
@@ -258,6 +263,7 @@ L['Subtlety']                       = 'Subtlety'
 --hunter
 L['Marksmanship']                   = 'Marksmanship'
 L['Beast Master']                   = 'Beast Master'
+L['BeastMaster']                   	= 'Beast Master' -- the smart detect spec system could return this value
 L['Survival']                       = 'Survival'
 --warlock
 L['Destruction']                    = 'Destruction'
@@ -286,13 +292,13 @@ L['OCTOBER']                        = 'October'
 L['NOVEMBER']                       = 'November'
 L['DECEMBER']                       = 'December'
 
-L["MONDAY"]			    = "Monday"
-L["TUESDAY"]			    = "Tuesday"
-L["WEDNESDAY"]			    = "Wednesday"
-L["THURSDAY"]			    = "Thursday"
-L["FRIDAY"]			    = "Friday"
-L["SATURDAY"]			    = "Saturday"
-L["SUNDAY"]			    = "Sunday"
+L["MONDAY"]			    			= "Monday"
+L["TUESDAY"]			    		= "Tuesday"
+L["WEDNESDAY"]			    		= "Wednesday"
+L["THURSDAY"]			    		= "Thursday"
+L["FRIDAY"]			   				= "Friday"
+L["SATURDAY"]			    		= "Saturday"
+L["SUNDAY"]			    			= "Sunday"
 
 
 -- old stuff but might use again
@@ -1055,6 +1061,8 @@ Guildbook.Locales = L
 
 
 -- these were taken from the game however some seem to be incorrect so any fixes please post on the curse page for others to see (and me)
+
+-- first aid has a proper value but i dont know it so adding as -1
 Guildbook.ProfessionNames = {
 	enUS = {
 		[164] = "Blacksmithing",
@@ -1070,6 +1078,7 @@ Guildbook.ProfessionNames = {
 		[393] = "Skinning",
 		[755] = "Jewelcrafting",
 		[773] = "Inscription",
+		--[-1] = "First Aid"
 	},
 	deDE = {
 		[164] = "Schmiedekunst",

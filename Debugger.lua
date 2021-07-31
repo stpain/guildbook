@@ -22,14 +22,15 @@ Guildbook.DebugLog = {}
 ---@param id string the type of debug, this also sets the colour used (func, comms_in, error, comms_out)
 ---@param func string the function name
 ---@param msg string the debug message to display
-function Guildbook.DEBUG(id, func, msg)
+function Guildbook.DEBUG(id, func, msg, data)
     for i = 1, 40 do
         Guildbook.DebuggerWindow.Listview[i]:Hide()
     end
     if func and msg then
-        table.insert(Guildbook.DebugLog, string.format("%s [%s%s|r], %s", date("%T"), Guildbook.DebugColours[id], func, msg))
-    else
-        table.insert(Guildbook.DebugLog, 'oops something went wrong!')
+        table.insert(Guildbook.DebugLog, {
+            msg = string.format("%s [%s%s|r], %s", date("%T"), Guildbook.DebugColours[id], func, msg),
+            data = data,
+        })
     end
     if Guildbook.DebugLog and next(Guildbook.DebugLog) then
         local i = #Guildbook.DebugLog - 39
@@ -86,13 +87,90 @@ for i = 1, 40 do
     f.Message:SetSize(780, 20)
     f.Message:SetJustifyH('LEFT')
     f.Message:SetTextColor(1,1,1,1)
-    f.msg = nil
+    f.info = nil
     f:SetScript('OnShow', function(self)
-        if self.msg then
-            self.Message:SetText(self.msg)
+        if self.info and self.info.msg then
+            self.Message:SetText(self.info.msg)
         else
             self:Hide()
         end
+    end)
+    f:SetScript('OnEnter', function(self)
+        if self.info and self.info.data and type(self.info.data) == "table" then
+            GameTooltip:SetOwner(self, 'ANCHOR_LEFT')
+            for k, v in ipairs(self.info.data) do
+                GameTooltip:AddDoubleLine(k, v)
+                if type(v) == "table" then
+                    for a, b in pairs(v) do
+                        GameTooltip:AddDoubleLine("> "..a, b)
+                        if type(b) == "table" then
+                            for c, d in pairs(b) do
+                                if d then
+                                    GameTooltip:AddDoubleLine(">> "..c, d)
+                                end                            end
+                            for c, d in ipairs(b) do
+                                if d then
+                                    GameTooltip:AddDoubleLine(">> "..c, d)
+                                end                            end
+                        end
+                    end
+                    for a, b in ipairs(v) do
+                        GameTooltip:AddDoubleLine("> "..a, b)
+                        if type(b) == "table" then
+                            for c, d in pairs(b) do
+                                if d then
+                                    GameTooltip:AddDoubleLine(">> "..c, d)
+                                end                            end
+                            for c, d in ipairs(b) do
+                                if d then
+                                    GameTooltip:AddDoubleLine(">> "..c, d)
+                                end                            end
+                        end
+                    end
+                end
+            end
+            for k, v in pairs(self.info.data) do
+                GameTooltip:AddDoubleLine(k, v)
+                if type(v) == "table" then
+                    for a, b in pairs(v) do
+                        GameTooltip:AddDoubleLine("> "..a, b)
+                        if type(b) == "table" then
+                            for c, d in pairs(b) do
+                                if d then
+                                    GameTooltip:AddDoubleLine(">> "..c, d)
+                                end
+                            end
+                            for c, d in ipairs(b) do
+                                if d then
+                                    GameTooltip:AddDoubleLine(">> "..c, d)
+                                end
+                            end
+                        end
+                    end
+                    for a, b in ipairs(v) do
+                        GameTooltip:AddDoubleLine("> "..a, b)
+                        if type(b) == "table" then
+                            for c, d in pairs(b) do
+                                if d then
+                                    GameTooltip:AddDoubleLine(">> "..c, d)
+                                end
+                            end
+                            for c, d in ipairs(b) do
+                                if d then
+                                    GameTooltip:AddDoubleLine(">> "..c, d)
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+            GameTooltip:Show()
+        else
+            GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+        end
+    end)
+    f:SetScript('OnLeave', function(self)
+        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
     end)
     f:SetScript('OnHide', function(self)
         self.Message:SetText(' ')
@@ -120,7 +198,7 @@ Guildbook.DebuggerWindow.ScrollBar:SetScript('OnValueChanged', function(self)
         for i = 1, 40 do
             if Guildbook.DebugLog[(i - 1) + scrollPos] then
                 Guildbook.DebuggerWindow.Listview[i]:Hide()
-                Guildbook.DebuggerWindow.Listview[i].msg = Guildbook.DebugLog[(i - 1) + scrollPos]
+                Guildbook.DebuggerWindow.Listview[i].info = Guildbook.DebugLog[(i - 1) + scrollPos]
                 Guildbook.DebuggerWindow.Listview[i]:Show()
             end
         end

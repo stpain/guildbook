@@ -516,8 +516,16 @@ Guildbook.Data.Profession = {
         IconID = 135966,
         FontStringIconSMALL ='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:76:140:226:290|t', 
     },
+    ["First Aid"] = { 
+        ID = 14, 
+        Name = 'FirstAid', 
+        Icon = 'Interface\\Icons\\Spell_Holy_SealOfSacrifice', 
+        IconID = 135966,
+        FontStringIconSMALL ='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:76:140:226:290|t', 
+    },
 }
 
+-- this is used to add prof names to player table, these should only be primary profs
 Guildbook.Data.Professions = {
     { Name = 'Alchemy', TradeSkill = true, },
     { Name = 'Blacksmithing', TradeSkill = true, },
@@ -527,7 +535,6 @@ Guildbook.Data.Professions = {
     { Name = 'Jewelcrafting', TradeSkill = true, },
     { Name = 'Leatherworking', TradeSkill = true, },
     { Name = 'Tailoring', TradeSkill = true, },
-    --{ Name = 'Cooking', TradeSkill = true, },
     { Name = 'Mining', TradeSkill = true, },
 }
 

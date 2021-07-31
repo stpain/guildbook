@@ -1,39 +1,46 @@
 <UI xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI-Retail.xsd">
     
-    <Frame name="GuildbookLoader" mixin="GuildbookLoaderMixin" parent="UIParent" enableMouse="true" movable="true" inherits="BackdropTemplate" hidden="true">
-        <Size x="200" y="150"/>
+    <Frame name="GuildbookDataShare" mixin="GuildbookDataShareMixin" parent="UIParent" enableMouse="true" movable="true" inherits="BackdropTemplate" hidden="true">
+        <Size x="540" y="400"/>
         <Layers>
             <Layer level="OVERLAY">
                 <FontString parentKey="header" inherits="GameFontNormal">
-                    <Size x="380" y="20"/>
+                    <Size x="500" y="80"/>
                     <Color r="1" g="1" b="1"/>
                     <Anchors>
-                        <Anchor point="TOP" x="0" y="-16"/>
-                    </Anchors>
-                </FontString>
-                <FontString parentKey="news" inherits="GameFontNormal">
-                    <Size x="380" y="40"/>
-                    <Color r="1" g="1" b="1"/>
-                    <Anchors>
-                        <Anchor point="TOP" relativeKey="$parent.header" relativePoint="BOTTOM" x="0" y="-5"/>
+                        <Anchor point="TOP" x="0" y="-12"/>
                     </Anchors>
                 </FontString>
             </Layer>
         </Layers>
         <Frames>
-            <!-- <StatusBar parentKey="statusBar" useParentLevel="true" minValue="0" maxValue="1" defaultValue="0" orientation="HORIZONTAL">
-                <Size y="30"/>
+            <ScrollFrame parentKey="dataString" inherits="InputScrollFrameTemplate" autoFocus="false" multiline="true">
+                <Size x="500" y="250"/>
+                <KeyValue key="maxLetters" value="150000" type="number"/>
+                <KeyValue key="hideCharCount" value="false" type="boolean"/>
                 <Anchors>
-                    <Anchor point="TOPLEFT"  x="10" y="-25"/>
-                    <Anchor point="TOPRIGHT" x="-2" y="-25"/>
+                    <Anchor point="CENTER" x="0" y="-25"/>
                 </Anchors>
-                <BarTexture file="Interface\TargetingFrame\UI-StatusBar"/>
-                <BarColor r="0.859" g="0.128" b="0.593" a="0.75"/>
-            </StatusBar> -->
-            <Button parentKey="load" inherits="UIPanelButtonTemplate">
+                <Scripts>
+
+                </Scripts>
+            </ScrollFrame>
+            <Button parentKey="close" inherits="UIPanelButtonTemplate">
+                <Size x="25" y="25"/>
+                <Anchors>
+                    <Anchor point="TOPRIGHT" x="-10" y="-10"/>
+                </Anchors>
+            </Button>
+            <Button parentKey="import" inherits="UIPanelButtonTemplate">
                 <Size x="100" y="25"/>
                 <Anchors>
-                    <Anchor point="BOTTOM"  x="0" y="15"/>
+                    <Anchor point="BOTTOM" x="-100" y="15"/>
+                </Anchors>
+            </Button>
+            <Button parentKey="export" inherits="UIPanelButtonTemplate">
+                <Size x="100" y="25"/>
+                <Anchors>
+                    <Anchor point="BOTTOM" x="100" y="15"/>
                 </Anchors>
             </Button>
         </Frames>
@@ -1320,6 +1327,20 @@
                         </Layers>
                         <!-- socialqueuing-icon-group -->
                         <Frames>
+                            <Frame parentKey="exportTradeskills" inherits="GuildbookSmallHighlightButton" hidden="false">
+                                <Size x="40" y="40"/>
+                                <Anchors>
+                                    <Anchor point="RIGHT" relativePoint="LEFT" relativeKey="$parent.recipeListviewHeader" x="-5" y="0"/>
+                                </Anchors>
+                                <Layers>
+                                    <Layer level="BACKGROUND">
+                                        <Texture atlas="streamcinematic-downloadicon" setAllPoints="true"/>
+                                    </Layer>
+                                </Layers>
+                                <KeyValues>
+                                    <KeyValue key="tooltipText" value="TRADESKILLS_EXPORT_RECIPES" type="string"/>
+                                </KeyValues>
+                            </Frame>
                             <Frame parentKey="shareCharactersRecipes" inherits="GuildbookSmallHighlightButton" hidden="false">
                                 <Size x="20" y="20"/>
                                 <Anchors>
