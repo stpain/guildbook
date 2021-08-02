@@ -171,7 +171,7 @@ function GuildbookCharacterListviewItemMixin:SendMessage_OnMouseDown()
     local point, relativeTo, relativePoint, xOfs, yOfs = self.sendMessage:GetPoint()
 	self.sendMessage:ClearAllPoints()
 	self.sendMessage:SetPoint(point, relativeTo, relativePoint, xOfs - 1, yOfs - 1)
-    local msg = string.format("[Guildbook] are you able to craft %s", self.itemLink)
+    local msg = string.format(L["CAN_CRAFT"], self.itemLink) --broken?
     SendChatMessage(msg, "WHISPER", nil, self.character.name)
 end
 
@@ -3999,14 +3999,14 @@ function GuildbookPrivacyMixin:OnShow()
             k = k()
         end
         if k == "none" then
-            fs:SetText("Sharing with nobody")
+            fs:SetText(L["SHARING_NOBODY"])
             return;
         end
         if type(k) ~= "number" then
             fs:SetText("an error has occured, setting as lowest rank available")
             k = GuildControlGetNumRanks()
         end
-        local t = "Sharing with"
+        local t = L["SHARING_WITH"]
         for i, r in ipairs(self.ranks) do
             if i <= k then
                 t = t..", "..r
@@ -4109,7 +4109,7 @@ function GuildbookPrivacyMixin:OnShow()
         end,
     })
     table.insert(self.shareTalents.menu, {
-        text = "None",
+        text =  L["NONE"],
         func = function()
             GUILDBOOK_GLOBAL.config.privacy.shareTalentsMinRank = "none";
             updateInfo(self.talentsSharingInfo, "none")
