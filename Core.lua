@@ -354,6 +354,8 @@ function Guildbook:Init()
                         mainSpec = "Feral"
                     elseif character.MainSpec == "Beast Master" or character.MainSpec == "BeastMaster" then
                         mainSpec = "BeastMastery"
+                    elseif character.MainSpec == "Combat" then
+                        mainSpec = "Outlaw"
                     end
                     local iconString = CreateAtlasMarkup(string.format("GarrMission_ClassIcon-%s-%s", character.Class, mainSpec and mainSpec or character.MainSpec), 24,24)
                     self:AddLine(iconString.. "  |cffffffff"..character.MainSpec)
@@ -406,7 +408,7 @@ function Guildbook:PLAYER_ENTERING_WORLD()
         return;
     end
     GuildRoster() -- this will trigger a roster scan but we set addonLoaded as false to skip the auto roster scan
-    C_Timer.After(1, function()
+    C_Timer.After(1.5, function()
         self:ScanGuildRoster(function()
             Guildbook:Load() -- once the roster has been scanned continue to load, its a bit meh but it means we get a full roster scan before loading
         end)
@@ -416,7 +418,7 @@ function Guildbook:PLAYER_ENTERING_WORLD()
         faction = nil,
         race = nil,
     }
-    C_Timer.After(2.0, function()
+    C_Timer.After(1.0, function()
         if not Guildbook.PlayerMixin then
             Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(UnitGUID('player'))
         else
@@ -673,7 +675,7 @@ function Guildbook:RequestTradeskillData()
     if self.addonLoaded == false then
         return;
     end
-    local delay = GUILDBOOK_GLOBAL['Debug'] and 0.05 or 0.25
+    local delay = GUILDBOOK_GLOBAL['Debug'] and 0.05 or 0.125
     local recipeIdsToQuery = {}
     if not self.tradeskillRecipes then
         self.tradeskillRecipes = {}
@@ -1722,6 +1724,10 @@ function Guildbook:ScanGuildRoster(callback)
         if not self.onlineMembers then
             self.onlineMembers = {}
         end
+        local faction = self.player.faction
+        if not faction then
+            return;
+        end
         local newGUIDs = {}
         local totalMembers, onlineMember, _ = GetNumGuildMembers()
         GUILDBOOK_GLOBAL['RosterExcel'] = {}
@@ -1764,7 +1770,7 @@ function Guildbook:ScanGuildRoster(callback)
         local start = date('*t')
         local started = time()
         GuildbookUI.statusText:SetText(string.format("starting roster scan at %s:%s:%s", start.hour, start.min, start.sec))
-        self.scanRosterTicker = C_Timer.NewTicker(0.01, function()
+        self.scanRosterTicker = C_Timer.NewTicker(0.0001, function()
             local percent = (i/totalMembers) * 100
             GuildbookUI.statusText:SetText(string.format("roster scan %s%%",string.format("%.1f", percent)))
             GuildbookUI.statusBar:SetValue(i/totalMembers)
@@ -1774,19 +1780,21 @@ function Guildbook:ScanGuildRoster(callback)
             local guid = currentGUIDs[i].GUID
             local info = GUILDBOOK_GLOBAL.GuildRosterCache[guild][guid]
             if info then
-                if not self.PlayerMixin then
-                    self.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
-                else
-                    self.PlayerMixin:SetGUID(guid)
-                end
-                if self.PlayerMixin:IsValid() then
-                    local _, class, _ = C_PlayerInfo.GetClass(self.PlayerMixin)
-                    local name = C_PlayerInfo.GetName(self.PlayerMixin)
-                    if name and class then
-                        local raceID = C_PlayerInfo.GetRace(self.PlayerMixin)
-                        local race = C_CreatureInfo.GetRaceInfo(raceID).clientFileString:upper()
-                        local sex = (C_PlayerInfo.GetSex(self.PlayerMixin) == 1 and "FEMALE" or "MALE")
-                        local faction = C_CreatureInfo.GetFactionInfo(raceID).groupTag
+                local localizedClass, class, localizedRace, race, sex, name, realm = GetPlayerInfoByGUID(guid)
+                -- if not self.PlayerMixin then
+                --     self.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
+                -- else
+                --     self.PlayerMixin:SetGUID(guid)
+                -- end
+                -- if self.PlayerMixin:IsValid() then
+                    -- local _, class, _ = C_PlayerInfo.GetClass(self.PlayerMixin)
+                    -- local name = C_PlayerInfo.GetName(self.PlayerMixin)
+                    if name and class and race and sex and realm then
+                        --local raceID = C_PlayerInfo.GetRace(self.PlayerMixin)
+                        --local race = C_CreatureInfo.GetRaceInfo(raceID).clientFileString:upper()
+                        --local sex = (C_PlayerInfo.GetSex(self.PlayerMixin) == 1 and "FEMALE" or "MALE")
+                        sex = (sex == 3) and "FEMALE" or "MALE"
+                        --local faction = C_CreatureInfo.GetFactionInfo(raceID).groupTag
                         
                         info.Faction = faction;
                         info.Race = race;
@@ -1873,7 +1881,7 @@ function Guildbook:ScanGuildRoster(callback)
                             end
                         end
                     end
-                end
+                --end
             end
             i = i + 1;
             if i > totalMembers then
@@ -1893,7 +1901,7 @@ function Guildbook:ScanGuildRoster(callback)
                     
                 end
                 GuildbookUI.statusText:SetText(string.format("finished roster scan, took %s, %s new characters, removed %s characters from db", SecondsToTime(finished), (#newGUIDs or 0), removedCount))
-                C_Timer.After(0.1, function()
+                C_Timer.After(0.05, function()
                     if GuildbookUI then
                         GuildbookUI.roster:ParseGuildRoster()
                     end
@@ -2019,9 +2027,10 @@ function Guildbook:GetCharacterTalentInfo(activeTalents)
         end)
         if GUILDBOOK_CHARACTER.MainSpec == "-" then
             GUILDBOOK_CHARACTER.MainSpec = tabs[1].spec
+        end
+        if self:GetCharacterInfo(UnitGUID("player"), "MainSpec") == "-" then
             self:SetCharacterInfo(UnitGUID("player"), "MainSpec", tabs[1].spec)
         end
-        --print(tabs[1].spec)
         self:SetCharacterInfo(UnitGUID("player"), "Talents", GUILDBOOK_CHARACTER.Talents)
     end
 end
@@ -3545,6 +3554,9 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
     end
 end
 
+function Guildbook:PLAYER_TALENT_UPDATE(...)
+    print("talent updated")
+end
 
 --set up event listener
 Guildbook.EventFrame = CreateFrame('FRAME', 'GuildbookEventFrame', UIParent)

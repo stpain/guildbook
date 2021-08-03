@@ -473,6 +473,7 @@ function Guildbook:SetupGuildCalendarFrame()
             daysInLastMonth = self:GetDaysInMonth(self.date.month - 1, self.date.year)
         end
         local thisMonthDay, nextMonthDay = 1, 1
+        local today = date("*t")
         for i, day in ipairs(Guildbook.GuildFrame.GuildCalendarFrame.MonthView) do
             for b = 1, 3 do
                 day['eventButton'..b]:Hide()
@@ -484,22 +485,22 @@ function Guildbook:SetupGuildCalendarFrame()
             day.dateText:SetText(' ')
             day.worldEventTexture:SetTexture(nil)
             day.guildEventTexture:SetTexture(nil)
-            local today = date("*t")
-            if thisMonthDay == today.day and self.date.month == today.month then
-                day.currentDayTexture:Show()
-            else
-                day.currentDayTexture:Hide()
-            end
+
+            day.currentDayTexture:Hide()
 
             -- setup days in previous month
             if i < monthStart then
                 day.dateText:SetText((daysInLastMonth - monthStart + 2) + (i - 1))
                 day.dateText:SetTextColor(0.5, 0.5, 0.5, 1)
                 day.overlay:Show()
+                day.currentDayTexture:Hide()
             end
 
             -- setup current months days
             if i >= monthStart and thisMonthDay <= daysInMonth then
+                if thisMonthDay == today.day and self.date.month == today.month then
+                    day.currentDayTexture:Show()
+                end
                 day.dateText:SetText(thisMonthDay)
                 day.dateText:SetTextColor(1,1,1,1)
                 day.overlay:Hide()
@@ -614,6 +615,7 @@ function Guildbook:SetupGuildCalendarFrame()
                 day.dateText:SetText(nextMonthDay)
                 day.dateText:SetTextColor(0.5, 0.5, 0.5, 1)
                 day.overlay:Show()
+                day.currentDayTexture:Hide()
                 nextMonthDay = nextMonthDay + 1
             end
         end

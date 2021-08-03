@@ -179,6 +179,84 @@ StaticPopupDialogs['GuildbookGatheringDatabaseEditObject'] = {
     showAlert = 1,
 }
 
+StaticPopupDialogs['MainCharacterAddAltCharacter'] = {
+    text = L["DIALOG_MAIN_CHAR_ADD"],
+    button1 = 'Update',
+    button2 = 'Cancel',
+    hasEditBox = true,
+    OnShow = function(self)
+        self.button1:Disable()
+    end,
+    EditBoxOnTextChanged = function(self)
+        if self:GetText() ~= '' then
+            local guid = Guildbook:GetGuildMemberGUID(self:GetText())
+            local dialogText = _G[self:GetParent():GetName().."Text"]
+            if guid then
+                local character = Guildbook:GetCharacterFromCache(guid)
+                dialogText:SetText(string.format(L["DIALOG_MAIN_CHAR_ADD_FOUND"], character.Name, character.Level, character.Class))
+                self:GetParent().button1:Enable()
+            else
+                dialogText:SetText(L["DIALOG_MAIN_CHAR_ADD"])
+                self:GetParent().button1:Disable()
+            end
+        end
+    end,
+
+    -- will look at having this just set the alt/main stuff when my brain is working, for now it just adds the guid to the alt characters table where it can then be set
+    OnAccept = function(self)
+        local guid = Guildbook:GetGuildMemberGUID(self.editBox:GetText())
+        if guid then
+            GUILDBOOK_GLOBAL.myCharacters[guid] = true
+        end
+    end,
+    OnCancel = function(self)
+
+    end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = false,
+    preferredIndex = 3,
+    showAlert = 1,
+}
+
+StaticPopupDialogs['MainCharacterRemoveAltCharacter'] = {
+    text = L["DIALOG_MAIN_CHAR_REMOVE"],
+    button1 = 'Update',
+    button2 = 'Cancel',
+    hasEditBox = true,
+    OnShow = function(self)
+        self.button1:Disable()
+    end,
+    EditBoxOnTextChanged = function(self)
+        if self:GetText() ~= '' then
+            local guid = Guildbook:GetGuildMemberGUID(self:GetText())
+            local dialogText = _G[self:GetParent():GetName().."Text"]
+            if guid then
+                local character = Guildbook:GetCharacterFromCache(guid)
+                dialogText:SetText(string.format(L["DIALOG_MAIN_CHAR_ADD_FOUND"], character.Name, character.Level, character.Class))
+                self:GetParent().button1:Enable()
+            else
+                dialogText:SetText(L["DIALOG_MAIN_CHAR_REMOVE"])
+                self:GetParent().button1:Disable()
+            end
+        end
+    end,
+    OnAccept = function(self)
+        local guid = Guildbook:GetGuildMemberGUID(self.editBox:GetText())
+        if guid then
+            GUILDBOOK_GLOBAL.myCharacters[guid] = nil
+        end
+    end,
+    OnCancel = function(self)
+
+    end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = false,
+    preferredIndex = 3,
+    showAlert = 1,
+}
+
 StaticPopupDialogs['GuildbookUpdateAvailable'] = {
     text = 'Guildbook: %s',
     button1 = 'OK',

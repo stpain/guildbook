@@ -81,7 +81,7 @@ local profileHelp =
 [[
 Profile:
 Edit as you wish, add your personal information or not.
-Show your main spec, list your alts.
+You can select your spec(s) and edit your main character. If you use multiple accounts you can add another character which you can then select as a main. (Alts are set by selecting a main character from the alts profile).
 
 ]]
 local searchIcon = CreateAtlasMarkup("shop-games-magnifyingglass", 16, 16)
@@ -191,6 +191,12 @@ L["PRIVACY_HEADER"]                 = "Privacy settings"
 L["NONE"]                           = "None"
 L["SHARING_NOBODY"]		    		= "Sharing with nobody"
 L["SHARING_WITH"]		    		= "Sharing with"
+
+L["MAIN_CHARACTER_ADD_ALT"]			= "Add character.\n|cffFFFF00Use this to add a character from a different account. You will then be able to select it as main character."
+L["MAIN_CHARACTER_REMOVE_ALT"]		= "Remove character"
+L["DIALOG_MAIN_CHAR_ADD"]			= "Type the name of your character, must be a guild member."
+L["DIALOG_MAIN_CHAR_REMOVE"]		= "Please enter the characters name."
+L["DIALOG_MAIN_CHAR_ADD_FOUND"]		= "Found character: %s Level: %s %s"
 
 --attributes
 L["STRENGTH"]						= "Strength"
