@@ -81,7 +81,7 @@ local profileHelp =
 [[
 Profile:
 Edit as you wish, add your personal information or not.
-Show your main spec, list your alts.
+You can select your spec(s) and edit your main character. If you use multiple accounts you can add another character which you can then select as a main. (Alts are set by selecting a main character from the alts profile).
 
 ]]
 local searchIcon = CreateAtlasMarkup("shop-games-magnifyingglass", 16, 16)
@@ -193,6 +193,12 @@ L["PRIVACY_HEADER"]                 = "Privacy settings"
 L["NONE"]                           = "None"
 L["SHARING_NOBODY"]		    		= "Sharing with nobody"
 L["SHARING_WITH"]		    		= "Sharing with"
+
+L["MAIN_CHARACTER_ADD_ALT"]			= "Add character.\n|cffFFFF00Use this to add a character from a different account. You will then be able to select it as main character."
+L["MAIN_CHARACTER_REMOVE_ALT"]		= "Remove character"
+L["DIALOG_MAIN_CHAR_ADD"]			= "Type the name of your character, must be a guild member."
+L["DIALOG_MAIN_CHAR_REMOVE"]		= "Please enter the characters name."
+L["DIALOG_MAIN_CHAR_ADD_FOUND"]		= "Found character: %s Level: %s %s"
 
 --attributes
 L["STRENGTH"]						= "Strength"
@@ -664,6 +670,12 @@ elseif locale == 'frFR' then
 	L["NONE"] 			    			= "Aucun"
 	L["SHARING_NOBODY"]		    		= "Partager avec personne"
 	L["SHARING_WITH"]		    		= "Partager avec"
+	
+	L["MAIN_CHARACTER_ADD_ALT"]			= "Ajouter personage.\n|cffFFFF00Utilisez ceci pour ajouter un personnage venant d'un compte autre compte. Vous serez ensuite capable de le sélectionner comme personnage principal."
+	L["MAIN_CHARACTER_REMOVE_ALT"]		= "Enlever personnage"
+	L["DIALOG_MAIN_CHAR_ADD"]			= "Tapez le nom du personnage, il doit être membre de la guilde."
+	L["DIALOG_MAIN_CHAR_REMOVE"]		= "SVP, entrez le nom du personnage."
+	L["DIALOG_MAIN_CHAR_ADD_FOUND"]		= "Personnage trouvé: %s Niveau %s %s"
 
 	-- class and spec
 	L['DEATHKNIGHT']                    = 'Chevalier de la mort'
@@ -929,8 +941,8 @@ local profileIcon = CreateAtlasMarkup("GarrMission_MissionIcon-Recruit", 16, 16)
 local profileHelp = 
 [[
 Profile:
-Modifier à votre guise, ajouter vos infos personnels ou pas.
-Monte votre Spé Principale, liste vos rerolls.
+Vous pouvez sélection votre(vos) spé(s) et sélectionn un personnage principal. Si vous utilisez plusieurs comptes, vous pouvez ajouter un autre personnage que vous pouvez ajouter comme personnage principal. (Les autres personnages seront automatiquement ajouté en sélectionnant le personnage principal
+You can select your spec(s) and edit your main character. If you use multiple accounts you can add another character which you can then select as a main. (Alts are set by selecting a main character from the alts profile).
 ]]
 local searchIcon = CreateAtlasMarkup("shop-games-magnifyingglass", 16, 16)
 local searchHelp = 
