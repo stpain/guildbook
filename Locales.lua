@@ -81,7 +81,7 @@ local profileHelp =
 [[
 Profile:
 Edit as you wish, add your personal information or not.
-You can select your spec(s) and edit your main character. If you use multiple accounts you can add another character which you can then select as a main. (Alts are set by selecting a main character from the alts profile).
+Show your main spec, list your alts.
 
 ]]
 local searchIcon = CreateAtlasMarkup("shop-games-magnifyingglass", 16, 16)
@@ -148,6 +148,8 @@ L["TRADESKILLS_CHARACTERS"]			= "Characters"
 L["TRADESKILL_GUILD_RECIPES"]		= "Guild Recipes"
 L["TRADESKILLS_SHARE_RECIPES"]		= "Share this characters recipes"
 L["TRADESKILLS_EXPORT_RECIPES"]		= "Import or export tradeskill data"
+L["IMPORT"]							= "Import"
+L["EXPORT"]							= "Export"
 L["CAN_CRAFT"]                      = "[Guildbook] are you able to craft %s ?"
 
 
@@ -191,12 +193,6 @@ L["PRIVACY_HEADER"]                 = "Privacy settings"
 L["NONE"]                           = "None"
 L["SHARING_NOBODY"]		    		= "Sharing with nobody"
 L["SHARING_WITH"]		    		= "Sharing with"
-
-L["MAIN_CHARACTER_ADD_ALT"]			= "Add character.\n|cffFFFF00Use this to add a character from a different account. You will then be able to select it as main character."
-L["MAIN_CHARACTER_REMOVE_ALT"]		= "Remove character"
-L["DIALOG_MAIN_CHAR_ADD"]			= "Type the name of your character, must be a guild member."
-L["DIALOG_MAIN_CHAR_REMOVE"]		= "Please enter the characters name."
-L["DIALOG_MAIN_CHAR_ADD_FOUND"]		= "Found character: %s Level: %s %s"
 
 --attributes
 L["STRENGTH"]						= "Strength"
@@ -576,6 +572,7 @@ elseif locale == 'frFR' then
 	L["NEW_VERSION_3"] = "Haha, si vous pensiez que la dernière MàJ ne changeait pas grand chose, vous devriez télécharger la nouvelle, elle fera probablement la même chose...ou moins!"
 	L["NEW_VERSION_4"] = "La Horde est rouge, l'Alliance est bleue, télécharge la nouvelle mise à jour sale paresseux!"
 
+	L["GUILDBOOK_DATA_SHARE_HEADER"]    = "Partage de données Guildbook \n\nVous pouvez partager vos données de Métiers en cliquant sur Exporter pour générer une chaîne caractères. Ensuite, faites un Copier/Coller de cette chaîne quelque part comme, par exemple, Discord.\nPour importez des données de Métiers, il suffit de coller la chaîne de caractère ci-dessous et cliquer sur Importer."
 	L["GUILDBOOK_LOADER_HEADER"]        = "Bienvenue sur Guildbook"
 	L["TOOLTIP_ITEM_RECIPE_HEADER"]     = "Utilisé pour:"
 
@@ -638,6 +635,9 @@ elseif locale == 'frFR' then
 	L["TRADESKILLS_CHARACTERS"]	    	= "Personnages"
 	L["TRADESKILL_GUILD_RECIPES"]	    = "Recettes en Guilde"
 	L["TRADESKILLS_SHARE_RECIPES"]	    = "Partager les recettes du personnage"
+	L["TRADESKILLS_EXPORT_RECIPES"]		= "Importer ou exporter données de Métiers"
+	L["IMPORT"]							= "Importer"
+	L["EXPORT"]							= "Exporter"
 	L["CAN_CRAFT"]                      = "[Guildbook] Peux-tu faire %s ?"
 
 	L["PROFILES"]                       = "Profiles"

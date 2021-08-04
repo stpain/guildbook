@@ -37,7 +37,7 @@ function GuildbookDataShareMixin:OnLoad()
 
     self.header:SetText(L["GUILDBOOK_DATA_SHARE_HEADER"])
 
-    self.import:SetText("Import")
+    self.import:SetText(L["IMPORT"])
     self.import:SetScript("OnClick", function()
         local data = self.dataString.EditBox:GetText()
         if not data then
@@ -46,16 +46,15 @@ function GuildbookDataShareMixin:OnLoad()
         gb:ImportGuildTradeskillRecipes(data)
     end)
 
-    self.export:SetText("Export")
+    self.export:SetText(L["EXPORT"])
     self.export:SetScript("OnClick", function()
         local s = gb:SerializeGuildTradeskillRecipes()
-        GuildbookDataShare.dataString.EditBox:SetText("")
         GuildbookDataShare.dataString.EditBox:SetText(s)
     end)
 end
 
 function GuildbookDataShareMixin:OnShow()
-    self.dataString.EditBox:SetText("")
+
 end
 
 
@@ -2676,7 +2675,6 @@ function GuildbookProfilesMixin:HideInventoryIcons()
     end
 end
 
-
 function GuildbookProfilesMixin:OnShow()
     if gb.addonLoaded == false then
         return;
@@ -2695,12 +2693,12 @@ function GuildbookProfilesMixin:OnShow()
             f:SetPoint("TOPRIGHT", self.contentPane.scrollChild.frames[k-1], "BOTTOMRIGHT", 0, 0)
         end
     end
-    local myCharacters = {}
+    self.myCharacters = {}
     if GUILDBOOK_GLOBAL.myCharacters then
         for guid, isMain in pairs(GUILDBOOK_GLOBAL.myCharacters) do
             if GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][guid] then
                 local character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][guid]
-                table.insert(myCharacters, {
+                table.insert(self.myCharacters, {
                     text = character.Name,
                     func = function()
                         for _, main in pairs(GUILDBOOK_GLOBAL.myCharacters) do
@@ -2724,8 +2722,11 @@ function GuildbookProfilesMixin:OnShow()
                 })
             end
         end
-        self.contentPane.scrollChild.profile.mainCharacterDropDown.menu = myCharacters;
+        self.contentPane.scrollChild.profile.mainCharacterDropDown.menu = self.myCharacters;
     end
+
+
+
 end
 
 function GuildbookProfilesMixin:MyProfile_OnEditChanged(edit, text)
