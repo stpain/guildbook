@@ -44,7 +44,9 @@ L['OptionsAbout'] = 'Guildbook options and about. Thanks to Belrand@Auberdine fo
 L['Version'] = 'Version'
 L['Author'] = 'Author: |cffffffffstpain (|r|cffF58CBACopperbolts|r |cffffffffand|r |cff0070DEKylanda|r|cffffffff)|r'
 
-
+L["OPTIONS"]						= "Options & Settings"
+L["MINIMAP_CALENDAR_RIGHTCLICK"]	= "Right click for menu"
+L["MINIMAP_CALENDAR_EVENTS"]		= "Events"
 
 L["NEW_VERSION_1"] = "new version available, probably fixes a few things, might break something else though!"
 L["NEW_VERSION_2"] = "there is a totally new awesome version of guildbook, available to downlaod from all good addon providers!"
@@ -139,6 +141,7 @@ L["PRIVACY_ABOUT"]                  = "Set the lowest rank you wish to share dat
 L["INVENTORY"]                      = "Inventory"
 L["TALENTS"]                        = "Talents"
 
+L["ROSTER_MY_CHARACTERS"]			= "My characters"
 L["ROSTER_ALL_CLASSES"]				= "All"
 L["ROSTER_ALL_RANKS"]				= "All"
 

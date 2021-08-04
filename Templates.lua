@@ -203,8 +203,10 @@ function GuildbookDropDownFlyoutButtonMixin:OnMouseDown()
     local text = self.Text:GetText()
     if self.func then
         self:func()
-        self:GetParent():GetParent().Text:SetTextColor(1,1,1,1)
-        self:GetParent():GetParent().Text:SetText(text)
+        if self:GetParent():GetParent().Text and self.updateText then
+            self:GetParent():GetParent().Text:SetTextColor(1,1,1,1)
+            self:GetParent():GetParent().Text:SetText(text)
+        end
     end
     if self:GetParent().delay then
         self:GetParent().delay:Cancel()
@@ -320,6 +322,7 @@ function GuildbookDropdownFlyoutMixin:OnShow()
     --     text = buttonText,
     --     func = functionToRun,
     -- }
+    local maxWidth = 100;
     if self:GetParent().menu then
         if not self.buttons then
             self.buttons = {}
@@ -336,10 +339,12 @@ function GuildbookDropdownFlyoutMixin:OnShow()
             end
             self.buttons[buttonIndex]:SetText(info.text)
 
-            while self.buttons[buttonIndex].Text:IsTruncated() do
-                self:SetWidth(self:GetWidth() + 2)
+            local w = self.buttons[buttonIndex].Text:GetWidth()
+            if w > maxWidth then
+                self:SetWidth(w + 4)
+                maxWidth = w;
             end
-            --self.buttons[buttonIndex].arg1 = info.arg1
+
             self.buttons[buttonIndex].func = info.func
             self.buttons[buttonIndex]:Show()
 

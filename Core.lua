@@ -498,33 +498,40 @@ function Guildbook:Load()
         type = "data source",
         icon = 134939,
         OnClick = function(self, button)
-            if GuildbookUI:IsVisible() then
-                GuildbookUI:Hide()
-                return;
+            if button == "RightButton" then
+                if self.flyout and self.flyout:IsVisible() then
+                    self.flyout:Hide()
+                end
+                if self.flyout then
+                    self.flyout.delayTimer = 3.0;
+                    self.flyout:Show()
+                end
+            else
+                GuildbookUI:OpenTo("calendar")
+                Guildbook.GuildFrame.GuildCalendarFrame:ClearAllPoints()
+                Guildbook.GuildFrame.GuildCalendarFrame:SetParent(GuildbookUI.calendar)
+                Guildbook.GuildFrame.GuildCalendarFrame:SetPoint("TOPLEFT", 0, -26) --this has button above the frame so lower it a bit
+                Guildbook.GuildFrame.GuildCalendarFrame:SetPoint("BOTTOMRIGHT", -2, 0)
+                Guildbook.GuildFrame.GuildCalendarFrame:Show()
+        
+                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:ClearAllPoints()
+                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('TOPLEFT', GuildbookUI.calendar, 'TOPRIGHT', 4, 50)
+                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('BOTTOMRIGHT', GuildbookUI.calendar, 'BOTTOMRIGHT', 254, 0)
             end
-            GuildbookUI:OpenTo("calendar")
-            Guildbook.GuildFrame.GuildCalendarFrame:ClearAllPoints()
-            Guildbook.GuildFrame.GuildCalendarFrame:SetParent(GuildbookUI.calendar)
-            Guildbook.GuildFrame.GuildCalendarFrame:SetPoint("TOPLEFT", 0, -26) --this has button above the frame so lower it a bit
-            Guildbook.GuildFrame.GuildCalendarFrame:SetPoint("BOTTOMRIGHT", -2, 0)
-            Guildbook.GuildFrame.GuildCalendarFrame:Show()
-    
-            Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:ClearAllPoints()
-            Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('TOPLEFT', GuildbookUI.calendar, 'TOPRIGHT', 4, 50)
-            Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('BOTTOMRIGHT', GuildbookUI.calendar, 'BOTTOMRIGHT', 254, 0)
         end,
         OnTooltipShow = function(tooltip)
             if not tooltip or not tooltip.AddLine then return end
             local now = date('*t')
             tooltip:AddLine('Guildbook')
             tooltip:AddLine(string.format("%s %s %s", now.day, Guildbook.Data.Months[now.month], now.year), 1,1,1,1)
+            tooltip:AddLine(L["MINIMAP_CALENDAR_RIGHTCLICK"], 0.1, 0.58, 0.92, 1)
             -- get events for next 7 days
             local upcomingEvents = Guildbook:GetCalendarEvents(time(now), 7)
             if upcomingEvents and next(upcomingEvents) then
                 tooltip:AddLine(' ')
                 tooltip:AddLine(L['Events'])
                 for k, event in ipairs(upcomingEvents) do
-                    tooltip:AddDoubleLine(event.title, string.format("%s %s",event.date.day, Guildbook.Data.Months[event.date.month], 1,1,1,1,1,1,1,1))
+                    tooltip:AddDoubleLine(event.title, string.format("%s %s", event.date.day, Guildbook.Data.Months[event.date.month]), 1,1,1,1,1,1,1,1)
                 end
             end
         end,
@@ -532,26 +539,60 @@ function Guildbook:Load()
     self.MinimapCalendarIcon = LibStub("LibDBIcon-1.0")
     if not GUILDBOOK_GLOBAL['MinimapCalendarButton'] then GUILDBOOK_GLOBAL['MinimapCalendarButton'] = {} end
     self.MinimapCalendarIcon:Register('GuildbookMinimapCalendarIcon', self.MinimapCalendarButton, GUILDBOOK_GLOBAL['MinimapCalendarButton'])
-    for i = 1, _G['LibDBIcon10_GuildbookMinimapCalendarIcon']:GetNumRegions() do
-        local region = select(i, _G['LibDBIcon10_GuildbookMinimapCalendarIcon']:GetRegions())
+
+    local minimapCalendarButton = _G['LibDBIcon10_GuildbookMinimapCalendarIcon']
+    for i = 1, minimapCalendarButton:GetNumRegions() do
+        local region = select(i, minimapCalendarButton:GetRegions())
         if (region:GetObjectType() == 'Texture') then
             region:Hide()
         end
     end
     -- modify the minimap icon to match the blizz calendar button
-    _G['LibDBIcon10_GuildbookMinimapCalendarIcon']:SetSize(44,44)
-    _G['LibDBIcon10_GuildbookMinimapCalendarIcon']:SetNormalTexture("Interface\\Calendar\\UI-Calendar-Button")
-    _G['LibDBIcon10_GuildbookMinimapCalendarIcon']:GetNormalTexture():SetTexCoord(0.0, 0.390625, 0.0, 0.78125)
-    _G['LibDBIcon10_GuildbookMinimapCalendarIcon']:SetPushedTexture("Interface\\Calendar\\UI-Calendar-Button")
-    _G['LibDBIcon10_GuildbookMinimapCalendarIcon']:GetPushedTexture():SetTexCoord(0.5, 0.890625, 0.0, 0.78125)
-    _G['LibDBIcon10_GuildbookMinimapCalendarIcon']:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight", "ADD")
-    _G['LibDBIcon10_GuildbookMinimapCalendarIcon'].Text = _G['LibDBIcon10_GuildbookMinimapCalendarIcon']:CreateFontString(nil, 'OVERLAY', 'GameFontBlack')
-    _G['LibDBIcon10_GuildbookMinimapCalendarIcon'].Text:SetPoint('CENTER', -1, -1)
-    _G['LibDBIcon10_GuildbookMinimapCalendarIcon'].Text:SetText(date('*t').day)
+    minimapCalendarButton:SetSize(44,44)
+    minimapCalendarButton:SetNormalTexture("Interface\\Calendar\\UI-Calendar-Button")
+    minimapCalendarButton:GetNormalTexture():SetTexCoord(0.0, 0.390625, 0.0, 0.78125)
+    minimapCalendarButton:SetPushedTexture("Interface\\Calendar\\UI-Calendar-Button")
+    minimapCalendarButton:GetPushedTexture():SetTexCoord(0.5, 0.890625, 0.0, 0.78125)
+    minimapCalendarButton:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight", "ADD")
+    minimapCalendarButton.DateText = minimapCalendarButton:CreateFontString(nil, 'OVERLAY', 'GameFontBlack')
+    minimapCalendarButton.DateText:SetPoint('CENTER', -1, -1)
+    minimapCalendarButton.DateText:SetText(date('*t').day)
     -- setup a ticker to update the date, kinda overkill maybe ?
     C_Timer.NewTicker(1, function()
-        _G['LibDBIcon10_GuildbookMinimapCalendarIcon'].Text:SetText(date('*t').day)
+        minimapCalendarButton.DateText:SetText(date('*t').day)
     end)
+
+    minimapCalendarButton.flyout = GuildbookMinimapCalendarDropdown
+    minimapCalendarButton.flyout:SetParent(minimapCalendarButton)
+    minimapCalendarButton.flyout:ClearAllPoints()
+    minimapCalendarButton.flyout:SetPoint("TOPRIGHT", -30, -30)
+    minimapCalendarButton.menu = {
+        {
+            text = L["CHAT"],
+            func = function() 
+                GuildbookUI:OpenTo("chat") 
+            end,
+        },
+        {
+            text = L["ROSTER"],
+            func = function() 
+                GuildbookUI:OpenTo("roster") 
+            end,
+        },
+        {
+            text = L["TRADESKILLS"],
+            func = function() 
+                GuildbookUI:OpenTo("tradeskills") 
+            end,
+        },
+        {
+            text = L["OPTIONS"],
+            func = function() 
+                InterfaceOptionsFrame_OpenToCategory(addonName)
+                InterfaceOptionsFrame_OpenToCategory(addonName)
+            end,
+        },
+    }
 
     local config = GUILDBOOK_GLOBAL.config
     GuildbookOptionsModifyDefaultGuildRoster:SetChecked(config.modifyDefaultGuildRoster == true and true or false)
@@ -1780,7 +1821,7 @@ function Guildbook:ScanGuildRoster(callback)
             local guid = currentGUIDs[i].GUID
             local info = GUILDBOOK_GLOBAL.GuildRosterCache[guild][guid]
             if info then
-                local localizedClass, class, localizedRace, race, sex, name, realm = GetPlayerInfoByGUID(guid)
+                local _, class, _, race, sex, name, realm = GetPlayerInfoByGUID(guid)
                 -- if not self.PlayerMixin then
                 --     self.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
                 -- else

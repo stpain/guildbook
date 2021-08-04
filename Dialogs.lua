@@ -193,7 +193,7 @@ StaticPopupDialogs['MainCharacterAddAltCharacter'] = {
             local dialogText = _G[self:GetParent():GetName().."Text"]
             if guid then
                 local character = Guildbook:GetCharacterFromCache(guid)
-                dialogText:SetText(string.format(L["DIALOG_MAIN_CHAR_ADD_FOUND"], character.Name, character.Level, character.Class))
+                dialogText:SetText(string.format(L["DIALOG_MAIN_CHAR_ADD_FOUND"], character.Name, character.Level, L[character.Class]))
                 self:GetParent().button1:Enable()
             else
                 dialogText:SetText(L["DIALOG_MAIN_CHAR_ADD"])
@@ -233,7 +233,7 @@ StaticPopupDialogs['MainCharacterRemoveAltCharacter'] = {
             local dialogText = _G[self:GetParent():GetName().."Text"]
             if guid then
                 local character = Guildbook:GetCharacterFromCache(guid)
-                dialogText:SetText(string.format(L["DIALOG_MAIN_CHAR_ADD_FOUND"], character.Name, character.Level, character.Class))
+                dialogText:SetText(string.format(L["DIALOG_MAIN_CHAR_ADD_FOUND"], character.Name, character.Level, L[character.Class]))
                 self:GetParent().button1:Enable()
             else
                 dialogText:SetText(L["DIALOG_MAIN_CHAR_REMOVE"])

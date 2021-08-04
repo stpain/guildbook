@@ -382,9 +382,10 @@ function GuildbookRosterListviewItemMixin:OnEnter()
         end
     end
 
+    local colour = CreateColor(0.1, 0.58, 0.92, 1)
     local function formatTradeskill(prof, spec)
         if spec then
-            return string.format("%s [|cff40C7EB%s|r]", prof, (GetSpellInfo(spec)));
+            return string.format("%s [%s]", prof, colour:WrapTextInColorCode((GetSpellInfo(spec))));
         elseif prof then
             return prof;
         else
@@ -1567,12 +1568,21 @@ function GuildbookRosterMixin:OnLoad()
         rankName = {},
     }
     table.insert(self.buttonDropdownMenus.class, {
+        text = L["ROSTER_MY_CHARACTERS"],
+        func = function()
+            self.rosterFilterKey = "myAlts";
+            self.rosterFilterValue = nil;
+            self:ParseGuildRoster()
+        end,
+    })
+    table.insert(self.buttonDropdownMenus.class, {
         text = L["ROSTER_ALL_CLASSES"],
         func = function()
             self.rosterFilterKey = nil;
             self.rosterFilterValue = nil;
             self:ParseGuildRoster()
         end,
+        updateText = false,
     })
     for i = GetNumClasses(), 1, -1 do
         local className, classFile, classID = GetClassInfo(i)
@@ -1629,6 +1639,7 @@ function GuildbookRosterMixin:OnShow()
 end
 
 function GuildbookRosterMixin:ParseGuildRoster()
+    self:ClearRosterRows()
     self.characterStatus = {}
     local totalMembers, _, _ = GetNumGuildMembers()
     local ranks = {}
@@ -1679,17 +1690,10 @@ function GuildbookRosterMixin:ClearRosterRows()
         row.Prof1:Hide()
         row.Prof2:Hide()
         row.MainSpecIcon:Hide()
+        row:Hide()
     end
 end
 
-function GuildbookRosterMixin:PlayRowAnim()
-    for i, row in ipairs(self.rows) do
-        -- row:Hide()
-        --row:SetAlpha(0)
-        --row:Show()
-        row.anim:Play()
-    end
-end
 
 function GuildbookRosterMixin:LoadCharacters()
     if not GUILD_NAME then
@@ -1728,6 +1732,30 @@ function GuildbookRosterMixin:LoadCharacters()
                         publicNote = character.PublicNote or "-",
                     })
                 end
+            else
+                if self.rosterFilterKey == "myAlts" then
+                    if GUILDBOOK_GLOBAL.myCharacters and next(GUILDBOOK_GLOBAL.myCharacters) ~= nil then
+                        for _guid, _ in pairs(GUILDBOOK_GLOBAL.myCharacters) do
+                            if guid == _guid then
+                                table.insert(self.roster, {
+                                    guid = guid,
+                                    -- add the rest of these for sorting purposes
+                                    class = _class,
+                                    name = character.Name,
+                                    level = character.Level,
+                                    mainSpec = character.MainSpec or "-",
+                                    prof1 = character.Profession1 or "-",
+                                    prof2 = character.Profession2 or "-",
+                                    selected = false,
+                                    isOnline = self.characterStatus[guid].isOnline,
+                                    location = self.characterStatus[guid].zone or "-",
+                                    rankName = character.RankName or "-",
+                                    publicNote = character.PublicNote or "-",
+                                })
+                            end
+                        end
+                    end
+                end
             end
         else
             if self.characterStatus and self.characterStatus[guid] then
@@ -1749,6 +1777,7 @@ function GuildbookRosterMixin:LoadCharacters()
             end
         end
         if i == numChars then
+            self.memberListview.scrollBar:GetValue()
             self:ForceRosterListviewRefresh()
         else
             i = i + 1;
@@ -1758,23 +1787,6 @@ end
 
 function GuildbookRosterMixin:ForceRosterListviewRefresh()
     if self.roster and next(self.roster) then
-        --this is to trigger a refresh by calling the scroll value changed func
-        -- for i, row in ipairs(self.rows) do
-        --     row:Hide()
-        --     --row:SetAlpha(0)
-        -- end
-        -- self.memberListview.scrollBar:SetMinMaxValues(1,2)
-        -- C_Timer.After(0, function()
-        --     -- self.memberListview.scrollBar:SetValue(2)
-        --     -- self.memberListview.scrollBar:SetValue(1)
-        --     -- self.memberListview.scrollBar:SetValue(scrollPos)
-        -- end)
-        -- C_Timer.After(0.005, function()
-        --     for i, row in ipairs(self.rows) do
-        --         row:Show()
-        --     end
-        --     --self:PlayRowAnim()
-        -- end)
         if self.rosterSort and self.rosterSortOrder then
             self:SortRoster()
         else
@@ -1796,7 +1808,7 @@ function GuildbookRosterMixin:ForceRosterListviewRefresh()
             if self.roster[scrollPos + row] then
                 self.rows[row]:SetCharacter(self.roster[scrollPos+row])
                 self.rows[row]:SetOffline(self.roster[scrollPos+row].isOnline)
-                local i = 1;
+                self.rows[row]:Show()
             end
         end
         self.memberListview.scrollBar:SetMinMaxValues(1,(#self.roster>NUM_ROSTER_ROWS) and #self.roster-(NUM_ROSTER_ROWS-1) or 1)
@@ -1817,7 +1829,7 @@ function GuildbookRosterMixin:RosterListviewScrollBar_OnValueChanged()
                 end
                 self.rows[row]:SetCharacter(self.roster[scrollPos+row])
                 self.rows[row]:SetOffline(self.roster[scrollPos+row].isOnline)
-                local i = 1;
+                self.rows[row]:Show()
             end
         end
     end

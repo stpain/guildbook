@@ -56,6 +56,11 @@
         </Scripts>
     </Frame>
 
+
+    <Frame name="GuildbookMinimapCalendarDropdown" parent="UIParent" inherits="GuildbookDropdownFlyout" hidden="true">
+
+    </Frame>
+
     <Frame name="GuildbookUI" mixin="GuildbookMixin" parent="UIParent" inherits="PortraitFrameTemplate" frameStrata="HIGH" enableMouse="true" movable="true" hidden="true">
         <Size x="920" y="510"/>
         <Anchors>

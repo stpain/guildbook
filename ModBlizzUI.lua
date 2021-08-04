@@ -275,20 +275,18 @@ function Guildbook:ModBlizzUI()
             button.GuildbookColumnMainSpec:SetText('-')
             button.GuildbookColumnProfession1:SetText('-')
             button.GuildbookColumnProfession2:SetText('-')
-            -- loop local cache and update columns
-            local guildName = Guildbook:GetGuildName()
-            if guildName then
-                if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache and GUILDBOOK_GLOBAL.GuildRosterCache[guildName] and GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID] then
-                    local character = GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]
-                    button.GuildbookColumnMainSpec:SetText(character.MainSpec)
-                    button.GuildbookColumnProfession1:SetText(character.Profession1)
-                    button.GuildbookColumnProfession2:SetText(character.Profession2)
-                else
-                    button.GuildbookColumnMainSpec:SetText('-')
-                    button.GuildbookColumnProfession1:SetText('-')
-                    button.GuildbookColumnProfession2:SetText('-')           
-                end
+
+            local character = Guildbook:GetCharacterFromCache(GUID)
+            if character then
+                button.GuildbookColumnMainSpec:SetText(L[character.MainSpec])
+                button.GuildbookColumnProfession1:SetText(Guildbook:GetLocaleProf(character.Profession1))
+                button.GuildbookColumnProfession2:SetText(Guildbook:GetLocaleProf(character.Profession2))
+            else
+                button.GuildbookColumnMainSpec:SetText('-')
+                button.GuildbookColumnProfession1:SetText('-')
+                button.GuildbookColumnProfession2:SetText('-')   
             end
+
             if (GuildFrameLFGButton:GetChecked() == false) and(i > numOnline) then
                 button:Hide()
             end
