@@ -992,6 +992,7 @@ function Guildbook:GetPaperDollStats()
         GUILDBOOK_CHARACTER['PaperDollStats'].Dodge = self:TrimNumber(GetDodgeChance());
 
         --local expertise, offhandExpertise, rangedExpertise = GetExpertise();
+		GUILDBOOK_CHARACTER['PaperDollStats'].Expertise = self:TrimNumber(GetExpertise()); --will display mainhand expertise but it stores offhand expertise as well, need to find a way to access it
         --local base, casting = GetManaRegen();
         GUILDBOOK_CHARACTER['PaperDollStats'].SpellHit = self:TrimNumber(GetCombatRatingBonus(CR_HIT_SPELL) + GetSpellHitModifier());
         GUILDBOOK_CHARACTER['PaperDollStats'].MeleeHit = self:TrimNumber(GetCombatRatingBonus(CR_HIT_MELEE) + GetHitModifier());

@@ -148,6 +148,10 @@ L["TRADESKILLS_CHARACTERS"]			= "Characters"
 L["TRADESKILL_GUILD_RECIPES"]		= "Guild Recipes"
 L["TRADESKILLS_SHARE_RECIPES"]		= "Share this characters recipes"
 L["TRADESKILLS_EXPORT_RECIPES"]		= "Import or export tradeskill data"
+L["IMPORT"]							= "Import"
+L["EXPORT"]							= "Export"
+L["CAN_CRAFT"]                      = "[Guildbook] are you able to craft %s ?"
+
 
 L['GUILDBANK']						= "Guild bank"
 L["GUILDBANK_HEADER_ITEM"]			= "Item link"
@@ -186,6 +190,9 @@ L["STATS"]                          = "Statistics"
 L["RESET_AVATAR"]					= "Reset avatar"
 
 L["PRIVACY_HEADER"]                 = "Privacy settings"
+L["NONE"]                           = "None"
+L["SHARING_NOBODY"]		    		= "Sharing with nobody"
+L["SHARING_WITH"]		    		= "Sharing with"
 
 L["MAIN_CHARACTER_ADD_ALT"]			= "Add character.\n|cffFFFF00Use this to add a character from a different account. You will then be able to select it as main character."
 L["MAIN_CHARACTER_REMOVE_ALT"]		= "Remove character"
@@ -571,6 +578,7 @@ elseif locale == 'frFR' then
 	L["NEW_VERSION_3"] = "Haha, si vous pensiez que la dernière MàJ ne changeait pas grand chose, vous devriez télécharger la nouvelle, elle fera probablement la même chose...ou moins!"
 	L["NEW_VERSION_4"] = "La Horde est rouge, l'Alliance est bleue, télécharge la nouvelle mise à jour sale paresseux!"
 
+	L["GUILDBOOK_DATA_SHARE_HEADER"]    = "Partage de données Guildbook \n\nVous pouvez partager vos données de Métiers en cliquant sur Exporter pour générer une chaîne caractères. Ensuite, faites un Copier/Coller de cette chaîne quelque part comme, par exemple, Discord.\nPour importez des données de Métiers, il suffit de coller la chaîne de caractère ci-dessous et cliquer sur Importer."
 	L["GUILDBOOK_LOADER_HEADER"]        = "Bienvenue sur Guildbook"
 	L["TOOLTIP_ITEM_RECIPE_HEADER"]     = "Utilisé pour:"
 
@@ -591,7 +599,7 @@ elseif locale == 'frFR' then
 	L["location"]                       = "Zone"
 	L["rankName"]                       = "Rang"
 	L["publicNote"]                     = "Note Publique"
-	L["class"]                          = "Class." --this fit better but "Classe" is more appropriate
+	L["class"]                          = "Classe"
 	L["attunements"]                    = "Accès"
 
 
@@ -602,15 +610,43 @@ elseif locale == 'frFR' then
 	L["REAL_BIO"]                       = "Biographie"
 	L["AVATAR"]                         = "Avatar"
 	L["MAIN_CHARACTER"]                 = "Personnage Principal"
+	L["ALT_CHARACTERS"]                 = "Autres Persos"
 	L["MAIN_SPEC"]                      = "Spé Principale"
 	L["OFF_SPEC"]                       = "Spé Secondaire"
 	L["PRIVACY"]                        = "Confidentialité"
 	L["PRIVACY_ABOUT"]                  = "Choisir à partir de quel Rang vous souhaitez partager vos données."
 	L["INVENTORY"]                      = "Inventaire"
 	L["TALENTS"]                        = "Talents"
+	
+	L["ROSTER_ALL_CLASSES"]				= "Toutes"
+	L["ROSTER_ALL_RANKS"]				= "Tous"
+	
+	--guildbank
+	L["GUILDBANK_HEADER_ITEM"]			= "Objets"
+	L["GUILDBANK_HEADER_COUNT"]			= "Nombre"
+	L["GUILDBANK_SORT_TYPE"]			= "Catégorie"
+	L["GUILDBANK_HEADER_SUBTYPE"]		= "Sous-catégorie"
+	L["GUILDBANK_SORT_BANK"]			= "Source"
+	L["GUILDBANK_REFRESH"]				= "Actualiser"
+	L["GUILDBANK_ALL_BANKS"]			= "Toutes les banques"
+	L["GUILDBANK_ALL_TYPES"]			= "Toutes les catégories"
+	L["GUILDBANK_REQUEST_COMMITS"]		= "requête d'un commit de "
+	L["GUILDBANK_REQUEST_INFO"]			= "requête de données de "
+	L["GUILDBANK_FUNDS"]				= "Or disponible"
+	L["GUILDBANK_CURRENCY"]				= "Monnaie"
+
+	--tradeskills
+	L["TRADESKILLS"]		    		= "Mériers"
+	L["TRADESKILLS_RECIPES"]	   		= "Recettess"
+	L["TRADESKILLS_CHARACTERS"]	    	= "Personnages"
+	L["TRADESKILL_GUILD_RECIPES"]	    = "Recettes en Guilde"
+	L["TRADESKILLS_SHARE_RECIPES"]	    = "Partager les recettes du personnage"
+	L["TRADESKILLS_EXPORT_RECIPES"]		= "Importer ou exporter données de Métiers"
+	L["IMPORT"]							= "Importer"
+	L["EXPORT"]							= "Exporter"
+	L["CAN_CRAFT"]                      = "[Guildbook] Peux-tu faire %s ?"
 
 	L["PROFILES"]                       = "Profiles"
-	L["TRADESKILLS"]                    = "Métiers (Recettes)"
 	L["CHAT"]                           = "Chat"
 	L["ROSTER"]                         = "Roster"
 	L["CALENDAR"]                       = "Calendrier"
@@ -631,6 +667,15 @@ elseif locale == 'frFR' then
 	L["STATS"]                          = "Statistiques"
 
 	L["PRIVACY_HEADER"]                 = "Paramètres de confidentialité"
+	L["NONE"] 			    			= "Aucun"
+	L["SHARING_NOBODY"]		    		= "Partager avec personne"
+	L["SHARING_WITH"]		    		= "Partager avec"
+	
+	L["MAIN_CHARACTER_ADD_ALT"]			= "Ajouter personage.\n|cffFFFF00Utilisez ceci pour ajouter un personnage venant d'un compte autre compte. Vous serez ensuite capable de le sélectionner comme personnage principal."
+	L["MAIN_CHARACTER_REMOVE_ALT"]		= "Enlever personnage"
+	L["DIALOG_MAIN_CHAR_ADD"]			= "Tapez le nom du personnage, il doit être membre de la guilde."
+	L["DIALOG_MAIN_CHAR_REMOVE"]		= "SVP, entrez le nom du personnage."
+	L["DIALOG_MAIN_CHAR_ADD_FOUND"]		= "Personnage trouvé: %s Niveau %s %s"
 
 	-- class and spec
 	L['DEATHKNIGHT']                    = 'Chevalier de la mort'
@@ -790,7 +835,7 @@ elseif locale == 'frFR' then
 	L["MINIMAP_TOOLTIP_LEFTCLICK"]			    = '|cffffffffClique Gauche|r Ouvrir Guildbook'
 	L["MINIMAP_TOOLTIP_LEFTCLICK_SHIFT"]		    = "MAJ + "..'|cffffffffClique Gauche|r Open Chat'
 	L["MINIMAP_TOOLTIP_RIGHTCLICK"]			    = '|cffffffffClique Droit|r Options'
-	L["MINIMAP_TOOLTIP_MIDDLECLICK"]	= "|cffffffffMiddle Click|r Open Blizzard roster"
+	L["MINIMAP_TOOLTIP_MIDDLECLICK"]	= "|cffffffffMiddle Click|r Ouvrir l'onglet de guilde Blizzard"
 	
 	--raids name
 	L["MC"]				    = "Coeur du Magma"
@@ -870,6 +915,43 @@ synchronisation de leur inventaire après chaque changement dedans.
 
 De multiples personnages banques sont supportés.|r
 ]]
+
+L["HELP_ABOUT"]						= "Aide & Infos"
+
+-- this is just a quick thing, will make the how section more fleshed out
+-- this is a nasty way to do this, its horrible and i need to make the help & about much better
+local slashCommandsIcon = CreateTextureMarkup(136377, 64, 64, 16, 16, 0, 1, 0, 1, 0, 0)
+local slashCommandsHelp = [[
+Commandes slashs:
+/guildbook open : Cela va ouvrir Guildbook
+/guildbook [interface] : Cela va ouvrir un onglet spécifique de Guildbook(profiles:Profiles, tradeskills:Métiers, chat:Chat, roster:Roster, calendar:Calendrier, stats:Stats, guildbank:Banque de Guilde, search:Recherche, privacy:Confidentialité)
+Exemple: "/guildbook search" va ouvrir l'onglet de recherche.
+/gb peut être employer à la place de /guildbook
+]]
+local tradeskillIcon = CreateAtlasMarkup("Mobile-Blacksmithing", 16, 16)
+local tradeskillHelp = 
+[[
+Métiers
+Guildbook va partager les recettes de votre métier avec les autres membres de la guilde.
+Ouvrer votre fenêtre de métier pour lancer le scan des recettes. Attender patiemment que tout se scan (~100 recettes par seconde). Cela sauvegardera à la base de donnée du Personnage (et Compte) pour la Guilde en l'enverra aux autres membres en ligne.
+Une fois ce procédé complété, les données futures seront envoyés aux autres membres en ligne lors de vos connexions. Vous pouvez aussi envoyer les données manuellement en ouvrant la fenêtre d'un métier (temps d'attente activé pour éviter le spam).
+Si vous avez besoin de partager les recettes d'un membre hors ligne, sélectionner leur profession via le roster, une fois chargée cliquer sur le bouton en haut a droite de la liste des recetess, à gauche de "Personnages" (temps d'attente activé pour éviter le spam).
+]]
+local profileIcon = CreateAtlasMarkup("GarrMission_MissionIcon-Recruit", 16, 16)
+local profileHelp = 
+[[
+Profile:
+Vous pouvez sélection votre(vos) spé(s) et sélectionn un personnage principal. Si vous utilisez plusieurs comptes, vous pouvez ajouter un autre personnage que vous pouvez ajouter comme personnage principal. (Les autres personnages seront automatiquement ajouté en sélectionnant le personnage principal
+You can select your spec(s) and edit your main character. If you use multiple accounts you can add another character which you can then select as a main. (Alts are set by selecting a main character from the alts profile).
+]]
+local searchIcon = CreateAtlasMarkup("shop-games-magnifyingglass", 16, 16)
+local searchHelp = 
+[[
+Recherche:
+Utiliser cette fonction pour explorer la base de données de votre Guilde - Trouver une recette, schéma, nom de personnage.
+]]
+L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s", slashCommandsIcon, slashCommandsHelp, tradeskillIcon, tradeskillHelp, profileIcon, profileHelp, searchIcon, searchHelp, bankIcon, bankHelp)	
+
 
 --[[ chinese
 ]]
