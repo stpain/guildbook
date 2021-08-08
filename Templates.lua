@@ -280,7 +280,12 @@ end
 
 
 
-
+local frameBackdrop = {
+	bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+	edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+	tile = true, tileSize = 32, edgeSize = 32,
+	insets = { left = 8, right = 8, top = 8, bottom = 8 }
+}
 GuildbookDropdownFlyoutMixin = {}
 
 function GuildbookDropdownFlyoutMixin:OnLoad()
@@ -288,6 +293,7 @@ function GuildbookDropdownFlyoutMixin:OnLoad()
         gb.dropdownFlyouts = {}
     end
     table.insert(gb.dropdownFlyouts, self)
+    --self:SetBackdrop(frameBackdrop)
 end
 
 function GuildbookDropdownFlyoutMixin:OnLeave()
@@ -348,14 +354,13 @@ function GuildbookDropdownFlyoutMixin:OnShow()
             self.buttons[buttonIndex].func = info.func
             self.buttons[buttonIndex]:Show()
 
-            self:SetHeight(buttonIndex * 22)
             buttonIndex = buttonIndex + 1
         end
         for i = 1, #self.buttons do
             self.buttons[i]:SetWidth(self:GetWidth() - 2)
         end
+        self:SetHeight((#self.buttons * 22))
     end
-
 end
 
 

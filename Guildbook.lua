@@ -59,7 +59,46 @@ function GuildbookDataShareMixin:OnShow()
 end
 
 
-
+local function loadGuildMemberTradeskills(guid, prof)
+    local delay = 0.005
+    local recipes = {}
+    local character = gb:GetCharacterFromCache(guid)
+    if not character then
+        return
+    end
+    if prof == "Enginnering" then prof = "Engineering" end -- fix it back
+    if not character[prof] then
+        return
+    end
+    local i = 0;
+    for k,v in pairs(character[prof]) do
+        i = i + 1;
+    end
+    GuildbookUI:OpenTo("tradeskills")
+    GuildbookRecipesListviewMixin:ClearRows()
+    GuildbookCharactersListviewMixin:ClearRows()
+    GuildbookUI.tradeskills.recipesListview.spinner:Hide()
+    GuildbookUI.tradeskills.recipesListview.anim:Stop()
+    GuildbookUI.tradeskills.recipesListview.spinner:Show()
+    GuildbookUI.tradeskills.recipesListview.anim:Play()
+    wipe(GuildbookUI.tradeskills.recipesListview.recipes)
+    C_Timer.NewTicker(delay, function()
+        for itemID, reagents in pairs(character[prof]) do
+            if not recipes[itemID] then
+                recipes[itemID] = true;
+                GuildbookProfessionListviewMixin:AddRecipe(GuildbookUI.tradeskills.recipesListview.recipes, prof, itemID, reagents)
+            end
+        end
+    end, i)
+    C_Timer.After((delay * i) + 0.1, function()
+        GuildbookUI.tradeskills.recipesListview:LoadRecipes(string.format("%s [%s]", character.Name, gb:GetLocaleProf(prof)), true)
+        GuildbookUI.tradeskills.ribbon.shareCharactersRecipes.func = function()
+            CooldownFrame_Set(GuildbookUI.tradeskills.ribbon.shareCharactersRecipes.cooldown, GetTime(), 30, true, true, 1)
+            gb:SendTradeskillData(guid, character[prof], prof, "GUILD", nil)
+            GuildbookUI.tradeskills.ribbon.shareCharactersRecipes.disabled = true;
+        end
+    end)
+end
 
 
 
@@ -385,7 +424,7 @@ function GuildbookRosterListviewItemMixin:OnEnter()
     local colour = CreateColor(0.1, 0.58, 0.92, 1)
     local function formatTradeskill(prof, spec)
         if spec then
-            return string.format("%s [%s]", prof, colour:WrapTextInColorCode((GetSpellInfo(spec))));
+            return string.format("%s [%s]", prof, Guildbook.Colours.Blue:WrapTextInColorCode((GetSpellInfo(spec))));
         elseif prof then
             return prof;
         else
@@ -486,47 +525,6 @@ function GuildbookRosterListviewItemMixin:SetOffline(online)
     end
 end
 
-local function loadGuildMemberTradeskills(guid, prof)
-    local delay = 0.01
-    local recipes = {}
-    local character = gb:GetCharacterFromCache(guid)
-    if not character then
-        return
-    end
-    if prof == "Enginnering" then prof = "Engineering" end -- fix it back
-    if not character[prof] then
-        return
-    end
-    local i = 0;
-    for k,v in pairs(character[prof]) do
-        i = i + 1;
-    end
-    GuildbookUI:OpenTo("tradeskills")
-    GuildbookRecipesListviewMixin:ClearRows()
-    GuildbookCharactersListviewMixin:ClearRows()
-    GuildbookUI.tradeskills.recipesListview.spinner:Hide()
-    GuildbookUI.tradeskills.recipesListview.anim:Stop()
-    GuildbookUI.tradeskills.recipesListview.spinner:Show()
-    GuildbookUI.tradeskills.recipesListview.anim:Play()
-    wipe(GuildbookUI.tradeskills.recipesListview.recipes)
-    C_Timer.NewTicker(delay, function()
-        for itemID, reagents in pairs(character[prof]) do
-            if not recipes[itemID] then
-                recipes[itemID] = true;
-                GuildbookProfessionListviewMixin:AddRecipe(GuildbookUI.tradeskills.recipesListview.recipes, prof, itemID, reagents)
-            end
-        end
-    end, i)
-    C_Timer.After(delay * (i + 1), function()
-        GuildbookUI.tradeskills.recipesListview:LoadRecipes(string.format("%s [%s]", character.Name, gb:GetLocaleProf(prof)), true)
-        GuildbookUI.tradeskills.ribbon.shareCharactersRecipes.func = function()
-            CooldownFrame_Set(GuildbookUI.tradeskills.ribbon.shareCharactersRecipes.cooldown, GetTime(), 30, true, true, 1)
-            gb:SendTradeskillData(guid, character[prof], prof, "GUILD", nil)
-            GuildbookUI.tradeskills.ribbon.shareCharactersRecipes.disabled = true;
-        end
-    end)
-end
-
 
 -- this function needs to be cleaned up, its using a nasty set of variables
 function GuildbookRosterListviewItemMixin:SetCharacter(member)
@@ -604,8 +602,10 @@ function GuildbookRosterListviewItemMixin:SetCharacter(member)
 
     if self.character and self.character.profile and self.character.profile.avatar then
         self.openProfile.background:SetTexture(self.character.profile.avatar)
-    else
+    elseif self.character.Race and self.character.Gender then
         self.openProfile.background:SetAtlas(string.format("raceicon-%s-%s", self.character.Race:lower(), self.character.Gender:lower()))
+    else
+        self.openProfile.background:SetAtlas("services-icon-warning")
     end
 
 end
@@ -1160,7 +1160,7 @@ function GuildbookProfessionListviewMixin:OnLoad()
                     GuildbookUI.tradeskills.recipesListview.anim:Stop()
                     GuildbookUI.tradeskills.recipesListview.spinner:Show()
                     GuildbookUI.tradeskills.recipesListview.anim:Play()
-                    local delay = 0.1
+                    local delay = 0.05 -- adjust this value if recipes appear to be missing, bigger delay for better recipe loading, smaller for quicker results
                     wipe(GuildbookUI.tradeskills.recipesListview.recipes)
                     GuildbookRecipesListviewMixin:ClearRows()
                     local recipes = {}
@@ -1179,7 +1179,7 @@ function GuildbookProfessionListviewMixin:OnLoad()
                         end
                         i = i + 1;
                     end, #GuildbookMixin.charactersWithProfession)
-                    C_Timer.After(delay * (#GuildbookMixin.charactersWithProfession + 1), function()
+                    C_Timer.After(delay * (#GuildbookMixin.charactersWithProfession + 0.1), function()
                         GuildbookUI.tradeskills.recipesListview:LoadRecipes(string.format("%s [%s]", L["TRADESKILL_GUILD_RECIPES"], gb:GetLocaleProf(prof.Name)))
                     end)
                 end
@@ -1346,7 +1346,7 @@ function GuildbookRecipesListviewMixin:LoadRecipes(infoMessage, showShareCharact
                 return a.expansion > b.expansion;
             end
         end)
-        C_Timer.After(0.1, function()
+        --C_Timer.After(0.01, function()
             for i = 1, NUM_RECIPE_ROWS do
                 if self.recipes[i] then
                     self.rows[i].model = self.recipes[i]
@@ -1386,12 +1386,12 @@ function GuildbookRecipesListviewMixin:LoadRecipes(infoMessage, showShareCharact
                     end)
                 end
             end
-        end)
+        --end)
         self.scrollBar:SetMinMaxValues(1,(#self.recipes>NUM_RECIPE_ROWS) and #self.recipes-(NUM_RECIPE_ROWS-1) or 1)
         self.scrollBar:SetValue(1)
     end
     --this bit just scrolls to the search for recipe
-    C_Timer.After(1, function()
+    C_Timer.After(0.8, function()
         if self.searchResultRecipeID then
             local key = 1;
             for k, recipe in ipairs(self.recipes) do
@@ -2636,16 +2636,17 @@ function GuildbookProfilesMixin:LoadSummary()
     local i = 1;
     for k, character in ipairs(self.members) do
         if k > 1 then
-            if character.rank ~= self.members[k-1].rank then
+            if character.rank ~= self.members[k-1].rank then -- if this characters rankIndex doesnt match the previous then we need to start a new row and add the header
                 rowIndex = rowIndex + 1;
                 character.rowIndex = rowIndex
                 character.isNewRank = true
-                i = 1;
+                i = 1; -- reset the row avatar count
             else
-                if i % 9 == 0 then -- if this is more than 8 move onto the next row
+                -- this character has the same rankIndex so we add to the row and increment the avatar count
+                if i > 7 then -- this is a check for when to start a new row, using >7 here but could swap the increment of i in the else block, basically we end up with i=1 twice
                     rowIndex = rowIndex + 1;
                     character.rowIndex = rowIndex
-                    i = 1;
+                    i = 1; -- reset the row avatar count
                 else
                     character.rowIndex = rowIndex
                     i = i + 1;
@@ -3712,10 +3713,11 @@ function GuildbookSearchMixin:Search(term)
     end
 
     local resultKeys = {
-        ["character"] = 3,
-        ["inventory"] = 4,
-        ["tradeskill"] = 1,
-        ["guildbank"] = 2,
+        ["character"] = 7,
+        ["inventory"] = 8,
+        ["tradeskill"] = 5,
+        ["tradeskill_spec"] = 4,
+        ["guildbank"] = 6,
     }
 
     self.processed = {}
@@ -3755,6 +3757,42 @@ function GuildbookSearchMixin:Search(term)
                 end
             end
         end
+
+        -- search prof specs
+        if character.Profession1Spec then
+            local profSpec = GetSpellInfo(character.Profession1Spec)
+            if profSpec and profSpec:lower():find(term:lower()) then
+                table.insert(self.results, {
+                    resultKey = resultKeys["tradeskill_spec"],
+                    title = character.Name,
+                    icon = string.format("raceicon-%s-%s", character.Race:lower(), character.Gender:lower()),
+                    iconType = "atlas",
+                    info = string.format("%s %s %s", character.Name, character.Profession1, profSpec),
+                    func = function()
+                        navigateTo(GuildbookUI.tradeskills)
+                        loadGuildMemberTradeskills(guid, character.Profession1)
+                    end,
+                })
+            end
+        end
+        if character.Profession2Spec then
+            local profSpec = GetSpellInfo(character.Profession2Spec)
+            if profSpec and profSpec:lower():find(term:lower()) then
+                table.insert(self.results, {
+                    resultKey = resultKeys["tradeskill_spec"],
+                    title = character.Name,
+                    icon = string.format("raceicon-%s-%s", character.Race:lower(), character.Gender:lower()),
+                    iconType = "atlas",
+                    info = string.format("%s %s %s", character.Name, character.Profession2, profSpec),
+                    func = function()
+                        navigateTo(GuildbookUI.tradeskills)
+                        loadGuildMemberTradeskills(guid, character.Profession2)
+                    end,
+                })
+            end
+        end
+
+
     end
     -- search professions
     if gb.tradeskillRecipes and #gb.tradeskillRecipes > 0 then

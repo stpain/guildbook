@@ -1283,6 +1283,22 @@
 		<Anchors>
 			<Anchor point="TOPLEFT" x="2" y="-28"/>
 		</Anchors>
+        <!-- <Layers>
+            <Layer level="BACKGROUND" textureSubLevel="-1">
+                <Texture setAllPoints="true">
+					<Color r="1" g="1" b="1" a="1"/>
+				</Texture>
+            </Layer>
+            <Layer level="BACKGROUND">
+                <Texture>
+					<Anchors>
+						<Anchor point="TOPLEFT" x="1" y="-1"/>
+						<Anchor point="BOTTOMRIGHT" x="-1" y="1"/>
+					</Anchors>
+					<Color r="0" g="0" b="0" a="1"/>
+				</Texture>
+            </Layer>
+        </Layers> -->
 		<Scripts>
 			<OnShow method="OnShow"/>
 			<OnLeave method="OnLeave"/>
@@ -1402,7 +1418,7 @@
         <Layers>
             <Layer level="BACKGROUND" textureSubLevel="-1">
                 <Texture setAllPoints="true">
-					<Color r="0" g="0" b="0" a="1"/>
+					<Color r="0" g="0" b="0" a="0.9"/>
 				</Texture>
 			</Layer>
             <Layer level="BACKGROUND">

@@ -49,6 +49,11 @@ Guildbook.NUM_TALENT_ROWS = 7.0
 Guildbook.COMMS_DELAY = 0.0
 Guildbook.COMM_LOCK_COOLDOWN = 20.0
 
+Guildbook.Colours = {
+    Blue = CreateColor(0.1, 0.58, 0.92, 1),
+    Orange = CreateColor(202/255,155/255,38/255, 1),
+}
+
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 --slash commands
@@ -64,7 +69,9 @@ SlashCmdList['GUILDBOOK'] = function(msg)
 
     elseif GuildbookUI[msg] then
         GuildbookUI:OpenTo(msg)
-
+    
+    elseif msg == "version" and Guildbook.version then
+        Guildbook:PrintMessage(Guildbook.version)
 
     elseif msg == "test" then
         GuildbookDataShare:Show()
@@ -267,7 +274,7 @@ function Guildbook:Init()
         end
         local name, link = GameTooltip:GetItem()
         if link then
-            local itemID = GetItemInfoInstant(link)
+            local itemID = GetItemInfoInstant(link) 
             if itemID then
                 if GUILDBOOK_GLOBAL.config and GUILDBOOK_GLOBAL.config.showTooltipTradeskills and Guildbook.tradeskillRecipes then
                     local headerAdded = false;
@@ -302,6 +309,10 @@ function Guildbook:Init()
                     end
                 end
             end
+            
+            -- this is for my own personal benefit remove for releases
+            -- local gold = select(11, GetItemInfo(link))
+            -- self:AddLine(GetCoinTextureString(gold))
         end
 
         -- local characters = {}
@@ -341,8 +352,6 @@ function Guildbook:Init()
             if not character then
                 return;
             end
-            -- Guildbook:SendProfileRequest(character.Name)
-            -- Guildbook:CharacterDataRequest(character.Name)
             self:AddLine(" ")
             self:AddLine('Guildbook:', 0.00, 0.44, 0.87, 1)
             if GUILDBOOK_GLOBAL.config.showTooltipMainSpec == true then
@@ -372,15 +381,17 @@ function Guildbook:Init()
             --self:AddTexture(Guildbook.Data.Class[character.Class].Icon,{width = 36, height = 36})
             if 1 == 1 then
                 if character.profile then
-                    self:AddLine(" ")
-                    self:AddLine(character.profile.realBio, 1,1,1,1, 1)
+                    --self:AddLine(" ")
+                    self:AddLine(Guildbook.Colours.Orange:WrapTextInColorCode(character.profile.realBio))
                 end
             end
             if GUILDBOOK_GLOBAL.config.showTooltipMainCharacter == true then
                 if character.MainCharacter then
                     local main = Guildbook:GetCharacterFromCache(character.MainCharacter)
                     if main then
-                        self:AddDoubleLine(L['MAIN_CHARACTER'], main.Name, 1, 1, 1, 1, 1, 1, 1, 1) 
+                        C_Timer.After(0.1, function()
+                            self:AppendText(" ["..Guildbook.Colours.Orange:WrapTextInColorCode(main.Name).."]")
+                        end)
                     end
                 end
             end
@@ -407,12 +418,6 @@ function Guildbook:PLAYER_ENTERING_WORLD()
         DEBUG("func", "PEW", "GUILDBOOK_GLOBAL is nil or false")
         return;
     end
-    GuildRoster() -- this will trigger a roster scan but we set addonLoaded as false to skip the auto roster scan
-    C_Timer.After(1.5, function()
-        self:ScanGuildRoster(function()
-            Guildbook:Load() -- once the roster has been scanned continue to load, its a bit meh but it means we get a full roster scan before loading
-        end)
-    end)
     -- store some info, used for character models, faction textures etc
     self.player = {
         faction = nil,
@@ -434,6 +439,16 @@ function Guildbook:PLAYER_ENTERING_WORLD()
             self.player.race = C_CreatureInfo.GetRaceInfo(raceID).clientFileString:upper()
             self.player.faction = C_CreatureInfo.GetFactionInfo(raceID).groupTag
         end
+    end)
+    GuildRoster() -- this will trigger a roster scan but we set addonLoaded as false at top of file to skip the auto roster scan so this is first scan
+    C_Timer.After(2.0, function()
+        local guildName = self:GetGuildName()
+        if not guildName then
+            return -- if not in a guild just exit for now, all saved vars have been created and the player race/faction stored for the session
+        end
+        self:ScanGuildRoster(function()
+            Guildbook:Load() -- once the roster has been scanned continue to load, its a bit meh but it means we get a full roster scan before loading
+        end)
     end)
     self.EventFrame:UnregisterEvent("PLAYER_ENTERING_WORLD")
 end
@@ -503,8 +518,10 @@ function Guildbook:Load()
                     self.flyout:Hide()
                 end
                 if self.flyout then
-                    self.flyout.delayTimer = 3.0;
+                    self.flyout.delayTimer = 2.0;
                     self.flyout:Show()
+                    GameTooltip:Hide()
+                    GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
                 end
             else
                 GuildbookUI:OpenTo("calendar")
@@ -565,7 +582,7 @@ function Guildbook:Load()
     minimapCalendarButton.flyout = GuildbookMinimapCalendarDropdown
     minimapCalendarButton.flyout:SetParent(minimapCalendarButton)
     minimapCalendarButton.flyout:ClearAllPoints()
-    minimapCalendarButton.flyout:SetPoint("TOPRIGHT", -30, -30)
+    minimapCalendarButton.flyout:SetPoint("TOPRIGHT", -5, -5)
     minimapCalendarButton.menu = {
         {
             text = L["CHAT"],
@@ -583,6 +600,12 @@ function Guildbook:Load()
             text = L["TRADESKILLS"],
             func = function() 
                 GuildbookUI:OpenTo("tradeskills") 
+            end,
+        },
+        {
+            text = L['GUILDBANK'],
+            func = function() 
+                GuildbookUI:OpenTo("guildbank") 
             end,
         },
         {
@@ -3352,30 +3375,46 @@ end
 
 function Guildbook:CHAT_MSG_SYSTEM(...)
     local msg = ...
-    local onlineMsg = ERR_FRIEND_ONLINE_SS:gsub("%[",""):gsub("%]",""):gsub("%%s", ".*")
-    if msg:find(onlineMsg) then
+    -- local onlineMsg = ERR_FRIEND_ONLINE_SS:gsub("%[",""):gsub("%]",""):gsub("%%s", ".*")
+    -- if msg:find(onlineMsg) then
+    --     local name, _ = strsplit(" ", msg)
+    --     local brokenLink = name:sub(2, #name-1)
+    --     local player = brokenLink:sub(brokenLink:find(":")+1, brokenLink:find("%[")-1)
+    --     if player then
+    --         if not self.onlineMembers then
+    --             self.onlineMembers = {}
+    --         end
+    --         self.onlineMembers[player] = true
+    --         DEBUG("event", "CHAT_MSG_SYSTEM", string.format("set %s as online", player))
+    --     end
+    -- end
+    local joinedGuild = ERR_GUILD_JOIN_S:gsub("%%s", ".*")
+    if msg:find(joinedGuild) then
         local name, _ = strsplit(" ", msg)
-        local brokenLink = name:sub(2, #name-1)
-        local player = brokenLink:sub(brokenLink:find(":")+1, brokenLink:find("%[")-1)
-        if player then
-            if not self.onlineMembers then
-                self.onlineMembers = {}
-            end
-            self.onlineMembers[player] = true
-            DEBUG("event", "CHAT_MSG_SYSTEM", string.format("set %s as online", player))
+        if Ambiguate(name, "none") ~= Ambiguate(UnitName("player"), "none") then
+            return;
         end
+        DEBUG("event", "CHAT_MSG_SYSTEM", "player joined a guild")
+        C_Timer.After(3.0, function()
+            GuildRoster() -- this will trigger a roster scan but we set addonLoaded as false at top of file to skip the auto roster scan so this is first scan
+            C_Timer.After(1.5, function()
+                self:ScanGuildRoster(function()
+                    Guildbook:Load() -- once the roster has been scanned continue to load, its a bit meh but it means we get a full roster scan before loading
+                end)
+            end)
+        end)
     end
-    local offlineMsg = ERR_FRIEND_OFFLINE_S:gsub("%%s", ".*")
-    if msg:find(offlineMsg) then
-        local player, _ = strsplit(" ", msg)
-        if player then
-            if not self.onlineMembers then
-                self.onlineMembers = {}
-            end
-            self.onlineMembers[player] = false
-            DEBUG("event", "CHAT_MSG_SYSTEM", string.format("set %s as offline", player))
-        end
-    end
+    -- local offlineMsg = ERR_FRIEND_OFFLINE_S:gsub("%%s", ".*")
+    -- if msg:find(offlineMsg) then
+    --     local player, _ = strsplit(" ", msg)
+    --     if player then
+    --         if not self.onlineMembers then
+    --             self.onlineMembers = {}
+    --         end
+    --         self.onlineMembers[player] = false
+    --         DEBUG("event", "CHAT_MSG_SYSTEM", string.format("set %s as offline", player))
+    --     end
+    -- end
 end
 
 function Guildbook:GUILD_ROSTER_UPDATE(...)
@@ -3595,13 +3634,14 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
     end
 end
 
-function Guildbook:PLAYER_TALENT_UPDATE(...)
-    print("talent updated")
+function Guildbook:GUILD_INVITE_REQUEST(...)
+    local _, guildName = ...
 end
 
 --set up event listener
 Guildbook.EventFrame = CreateFrame('FRAME', 'GuildbookEventFrame', UIParent)
 Guildbook.EventFrame:RegisterEvent('GUILD_ROSTER_UPDATE')
+Guildbook.EventFrame:RegisterEvent('GUILD_INVITE_REQUEST')
 Guildbook.EventFrame:RegisterEvent('ADDON_LOADED')
 Guildbook.EventFrame:RegisterEvent('PLAYER_ENTERING_WORLD')
 Guildbook.EventFrame:RegisterEvent('PLAYER_LEVEL_UP')
@@ -3613,7 +3653,7 @@ Guildbook.EventFrame:RegisterEvent('BANKFRAME_CLOSED')
 Guildbook.EventFrame:RegisterEvent('BAG_UPDATE')
 Guildbook.EventFrame:RegisterEvent('CHAT_MSG_GUILD')
 Guildbook.EventFrame:RegisterEvent('CHAT_MSG_WHISPER')
---Guildbook.EventFrame:RegisterEvent('CHAT_MSG_SYSTEM')
+Guildbook.EventFrame:RegisterEvent('CHAT_MSG_SYSTEM')
 Guildbook.EventFrame:RegisterEvent('UPDATE_MOUSEOVER_UNIT')
 Guildbook.EventFrame:RegisterEvent('PLAYER_EQUIPMENT_CHANGED')
 Guildbook.EventFrame:SetScript('OnEvent', function(self, event, ...)

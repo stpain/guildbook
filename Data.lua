@@ -387,6 +387,34 @@ Guildbook.Data.TalentBackgroundToSpec = {
 	["WarriorProtection"] = "Protection",
 }
 
+Guildbook.Data.ProfSpecToProfId = {
+    --Alchemy:
+    [28672] = 171,
+    [28677] = 171,
+    [28675] = 171,
+
+    --Engineering:
+    [20222] = 202,
+    [20219] = 202,
+
+    --Tailoring:
+    [26798] = 197,
+    [26797] = 197,
+    [26801] = 197,
+
+    --Blacksmithing:
+    [9788] = 164,
+    [17039] = 164,
+    [17040] = 164,
+    [17041] = 164,
+    [9787] = 164,
+
+    --Leatherworking:
+    [10656] = 165,
+    [10658] = 165,
+    [10660] = 165,
+}
+
 Guildbook.Data.Profession = {
     ['-'] = { 
         ID = 0, 
