@@ -639,7 +639,7 @@ elseif locale == 'frFR' then
 	L["GUILDBANK_CURRENCY"]				= "Monnaie"
 
 	--tradeskills
-	L["TRADESKILLS"]		    		= "Mériers"
+	L["TRADESKILLS"]		    		= "Métiers"
 	L["TRADESKILLS_RECIPES"]	   		= "Recettess"
 	L["TRADESKILLS_CHARACTERS"]	    	= "Personnages"
 	L["TRADESKILL_GUILD_RECIPES"]	    = "Recettes en Guilde"
