@@ -4121,7 +4121,7 @@ function GuildbookPrivacyMixin:OnShow()
             func = function()
                 GUILDBOOK_GLOBAL.config.privacy.shareProfileMinRank = rank;
                 updateInfo(self.profileSharingInfo, k)
-                gb:SendPrivacyInfo("GUILD", nil)
+                gb:SendPrivacyInfo(nil, "GUILD")
             end,
         })
         table.insert(self.shareInventory.menu, {
@@ -4129,7 +4129,7 @@ function GuildbookPrivacyMixin:OnShow()
             func = function()
                 GUILDBOOK_GLOBAL.config.privacy.shareInventoryMinRank = rank;
                 updateInfo(self.inventorySharingInfo, k)
-                gb:SendPrivacyInfo("GUILD", nil)
+                gb:SendPrivacyInfo(nil, "GUILD")
             end,
         })
         table.insert(self.shareTalents.menu, {
@@ -4137,32 +4137,33 @@ function GuildbookPrivacyMixin:OnShow()
             func = function()
                 GUILDBOOK_GLOBAL.config.privacy.shareTalentsMinRank = rank;
                 updateInfo(self.talentsSharingInfo, k)
-                gb:SendPrivacyInfo("GUILD", nil)
+                gb:SendPrivacyInfo(nil, "GUILD")
             end,
         })
     end
     table.insert(self.shareProfile.menu, {
-        text = "None",
+        text = L["NONE"],
         func = function()
             GUILDBOOK_GLOBAL.config.privacy.shareProfileMinRank = "none";
             updateInfo(self.profileSharingInfo, "none")
-            gb:SendPrivacyInfo("GUILD", nil)
+            gb:SendPrivacyInfo(nil, "GUILD")
         end,
     })
     table.insert(self.shareInventory.menu, {
-        text = "None",
+        text = L["NONE"],
         func = function()
             GUILDBOOK_GLOBAL.config.privacy.shareInventoryMinRank = "none";
             updateInfo(self.inventorySharingInfo, "none")
-            gb:SendPrivacyInfo("GUILD", nil)
+            gb:SendPrivacyInfo(nil, "GUILD")
         end,
     })
     table.insert(self.shareTalents.menu, {
         text =  L["NONE"],
         func = function()
+            DEBUG("func", "PrivacySelection_Changed", "set talent privacy setting to none")
             GUILDBOOK_GLOBAL.config.privacy.shareTalentsMinRank = "none";
             updateInfo(self.talentsSharingInfo, "none")
-            gb:SendPrivacyInfo("GUILD", nil)
+            gb:SendPrivacyInfo(nil, "GUILD")
         end,
     })
 end

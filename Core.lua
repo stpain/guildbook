@@ -45,13 +45,13 @@ Guildbook.FONT_COLOUR = '|cff0070DE'
 Guildbook.ContextMenu_Separator = "|TInterface/COMMON/UI-TooltipDivider:8:150|t"
 Guildbook.ContextMenu_Separator_Wide = "|TInterface/COMMON/UI-TooltipDivider:8:250|t"
 Guildbook.PlayerMixin = nil
-Guildbook.NUM_TALENT_ROWS = 7.0
 Guildbook.COMMS_DELAY = 0.0
 Guildbook.COMM_LOCK_COOLDOWN = 20.0
 
 Guildbook.Colours = {
     Blue = CreateColor(0.1, 0.58, 0.92, 1),
     Orange = CreateColor(202/255,155/255,38/255, 1),
+    Yellow = CreateColor(255,209.1,0,1),
 }
 
 
@@ -380,7 +380,7 @@ function Guildbook:Init()
             end
             --self:AddTexture(Guildbook.Data.Class[character.Class].Icon,{width = 36, height = 36})
             if 1 == 1 then
-                if character.profile then
+                if character.profile and character.profile.realBio then
                     --self:AddLine(" ")
                     self:AddLine(Guildbook.Colours.Orange:WrapTextInColorCode(character.profile.realBio))
                 end
@@ -691,6 +691,11 @@ function Guildbook:Load()
     end
 
     self.addonLoaded = true
+
+    -- not sure about this, could do it without the popup ?
+    if GUILDBOOK_CHARACTER and GUILDBOOK_CHARACTER.Profession1 then
+        --StaticPopup_Show('GuildbookFirstLoad')
+    end
 end
 
 
@@ -1417,8 +1422,13 @@ function Guildbook:CheckPrivacyRankSettings()
     if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.config and GUILDBOOK_GLOBAL.config.privacy then
         for rule, rank in pairs(GUILDBOOK_GLOBAL.config.privacy) do
             if not ranks[rank] then
-                GUILDBOOK_GLOBAL.config.privacy[rule] = lowestRank
-                DEBUG("func", "CheckPrivacyRankSettings", string.format("changed rank: %s to lowest rank (%s)", rank, lowestRank))
+                if rank == "none" then
+                    
+                else
+                    -- set the rank to lowest, this is to cover times where a rank is deleted
+                    GUILDBOOK_GLOBAL.config.privacy[rule] = lowestRank
+                    DEBUG("func", "CheckPrivacyRankSettings", string.format("changed rank: %s to lowest rank (%s)", rank, lowestRank))
+                end
             end
         end
     end
@@ -3509,7 +3519,7 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
         data.senderGUID = self:GetGuildMemberGUID(sender)
     end
 
-    DEBUG('comms_in', 'ON_COMMS_RECEIVED', string.format("%s from %s", data.type, sender), data.payload)
+    DEBUG('comms_in', 'ON_COMMS_RECEIVED', string.format("%s from %s", data.type, sender), data)
 
     -- tradeskills
     if data.type == "TRADESKILLS_REQUEST" then
