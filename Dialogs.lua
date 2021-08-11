@@ -292,3 +292,43 @@ StaticPopupDialogs['GuildbookUpdates'] = {
     showAlert = 1,
 }
 
+StaticPopupDialogs['GuildbookFirstLoad'] = {
+    text = L["DIALOG_CHARACTER_FIRST_LOAD"],
+    button1 = "",
+    OnShow = function(self, t)
+        local button1 = _G[self:GetName().."Button1"]
+        button1:Click()
+    end,
+    OnAccept = function(self, t)
+        local engProf = Guildbook:GetEnglishProf(GUILDBOOK_CHARACTER.Profession1)
+        if engProf == "Skinning" or engProf == "Herbalism" then
+            
+        else
+            CastSpellByName(engProf)
+            C_Timer.After(0.01, function()
+                if TradeSkillFrame and TradeSkillFrame:IsVisible() then
+                    TradeSkillFrameCloseButton:Click()
+                end
+                if CraftFrame and CraftFrame:IsVisible() then
+                    CraftFrameCloseButton:Click()
+                end
+                if GUILDBOOK_CHARACTER and GUILDBOOK_CHARACTER.Profession2 then
+                    local engProf = Guildbook:GetEnglishProf(GUILDBOOK_CHARACTER.Profession2)
+                    if engProf == "Skinning" or engProf == "Herbalism" then
+            
+                    else
+                        CastSpellByName(engProf)
+                        C_Timer.After(0.01, function()
+                            if TradeSkillFrame and TradeSkillFrame:IsVisible() then
+                                TradeSkillFrameCloseButton:Click()
+                            end
+                            if CraftFrame and CraftFrame:IsVisible() then
+                                CraftFrameCloseButton:Click()
+                            end
+                        end)
+                    end
+                end
+            end)
+        end
+    end,
+}

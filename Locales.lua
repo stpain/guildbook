@@ -48,6 +48,8 @@ L["OPTIONS"]						= "Options & Settings"
 L["MINIMAP_CALENDAR_RIGHTCLICK"]	= "Right click for menu"
 L["MINIMAP_CALENDAR_EVENTS"]		= "Events"
 
+L["DIALOG_CHARACTER_FIRST_LOAD"]	= "Welcome to Guildbook, click below to scan your characters professions."
+
 L["NEW_VERSION_1"] = "new version available, probably fixes a few things, might break something else though!"
 L["NEW_VERSION_2"] = "there is a totally new awesome version of guildbook, available to downlaod from all good addon providers!"
 L["NEW_VERSION_3"] = "lol, if you thought the last update did not a lot, you should get the new one, probably does about the same.....or less!"
@@ -137,7 +139,7 @@ L["ALT_CHARACTERS"]                 = "Alt characters"
 L["MAIN_SPEC"]                      = "Main spec"
 L["OFF_SPEC"]                       = "Off spec"
 L["PRIVACY"]                        = "Privacy"
-L["PRIVACY_ABOUT"]                  = "Set the lowest rank you wish to share data with."
+L["PRIVACY_ABOUT"]                  = "Set the lowest rank you wish to share data with. Profile data includes name, birthday, bio and avatar. Inventory data is the equipment your character has (this is |cffFFD100NOT|r your bags/bank). Talents are, well, your talents!"
 L["INVENTORY"]                      = "Inventory"
 L["TALENTS"]                        = "Talents"
 

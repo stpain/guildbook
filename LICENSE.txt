@@ -1,17 +1,19 @@
-Copyright ©2019 Samuel Thomas Pain
+zlib License
 
-The contents of this addon, excluding third-party resources, are
-copyrighted to their authors with all rights reserved.
+Copyright ï¿½2019 Samuel Thomas Pain
 
-This addon is free to use and the authors hereby grants you the following rights:
+This software is provided 'as-is', without any express or implied
+warranty.  In no event will the authors be held liable for any damages
+arising from the use of this software.
 
-1. 	You may make modifications to this addon for private use only, you
-    	may not publicize any portion of this addon.
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it
+freely, subject to the following restrictions:
 
-2. 	Do not modify the name of this addon, including the addon folders.
-
-3. 	This copyright notice shall be included in all copies or substantial
-    	portions of the Software.
-
-All rights not explicitly addressed in this license are reserved by
-the copyright holders.
+1. The origin of this software must not be misrepresented; you must not
+   claim that you wrote the original software. If you use this software
+   in a product, an acknowledgment in the product documentation would be
+   appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be
+   misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
