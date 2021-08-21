@@ -1,1 +1,8 @@
 added my characters to roster filter, find in class dropdown
+
+4.96522
+added ability to modify events while logged in on an alt
+started working on the stats ui, still work in progress
+started looking at default roster tooltips
+added shaman warden spec
+added dk frost tank spec for wrath
