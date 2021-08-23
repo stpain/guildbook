@@ -1002,12 +1002,14 @@ function Guildbook:SetupGuildCalendarFrame()
 
             -- this allows us to modify events from any of our characters, other default to just check if its the current character
             if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.myCharacters then
-                if GUILDBOOK_GLOBAL.myCharacters[self.event.owner] then
+                if GUILDBOOK_GLOBAL.myCharacters[self.event.owner] == true or GUILDBOOK_GLOBAL.myCharacters[self.event.owner] == false then -- we just need to know the guid exists true or false here is not important
+                    --print("got owner")
                     self.EventDescriptionEditbox:Enable()
                     self.EventDescriptionEditboxParent.UpdateButton:Show()
 
                     self.CancelEventButton:Enable()
                 else
+                    --print("no owner")
                     self.EventDescriptionEditbox:Disable()
                     self.EventDescriptionEditboxParent.UpdateButton:Hide()
 

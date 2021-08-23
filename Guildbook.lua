@@ -279,6 +279,8 @@ function GuildbookRecipeListviewItemMixin:OnEnter()
         else
             GameTooltip:SetHyperlink(self.link)
         end
+        GameTooltip:AddLine(" ")
+        GameTooltip:AddLine(gb.Colours.Blue:WrapTextInColorCode(L["REMOVE_RECIPE_FROM_PROF"]))
         GameTooltip:Show()
         self:GetParent():GetParent().professionListview:SetAlpha(0.3)
     else
@@ -291,13 +293,28 @@ function GuildbookRecipeListviewItemMixin:OnLeave()
     self:GetParent():GetParent().professionListview:SetAlpha(1)
 end
 
-function GuildbookRecipeListviewItemMixin:OnMouseDown()
+function GuildbookRecipeListviewItemMixin:OnMouseDown(button)
     local point, relativeTo, relativePoint, xOfs, yOfs = self:GetPoint()
 	self:ClearAllPoints()
 	self:SetPoint(point, relativeTo, relativePoint, xOfs - 1, yOfs - 1)
 
     if self.link and IsShiftKeyDown() then
         HandleModifiedItemClick(self.link)
+    elseif button == "RightButton" then
+        local characters = self.GetCharactersWithRecipe(self.itemID)
+        if characters then
+            for k, v in ipairs(characters) do
+                print(k, v.name)
+            end
+        end
+        local prof = GuildbookMixin.selectedProfession
+        StaticPopup_Show('GuildbookDeleteRecipeFromCharacters', (string.format(L["REMOVE_RECIPE_FROM_PROF_SS"], self.link, prof)), nil, {
+            itemLink = self.link,
+            recipeID = self.itemID,
+            characters = characters,
+            prof = prof,
+            listview = GuildbookUI.tradeskills.recipesListview,
+        })
     else
         if self.func then
             self.func()
@@ -1278,6 +1295,7 @@ function GuildbookRecipesListviewMixin:OnLoad()
             local _, size, flags = reagent.count:GetFont()
             --reagent.count:SetFont([[Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf]], 14, flags)
         end
+        f.GetCharactersWithRecipe = getPlayersWithRecipe;
         f.func = function()
             if f.model then
                 local s = f.model.selected;
@@ -1327,6 +1345,26 @@ function GuildbookRecipesListviewMixin:ClearRows()
         row:ClearReagents()
         row:SetAlpha(0)
     end
+end
+
+function GuildbookRecipesListviewMixin:RemoveRecipe(recipeID)
+    if self.recipes then
+        local key = false;
+        for k, v in ipairs(self.recipes) do
+            if v.itemID == recipeID then
+                key = k;
+            end
+        end
+        if key then
+            table.remove(self.recipes, key) -- not the greatest way to do this but as its only a minor feature for players to fix their recipes it should be ok
+        end
+    end
+    local scrollPos = math.floor(self.scrollBar:GetValue())
+    self.scrollBar:SetMinMaxValues(1, 2)
+    self.scrollBar:SetValue(2)
+    self.scrollBar:SetValue(1)
+    self.scrollBar:SetMinMaxValues(1,(#self.recipes>NUM_RECIPE_ROWS) and #self.recipes-(NUM_RECIPE_ROWS-1) or 1)
+    self.scrollBar:SetValue(scrollPos)
 end
 
 function GuildbookRecipesListviewMixin:LoadRecipes(infoMessage, showShareCharacterButton)
@@ -3936,7 +3974,7 @@ function GuildbookStatsMixin:OnLoad()
     self.classChartsHeader:SetPoint("BOTTOM", 0, 270)
     self.classChartsHeader:SetText("Class summary, this uses data from members where a main spec is set")
 
-    self.classPie = LibGraph:CreateGraphPieChart("GuildbookUIStatsClassPie", self, 'BOTTOMRIGHT', 'BOTTOMRIGHT', -55, 20, 250,250)
+    self.classPie = LibGraph:CreateGraphPieChart("GuildbookUIStatsClassPie", self, 'BOTTOMRIGHT', 'BOTTOMRIGHT', -55, 35, 235,235)
     for class, info in pairs(gb.Data.Class) do
         local r, g, b = info.RGB[1], info.RGB[2], info.RGB[3]
         self.classPie:AddPie(10, {r*segColOffset, g*segColOffset, b*segColOffset})
@@ -3944,8 +3982,9 @@ function GuildbookStatsMixin:OnLoad()
             if type(segment) == 'number' and segment > 0 and segment < 11 then
                 if self.classSegments[segment] then
                     local class = self.classSegments[segment].class
+                    local count = self.classSegments[segment].count
                     for _, bar in ipairs(self.charts.class) do
-                        if bar.className == self.classSegments[segment].class then
+                        if bar.className == class then
                             local r, g, b = unpack(gb.Data.Class[class].RGB)
                             bar.background:SetColorTexture(r,g,b,0.4)
                         else
@@ -3953,7 +3992,12 @@ function GuildbookStatsMixin:OnLoad()
                             bar.background:SetColorTexture(r,g,b,0.1)
                         end
                     end
+                    GameTooltip:SetOwner(self.classPie, 'ANCHOR_BOTTOM', 0, 0)
+                    GameTooltip:AddDoubleLine(class, count, 1,1,1)
+                    GameTooltip:Show()
                 end
+            else
+                GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
             end
         end
         self.classPie:SetSelectionFunc(classPie_SelectionFunc)

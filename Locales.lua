@@ -164,6 +164,8 @@ L["TRADESKILLS_EXPORT_RECIPES"]		= "Import or export tradeskill data"
 L["IMPORT"]							= "Import"
 L["EXPORT"]							= "Export"
 L["CAN_CRAFT"]                      = "[Guildbook] are you able to craft %s ?"
+L["REMOVE_RECIPE_FROM_PROF_SS"]		= "Remove %s from %s ?"
+L["REMOVE_RECIPE_FROM_PROF"]		= "Right click to remove from this tradeskill."
 
 
 L['GUILDBANK']						= "Guild bank"

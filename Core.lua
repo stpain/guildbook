@@ -901,9 +901,13 @@ function Guildbook:RequestTradeskillData()
             local reagents = recipeIdsToQuery[i].reagents
             local l, r, n, e, x, ic = false, false, false, false, 0, false
             local thaokyProf, spellID = LCI:GetItemSource(recipeID)
-            if prof ~= thaokyProf then
-                --DEBUG("func", "GET_PROF_DATA", string.format("gb prof: %s thaoky prof: %s", prof, thaokyProf or "no thaoky data"))
-            end
+            local tradeskill = LCI:GetCraftProfession(recipeID)
+            -- if i < 20 then
+            --     --DEBUG("func", "GET_PROF_DATA", string.format("gb prof: %s thaoky prof: %s", prof, tradeskill or "no thaoky data"))
+            -- end
+            -- if prof ~= thaokyProf then
+            --     --DEBUG("func", "GET_PROF_DATA", string.format("gb prof: %s thaoky prof: %s", prof, thaokyProf or "no thaoky data"))
+            -- end
             if spellID then
                 x = LCI:GetCraftXPack(spellID)
             end
@@ -2117,6 +2121,18 @@ function Guildbook:GetCharacterProfessions()
         self:SetCharacterInfo(guid, "Profession1Level", myCharacter.Prof1Level)
         self:SetCharacterInfo(guid, "Profession2", myCharacter.Prof2)
         self:SetCharacterInfo(guid, "Profession2Level", myCharacter.Prof2Level)
+
+        --remove old or unknown professions
+        local character = self:GetCharacterFromCache(guid)
+        for k, v in pairs(character) do
+            if Guildbook.Data.Profession[k] then
+                if k ~= character.Profession1 and k ~= character.Profession2 then
+                    character[k] = nil;
+                    GUILDBOOK_CHARACTER['Profession1'] = nil;
+                    GUILDBOOK_CHARACTER['Profession2'] = nil;
+                end
+            end
+        end
     end
 end
 
@@ -2768,10 +2784,8 @@ function Guildbook:OnTradeSkillsReceived(response, distribution, sender)
                 i = i + 1;
             end
             -- now check the prof exists as a key
-            if character.Profession1 == "-" then
-                if character.Profession2 == "-" and (character.Profession1 ~= response.payload.profession) then
-                    Guildbook:CharacterDataRequest(sender) -- this is to get the prof name added as a key
-                end
+            if character.Profession1 ~= response.payload.profession and character.Profession2 ~= response.payload.profession then
+                Guildbook:CharacterDataRequest(sender) -- this is to get the prof name added as a key
             end
             --character[response.payload.profession] = response.payload.recipes
             GuildbookUI.statusText:SetText(string.format("%s data for [|cffffffff%s|r] sent by %s", prof, character.Name, sender))
@@ -2839,50 +2853,56 @@ function Guildbook:OnCharacterDataRequested(request, distribution, sender)
 end
 
 function Guildbook:OnCharacterDataReceived(data, distribution, sender)
-    local guildName = self:GetGuildName()
-    if guildName then
-        if not GUILDBOOK_GLOBAL.GuildRosterCache[guildName] then
-            GUILDBOOK_GLOBAL.GuildRosterCache[guildName] = {}
-        end
-        if not GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID] then
-            GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID] = {}
-        end
-        local character = GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][data.payload.GUID]
-        character.MainCharacter = data.payload.MainCharacter
-        character.MainSpec = data.payload.MainSpec
-        character.MainSpecIsPvP = data.payload.MainSpecIsPvP
-        character.OffSpec = data.payload.OffSpec
-        character.OffSpecIsPvP = data.payload.OffSpecIsPvP
-        character.Profession1 = data.payload.Profession1
-        character.Profession2 = data.payload.Profession2
+    if not data.payload.GUID then
+        return
+    end
+    local character = self:GetCharacterFromCache(data.payload.GUID)
+    if not character then
+        return
+    end
+    character.MainCharacter = data.payload.MainCharacter
+    character.MainSpec = data.payload.MainSpec
+    character.MainSpecIsPvP = data.payload.MainSpecIsPvP
+    character.OffSpec = data.payload.OffSpec
+    character.OffSpecIsPvP = data.payload.OffSpecIsPvP
+    character.Profession1 = data.payload.Profession1
+    character.Profession2 = data.payload.Profession2
 
-        if data.payload.Profession1Spec then
-            character.Profession1Spec = data.payload.Profession1Spec
-        else
-            character.Profession1Spec = false
-        end
-        if data.payload.Profession2Spec then
-            character.Profession2Spec = data.payload.Profession2Spec
-        else
-            character.Profession2Spec = false
-        end
+    if data.payload.Profession1Spec then
+        character.Profession1Spec = data.payload.Profession1Spec
+    else
+        character.Profession1Spec = false
+    end
+    if data.payload.Profession2Spec then
+        character.Profession2Spec = data.payload.Profession2Spec
+    else
+        character.Profession2Spec = false
+    end
 
-        -- number values
-        for k, v in ipairs({"ItemLevel", "Profession1Level", "Profession2Level", 'CookingLevel', 'FishingLevel', 'FirstAidLevel'}) do
-            if data.payload[v] then
-                character[v] = tonumber(data.payload[v])
+    -- tidy up old profs
+    for k, _ in pairs(character) do
+        if Guildbook.Data.Profession[k] then
+            if k ~= character.Profession1 and k ~= character.Profession2 then
+                character[k] = nil;
             end
         end
-        if data.payload.CharStats then
-            character.PaperDollStats = data.payload.CharStats
-        end
-
-        DEBUG('func', 'OnCharacterDataReceived', string.format('OnCharacterDataReceived > sender=%s', sender))
-        C_Timer.After(Guildbook.COMMS_DELAY, function()
-            GuildbookUI.statusText:SetText(string.format("received character data from %s", sender))
-            GuildbookUI.profiles:LoadStats()
-        end)
     end
+
+    -- number values
+    for k, v in ipairs({"ItemLevel", "Profession1Level", "Profession2Level", 'CookingLevel', 'FishingLevel', 'FirstAidLevel'}) do
+        if data.payload[v] then
+            character[v] = tonumber(data.payload[v])
+        end
+    end
+    if data.payload.CharStats then
+        character.PaperDollStats = data.payload.CharStats
+    end
+
+    DEBUG('func', 'OnCharacterDataReceived', string.format('OnCharacterDataReceived > sender=%s', sender))
+    C_Timer.After(Guildbook.COMMS_DELAY, function()
+        GuildbookUI.statusText:SetText(string.format("received character data from %s", sender))
+        GuildbookUI.profiles:LoadStats()
+    end)
 end
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
