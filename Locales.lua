@@ -66,8 +66,15 @@ L["HELP_ABOUT"]						= "Help & about"
 local slashCommandsIcon = CreateTextureMarkup(136377, 64, 64, 16, 16, 0, 1, 0, 1, 0, 0)
 local slashCommandsHelp = [[
 Slash commands:
+You can use /guildbook, /gbk or /gb.
 /guildbook open - this will open Guildbook
 /guildbook [interface] - this will open to a specific area (roster, tradeskills, chat, profiles, calendar, stats, guildbank, search, privacy)
+
+]]
+local rosterIcon = CreateAtlasMarkup("poi-workorders", 16, 16)
+local rosterHelp = [[
+Roster:
+You can sort the roster by clicking the column headers. You can also filter the roster by class or rank, to do this right click the headers. There is the option under class to filter the roster to just your own characters too!
 
 ]]
 local tradeskillIcon = CreateAtlasMarkup("Mobile-Blacksmithing", 16, 16)
@@ -75,9 +82,10 @@ local tradeskillHelp =
 [[
 Tradeskills (Professions):
 Guildbook will share your tradeskill recipes with other guild members. 
-Open your tradeskill to trigger the scan of the recipes. Wait patiently as it scans (~100 recipes per second). This will save to your character and account database for the guild and sends to online guild members. 
+Open your tradeskill to trigger the scan of the recipes. This will save to your character and account database for the guild and sends to online guild members. 
 Once this process is complete, future data will be sent to all online guild members when you log in. You can also push data by opening a tradeskill (cooldown enabled to prevent spam).
 If you need to share recipes from an offline guild member, select their tradeskill from the roster, once loaded click the button in the top right of the recipes listview (cooldown enabled to prevent spam).
+You can also use the import/export feature, click the icon above the profession list and follow the instructions.
 
 ]]
 local profileIcon = CreateAtlasMarkup("GarrMission_MissionIcon-Recruit", 16, 16)
@@ -103,7 +111,7 @@ Guildbook then sends a request to that member for the commit data.
 
 As this process involves a lot of comms, there is a cooldown of 30s between requesting bank data, and the request process is staggered so that comms messages dont cause issues for other addons.
 ]]
-L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s", slashCommandsIcon, slashCommandsHelp, tradeskillIcon, tradeskillHelp, profileIcon, profileHelp, searchIcon, searchHelp, bankIcon, bankHelp)
+L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s %s %s", slashCommandsIcon, slashCommandsHelp, rosterIcon, rosterHelp, tradeskillIcon, tradeskillHelp, profileIcon, profileHelp, searchIcon, searchHelp, bankIcon, bankHelp)
 
 
 
@@ -156,6 +164,8 @@ L["TRADESKILLS_EXPORT_RECIPES"]		= "Import or export tradeskill data"
 L["IMPORT"]							= "Import"
 L["EXPORT"]							= "Export"
 L["CAN_CRAFT"]                      = "[Guildbook] are you able to craft %s ?"
+L["REMOVE_RECIPE_FROM_PROF_SS"]		= "Remove %s from %s ?"
+L["REMOVE_RECIPE_FROM_PROF"]		= "Right click to remove from this tradeskill."
 
 
 L['GUILDBANK']						= "Guild bank"
@@ -295,6 +305,10 @@ L['Retribution']                    = 'Retribution'
 L['Holy']                           = 'Holy'
 L['Discipline']                     = 'Discipline'
 L['Shadow']                         = 'Shadow'
+
+--odds
+L["Warden"]							= "Warden"
+L["Frost (Tank)"]					= "Frost (Tank)"
 
 --date time
 L['JANUARY']                        = 'January'

@@ -312,7 +312,7 @@
                     <Frame parentKey="privacy" inherits="GuildbookSmallHighlightButton" enableMouse="true">
                         <Size x="30" y="30"/>
                         <Anchors>
-                            <Anchor point="RIGHT" x="-78" y="0"/>
+                            <Anchor point="RIGHT" x="-43" y="0"/>
                         </Anchors>
                         <Layers>
                             <Layer level="BACKGROUND">
@@ -343,7 +343,7 @@
                         </Scripts>
                     </Frame>
 
-                    <Frame parentKey="mySacks" inherits="GuildbookSmallHighlightButton" enableMouse="true">
+                    <!-- <Frame parentKey="mySacks" inherits="GuildbookSmallHighlightButton" enableMouse="true">
                         <Size x="30" y="30"/>
                         <Anchors>
                             <Anchor point="RIGHT" x="-43" y="0"/>
@@ -375,7 +375,7 @@
                                 GuildbookButtonMixin.OnMouseDown(self)
                             </OnMouseDown>
                         </Scripts>
-                    </Frame>
+                    </Frame> -->
 
                     <Frame parentKey="myProfile" inherits="GuildbookSmallHighlightButton" enableMouse="true">
                         <Size x="30" y="30"/>
@@ -404,7 +404,7 @@
                     <Frame parentKey="helpAbout" inherits="GuildbookSmallHighlightButton" enableMouse="true">
                         <Size x="30" y="30"/>
                         <Anchors>
-                            <Anchor point="RIGHT" x="-113" y="0"/>
+                            <Anchor point="RIGHT" x="-78" y="0"/>
                         </Anchors>
                         <Layers>
                             <Layer level="BACKGROUND">

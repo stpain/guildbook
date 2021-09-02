@@ -210,6 +210,26 @@ function Guildbook:ModBlizzUI()
         button.GuildbookColumnOnline:SetSize(self.GuildFrame.ColumnWidths['Online'], button:GetHeight())
         formatGuildFrameButton(button.GuildbookColumnOnline, {1,1,1,1})   
     end
+
+    for i = 1, 13 do
+        local button = _G['GuildFrameButton'..i]
+        button:HookScript("OnEnter", function(self)
+            local _, rankName, _, level, _, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, _, _, _, GUID = GetGuildRosterInfo(tonumber(button.guildIndex))
+            local character = Guildbook:GetCharacterFromCache(GUID)
+            if character then
+                local name = string.format("%s%s", Guildbook.Data.Class[class].FontColour, character.Name)
+                if character.MainCharacter then
+                    local main = Guildbook:GetCharacterFromCache(character.MainCharacter)
+                    if main then
+                        name = string.format("%s [%s]", name, Guildbook.Colours[main.Class]:WrapTextInColorCode(main.Name))
+                    end
+                end
+                GameTooltip:SetOwner(self, 'ANCHOR_CURSOR', 0, 5)
+                GameTooltip:AddLine(name, 1,1,1,1)
+                GameTooltip:Show()
+            end
+        end)
+    end
     
     hooksecurefunc("GuildStatus_Update", function()
         local numTotal, numOnline, numOnlineAndMobile = GetNumGuildMembers()

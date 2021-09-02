@@ -332,3 +332,22 @@ StaticPopupDialogs['GuildbookFirstLoad'] = {
         end
     end,
 }
+
+
+StaticPopupDialogs['GuildbookDeleteRecipeFromCharacters'] = {
+    text = "%s",
+    button1 = "OK",
+    button2 = "Cancel",
+    OnAccept = function(self, t)
+        if t.itemLink and t.characters then
+            for _, char in ipairs(t.characters) do
+                local character = Guildbook:GetCharacterFromCache(char.guid)
+                if character and character[t.prof] then
+                    character[t.prof][t.recipeID] = nil;
+                    --print(string.format("removed %s from %s for %s", t.itemLink, character.Name, t.prof))
+                end
+            end
+            t.listview:RemoveRecipe(t.recipeID)
+        end
+    end,
+}

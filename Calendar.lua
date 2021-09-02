@@ -1000,12 +1000,33 @@ function Guildbook:SetupGuildCalendarFrame()
             self.EventTitleEditbox:Disable()
             self.EventDescriptionEditbox:SetText(self.event.desc)
 
-            if self.event.owner == UnitGUID('player') then
-                self.EventDescriptionEditbox:Enable()
-                self.EventDescriptionEditboxParent.UpdateButton:Show()
+            -- this allows us to modify events from any of our characters, other default to just check if its the current character
+            if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.myCharacters then
+                if GUILDBOOK_GLOBAL.myCharacters[self.event.owner] == true or GUILDBOOK_GLOBAL.myCharacters[self.event.owner] == false then -- we just need to know the guid exists true or false here is not important
+                    --print("got owner")
+                    self.EventDescriptionEditbox:Enable()
+                    self.EventDescriptionEditboxParent.UpdateButton:Show()
+
+                    self.CancelEventButton:Enable()
+                else
+                    --print("no owner")
+                    self.EventDescriptionEditbox:Disable()
+                    self.EventDescriptionEditboxParent.UpdateButton:Hide()
+
+                    self.CreateEventButton:Disable()
+                end
             else
-                self.EventDescriptionEditbox:Disable()
-                self.EventDescriptionEditboxParent.UpdateButton:Hide()
+                if self.event.owner == UnitGUID('player') then
+                    self.EventDescriptionEditbox:Enable()
+                    self.EventDescriptionEditboxParent.UpdateButton:Show()
+
+                    self.CancelEventButton:Enable()
+                else
+                    self.EventDescriptionEditbox:Disable()
+                    self.EventDescriptionEditboxParent.UpdateButton:Hide()
+
+                    self.CreateEventButton:Disable()
+                end
             end
 
             self.CreateEventButton:Disable()
@@ -1013,11 +1034,7 @@ function Guildbook:SetupGuildCalendarFrame()
             self.AttendEventButton_Tentative:Enable()
             self.AttendEventButton_Decline:Enable()
             UIDropDownMenu_SetText(self.EventTypeDropdown, eventTypesReversed[self.event.type])
-            if self.event.owner == UnitGUID('player') then
-                self.CancelEventButton:Enable()
-            else
-                self.CreateEventButton:Disable()
-            end
+
         else
             self.OwnerText:SetText(' ')
             if self.enabled == true then
@@ -1189,6 +1206,7 @@ function Guildbook:SetupGuildCalendarFrame()
 
     self.GuildFrame.GuildCalendarFrame:SetScript('OnHide', function(self)
         --FriendsFrame:SetHeight(FRIENDS_FRAME_HEIGHT)
+        self.EventFrame:Hide()
     end)
 
 end

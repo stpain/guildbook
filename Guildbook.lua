@@ -24,7 +24,12 @@ function GuildbookDataShareMixin:OnLoad()
     self:RegisterForDrag("LeftButton")
     self:SetBackdrop(frameBackdrop)
 
-    self.close:SetText("X")
+    self.close:SetSize(24, 22)
+    self.close:SetNormalTexture(130832)
+    self.close:GetNormalTexture():SetTexCoord(0.1, 0.9, 0.1, 0.85)
+    self.close:SetHighlightTexture(130831)
+    self.close:GetHighlightTexture(130831):SetTexCoord(0.1, 0.9, 0.1, 0.85)
+
     self.close:SetScript("OnClick", function()
         self:Hide()
     end)
@@ -274,6 +279,8 @@ function GuildbookRecipeListviewItemMixin:OnEnter()
         else
             GameTooltip:SetHyperlink(self.link)
         end
+        GameTooltip:AddLine(" ")
+        GameTooltip:AddLine(gb.Colours.Blue:WrapTextInColorCode(L["REMOVE_RECIPE_FROM_PROF"]))
         GameTooltip:Show()
         self:GetParent():GetParent().professionListview:SetAlpha(0.3)
     else
@@ -286,13 +293,28 @@ function GuildbookRecipeListviewItemMixin:OnLeave()
     self:GetParent():GetParent().professionListview:SetAlpha(1)
 end
 
-function GuildbookRecipeListviewItemMixin:OnMouseDown()
+function GuildbookRecipeListviewItemMixin:OnMouseDown(button)
     local point, relativeTo, relativePoint, xOfs, yOfs = self:GetPoint()
 	self:ClearAllPoints()
 	self:SetPoint(point, relativeTo, relativePoint, xOfs - 1, yOfs - 1)
 
     if self.link and IsShiftKeyDown() then
         HandleModifiedItemClick(self.link)
+    elseif button == "RightButton" then
+        local characters = self.GetCharactersWithRecipe(self.itemID)
+        if characters then
+            for k, v in ipairs(characters) do
+                print(k, v.name)
+            end
+        end
+        local prof = GuildbookMixin.selectedProfession
+        StaticPopup_Show('GuildbookDeleteRecipeFromCharacters', (string.format(L["REMOVE_RECIPE_FROM_PROF_SS"], self.link, prof)), nil, {
+            itemLink = self.link,
+            recipeID = self.itemID,
+            characters = characters,
+            prof = prof,
+            listview = GuildbookUI.tradeskills.recipesListview,
+        })
     else
         if self.func then
             self.func()
@@ -548,7 +570,8 @@ function GuildbookRosterListviewItemMixin:SetCharacter(member)
     end
     if self.character.MainSpec and self.character.MainSpec ~= "-" then
         --print(mainSpec, self.character.MainSpec, self.character.Name)
-        self.MainSpecIcon:SetAtlas(string.format("GarrMission_ClassIcon-%s-%s", self.character.Class, mainSpec and mainSpec or self.character.MainSpec))
+        local icon = Guildbook:GetClassSpecAtlasName(self.character.Class, self.character.MainSpec)
+        self.MainSpecIcon:SetAtlas(icon)
         self.MainSpecIcon:Show()
         self.MainSpec:SetText(L[self.character.MainSpec])
     else
@@ -819,9 +842,9 @@ function GuildbookMixin:OnLoad()
     self.ribbon.roster.func = function()
         navigateTo(self.roster)
     end
-    self.ribbon.mySacks.func = function()
-        navigateTo(self.mySacks)
-    end
+    -- self.ribbon.mySacks.func = function()
+    --     navigateTo(self.mySacks)
+    -- end
     self.ribbon.privacy.func = function()
         navigateTo(self.privacy)
     end
@@ -1272,6 +1295,7 @@ function GuildbookRecipesListviewMixin:OnLoad()
             local _, size, flags = reagent.count:GetFont()
             --reagent.count:SetFont([[Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf]], 14, flags)
         end
+        f.GetCharactersWithRecipe = getPlayersWithRecipe;
         f.func = function()
             if f.model then
                 local s = f.model.selected;
@@ -1321,6 +1345,26 @@ function GuildbookRecipesListviewMixin:ClearRows()
         row:ClearReagents()
         row:SetAlpha(0)
     end
+end
+
+function GuildbookRecipesListviewMixin:RemoveRecipe(recipeID)
+    if self.recipes then
+        local key = false;
+        for k, v in ipairs(self.recipes) do
+            if v.itemID == recipeID then
+                key = k;
+            end
+        end
+        if key then
+            table.remove(self.recipes, key) -- not the greatest way to do this but as its only a minor feature for players to fix their recipes it should be ok
+        end
+    end
+    local scrollPos = math.floor(self.scrollBar:GetValue())
+    self.scrollBar:SetMinMaxValues(1, 2)
+    self.scrollBar:SetValue(2)
+    self.scrollBar:SetValue(1)
+    self.scrollBar:SetMinMaxValues(1,(#self.recipes>NUM_RECIPE_ROWS) and #self.recipes-(NUM_RECIPE_ROWS-1) or 1)
+    self.scrollBar:SetValue(scrollPos)
 end
 
 function GuildbookRecipesListviewMixin:LoadRecipes(infoMessage, showShareCharacterButton)
@@ -2104,6 +2148,14 @@ function GuildbookChatsMixin:AddChatMessage(msg)
             self.chatsRows[k+1].Zone:SetText("")
             self.chatsRows[k+1].Name:SetText(target)
             self.chatsRows[k+1].Zone:SetText(chat.messages[#chat.messages].message)
+            if chat.id then
+                local character = gb:GetCharacterFromCache(chat.id)
+                if character and character.profile and character.profile.avatar then
+                    self.chatsRows[k+1].Icon:SetTexture(character.profile.avatar)
+                elseif character and character.Race and character.Gender then
+                    self.chatsRows[k+1].Icon:SetAtlas(string.format("raceicon-%s-%s", character.Race:lower(), character.Gender:lower()))
+                end
+            end
             self.chatsRows[k+1].func = function()
                 self.channel = "WHISPER";
                 self.target = target
@@ -2477,6 +2529,7 @@ function GuildbookProfilesMixin:OnLoad()
         avatar:SetSize(w * scaler, h * scaler)
         avatar:SetScale(scaler)
         avatar.name:SetPoint("BOTTOM", 0, -8)
+        avatar.playAnim = true; --set the whirl to play
     end
 
     self.contentPane.scrollChild.profile.avatar:SetScale(1.8)
@@ -3866,6 +3919,44 @@ end
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- stats
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 GuildbookStatsMixin = {}
 GuildbookStatsMixin.charts = {
     class = {},
@@ -3873,112 +3964,194 @@ GuildbookStatsMixin.charts = {
 
 function GuildbookStatsMixin:OnLoad()
 
+    local height = 24;
     local segColOffset = 0.66
+    local classColourOffsets = {0.5, 0.8, 1.1, 1.4}
+    --local classColourOffsets = {1.4, 1.1, 0.8, 0.5}
+    self.classSegments = {}
 
+    self.classChartsHeader = self:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+    self.classChartsHeader:SetPoint("BOTTOM", 0, 270)
+    self.classChartsHeader:SetText("Class summary, this uses data from members where a main spec is set")
+
+    self.classPie = LibGraph:CreateGraphPieChart("GuildbookUIStatsClassPie", self, 'BOTTOMRIGHT', 'BOTTOMRIGHT', -55, 35, 235,235)
     for class, info in pairs(gb.Data.Class) do
-        local f = CreateFrame("FRAME", "GuildbookStatsClassBar"..class, self, "GuildbookStatsClassChartBar")
-        f.statusBar:SetStatusBarColor(info.RGB[1], info.RGB[2], info.RGB[3], 0.75)
+        local r, g, b = info.RGB[1], info.RGB[2], info.RGB[3]
+        self.classPie:AddPie(10, {r*segColOffset, g*segColOffset, b*segColOffset})
+        local function classPie_SelectionFunc(_, segment)
+            if type(segment) == 'number' and segment > 0 and segment < 11 then
+                if self.classSegments[segment] then
+                    local class = self.classSegments[segment].class
+                    local count = self.classSegments[segment].count
+                    for _, bar in ipairs(self.charts.class) do
+                        if bar.className == class then
+                            local r, g, b = unpack(gb.Data.Class[class].RGB)
+                            bar.background:SetColorTexture(r,g,b,0.4)
+                        else
+                            local r, g, b = unpack(gb.Data.Class[bar.className].RGB)
+                            bar.background:SetColorTexture(r,g,b,0.1)
+                        end
+                    end
+                    GameTooltip:SetOwner(self.classPie, 'ANCHOR_BOTTOM', 0, 0)
+                    GameTooltip:AddDoubleLine(class, count, 1,1,1)
+                    GameTooltip:Show()
+                end
+            else
+                GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+            end
+        end
+        self.classPie:SetSelectionFunc(classPie_SelectionFunc)
+
+        local f = CreateFrame("FRAME", "GuildbookStatsClassBar"..class, self)
+        f:SetSize(530,height)
+        f.icon = f:CreateTexture(nil, "ARTWORK")
+        f.icon:SetSize(height, height)
+        f.icon:SetPoint("LEFT")
         f.icon:SetAtlas(string.format("GarrMission_ClassIcon-%s", string.sub(class, 1, 1):upper()..string.sub(class, 2)))
+        f.background = f:CreateTexture(nil, "BACKGROUND")
+        f.background:SetSize(height, height)
+        f.background:SetAllPoints()
+        f.background:SetColorTexture(r,g,b,0.1)
         f.className = class
         f.classCount = 0;
         f.specCountTotal = 0;
         f.specCounts = {}
+
+        f.text = f:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+        f.text:SetTextColor(1,1,1)
+        f.text:SetPoint("LEFT", height + 2, 0)
         f.specInfoText = {}
-        f.specPie = LibGraph:CreateGraphPieChart('GuildbookUIStats'..class.."SpecPie", self, 'BOTTOMLEFT', 'BOTTOMLEFT', 300, 125, 150, 150)
-        f.specPie:Hide()
-        for k, s in ipairs(info.Specializations) do
+        -- f.specPie = 
+        -- f.specPie:Hide()
+        for k, spec in ipairs(info.Specializations) do
             table.insert(f.specCounts, {
-                spec = s,
+                spec = spec,
                 count = 0,
             })
-            local r, g, b = unpack(gb.Data.Class[class].RGB)
-            f.specPie:AddPie((100 / #info.Specializations), {r*segColOffset, g*segColOffset, b*segColOffset})
+            -- f.specPie:AddPie((100 / #info.Specializations), {r*segColOffset, g*segColOffset, b*segColOffset})
 
-            local fs = self:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-            fs:SetTextColor(1,1,1)
-            fs:SetPoint("BOTTOMLEFT", 250, (25) * k)
-            fs:SetText(s)
-            fs:Hide()
-            f.specInfoText[k] = fs
+            local t = f:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+            t:SetPoint("LEFT", height + 2 + ((k-1)*125), 0)
+            t:SetTextColor(1,1,1)
+            f.specInfoText[spec] = t
+
+            -- local st = f:CreateTexture(nil, "ARTWORK")
+            -- st:SetColorTexture(r*classColourOffsets[k], g*classColourOffsets[k], b*classColourOffsets[k])
+            -- st:SetPoint("LEFT")
+            -- st:SetHeight(16)
+
+            -- f.statsusBars[spec] = st
+
+            -- local sb =  CreateFrame("StatusBar", nil, f)
+            -- sb:SetFrameLevel(100-(k*10))
+            -- sb:SendMessage_OnMouseDown
+            -- sb:SetStatusBarAtlas("nameplates-bar-background-white")
+            -- sb:GetStatusBarTexture():SetHorizTile(false)
+            -- sb:SetMinMaxValues(0, 1)
+            -- sb:SetValue(0.2 * k)
+            -- sb:SetPoint('TOPLEFT', 30, 0)
+            -- sb:SetPoint('BOTTOMRIGHT', 0, 0)
+            -- sb:SetStatusBarColor(r*classColourOffsets[k], g*classColourOffsets[k], b*classColourOffsets[k])
+
+            -- sb:SetScript("OnEnter", function(self)
+            --     GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
+            --     GameTooltip:AddLine(spec.." "..self:GetValue()*100)
+            --     GameTooltip:Show()
+            -- end)
+            -- sb:SetScript("OnLeave", function()
+            --     GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+            -- end)
+            -- f.statsusBars[spec] = sb;
+
         end
-        f:SetScript("OnEnter", function()
-            for _, b in ipairs(self.charts.class) do
-                b.specPie:Hide()
-            end
-            for _, b in pairs(self.charts.class) do
-                for _, fs in pairs(b.specInfoText) do
-                    fs:Hide()
-                end
-            end
-            for _, fs in pairs(f.specInfoText) do
-                fs:Show()
-            end
-            f.specPie:Show()
-            --self.background:SetAtlas(string.format("Artifacts-%s-BG", f.className:sub(1,1):upper()..f.className:sub(2):lower()))
-        end)
+        -- f:SetScript("OnEnter", function(self)
+        --     GameTooltip:SetOwner(self, 'ANCHOR_TOP')
+        --     for k, s in ipairs(f.specCounts) do
+        --         GameTooltip:AddLine(s.spec.." "..s.count)
+        --     end
+        --     GameTooltip:Show()
+        -- end)
+        -- f:SetScript("OnLeave", function()
+        --     GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+        -- end)
         table.insert(self.charts.class, f)
     end
     table.sort(self.charts.class, function(a,b)
         return a.className > b.className
     end)
     for i, bar in ipairs(self.charts.class) do
-        bar:SetPoint("BOTTOMLEFT", 25, (31*i) -6)
+        bar:SetPoint("BOTTOMLEFT", 24, (height*i) -6)
     end
-    
+    self.classPie:SetScript("OnLeave", function()
+        for _, bar in ipairs(self.charts.class) do
+            local r, g, b = unpack(gb.Data.Class[bar.className].RGB)
+            bar.background:SetColorTexture(r,g,b,0.1)
+        end
+    end)
 end
 
 function GuildbookStatsMixin:OnShow()
+    if 1 == 1 then
+        --return;
+    end
     if not GUILD_NAME then
         return;
     end
-    -- sort bars first to use key lookup
-    table.sort(self.charts.class, function(a,b)
-        return a.className > b.className
-    end)
-    for i, bar in ipairs(self.charts.class) do
-        bar:SetPoint("BOTTOMLEFT", 25, (31*i) -6)
+    for _, bar in ipairs(self.charts.class) do
         bar.classCount = 0;
-        bar.specCountTotal = 0;
         for k, s in ipairs(bar.specCounts) do
             s.count = 0;
         end
     end
+    self.classPie:ResetPie()
     local totalMembers = 0;
     for guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME]) do
-        if character.Class then
+        if character.Class and character.MainSpec and character.MainSpec ~= "-" then
             for _, bar in ipairs(self.charts.class) do
                 if bar.className == character.Class then
                     bar.classCount = bar.classCount + 1;
                     totalMembers = totalMembers + 1;
-                    if character.MainSpec and character.MainSpec ~= "-" then
-                        for k, s in ipairs(bar.specCounts) do
-                            if s.spec == character.MainSpec then
-                                s.count = s.count + 1;
-                                bar.specCountTotal = bar.specCountTotal + 1;
-                            end
+                    for k, s in ipairs(bar.specCounts) do
+                        if s.spec == character.MainSpec then
+                            s.count = s.count + 1;
+                            bar.specCountTotal = bar.specCountTotal + 1;
                         end
                     end
                 end
             end
         end
     end
-    local classColourOffsets = {0.5, 0.8, 1.1, 1.4}
-    for _, bar in ipairs(self.charts.class) do
-        local r, g, b = unpack(gb.Data.Class[bar.className].RGB)
-        bar.statusBar:SetValue(bar.classCount / totalMembers)
-        bar.text:SetText(string.format("%.1f %%", (bar.classCount / totalMembers) * 100))
-        bar.specPie:ResetPie()
-        if bar.specCountTotal > 0 then
-            table.sort(bar.specCounts, function(a,b)
-                return a.count < b.count
+    for k, f in ipairs(self.charts.class) do
+        local r, g, b = unpack(gb.Data.Class[f.className].RGB)
+        local classPercent = (f.classCount / totalMembers) * 100;
+        local segColOffset = 0.75;
+        self.classPie:AddPie(classPercent, {r*segColOffset, g*segColOffset, b*segColOffset})
+        self.classSegments[k] = {
+            class = f.className,
+            count = f.classCount,
+        }
+        --if f.specCountTotal > 0 then
+            table.sort(f.specCounts, function(a,b)
+                return a.count > b.count
             end)
-            for k, s in ipairs(bar.specCounts) do
-                bar.specPie:AddPie((s.count/bar.specCountTotal) * 100, {r*classColourOffsets[k], g*classColourOffsets[k], b*classColourOffsets[k]})
-                bar.specInfoText[k]:SetText(string.format("%s%%   %s", string.format("%0.1f", (s.count/bar.specCountTotal) * 100), s.spec))
-                bar.specInfoText[k]:SetTextColor(r*classColourOffsets[k], g*classColourOffsets[k], b*classColourOffsets[k])
+            local scaler = 8;
+            local offset = 16;
+            local specString = "";
+            for k, s in ipairs(f.specCounts) do
+                -- local percent = (s.count / f.specCountTotal) * 100;
+                -- f.statsusBars[s.spec]:ClearAllPoints()
+                -- f.statsusBars[s.spec]:SetWidth(percent * scaler)
+                -- f.statsusBars[s.spec]:SetPoint("LEFT", offset, 0)
+                -- offset = offset + (percent * scaler);
+                local spec = Guildbook:GetClassSpecAtlasName(f.className, s.spec)
+                local icon = CreateAtlasMarkup(spec, 16,16)
+
+                specString = specString..icon.." "..s.spec..": "..s.count.."  "
+
+                f.specInfoText[s.spec]:SetText(icon.." "..s.spec..": "..s.count)
             end
-            bar.specPie:CompletePie({100,100,100})
-        end
+            --f.text:SetText(specString)
+        --end
     end
 
 end
