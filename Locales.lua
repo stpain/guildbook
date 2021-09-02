@@ -642,7 +642,7 @@ elseif locale == 'frFR' then
 
 	--tradeskills
 	L["TRADESKILLS"]		    		= "Métiers"
-	L["TRADESKILLS_RECIPES"]	   		= "Recettess"
+	L["TRADESKILLS_RECIPES"]	   		= "Recettes"
 	L["TRADESKILLS_CHARACTERS"]	    	= "Personnages"
 	L["TRADESKILL_GUILD_RECIPES"]	    = "Recettes en Guilde"
 	L["TRADESKILLS_SHARE_RECIPES"]	    = "Partager les recettes du personnage"
@@ -940,7 +940,7 @@ Métiers
 Guildbook va partager les recettes de votre métier avec les autres membres de la guilde.
 Ouvrer votre fenêtre de métier pour lancer le scan des recettes. Attender patiemment que tout se scan (~100 recettes par seconde). Cela sauvegardera à la base de donnée du Personnage (et Compte) pour la Guilde en l'enverra aux autres membres en ligne.
 Une fois ce procédé complété, les données futures seront envoyés aux autres membres en ligne lors de vos connexions. Vous pouvez aussi envoyer les données manuellement en ouvrant la fenêtre d'un métier (temps d'attente activé pour éviter le spam).
-Si vous avez besoin de partager les recettes d'un membre hors ligne, sélectionner leur profession via le roster, une fois chargée cliquer sur le bouton en haut a droite de la liste des recetess, à gauche de "Personnages" (temps d'attente activé pour éviter le spam).
+Si vous avez besoin de partager les recettes d'un membre hors ligne, sélectionner leur profession via le roster, une fois chargée cliquer sur le bouton en haut a droite de la liste des recettes, à gauche de "Personnages" (temps d'attente activé pour éviter le spam).
 ]]
 local profileIcon = CreateAtlasMarkup("GarrMission_MissionIcon-Recruit", 16, 16)
 local profileHelp = 
