@@ -591,13 +591,17 @@ elseif locale == 'frFR' then
     L['OptionsAbout'] = 'Guildbook options et informations. Traduction française par Belrand@Auberdine'
 	L['Version'] = 'Version'
 	L['Author'] = 'Auteur: |cffffffffstpain (|r|cffF58CBACopperbolts|r |cffffffffand|r |cff0070DEKylanda|r|cffffffff) |r'
+	
+	L["OPTIONS"]						= "Options & Paramètres"
+	L["MINIMAP_CALENDAR_RIGHTCLICK"]	= "Clique droit pour menu"
+	L["MINIMAP_CALENDAR_EVENTS"]		= "Evénements"
 		
 	L["NEW_VERSION_1"] = "Une nouvelle version est disponible, probablement pour réparer certaines choses...ou en casser d'autres!"
 	L["NEW_VERSION_2"] = "Il y a une nouvelle version de Guildbook, disponible en téléchargement chez tous les bons distributeurs d'Addons!"
 	L["NEW_VERSION_3"] = "Haha, si vous pensiez que la dernière MàJ ne changeait pas grand chose, vous devriez télécharger la nouvelle, elle fera probablement la même chose...ou moins!"
 	L["NEW_VERSION_4"] = "La Horde est rouge, l'Alliance est bleue, télécharge la nouvelle mise à jour sale paresseux!"
 
-	L["GUILDBOOK_DATA_SHARE_HEADER"]    = "Partage de données Guildbook \n\nVous pouvez partager vos données de Métiers en cliquant sur Exporter pour générer une chaîne caractères. Ensuite, faites un Copier/Coller de cette chaîne quelque part comme, par exemple, Discord.\nPour importez des données de Métiers, il suffit de coller la chaîne de caractère ci-dessous et cliquer sur Importer."
+	L["GUILDBOOK_DATA_SHARE_HEADER"]    = "Partage de données Guildbook \n\nVous pouvez partager vos données de Métiers en cliquant sur Exporter pour générer une chaîne caractères. Ensuite, faites un Copier/Coller de cette chaîne quelque part.\nPour importez des données de Métiers, il suffit de coller la chaîne de caractère \nci-dessous et cliquer sur Importer."
 	L["GUILDBOOK_LOADER_HEADER"]        = "Bienvenue sur Guildbook"
 	L["TOOLTIP_ITEM_RECIPE_HEADER"]     = "Utilisé pour:"
 
@@ -641,6 +645,7 @@ elseif locale == 'frFR' then
 	L["ROSTER_ALL_RANKS"]				= "Tous"
 	
 	--guildbank
+	L['GUILDBANK']						= "Banque de Guilde"
 	L["GUILDBANK_HEADER_ITEM"]			= "Objets"
 	L["GUILDBANK_HEADER_COUNT"]			= "Nombre"
 	L["GUILDBANK_SORT_TYPE"]			= "Catégorie"
@@ -655,8 +660,8 @@ elseif locale == 'frFR' then
 	L["GUILDBANK_CURRENCY"]				= "Monnaie"
 
 	--tradeskills
-	L["TRADESKILLS"]		    		= "Mériers"
-	L["TRADESKILLS_RECIPES"]	   		= "Recettess"
+	L["TRADESKILLS"]		    		= "Métiers"
+	L["TRADESKILLS_RECIPES"]	   		= "Recettes"
 	L["TRADESKILLS_CHARACTERS"]	    	= "Personnages"
 	L["TRADESKILL_GUILD_RECIPES"]	    = "Recettes en Guilde"
 	L["TRADESKILLS_SHARE_RECIPES"]	    = "Partager les recettes du personnage"
@@ -713,6 +718,7 @@ elseif locale == 'frFR' then
 	L['Frost']                          = 'Givre'
 	L['Blood']                          = 'Sang'
 	L['Unholy']                         = 'Impie'
+	L["Frost (Tank)"]					= "Frost (Tank)"
 	--druid/shaman
 	L['Restoration']                    = 'Restauration'
 	L['Enhancement']                    = 'Amélioration'
@@ -854,7 +860,7 @@ elseif locale == 'frFR' then
 	L["MINIMAP_TOOLTIP_LEFTCLICK"]			    = '|cffffffffClique Gauche|r Ouvrir Guildbook'
 	L["MINIMAP_TOOLTIP_LEFTCLICK_SHIFT"]		    = "MAJ + "..'|cffffffffClique Gauche|r Open Chat'
 	L["MINIMAP_TOOLTIP_RIGHTCLICK"]			    = '|cffffffffClique Droit|r Options'
-	L["MINIMAP_TOOLTIP_MIDDLECLICK"]	= "|cffffffffMiddle Click|r Ouvrir l'onglet de guilde Blizzard"
+	L["MINIMAP_TOOLTIP_MIDDLECLICK"]	= "|cffffffffClique molette|r Ouvrir l'onglet de guilde Blizzard"
 	
 	--raids name
 	L["MC"]				    = "Coeur du Magma"
@@ -954,7 +960,7 @@ Métiers
 Guildbook va partager les recettes de votre métier avec les autres membres de la guilde.
 Ouvrer votre fenêtre de métier pour lancer le scan des recettes. Attender patiemment que tout se scan (~100 recettes par seconde). Cela sauvegardera à la base de donnée du Personnage (et Compte) pour la Guilde en l'enverra aux autres membres en ligne.
 Une fois ce procédé complété, les données futures seront envoyés aux autres membres en ligne lors de vos connexions. Vous pouvez aussi envoyer les données manuellement en ouvrant la fenêtre d'un métier (temps d'attente activé pour éviter le spam).
-Si vous avez besoin de partager les recettes d'un membre hors ligne, sélectionner leur profession via le roster, une fois chargée cliquer sur le bouton en haut a droite de la liste des recetess, à gauche de "Personnages" (temps d'attente activé pour éviter le spam).
+Si vous avez besoin de partager les recettes d'un membre hors ligne, sélectionner leur profession via le roster, une fois chargée cliquer sur le bouton en haut a droite de la liste des recettes, à gauche de "Personnages" (temps d'attente activé pour éviter le spam).
 ]]
 local profileIcon = CreateAtlasMarkup("GarrMission_MissionIcon-Recruit", 16, 16)
 local profileHelp = 
