@@ -302,11 +302,6 @@ function GuildbookRecipeListviewItemMixin:OnMouseDown(button)
         HandleModifiedItemClick(self.link)
     elseif button == "RightButton" then
         local characters = self.GetCharactersWithRecipe(self.itemID)
-        if characters then
-            for k, v in ipairs(characters) do
-                print(k, v.name)
-            end
-        end
         local prof = GuildbookMixin.selectedProfession
         StaticPopup_Show('GuildbookDeleteRecipeFromCharacters', (string.format(L["REMOVE_RECIPE_FROM_PROF_SS"], self.link, prof)), nil, {
             itemLink = self.link,
@@ -2819,7 +2814,10 @@ function GuildbookProfilesMixin:LoadCharacter(player)
     self:ShowSummary(false) -- hide the profile summary frame and show side/content
     navigateTo(self)
     if player and player == "player" then
-        self.character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][UnitGUID("player")]
+        self.character = gb:GetCharacterFromCache(UnitGUID("player"))
+        if not self.character then
+            return;
+        end
         local mainSpec, offSpec = {}, {}
         for _, spec in ipairs(gb.Data.Class[self.character.Class].Specializations) do
             table.insert(mainSpec, {
@@ -2829,6 +2827,8 @@ function GuildbookProfilesMixin:LoadCharacter(player)
                     GUILDBOOK_CHARACTER.MainSpec = spec
                     self.contentPane.scrollChild.profile.mainSpec:SetText(L[spec])
                     self.contentPane.scrollChild.profile.mainSpecDropDown.Text:SetText(L[spec])
+
+                    gb:DB_SendCharacterData(UnitGUID("player"), "MainSpec", spec, "GUILD", nil, "NORMAL")
                 end
             })
             table.insert(offSpec, {
@@ -2838,12 +2838,13 @@ function GuildbookProfilesMixin:LoadCharacter(player)
                     GUILDBOOK_CHARACTER.OffSpec = spec
                     self.contentPane.scrollChild.profile.offSpec:SetText(L[spec])
                     self.contentPane.scrollChild.profile.offSpecDropDown.Text:SetText(L[spec])
+
+                    gb:DB_SendCharacterData(UnitGUID("player"), "OffSpec", spec, "GUILD", nil, "NORMAL")
                 end
             })
         end
         self.contentPane.scrollChild.profile.mainSpecDropDown.menu = mainSpec
         self.contentPane.scrollChild.profile.offSpecDropDown.menu = offSpec
-        
     end
     self:HideCharacterModels()
     self:HideInventoryIcons()
@@ -3060,7 +3061,7 @@ function GuildbookProfilesMixin:LoadProfile()
     end
 
     if self.character.Alts and #self.character.Alts > 0 then
-        local i = 1;
+        local i = 1; -- ?
         for _, guid in ipairs(self.character.Alts) do
             local avatar = self.contentPane.scrollChild.profile.altCharactersContainer.avatars[i]
             if gb:GetCharacterInfo(guid, "Name") ~= self.character.Name then
@@ -4103,6 +4104,12 @@ function GuildbookStatsMixin:OnShow()
             s.count = 0;
         end
     end
+    -- for i = 1, self.classPie.TotalSections do
+    --     local section = self.classPie.Sections[i]
+    --     for _, t in ipairs(section.Textures) do
+    --         t:SetAlpha(0.5)
+    --     end
+    -- end
     self.classPie:ResetPie()
     local totalMembers = 0;
     for guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME]) do

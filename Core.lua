@@ -387,7 +387,7 @@ function Guildbook:Init()
             if 1 == 1 then
                 if character.profile and character.profile.realBio then
                     --self:AddLine(" ")
-                    self:AddLine(Guildbook.Colours.Orange:WrapTextInColorCode(character.profile.realBio))
+                    self:AddLine(Guildbook.Colours.Orange:WrapTextInColorCode(character.profile.realBio), 1,1,1,true)
                 end
             end
             if GUILDBOOK_GLOBAL.config.showTooltipMainCharacter == true then
@@ -1627,23 +1627,19 @@ local profSpecData = {
     [28672] = 171,
     [28677] = 171,
     [28675] = 171,
-
     --Engineering:
     [20222] = 202,
     [20219] = 202,
-
     --Tailoring:
     [26798] = 197,
     [26797] = 197,
     [26801] = 197,
-
     --Blacksmithing:
     [9788] = 164,
     [17039] = 164,
     [17040] = 164,
     [17041] = 164,
     [9787] = 164,
-
     --Leatherworking:
     [10656] = 165,
     [10658] = 165,
@@ -1653,11 +1649,16 @@ function Guildbook:ScanForTradeskillSpec()
     --reset the data, this covers whenever a player unlearns a prof
     GUILDBOOK_CHARACTER.Profession1Spec = false
     GUILDBOOK_CHARACTER.Profession2Spec = false
+    -- get spell count in general tab pf spell book
     local _, _, offset, numSlots = GetSpellTabInfo(1)
     for j = offset+1, offset+numSlots do
+        -- get spell id
         local _, spellID = GetSpellBookItemInfo(j, BOOKTYPE_SPELL)
+        -- check if spell is a prof spec
         if profSpecData[spellID] then
+            -- grab the english name for prof
             local engProf = Guildbook.ProfessionNames.enUS[profSpecData[spellID]]
+            -- assign the prof spec
             if GUILDBOOK_CHARACTER and GUILDBOOK_CHARACTER.Profession1 and (GUILDBOOK_CHARACTER.Profession1 == engProf) then
                 GUILDBOOK_CHARACTER.Profession1Spec = spellID
             elseif GUILDBOOK_CHARACTER and GUILDBOOK_CHARACTER.Profession2 and (GUILDBOOK_CHARACTER.Profession2 == engProf) then
@@ -1671,7 +1672,7 @@ end
 --- scan the players trade skills
 --- this is used to get data about the players professions, recipes and reagents
 function Guildbook:ScanTradeSkill()
-    if not TradeSkillFrame:IsVisible() then
+    if TradeSkillFrame and not TradeSkillFrame:IsVisible() then
         return; -- only scan if our tradeskill frame is open
     end
     local localeProf = GetTradeSkillLine() -- this returns local name
@@ -2117,19 +2118,25 @@ function Guildbook:GetCharacterProfessions()
         GUILDBOOK_CHARACTER['FirstAidLevel'] = myCharacter.FirstAid
 
         -- going to move away from this old per character system and use the newer db functions and the global sv file
-        self:SetCharacterInfo(guid, "Profession1", myCharacter.Prof1)
-        self:SetCharacterInfo(guid, "Profession1Level", myCharacter.Prof1Level)
-        self:SetCharacterInfo(guid, "Profession2", myCharacter.Prof2)
-        self:SetCharacterInfo(guid, "Profession2Level", myCharacter.Prof2Level)
+        -- self:SetCharacterInfo(guid, "Profession1", myCharacter.Prof1)
+        -- self:SetCharacterInfo(guid, "Profession1Level", myCharacter.Prof1Level)
+        -- self:SetCharacterInfo(guid, "Profession2", myCharacter.Prof2)
+        -- self:SetCharacterInfo(guid, "Profession2Level", myCharacter.Prof2Level)
+
+        -- this new system will update our own db as per incoming guild comms, left the above 4 lines incase of issues
+        self:DB_SendCharacterData(guid, "Profession1", myCharacter.Prof1, "GUILD", nil, "NORMAL")
+        self:DB_SendCharacterData(guid, "Profession2", myCharacter.Prof2, "GUILD", nil, "NORMAL")
 
         --remove old or unknown professions
         local character = self:GetCharacterFromCache(guid)
-        for k, v in pairs(character) do
-            if Guildbook.Data.Profession[k] then
-                if k ~= character.Profession1 and k ~= character.Profession2 then
-                    character[k] = nil;
-                    GUILDBOOK_CHARACTER['Profession1'] = nil;
-                    GUILDBOOK_CHARACTER['Profession2'] = nil;
+        if character then
+            for k, v in pairs(character) do
+                if Guildbook.Data.Profession[k] then
+                    if k ~= character.Profession1 and k ~= character.Profession2 then
+                        character[k] = nil;
+                        GUILDBOOK_CHARACTER['Profession1'] = nil;
+                        GUILDBOOK_CHARACTER['Profession2'] = nil;
+                    end
                 end
             end
         end
@@ -2147,7 +2154,7 @@ function Guildbook:GetCharacterTalentInfo(activeTalents)
         if not GUILDBOOK_CHARACTER['Talents'] then
             GUILDBOOK_CHARACTER['Talents'] = {}
         end
-        wipe(GUILDBOOK_CHARACTER['Talents'])
+        --wipe(GUILDBOOK_CHARACTER['Talents'])
         GUILDBOOK_CHARACTER['Talents'][activeTalents] = {}
         -- will need dual spec set up for wrath
         local tabs = {}
@@ -2251,6 +2258,8 @@ function Guildbook:GetGuildMemberGUID(player)
     return false;
 end
 
+
+-- horrible system but nothing better developed yet
 function Guildbook:IsGuildMemberOnline(player, guid)
     -- if self.onlineMembers and self.onlineMembers[player] then
     --     DEBUG("func", "IsPlayerOnline", string.format("%s is online: %s", player, tostring(self.onlineMembers[player])))
@@ -2311,11 +2320,17 @@ function Guildbook:Transmit(data, channel, target, priority)
     if not self:GetGuildName() then
         return;
     end
+
+    -- add the version and sender guid to the message
     data["version"] = tostring(self.version);
     data["senderGUID"] = UnitGUID("player")
+
+    -- clean up the target name when using a whisper
     if channel == 'WHISPER' then
         target = Ambiguate(target, 'none')
     end
+
+    -- only send to online players, this was to reduce/remove chat spam, its not 100% efficient but knowing who is online is a grey area
     if target ~= nil then
         local totalMembers, _, _ = GetNumGuildMembers()
         for i = 1, totalMembers do
@@ -2399,15 +2414,25 @@ end
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- send anything comms
+--[[
+    the idea of this set of comms is to create a more universal method of sending data
+    it will be using the newer roster cache get/set functions
+    it allows the addon to send a specific key/value
+]]
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
+---send a request for character data
+---@param guid string the guid for the character
+---@param key string the key for the data requested
+---@param channel string should be WHISPER for almost all requests
+---@param target string the characters name you are whispering
+---@param priority string should be NORMAL for almost all requests
 function Guildbook:DB_RequestCharacterData(guid, key, channel, target, priority)
     if not guid then
         return
     end
     local transmition = {
-        type = "db_get",
+        type = "DB_GET",
         payload = {
             guid = guid,
             key = key,
@@ -2416,13 +2441,19 @@ function Guildbook:DB_RequestCharacterData(guid, key, channel, target, priority)
     self:Transmit(transmition, channel, target, priority)
 end
 
+function Guildbook:DB_OnDataRequest(data, distribution, sender)
+
+end
 
 function Guildbook:DB_SendCharacterData(guid, key, info, channel, target, priority)
     if not guid then
         return
     end
+    if type(key) ~= "string" then
+        return
+    end
     local transmition = {
-        type = "db_set",
+        type = "DB_SET",
         payload = {
             guid = guid,
             key = key,
@@ -2433,6 +2464,21 @@ function Guildbook:DB_SendCharacterData(guid, key, info, channel, target, priori
 end
 
 
+function Guildbook:DB_OnDataReceived(data, distribution, sender)
+    if not data then
+        return;
+    end
+    if not data.payload then
+        return;
+    end
+    if data.payload.key and (type(data.payload.key) ~= "string") then
+        return;
+    end
+    if data.payload.guid and data.payload.info then
+        DEBUG("db_func", "DB_OnDataReceived", string.format("received %s info from %s", data.payload.key, sender), data)
+        self:SetCharacterInfo(data.payload.guid, data.payload.key, data.payload.info)
+    end
+end
 
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -3331,6 +3377,9 @@ function Guildbook:ADDON_LOADED(...)
     end
 end
 
+function Guildbook:CHARACTER_POINTS_CHANGED()
+    self:GetCharacterTalentInfo('primary')
+end
 
 function Guildbook:SKILL_LINES_CHANGED()
     C_Timer.After(1.0, function()
@@ -3592,14 +3641,17 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
 
     -- this is a little plaster while we move into the newer comms
     -- its not great as it loops the roster each call but allows for older versions to still work
-    if not data.senderGUID then
-        data.senderGUID = self:GetGuildMemberGUID(sender)
-    end
+    -- if not data.senderGUID then
+    --     data.senderGUID = self:GetGuildMemberGUID(sender)
+    -- end
 
     DEBUG('comms_in', 'ON_COMMS_RECEIVED', string.format("%s from %s", data.type, sender), data)
 
+    if data.type == "DB_SET" then
+        self:DB_OnDataReceived(data, distribution, sender)
+
     -- tradeskills
-    if data.type == "TRADESKILLS_REQUEST" then
+    elseif data.type == "TRADESKILLS_REQUEST" then
         self:OnTradeSkillsRequested(data, distribution, sender)
 
     elseif data.type == "TRADESKILLS_RESPONSE" then
@@ -3744,6 +3796,7 @@ Guildbook.EventFrame:RegisterEvent('CHAT_MSG_WHISPER')
 Guildbook.EventFrame:RegisterEvent('CHAT_MSG_SYSTEM')
 Guildbook.EventFrame:RegisterEvent('UPDATE_MOUSEOVER_UNIT')
 Guildbook.EventFrame:RegisterEvent('PLAYER_EQUIPMENT_CHANGED')
+Guildbook.EventFrame:RegisterEvent('CHARACTER_POINTS_CHANGED')
 Guildbook.EventFrame:SetScript('OnEvent', function(self, event, ...)
     if Guildbook[event] then
         Guildbook[event](Guildbook, ...)
