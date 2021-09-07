@@ -135,6 +135,9 @@
 			<Layer level="HIGHLIGHT">
 				<Texture parentKey="Highlight" atlas="PetList-ButtonHighlight" useAtlasSize="false" setAllPoints="true"/>
 			</Layer>
+			<Layer level="OVERLAY">
+				<Texture parentKey="selected" atlas="PetList-ButtonSelect" useAtlasSize="false" setAllPoints="true" hidden="true"/>
+			</Layer>
             <Layer level="OVERLAY">
 				<Texture parentKey="Icon">
 					<!-- <TexCoords left="0.0" right="0.46875" top="0.0" bottom="0.96875" /> -->
@@ -433,6 +436,7 @@
     </Frame>
 
     <Frame name="GuildbookCharacterListviewItem" mixin="GuildbookCharacterListviewItemMixin" virtual="true" enableMouse="true">
+        <Size y="45"/>
         <Layers>
 			<Layer level="BACKGROUND">
 				<Texture parentKey="Background" atlas="PetList-ButtonBackground" useAtlasSize="false" setAllPoints="true"/>
@@ -899,6 +903,21 @@
     </Frame>
 
     <Frame name="GuildbookTradeSkillItemsListviewTemplate" mixin="GuildbookTradeSkillItemsListviewMixin" virtual="true">
+        <Frames>
+            <Frame parentKey="ScrollBox" inherits="WowScrollBoxList"/>
+            <EventFrame parentKey="ScrollBar" inherits="WowTrimScrollBar">
+                <Anchors>
+                    <Anchor point="TOPRIGHT"/>
+                    <Anchor point="BOTTOMRIGHT"/>
+                </Anchors>
+            </EventFrame>
+        </Frames>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+        </Scripts>
+    </Frame>
+
+    <Frame name="GuildbookTradeSkillItemsCharacterListviewTemplate" mixin="GuildbookTradeSkillItemsCharacterListviewMixin" virtual="true">
         <Frames>
             <Frame parentKey="ScrollBox" inherits="WowScrollBoxList"/>
             <EventFrame parentKey="ScrollBar" inherits="WowTrimScrollBar">

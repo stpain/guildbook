@@ -105,7 +105,45 @@ local function loadGuildMemberTradeskills(guid, prof)
     end)
 end
 
-
+local function getPlayersWithRecipe(recipeID, link)
+    if not recipeID then
+        return
+    end
+    local members = {}
+    if GUILD_NAME then
+        local totalMembers, onlineMembers, _ = GetNumGuildMembers()
+        for i = 1, totalMembers do
+            local name, _, _, _, _, zone, _, _, isOnline = GetGuildRosterInfo(i)
+            name = Ambiguate(name, "none")
+            members[name] = { online = isOnline, zone = zone}
+        end
+    else
+        return;
+    end
+    local characters = {}
+    for k, guid in ipairs(GuildbookMixin.charactersWithProfession) do
+        local character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][guid]
+        if character[GuildbookMixin.selectedProfession] then
+            if character[GuildbookMixin.selectedProfession][recipeID] then
+                --local _online, _zone = gb:IsGuildMemberOnline(character.Name)
+                local _online, _zone = members[character.Name].online, members[character.Name].zone
+                table.insert(characters, {
+                    name = character.Name,
+                    guid = guid,
+                    online = _online,
+                    zone = _zone,
+                    race = character.Race,
+                    gender = character.Gender,
+                    link = link,
+                })
+            end
+        end
+    end
+    table.sort(characters, function(a,b)
+        return a.online and not b.online;
+    end)
+    return characters;
+end
 
 
 
@@ -165,28 +203,44 @@ function GuildbookCharacterListviewItemMixin:OnMouseUp()
     end
 end
 
-function GuildbookCharacterListviewItemMixin:SetCharacter(character, link)
-    local race;
-    if character.race:lower() == "scourge" then
-        race = "undead";
+function GuildbookCharacterListviewItemMixin:SetCharacter(character)
+
+    -- this will become the new system using a guid
+    if character:find("Player") then
+        local character = gb:GetCharacterFromCache(character)
+        local race;
+        if character.Race:lower() == "scourge" then
+            race = "undead";
+        else
+            race = character.Race:lower()
+        end
+        self.Icon:SetAtlas(string.format("raceicon-%s-%s", race, character.Gender:lower()))
+        self.Name:SetText(character.Name)
+
+
     else
-        race = character.race:lower()
+        local race;
+        if character.race:lower() == "scourge" then
+            race = "undead";
+        else
+            race = character.race:lower()
+        end
+        self.Icon:SetAtlas(string.format("raceicon-%s-%s", race, character.gender:lower()))
+        self.Name:SetText(character.name)
+        if character.online == true then
+            self.Name:SetTextColor(1,1,1,1)
+            self.Zone:SetTextColor(1,1,1,1)
+            self.Zone:SetText("["..character.zone.."]")
+            self.sendMessage:Show()
+        else
+            self.Name:SetTextColor(0.5,0.5,0.5,0.7)
+            self.sendMessage:Hide()
+            self.Zone:SetText("[offline]")
+            self.Zone:SetTextColor(0.5,0.5,0.5,0.7)
+        end
+        self.itemLink = character.link;
+        self.character = character;
     end
-    self.Icon:SetAtlas(string.format("raceicon-%s-%s", race, character.gender:lower()))
-    self.Name:SetText(character.name)
-    if character.online == true then
-        self.Name:SetTextColor(1,1,1,1)
-        self.Zone:SetTextColor(1,1,1,1)
-        self.Zone:SetText("["..character.zone.."]")
-        self.sendMessage:Show()
-    else
-        self.Name:SetTextColor(0.5,0.5,0.5,0.7)
-        self.sendMessage:Hide()
-        self.Zone:SetText("[offline]")
-        self.Zone:SetTextColor(0.5,0.5,0.5,0.7)
-    end
-    self.itemLink = link;
-    self.character = character;
 end
 
 function GuildbookCharacterListviewItemMixin:ClearCharacter()
@@ -314,7 +368,7 @@ end
 
 function GuildbookRecipeListviewItemMixin:OnEnter()
     if self.item.link then
-        GameTooltip:SetOwner(self, 'ANCHOR_LEFT')
+        GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
         if self.item.enchant then
             GameTooltip:SetSpellByID(self.item.itemID)
         else
@@ -356,6 +410,22 @@ function GuildbookRecipeListviewItemMixin:OnMouseDown(button)
     --         self.func()
     --     end
     -- end
+
+    -- local characters = getPlayersWithRecipe(self.item.itemID, self.item.link)
+    -- GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Flush()
+    -- if characters then
+    --     for k, character in ipairs(characters) do
+    --         print(character.name)
+    --         GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Insert(character)
+    --     end
+    -- end
+
+    GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Flush()
+    if self.item.charactersWithRecipe then
+        for k, character in ipairs(self.item.charactersWithRecipe) do
+            GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Insert(character)
+        end
+    end
 end
 
 function GuildbookRecipeListviewItemMixin:OnMouseUp()
@@ -1060,10 +1130,118 @@ end
 
 GuildbookTradeskillsMixin = {}
 
+local invSlots = {
+    { atlas = "transmog-nav-slot-head", tooltip = "head", globals = "INVTYPE_HEAD", },
+    { atlas = "transmog-nav-slot-shoulder", tooltip = "shoulder", globals = "INVTYPE_SHOULDER", },
+    { atlas = "transmog-nav-slot-back", tooltip = "back", globals = "INVTYPE_CLOAK", },
+    { atlas = "transmog-nav-slot-chest", tooltip = "chest", globals = { "INVTYPE_CHEST", "INTYPE_ROBE", }, },
+    { atlas = "transmog-nav-slot-wrist", tooltip = "wrist", globals = "INVTYPE_WRIST", },
+    { atlas = "transmog-nav-slot-hands", tooltip = "hands", globals = "INVTYPE_HANDS", },
+    { atlas = "transmog-nav-slot-waist", tooltip = "waist", globals = "INVTYPE_WAIST", },
+    { atlas = "transmog-nav-slot-legs", tooltip = "legs", globals = "INVTYPE_LEGS", },
+    { atlas = "transmog-nav-slot-feet", tooltip = "feet", globals = "INVTYPE_FEET", },
+    { atlas = "transmog-nav-slot-mainhand", tooltip = "weapons", globals = { "INVTYPE_WEAPON", "INVTYPE_2HWEAPON", "INVTYPE_WEAPONMAINHAND", "INVTYPE_RANGED", "INVTYPE_RANGEDRIGHT", "INVTYPE_THROWN", }, },
+    { atlas = "transmog-nav-slot-secondaryhand", tooltip = "off hand", globals = { "INVTYPE_WEAPONOFFHAND", "INVTYPE_SHIELD", "INVTYPE_HOLDABLE", }, },
+    { atlas = "transmog-nav-slot-enchant", tooltip = "misc", globals = { "INVTYPE_FINGER", "INVTYPE_NECK", "INVTYPE_TRINKET", "INVTYPE_BAG", "INVTYPE_QUIVER", }, },
+    { atlas = "transmog-icon-remove", tooltip = "clear", globals = nil },
+}
 function GuildbookTradeskillsMixin:OnLoad()
     for _, fs in ipairs(self.ribbon.headers) do
         fs:SetText(L[fs.locale])
-    end    
+    end
+
+    local offset = 240
+    for k, slot in ipairs(invSlots) do
+
+        local b = CreateFrame("FRAME", nil, self.ribbon, "GuildbookSmallHighlightButton")
+        b:SetPoint("LEFT", offset + (30*k), 0)
+        b:SetSize(28,28)
+        b.t = b:CreateTexture(nil, "BACKGROUND")
+        if slot.atlas:find("enchant") then
+            b.t:SetPoint("TOPLEFT", -1, 0)
+            b.t:SetPoint("TOPRIGHT", 1, 0)
+            b.t:SetPoint("BOTTOMRIGHT", 0, -2)
+        elseif slot.atlas:find("remove") then
+            b.t:SetPoint("TOPLEFT", 1, 0)
+            b.t:SetPoint("TOPRIGHT", -1, 0)
+            b.t:SetPoint("BOTTOMRIGHT", 0, 2)
+        else
+            b.t:SetAllPoints()
+        end
+        b.t:SetAtlas(slot.atlas)
+
+        if slot.globals == nil then
+            b.tooltipText = "Clear filters";
+            b.func = function()
+                GuildbookMixin.selectedProfession = nil;
+                for _, button in ipairs(GuildbookProfessionListviewMixin.profButtons) do
+                    button.selected:Hide()
+                end
+                if gb.tradeskillRecipes then
+                    GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Flush()
+                    for k, item in ipairs(gb.tradeskillRecipes) do
+                        GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Insert(item)
+                    end
+                end
+            end
+        else
+            b.tooltipText = "Show "..slot.tooltip.." items"
+
+            b.func = function()
+                if gb.tradeskillRecipes then
+                    GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Flush()
+                    GuildbookUI.tradeskills.filteredItems = {}
+                    for k, item in ipairs(gb.tradeskillRecipes) do
+                        if GuildbookMixin.selectedProfession then
+                            if item.profession:lower() == GuildbookMixin.selectedProfession:lower() then
+                                if type(slot.globals) == "table" then
+                                    for _, global in ipairs(slot.globals) do
+                                        if item.equipLocation == global then
+                                            table.insert(GuildbookUI.tradeskills.filteredItems, item)
+                                        end
+                                    end
+                                else
+                                    if item.equipLocation == slot.globals then
+                                        table.insert(GuildbookUI.tradeskills.filteredItems, item)
+                                    end
+                                end
+                            end
+                        else
+                            if type(slot.globals) == "table" then
+                                for _, global in ipairs(slot.globals) do
+                                    if item.equipLocation == global then
+                                        table.insert(GuildbookUI.tradeskills.filteredItems, item)
+                                    end
+                                end
+                            else
+                                if item.equipLocation == slot.globals then
+                                    table.insert(GuildbookUI.tradeskills.filteredItems, item)
+                                end
+                            end
+                        end
+                    end
+                    if GuildbookUI.tradeskills.filteredItems then
+                        table.sort(GuildbookUI.tradeskills.filteredItems, function(a,b)
+                            if a.expansion == b.expansion then
+                                return a.name < b.name
+                            else
+                                if a.rarity == b.rarity then
+                                    return a.expansion > b.expansion
+                                else
+                                    return a.rarity > b.rarity
+                                end
+                            end
+                        end)
+                        for k, item in ipairs(GuildbookUI.tradeskills.filteredItems) do
+                            GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Insert(item)
+                        end
+                    end
+                end
+            end
+        end
+
+    end
+
 end
 
 
@@ -1201,6 +1379,7 @@ end
 -- profession = prof,
 -- equipLocation = equipLoc,
 
+
 function GuildbookProfessionListviewMixin:OnLoad()
     for i, prof in ipairs(professions) do
         local f = CreateFrame("FRAME", "GuildbookUiProfessionListview"..i, self, "GuildbookListviewItem")
@@ -1210,6 +1389,11 @@ function GuildbookProfessionListviewMixin:OnLoad()
         f.tradeskill = prof.Name
 
         f.func = function()
+            for _, button in ipairs(self.profButtons) do
+                button.selected:Hide()
+            end
+            f.selected:Show()
+            GuildbookMixin.selectedProfession = prof.Name
             if gb.tradeskillRecipes then
                 GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Flush()
                 GuildbookUI.tradeskills.filteredItems = {}
@@ -1325,45 +1509,6 @@ GuildbookRecipesListviewMixin.selectedRecipeLink = nil;
 GuildbookRecipesListviewMixin.searchResultRecipeID = nil;
 local NUM_RECIPE_ROWS = 17
 
-local function getPlayersWithRecipe(recipeID)
-    if not recipeID then
-        return
-    end
-    local members = {}
-    if GUILD_NAME then
-        local totalMembers, onlineMembers, _ = GetNumGuildMembers()
-        for i = 1, totalMembers do
-            local name, _, _, _, _, zone, _, _, isOnline = GetGuildRosterInfo(i)
-            name = Ambiguate(name, "none")
-            members[name] = { online = isOnline, zone = zone}
-        end
-    else
-        return;
-    end
-    local characters = {}
-    for k, guid in ipairs(GuildbookMixin.charactersWithProfession) do
-        local character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][guid]
-        if character[GuildbookMixin.selectedProfession] then
-            if character[GuildbookMixin.selectedProfession][recipeID] then
-                --local _online, _zone = gb:IsGuildMemberOnline(character.Name)
-                local _online, _zone = members[character.Name].online, members[character.Name].zone
-                table.insert(characters, {
-                    name = character.Name,
-                    guid = guid,
-                    online = _online,
-                    zone = _zone,
-                    race = character.Race,
-                    gender = character.Gender,
-                })
-            end
-        end
-    end
-    table.sort(characters, function(a,b)
-        return a.online and not b.online;
-    end)
-    return characters;
-end
-
 
 function GuildbookRecipesListviewMixin:OnLoad()
     for row = 1, NUM_RECIPE_ROWS do
@@ -1457,7 +1602,7 @@ function GuildbookRecipesListviewMixin:LoadRecipes(infoMessage, showShareCharact
     if not showShareCharacterButton then
         self:GetParent().ribbon.shareCharactersRecipes:Hide()
     else
-        self:GetParent().ribbon.shareCharactersRecipes:Show()
+        --self:GetParent().ribbon.shareCharactersRecipes:Show()
     end
     if self.recipes and next(self.recipes) then
         table.sort(self.recipes, function(a,b)
@@ -3949,12 +4094,17 @@ function GuildbookSearchMixin:Search(term)
                     iconType = "fileID",
                     info = string.format("%s %s %s %s; %s %s", (itemType and itemType or ""), (itemSubType and itemSubType or ""), "ItemID:", recipe.itemID, "Source:", recipe.profession),
                     func = function()
-                        for k, but in ipairs(GuildbookProfessionListviewMixin.profButtons) do
-                            if but.tradeskill:lower() == recipe.profession:lower() then
-                                GuildbookUI.tradeskills.recipesListview.searchResultRecipeID = recipe.name
-                                navigateTo(GuildbookUI.tradeskills)
-                                but.func()
-                            end
+                        -- for k, but in ipairs(GuildbookProfessionListviewMixin.profButtons) do
+                        --     if but.tradeskill:lower() == recipe.profession:lower() then
+                        --         GuildbookUI.tradeskills.recipesListview.searchResultRecipeID = recipe.name
+                        --         navigateTo(GuildbookUI.tradeskills)
+                        --         but.func()
+                        --     end
+                        -- end
+                        if gb.tradeskillRecipes then
+                            GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Flush()
+                            GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Insert(recipe)
+                            navigateTo(GuildbookUI.tradeskills)
                         end
                     end,
                 })

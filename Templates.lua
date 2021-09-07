@@ -223,9 +223,37 @@ function GuildbookTradeSkillItemsListviewMixin:OnLoad()
     self.DataProvider = CreateDataProvider();
     self.ScrollView = CreateScrollBoxListLinearView();
     self.ScrollView:SetDataProvider(self.DataProvider);
-    self.ScrollView:SetElementExtent(21); -- item height
+    self.ScrollView:SetElementExtent(24); -- item height
     self.ScrollView:SetElementInitializer("Button", "GuildbookRecipeListviewItem", function(frame, elementData)
         frame:Init(elementData)
+    end);
+    self.ScrollView:SetPadding(5, 5, 5, 5, 1);
+
+    ScrollUtil.InitScrollBoxListWithScrollBar(self.ScrollBox, self.ScrollBar, self.ScrollView);
+
+    local anchorsWithBar = {
+        CreateAnchor("TOPLEFT", self, "TOPLEFT", 4, -4),
+        CreateAnchor("BOTTOMRIGHT", self.ScrollBar, "BOTTOMLEFT", 0, 4),
+    };
+    local anchorsWithoutBar = {
+        CreateAnchor("TOPLEFT", self, "TOPLEFT", 4, -4),
+        CreateAnchor("BOTTOMRIGHT", self, "BOTTOMRIGHT", -4, 4),
+    };
+    ScrollUtil.AddManagedScrollBarVisibilityBehavior(self.ScrollBox, self.ScrollBar, anchorsWithBar, anchorsWithoutBar);
+end
+
+
+
+
+
+GuildbookTradeSkillItemsCharacterListviewMixin = {}
+function GuildbookTradeSkillItemsCharacterListviewMixin:OnLoad()
+    self.DataProvider = CreateDataProvider();
+    self.ScrollView = CreateScrollBoxListLinearView();
+    self.ScrollView:SetDataProvider(self.DataProvider);
+    self.ScrollView:SetElementExtent(45); -- item height
+    self.ScrollView:SetElementInitializer("Button", "GuildbookCharacterListviewItem", function(frame, elementData)
+        frame:SetCharacter(elementData)
     end);
     self.ScrollView:SetPadding(5, 5, 5, 5, 1);
 

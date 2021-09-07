@@ -1280,6 +1280,13 @@
                         </Anchors>
                     </Frame>
 
+                    <Frame parentKey="tradeskillItemsCharacterListview" inherits="GuildbookTradeSkillItemsCharacterListviewTemplate" frameLevel="100">
+                        <Size x="200" y="410"/>
+                        <Anchors>
+                            <Anchor point="BOTTOMRIGHT" x="-25" y="5"/>
+                        </Anchors>
+                    </Frame>
+
                     <Frame parentKey="recipesListview" mixin="GuildbookRecipesListviewMixin" enableMouse="true" hidden="true">
                         <Size x="490" y="410"/>
                         <Anchors>
@@ -1370,7 +1377,7 @@
                                         <KeyValue key="locale" value="TRADESKILLS_RECIPES" type="string"/>
                                     </KeyValues>
                                 </FontString>
-                                <FontString parentArray="headers" parentKey="recipeListviewInfo" inherits="GameFontNormal" text="s" justifyH="RIGHT">
+                                <FontString parentArray="headers" parentKey="recipeListviewInfo" inherits="GameFontNormal" text="s" justifyH="RIGHT" hidden="true">
                                     <Color r="1" g="1" b="1"/>
                                     <Size x="375" y="30"/>
                                     <Anchors>
@@ -1404,7 +1411,8 @@
                                     <KeyValue key="tooltipText" value="TRADESKILLS_EXPORT_RECIPES" type="string"/>
                                 </KeyValues>
                             </Frame>
-                            <Frame parentKey="shareCharactersRecipes" inherits="GuildbookSmallHighlightButton" hidden="false">
+
+                            <Frame parentKey="shareCharactersRecipes" inherits="GuildbookSmallHighlightButton" hidden="true">
                                 <Size x="20" y="20"/>
                                 <Anchors>
                                     <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.recipeListviewInfo" x="3" y="0"/>

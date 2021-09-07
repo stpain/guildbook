@@ -793,6 +793,7 @@ function Guildbook:RequestTradeskillData()
     end
     local delay = GUILDBOOK_GLOBAL['Debug'] and 0.05 or 0.125
     local recipeIdsToQuery = {}
+    local charactersWithRecipe = {}
     if not self.tradeskillRecipes then
         self.tradeskillRecipes = {}
     end
@@ -812,6 +813,10 @@ function Guildbook:RequestTradeskillData()
             local prof = character.Profession1
             if character[prof] and next(character[prof]) ~= nil then
                 for recipeID, reagents in pairs(character[prof]) do
+                    if not charactersWithRecipe[recipeID] then
+                        charactersWithRecipe[recipeID] = {}
+                    end
+                    table.insert(charactersWithRecipe[recipeID], guid)
                     if prof == "Enchanting" then
                         if not self.craftIdsQueried[recipeID] then
                             --DEBUG("func", "RequestTradeskillData", "adding ENCHANT to query: "..recipeID)
@@ -840,6 +845,10 @@ function Guildbook:RequestTradeskillData()
             local prof = character.Profession2
             if character[prof] and next(character[prof]) ~= nil then
                 for recipeID, reagents in pairs(character[prof]) do
+                    if not charactersWithRecipe[recipeID] then
+                        charactersWithRecipe[recipeID] = {}
+                    end
+                    table.insert(charactersWithRecipe[recipeID], guid)
                     if prof == "Enchanting" then
                         if not self.craftIdsQueried[recipeID] then
                             --DEBUG("func", "RequestTradeskillData", "adding ENCHANT to query: "..recipeID)
@@ -866,6 +875,10 @@ function Guildbook:RequestTradeskillData()
         end
         if character.Cooking and type(character.Cooking) == "table" then
             for recipeID, reagents in pairs(character.Cooking) do
+                if not charactersWithRecipe[recipeID] then
+                    charactersWithRecipe[recipeID] = {}
+                end
+                table.insert(charactersWithRecipe[recipeID], guid)
                 if not self.recipeIdsQueried[recipeID] then
                     --DEBUG("func", "RequestTradeskillData", "adding COOKING to query: "..recipeID)
                     self.recipeIdsQueried[recipeID] = true;
@@ -958,6 +971,7 @@ function Guildbook:RequestTradeskillData()
                             name = n,
                             profession = prof,
                             equipLocation = equipLoc,
+                            charactersWithRecipe = charactersWithRecipe[recipeID],
                         })
                         recipesToProcess = recipesToProcess - 1;
                         --DEBUG('func', 'tradeskill data requst', string.format("added recipeID %s prof %s link %s", recipeID, prof, l))
@@ -980,6 +994,7 @@ function Guildbook:RequestTradeskillData()
                             name = n,
                             profession = prof,
                             equipLocation = equipLoc,
+                            charactersWithRecipe = charactersWithRecipe[recipeID],
                         })
                         recipesToProcess = recipesToProcess - 1;
                         --DEBUG('func', 'tradeskill data requst', string.format("added recipeID %s prof %s link %s", recipeID, prof, l))
@@ -1000,6 +1015,7 @@ function Guildbook:RequestTradeskillData()
                     name = n,
                     profession = prof,
                     equipLocation = equipLoc,
+                    charactersWithRecipe = charactersWithRecipe[recipeID],
                 })
                 -- listview.DataProvider:Insert({
                 --     itemID = recipeID,
