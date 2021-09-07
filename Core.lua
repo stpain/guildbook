@@ -892,6 +892,10 @@ function Guildbook:RequestTradeskillData()
         end)
         local i = 1;
         DEBUG('func', 'tradeskill data requst', string.format("found %s recipes, estimated duration %s", #recipeIdsToQuery, SecondsToTime(#recipeIdsToQuery*delay)))
+
+        local listview = GuildbookUI.tradeskills.tradeskillItemsListview
+        listview.DataProvider:Flush()
+
         C_Timer.NewTicker(delay, function()
             if i > #recipeIdsToQuery then
                 return;
@@ -902,6 +906,10 @@ function Guildbook:RequestTradeskillData()
             local l, r, n, e, x, ic = false, false, false, false, 0, false
             local thaokyProf, spellID = LCI:GetItemSource(recipeID)
             local tradeskill = LCI:GetCraftProfession(recipeID)
+            local _, _, _, equipLoc = GetItemInfoInstant(recipeID)
+            if not equipLoc then
+                equipLoc = 0
+            end
             -- if i < 20 then
             --     --DEBUG("func", "GET_PROF_DATA", string.format("gb prof: %s thaoky prof: %s", prof, tradeskill or "no thaoky data"))
             -- end
@@ -925,6 +933,10 @@ function Guildbook:RequestTradeskillData()
             if not l and not n and not r and not ic then
                 if prof == 'Enchanting' then                    
                     local spell = Spell:CreateFromSpellID(recipeID)
+                    local _, _, _, equipLoc = GetItemInfoInstant(recipeID)
+                    if equipLoc == nil then
+                        equipLoc = 0
+                    end
                     spell:ContinueOnSpellLoad(function()
                         l = GetSpellLink(recipeID)
                         n, _, ic = GetSpellInfo(recipeID)
@@ -945,6 +957,7 @@ function Guildbook:RequestTradeskillData()
                             enchant = e,
                             name = n,
                             profession = prof,
+                            equipLocation = equipLoc,
                         })
                         recipesToProcess = recipesToProcess - 1;
                         --DEBUG('func', 'tradeskill data requst', string.format("added recipeID %s prof %s link %s", recipeID, prof, l))
@@ -966,6 +979,7 @@ function Guildbook:RequestTradeskillData()
                             enchant = false,
                             name = n,
                             profession = prof,
+                            equipLocation = equipLoc,
                         })
                         recipesToProcess = recipesToProcess - 1;
                         --DEBUG('func', 'tradeskill data requst', string.format("added recipeID %s prof %s link %s", recipeID, prof, l))
@@ -985,14 +999,36 @@ function Guildbook:RequestTradeskillData()
                     expansion = x;
                     name = n,
                     profession = prof,
+                    equipLocation = equipLoc,
                 })
+                -- listview.DataProvider:Insert({
+                --     itemID = recipeID,
+                --     reagents = reagents,
+                --     rarity = r,
+                --     link = l,
+                --     icon = ic,
+                --     enchant = e,
+                --     expansion = x;
+                --     name = n,
+                --     profession = prof,
+                --     equipLocation = equipLoc,
+                -- })
                 recipesToProcess = recipesToProcess - 1;
                 --DEBUG('func', 'tradeskill data requst', string.format("added recipeID %s prof %s link %s", recipeID, prof, l))
             end
             i = i + 1;
+            --DEBUG('func', 'tradeskill data requst', recipesToProcess)
             if recipesToProcess == 0 then
                 self:PrintMessage(string.format("all tradeskill recipes processed, took %s", SecondsToTime(time()-startTime)))
                 DEBUG('func', 'tradeskill data requst', string.format("all tradeskill recipes processed, took %s", SecondsToTime(time()-startTime)))
+
+                -- local listview = GuildbookUI.tradeskills.tradeskillItemsListview
+                -- listview.DataProvider:Flush()
+                -- for k, item in ipairs(self.tradeskillRecipes) do
+                --     listview.DataProvider:Insert(item)
+                --     DEBUG("error", "TradeskillListview", string.format("%s %s %s %s", item.itemID, item.link, item.profession, item.equipLocation))
+                -- end
+
             end
         end, #recipeIdsToQuery)
     else
@@ -3397,6 +3433,7 @@ function Guildbook:TRADE_SKILL_UPDATE()
         return;
     end
     self:GetCharacterProfessions()
+    self:ScanForTradeskillSpec()
     C_Timer.After(1.25, function()
         DEBUG('func', 'TRADE_SKILL_UPDATE', 'scanning skills')
         self:ScanTradeSkill()
@@ -3412,6 +3449,7 @@ function Guildbook:CRAFT_UPDATE()
         return;
     end
     self:GetCharacterProfessions()
+    self:ScanForTradeskillSpec()
     C_Timer.After(1.25, function()
         DEBUG('func', 'CRAFT_UPDATE', 'scanning skills enchanting')
         self:ScanCraftSkills_Enchanting()

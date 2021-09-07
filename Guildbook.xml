@@ -1273,7 +1273,14 @@
                         </Scripts>
                     </Frame>
 
-                    <Frame parentKey="recipesListview" mixin="GuildbookRecipesListviewMixin" enableMouse="true">
+                    <Frame parentKey="tradeskillItemsListview" inherits="GuildbookTradeSkillItemsListviewTemplate" frameLevel="100">
+                        <Size x="490" y="410"/>
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT" x="185" y="5"/>
+                        </Anchors>
+                    </Frame>
+
+                    <Frame parentKey="recipesListview" mixin="GuildbookRecipesListviewMixin" enableMouse="true" hidden="true">
                         <Size x="490" y="410"/>
                         <Anchors>
                             <Anchor point="BOTTOMLEFT" x="185" y="5"/>
@@ -1313,7 +1320,7 @@
                         </Scripts>
                     </Frame>
 
-                    <Frame parentKey="charactersListview" mixin="GuildbookCharactersListviewMixin">
+                    <Frame parentKey="charactersListview" mixin="GuildbookCharactersListviewMixin" hidden="true">
                         <Size x="200" y="410"/>
                         <Anchors>
                             <Anchor point="BOTTOMRIGHT" x="-25" y="5"/>

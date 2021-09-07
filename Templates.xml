@@ -550,6 +550,7 @@
     </Frame>
     
     <Frame name="GuildbookRecipeListviewItem" mixin="GuildbookRecipeListviewItemMixin" virtual="true" enableMouse="true">
+        <Size y="24"/>
         <Animations>
             <AnimationGroup parentKey="anim" setToFinalAlpha="true">
                 <Alpha parentKey="fadeIn" duration="0.33" fromAlpha="0" toAlpha="1"/>
@@ -897,7 +898,20 @@
         </Scripts>
     </Frame>
 
-
+    <Frame name="GuildbookTradeSkillItemsListviewTemplate" mixin="GuildbookTradeSkillItemsListviewMixin" virtual="true">
+        <Frames>
+            <Frame parentKey="ScrollBox" inherits="WowScrollBoxList"/>
+            <EventFrame parentKey="ScrollBar" inherits="WowTrimScrollBar">
+                <Anchors>
+                    <Anchor point="TOPRIGHT"/>
+                    <Anchor point="BOTTOMRIGHT"/>
+                </Anchors>
+            </EventFrame>
+        </Frames>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+        </Scripts>
+    </Frame>
 
 
     <Frame name="GuildbookMySacksListviewItem" mixin="GuildbookMySacksListviewItemMixin" virtual="true" enableMouse="true">

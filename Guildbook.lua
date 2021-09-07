@@ -266,23 +266,64 @@ end
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 GuildbookRecipeListviewItemMixin = {}
 
+
+-- itemID = recipeID,
+-- reagents = reagents,
+-- rarity = r,
+-- link = l,
+-- icon = ic,
+-- enchant = e,
+-- expansion = x;
+-- name = n,
+-- profession = prof,
+-- equipLocation = equipLoc,
+function GuildbookRecipeListviewItemMixin:Init(item)
+    self.item = item;
+    for _, reagent in pairs(self.reagentIcons) do
+        reagent.icon:SetTexture(nil)
+        reagent.greenBorder:Hide()
+        reagent.orangeBorder:Hide()
+        reagent.purpleBorder:Hide()
+        reagent.count:SetText("")
+        reagent.link = nil
+    end
+    local reagentNum = 1
+    for reagentID, count in pairs(item.reagents) do
+        if self.reagentIcons[reagentNum] then
+            if GuildbookUI.playerContainerItems[reagentID] then
+                if GuildbookUI.playerContainerItems[reagentID] >= count then
+                    self.reagentIcons[reagentNum].greenBorder:Show()
+                elseif GuildbookUI.playerContainerItems[reagentID] < count then
+                    self.reagentIcons[reagentNum].purpleBorder:Show()
+                end
+            else
+                self.reagentIcons[reagentNum].orangeBorder:Show()
+            end
+            self.reagentIcons[reagentNum]:SetItem(reagentID)
+            self.reagentIcons[reagentNum].count:SetText(count)
+            reagentNum = reagentNum + 1;
+        end
+    end
+    self.Text:SetText(item.link)
+end
+
 function GuildbookRecipeListviewItemMixin:OnLoad()
     local _, size, flags = self.Text:GetFont()
     --self.Text:SetFont([[Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf]], size+2, flags)
 end
 
 function GuildbookRecipeListviewItemMixin:OnEnter()
-    if self.link then
+    if self.item.link then
         GameTooltip:SetOwner(self, 'ANCHOR_LEFT')
-        if self.enchant then
-            GameTooltip:SetSpellByID(self.itemID)
+        if self.item.enchant then
+            GameTooltip:SetSpellByID(self.item.itemID)
         else
-            GameTooltip:SetHyperlink(self.link)
+            GameTooltip:SetHyperlink(self.item.link)
         end
-        GameTooltip:AddLine(" ")
-        GameTooltip:AddLine(gb.Colours.Blue:WrapTextInColorCode(L["REMOVE_RECIPE_FROM_PROF"]))
+        --GameTooltip:AddLine(" ")
+        --GameTooltip:AddLine(gb.Colours.Blue:WrapTextInColorCode(L["REMOVE_RECIPE_FROM_PROF"]))
         GameTooltip:Show()
-        self:GetParent():GetParent().professionListview:SetAlpha(0.3)
+        --self:GetParent():GetParent().professionListview:SetAlpha(0.3)
     else
         GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
     end
@@ -290,37 +331,37 @@ end
 
 function GuildbookRecipeListviewItemMixin:OnLeave()
     GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-    self:GetParent():GetParent().professionListview:SetAlpha(1)
+    -- self:GetParent():GetParent().professionListview:SetAlpha(1)
 end
 
 function GuildbookRecipeListviewItemMixin:OnMouseDown(button)
-    local point, relativeTo, relativePoint, xOfs, yOfs = self:GetPoint()
-	self:ClearAllPoints()
-	self:SetPoint(point, relativeTo, relativePoint, xOfs - 1, yOfs - 1)
+    -- local point, relativeTo, relativePoint, xOfs, yOfs = self:GetPoint()
+	-- self:ClearAllPoints()
+	-- self:SetPoint(point, relativeTo, relativePoint, xOfs - 1, yOfs - 1)
 
-    if self.link and IsShiftKeyDown() then
-        HandleModifiedItemClick(self.link)
-    elseif button == "RightButton" then
-        local characters = self.GetCharactersWithRecipe(self.itemID)
-        local prof = GuildbookMixin.selectedProfession
-        StaticPopup_Show('GuildbookDeleteRecipeFromCharacters', (string.format(L["REMOVE_RECIPE_FROM_PROF_SS"], self.link, prof)), nil, {
-            itemLink = self.link,
-            recipeID = self.itemID,
-            characters = characters,
-            prof = prof,
-            listview = GuildbookUI.tradeskills.recipesListview,
-        })
-    else
-        if self.func then
-            self.func()
-        end
-    end
+    -- if self.link and IsShiftKeyDown() then
+    --     HandleModifiedItemClick(self.link)
+    -- elseif button == "RightButton" then
+    --     local characters = self.GetCharactersWithRecipe(self.itemID)
+    --     local prof = GuildbookMixin.selectedProfession
+    --     StaticPopup_Show('GuildbookDeleteRecipeFromCharacters', (string.format(L["REMOVE_RECIPE_FROM_PROF_SS"], self.link, prof)), nil, {
+    --         itemLink = self.link,
+    --         recipeID = self.itemID,
+    --         characters = characters,
+    --         prof = prof,
+    --         listview = GuildbookUI.tradeskills.recipesListview,
+    --     })
+    -- else
+    --     if self.func then
+    --         self.func()
+    --     end
+    -- end
 end
 
 function GuildbookRecipeListviewItemMixin:OnMouseUp()
-    local point, relativeTo, relativePoint, xOfs, yOfs = self:GetPoint()
-	self:ClearAllPoints()
-	self:SetPoint(point, relativeTo, relativePoint, xOfs + 1, yOfs + 1)
+    -- local point, relativeTo, relativePoint, xOfs, yOfs = self:GetPoint()
+	-- self:ClearAllPoints()
+	-- self:SetPoint(point, relativeTo, relativePoint, xOfs + 1, yOfs + 1)
 end
 
 function GuildbookRecipeListviewItemMixin:ClearReagents()
@@ -335,20 +376,20 @@ function GuildbookRecipeListviewItemMixin:ClearReagents()
 end
 
 function GuildbookRecipeListviewItemMixin:SetItem(itemID)
-    local item = Item:CreateFromItemID(itemID)
-    local link = item:GetItemLink()
-    --local icon = item:GetItemIcon()
-    if not link then
-        item:ContinueOnItemLoad(function()
-            self.link = item:GetItemLink()
-            self.Text:SetText(link)
-            --self.icon:SetTexture(item:GetItemIcon())
-        end)
-    else
-        self.link = link
-        self.Text:SetText(link)
-        --self.icon:SetTexture(icon)
-    end
+    -- local item = Item:CreateFromItemID(itemID)
+    -- local link = item:GetItemLink()
+    -- --local icon = item:GetItemIcon()
+    -- if not link then
+    --     item:ContinueOnItemLoad(function()
+    --         self.link = item:GetItemLink()
+    --         self.Text:SetText(link)
+    --         --self.icon:SetTexture(item:GetItemIcon())
+    --     end)
+    -- else
+    --     self.link = link
+    --     self.Text:SetText(link)
+    --     --self.icon:SetTexture(icon)
+    -- end
 end
 
 
@@ -1149,6 +1190,17 @@ function GuildbookProfessionListviewMixin:AddRecipe(t, prof, recipeID, reagents)
     end
 end
 
+-- itemID = recipeID,
+-- reagents = reagents,
+-- rarity = r,
+-- link = l,
+-- icon = ic,
+-- enchant = e,
+-- expansion = x;
+-- name = n,
+-- profession = prof,
+-- equipLocation = equipLoc,
+
 function GuildbookProfessionListviewMixin:OnLoad()
     for i, prof in ipairs(professions) do
         local f = CreateFrame("FRAME", "GuildbookUiProfessionListview"..i, self, "GuildbookListviewItem")
@@ -1156,53 +1208,87 @@ function GuildbookProfessionListviewMixin:OnLoad()
         f:SetPoint("TOP", 0, ((i-1)*-40.5)-2)
         f:SetItem(prof)
         f.tradeskill = prof.Name
+
         f.func = function()
-            if GUILD_NAME then
-                wipe(GuildbookMixin.charactersWithProfession)
-                GuildbookProfessionListviewMixin.recipesProcessed = 0;
-                GuildbookMixin.selectedProfession = prof.Name;
-                for guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME]) do
-                    if character.Profession1 and character.Profession1 == prof.Name then
-                        table.insert(GuildbookMixin.charactersWithProfession, guid)
-                        --print("found", character.Name, "with prof", prof.Name)
-                    elseif character.Profession2 and character.Profession2 == prof.Name then
-                        table.insert(GuildbookMixin.charactersWithProfession, guid)
-                        --print("found", character.Name, "with prof", prof.Name)
-                    elseif character.Cooking and type(character.Cooking) == "table" then
-                        table.insert(GuildbookMixin.charactersWithProfession, guid)
+            if gb.tradeskillRecipes then
+                GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Flush()
+                GuildbookUI.tradeskills.filteredItems = {}
+                for k, item in ipairs(gb.tradeskillRecipes) do
+                    if item.profession:lower() == prof.Name:lower() then
+                        table.insert(GuildbookUI.tradeskills.filteredItems, item)
                     end
                 end
-                scanPlayerBags()
-                if #GuildbookMixin.charactersWithProfession > 0 then
-                    GuildbookUI.tradeskills.recipesListview.spinner:Hide()
-                    GuildbookUI.tradeskills.recipesListview.anim:Stop()
-                    GuildbookUI.tradeskills.recipesListview.spinner:Show()
-                    GuildbookUI.tradeskills.recipesListview.anim:Play()
-                    local delay = 0.05 -- adjust this value if recipes appear to be missing, bigger delay for better recipe loading, smaller for quicker results
-                    wipe(GuildbookUI.tradeskills.recipesListview.recipes)
-                    GuildbookRecipesListviewMixin:ClearRows()
-                    local recipes = {}
-                    local i = 1;
-                    C_Timer.NewTicker(delay, function()
-                        local character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][GuildbookMixin.charactersWithProfession[i]]
-                        if character[prof.Name]  then
-                            for itemID, reagents in pairs(character[prof.Name]) do
-                                if not recipes[itemID] then
-                                    recipes[itemID] = true;
-                                    self:AddRecipe(GuildbookUI.tradeskills.recipesListview.recipes, prof.Name, itemID, reagents)
-                                end
-                            end
+                if GuildbookUI.tradeskills.filteredItems then
+                    table.sort(GuildbookUI.tradeskills.filteredItems, function(a,b)
+                        if a.expansion == b.expansion then
+                            return a.name < b.name
                         else
-                            --print("prof not found in character table")
+                            if a.rarity == b.rarity then
+                                return a.expansion > b.expansion
+                            else
+                                return a.rarity > b.rarity
+                            end
                         end
-                        i = i + 1;
-                    end, #GuildbookMixin.charactersWithProfession)
-                    C_Timer.After(delay * (#GuildbookMixin.charactersWithProfession + 0.1), function()
-                        GuildbookUI.tradeskills.recipesListview:LoadRecipes(string.format("%s [%s]", L["TRADESKILL_GUILD_RECIPES"], gb:GetLocaleProf(prof.Name)))
                     end)
+                    for k, item in ipairs(GuildbookUI.tradeskills.filteredItems) do
+                        GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Insert(item)
+                    end
                 end
             end
         end
+
+
+
+        -- f.func = function()
+        --     if GUILD_NAME then
+        --         wipe(GuildbookMixin.charactersWithProfession)
+        --         GuildbookProfessionListviewMixin.recipesProcessed = 0;
+        --         GuildbookMixin.selectedProfession = prof.Name;
+        --         for guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME]) do
+        --             if character.Profession1 and character.Profession1 == prof.Name then
+        --                 table.insert(GuildbookMixin.charactersWithProfession, guid)
+        --                 --print("found", character.Name, "with prof", prof.Name)
+        --             elseif character.Profession2 and character.Profession2 == prof.Name then
+        --                 table.insert(GuildbookMixin.charactersWithProfession, guid)
+        --                 --print("found", character.Name, "with prof", prof.Name)
+        --             elseif character.Cooking and type(character.Cooking) == "table" then
+        --                 table.insert(GuildbookMixin.charactersWithProfession, guid)
+        --             end
+        --         end
+        --         scanPlayerBags()
+        --         if #GuildbookMixin.charactersWithProfession > 0 then
+        --             GuildbookUI.tradeskills.recipesListview.spinner:Hide()
+        --             GuildbookUI.tradeskills.recipesListview.anim:Stop()
+        --             GuildbookUI.tradeskills.recipesListview.spinner:Show()
+        --             GuildbookUI.tradeskills.recipesListview.anim:Play()
+        --             local delay = 0.05 -- adjust this value if recipes appear to be missing, bigger delay for better recipe loading, smaller for quicker results
+        --             wipe(GuildbookUI.tradeskills.recipesListview.recipes)
+        --             GuildbookRecipesListviewMixin:ClearRows()
+        --             local recipes = {}
+        --             local i = 1;
+        --             C_Timer.NewTicker(delay, function()
+        --                 local character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][GuildbookMixin.charactersWithProfession[i]]
+        --                 if character[prof.Name]  then
+        --                     for itemID, reagents in pairs(character[prof.Name]) do
+        --                         if not recipes[itemID] then
+        --                             recipes[itemID] = true;
+        --                             self:AddRecipe(GuildbookUI.tradeskills.recipesListview.recipes, prof.Name, itemID, reagents)
+        --                         end
+        --                     end
+        --                 else
+        --                     --print("prof not found in character table")
+        --                 end
+        --                 i = i + 1;
+        --             end, #GuildbookMixin.charactersWithProfession)
+        --             C_Timer.After(delay * (#GuildbookMixin.charactersWithProfession + 0.1), function()
+        --                 GuildbookUI.tradeskills.recipesListview:LoadRecipes(string.format("%s [%s]", L["TRADESKILL_GUILD_RECIPES"], gb:GetLocaleProf(prof.Name)))
+        --             end)
+        --         end
+        --     end
+        -- end
+
+
+
         self.profButtons[i] = f
     end
 end

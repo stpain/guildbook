@@ -1,4 +1,4 @@
-## Interface: 20501
+## Interface: 20502
 ## Author: Copperbolts
 ## Version: 4.96524
 ## Title: |cff0070DEGuildbook|r
