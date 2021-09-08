@@ -64,9 +64,12 @@ function GuildbookDataShareMixin:OnShow()
 end
 
 
+---this function is called from the roster listview when clicking a characters profession icon
+---@param guid string the character guid
+---@param prof string the profession name to use
 local function loadGuildMemberTradeskills(guid, prof)
-    local delay = 0.005
-    local recipes = {}
+    -- local delay = 0.005
+    -- local recipes = {}
     local character = gb:GetCharacterFromCache(guid)
     if not character then
         return
@@ -75,34 +78,37 @@ local function loadGuildMemberTradeskills(guid, prof)
     if not character[prof] then
         return
     end
-    local i = 0;
-    for k,v in pairs(character[prof]) do
-        i = i + 1;
+    GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Flush()
+    for itemID, _ in pairs(character[prof]) do
+        local key = gb.tradeskillRecipesKeys[itemID]
+        GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Insert(gb.tradeskillRecipes[key])
     end
     GuildbookUI:OpenTo("tradeskills")
-    GuildbookRecipesListviewMixin:ClearRows()
-    GuildbookCharactersListviewMixin:ClearRows()
-    GuildbookUI.tradeskills.recipesListview.spinner:Hide()
-    GuildbookUI.tradeskills.recipesListview.anim:Stop()
-    GuildbookUI.tradeskills.recipesListview.spinner:Show()
-    GuildbookUI.tradeskills.recipesListview.anim:Play()
-    wipe(GuildbookUI.tradeskills.recipesListview.recipes)
-    C_Timer.NewTicker(delay, function()
-        for itemID, reagents in pairs(character[prof]) do
-            if not recipes[itemID] then
-                recipes[itemID] = true;
-                GuildbookProfessionListviewMixin:AddRecipe(GuildbookUI.tradeskills.recipesListview.recipes, prof, itemID, reagents)
-            end
-        end
-    end, i)
-    C_Timer.After((delay * i) + 0.1, function()
-        GuildbookUI.tradeskills.recipesListview:LoadRecipes(string.format("%s [%s]", character.Name, gb:GetLocaleProf(prof)), true)
-        GuildbookUI.tradeskills.ribbon.shareCharactersRecipes.func = function()
-            CooldownFrame_Set(GuildbookUI.tradeskills.ribbon.shareCharactersRecipes.cooldown, GetTime(), 30, true, true, 1)
-            gb:SendTradeskillData(guid, character[prof], prof, "GUILD", nil)
-            GuildbookUI.tradeskills.ribbon.shareCharactersRecipes.disabled = true;
-        end
-    end)
+    -- GuildbookRecipesListviewMixin:ClearRows()
+    -- GuildbookCharactersListviewMixin:ClearRows()
+    -- GuildbookUI.tradeskills.recipesListview.spinner:Hide()
+    -- GuildbookUI.tradeskills.recipesListview.anim:Stop()
+    -- GuildbookUI.tradeskills.recipesListview.spinner:Show()
+    -- GuildbookUI.tradeskills.recipesListview.anim:Play()
+    -- wipe(GuildbookUI.tradeskills.recipesListview.recipes)
+    -- C_Timer.NewTicker(delay, function()
+    --     for itemID, reagents in pairs(character[prof]) do
+    --         if not recipes[itemID] then
+    --             recipes[itemID] = true;
+    --             GuildbookProfessionListviewMixin:AddRecipe(GuildbookUI.tradeskills.recipesListview.recipes, prof, itemID, reagents)
+    --         end
+    --     end
+    -- end, i)
+    -- C_Timer.After((delay * i) + 0.1, function()
+    --     GuildbookUI.tradeskills.recipesListview:LoadRecipes(string.format("%s [%s]", character.Name, gb:GetLocaleProf(prof)), true)
+    --     GuildbookUI.tradeskills.ribbon.shareCharactersRecipes.func = function()
+    --         CooldownFrame_Set(GuildbookUI.tradeskills.ribbon.shareCharactersRecipes.cooldown, GetTime(), 30, true, true, 1)
+    --         gb:SendTradeskillData(guid, character[prof], prof, "GUILD", nil)
+    --         GuildbookUI.tradeskills.ribbon.shareCharactersRecipes.disabled = true;
+    --     end
+    -- end)
+
+
 end
 
 local function getPlayersWithRecipe(recipeID, link)

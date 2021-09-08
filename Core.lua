@@ -797,6 +797,9 @@ function Guildbook:RequestTradeskillData()
     if not self.tradeskillRecipes then
         self.tradeskillRecipes = {}
     end
+    if not self.tradeskillRecipesKeys then
+        self.tradeskillRecipesKeys = {}
+    end
     local guild = self.GetGuildName()
     if not guild then
         return;
@@ -1038,6 +1041,9 @@ function Guildbook:RequestTradeskillData()
                 self:PrintMessage(string.format("all tradeskill recipes processed, took %s", SecondsToTime(time()-startTime)))
                 DEBUG('func', 'tradeskill data requst', string.format("all tradeskill recipes processed, took %s", SecondsToTime(time()-startTime)))
 
+                for k, v in ipairs(self.tradeskillRecipes) do
+                    self.tradeskillRecipesKeys[v.itemID] = k
+                end
                 -- local listview = GuildbookUI.tradeskills.tradeskillItemsListview
                 -- listview.DataProvider:Flush()
                 -- for k, item in ipairs(self.tradeskillRecipes) do
