@@ -1259,6 +1259,15 @@
                             <!-- <Color r="0" g="0" b="0"/> -->
                         </Texture>
                     </Layer>
+                    <Layer level="OVERLAY" textureSubLevel="1">
+                        <FontString parentKey="statusBarText" inherits="GameFontNormal">
+                            <Color r="1" g="1" b="1"/>
+                            <Size x="300" y="30"/>
+                            <Anchors>
+                                <Anchor point="CENTER"  x="0" y="-25"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
                 </Layers>
                 <Frames>
                     <Frame parentKey="professionListview" mixin="GuildbookProfessionListviewMixin">
@@ -1272,6 +1281,17 @@
                             <OnShow method="OnShow"/>
                         </Scripts>
                     </Frame>
+
+                    <StatusBar parentKey="statusBar" useParentLevel="true" minValue="0" maxValue="1" defaultValue="0" orientation="HORIZONTAL">
+                        <Size x="300" y="30"/>
+                        <Anchors>
+                            <Anchor point="CENTER"  x="0" y="-25"/>
+                        </Anchors>
+                        <BarTexture file="Interface\TargetingFrame\UI-StatusBar"/>
+                        <!-- <BarTexture atlas="_BattleSlotTitle-BG"/>> -->
+                        <!-- <BarTexture atlas="Artifacts-Warlock-Header"/> -->
+                        <BarColor r="0.859" g="0.128" b="0.593" a="0.6"/>
+                    </StatusBar>
 
                     <Frame parentKey="tradeskillItemsListview" inherits="GuildbookTradeSkillItemsListviewTemplate" frameLevel="100">
                         <Size x="490" y="410"/>

@@ -81,10 +81,12 @@ local tradeskillIcon = CreateAtlasMarkup("Mobile-Blacksmithing", 16, 16)
 local tradeskillHelp = 
 [[
 Tradeskills (Professions):
+Guildbook will process recipe/item IDs when it loads, this process can take a few minutes. Once complete you can view available crafts by profession and/or by equipment slot (head, hands, feet etc).
+
 Guildbook will share your tradeskill recipes with other guild members. 
-Open your tradeskill to trigger the scan of the recipes. This will save to your character and account database for the guild and sends to online guild members. 
-Once this process is complete, future data will be sent to all online guild members when you log in. You can also push data by opening a tradeskill (cooldown enabled to prevent spam).
-If you need to share recipes from an offline guild member, select their tradeskill from the roster, once loaded click the button in the top right of the recipes listview (cooldown enabled to prevent spam).
+Open your tradeskill to trigger the scan of the recipes. This will save to your character and account database for the guild and sends to online guild members. Once this process is complete, future data will be sent to all online guild members when you log in. 
+
+You can also push data by opening a tradeskill (cooldown enabled to prevent spam).
 You can also use the import/export feature, click the icon above the profession list and follow the instructions.
 
 ]]
@@ -166,6 +168,9 @@ L["EXPORT"]							= "Export"
 L["CAN_CRAFT"]                      = "[Guildbook] are you able to craft %s ?"
 L["REMOVE_RECIPE_FROM_PROF_SS"]		= "Remove %s from %s ?"
 L["REMOVE_RECIPE_FROM_PROF"]		= "Right click to remove from this tradeskill."
+L["PROCESSED_RECIPES_SS"]			= "Processed %s of %s recipes"
+L["TRADESKILL_SLOT_FILTER_S"]		= "Filter %s items"
+L["TRADESKILL_SLOT_REMOVE"]			= "Clear filters"
 
 
 L['GUILDBANK']						= "Guild bank"

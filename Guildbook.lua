@@ -1128,7 +1128,13 @@ end
 
 
 
+--[[
+    the tradeskill interface has been updated to use the new listbox widgets from blizz
+    the addon will now use the main recipe table it processes on load rather than loading/processing each search
+    will start to remove the older code once a release is pushed and no bugs reported
 
+    any tradeskill stuff will now use Guildbook.tradeskillRecipes and then create a table for filtered results
+]]
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- tradeskill mixin
@@ -1177,7 +1183,7 @@ function GuildbookTradeskillsMixin:OnLoad()
         b.t:SetAtlas(slot.atlas)
 
         if slot.globals == nil then
-            b.tooltipText = "Clear filters";
+            b.tooltipText = L["TRADESKILL_SLOT_REMOVE"];
             b.func = function()
                 GuildbookMixin.selectedProfession = nil;
                 for _, button in ipairs(GuildbookProfessionListviewMixin.profButtons) do
@@ -1191,7 +1197,7 @@ function GuildbookTradeskillsMixin:OnLoad()
                 end
             end
         else
-            b.tooltipText = "Show "..slot.tooltip.." items"
+            b.tooltipText = string.format(L["TRADESKILL_SLOT_FILTER_S"], slot.tooltip)
 
             b.func = function()
                 if gb.tradeskillRecipes then
@@ -1229,13 +1235,13 @@ function GuildbookTradeskillsMixin:OnLoad()
                     if GuildbookUI.tradeskills.filteredItems then
                         table.sort(GuildbookUI.tradeskills.filteredItems, function(a,b)
                             if a.expansion == b.expansion then
-                                return a.name < b.name
-                            else
                                 if a.rarity == b.rarity then
-                                    return a.expansion > b.expansion
+                                    return a.name < b.name
                                 else
                                     return a.rarity > b.rarity
                                 end
+                            else
+                                return a.expansion > b.expansion
                             end
                         end)
                         for k, item in ipairs(GuildbookUI.tradeskills.filteredItems) do
@@ -1411,13 +1417,13 @@ function GuildbookProfessionListviewMixin:OnLoad()
                 if GuildbookUI.tradeskills.filteredItems then
                     table.sort(GuildbookUI.tradeskills.filteredItems, function(a,b)
                         if a.expansion == b.expansion then
-                            return a.name < b.name
-                        else
                             if a.rarity == b.rarity then
-                                return a.expansion > b.expansion
+                                return a.name < b.name
                             else
                                 return a.rarity > b.rarity
                             end
+                        else
+                            return a.expansion > b.expansion
                         end
                     end)
                     for k, item in ipairs(GuildbookUI.tradeskills.filteredItems) do

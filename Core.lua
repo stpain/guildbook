@@ -791,7 +791,7 @@ function Guildbook:RequestTradeskillData()
     if self.addonLoaded == false then
         return;
     end
-    local delay = GUILDBOOK_GLOBAL['Debug'] and 0.05 or 0.125
+    local delay = GUILDBOOK_GLOBAL['Debug'] and 0.05 or 0.1
     local recipeIdsToQuery = {}
     local charactersWithRecipe = {}
     if not self.tradeskillRecipes then
@@ -909,12 +909,16 @@ function Guildbook:RequestTradeskillData()
         local i = 1;
         DEBUG('func', 'tradeskill data requst', string.format("found %s recipes, estimated duration %s", #recipeIdsToQuery, SecondsToTime(#recipeIdsToQuery*delay)))
 
-        local listview = GuildbookUI.tradeskills.tradeskillItemsListview
-        listview.DataProvider:Flush()
-
+        local statusBar = GuildbookUI.tradeskills.statusBar
+        statusBar:SetValue(0)
+        statusBar:Show()
+        local statusBarText = GuildbookUI.tradeskills.statusBarText
+        statusBarText:SetText("Loading...")
+        statusBarText:Show()
+        
         C_Timer.NewTicker(delay, function()
-            if i > #recipeIdsToQuery then
-                return;
+            if not recipeIdsToQuery[i] then
+                return
             end
             local recipeID = recipeIdsToQuery[i].recipeID
             local prof = recipeIdsToQuery[i].prof
@@ -1020,38 +1024,30 @@ function Guildbook:RequestTradeskillData()
                     equipLocation = equipLoc,
                     charactersWithRecipe = charactersWithRecipe[recipeID],
                 })
-                -- listview.DataProvider:Insert({
-                --     itemID = recipeID,
-                --     reagents = reagents,
-                --     rarity = r,
-                --     link = l,
-                --     icon = ic,
-                --     enchant = e,
-                --     expansion = x;
-                --     name = n,
-                --     profession = prof,
-                --     equipLocation = equipLoc,
-                -- })
                 recipesToProcess = recipesToProcess - 1;
                 --DEBUG('func', 'tradeskill data requst', string.format("added recipeID %s prof %s link %s", recipeID, prof, l))
             end
+
+            statusBar:SetValue(i / #recipeIdsToQuery)
+            statusBarText:SetText(string.format(L["PROCESSED_RECIPES_SS"], i, #recipeIdsToQuery))
+
             i = i + 1;
-            --DEBUG('func', 'tradeskill data requst', recipesToProcess)
-            if recipesToProcess == 0 then
-                self:PrintMessage(string.format("all tradeskill recipes processed, took %s", SecondsToTime(time()-startTime)))
-                DEBUG('func', 'tradeskill data requst', string.format("all tradeskill recipes processed, took %s", SecondsToTime(time()-startTime)))
+            if i > #recipeIdsToQuery then
 
                 for k, v in ipairs(self.tradeskillRecipes) do
                     self.tradeskillRecipesKeys[v.itemID] = k
                 end
-                -- local listview = GuildbookUI.tradeskills.tradeskillItemsListview
-                -- listview.DataProvider:Flush()
-                -- for k, item in ipairs(self.tradeskillRecipes) do
-                --     listview.DataProvider:Insert(item)
-                --     DEBUG("error", "TradeskillListview", string.format("%s %s %s %s", item.itemID, item.link, item.profession, item.equipLocation))
-                -- end
 
+                statusBar:Hide()
+                statusBarText:SetText("")
+                statusBarText:Hide()
+
+                self:PrintMessage(string.format("all tradeskill recipes processed, took %s", SecondsToTime(time()-startTime)))
+                DEBUG('func', 'tradeskill data requst', string.format("all tradeskill recipes processed, took %s", SecondsToTime(time()-startTime)))
+
+                return;
             end
+
         end, #recipeIdsToQuery)
     else
         DEBUG('func', 'tradeskill data requst', "no new recipes to query")
