@@ -84,30 +84,6 @@ local function loadGuildMemberTradeskills(guid, prof)
         GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Insert(gb.tradeskillRecipes[key])
     end
     GuildbookUI:OpenTo("tradeskills")
-    -- GuildbookRecipesListviewMixin:ClearRows()
-    -- GuildbookCharactersListviewMixin:ClearRows()
-    -- GuildbookUI.tradeskills.recipesListview.spinner:Hide()
-    -- GuildbookUI.tradeskills.recipesListview.anim:Stop()
-    -- GuildbookUI.tradeskills.recipesListview.spinner:Show()
-    -- GuildbookUI.tradeskills.recipesListview.anim:Play()
-    -- wipe(GuildbookUI.tradeskills.recipesListview.recipes)
-    -- C_Timer.NewTicker(delay, function()
-    --     for itemID, reagents in pairs(character[prof]) do
-    --         if not recipes[itemID] then
-    --             recipes[itemID] = true;
-    --             GuildbookProfessionListviewMixin:AddRecipe(GuildbookUI.tradeskills.recipesListview.recipes, prof, itemID, reagents)
-    --         end
-    --     end
-    -- end, i)
-    -- C_Timer.After((delay * i) + 0.1, function()
-    --     GuildbookUI.tradeskills.recipesListview:LoadRecipes(string.format("%s [%s]", character.Name, gb:GetLocaleProf(prof)), true)
-    --     GuildbookUI.tradeskills.ribbon.shareCharactersRecipes.func = function()
-    --         CooldownFrame_Set(GuildbookUI.tradeskills.ribbon.shareCharactersRecipes.cooldown, GetTime(), 30, true, true, 1)
-    --         gb:SendTradeskillData(guid, character[prof], prof, "GUILD", nil)
-    --         GuildbookUI.tradeskills.ribbon.shareCharactersRecipes.disabled = true;
-    --     end
-    -- end)
-
 
 end
 
@@ -153,7 +129,22 @@ end
 
 
 
-
+local function getAllPlayersWithTradeskill(prof)
+    local characters = {}
+    if GUILD_NAME then
+        if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache and GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME] then
+            for guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME]) do
+                if character.Profession1 and (character.Profession1:lower() == prof:lower()) then
+                    table.insert(characters, guid)
+                elseif character.Profession2 and (character.Profession2:lower() == prof:lower()) then
+                    table.insert(characters, guid)
+                end
+            end
+            return characters
+        end
+    end
+    return false;
+end
 
 
 
@@ -1397,6 +1388,14 @@ function GuildbookProfessionListviewMixin:OnLoad()
                     end
                 end
             end
+
+            local charactersWithProf = getAllPlayersWithTradeskill(prof.Name)
+            if charactersWithProf then
+                GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Flush()
+                for k, guid in ipairs(charactersWithProf) do
+                    GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Insert(guid)
+                end
+            end
         end
 
 
@@ -1495,33 +1494,33 @@ function GuildbookRecipesListviewMixin:OnLoad()
         local x = ((row-17) *-1) * 0.025
         f.anim.fadeIn:SetStartDelay((x^x)) -- - 0.68)
         f:SetPoint("TOPLEFT", 5, ((row - 1) * -24) - 2)
-        for _, reagent in ipairs(f.reagentIcons) do
-            local _, size, flags = reagent.count:GetFont()
-            --reagent.count:SetFont([[Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf]], 14, flags)
-        end
-        f.GetCharactersWithRecipe = getPlayersWithRecipe;
-        f.func = function()
-            if f.model then
-                local s = f.model.selected;
-                self:ClearSelected()
-                f.model.selected = not s;
-                if f.model.selected == true then
-                    f.Selected:Show()
-                    GuildbookRecipesListviewMixin.selectedRecipeLink = f.link;
-                end
-            end
-            local characters = getPlayersWithRecipe(f.itemID)
-            GuildbookCharactersListviewMixin:ClearRows()
-            if characters and next(characters) ~= nil then
-                GuildbookCharactersListviewMixin.characters = characters;
-                GuildbookUI.tradeskills.charactersListview.scrollBar:SetMinMaxValues(1, (#characters > 9 and #characters or 1))
-                for k, character in ipairs(characters) do
-                    if k < 10 then
-                        GuildbookCharactersListviewMixin.rows[k]:SetCharacter(character, f.link)
-                    end
-                end
-            end
-        end
+        -- for _, reagent in ipairs(f.reagentIcons) do
+        --     local _, size, flags = reagent.count:GetFont()
+        --     --reagent.count:SetFont([[Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf]], 14, flags)
+        -- end
+        -- f.GetCharactersWithRecipe = getPlayersWithRecipe;
+        -- f.func = function()
+        --     if f.model then
+        --         local s = f.model.selected;
+        --         self:ClearSelected()
+        --         f.model.selected = not s;
+        --         if f.model.selected == true then
+        --             f.Selected:Show()
+        --             GuildbookRecipesListviewMixin.selectedRecipeLink = f.link;
+        --         end
+        --     end
+        --     local characters = getPlayersWithRecipe(f.itemID)
+        --     GuildbookCharactersListviewMixin:ClearRows()
+        --     if characters and next(characters) ~= nil then
+        --         GuildbookCharactersListviewMixin.characters = characters;
+        --         GuildbookUI.tradeskills.charactersListview.scrollBar:SetMinMaxValues(1, (#characters > 9 and #characters or 1))
+        --         for k, character in ipairs(characters) do
+        --             if k < 10 then
+        --                 GuildbookCharactersListviewMixin.rows[k]:SetCharacter(character, f.link)
+        --             end
+        --         end
+        --     end
+        -- end
         self.rows[row] = f
     end
     self.scrollBar:SetValueStep(1)

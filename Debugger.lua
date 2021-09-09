@@ -51,7 +51,7 @@ end
 -- create the debugging window
 Guildbook.DebuggerWindow = CreateFrame('FRAME', 'GuildbookDebugFrame', UIParent, "UIPanelDialogTemplate")
 Guildbook.DebuggerWindow:SetPoint('CENTER', 0, 0)
-Guildbook.DebuggerWindow:SetFrameStrata('HIGH')
+Guildbook.DebuggerWindow:SetFrameStrata('DIALOG')
 Guildbook.DebuggerWindow:SetSize(800, 560)
 Guildbook.DebuggerWindow:SetMovable(true)
 Guildbook.DebuggerWindow:EnableMouse(true)

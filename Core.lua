@@ -1259,7 +1259,7 @@ end
 
 
 function Guildbook:GetCharacterFromCache(guid)
-    if guid:find('Player') then
+    if guid and guid:find('Player') then
         local guildName = Guildbook:GetGuildName()
         if guildName and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
             if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] then
