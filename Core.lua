@@ -1036,6 +1036,7 @@ function Guildbook:RequestTradeskillData()
 
                 for k, v in ipairs(self.tradeskillRecipes) do
                     self.tradeskillRecipesKeys[v.itemID] = k
+                    statusBarText:SetText(string.format("mapping keys %s of %s", k, #self.tradeskillRecipes))
                 end
 
                 statusBar:Hide()

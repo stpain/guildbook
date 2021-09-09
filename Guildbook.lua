@@ -68,8 +68,10 @@ end
 ---@param guid string the character guid
 ---@param prof string the profession name to use
 local function loadGuildMemberTradeskills(guid, prof)
-    -- local delay = 0.005
-    -- local recipes = {}
+    if next(gb.tradeskillRecipesKeys) == nil then
+        GuildbookUI.statusText:SetText("tradeskill recipes not processed yet, key mapping not ready")
+        return
+    end
     local character = gb:GetCharacterFromCache(guid)
     if not character then
         return
@@ -1148,9 +1150,18 @@ function GuildbookTradeskillsMixin:OnLoad()
                 end
                 if gb.tradeskillRecipes then
                     GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Flush()
-                    for k, item in ipairs(gb.tradeskillRecipes) do
-                        GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Insert(item)
-                    end
+                    local i = 1;
+                    -- using a timer here to prevent ui freeze
+                    C_Timer.NewTicker(
+                        0.001,
+                        function ()
+                            if gb.tradeskillRecipes[i] then
+                                GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Insert(gb.tradeskillRecipes[i])
+                                i = i + 1;
+                            end
+                        end,
+                        #gb.tradeskillRecipes
+                    )
                 end
             end
         else

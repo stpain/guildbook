@@ -161,10 +161,7 @@
             <OnMouseUp method="OnMouseUp"/>
         </Scripts>
     </Frame>
-                        <!-- <Texture atlas="socialqueuing-icon-group"> -->
-                        <!-- <Texture atlas="auctionhouse-ui-filter-redx"> -->
-                        <!-- <Texture atlas="transmog-icon-remove"> -->
-                        <!-- transmog-icon-chat -->
+
     <Frame name="GuildbookSmallHighlightButton" mixin="GuildbookButtonMixin" virtual="true" enableMouse="true">
         <Size x="25" y="25"/>
         <Layers>
@@ -821,7 +818,6 @@
             </Layer>
         </Layers>
     </Frame>
-
 
     <Frame name="GuildbookGuildBankListviewItem" mixin="GuildbookMySacksListviewItemMixin" virtual="true" enableMouse="true">
         <Animations>
