@@ -2234,13 +2234,16 @@ function Guildbook:GetCharacterTalentInfo(activeTalents)
         table.sort(tabs, function(a,b)
             return a.points > b.points
         end)
-        if GUILDBOOK_CHARACTER.MainSpec == "-" then
+        if GUILDBOOK_CHARACTER.smartGuessMainSpec then
             GUILDBOOK_CHARACTER.MainSpec = tabs[1].spec
         end
-        if self:GetCharacterInfo(UnitGUID("player"), "MainSpec") == "-" then
-            self:SetCharacterInfo(UnitGUID("player"), "MainSpec", tabs[1].spec)
-        end
-        self:SetCharacterInfo(UnitGUID("player"), "Talents", GUILDBOOK_CHARACTER.Talents)
+        -- if self:GetCharacterInfo(UnitGUID("player"), "MainSpec") == "-" then
+        --     self:SetCharacterInfo(UnitGUID("player"), "MainSpec", tabs[1].spec)
+        -- end
+        -- self:SetCharacterInfo(UnitGUID("player"), "Talents", GUILDBOOK_CHARACTER.Talents)
+
+        self:DB_SendCharacterData(UnitGUID("player"), "MainSpec", GUILDBOOK_CHARACTER.MainSpec, "GUILD", nil, "NORMAL")
+        self:DB_SendCharacterData(UnitGUID("player"), "Talents", GUILDBOOK_CHARACTER.Talents, "GUILD", nil, "NORMAL")
     end
 end
 
@@ -3431,8 +3434,20 @@ function Guildbook:ADDON_LOADED(...)
     end
 end
 
-function Guildbook:CHARACTER_POINTS_CHANGED()
-    self:GetCharacterTalentInfo('primary')
+
+function Guildbook:CHARACTER_POINTS_CHANGED(...)
+    if tonumber(...) < 0 then
+        if self.talentPointsChangedTimer then
+            self.talentPointsChangedTimer:Cancel()
+        else
+            self.talentPointsChangedTimer = C_Timer.NewTimer(
+                15,
+                function() 
+                    self:GetCharacterTalentInfo()
+                end
+            )
+        end
+    end
 end
 
 function Guildbook:SKILL_LINES_CHANGED()

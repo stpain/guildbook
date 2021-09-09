@@ -209,11 +209,14 @@ function GuildbookCharacterListviewItemMixin:OnMouseUp()
     end
 end
 
-function GuildbookCharacterListviewItemMixin:SetCharacter(character)
+function GuildbookCharacterListviewItemMixin:SetCharacter(guid)
 
     -- this will become the new system using a guid
-    if character:find("Player") then
-        local character = gb:GetCharacterFromCache(character)
+    if guid:find("Player") then
+        local character = gb:GetCharacterFromCache(guid)
+        if not character then
+            return;
+        end
         local race;
         if character.Race:lower() == "scourge" then
             race = "undead";
@@ -223,20 +226,20 @@ function GuildbookCharacterListviewItemMixin:SetCharacter(character)
         self.Icon:SetAtlas(string.format("raceicon-%s-%s", race, character.Gender:lower()))
         self.Name:SetText(character.Name)
 
-
+    -- this is kept for some compatability
     else
         local race;
-        if character.race:lower() == "scourge" then
+        if guid.race:lower() == "scourge" then
             race = "undead";
         else
-            race = character.race:lower()
+            race = guid.race:lower()
         end
-        self.Icon:SetAtlas(string.format("raceicon-%s-%s", race, character.gender:lower()))
-        self.Name:SetText(character.name)
-        if character.online == true then
+        self.Icon:SetAtlas(string.format("raceicon-%s-%s", race, guid.gender:lower()))
+        self.Name:SetText(guid.name)
+        if guid.online == true then
             self.Name:SetTextColor(1,1,1,1)
             self.Zone:SetTextColor(1,1,1,1)
-            self.Zone:SetText("["..character.zone.."]")
+            self.Zone:SetText("["..guid.zone.."]")
             self.sendMessage:Show()
         else
             self.Name:SetTextColor(0.5,0.5,0.5,0.7)
@@ -244,8 +247,8 @@ function GuildbookCharacterListviewItemMixin:SetCharacter(character)
             self.Zone:SetText("[offline]")
             self.Zone:SetTextColor(0.5,0.5,0.5,0.7)
         end
-        self.itemLink = character.link;
-        self.character = character;
+        self.itemLink = guid.link;
+        self.guid = guid;
     end
 end
 
@@ -368,8 +371,7 @@ function GuildbookRecipeListviewItemMixin:Init(item)
 end
 
 function GuildbookRecipeListviewItemMixin:OnLoad()
-    local _, size, flags = self.Text:GetFont()
-    --self.Text:SetFont([[Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf]], size+2, flags)
+
 end
 
 function GuildbookRecipeListviewItemMixin:OnEnter()
@@ -383,7 +385,7 @@ function GuildbookRecipeListviewItemMixin:OnEnter()
         --GameTooltip:AddLine(" ")
         --GameTooltip:AddLine(gb.Colours.Blue:WrapTextInColorCode(L["REMOVE_RECIPE_FROM_PROF"]))
         GameTooltip:Show()
-        --self:GetParent():GetParent().professionListview:SetAlpha(0.3)
+        GuildbookUI.tradeskills.tradeskillItemsCharacterListview:SetAlpha(0.3)
     else
         GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
     end
@@ -391,53 +393,28 @@ end
 
 function GuildbookRecipeListviewItemMixin:OnLeave()
     GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-    -- self:GetParent():GetParent().professionListview:SetAlpha(1)
+    GuildbookUI.tradeskills.tradeskillItemsCharacterListview:SetAlpha(1)
 end
 
 function GuildbookRecipeListviewItemMixin:OnMouseDown(button)
-    -- local point, relativeTo, relativePoint, xOfs, yOfs = self:GetPoint()
-	-- self:ClearAllPoints()
-	-- self:SetPoint(point, relativeTo, relativePoint, xOfs - 1, yOfs - 1)
 
-    -- if self.link and IsShiftKeyDown() then
-    --     HandleModifiedItemClick(self.link)
-    -- elseif button == "RightButton" then
-    --     local characters = self.GetCharactersWithRecipe(self.itemID)
-    --     local prof = GuildbookMixin.selectedProfession
-    --     StaticPopup_Show('GuildbookDeleteRecipeFromCharacters', (string.format(L["REMOVE_RECIPE_FROM_PROF_SS"], self.link, prof)), nil, {
-    --         itemLink = self.link,
-    --         recipeID = self.itemID,
-    --         characters = characters,
-    --         prof = prof,
-    --         listview = GuildbookUI.tradeskills.recipesListview,
-    --     })
-    -- else
-    --     if self.func then
-    --         self.func()
-    --     end
-    -- end
-
-    -- local characters = getPlayersWithRecipe(self.item.itemID, self.item.link)
-    -- GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Flush()
-    -- if characters then
-    --     for k, character in ipairs(characters) do
-    --         print(character.name)
-    --         GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Insert(character)
-    --     end
-    -- end
-
-    GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Flush()
-    if self.item.charactersWithRecipe then
-        for k, character in ipairs(self.item.charactersWithRecipe) do
-            GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Insert(character)
+    if IsControlKeyDown() then
+        DressUpItemLink(self.item.link)
+    elseif IsShiftKeyDown() then
+        HandleModifiedItemClick(self.item.link)
+    else
+        GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Flush()
+        if self.item.charactersWithRecipe then
+            for k, character in ipairs(self.item.charactersWithRecipe) do
+                GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Insert(character)
+            end
         end
     end
+
 end
 
 function GuildbookRecipeListviewItemMixin:OnMouseUp()
-    -- local point, relativeTo, relativePoint, xOfs, yOfs = self:GetPoint()
-	-- self:ClearAllPoints()
-	-- self:SetPoint(point, relativeTo, relativePoint, xOfs + 1, yOfs + 1)
+
 end
 
 function GuildbookRecipeListviewItemMixin:ClearReagents()
@@ -452,20 +429,7 @@ function GuildbookRecipeListviewItemMixin:ClearReagents()
 end
 
 function GuildbookRecipeListviewItemMixin:SetItem(itemID)
-    -- local item = Item:CreateFromItemID(itemID)
-    -- local link = item:GetItemLink()
-    -- --local icon = item:GetItemIcon()
-    -- if not link then
-    --     item:ContinueOnItemLoad(function()
-    --         self.link = item:GetItemLink()
-    --         self.Text:SetText(link)
-    --         --self.icon:SetTexture(item:GetItemIcon())
-    --     end)
-    -- else
-    --     self.link = link
-    --     self.Text:SetText(link)
-    --     --self.icon:SetTexture(icon)
-    -- end
+
 end
 
 
@@ -1134,6 +1098,8 @@ end
     will start to remove the older code once a release is pushed and no bugs reported
 
     any tradeskill stuff will now use Guildbook.tradeskillRecipes and then create a table for filtered results
+
+    NEVER EVER PERFORM A SORT ON THE Guildbook.tradeskillRecipes - THE ADDON SETS UP A KEY TABLE TO ACCESS ITEMS QUICKER
 ]]
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1148,7 +1114,7 @@ local invSlots = {
     { atlas = "transmog-nav-slot-back", tooltip = "back", globals = "INVTYPE_CLOAK", },
     { atlas = "transmog-nav-slot-chest", tooltip = "chest", globals = { "INVTYPE_CHEST", "INTYPE_ROBE", }, },
     { atlas = "transmog-nav-slot-wrist", tooltip = "wrist", globals = "INVTYPE_WRIST", },
-    { atlas = "transmog-nav-slot-hands", tooltip = "hands", globals = "INVTYPE_HANDS", },
+    { atlas = "transmog-nav-slot-hands", tooltip = "hands", globals = "INVTYPE_HAND", },
     { atlas = "transmog-nav-slot-waist", tooltip = "waist", globals = "INVTYPE_WAIST", },
     { atlas = "transmog-nav-slot-legs", tooltip = "legs", globals = "INVTYPE_LEGS", },
     { atlas = "transmog-nav-slot-feet", tooltip = "feet", globals = "INVTYPE_FEET", },
@@ -2775,6 +2741,24 @@ function GuildbookProfilesMixin:OnLoad()
     -- self.contentPane.scrollChild.profile.avatar:ClearAllPoints()
     -- self.contentPane.scrollChild.profile.avatar:SetPoint("CENTER")
 
+    local smartGuessSpecOptions = {
+        {
+            text = "Detect spec",
+            updateText = true,
+            func = function()
+                GUILDBOOK_CHARACTER.smartGuessMainSpec = true;
+            end,
+        },
+        {
+            text = "Manual update",
+            updateText = true,
+            func = function()
+                GUILDBOOK_CHARACTER.smartGuessMainSpec = false;
+            end,
+        }
+    }
+    self.contentPane.scrollChild.profile.mainSpecSmartGuessDropDown.menu = smartGuessSpecOptions
+
 end
 
 local profileSummaryAvatarPositions = {
@@ -3087,6 +3071,8 @@ function GuildbookProfilesMixin:LoadCharacter(player)
             })
         end
         self.contentPane.scrollChild.profile.mainSpecDropDown.menu = mainSpec
+        local smartGuessMainSpec = GUILDBOOK_CHARACTER.smartGuessMainSpec == true and "Detect spec" or "Manual update"
+        self.contentPane.scrollChild.profile.mainSpecSmartGuessDropDown.Text:SetText(smartGuessMainSpec)
         self.contentPane.scrollChild.profile.offSpecDropDown.menu = offSpec
     end
     self:HideCharacterModels()

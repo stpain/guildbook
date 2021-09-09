@@ -397,6 +397,7 @@ function GuildbookDropdownFlyoutMixin:OnShow()
         for i = 1, #self.buttons do
             self.buttons[i]:SetText("")
             self.buttons[i].func = nil
+            self.buttons[i].updateText = nil;
             self.buttons[i]:Hide()
         end
         for buttonIndex, info in ipairs(self:GetParent().menu) do
@@ -412,7 +413,8 @@ function GuildbookDropdownFlyoutMixin:OnShow()
                 maxWidth = w;
             end
 
-            self.buttons[buttonIndex].func = info.func
+            self.buttons[buttonIndex].updateText = info.updateText;
+            self.buttons[buttonIndex].func = info.func;
             self.buttons[buttonIndex]:Show()
 
             buttonIndex = buttonIndex + 1
