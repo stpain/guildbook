@@ -1107,7 +1107,7 @@ local invSlots = {
     { atlas = "transmog-nav-slot-back", tooltip = L["BACK"], globals = "INVTYPE_CLOAK", },
     { atlas = "transmog-nav-slot-chest", tooltip = L["CHEST"], globals = { "INVTYPE_CHEST", "INTYPE_ROBE", }, },
     { atlas = "transmog-nav-slot-wrist", tooltip = L["WRIST"], globals = "INVTYPE_WRIST", },
-    { atlas = "transmog-nav-slot-hands", tooltip = L["HANDS"], globals = "INVTYPE_HANDS", },
+    { atlas = "transmog-nav-slot-hands", tooltip = L["HANDS"], globals = "INVTYPE_HAND", },
     { atlas = "transmog-nav-slot-waist", tooltip = L["WAIST"], globals = "INVTYPE_WAIST", },
     { atlas = "transmog-nav-slot-legs", tooltip = L["LEGS"], globals = "INVTYPE_LEGS", },
     { atlas = "transmog-nav-slot-feet", tooltip = L["FEET"], globals = "INVTYPE_FEET", },
