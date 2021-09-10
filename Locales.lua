@@ -692,7 +692,7 @@ elseif locale == 'frFR' then
 	L["TRADESKILL_SLOT_FILTER_S"]		= "Filtré par objets : %s"
 	L["TRADESKILL_SLOT_REMOVE"]			= "Réinitialiser filtres"
 	L["HEAD"]							= "Tête"
-	L["SHOULDER"]						= "Épaules"
+	L["SHOULDER"]						= "Épaule"
 	L["BACK"]							= "Dos"
 	L["CHEST"]							= "Torse"
 	L["WRIST"]							= "Poignets"
@@ -701,7 +701,7 @@ elseif locale == 'frFR' then
 	L["LEGS"]							= "Jambes"
 	L["FEET"]							= "Pieds"
 	L["WEAPONS"]						= "Armes"
-	L["OFF_HAND"]						= "Main-gauche"
+	L["OFF_HAND"]						= "Main gauche"
 	L["MISC"]							= "Autres"
 
 	L["PROFILES"]                       = "Profiles"
