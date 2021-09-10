@@ -658,6 +658,7 @@ elseif locale == 'frFR' then
 	L["INVENTORY"]                      = "Inventaire"
 	L["TALENTS"]                        = "Talents"
 	
+	L["ROSTER_MY_CHARACTERS"]			= "Mes personnages"
 	L["ROSTER_ALL_CLASSES"]				= "Toutes"
 	L["ROSTER_ALL_RANKS"]				= "Tous"
 	
@@ -706,7 +707,7 @@ elseif locale == 'frFR' then
 
 	L["PROFILES"]                       = "Profiles"
 	L["CHAT"]                           = "Chat"
-	L["ROSTER"]                         = "Roster"
+	L["ROSTER"]                         = "Registre"
 	L["CALENDAR"]                       = "Calendrier"
 	L["SEARCH"]                         = "Rechercher"
 	L["MY_PROFILE"]                     = "Mon profile"
@@ -714,7 +715,7 @@ elseif locale == 'frFR' then
 	L["OPEN_CHAT"]                      = "Ouvrir chat"
 	L["INVITE_TO_GROUP"]                = "Inviter dans un groupe"
 	L["SEND_TRADE_ENQUIRY"]             = "Envoyer un message à propos de l'objet"
-	L["REFRESH_ROSTER"]                 = "Rafraîchir roster"
+	L["REFRESH_ROSTER"]                 = "Rafraîchir registre"
 	L["EDIT"]                           = "Modifier profile"
 	L["GUILD_BANK"]                     = "Banque de Guilde (Fonctionnalité héritée)"
 	L["ALTS"]                           = "Personnages secondaires"
@@ -983,9 +984,16 @@ local slashCommandsIcon = CreateTextureMarkup(136377, 64, 64, 16, 16, 0, 1, 0, 1
 local slashCommandsHelp = [[
 Commandes slashs:
 /guildbook open : Cela va ouvrir Guildbook
-/guildbook [interface] : Cela va ouvrir un onglet spécifique de Guildbook(profiles:Profiles, tradeskills:Métiers, chat:Chat, roster:Roster, calendar:Calendrier, stats:Stats, guildbank:Banque de Guilde, search:Recherche, privacy:Confidentialité)
+/guildbook [interface] : Cela va ouvrir un onglet spécifique de Guildbook(profiles:Profiles, tradeskills:Métiers, chat:Chat, roster:Registre, calendar:Calendrier, stats:Stats, guildbank:Banque de Guilde, search:Recherche, privacy:Confidentialité)
 Exemple: "/guildbook search" va ouvrir l'onglet de recherche.
 /gb peut être employer à la place de /guildbook
+
+]]
+local rosterIcon = CreateAtlasMarkup("poi-workorders", 16, 16)
+local rosterHelp = [[
+Registre:
+Vous pouvez trier le registre en cliquant sur les titres des colonnes. Vous pouvez aussi le filtrer par classe ou rang, pour ce faire faites un clique droit sur le titre? Il y a une option dans "classe" pour filtrer vos personnages aussi!
+
 ]]
 local tradeskillIcon = CreateAtlasMarkup("Mobile-Blacksmithing", 16, 16)
 local tradeskillHelp = 
@@ -994,7 +1002,8 @@ Métiers
 Guildbook va partager les recettes de votre métier avec les autres membres de la guilde.
 Ouvrer votre fenêtre de métier pour lancer le scan des recettes. Attender patiemment que tout se scan (~100 recettes par seconde). Cela sauvegardera à la base de donnée du Personnage (et Compte) pour la Guilde en l'enverra aux autres membres en ligne.
 Une fois ce procédé complété, les données futures seront envoyés aux autres membres en ligne lors de vos connexions. Vous pouvez aussi envoyer les données manuellement en ouvrant la fenêtre d'un métier (temps d'attente activé pour éviter le spam).
-Si vous avez besoin de partager les recettes d'un membre hors ligne, sélectionner leur profession via le roster, une fois chargée cliquer sur le bouton en haut a droite de la liste des recettes, à gauche de "Personnages" (temps d'attente activé pour éviter le spam).
+Si vous avez besoin de partager les recettes d'un membre hors ligne, sélectionner leur profession via le registre, une fois chargée cliquer sur le bouton en haut a droite de la liste des recettes, à gauche de "Personnages" (temps d'attente activé pour éviter le spam).
+
 ]]
 local profileIcon = CreateAtlasMarkup("GarrMission_MissionIcon-Recruit", 16, 16)
 local profileHelp = 
@@ -1002,14 +1011,23 @@ local profileHelp =
 Profile:
 Vous pouvez sélection votre(vos) spé(s) et sélectionn un personnage principal. Si vous utilisez plusieurs comptes, vous pouvez ajouter un autre personnage que vous pouvez ajouter comme personnage principal. (Les autres personnages seront automatiquement ajouté en sélectionnant le personnage principal
 You can select your spec(s) and edit your main character. If you use multiple accounts you can add another character which you can then select as a main. (Alts are set by selecting a main character from the alts profile).
+
 ]]
 local searchIcon = CreateAtlasMarkup("shop-games-magnifyingglass", 16, 16)
 local searchHelp = 
 [[
 Recherche:
 Utiliser cette fonction pour explorer la base de données de votre Guilde - Trouver une recette, schéma, nom de personnage.
+
 ]]
-L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s", slashCommandsIcon, slashCommandsHelp, tradeskillIcon, tradeskillHelp, profileIcon, profileHelp, searchIcon, searchHelp, bankIcon, bankHelp)	
+local bankIcon = CreateAtlasMarkup("ShipMissionIcon-Treasure-Map", 16, 16)
+local bankHelp = [[
+Banque de guilde:
+La fonction de banque de guilde foctionne via un système de "commit", à chaque fois qu'un personnage banque ouvre sa banque, les données sont envoyées à tous les membres en ligne en tant que commit. Quand vous regardez la fenêtre de banque de guilde, Guildbook va envoyer une requête aux membres en ligne pour récupérer leurs commits et va sélectionner (et récupérer) le plus récent.
+
+Vu que ce procédé implique beaucoup de traffic, il y a un temps de recharge de 30sec entre les requêtes et le processus de requête est ralentit pour éviter que le traffic pose un soucis à d'autres addons.
+]]
+L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s %s %s", slashCommandsIcon, slashCommandsHelp, rosterIcon, rosterHelp, tradeskillIcon, tradeskillHelp, profileIcon, profileHelp, searchIcon, searchHelp, bankIcon, bankHelp)	
 
 
 --[[ chinese
