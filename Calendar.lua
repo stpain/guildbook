@@ -736,6 +736,7 @@ function Guildbook:SetupGuildCalendarFrame()
         Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox:ClearFocus()
     end)
 
+
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent = CreateFrame('FRAME', 'GuildbookGuildFrameGuildCalendarFrameEventFrameEventAttendeesListviewParent', self.GuildFrame.GuildCalendarFrame.EventFrame, BackdropTemplateMixin and "BackdropTemplate")
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent:SetPoint('BOTTOMLEFT', 20, 45)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent:SetSize(206, 180)
@@ -744,32 +745,37 @@ function Guildbook:SetupGuildCalendarFrame()
         edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
         edgeSize = 16,
     })
-    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendingListview = {}
-    for i = 1, 15 do
-        local f = CreateFrame('FRAME', tostring('GuildbookGuildFrameGuildCalendarFrameEventFrameAttendListviewRow'..i), self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent)
-        f:SetPoint('TOPLEFT', 0, ((i - 1) * -16) - 6)
-        f:SetPoint('TOPRIGHT', -25, ((i - 1) * -16) - 6)
-        f:SetHeight(11)
-        f.character = f:CreateFontString('$parentCharacter', 'OVERLAY', 'GameFontNormalSmall')
-        f.character:SetPoint('LEFT', 10, 0)
-        f.character:SetText('')
-        f.status = f:CreateFontString('$parentStatus', 'OVERLAY', 'GameFontNormalSmall')
-        f.status:SetPoint('LEFT', 100, 0)
-        f.status:SetText('Confirmed')
-        self.GuildFrame.GuildCalendarFrame.EventFrame.AttendingListview[i] = f
-    end
-    self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar = CreateFrame('SLIDER', 'GuildbookGuildFrameGuildCalendarFrameEventFrameEventAttendeesListviewScrollBar', self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent, "UIPanelScrollBarTemplate")
-    --self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar = CreateFrame('SLIDER', 'GuildbookGuildFrameGuildCalendarFrameEventFrameEventAttendeesListviewScrollBar', self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent, "OptionsSliderTemplate")
-    self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetOrientation('VERTICAL')
-    self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetPoint('TOPRIGHT', Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent, 'TOPRIGHT', -8, -22)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetPoint('BOTTOMRIGHT', Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent, 'BOTTOMRIGHT', -8, 22)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:EnableMouse(true)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetValueStep(1)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetValue(1)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetMinMaxValues(1,4)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetScript('OnValueChanged', function(self)
-        Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:UpdateAttending()
-    end)
+    -- self.GuildFrame.GuildCalendarFrame.EventFrame.AttendingListview = {}
+    -- for i = 1, 15 do
+    --     local f = CreateFrame('FRAME', tostring('GuildbookGuildFrameGuildCalendarFrameEventFrameAttendListviewRow'..i), self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent)
+    --     f:SetPoint('TOPLEFT', 0, ((i - 1) * -16) - 6)
+    --     f:SetPoint('TOPRIGHT', -25, ((i - 1) * -16) - 6)
+    --     f:SetHeight(11)
+    --     f.character = f:CreateFontString('$parentCharacter', 'OVERLAY', 'GameFontNormalSmall')
+    --     f.character:SetPoint('LEFT', 10, 0)
+    --     f.character:SetText('')
+    --     f.status = f:CreateFontString('$parentStatus', 'OVERLAY', 'GameFontNormalSmall')
+    --     f.status:SetPoint('LEFT', 100, 0)
+    --     f.status:SetText('Confirmed')
+    --     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendingListview[i] = f
+    -- end
+    -- self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar = CreateFrame('SLIDER', 'GuildbookGuildFrameGuildCalendarFrameEventFrameEventAttendeesListviewScrollBar', self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent, "UIPanelScrollBarTemplate")
+    -- --self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar = CreateFrame('SLIDER', 'GuildbookGuildFrameGuildCalendarFrameEventFrameEventAttendeesListviewScrollBar', self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent, "OptionsSliderTemplate")
+    -- self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetOrientation('VERTICAL')
+    -- self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetPoint('TOPRIGHT', Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent, 'TOPRIGHT', -8, -22)
+    -- self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetPoint('BOTTOMRIGHT', Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent, 'BOTTOMRIGHT', -8, 22)
+    -- self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:EnableMouse(true)
+    -- self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetValueStep(1)
+    -- self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetValue(1)
+    -- self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetMinMaxValues(1,4)
+    -- self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetScript('OnValueChanged', function(self)
+    --     Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:UpdateAttending()
+    -- end)
+
+    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendingListview = CreateFrame("FRAME", nil, self.GuildFrame.GuildCalendarFrame.EventFrame, "GuildbookCalendarAttendingListviewTemplate")
+    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendingListview:SetPoint("BOTTOMLEFT", 20, 50)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendingListview:SetSize(200, 170)
+
 
     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Confirm = CreateFrame('BUTTON', 'GuildbookGuildFrameGuildCalendarFrameEventFrameAttendEventButtonConfirm', self.GuildFrame.GuildCalendarFrame.EventFrame, "UIPanelButtonTemplate")
     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Confirm:SetPoint('TOPLEFT', self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent, 'BOTTOMLEFT', 0, 0)
@@ -860,12 +866,13 @@ function Guildbook:SetupGuildCalendarFrame()
     end
 
     function self.GuildFrame.GuildCalendarFrame.EventFrame:ResetAttending()
-        for k, v in ipairs(self.AttendingListview) do
-            v.character:SetText('')
-            v.status:SetText('')
-        end
-        self.EventAttendeesListviewScrollBar:SetValue(2)
-        self.EventAttendeesListviewScrollBar:SetValue(1)
+        -- for k, v in ipairs(self.AttendingListview) do
+        --     v.character:SetText('')
+        --     v.status:SetText('')
+        -- end
+        -- self.EventAttendeesListviewScrollBar:SetValue(2)
+        -- self.EventAttendeesListviewScrollBar:SetValue(1)
+        self.AttendingListview.DataProvider:Flush()
     end
 
 
@@ -928,43 +935,77 @@ function Guildbook:SetupGuildCalendarFrame()
     end
 
     function self.GuildFrame.GuildCalendarFrame.EventFrame:UpdateAttending()
-        local scroll = math.floor(self.EventAttendeesListviewScrollBar:GetValue())
-        for k = 1, 15 do
-            self.AttendingListview[k].character:SetText('')
-            self.AttendingListview[k].status:SetText('')
-        end
+        -- grab the attending data and update the listview
+        -- because im a genius and i made the attending status keys in a dodgy order (tbf though tentative got added later)
+        -- so to correct the order, first grab the attendees where status equals 0 or 2 and then sort them
+        -- then add the attendees where status equals 1 to the table so we get them sorted 0,2,1
+        self.AttendingListview.DataProvider:Flush()
         if self.event and next(self.event.attend) then            
             local i = 0
             self.AttendEventButton_Confirm:Enable()
             self.AttendEventButton_Tentative:Enable()
             self.AttendEventButton_Decline:Enable()
+            local attendees = {}
             for guid, info in pairs(self.event.attend) do
-                if guid == UnitGUID("player") then
-                    if info.Status == 1 then
-                        self.AttendEventButton_Confirm:Disable()
-                    elseif info.Status == 2 then
-                        self.AttendEventButton_Tentative:Disable()
-                    else
-                        self.AttendEventButton_Decline:Disable()
-                    end
+                local character = Guildbook:GetCharacterFromCache(guid)
+                if not character then
+                    return;
                 end
-                if info.Status ~= 0 then
-                    i = i + 1
-                    if not Guildbook.PlayerMixin then
-                        Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
-                    else
-                        Guildbook.PlayerMixin:SetGUID(guid)
-                    end
-                    if Guildbook.PlayerMixin:IsValid() then
-                        local _, class, _ = C_PlayerInfo.GetClass(Guildbook.PlayerMixin)
-                        local name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
-                        if name and class then
-                            local count = tonumber(self.ClassTabs[class].text:GetText())
-                            if i > ((scroll * 15) - 15) and i <= (scroll * 15) then
-                                self.AttendingListview[i].character:SetText(Guildbook.Data.Class[class].FontColour..name)
-                                self.AttendingListview[i].status:SetText(status[info.Status])
-                            end
+                if info.Status ~= 1 then
+                    table.insert(attendees, {
+                        guid = guid,
+                        status = info.Status,
+                        class = character.Class,
+                        name = character.Name,
+                    })
+                end
+            end
+            table.sort(attendees, function(a,b)
+                if a.status == b.status then
+                    return a.class < b.class
+                else
+                    return a.status
+                end
+            end)
+            for guid, info in pairs(self.event.attend) do
+                local character = Guildbook:GetCharacterFromCache(guid)
+                if not character then
+                    return;
+                end
+                if info.Status == 1 then
+                    table.insert(attendees, {
+                        guid = guid,
+                        status = info.Status,
+                        class = character.Class,
+                        name = character.Name,
+                    })
+                end
+            end
+            if attendees and next(attendees) ~= nil then
+                for i = #attendees, 1, -1 do
+                    local attendee = attendees[i]
+                    if attendee.guid == UnitGUID("player") then
+                        if attendee.status == 1 then
+                            self.AttendEventButton_Confirm:Disable()
+                        elseif attendee.status == 2 then
+                            self.AttendEventButton_Tentative:Disable()
+                        else
+                            self.AttendEventButton_Decline:Disable()
                         end
+                    end
+                    if attendee.status then
+                        local statusText;
+                        if attendee.status == 0 then
+                            statusText = Guildbook.Colours.LightRed:WrapTextInColorCode(status[attendee.status])
+                        elseif attendee.status == 1 then
+                            statusText = Guildbook.Colours.Yellow:WrapTextInColorCode(status[attendee.status])
+                        elseif attendee.status == 2 then
+                            statusText = Guildbook.Colours.Blue:WrapTextInColorCode(status[attendee.status])
+                        end
+                        self.AttendingListview.DataProvider:Insert({
+                            name = Guildbook.Colours[attendee.class]:WrapTextInColorCode(attendee.name),
+                            status = statusText,
+                        })
                     end
                 end
             end

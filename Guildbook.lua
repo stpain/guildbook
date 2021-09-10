@@ -81,12 +81,27 @@ local function loadGuildMemberTradeskills(guid, prof)
         return
     end
     GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Flush()
+    local recipes = {}
     for itemID, _ in pairs(character[prof]) do
         local key = gb.tradeskillRecipesKeys[itemID]
-        GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Insert(gb.tradeskillRecipes[key])
+        table.insert(recipes, gb.tradeskillRecipes[key])
+    end
+    if recipes and next(recipes) ~= nil then
+        GuildbookUI.statusText:SetText(string.format("found %s recipes for %s [%s]", #recipes, prof, character.Name))
+        table.sort(recipes, function(a,b)
+            if a.expansion == b.expansion then
+                if a.rarity == b.rarity then
+                    return a.name < b.name
+                else
+                    return a.rarity > b.rarity
+                end
+            else
+                return a.expansion > b.expansion
+            end
+        end)
+        GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:InsertTable(recipes)
     end
     GuildbookUI:OpenTo("tradeskills")
-
 end
 
 local function getPlayersWithRecipe(recipeID, link)
@@ -177,13 +192,69 @@ end
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- tradeskill character listview
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
+GuildbookTradeskillCharacterListviewItemMixin = {}
+
+function GuildbookTradeskillCharacterListviewItemMixin:OnLoad()
+    self.mask = self:CreateMaskTexture()
+    self.mask:SetSize(31,31)
+    self.mask:SetPoint("LEFT", 10, 0)
+    self.mask:SetTexture("Interface/CHARACTERFRAME/TempPortraitAlphaMask", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+    self.Icon:AddMaskTexture(self.mask)
+end
+
+function GuildbookTradeskillCharacterListviewItemMixin:OnMouseDown()
+    self:AdjustPointsOffset(-1,-1)
+end
+
+function GuildbookTradeskillCharacterListviewItemMixin:OnMouseUp()
+    self:AdjustPointsOffset(1,1)
+    if self.func then
+        C_Timer.After(0, self.func)
+    end
+end
+
+function GuildbookTradeskillCharacterListviewItemMixin:SetCharacter(guid)
+    -- this will become the new system using a guid
+    if guid:find("Player") then
+        local character = gb:GetCharacterFromCache(guid)
+        if not character then
+            return;
+        end
+        local race;
+        if character.Race:lower() == "scourge" then
+            race = "undead";
+        else
+            race = character.Race:lower()
+        end
+        self.Icon:SetAtlas(string.format("raceicon-%s-%s", race, character.Gender:lower()))
+        self.Name:SetText(character.Name)
+
+        self.func = function()
+            loadGuildMemberTradeskills(guid, GuildbookMixin.selectedProfession)
+        end
+    end
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- tchats character listview
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 GuildbookCharacterListviewItemMixin = {}
 
 function GuildbookCharacterListviewItemMixin:OnLoad()
-    local _, size, flags = self.Name:GetFont()
-    --self.Name:SetFont([[Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf]], size, flags)
-    --self.Zone:SetFont([[Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf]], size, flags)
-
     self.mask = self:CreateMaskTexture()
     self.mask:SetSize(31,31)
     self.mask:SetPoint("LEFT", 10, 0)
@@ -254,33 +325,6 @@ function GuildbookCharacterListviewItemMixin:ClearCharacter()
     self.character = nil;
 end
 
-function GuildbookCharacterListviewItemMixin:SendMessage_OnEnter()
-    if self.itemLink then
-        GameTooltip:SetOwner(self.sendMessage, 'ANCHOR_RIGHT')
-        GameTooltip:AddLine("|cffffffff"..L["SEND_TRADE_ENQUIRY"])
-        GameTooltip:Show()
-    else
-        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-    end
-end
-
-function GuildbookCharacterListviewItemMixin:SendMessage_OnLeave()
-    GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-end
-
-function GuildbookCharacterListviewItemMixin:SendMessage_OnMouseDown()
-    local point, relativeTo, relativePoint, xOfs, yOfs = self.sendMessage:GetPoint()
-	self.sendMessage:ClearAllPoints()
-	self.sendMessage:SetPoint(point, relativeTo, relativePoint, xOfs - 1, yOfs - 1)
-    local msg = string.format(L["CAN_CRAFT"], self.itemLink) --broken on ptr
-    SendChatMessage(msg, "WHISPER", nil, self.character.name)
-end
-
-function GuildbookCharacterListviewItemMixin:SendMessage_OnMouseUp()
-    local point, relativeTo, relativePoint, xOfs, yOfs = self.sendMessage:GetPoint()
-	self.sendMessage:ClearAllPoints()
-	self.sendMessage:SetPoint(point, relativeTo, relativePoint, xOfs + 1, yOfs + 1)
-end
 
 
 
@@ -377,6 +421,19 @@ function GuildbookRecipeListviewItemMixin:OnEnter()
         end
         --GameTooltip:AddLine(" ")
         --GameTooltip:AddLine(gb.Colours.Blue:WrapTextInColorCode(L["REMOVE_RECIPE_FROM_PROF"]))
+
+        if GUILDBOOK_GLOBAL.Debug then
+            GameTooltip:AddLine(" ")
+            GameTooltip:AddLine("Guildbook debug:")
+            for k, v in pairs(self.item) do
+                if k ~= "reagents" and k ~= "charactersWithRecipe" then
+                    GameTooltip:AddDoubleLine(k,v)
+                elseif k == "enchant" then
+                    GameTooltip:AddDoubleLine(k,tostring(v))
+                end
+            end
+        end
+
         GameTooltip:Show()
         GuildbookUI.tradeskills.tradeskillItemsCharacterListview:SetAlpha(0.3)
     else
@@ -390,6 +447,20 @@ function GuildbookRecipeListviewItemMixin:OnLeave()
 end
 
 function GuildbookRecipeListviewItemMixin:OnMouseDown(button)
+
+    local index = self:GetOrderIndex();
+
+    if button == "RightButton" then
+        local characters = getAllPlayersWithTradeskill(self.item.profession)
+        StaticPopup_Show('GuildbookDeleteRecipeFromCharacters', L["REMOVE_RECIPE_FROM_PROF_SS"]:format(self.item.link, self.item.profession), nil, {
+            itemLink = self.item.link,
+            characters = characters,
+            prof = self.item.profession,
+            listviewIndex = index,
+            listview = GuildbookUI.tradeskills.tradeskillItemsListview,
+        })
+        return;
+    end
 
     if IsControlKeyDown() then
         DressUpItemLink(self.item.link)
@@ -1114,7 +1185,7 @@ local invSlots = {
     { atlas = "transmog-nav-slot-mainhand", tooltip = "weapons", globals = { "INVTYPE_WEAPON", "INVTYPE_2HWEAPON", "INVTYPE_WEAPONMAINHAND", "INVTYPE_RANGED", "INVTYPE_RANGEDRIGHT", "INVTYPE_THROWN", }, },
     { atlas = "transmog-nav-slot-secondaryhand", tooltip = "off hand", globals = { "INVTYPE_WEAPONOFFHAND", "INVTYPE_SHIELD", "INVTYPE_HOLDABLE", }, },
     { atlas = "transmog-nav-slot-enchant", tooltip = "misc", globals = { "INVTYPE_FINGER", "INVTYPE_NECK", "INVTYPE_TRINKET", "INVTYPE_BAG", "INVTYPE_QUIVER", }, },
-    { atlas = "transmog-icon-remove", tooltip = "clear", globals = nil },
+    { atlas = "transmog-icon-remove", tooltip = "clear", globals = "CLEAR_ALL_FILTERS" },
 }
 function GuildbookTradeskillsMixin:OnLoad()
     for _, fs in ipairs(self.ribbon.headers) do
@@ -1141,10 +1212,11 @@ function GuildbookTradeskillsMixin:OnLoad()
         end
         b.t:SetAtlas(slot.atlas)
 
-        if slot.globals == nil then
+        if slot.globals == "CLEAR_ALL_FILTERS" then
             b.tooltipText = L["TRADESKILL_SLOT_REMOVE"];
             b.func = function()
                 GuildbookMixin.selectedProfession = nil;
+                GuildbookUI.tradeskills.filteredItems = {}
                 for _, button in ipairs(GuildbookProfessionListviewMixin.profButtons) do
                     button.selected:Hide()
                 end
@@ -1152,16 +1224,17 @@ function GuildbookTradeskillsMixin:OnLoad()
                     GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Flush()
                     local i = 1;
                     -- using a timer here to prevent ui freeze
-                    C_Timer.NewTicker(
-                        0.001,
-                        function ()
-                            if gb.tradeskillRecipes[i] then
-                                GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Insert(gb.tradeskillRecipes[i])
-                                i = i + 1;
-                            end
-                        end,
-                        #gb.tradeskillRecipes
-                    )
+                    -- C_Timer.NewTicker(
+                    --     0.001,
+                    --     function ()
+                    --         if gb.tradeskillRecipes[i] then
+                    --             GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Insert(gb.tradeskillRecipes[i])
+                    --             i = i + 1;
+                    --         end
+                    --     end,
+                    --     #gb.tradeskillRecipes
+                    -- )
+                    GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:InsertTable(gb.tradeskillRecipes)
                 end
             end
         else
@@ -1170,9 +1243,10 @@ function GuildbookTradeskillsMixin:OnLoad()
             b.func = function()
                 if gb.tradeskillRecipes then
                     GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Flush()
+                    GuildbookUI.tradeskills.filteredItems = nil
                     GuildbookUI.tradeskills.filteredItems = {}
-                    for k, item in ipairs(gb.tradeskillRecipes) do
-                        if GuildbookMixin.selectedProfession then
+                    if GuildbookMixin.selectedProfession then
+                        for k, item in ipairs(gb.tradeskillRecipes) do
                             if item.profession:lower() == GuildbookMixin.selectedProfession:lower() then
                                 if type(slot.globals) == "table" then
                                     for _, global in ipairs(slot.globals) do
@@ -1186,7 +1260,9 @@ function GuildbookTradeskillsMixin:OnLoad()
                                     end
                                 end
                             end
-                        else
+                        end
+                    else
+                        for k, item in ipairs(gb.tradeskillRecipes) do
                             if type(slot.globals) == "table" then
                                 for _, global in ipairs(slot.globals) do
                                     if item.equipLocation == global then
@@ -1201,6 +1277,7 @@ function GuildbookTradeskillsMixin:OnLoad()
                         end
                     end
                     if GuildbookUI.tradeskills.filteredItems then
+                        GuildbookUI.statusText:SetText(string.format("found %s recipes for %s", #GuildbookUI.tradeskills.filteredItems, slot.tooltip))
                         table.sort(GuildbookUI.tradeskills.filteredItems, function(a,b)
                             if a.expansion == b.expansion then
                                 if a.rarity == b.rarity then
@@ -1212,9 +1289,7 @@ function GuildbookTradeskillsMixin:OnLoad()
                                 return a.expansion > b.expansion
                             end
                         end)
-                        for k, item in ipairs(GuildbookUI.tradeskills.filteredItems) do
-                            GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Insert(item)
-                        end
+                        GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:InsertTable(GuildbookUI.tradeskills.filteredItems)
                     end
                 end
             end
@@ -1376,6 +1451,7 @@ function GuildbookProfessionListviewMixin:OnLoad()
             GuildbookMixin.selectedProfession = prof.Name
             if gb.tradeskillRecipes then
                 GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Flush()
+                GuildbookUI.tradeskills.filteredItems = nil
                 GuildbookUI.tradeskills.filteredItems = {}
                 for k, item in ipairs(gb.tradeskillRecipes) do
                     if item.profession:lower() == prof.Name:lower() then
@@ -1383,6 +1459,7 @@ function GuildbookProfessionListviewMixin:OnLoad()
                     end
                 end
                 if GuildbookUI.tradeskills.filteredItems then
+                    GuildbookUI.statusText:SetText(string.format("found %s recipes for %s", #GuildbookUI.tradeskills.filteredItems, prof.Name))
                     table.sort(GuildbookUI.tradeskills.filteredItems, function(a,b)
                         if a.expansion == b.expansion then
                             if a.rarity == b.rarity then
@@ -1394,9 +1471,7 @@ function GuildbookProfessionListviewMixin:OnLoad()
                             return a.expansion > b.expansion
                         end
                     end)
-                    for k, item in ipairs(GuildbookUI.tradeskills.filteredItems) do
-                        GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Insert(item)
-                    end
+                    GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:InsertTable(GuildbookUI.tradeskills.filteredItems)
                 end
             end
 

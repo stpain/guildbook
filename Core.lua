@@ -52,6 +52,7 @@ Guildbook.Colours = {
     Blue = CreateColor(0.1, 0.58, 0.92, 1),
     Orange = CreateColor(0.79, 0.6, 0.15, 1),
     Yellow = CreateColor(1.0, 0.82, 0, 1),
+    LightRed = CreateColor(216/255,69/255,75/255)
     --fullRGBa = CreateColorFromBytes(1.0, 0.82, 0, 1),
 }
 for class, t in pairs(Guildbook.Data.Class) do
@@ -928,7 +929,10 @@ function Guildbook:RequestTradeskillData()
             local tradeskill = LCI:GetCraftProfession(recipeID)
             local _, _, _, equipLoc = GetItemInfoInstant(recipeID)
             if not equipLoc then
-                equipLoc = 0
+                equipLoc = "INVTYPE_NON_EQUIP"
+            end
+            if prof == "Enchanting" then
+                equipLoc = "INVTYPE_NON_EQUIP";
             end
             -- if i < 20 then
             --     --DEBUG("func", "GET_PROF_DATA", string.format("gb prof: %s thaoky prof: %s", prof, tradeskill or "no thaoky data"))
@@ -1260,7 +1264,7 @@ end
 
 
 function Guildbook:GetCharacterFromCache(guid)
-    if guid and guid:find('Player') then
+    if type(guid) == "string" and guid:find('Player') then
         local guildName = Guildbook:GetGuildName()
         if guildName and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
             if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] then

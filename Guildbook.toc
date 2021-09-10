@@ -21,15 +21,16 @@ Libs\LibCraftInfo-1.0\LibCraftInfo-1.0.xml
 Debugger.lua
 
 Locales.lua
+
+Templates.lua
+Templates.xml
+
 ModBlizzUI.lua
 Data.lua
 Core.lua
 Calendar.lua
 Dialogs.lua
 Options.lua
-
-Templates.lua
-Templates.xml
 
 Guildbook.lua
 Guildbook.xml

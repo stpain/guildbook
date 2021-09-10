@@ -252,7 +252,7 @@ function GuildbookTradeSkillItemsCharacterListviewMixin:OnLoad()
     self.ScrollView = CreateScrollBoxListLinearView();
     self.ScrollView:SetDataProvider(self.DataProvider);
     self.ScrollView:SetElementExtent(45); -- item height
-    self.ScrollView:SetElementInitializer("Button", "GuildbookCharacterListviewItem", function(frame, elementData)
+    self.ScrollView:SetElementInitializer("Button", "GuildbookTradeskillCharacterListviewItem", function(frame, elementData)
         frame:SetCharacter(elementData)
     end);
     self.ScrollView:SetPadding(5, 5, 5, 5, 1);
@@ -273,6 +273,30 @@ end
 
 
 
+GuildbookCalendarAttendingListviewMixin = {}
+function GuildbookCalendarAttendingListviewMixin:OnLoad()
+    self.DataProvider = CreateDataProvider();
+    self.ScrollView = CreateScrollBoxListLinearView();
+    self.ScrollView:SetDataProvider(self.DataProvider);
+    self.ScrollView:SetElementExtent(14); -- item height
+    self.ScrollView:SetElementInitializer("FRAME", "GuildbookCalendarAttendingListviewItemTemplate", function(frame, elementData)
+        frame.name:SetText(elementData.name)
+        frame.status:SetText(elementData.status)
+    end);
+    self.ScrollView:SetPadding(5, 5, 5, 5, 1);
+
+    ScrollUtil.InitScrollBoxListWithScrollBar(self.ScrollBox, self.ScrollBar, self.ScrollView);
+
+    local anchorsWithBar = {
+        CreateAnchor("TOPLEFT", self, "TOPLEFT", 4, -4),
+        CreateAnchor("BOTTOMRIGHT", self.ScrollBar, "BOTTOMLEFT", 0, 4),
+    };
+    local anchorsWithoutBar = {
+        CreateAnchor("TOPLEFT", self, "TOPLEFT", 4, -4),
+        CreateAnchor("BOTTOMRIGHT", self, "BOTTOMRIGHT", -4, 4),
+    };
+    ScrollUtil.AddManagedScrollBarVisibilityBehavior(self.ScrollBox, self.ScrollBar, anchorsWithBar, anchorsWithoutBar);
+end
 
 
 

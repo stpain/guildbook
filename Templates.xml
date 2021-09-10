@@ -463,36 +463,44 @@
 				</FontString>
             </Layer>
         </Layers>
-        <Frames>
-            <Frame parentKey="sendMessage" enableMouse="true" hidden="true">
-                <Size x="20" y="20"/>				
-                <Anchors>
-                    <Anchor point="TOPRIGHT" x="-2" y="-2"/>
-                </Anchors>
-                <Layers>
-                    <Layer level="BACKGROUND">
-                        <Texture parentKey="Background" file="interface/gossipframe/petitiongossipicon" setAllPoints="true"/>
-                    </Layer>
-                    <Layer level="HIGHLIGHT">
-                        <Texture parentKey="Highlight" file="interface/chatframe/ui-chaticon-blinkhilight" setAllPoints="true"/>
-                    </Layer>
-                </Layers>
-                <Scripts>
-                    <OnMouseDown>
-                        self:GetParent():SendMessage_OnMouseDown()
-                    </OnMouseDown>
-                    <OnMouseUp>
-                        self:GetParent():SendMessage_OnMouseUp()
-                    </OnMouseUp>
-                    <OnEnter>
-                        self:GetParent():SendMessage_OnEnter()
-                    </OnEnter>
-                    <OnLeave>
-                        self:GetParent():SendMessage_OnLeave()
-                    </OnLeave>
-                </Scripts>
-            </Frame>
-        </Frames>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnMouseDown method="OnMouseDown"/>
+            <OnMouseUp method="OnMouseUp"/>
+        </Scripts>
+    </Frame>
+
+    <Frame name="GuildbookTradeskillCharacterListviewItem" mixin="GuildbookTradeskillCharacterListviewItemMixin" virtual="true" enableMouse="true">
+        <Size y="45"/>
+        <Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="Background" atlas="PetList-ButtonBackground" useAtlasSize="false" setAllPoints="true"/>
+			</Layer>
+			<Layer level="HIGHLIGHT">
+				<Texture parentKey="Highlight" atlas="PetList-ButtonHighlight" useAtlasSize="false" setAllPoints="true"/>
+			</Layer>
+            <Layer level="OVERLAY">
+				<Texture parentKey="Icon">
+					<!-- <TexCoords left="0.0" right="0.46875" top="0.0" bottom="0.96875" /> -->
+					<Size x="35" y="35"/>				
+					<Anchors>
+						<Anchor point="LEFT" x="8" y="0"/>
+					</Anchors>
+				</Texture>
+				<FontString parentKey="Name" inherits="GameFontNormal">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" relativeKey="$parent.Icon" x="10" y="-1"/>
+					</Anchors>
+					<Color r="1" g="1" b="1"/>
+				</FontString>
+				<FontString parentKey="Zone" inherits="GameFontNormal" justifyH="LEFT">
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" relativeKey="$parent.Icon" x="10" y="1"/>
+					</Anchors>
+					<Color r="1" g="1" b="1"/>
+				</FontString>
+            </Layer>
+        </Layers>
         <Scripts>
             <OnLoad method="OnLoad"/>
             <OnMouseDown method="OnMouseDown"/>
@@ -911,6 +919,39 @@
         <Scripts>
             <OnLoad method="OnLoad"/>
         </Scripts>
+    </Frame>
+
+    <Frame name="GuildbookCalendarAttendingListviewTemplate" mixin="GuildbookCalendarAttendingListviewMixin" virtual="true">
+        <Frames>
+            <Frame parentKey="ScrollBox" inherits="WowScrollBoxList"/>
+            <EventFrame parentKey="ScrollBar" inherits="WowTrimScrollBar">
+                <Anchors>
+                    <Anchor point="TOPRIGHT"/>
+                    <Anchor point="BOTTOMRIGHT"/>
+                </Anchors>
+            </EventFrame>
+        </Frames>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+        </Scripts>
+    </Frame>
+
+    <Frame name="GuildbookCalendarAttendingListviewItemTemplate" virtual="true">
+        <Size y="14"/>
+        <Layers>
+            <Layer level="OVERLAY">
+                <FontString parentKey="name" inherits="GameFontNormalSmall">
+                    <Anchors>
+                        <Anchor point="LEFT" x="0" y="0"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="status" inherits="GameFontNormalSmall">
+                    <Anchors>
+                        <Anchor point="LEFT" x="100" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
     </Frame>
 
     <Frame name="GuildbookTradeSkillItemsCharacterListviewTemplate" mixin="GuildbookTradeSkillItemsCharacterListviewMixin" virtual="true">
