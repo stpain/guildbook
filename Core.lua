@@ -1036,6 +1036,7 @@ function Guildbook:RequestTradeskillData()
 
                 for k, v in ipairs(self.tradeskillRecipes) do
                     self.tradeskillRecipesKeys[v.itemID] = k
+                    statusBarText:SetText(string.format("mapping keys %s of %s", k, #self.tradeskillRecipes))
                 end
 
                 statusBar:Hide()
@@ -1259,7 +1260,7 @@ end
 
 
 function Guildbook:GetCharacterFromCache(guid)
-    if guid:find('Player') then
+    if guid and guid:find('Player') then
         local guildName = Guildbook:GetGuildName()
         if guildName and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
             if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] then
@@ -2234,13 +2235,16 @@ function Guildbook:GetCharacterTalentInfo(activeTalents)
         table.sort(tabs, function(a,b)
             return a.points > b.points
         end)
-        if GUILDBOOK_CHARACTER.MainSpec == "-" then
+        if GUILDBOOK_CHARACTER.smartGuessMainSpec then
             GUILDBOOK_CHARACTER.MainSpec = tabs[1].spec
         end
-        if self:GetCharacterInfo(UnitGUID("player"), "MainSpec") == "-" then
-            self:SetCharacterInfo(UnitGUID("player"), "MainSpec", tabs[1].spec)
-        end
-        self:SetCharacterInfo(UnitGUID("player"), "Talents", GUILDBOOK_CHARACTER.Talents)
+        -- if self:GetCharacterInfo(UnitGUID("player"), "MainSpec") == "-" then
+        --     self:SetCharacterInfo(UnitGUID("player"), "MainSpec", tabs[1].spec)
+        -- end
+        -- self:SetCharacterInfo(UnitGUID("player"), "Talents", GUILDBOOK_CHARACTER.Talents)
+
+        self:DB_SendCharacterData(UnitGUID("player"), "MainSpec", GUILDBOOK_CHARACTER.MainSpec, "GUILD", nil, "NORMAL")
+        self:DB_SendCharacterData(UnitGUID("player"), "Talents", GUILDBOOK_CHARACTER.Talents, "GUILD", nil, "NORMAL")
     end
 end
 
@@ -3431,8 +3435,20 @@ function Guildbook:ADDON_LOADED(...)
     end
 end
 
-function Guildbook:CHARACTER_POINTS_CHANGED()
-    self:GetCharacterTalentInfo('primary')
+
+function Guildbook:CHARACTER_POINTS_CHANGED(...)
+    if tonumber(...) < 0 then
+        if self.talentPointsChangedTimer then
+            self.talentPointsChangedTimer:Cancel()
+        else
+            self.talentPointsChangedTimer = C_Timer.NewTimer(
+                15,
+                function() 
+                    self:GetCharacterTalentInfo()
+                end
+            )
+        end
+    end
 end
 
 function Guildbook:SKILL_LINES_CHANGED()

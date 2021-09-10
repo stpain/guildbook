@@ -657,7 +657,7 @@
                                                     <Color r="1" g="1" b="1"/>
                                                     <Size x="75" y="25"/>
                                                     <Anchors>
-                                                        <Anchor point="TOPLEFT" x="355" y="-25"/>
+                                                        <Anchor point="TOPLEFT" x="385" y="-25"/>
                                                     </Anchors>
                                                     <KeyValues>
                                                         <KeyValue key="locale" value="AVATAR" type="string"/>
@@ -722,7 +722,7 @@
                                                     <Color r="1" g="1" b="1"/>
                                                     <Size x="75" y="25"/>
                                                     <Anchors>
-                                                        <Anchor relativeKey="$parent.mainSpecLabel" relativePoint="RIGHT" point="LEFT" x="255" y="0"/>
+                                                        <Anchor relativeKey="$parent.mainSpecLabel" relativePoint="RIGHT" point="LEFT" x="290" y="0"/>
                                                     </Anchors>
                                                     <KeyValues>
                                                         <KeyValue key="locale" value="OFF_SPEC" type="string"/>
@@ -1011,6 +1011,12 @@
                                                 <!-- <Size x="125" y="26"/> -->
                                                 <Anchors>
                                                     <Anchor relativeKey="$parent.mainSpecLabel" relativePoint="RIGHT" point="LEFT" x="20" y="0"/>
+                                                </Anchors>
+                                            </Frame>
+                                            <Frame parentKey="mainSpecSmartGuessDropDown" parentArray="displayEdit" inherits="GuildbookDropdown" hidden="true">
+                                                <Size x="110" y="26"/>
+                                                <Anchors>
+                                                    <Anchor relativeKey="$parent.mainSpecDropDown" relativePoint="RIGHT" point="LEFT" x="10" y="0"/>
                                                 </Anchors>
                                             </Frame>
                                             <Frame parentKey="offSpecDropDown" parentArray="displayEdit" inherits="GuildbookDropdown" hidden="true">
