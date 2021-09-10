@@ -68,6 +68,7 @@ end
 ---@param guid string the character guid
 ---@param prof string the profession name to use
 local function loadGuildMemberTradeskills(guid, prof)
+    GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Flush()
     if next(gb.tradeskillRecipesKeys) == nil then
         GuildbookUI.statusText:SetText("tradeskill recipes not processed yet, key mapping not ready")
         return
@@ -80,7 +81,6 @@ local function loadGuildMemberTradeskills(guid, prof)
     if not character[prof] then
         return
     end
-    GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Flush()
     local recipes = {}
     for itemID, _ in pairs(character[prof]) do
         local key = gb.tradeskillRecipesKeys[itemID]
@@ -228,7 +228,15 @@ function GuildbookTradeskillCharacterListviewItemMixin:SetCharacter(guid)
         end
         self.Icon:SetAtlas(string.format("raceicon-%s-%s", race, character.Gender:lower()))
         self.Name:SetText(character.Name)
-
+        if gb.onlineZoneInfo[guid].online == true then
+            self.Name:SetTextColor(1,1,1,1)
+            self.Zone:SetTextColor(1,1,1,1)
+            self.Zone:SetText("["..gb.onlineZoneInfo[guid].zone.."]")
+        else
+            self.Name:SetTextColor(0.5,0.5,0.5,0.7)
+            self.Zone:SetText("[offline]")
+            self.Zone:SetTextColor(0.5,0.5,0.5,0.7)
+        end
         self.func = function()
             loadGuildMemberTradeskills(guid, GuildbookMixin.selectedProfession)
         end
@@ -468,11 +476,22 @@ function GuildbookRecipeListviewItemMixin:OnMouseDown(button)
         HandleModifiedItemClick(self.item.link)
     else
         GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Flush()
-        if self.item.charactersWithRecipe then
-            for k, character in ipairs(self.item.charactersWithRecipe) do
-                GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Insert(character)
-            end
+
+        local charactersWithRecipe = {}
+        local sorting = {}
+        for k, guid in ipairs(self.item.charactersWithRecipe) do
+            table.insert(sorting, {
+                guid = guid,
+                online = gb.onlineZoneInfo[guid].online and 1 or 0,
+            })
         end
+        table.sort(sorting, function(a,b)
+            return a.online > b.online
+        end)
+        for k, character in ipairs(sorting) do
+            table.insert(charactersWithRecipe, character.guid)
+        end
+        GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:InsertTable(charactersWithRecipe)
     end
 
 end
@@ -1185,6 +1204,7 @@ local invSlots = {
     { atlas = "transmog-nav-slot-mainhand", tooltip = "weapons", globals = { "INVTYPE_WEAPON", "INVTYPE_2HWEAPON", "INVTYPE_WEAPONMAINHAND", "INVTYPE_RANGED", "INVTYPE_RANGEDRIGHT", "INVTYPE_THROWN", }, },
     { atlas = "transmog-nav-slot-secondaryhand", tooltip = "off hand", globals = { "INVTYPE_WEAPONOFFHAND", "INVTYPE_SHIELD", "INVTYPE_HOLDABLE", }, },
     { atlas = "transmog-nav-slot-enchant", tooltip = "misc", globals = { "INVTYPE_FINGER", "INVTYPE_NECK", "INVTYPE_TRINKET", "INVTYPE_BAG", "INVTYPE_QUIVER", }, },
+    { atlas = "bags-icon-consumables", tooltip = "consumables", globals = "CONSUMABLES" },
     { atlas = "transmog-icon-remove", tooltip = "clear", globals = "CLEAR_ALL_FILTERS" },
 }
 function GuildbookTradeskillsMixin:OnLoad()
@@ -1192,7 +1212,7 @@ function GuildbookTradeskillsMixin:OnLoad()
         fs:SetText(L[fs.locale])
     end
 
-    local offset = 240
+    local offset = 215
     for k, slot in ipairs(invSlots) do
 
         local b = CreateFrame("FRAME", nil, self.ribbon, "GuildbookSmallHighlightButton")
@@ -1207,6 +1227,9 @@ function GuildbookTradeskillsMixin:OnLoad()
             b.t:SetPoint("TOPLEFT", 1, 0)
             b.t:SetPoint("TOPRIGHT", -1, 0)
             b.t:SetPoint("BOTTOMRIGHT", 0, 2)
+        elseif slot.atlas:find("consumables") then
+            b.t:SetPoint("TOPLEFT", -1, 1)
+            b.t:SetPoint("BOTTOMRIGHT", 1, -1)
         else
             b.t:SetAllPoints()
         end
@@ -1217,6 +1240,7 @@ function GuildbookTradeskillsMixin:OnLoad()
             b.func = function()
                 GuildbookMixin.selectedProfession = nil;
                 GuildbookUI.tradeskills.filteredItems = {}
+                GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Flush()
                 for _, button in ipairs(GuildbookProfessionListviewMixin.profButtons) do
                     button.selected:Hide()
                 end
@@ -1235,6 +1259,35 @@ function GuildbookTradeskillsMixin:OnLoad()
                     --     #gb.tradeskillRecipes
                     -- )
                     GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:InsertTable(gb.tradeskillRecipes)
+                end
+            end
+        elseif slot.globals == "CONSUMABLES" then
+            b.tooltipText = string.format(L["TRADESKILL_SLOT_FILTER_S"], slot.tooltip)
+            b.func = function()
+                if gb.tradeskillRecipes then
+                    GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Flush()
+                    GuildbookUI.tradeskills.filteredItems = nil
+                    GuildbookUI.tradeskills.filteredItems = {}
+                    for k, item in ipairs(gb.tradeskillRecipes) do
+                        if tonumber(item.class) == 0 then
+                            table.insert(GuildbookUI.tradeskills.filteredItems, item)
+                        end
+                    end
+                    if GuildbookUI.tradeskills.filteredItems then
+                        GuildbookUI.statusText:SetText(string.format("found %s recipes for %s", #GuildbookUI.tradeskills.filteredItems, slot.tooltip))
+                        table.sort(GuildbookUI.tradeskills.filteredItems, function(a,b)
+                            if a.expansion == b.expansion then
+                                if a.rarity == b.rarity then
+                                    return a.name < b.name
+                                else
+                                    return a.rarity > b.rarity
+                                end
+                            else
+                                return a.expansion > b.expansion
+                            end
+                        end)
+                        GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:InsertTable(GuildbookUI.tradeskills.filteredItems)
+                    end
                 end
             end
         else
@@ -1475,13 +1528,30 @@ function GuildbookProfessionListviewMixin:OnLoad()
                 end
             end
 
+            -- get characters with prof then sort by online status
             local charactersWithProf = getAllPlayersWithTradeskill(prof.Name)
-            if charactersWithProf then
-                GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Flush()
-                for k, guid in ipairs(charactersWithProf) do
-                    GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Insert(guid)
-                end
+            local characters = {}
+            local sorting = {}
+            for k, guid in ipairs(charactersWithProf) do
+                table.insert(sorting, {
+                    guid = guid,
+                    online = gb.onlineZoneInfo[guid].online and 1 or 0,
+                })
             end
+            table.sort(sorting, function(a,b)
+                return a.online > b.online
+            end)
+            for k, character in ipairs(sorting) do
+                table.insert(characters, character.guid)
+            end
+            GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Flush()
+            GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:InsertTable(characters)
+            -- if charactersWithProf then
+            --     GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Flush()
+            --     for k, guid in ipairs(charactersWithProf) do
+            --         GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Insert(guid)
+            --     end
+            -- end
         end
 
 

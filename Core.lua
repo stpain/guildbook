@@ -795,6 +795,7 @@ function Guildbook:RequestTradeskillData()
     local delay = GUILDBOOK_GLOBAL['Debug'] and 0.05 or 0.1
     local recipeIdsToQuery = {}
     local charactersWithRecipe = {}
+    local charactersWithEnchantRecipe = {}
     if not self.tradeskillRecipes then
         self.tradeskillRecipes = {}
     end
@@ -817,11 +818,11 @@ function Guildbook:RequestTradeskillData()
             local prof = character.Profession1
             if character[prof] and next(character[prof]) ~= nil then
                 for recipeID, reagents in pairs(character[prof]) do
-                    if not charactersWithRecipe[recipeID] then
-                        charactersWithRecipe[recipeID] = {}
-                    end
-                    table.insert(charactersWithRecipe[recipeID], guid)
                     if prof == "Enchanting" then
+                        if not charactersWithEnchantRecipe[recipeID] then
+                            charactersWithEnchantRecipe[recipeID] = {}
+                        end
+                        table.insert(charactersWithEnchantRecipe[recipeID], guid)
                         if not self.craftIdsQueried[recipeID] then
                             --DEBUG("func", "RequestTradeskillData", "adding ENCHANT to query: "..recipeID)
                             self.craftIdsQueried[recipeID] = true;
@@ -832,6 +833,10 @@ function Guildbook:RequestTradeskillData()
                             })
                         end
                     else
+                        if not charactersWithRecipe[recipeID] then
+                            charactersWithRecipe[recipeID] = {}
+                        end
+                        table.insert(charactersWithRecipe[recipeID], guid)
                         if not self.recipeIdsQueried[recipeID] then
                             --DEBUG("func", "RequestTradeskillData", "adding TRADESKILL to query: "..recipeID)
                             self.recipeIdsQueried[recipeID] = true;
@@ -852,8 +857,11 @@ function Guildbook:RequestTradeskillData()
                     if not charactersWithRecipe[recipeID] then
                         charactersWithRecipe[recipeID] = {}
                     end
-                    table.insert(charactersWithRecipe[recipeID], guid)
                     if prof == "Enchanting" then
+                        if not charactersWithEnchantRecipe[recipeID] then
+                            charactersWithEnchantRecipe[recipeID] = {}
+                        end
+                        table.insert(charactersWithEnchantRecipe[recipeID], guid)
                         if not self.craftIdsQueried[recipeID] then
                             --DEBUG("func", "RequestTradeskillData", "adding ENCHANT to query: "..recipeID)
                             self.craftIdsQueried[recipeID] = true;
@@ -864,6 +872,10 @@ function Guildbook:RequestTradeskillData()
                             })
                         end
                     else
+                        if not charactersWithRecipe[recipeID] then
+                            charactersWithRecipe[recipeID] = {}
+                        end
+                        table.insert(charactersWithRecipe[recipeID], guid)
                         if not self.recipeIdsQueried[recipeID] then
                             --DEBUG("func", "RequestTradeskillData", "adding TRADESKILL to query: "..recipeID)
                             self.recipeIdsQueried[recipeID] = true;
@@ -927,7 +939,7 @@ function Guildbook:RequestTradeskillData()
             local l, r, n, e, x, ic = false, false, false, false, 0, false
             local thaokyProf, spellID = LCI:GetItemSource(recipeID)
             local tradeskill = LCI:GetCraftProfession(recipeID)
-            local _, _, _, equipLoc = GetItemInfoInstant(recipeID)
+            local _, _, _, equipLoc, _, itemClassID, itemSubClassID = GetItemInfoInstant(recipeID)
             if not equipLoc then
                 equipLoc = "INVTYPE_NON_EQUIP"
             end
@@ -982,7 +994,9 @@ function Guildbook:RequestTradeskillData()
                             name = n,
                             profession = prof,
                             equipLocation = equipLoc,
-                            charactersWithRecipe = charactersWithRecipe[recipeID],
+                            class = -1,
+                            subClass = -1,
+                            charactersWithRecipe = charactersWithEnchantRecipe[recipeID],
                         })
                         recipesToProcess = recipesToProcess - 1;
                         --DEBUG('func', 'tradeskill data requst', string.format("added recipeID %s prof %s link %s", recipeID, prof, l))
@@ -1005,6 +1019,8 @@ function Guildbook:RequestTradeskillData()
                             name = n,
                             profession = prof,
                             equipLocation = equipLoc,
+                            class = itemClassID,
+                            subClass = itemSubClassID,
                             charactersWithRecipe = charactersWithRecipe[recipeID],
                         })
                         recipesToProcess = recipesToProcess - 1;
@@ -1013,21 +1029,38 @@ function Guildbook:RequestTradeskillData()
                 end
             else
                 if prof == "Enchanting" then
-                    ic = 136244
+                    table.insert(self.tradeskillRecipes, {
+                        itemID = recipeID,
+                        reagents = reagents,
+                        rarity = r,
+                        link = l,
+                        icon = 136244,
+                        enchant = e,
+                        expansion = x;
+                        name = n,
+                        profession = prof,
+                        equipLocation = equipLoc,
+                        class = -1,
+                        subClass = -1,
+                        charactersWithRecipe = charactersWithEnchantRecipe[recipeID],
+                    })
+                else
+                    table.insert(self.tradeskillRecipes, {
+                        itemID = recipeID,
+                        reagents = reagents,
+                        rarity = r,
+                        link = l,
+                        icon = ic,
+                        enchant = e,
+                        expansion = x;
+                        name = n,
+                        profession = prof,
+                        equipLocation = equipLoc,
+                        class = itemClassID,
+                        subClass = itemSubClassID,
+                        charactersWithRecipe = charactersWithRecipe[recipeID],
+                    })
                 end
-                table.insert(self.tradeskillRecipes, {
-                    itemID = recipeID,
-                    reagents = reagents,
-                    rarity = r,
-                    link = l,
-                    icon = ic,
-                    enchant = e,
-                    expansion = x;
-                    name = n,
-                    profession = prof,
-                    equipLocation = equipLoc,
-                    charactersWithRecipe = charactersWithRecipe[recipeID],
-                })
                 recipesToProcess = recipesToProcess - 1;
                 --DEBUG('func', 'tradeskill data requst', string.format("added recipeID %s prof %s link %s", recipeID, prof, l))
             end
@@ -1246,6 +1279,17 @@ function Guildbook:GetPaperDollStats()
         end
         self:SetCharacterInfo(UnitGUID("player"), "PaperDollStats", GUILDBOOK_CHARACTER['PaperDollStats'])
     end
+end
+
+
+function Guildbook:GetOnlineAndZoneInfo()
+    local members = {}
+    local totalMembers, onlineMembers, _ = GetNumGuildMembers()
+    for i = 1, totalMembers do
+        local _, _, _, _, _, zone, _, _, isOnline, _, _, _, _, _, _, _, guid = GetGuildRosterInfo(i)
+        members[guid] = { online = isOnline, zone = zone}
+    end
+    return members;
 end
 
 
@@ -1917,8 +1961,8 @@ function Guildbook:ScanGuildRoster(callback)
         end
         local memberGUIDs = {}
         local currentGUIDs = {}
-        if not self.onlineMembers then
-            self.onlineMembers = {}
+        if not self.onlineZoneInfo then
+            self.onlineZoneInfo = {}
         end
         local faction = self.player.faction
         if not faction then
@@ -1958,7 +2002,10 @@ function Guildbook:ScanGuildRoster(callback)
             end
             currentGUIDs[i] = { GUID = guid, lvl = level, exists = true, online = isOnline, rank = rankName, pubNote = publicNote, offNote = officerNote}
             memberGUIDs[guid] = true;
-            self.onlineMembers[name] = isOnline
+            self.onlineZoneInfo[guid] = {
+                online = isOnline,
+                zone = zone,
+            }
             --name = Ambiguate(name, 'none')
             --table.insert(GUILDBOOK_GLOBAL['RosterExcel'], string.format("%s,%s,%s,%s,%s", name, class, rankName, level, publicNote))
         end
