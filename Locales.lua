@@ -107,11 +107,9 @@ Use this feature to browse your guild database- Find a recipe, pattern, characte
 ]]
 local bankIcon = CreateAtlasMarkup("ShipMissionIcon-Treasure-Map", 16, 16)
 local bankHelp = [[
-Guild bank:
-The guild bank feature works using a commit system, whenever a guildbank character views their bank, the data is sent to all online guild members as a 'commit'. When you view the guild bank, Guildbook will send a request to online guild members for their commit timestamp and then select the member with the latest commit.
-Guildbook then sends a request to that member for the commit data.
+My items:
 
-As this process involves a lot of comms, there is a cooldown of 30s between requesting bank data, and the request process is staggered so that comms messages dont cause issues for other addons.
+Coming soon
 ]]
 L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s %s %s", slashCommandsIcon, slashCommandsHelp, rosterIcon, rosterHelp, tradeskillIcon, tradeskillHelp, profileIcon, profileHelp, searchIcon, searchHelp, bankIcon, bankHelp)
 
@@ -199,7 +197,7 @@ L["INVITE_TO_GROUP"]                = "Invite to group"
 L["SEND_TRADE_ENQUIRY"]             = "Send message about item"
 L["REFRESH_ROSTER"]                 = "Refresh roster"
 L["EDIT"]                           = "Edit profile"
-L["GUILD_BANK"]                     = "Guild bank (Legacy feature)"
+L["GUILD_BANK"]                     = "My items"
 L["ALTS"]                           = "Alt characters"
 L["USE_MAIN_PROFILE"]               = "Use main character profile"
 L["MY_SACKS"]                       = "My containers"

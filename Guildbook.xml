@@ -1313,70 +1313,6 @@
                         </Anchors>
                     </Frame>
 
-                    <Frame parentKey="recipesListview" mixin="GuildbookRecipesListviewMixin" enableMouse="true" hidden="true">
-                        <Size x="490" y="410"/>
-                        <Anchors>
-                            <Anchor point="BOTTOMLEFT" x="185" y="5"/>
-                        </Anchors>
-                        <Animations>
-                            <AnimationGroup parentKey="anim" looping="REPEAT">
-                                <Rotation parentKey="rotate" childKey="spinner" duration="0.6" degrees="-360">
-                                    <Origin point="CENTER" x="0" y="0"/>
-                                </Rotation>
-                            </AnimationGroup>
-                        </Animations>
-                        <Layers>
-                            <Layer level="BACKGROUND">
-                                <Texture parentKey="spinner" atlas="auctionhouse-ui-loadingspinner" useAtlasSize="true" hidden="true">
-                                    <Anchors>
-                                        <Anchor point="CENTER" x="0" y="0"/>
-                                    </Anchors>
-                                </Texture>
-                            </Layer>
-                        </Layers>
-                        <Frames>
-                            <Slider parentKey="scrollBar" inherits="UIPanelScrollBarTemplate" orientation="VERTICAL">
-                                <Anchors>
-                                    <Anchor point="TOPRIGHT" x="16" y="-16"/>
-                                    <Anchor point="BOTTOMRIGHT" x="16" y="16"/>
-                                </Anchors>
-                                <Scripts>
-                                    <OnValueChanged>
-                                        self:GetParent():ScrollBar_OnValueChanged()
-                                    </OnValueChanged>
-                                </Scripts>
-                            </Slider>
-                        </Frames>
-                        <Scripts>
-                            <OnLoad method="OnLoad"/>
-                            <OnMouseWheel method="OnMouseWheel"/>
-                        </Scripts>
-                    </Frame>
-
-                    <Frame parentKey="charactersListview" mixin="GuildbookCharactersListviewMixin" hidden="true">
-                        <Size x="200" y="410"/>
-                        <Anchors>
-                            <Anchor point="BOTTOMRIGHT" x="-25" y="5"/>
-                        </Anchors>
-                        <Frames>
-                            <Slider parentKey="scrollBar" inherits="UIPanelScrollBarTemplate" orientation="VERTICAL">
-                                <Anchors>
-                                    <Anchor point="TOPRIGHT" x="16" y="-16"/>
-                                    <Anchor point="BOTTOMRIGHT" x="16" y="16"/>
-                                </Anchors>
-                                <Scripts>
-                                    <OnValueChanged>
-                                        self:GetParent():ScrollBar_OnValueChanged()
-                                    </OnValueChanged>
-                                </Scripts>
-                            </Slider>
-                        </Frames>
-                        <Scripts>
-                            <OnLoad method="OnLoad"/>
-                            <!-- <OnMouseWheel method="OnMouseWheel"/> -->
-                        </Scripts>
-                    </Frame>
-
                     <Frame parentKey="ribbon">
                         <Size y="30"/>
                         <Anchors>
@@ -1771,13 +1707,6 @@
                                 <Anchor point="TOPLEFT" x="310" y="-2"/>
                             </Anchors>
                         </FontString>
-                        <FontString parentKey="subType" inherits="GameFontNormal" text="s" justifyH="LEFT">
-                            <Color r="1" g="1" b="1"/>
-                            <Size x="150" y="24"/>
-                            <Anchors>
-                                <Anchor point="TOPLEFT" x="520" y="-2"/>
-                            </Anchors>
-                        </FontString>
                     </Layer>
                 </Layers>
                 <Frames>
@@ -1787,76 +1716,17 @@
                             <Anchor point="LEFT" relativeKey="$parent.count" relativePoint="RIGHT" x="2" y="2"/>
                         </Anchors>
                     </Frame>
-                    <Frame parentKey="sortBank" inherits="GuildbookDropdown">
-                        <Size x="160" y="24"/>
+                    <Frame parentKey="sortSubType" inherits="GuildbookDropdown">
+                        <Size x="150" y="24"/>
                         <Anchors>
-                            <Anchor point="LEFT" relativeKey="$parent.sortType" relativePoint="RIGHT" x="152" y="0"/>
+                            <Anchor point="LEFT" relativeKey="$parent.sortType" relativePoint="RIGHT" x="10" y="0"/>
                         </Anchors>
                     </Frame>
-                    <Button parentKey="refresh" inherits="UIPanelButtonTemplate">
-                        <Size x="65" y="24"/>
+                    <Frame parentKey="sortCharacter" inherits="GuildbookDropdown">
+                        <Size x="160" y="24"/>
                         <Anchors>
-                            <Anchor point="LEFT" relativeKey="$parent.sortBank" relativePoint="RIGHT" x="2" y="-2"/>
+                            <Anchor point="LEFT" relativeKey="$parent.sortSubType" relativePoint="RIGHT" x="10" y="0"/>
                         </Anchors>
-                        <KeyValues>
-                            <KeyValue key="label" value="GUILDBANK_REFRESH" type="string"/>
-                        </KeyValues>
-                    </Button>
-                    <Frame parentKey="listview">
-                        <Animations>
-                            <AnimationGroup parentKey="anim" looping="REPEAT">
-                                <Rotation parentKey="rotate" childKey="spinner" duration="0.6" degrees="-360">
-                                    <Origin point="CENTER" x="0" y="0"/>
-                                </Rotation>
-                            </AnimationGroup>
-                        </Animations>
-                        <Size x="890" y="424"/>
-                        <Anchors>
-                            <Anchor point="BOTTOMLEFT" x="5" y="5"/>
-                        </Anchors>
-                        <Layers>
-                            <Layer level="BACKGROUND">
-                                <Texture parentKey="spinner" atlas="auctionhouse-ui-loadingspinner" useAtlasSize="true">
-                                    <Anchors>
-                                        <Anchor point="CENTER" x="0" y="0"/>
-                                    </Anchors>
-                                </Texture>
-                            </Layer>
-                            <Layer level="OVERLAY">
-                                <FontString parentKey="commits" inherits="GameFontNormal" text="" justifyV="CENTER" justifyH="LEFT">
-                                    <Color r="1" g="1" b="1"/>
-                                    <Size x="300" y="300"/>
-                                    <Anchors>
-                                        <Anchor point="CENTER" x="-150" y="0"/>
-                                    </Anchors>
-                                </FontString>
-                                <FontString parentKey="data" inherits="GameFontNormal" text="" justifyV="CENTER" justifyH="LEFT">
-                                    <Color r="1" g="1" b="1"/>
-                                    <Size x="300" y="300"/>
-                                    <Anchors>
-                                        <Anchor point="CENTER" x="150" y="0"/>
-                                    </Anchors>
-                                </FontString>
-                            </Layer>
-                        </Layers>
-                        <Frames>
-                            <Slider parentKey="scrollBar" inherits="UIPanelScrollBarTemplate" orientation="VERTICAL">
-                                <Anchors>
-                                    <Anchor point="TOPRIGHT" x="16" y="-16"/>
-                                    <Anchor point="BOTTOMRIGHT" x="16" y="16"/>
-                                </Anchors>
-                                <Scripts>
-                                    <OnValueChanged>
-                                        self:GetParent():GetParent():ScrollBar_OnValueChanged()
-                                    </OnValueChanged>
-                                </Scripts>
-                            </Slider>
-                        </Frames>
-                        <Scripts>
-                            <OnMouseWheel>
-                                self:GetParent():OnMouseWheel(delta)
-                            </OnMouseWheel>
-                        </Scripts>
                     </Frame>
                 </Frames>
                 <Scripts>
@@ -1905,51 +1775,6 @@
                 </Frames>
                 <Scripts>
                     <OnLoad method="OnLoad"/>
-                </Scripts>
-            </Frame>
-
-            <Frame parentKey="mySacks" mixin="GuildbookMySacksMixin" parentArray="frames" hidden="true">
-                <Anchors>
-                    <Anchor point="TOPLEFT" relativeKey="$parent.ribbon" relativePoint="BOTTOMLEFT" x="0" y="0"/>
-                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
-                </Anchors>
-                <Layers>
-                    <Layer level="BACKGROUND" textureSubLevel="1">
-                        <Texture parentKey="background" atlas="ClassHall_InfoBoxMission-BackgroundTile" tile="true" setAllPoints="true" alpha="0.5">
-                            <!-- <Color r="0" g="0" b="0"/> -->
-                        </Texture>
-                    </Layer>
-                </Layers>
-                <Frames>
-                    <Frame parentKey="listview">
-                        <Size x="890" y="424"/>
-                        <Anchors>
-                            <Anchor point="BOTTOMLEFT" x="5" y="5"/>
-                        </Anchors>
-                        <Frames>
-                            <Slider parentKey="scrollBar" inherits="UIPanelScrollBarTemplate" orientation="VERTICAL">
-                                <Anchors>
-                                    <Anchor point="TOPRIGHT" x="16" y="-16"/>
-                                    <Anchor point="BOTTOMRIGHT" x="16" y="16"/>
-                                </Anchors>
-                                <Scripts>
-                                    <OnValueChanged>
-                                        self:GetParent():GetParent():ScrollBar_OnValueChanged()
-                                    </OnValueChanged>
-                                </Scripts>
-                            </Slider>
-                        </Frames>
-                        <Scripts>
-                            <OnMouseWheel>
-                                self:GetParent():OnMouseWheel(delta)
-                            </OnMouseWheel>
-                        </Scripts>
-                    </Frame>
-                </Frames>
-                <Scripts>
-                    <OnLoad method="OnLoad"/>
-                    <OnShow method="OnShow"/>
-                    <OnHide method="OnHide"/>
                 </Scripts>
             </Frame>
 
