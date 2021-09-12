@@ -60,6 +60,9 @@
     <Frame name="GuildbookMinimapCalendarDropdown" parent="UIParent" inherits="GuildbookDropdownFlyout" hidden="true">
 
     </Frame>
+    <Frame name="GuildbookTradeskillConsumablesDropdown" parent="UIParent" inherits="GuildbookDropdownFlyout" hidden="true">
+
+    </Frame>
 
     <Frame name="GuildbookUI" mixin="GuildbookMixin" parent="UIParent" inherits="PortraitFrameTemplate" frameStrata="HIGH" enableMouse="true" movable="true" hidden="true">
         <Size x="920" y="510"/>
@@ -1276,15 +1279,13 @@
                     </Layer>
                 </Layers>
                 <Frames>
-                    <Frame parentKey="professionListview" mixin="GuildbookProfessionListviewMixin">
+                    <Frame parentKey="professionListview" mixin="GuildbookTradeskillProfessionListview">
                         <Size x="175" y="410"/>
                         <Anchors>
                             <Anchor point="BOTTOMLEFT" x="5" y="5"/>
                         </Anchors>
-
                         <Scripts>
                             <OnLoad method="OnLoad"/>
-                            <OnShow method="OnShow"/>
                         </Scripts>
                     </Frame>
 
@@ -1707,6 +1708,12 @@
                                 <Anchor point="TOPLEFT" x="310" y="-2"/>
                             </Anchors>
                         </FontString>
+                        <Texture parentKey="background" atlas="GarrBuilding_EmptyPlot_1_A_Info" alpha="1">
+                            <Size x="423" y="260"/>
+                            <Anchors>
+                                <Anchor point="CENTER" x="0" y="0"/>
+                            </Anchors>
+                        </Texture>
                     </Layer>
                 </Layers>
                 <Frames>

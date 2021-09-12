@@ -121,7 +121,7 @@ function Guildbook:Init()
     -- this makes the bank/calendar legacy features work
     if not self.GuildFrame then
         self.GuildFrame = {
-            "GuildBankFrame",
+            --"GuildBankFrame",
             "GuildCalendarFrame",
         }
     end
@@ -201,33 +201,6 @@ function Guildbook:Init()
             blockCommsDuringInstance = false,
         }
         DEBUG('func', 'init', "created default config table")
-    end
-
-    if self.version < 5.0 then
-        if not GUILDBOOK_GLOBAL.configUpdate then
-            local lowestRank = GuildControlGetRankName(GuildControlGetNumRanks())
-            GUILDBOOK_GLOBAL.config = {
-                privacy = {
-                    shareInventoryMinRank = lowestRank,
-                    shareTalentsMinRank = lowestRank,
-                    shareProfileMinRank = lowestRank,
-                },
-                modifyDefaultGuildRoster = true,
-                showTooltipTradeskills = true,
-                showTooltipTradeskillsRecipes = true,
-                showMinimapButton = true,
-                showMinimapCalendarButton = true,
-                showTooltipCharacterInfo = true,
-                showTooltipMainCharacter = true,
-                showTooltipMainSpec = true,
-                showTooltipProfessions = true,
-                parsePublicNotes = false,
-                showInfoMessages = true,
-                blockCommsDuringCombat = true,
-                blockCommsDuringInstance = true,
-            }
-            DEBUG('func', 'init', "config update false, adding config table")
-        end
     end
 
     if GUILDBOOK_GLOBAL.config.showInfoMessages == nil then
@@ -663,8 +636,8 @@ function Guildbook:Load()
         DEBUG("func", "Load", "requested deleted calendar events")
     end)
 
-    if not GUILDBOOK_GLOBAL.configUpdate then
-        local news = ""
+    if tonumber(self.version) == 4.9661 then
+        local news = "With the arrival of guild banks to TBCC i have removed the guild bank system from Guildbook. I am working on something to replace it though!"
         StaticPopup_Show('GuildbookUpdates', self.version, news)
     end
 

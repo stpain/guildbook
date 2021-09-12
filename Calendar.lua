@@ -878,6 +878,14 @@ function Guildbook:SetupGuildCalendarFrame()
 
     function self.GuildFrame.GuildCalendarFrame.EventFrame:UpdateClassTabs()
         local attending = false;
+        --reset the counts
+        for i = 1, 10 do
+            if classes[i] then
+                local classTab = self.ClassTabs[classes[i]]
+                classTab.text:SetText("0")
+                classTab.icon:SetVertexColor(0.3,0.3,0.3)
+            end
+        end
         if self.event and next(self.event.attend) then   
             local i = 0
             for guid, info in pairs(self.event.attend) do

@@ -91,18 +91,44 @@ local function loadGuildMemberTradeskills(guid, prof)
     if not character then
         return
     end
-    if prof == "Enginnering" then prof = "Engineering" end -- fix it back
-    if not character[prof] then
-        return
-    end
+    if prof == "Enginnering" then prof = "Engineering" end -- fix it back due to blizz spelling error
     local recipes = {}
-    for itemID, _ in pairs(character[prof]) do
-        if prof == "Enchanting" then
-            local key = gb.tradeskillEnchantRecipesKeys[itemID]
-            table.insert(recipes, gb.tradeskillRecipes[key])
-        else
-            local key = gb.tradeskillRecipesKeys[itemID]
-            table.insert(recipes, gb.tradeskillRecipes[key])
+    if prof ~= "allRecipes" and character[prof] then
+        for itemID, _ in pairs(character[prof]) do
+            if prof == "Enchanting" then
+                local key = gb.tradeskillEnchantRecipesKeys[itemID]
+                table.insert(recipes, gb.tradeskillRecipes[key])
+            else
+                local key = gb.tradeskillRecipesKeys[itemID]
+                table.insert(recipes, gb.tradeskillRecipes[key])
+            end
+        end
+
+    ---if no prof is given then load all the characters recipes
+    elseif prof == "allRecipes" then
+        local prof1 = character.Profession1
+        if prof1 and character[prof1] then
+            for itemID, _ in pairs(character[prof1]) do
+                if prof1 == "Enchanting" then
+                    local key = gb.tradeskillEnchantRecipesKeys[itemID]
+                    table.insert(recipes, gb.tradeskillRecipes[key])
+                else
+                    local key = gb.tradeskillRecipesKeys[itemID]
+                    table.insert(recipes, gb.tradeskillRecipes[key])
+                end
+            end
+        end
+        local prof2 = character.Profession2
+        if prof2 and character[prof2] then
+            for itemID, _ in pairs(character[prof2]) do
+                if prof2 == "Enchanting" then
+                    local key = gb.tradeskillEnchantRecipesKeys[itemID]
+                    table.insert(recipes, gb.tradeskillRecipes[key])
+                else
+                    local key = gb.tradeskillRecipesKeys[itemID]
+                    table.insert(recipes, gb.tradeskillRecipes[key])
+                end
+            end
         end
     end
     if recipes and next(recipes) ~= nil then
@@ -226,7 +252,7 @@ function GuildbookTradeskillCharacterListviewItemMixin:SetCharacter(guid)
             self.Zone:SetTextColor(0.5,0.5,0.5,0.7)
         end
         self.func = function()
-            loadGuildMemberTradeskills(guid, GuildbookMixin.selectedProfession)
+            loadGuildMemberTradeskills(guid, GuildbookMixin.selectedProfession and GuildbookMixin.selectedProfession or "allRecipes")
         end
     end
 end
@@ -970,6 +996,8 @@ function GuildbookMixin:OnLoad()
         GuildbookDataShare:Show()
     end
 
+    --self.portraitButton
+
 end
 
 
@@ -1115,6 +1143,7 @@ end
 
 GuildbookTradeskillsMixin = {}
 
+---filter button data/info table
 local invSlots = {
     { atlas = "transmog-nav-slot-head", tooltip = "head", globals = "INVTYPE_HEAD", },
     { atlas = "transmog-nav-slot-shoulder", tooltip = "shoulder", globals = "INVTYPE_SHOULDER", },
@@ -1131,6 +1160,31 @@ local invSlots = {
     { atlas = "bags-icon-consumables", tooltip = "consumables", globals = "CONSUMABLES" },
     { atlas = "transmog-icon-remove", tooltip = "clear", globals = "CLEAR_ALL_FILTERS" },
 }
+
+local function filterConsumables(subType)
+    if gb.tradeskillRecipes then
+        GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Flush()
+        GuildbookUI.tradeskills.filteredItems = nil
+        GuildbookUI.tradeskills.filteredItems = {}
+        for k, item in ipairs(gb.tradeskillRecipes) do
+            if tonumber(item.class) == 0 and tonumber(item.subClass) == subType then
+                table.insert(GuildbookUI.tradeskills.filteredItems, item)
+            end
+        end
+        if GuildbookUI.tradeskills.filteredItems then
+            GuildbookUI.statusText:SetText(string.format("found %s recipes for %s", #GuildbookUI.tradeskills.filteredItems, "consumables"))
+            table.sort(GuildbookUI.tradeskills.filteredItems, function(a,b)
+                if a.rarity == b.rarity then
+                    return a.name < b.name
+                else
+                    return a.rarity > b.rarity
+                end
+            end)
+            GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:InsertTable(GuildbookUI.tradeskills.filteredItems)
+        end
+    end
+end
+
 function GuildbookTradeskillsMixin:OnLoad()
     for _, fs in ipairs(self.ribbon.headers) do
         fs:SetText(L[fs.locale])
@@ -1143,6 +1197,7 @@ function GuildbookTradeskillsMixin:OnLoad()
         b:SetPoint("LEFT", offset + (30*k), 0)
         b:SetSize(28,28)
         b.t = b:CreateTexture(nil, "BACKGROUND")
+        ---some atlas textures are slightly different size/layout so this is just to get them about the same
         if slot.atlas:find("enchant") then
             b.t:SetPoint("TOPLEFT", -1, 0)
             b.t:SetPoint("TOPRIGHT", 1, 0)
@@ -1165,7 +1220,7 @@ function GuildbookTradeskillsMixin:OnLoad()
                 GuildbookMixin.selectedProfession = nil;
                 GuildbookUI.tradeskills.filteredItems = {}
                 GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Flush()
-                for _, button in ipairs(GuildbookProfessionListviewMixin.profButtons) do
+                for _, button in ipairs(GuildbookTradeskillProfessionListview.profButtons) do
                     button.selected:Hide()
                 end
                 if gb.tradeskillRecipes then
@@ -1176,27 +1231,27 @@ function GuildbookTradeskillsMixin:OnLoad()
             end
         elseif slot.globals == "CONSUMABLES" then
             b.tooltipText = string.format(L["TRADESKILL_SLOT_FILTER_S"], slot.tooltip)
+            b.flyout = GuildbookTradeskillConsumablesDropdown
+            b.flyout:SetParent(b)
+            b.flyout:ClearAllPoints()
+            b.flyout:SetPoint("TOPRIGHT", -5, -5)
+            b.menu = {}
+            for i = 0, 8 do
+                local subClassName = GetItemSubClassInfo(0, i)
+                table.insert(b.menu, {
+                    text = subClassName,
+                    func = function()
+                        filterConsumables(i)
+                    end,
+                })
+            end
             b.func = function()
-                if gb.tradeskillRecipes then
-                    GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Flush()
-                    GuildbookUI.tradeskills.filteredItems = nil
-                    GuildbookUI.tradeskills.filteredItems = {}
-                    for k, item in ipairs(gb.tradeskillRecipes) do
-                        if tonumber(item.class) == 0 then
-                            table.insert(GuildbookUI.tradeskills.filteredItems, item)
-                        end
-                    end
-                    if GuildbookUI.tradeskills.filteredItems then
-                        GuildbookUI.statusText:SetText(string.format("found %s recipes for %s", #GuildbookUI.tradeskills.filteredItems, slot.tooltip))
-                        table.sort(GuildbookUI.tradeskills.filteredItems, function(a,b)
-                            if a.subClass == b.subClass then
-                                return a.name < b.name
-                            else
-                                return a.subClass < b.subClass
-                            end
-                        end)
-                        GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:InsertTable(GuildbookUI.tradeskills.filteredItems)
-                    end
+                if b.flyout and b.flyout:IsVisible() then
+                    b.flyout:Hide()
+                end
+                if b.flyout then
+                    b.flyout.delayTimer = 2.0;
+                    b.flyout:Show()
                 end
             end
         else
@@ -1265,14 +1320,16 @@ end
 
 
 
+--[[
 
+    this is the listview (although not really as it doesnt scroll) that has the profession buttons (Alchemy, Blacksmith, etc)
 
-GuildbookProfessionListviewMixin = {}
-GuildbookProfessionListviewMixin.recipesProcessed = 0;
-GuildbookProfessionListviewMixin.profButtons = {}
+]]--
 
+GuildbookTradeskillProfessionListview = {}
+GuildbookTradeskillProfessionListview.profButtons = {}
 
-
+---button data/info table
 local professions = {
     { id = 171, Name = 'Alchemy', Atlas = "Mobile-Alchemy", },
     { id = 164, Name = 'Blacksmithing', Atlas = "Mobile-Blacksmithing", },
@@ -1286,7 +1343,7 @@ local professions = {
     { id = 185, Name = 'Cooking', Atlas = "Mobile-Cooking", },
 }
 
-function GuildbookProfessionListviewMixin:OnLoad()
+function GuildbookTradeskillProfessionListview:OnLoad()
     for i, prof in ipairs(professions) do
         local f = CreateFrame("FRAME", "GuildbookUiProfessionListview"..i, self, "GuildbookListviewItem")
         f:SetSize(175, 40)
@@ -1354,9 +1411,6 @@ function GuildbookProfessionListviewMixin:OnLoad()
     end
 end
 
-function GuildbookProfessionListviewMixin:OnShow()
-
-end
 
 
 
@@ -1381,9 +1435,7 @@ end
 
 
 
-
-
-
+--TODO: consider updated this to the new listbox widget ?
 
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
