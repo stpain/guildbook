@@ -260,7 +260,7 @@ StaticPopupDialogs['GuildbookUpdates'] = {
     text = 'Guildbook Version: %s\n\n%s',
     button1 = 'OK',
     OnAccept = function(self)
-        
+        GUILDBOOK_GLOBAL.guildBankRemoved = true;
     end,
     timeout = 0,
     whileDead = true,

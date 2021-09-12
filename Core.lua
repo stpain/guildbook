@@ -636,7 +636,10 @@ function Guildbook:Load()
         DEBUG("func", "Load", "requested deleted calendar events")
     end)
 
-    if tonumber(self.version) == 4.9661 then
+    if not GUILDBOOK_GLOBAL.guildBankRemoved then
+        GUILDBOOK_GLOBAL.guildBankRemoved = false;
+    end
+    if (tonumber(self.version) == 4.9662) and GUILDBOOK_GLOBAL.guildBankRemoved == false then
         local news = "With the arrival of guild banks to TBCC i have removed the guild bank system from Guildbook. I am working on something to replace it though!"
         StaticPopup_Show('GuildbookUpdates', self.version, news)
     end
