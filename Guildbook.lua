@@ -1,5 +1,5 @@
 
-
+-- grab the addon table
 local _, gb = ...
 
 local L = gb.Locales
@@ -9,20 +9,25 @@ local LCI = LibStub:GetLibrary("LibCraftInfo-1.0")
 local LibGraph = LibStub("LibGraph-2.0");
 
 local GUILD_NAME;
-local transmitStagger = 0.5; -- if comms get messed up by lots of traffic, increase this to cause requests to be staggered further apart
 
-local frameBackdrop = {
-	bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
-	edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
-	tile = true, tileSize = 32, edgeSize = 32,
-	insets = { left = 8, right = 8, top = 8, bottom = 8 }
-}
+---set value to stagger comms when loading a character profile, if issues occur with comm spam increase this to ease load on comms channel
+local transmitStagger = 0.5;
 
+
+---the tradeskill import/export interface
 GuildbookDataShareMixin = {}
 
+---setup the import/export ui
 function GuildbookDataShareMixin:OnLoad()
     self:RegisterForDrag("LeftButton")
-    self:SetBackdrop(frameBackdrop)
+    self:SetBackdrop({
+        bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+        edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+        tile = true, 
+        tileSize = 32, 
+        edgeSize = 32,
+        insets = { left = 8, right = 8, top = 8, bottom = 8 }
+    })
 
     self.close:SetSize(24, 22)
     self.close:SetNormalTexture(130832)
@@ -34,6 +39,7 @@ function GuildbookDataShareMixin:OnLoad()
         self:Hide()
     end)
 
+    ---when a user clicks in the text area we highlight all the text so its easier to copy/paste out of the game
     self.dataString.EditBox:SetScript("OnEditFocusGained", function(self)
         self:HighlightText()
     end)
@@ -43,6 +49,8 @@ function GuildbookDataShareMixin:OnLoad()
     self.header:SetText(L["GUILDBOOK_DATA_SHARE_HEADER"])
 
     self.import:SetText(L["IMPORT"])
+
+    ---if there is a valid string then call the import script
     self.import:SetScript("OnClick", function()
         local data = self.dataString.EditBox:GetText()
         if not data then
@@ -52,6 +60,8 @@ function GuildbookDataShareMixin:OnLoad()
     end)
 
     self.export:SetText(L["EXPORT"])
+
+    ---call the script to serialize all tradeskill data then set the textbox text for users to copy/paste
     self.export:SetScript("OnClick", function()
         local s = gb:SerializeGuildTradeskillRecipes()
         GuildbookDataShare.dataString.EditBox:SetText("")
@@ -68,67 +78,76 @@ end
 ---@param guid string the character guid
 ---@param prof string the profession name to use
 local function loadGuildMemberTradeskills(guid, prof)
+    GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Flush()
     if next(gb.tradeskillRecipesKeys) == nil then
         GuildbookUI.statusText:SetText("tradeskill recipes not processed yet, key mapping not ready")
+        return
+    end
+    if next(gb.tradeskillEnchantRecipesKeys) == nil then
+        GuildbookUI.statusText:SetText("tradeskill enchant recipes not processed yet, key mapping not ready")
         return
     end
     local character = gb:GetCharacterFromCache(guid)
     if not character then
         return
     end
-    if prof == "Enginnering" then prof = "Engineering" end -- fix it back
-    if not character[prof] then
-        return
-    end
-    GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Flush()
-    for itemID, _ in pairs(character[prof]) do
-        local key = gb.tradeskillRecipesKeys[itemID]
-        GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Insert(gb.tradeskillRecipes[key])
-    end
-    GuildbookUI:OpenTo("tradeskills")
-
-end
-
-local function getPlayersWithRecipe(recipeID, link)
-    if not recipeID then
-        return
-    end
-    local members = {}
-    if GUILD_NAME then
-        local totalMembers, onlineMembers, _ = GetNumGuildMembers()
-        for i = 1, totalMembers do
-            local name, _, _, _, _, zone, _, _, isOnline = GetGuildRosterInfo(i)
-            name = Ambiguate(name, "none")
-            members[name] = { online = isOnline, zone = zone}
+    if prof == "Enginnering" then prof = "Engineering" end -- fix it back due to blizz spelling error
+    local recipes = {}
+    if prof ~= "allRecipes" and character[prof] then
+        for itemID, _ in pairs(character[prof]) do
+            if prof == "Enchanting" then
+                local key = gb.tradeskillEnchantRecipesKeys[itemID]
+                table.insert(recipes, gb.tradeskillRecipes[key])
+            else
+                local key = gb.tradeskillRecipesKeys[itemID]
+                table.insert(recipes, gb.tradeskillRecipes[key])
+            end
         end
-    else
-        return;
-    end
-    local characters = {}
-    for k, guid in ipairs(GuildbookMixin.charactersWithProfession) do
-        local character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][guid]
-        if character[GuildbookMixin.selectedProfession] then
-            if character[GuildbookMixin.selectedProfession][recipeID] then
-                --local _online, _zone = gb:IsGuildMemberOnline(character.Name)
-                local _online, _zone = members[character.Name].online, members[character.Name].zone
-                table.insert(characters, {
-                    name = character.Name,
-                    guid = guid,
-                    online = _online,
-                    zone = _zone,
-                    race = character.Race,
-                    gender = character.Gender,
-                    link = link,
-                })
+
+    ---if no prof is given then load all the characters recipes
+    elseif prof == "allRecipes" then
+        local prof1 = character.Profession1
+        if prof1 and character[prof1] then
+            for itemID, _ in pairs(character[prof1]) do
+                if prof1 == "Enchanting" then
+                    local key = gb.tradeskillEnchantRecipesKeys[itemID]
+                    table.insert(recipes, gb.tradeskillRecipes[key])
+                else
+                    local key = gb.tradeskillRecipesKeys[itemID]
+                    table.insert(recipes, gb.tradeskillRecipes[key])
+                end
+            end
+        end
+        local prof2 = character.Profession2
+        if prof2 and character[prof2] then
+            for itemID, _ in pairs(character[prof2]) do
+                if prof2 == "Enchanting" then
+                    local key = gb.tradeskillEnchantRecipesKeys[itemID]
+                    table.insert(recipes, gb.tradeskillRecipes[key])
+                else
+                    local key = gb.tradeskillRecipesKeys[itemID]
+                    table.insert(recipes, gb.tradeskillRecipes[key])
+                end
             end
         end
     end
-    table.sort(characters, function(a,b)
-        return a.online and not b.online;
-    end)
-    return characters;
+    if recipes and next(recipes) ~= nil then
+        GuildbookUI.statusText:SetText(string.format("found %s recipes for %s [%s]", #recipes, prof, character.Name))
+        table.sort(recipes, function(a,b)
+            if a.expansion == b.expansion then
+                if a.rarity == b.rarity then
+                    return a.name < b.name
+                else
+                    return a.rarity > b.rarity
+                end
+            else
+                return a.expansion > b.expansion
+            end
+        end)
+        GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:InsertTable(recipes)
+    end
+    GuildbookUI:OpenTo("tradeskills")
 end
-
 
 
 local function getAllPlayersWithTradeskill(prof)
@@ -173,17 +192,91 @@ end
 
 
 
+--[[
+
+    this is the character listview for the tradeskill ui
+
+    its purpose is to show which characters have a certain tradeskill
+    it can then be filtered by tradeskill recipes b clicking the recipe
+
+    selecting a character will show that characters recipes for the currently selected tradeskill
+
+]]--
+GuildbookTradeskillCharacterListviewItemMixin = {}
+
+---add the circluar mask to the portrait, this was doen in lua however can be moved into the xml template
+function GuildbookTradeskillCharacterListviewItemMixin:OnLoad()
+    self.mask = self:CreateMaskTexture()
+    self.mask:SetSize(31,31)
+    self.mask:SetPoint("LEFT", 10, 0)
+    self.mask:SetTexture("Interface/CHARACTERFRAME/TempPortraitAlphaMask", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+    self.Icon:AddMaskTexture(self.mask)
+end
+
+function GuildbookTradeskillCharacterListviewItemMixin:OnMouseDown()
+    self:AdjustPointsOffset(-1,-1)
+end
+
+---call the items .func in the OnMouseUp event
+function GuildbookTradeskillCharacterListviewItemMixin:OnMouseUp()
+    self:AdjustPointsOffset(1,1)
+    if self.func then
+        C_Timer.After(0, self.func)
+    end
+end
+
+---sets the character info, this displays character avatar, name and location - formats grey for offline characters
+---@param guid string the characters guid
+function GuildbookTradeskillCharacterListviewItemMixin:SetCharacter(guid)
+    -- this will become the new system using a guid
+    if guid:find("Player") then
+        local character = gb:GetCharacterFromCache(guid)
+        if not character then
+            return;
+        end
+        local race;
+        if character.Race:lower() == "scourge" then
+            race = "undead";
+        else
+            race = character.Race:lower()
+        end
+        self.Icon:SetAtlas(string.format("raceicon-%s-%s", race, character.Gender:lower()))
+        self.Name:SetText(character.Name)
+        if gb.onlineZoneInfo[guid].online == true then
+            self.Name:SetTextColor(1,1,1,1)
+            self.Zone:SetTextColor(1,1,1,1)
+            self.Zone:SetText("["..gb.onlineZoneInfo[guid].zone.."]")
+        else
+            self.Name:SetTextColor(0.5,0.5,0.5,0.7)
+            self.Zone:SetText("[offline]")
+            self.Zone:SetTextColor(0.5,0.5,0.5,0.7)
+        end
+        self.func = function()
+            loadGuildMemberTradeskills(guid, GuildbookMixin.selectedProfession and GuildbookMixin.selectedProfession or "allRecipes")
+        end
+    end
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- tradeskill character listview
+-- chats character listview
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 GuildbookCharacterListviewItemMixin = {}
 
 function GuildbookCharacterListviewItemMixin:OnLoad()
-    local _, size, flags = self.Name:GetFont()
-    --self.Name:SetFont([[Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf]], size, flags)
-    --self.Zone:SetFont([[Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf]], size, flags)
-
     self.mask = self:CreateMaskTexture()
     self.mask:SetSize(31,31)
     self.mask:SetPoint("LEFT", 10, 0)
@@ -254,33 +347,6 @@ function GuildbookCharacterListviewItemMixin:ClearCharacter()
     self.character = nil;
 end
 
-function GuildbookCharacterListviewItemMixin:SendMessage_OnEnter()
-    if self.itemLink then
-        GameTooltip:SetOwner(self.sendMessage, 'ANCHOR_RIGHT')
-        GameTooltip:AddLine("|cffffffff"..L["SEND_TRADE_ENQUIRY"])
-        GameTooltip:Show()
-    else
-        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-    end
-end
-
-function GuildbookCharacterListviewItemMixin:SendMessage_OnLeave()
-    GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-end
-
-function GuildbookCharacterListviewItemMixin:SendMessage_OnMouseDown()
-    local point, relativeTo, relativePoint, xOfs, yOfs = self.sendMessage:GetPoint()
-	self.sendMessage:ClearAllPoints()
-	self.sendMessage:SetPoint(point, relativeTo, relativePoint, xOfs - 1, yOfs - 1)
-    local msg = string.format(L["CAN_CRAFT"], self.itemLink) --broken on ptr
-    SendChatMessage(msg, "WHISPER", nil, self.character.name)
-end
-
-function GuildbookCharacterListviewItemMixin:SendMessage_OnMouseUp()
-    local point, relativeTo, relativePoint, xOfs, yOfs = self.sendMessage:GetPoint()
-	self.sendMessage:ClearAllPoints()
-	self.sendMessage:SetPoint(point, relativeTo, relativePoint, xOfs + 1, yOfs + 1)
-end
 
 
 
@@ -318,21 +384,21 @@ end
 
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- recipe listview
+-- tradeskill recipe listview
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 GuildbookRecipeListviewItemMixin = {}
 
-
--- itemID = recipeID,
--- reagents = reagents,
--- rarity = r,
--- link = l,
--- icon = ic,
--- enchant = e,
--- expansion = x;
--- name = n,
--- profession = prof,
--- equipLocation = equipLoc,
+-- item has the following fields
+-- itemID
+-- reagents
+-- rarity
+-- link
+-- icon
+-- enchant
+-- expansion
+-- name
+-- profession
+-- equipLocation
 function GuildbookRecipeListviewItemMixin:Init(item)
     self.item = item;
     for _, reagent in pairs(self.reagentIcons) do
@@ -375,9 +441,24 @@ function GuildbookRecipeListviewItemMixin:OnEnter()
         else
             GameTooltip:SetHyperlink(self.item.link)
         end
-        --GameTooltip:AddLine(" ")
-        --GameTooltip:AddLine(gb.Colours.Blue:WrapTextInColorCode(L["REMOVE_RECIPE_FROM_PROF"]))
+        -- GameTooltip:AddLine(" ")
+        -- GameTooltip:AddLine(gb.Colours.Blue:WrapTextInColorCode(L["REMOVE_RECIPE_FROM_PROF"]))
+
+        -- this adds the item table to the tooltip for debugging reasons
+        if GUILDBOOK_GLOBAL.Debug then
+            GameTooltip:AddLine(" ")
+            GameTooltip:AddLine("Guildbook debug:")
+            for k, v in pairs(self.item) do
+                if k ~= "reagents" and k ~= "charactersWithRecipe" then
+                    GameTooltip:AddDoubleLine(k,v)
+                elseif k == "enchant" then
+                    GameTooltip:AddDoubleLine(k, v == true and "true" or "false")
+                end
+            end
+        end
+
         GameTooltip:Show()
+        -- fade the character listview to make the tooltip easier to view/read
         GuildbookUI.tradeskills.tradeskillItemsCharacterListview:SetAlpha(0.3)
     else
         GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
@@ -391,17 +472,50 @@ end
 
 function GuildbookRecipeListviewItemMixin:OnMouseDown(button)
 
+    local index = self:GetOrderIndex();
+
+    -- this is an option for users to remove an item from a tradeskill if its somehow been mixed up
+    -- its not the best option to use however
+    -- if button == "RightButton" then
+    --     local characters = getAllPlayersWithTradeskill(self.item.profession)
+    --     StaticPopup_Show('GuildbookDeleteRecipeFromCharacters', string.format(L["REMOVE_RECIPE_FROM_PROF_SS"], self.item.link, self.item.profession), nil, {
+    --         itemLink = self.item.link,
+    --         characters = characters,
+    --         prof = self.item.profession,
+    --         listviewIndex = index,
+    --         listview = GuildbookUI.tradeskills.tradeskillItemsListview,
+    --     })
+    --     return;
+    -- end
+
+    -- enable the ctrl click to view item
     if IsControlKeyDown() then
         DressUpItemLink(self.item.link)
+
+    -- enable the shift click to link item
     elseif IsShiftKeyDown() then
         HandleModifiedItemClick(self.item.link)
+
+    -- load the characters who can craft the item
     else
         GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Flush()
-        if self.item.charactersWithRecipe then
-            for k, character in ipairs(self.item.charactersWithRecipe) do
-                GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Insert(character)
-            end
+
+        -- we want to show characters who are online first in the list so we need to make a sorting table to enable sorting by offline/online status
+        local charactersWithRecipe = {}
+        local sorting = {}
+        for k, guid in ipairs(self.item.charactersWithRecipe) do
+            table.insert(sorting, {
+                guid = guid,
+                online = gb.onlineZoneInfo[guid].online and 1 or 0,
+            })
         end
+        table.sort(sorting, function(a,b)
+            return a.online > b.online
+        end)
+        for k, character in ipairs(sorting) do
+            table.insert(charactersWithRecipe, character.guid)
+        end
+        GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:InsertTable(charactersWithRecipe)
     end
 
 end
@@ -410,20 +524,16 @@ function GuildbookRecipeListviewItemMixin:OnMouseUp()
 
 end
 
-function GuildbookRecipeListviewItemMixin:ClearReagents()
-    for _, reagent in pairs(self.reagentIcons) do
-        reagent.icon:SetTexture(nil)
-        reagent.greenBorder:Hide()
-        reagent.orangeBorder:Hide()
-        reagent.purpleBorder:Hide()
-        reagent.count:SetText("")
-        reagent.link = nil
-    end
-end
-
-function GuildbookRecipeListviewItemMixin:SetItem(itemID)
-
-end
+-- function GuildbookRecipeListviewItemMixin:ClearReagents()
+--     for _, reagent in pairs(self.reagentIcons) do
+--         reagent.icon:SetTexture(nil)
+--         reagent.greenBorder:Hide()
+--         reagent.orangeBorder:Hide()
+--         reagent.purpleBorder:Hide()
+--         reagent.count:SetText("")
+--         reagent.link = nil
+--     end
+-- end
 
 
 
@@ -474,8 +584,6 @@ GuildbookRosterListviewItemMixin.tooltipIcon.mask:SetSize(50,50)
 GuildbookRosterListviewItemMixin.tooltipIcon.mask:SetPoint("CENTER", 0, 0)
 GuildbookRosterListviewItemMixin.tooltipIcon.mask:SetTexture("Interface/CHARACTERFRAME/TempPortraitAlphaMask", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
 GuildbookRosterListviewItemMixin.tooltipIcon.icon:AddMaskTexture(GuildbookRosterListviewItemMixin.tooltipIcon.mask)
--- GuildbookRosterListviewItemMixin.tooltipBackground = GuildbookRosterListviewItemMixin.tooltipIcon:CreateTexture("GuildbookRosterTooltipBackground", "BACKGROUND")
--- GuildbookRosterListviewItemMixin.tooltipBackground:SetDrawLayer("BACKGROUND", -7)
 
 
 function GuildbookRosterListviewItemMixin:OnEnter()
@@ -487,8 +595,10 @@ function GuildbookRosterListviewItemMixin:OnEnter()
         return;
     end
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-    -- self.tooltipBackground:SetAtlas(string.format("UI-Character-Info-%s-BG", character.Class:sub(1,1):upper()..character.Class:sub(2)))
-    -- self.tooltipBackground:SetAllPoints(GameTooltip)
+
+    -- this was to change the tooltip background
+    --self.tooltipBackground:SetAtlas(string.format("UI-Character-Info-%s-BG", character.Class:sub(1,1):upper()..character.Class:sub(2)))
+
     local rPerc, gPerc, bPerc, argbHex = GetClassColor(character.Class:upper())
     GameTooltip_SetTitle(GameTooltip, character.Name.."\n\n|cffffffff"..L['level'].." "..character.Level, CreateColor(rPerc, gPerc, bPerc), nil)
     if self.tooltipIcon then
@@ -524,16 +634,14 @@ function GuildbookRosterListviewItemMixin:OnEnter()
     end
 
     GameTooltip:AddLine(L["TRADESKILLS"])
-    --local prof1 = character.Profession1Spec and string.format("%s [|cff40C7EB%s|r]", character.Profession1, GetSpellInfo(self.character.Profession1Spec)) or (character.Profession1 and character.Profession1 or "-")
     GameTooltip:AddDoubleLine(formatTradeskill(character.Profession1, character.Profession1Spec), character.Profession1Level or 0, 1,1,1,1, 1,1,1,1)
     -- GameTooltip_ShowStatusBar(GameTooltip, 0, 300, 245)
     -- GameTooltip_ShowProgressBar(GameTooltip, 0, 300, 245)
-    --local prof2 = character.Profession2Spec and string.format("%s [|cff40C7EB%s|r]", character.Profession2, GetSpellInfo(self.character.Profession2Spec)) or (character.Profession2 and character.Profession2 or "-")
     GameTooltip:AddDoubleLine(formatTradeskill(character.Profession2, character.Profession2Spec), character.Profession2Level or 0, 1,1,1,1, 1,1,1,1)
-    -- if self.PublicNote:GetText() and #self.PublicNote:GetText() > 0 then
-    --     GameTooltip:AddLine(" ")
-    --     GameTooltip:AddDoubleLine(L['publicNote'], "|cffffffff"..self.PublicNote:GetText())
-    -- end
+    if character.PublicNote then
+        GameTooltip:AddLine(" ")
+        GameTooltip:AddDoubleLine(L['publicNote'], "|cffffffff"..character.PublicNote)
+    end
 
     if character.MainCharacter and GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][character.MainCharacter] then
         GameTooltip:AddLine(" ")
@@ -589,8 +697,6 @@ function GuildbookRosterListviewItemMixin:OnLeave()
             end
         end
     end
-    -- self.tooltipBackground:SetTexture(nil)
-    -- self.tooltipBackground:ClearAllPoints()
     GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
 end
 
@@ -790,59 +896,6 @@ GuildbookMixin.selectedProfession = nil;
 GuildbookMixin.charactersWithProfession = {}
 GuildbookMixin.playerContainerItems = {}
 
-local function scanPlayerBags()
-    -- player bags
-    for bag = 0, 4 do
-        for slot = 1, GetContainerNumSlots(bag) do
-            local id = select(10, GetContainerItemInfo(bag, slot))
-            local count = select(2, GetContainerItemInfo(bag, slot))
-            if id and count then
-                if not GuildbookUI.playerContainerItems[id] then
-                    GuildbookUI.playerContainerItems[id] = count
-                else
-                    GuildbookUI.playerContainerItems[id] = GuildbookUI.playerContainerItems[id] + count
-                end
-            end
-        end
-    end
-end
-
-local function scanPlayerBanks(scanBags)
-    -- clear all container data if its from the bank
-    wipe(GuildbookMixin.playerContainerItems)
-    -- main bank
-    for slot = 1, 28 do
-        local id = select(10, GetContainerItemInfo(-1, slot))
-        local count = select(2, GetContainerItemInfo(-1, slot))
-        if id and count then
-            if not GuildbookUI.playerContainerItems[id] then
-                GuildbookUI.playerContainerItems[id] = count
-            else
-                GuildbookUI.playerContainerItems[id] = GuildbookUI.playerContainerItems[id] + count
-            end
-        end
-    end
-
-    -- bank bags
-    for bag = 5, 11 do
-        for slot = 1, GetContainerNumSlots(bag) do
-            local id = select(10, GetContainerItemInfo(bag, slot))
-            local count = select(2, GetContainerItemInfo(bag, slot))
-            if id and count then
-                if not GuildbookUI.playerContainerItems[id] then
-                    GuildbookUI.playerContainerItems[id] = count
-                else
-                    GuildbookUI.playerContainerItems[id] = GuildbookUI.playerContainerItems[id] + count
-                end
-            end
-        end
-    end
-
-    if scanBags == true then
-        scanPlayerBags()
-    end
-end
-
 local function navigateTo(frame)
     for _, f in pairs(GuildbookUI.frames) do
         f:Hide()
@@ -862,8 +915,6 @@ end
 
 function GuildbookMixin:OnShow()
     GUILD_NAME = gb:GetGuildName()
-
-    scanPlayerBags()
 
     if GUILDBOOK_CHARACTER.profile and GUILDBOOK_CHARACTER.profile.avatar then
         self.ribbon.myProfile.background:SetTexture(GUILDBOOK_CHARACTER.profile.avatar) 
@@ -911,9 +962,6 @@ function GuildbookMixin:OnLoad()
     self.ribbon.roster.func = function()
         navigateTo(self.roster)
     end
-    -- self.ribbon.mySacks.func = function()
-    --     navigateTo(self.mySacks)
-    -- end
     self.ribbon.privacy.func = function()
         navigateTo(self.privacy)
     end
@@ -931,11 +979,6 @@ function GuildbookMixin:OnLoad()
     end
     self.ribbon.guildbank.func = function()
         navigateTo(self.guildbank)
-        -- gb.GuildFrame.GuildBankFrame:ClearAllPoints()
-        -- gb.GuildFrame.GuildBankFrame:SetParent(self.guildBank)
-        -- gb.GuildFrame.GuildBankFrame:SetPoint("TOPLEFT", 0, -26)
-        -- gb.GuildFrame.GuildBankFrame:SetPoint("BOTTOMRIGHT", -2, 0)
-        -- gb.GuildFrame.GuildBankFrame:Show()
     end
     self.ribbon.search.func = function()
         navigateTo(self.search)
@@ -953,6 +996,8 @@ function GuildbookMixin:OnLoad()
         GuildbookDataShare:Show()
     end
 
+    --self.portraitButton
+
 end
 
 
@@ -960,7 +1005,6 @@ end
 function GuildbookMixin:OnUpdate()
     if self.statusBar.active then
         local complete = 1 - ((self.statusBar.endTime - GetTime()) / self.statusBar.duration)
-        --print(complete)
         self.statusBar:SetValue(complete)
         if complete > 1.0 then
             self.statusBar.active = false;
@@ -978,6 +1022,8 @@ GuildbookAvatarPickerMixin = {}
 function GuildbookAvatarPickerMixin:OnLoad()
     -- 1066622 blank icon
 
+    -- there are lots of duplicates in these textures
+    -- TODO: remove duplicates at some point
     self.avatars = {}
     for i = 1066003, 1066533 do
         table.insert(self.avatars, {
@@ -1095,12 +1141,9 @@ end
     NEVER EVER PERFORM A SORT ON THE Guildbook.tradeskillRecipes - THE ADDON SETS UP A KEY TABLE TO ACCESS ITEMS QUICKER
 ]]
 
---------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- tradeskill mixin
---------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 GuildbookTradeskillsMixin = {}
 
+---filter button data/info table
 local invSlots = {
     { atlas = "transmog-nav-slot-head", tooltip = L["HEAD"], globals = "INVTYPE_HEAD", },
     { atlas = "transmog-nav-slot-shoulder", tooltip = L["SHOULDER"], globals = "INVTYPE_SHOULDER", },
@@ -1114,20 +1157,47 @@ local invSlots = {
     { atlas = "transmog-nav-slot-mainhand", tooltip = L["WEAPONS"], globals = { "INVTYPE_WEAPON", "INVTYPE_2HWEAPON", "INVTYPE_WEAPONMAINHAND", "INVTYPE_RANGED", "INVTYPE_RANGEDRIGHT", "INVTYPE_THROWN", }, },
     { atlas = "transmog-nav-slot-secondaryhand", tooltip = L["OFF_HAND"], globals = { "INVTYPE_WEAPONOFFHAND", "INVTYPE_SHIELD", "INVTYPE_HOLDABLE", }, },
     { atlas = "transmog-nav-slot-enchant", tooltip = L["MISC"], globals = { "INVTYPE_FINGER", "INVTYPE_NECK", "INVTYPE_TRINKET", "INVTYPE_BAG", "INVTYPE_QUIVER", }, },
+	{ atlas = "bags-icon-consumables", tooltip = L["CONSUMABLES"], globals = "CONSUMABLES" },
     { atlas = "transmog-icon-remove", tooltip = "clear", globals = nil },
 }
+
+local function filterConsumables(subType)
+    if gb.tradeskillRecipes then
+        GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Flush()
+        GuildbookUI.tradeskills.filteredItems = nil
+        GuildbookUI.tradeskills.filteredItems = {}
+        for k, item in ipairs(gb.tradeskillRecipes) do
+            if tonumber(item.class) == 0 and tonumber(item.subClass) == subType then
+                table.insert(GuildbookUI.tradeskills.filteredItems, item)
+            end
+        end
+        if GuildbookUI.tradeskills.filteredItems then
+            GuildbookUI.statusText:SetText(string.format("found %s recipes for %s", #GuildbookUI.tradeskills.filteredItems, "consumables"))
+            table.sort(GuildbookUI.tradeskills.filteredItems, function(a,b)
+                if a.rarity == b.rarity then
+                    return a.name < b.name
+                else
+                    return a.rarity > b.rarity
+                end
+            end)
+            GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:InsertTable(GuildbookUI.tradeskills.filteredItems)
+        end
+    end
+end
+
 function GuildbookTradeskillsMixin:OnLoad()
     for _, fs in ipairs(self.ribbon.headers) do
         fs:SetText(L[fs.locale])
     end
 
-    local offset = 240
+    local offset = 215
     for k, slot in ipairs(invSlots) do
 
         local b = CreateFrame("FRAME", nil, self.ribbon, "GuildbookSmallHighlightButton")
         b:SetPoint("LEFT", offset + (30*k), 0)
         b:SetSize(28,28)
         b.t = b:CreateTexture(nil, "BACKGROUND")
+        ---some atlas textures are slightly different size/layout so this is just to get them about the same
         if slot.atlas:find("enchant") then
             b.t:SetPoint("TOPLEFT", -1, 0)
             b.t:SetPoint("TOPRIGHT", 1, 0)
@@ -1136,32 +1206,52 @@ function GuildbookTradeskillsMixin:OnLoad()
             b.t:SetPoint("TOPLEFT", 1, 0)
             b.t:SetPoint("TOPRIGHT", -1, 0)
             b.t:SetPoint("BOTTOMRIGHT", 0, 2)
+        elseif slot.atlas:find("consumables") then
+            b.t:SetPoint("TOPLEFT", -1, 1)
+            b.t:SetPoint("BOTTOMRIGHT", 1, -1)
         else
             b.t:SetAllPoints()
         end
         b.t:SetAtlas(slot.atlas)
 
-        if slot.globals == nil then
+        if slot.globals == "CLEAR_ALL_FILTERS" then
             b.tooltipText = L["TRADESKILL_SLOT_REMOVE"];
             b.func = function()
                 GuildbookMixin.selectedProfession = nil;
-                for _, button in ipairs(GuildbookProfessionListviewMixin.profButtons) do
+                GuildbookUI.tradeskills.filteredItems = {}
+                GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Flush()
+                for _, button in ipairs(GuildbookTradeskillProfessionListview.profButtons) do
                     button.selected:Hide()
                 end
                 if gb.tradeskillRecipes then
                     GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Flush()
                     local i = 1;
-                    -- using a timer here to prevent ui freeze
-                    C_Timer.NewTicker(
-                        0.001,
-                        function ()
-                            if gb.tradeskillRecipes[i] then
-                                GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Insert(gb.tradeskillRecipes[i])
-                                i = i + 1;
-                            end
-                        end,
-                        #gb.tradeskillRecipes
-                    )
+                    GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:InsertTable(gb.tradeskillRecipes)
+                end
+            end
+        elseif slot.globals == "CONSUMABLES" then
+            b.tooltipText = string.format(L["TRADESKILL_SLOT_FILTER_S"], slot.tooltip)
+            b.flyout = GuildbookTradeskillConsumablesDropdown
+            b.flyout:SetParent(b)
+            b.flyout:ClearAllPoints()
+            b.flyout:SetPoint("TOPRIGHT", -5, -5)
+            b.menu = {}
+            for i = 0, 8 do
+                local subClassName = GetItemSubClassInfo(0, i)
+                table.insert(b.menu, {
+                    text = subClassName,
+                    func = function()
+                        filterConsumables(i)
+                    end,
+                })
+            end
+            b.func = function()
+                if b.flyout and b.flyout:IsVisible() then
+                    b.flyout:Hide()
+                end
+                if b.flyout then
+                    b.flyout.delayTimer = 2.0;
+                    b.flyout:Show()
                 end
             end
         else
@@ -1170,9 +1260,10 @@ function GuildbookTradeskillsMixin:OnLoad()
             b.func = function()
                 if gb.tradeskillRecipes then
                     GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Flush()
+                    GuildbookUI.tradeskills.filteredItems = nil
                     GuildbookUI.tradeskills.filteredItems = {}
-                    for k, item in ipairs(gb.tradeskillRecipes) do
-                        if GuildbookMixin.selectedProfession then
+                    if GuildbookMixin.selectedProfession then
+                        for k, item in ipairs(gb.tradeskillRecipes) do
                             if item.profession:lower() == GuildbookMixin.selectedProfession:lower() then
                                 if type(slot.globals) == "table" then
                                     for _, global in ipairs(slot.globals) do
@@ -1186,7 +1277,9 @@ function GuildbookTradeskillsMixin:OnLoad()
                                     end
                                 end
                             end
-                        else
+                        end
+                    else
+                        for k, item in ipairs(gb.tradeskillRecipes) do
                             if type(slot.globals) == "table" then
                                 for _, global in ipairs(slot.globals) do
                                     if item.equipLocation == global then
@@ -1201,6 +1294,7 @@ function GuildbookTradeskillsMixin:OnLoad()
                         end
                     end
                     if GuildbookUI.tradeskills.filteredItems then
+                        GuildbookUI.statusText:SetText(string.format("found %s recipes for %s", #GuildbookUI.tradeskills.filteredItems, slot.tooltip))
                         table.sort(GuildbookUI.tradeskills.filteredItems, function(a,b)
                             if a.expansion == b.expansion then
                                 if a.rarity == b.rarity then
@@ -1212,9 +1306,7 @@ function GuildbookTradeskillsMixin:OnLoad()
                                 return a.expansion > b.expansion
                             end
                         end)
-                        for k, item in ipairs(GuildbookUI.tradeskills.filteredItems) do
-                            GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Insert(item)
-                        end
+                        GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:InsertTable(GuildbookUI.tradeskills.filteredItems)
                     end
                 end
             end
@@ -1228,14 +1320,16 @@ end
 
 
 
+--[[
 
+    this is the listview (although not really as it doesnt scroll) that has the profession buttons (Alchemy, Blacksmith, etc)
 
-GuildbookProfessionListviewMixin = {}
-GuildbookProfessionListviewMixin.recipesProcessed = 0;
-GuildbookProfessionListviewMixin.profButtons = {}
+]]--
 
+GuildbookTradeskillProfessionListview = {}
+GuildbookTradeskillProfessionListview.profButtons = {}
 
-
+---button data/info table
 local professions = {
     { id = 171, Name = 'Alchemy', Atlas = "Mobile-Alchemy", },
     { id = 164, Name = 'Blacksmithing', Atlas = "Mobile-Blacksmithing", },
@@ -1249,118 +1343,7 @@ local professions = {
     { id = 185, Name = 'Cooking', Atlas = "Mobile-Cooking", },
 }
 
----this will process a tradeskill recipeID to acquire the link, rarity and expansion info
----@param t table the table to add processed recipeIDs to
----@param prof string the profession name currently being accesed
----@param recipeID number the recipe ID to add
----@param reagents table the reagents data for the recipe ID
-function GuildbookProfessionListviewMixin:AddRecipe(t, prof, recipeID, reagents)
-    local _link = false;
-    local _rarity = false;
-    local _enchant = false;
-    local _name = false;
-    local _expansion = 0;
-
-    --- this will work up to MoP, we can create our own table if/when classic gets to WoD, or maybe speak to Thaoky *very* nicely
-    local _, spellID = LCI:GetItemSource(recipeID)
-    if spellID then
-        _expansion = LCI:GetCraftXPack(spellID)
-    end
-    --print(recipeID, spellID, _expansion, _link)
-
-    if prof == 'Enchanting' then
-        _link = select(1, GetSpellLink(recipeID))
-        _rarity = select(3, GetItemInfo(_link)) or 1
-        _name = select(1, GetSpellInfo(recipeID)) or 'unknown'
-        _enchant = true
-        --print(_link, _name)
-    else
-        _link = select(2, GetItemInfo(recipeID))
-        _rarity = select(3, GetItemInfo(recipeID))
-        _name = select(1, GetItemInfo(recipeID))
-    end
-    if not _link and not _rarity and not _name then
-        --print('no link')
-        GuildbookProfessionListviewMixin.recipesProcessed = GuildbookProfessionListviewMixin.recipesProcessed + 1;
-        if prof == 'Enchanting' then                    
-            local spell = Spell:CreateFromSpellID(recipeID)
-            spell:ContinueOnSpellLoad(function()
-                _link = select(1, GetSpellLink(recipeID))
-                _name = select(1, GetSpellInfo(recipeID)) or 'unknown'
-                _rarity =  1
-                _enchant = true
-                table.insert(t, {
-                    itemID = recipeID,
-                    reagents = reagents,
-                    rarity = _rarity,
-                    link = _link,
-                    expsanion = _expansion;
-                    enchant = _enchant,
-                    name = _name,
-                    selected = false,
-                })
-                GuildbookProfessionListviewMixin.recipesProcessed = GuildbookProfessionListviewMixin.recipesProcessed - 1;
-                -- if GuildbookProfessionListviewMixin.recipesProcessed == 0 then
-                --     GuildbookUI.tradeskills.recipesListview:LoadRecipes()
-                -- end
-            end)
-        else
-            local item = Item:CreateFromItemID(recipeID)
-            item:ContinueOnItemLoad(function()
-                _link = item:GetItemLink()
-                _rarity = item:GetItemQuality()
-                _name = item:GetItemName()
-                _enchant = false
-                table.insert(t, {
-                    itemID = recipeID,
-                    reagents = reagents,
-                    rarity = _rarity,
-                    link = _link,
-                    expansion = _expansion;
-                    enchant = _enchant,
-                    name = _name,
-                    selected = false,
-                })
-                GuildbookProfessionListviewMixin.recipesProcessed = GuildbookProfessionListviewMixin.recipesProcessed - 1;
-                -- if GuildbookProfessionListviewMixin.recipesProcessed == 0 then
-                --     GuildbookUI.tradeskills.recipesListview:LoadRecipes()
-                -- end
-            end)
-        end
-    else
-        table.insert(t, {
-            itemID = recipeID,
-            reagents = reagents,
-            rarity = _rarity,
-            link = _link,
-            enchant = _enchant,
-            expansion = _expansion;
-            name = _name,
-            selected = false,
-        })
-        --GuildbookProfessionListviewMixin.recipesProcessed = GuildbookProfessionListviewMixin.recipesProcessed - 1;
-        -- if GuildbookProfessionListviewMixin.recipesProcessed == 0 then
-        --     GuildbookUI.tradeskills.recipesListview:LoadRecipes()
-        -- end
-    end
-    if GuildbookProfessionListviewMixin.recipesProcessed == 0 then
---        GuildbookUI.tradeskills.recipesListview:LoadRecipes()
-    end
-end
-
--- itemID = recipeID,
--- reagents = reagents,
--- rarity = r,
--- link = l,
--- icon = ic,
--- enchant = e,
--- expansion = x;
--- name = n,
--- profession = prof,
--- equipLocation = equipLoc,
-
-
-function GuildbookProfessionListviewMixin:OnLoad()
+function GuildbookTradeskillProfessionListview:OnLoad()
     for i, prof in ipairs(professions) do
         local f = CreateFrame("FRAME", "GuildbookUiProfessionListview"..i, self, "GuildbookListviewItem")
         f:SetSize(175, 40)
@@ -1376,6 +1359,7 @@ function GuildbookProfessionListviewMixin:OnLoad()
             GuildbookMixin.selectedProfession = prof.Name
             if gb.tradeskillRecipes then
                 GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Flush()
+                GuildbookUI.tradeskills.filteredItems = nil
                 GuildbookUI.tradeskills.filteredItems = {}
                 for k, item in ipairs(gb.tradeskillRecipes) do
                     if item.profession:lower() == prof.Name:lower() then
@@ -1383,6 +1367,7 @@ function GuildbookProfessionListviewMixin:OnLoad()
                     end
                 end
                 if GuildbookUI.tradeskills.filteredItems then
+                    GuildbookUI.statusText:SetText(string.format("found %s recipes for %s", #GuildbookUI.tradeskills.filteredItems, prof.Name))
                     table.sort(GuildbookUI.tradeskills.filteredItems, function(a,b)
                         if a.expansion == b.expansion then
                             if a.rarity == b.rarity then
@@ -1394,323 +1379,39 @@ function GuildbookProfessionListviewMixin:OnLoad()
                             return a.expansion > b.expansion
                         end
                     end)
-                    for k, item in ipairs(GuildbookUI.tradeskills.filteredItems) do
-                        GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Insert(item)
-                    end
+                    GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:InsertTable(GuildbookUI.tradeskills.filteredItems)
                 end
             end
 
+            -- get characters with prof then sort by online status
             local charactersWithProf = getAllPlayersWithTradeskill(prof.Name)
-            if charactersWithProf then
-                GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Flush()
-                for k, guid in ipairs(charactersWithProf) do
-                    GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Insert(guid)
-                end
+            local sorting = {}
+            for k, guid in ipairs(charactersWithProf) do
+                table.insert(sorting, {
+                    guid = guid,
+                    name = gb:GetCharacterFromCache(guid).Name,
+                    online = gb.onlineZoneInfo[guid].online and 1 or 0,
+                })
             end
+            table.sort(sorting, function(a,b)
+                if a.online == b.online then
+                    return a.name < b.name;
+                else
+                    return a.online > b.online;
+                end
+            end)
+            wipe(charactersWithProf)
+            for k, character in ipairs(sorting) do
+                table.insert(charactersWithProf, character.guid)
+            end
+            GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Flush()
+            GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:InsertTable(charactersWithProf)
         end
-
-
-
-        -- f.func = function()
-        --     if GUILD_NAME then
-        --         wipe(GuildbookMixin.charactersWithProfession)
-        --         GuildbookProfessionListviewMixin.recipesProcessed = 0;
-        --         GuildbookMixin.selectedProfession = prof.Name;
-        --         for guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME]) do
-        --             if character.Profession1 and character.Profession1 == prof.Name then
-        --                 table.insert(GuildbookMixin.charactersWithProfession, guid)
-        --                 --print("found", character.Name, "with prof", prof.Name)
-        --             elseif character.Profession2 and character.Profession2 == prof.Name then
-        --                 table.insert(GuildbookMixin.charactersWithProfession, guid)
-        --                 --print("found", character.Name, "with prof", prof.Name)
-        --             elseif character.Cooking and type(character.Cooking) == "table" then
-        --                 table.insert(GuildbookMixin.charactersWithProfession, guid)
-        --             end
-        --         end
-        --         scanPlayerBags()
-        --         if #GuildbookMixin.charactersWithProfession > 0 then
-        --             GuildbookUI.tradeskills.recipesListview.spinner:Hide()
-        --             GuildbookUI.tradeskills.recipesListview.anim:Stop()
-        --             GuildbookUI.tradeskills.recipesListview.spinner:Show()
-        --             GuildbookUI.tradeskills.recipesListview.anim:Play()
-        --             local delay = 0.05 -- adjust this value if recipes appear to be missing, bigger delay for better recipe loading, smaller for quicker results
-        --             wipe(GuildbookUI.tradeskills.recipesListview.recipes)
-        --             GuildbookRecipesListviewMixin:ClearRows()
-        --             local recipes = {}
-        --             local i = 1;
-        --             C_Timer.NewTicker(delay, function()
-        --                 local character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][GuildbookMixin.charactersWithProfession[i]]
-        --                 if character[prof.Name]  then
-        --                     for itemID, reagents in pairs(character[prof.Name]) do
-        --                         if not recipes[itemID] then
-        --                             recipes[itemID] = true;
-        --                             self:AddRecipe(GuildbookUI.tradeskills.recipesListview.recipes, prof.Name, itemID, reagents)
-        --                         end
-        --                     end
-        --                 else
-        --                     --print("prof not found in character table")
-        --                 end
-        --                 i = i + 1;
-        --             end, #GuildbookMixin.charactersWithProfession)
-        --             C_Timer.After(delay * (#GuildbookMixin.charactersWithProfession + 0.1), function()
-        --                 GuildbookUI.tradeskills.recipesListview:LoadRecipes(string.format("%s [%s]", L["TRADESKILL_GUILD_RECIPES"], gb:GetLocaleProf(prof.Name)))
-        --             end)
-        --         end
-        --     end
-        -- end
-
-
-
         self.profButtons[i] = f
     end
 end
 
-function GuildbookProfessionListviewMixin:OnShow()
-
-end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
---------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- tradeskill recipes listview
---------------------------------------------------------------------------------------------------------------------------------------------------------------------
-GuildbookRecipesListviewMixin = {}
-GuildbookRecipesListviewMixin.rows = {}
-GuildbookRecipesListviewMixin.recipes = {}
-GuildbookRecipesListviewMixin.selectedRecipeLink = nil;
-GuildbookRecipesListviewMixin.searchResultRecipeID = nil;
-local NUM_RECIPE_ROWS = 17
-
-
-function GuildbookRecipesListviewMixin:OnLoad()
-    for row = 1, NUM_RECIPE_ROWS do
-        local f = CreateFrame("FRAME", "GuildbookUiRecipesListview"..row, self, "GuildbookRecipeListviewItem")
-        f:SetSize(480, 24)
-        local x = ((row-17) *-1) * 0.025
-        f.anim.fadeIn:SetStartDelay((x^x)) -- - 0.68)
-        f:SetPoint("TOPLEFT", 5, ((row - 1) * -24) - 2)
-        -- for _, reagent in ipairs(f.reagentIcons) do
-        --     local _, size, flags = reagent.count:GetFont()
-        --     --reagent.count:SetFont([[Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf]], 14, flags)
-        -- end
-        -- f.GetCharactersWithRecipe = getPlayersWithRecipe;
-        -- f.func = function()
-        --     if f.model then
-        --         local s = f.model.selected;
-        --         self:ClearSelected()
-        --         f.model.selected = not s;
-        --         if f.model.selected == true then
-        --             f.Selected:Show()
-        --             GuildbookRecipesListviewMixin.selectedRecipeLink = f.link;
-        --         end
-        --     end
-        --     local characters = getPlayersWithRecipe(f.itemID)
-        --     GuildbookCharactersListviewMixin:ClearRows()
-        --     if characters and next(characters) ~= nil then
-        --         GuildbookCharactersListviewMixin.characters = characters;
-        --         GuildbookUI.tradeskills.charactersListview.scrollBar:SetMinMaxValues(1, (#characters > 9 and #characters or 1))
-        --         for k, character in ipairs(characters) do
-        --             if k < 10 then
-        --                 GuildbookCharactersListviewMixin.rows[k]:SetCharacter(character, f.link)
-        --             end
-        --         end
-        --     end
-        -- end
-        self.rows[row] = f
-    end
-    self.scrollBar:SetValueStep(1)
-    self.scrollBar:SetMinMaxValues(1,1)
-end
-
-function GuildbookRecipesListviewMixin:ClearSelected()
-    if self.recipes and next(self.recipes) then
-        for _, recipe in ipairs(self.recipes) do
-            recipe.selected = false;
-        end
-    end
-    for _, row in ipairs(self.rows) do
-        row.Selected:Hide()
-    end
-end
-
----used to clear/hide the recipes listview while waiting for new list to load
-function GuildbookRecipesListviewMixin:ClearRows()
-    for _, row in ipairs(self.rows) do
-        row.Text:SetText("")
-        row.link = nil;
-        row.enchant = nil;
-        row.itemID = nil;
-        row:ClearReagents()
-        row:SetAlpha(0)
-    end
-end
-
-function GuildbookRecipesListviewMixin:RemoveRecipe(recipeID)
-    if self.recipes then
-        local key = false;
-        for k, v in ipairs(self.recipes) do
-            if v.itemID == recipeID then
-                key = k;
-            end
-        end
-        if key then
-            table.remove(self.recipes, key) -- not the greatest way to do this but as its only a minor feature for players to fix their recipes it should be ok
-        end
-    end
-    local scrollPos = math.floor(self.scrollBar:GetValue())
-    self.scrollBar:SetMinMaxValues(1, 2)
-    self.scrollBar:SetValue(2)
-    self.scrollBar:SetValue(1)
-    self.scrollBar:SetMinMaxValues(1,(#self.recipes>NUM_RECIPE_ROWS) and #self.recipes-(NUM_RECIPE_ROWS-1) or 1)
-    self.scrollBar:SetValue(scrollPos)
-end
-
-function GuildbookRecipesListviewMixin:LoadRecipes(infoMessage, showShareCharacterButton)
-    if infoMessage then
-        self:GetParent().ribbon.recipeListviewInfo:SetText(infoMessage)
-    else
-        self:GetParent().ribbon.recipeListviewInfo:SetText(" ")
-    end
-    if not showShareCharacterButton then
-        self:GetParent().ribbon.shareCharactersRecipes:Hide()
-    else
-        --self:GetParent().ribbon.shareCharactersRecipes:Show()
-    end
-    if self.recipes and next(self.recipes) then
-        table.sort(self.recipes, function(a,b)
-            if a.expansion == b.expansion then
-                if a.rarity == b.rarity then
-                    return a.name < b.name
-                else
-                    return a.rarity > b.rarity;
-                end
-            else
-                return a.expansion > b.expansion;
-            end
-        end)
-        --C_Timer.After(0.01, function()
-            for i = 1, NUM_RECIPE_ROWS do
-                if self.recipes[i] then
-                    self.rows[i].model = self.recipes[i]
-                    if self.recipes[i].selected == true then
-                        self.rows[i].Selected:Show()
-                    else
-                        self.rows[i].Selected:Hide()
-                    end
-                    self.rows[i].Text:SetText(self.recipes[i].link)
-                    self.rows[i].enchant = self.recipes[i].enchant;
-                    self.rows[i].itemID = self.recipes[i].itemID;
-                    self.rows[i].link = self.recipes[i].link;
-                    self.rows[i]:ClearReagents()
-                    local j = 1;
-                    for reagentID, count in pairs(self.recipes[i].reagents) do
-                        if self.rows[i].reagentIcons[j] then
-                            if GuildbookUI.playerContainerItems[reagentID] then
-                                if GuildbookUI.playerContainerItems[reagentID] >= count then
-                                    self.rows[i].reagentIcons[j].greenBorder:Show()
-                                elseif GuildbookUI.playerContainerItems[reagentID] < count then
-                                    self.rows[i].reagentIcons[j].purpleBorder:Show()
-                                end
-                            else
-                                self.rows[i].reagentIcons[j].orangeBorder:Show()
-                            end
-                            self.rows[i].reagentIcons[j]:SetItem(reagentID)
-                            self.rows[i].reagentIcons[j].count:SetText(count)
-                            j = j + 1;
-                        end
-                    end
-                    self.rows[i].anim:Play()
-                end
-                if i == NUM_RECIPE_ROWS then
-                    C_Timer.After(0.75, function()
-                        self.spinner:Hide()
-                        self.anim:Stop()
-                    end)
-                end
-            end
-        --end)
-        self.scrollBar:SetMinMaxValues(1,(#self.recipes>NUM_RECIPE_ROWS) and #self.recipes-(NUM_RECIPE_ROWS-1) or 1)
-        self.scrollBar:SetValue(1)
-    end
-    --this bit just scrolls to the search for recipe
-    C_Timer.After(0.8, function()
-        if self.searchResultRecipeID then
-            local key = 1;
-            for k, recipe in ipairs(self.recipes) do
-                if recipe.name == self.searchResultRecipeID then
-                    key = k
-                end
-            end
-            local i = 1;
-            C_Timer.NewTicker(0.005, function()
-                self.scrollBar:SetValue(i)
-                i = i + 1;
-                if i > key then
-    
-                end
-            end, key)
-        end
-    end)
-end
-
-function GuildbookRecipesListviewMixin:ScrollBar_OnValueChanged()
-    if #self.recipes > 0 then
-        local scrollPos = math.floor(self.scrollBar:GetValue()) - 1;
-        for row = 1, NUM_RECIPE_ROWS do
-            if self.recipes[scrollPos + row] then
-                self.rows[row].model = self.recipes[scrollPos + row]
-                if self.recipes[scrollPos + row].selected == true then
-                    self.rows[row].Selected:Show()
-                else
-                    self.rows[row].Selected:Hide()
-                end
-                self.rows[row].Text:SetText(self.recipes[scrollPos + row].link)
-                self.rows[row].enchant = self.recipes[scrollPos + row].enchant;
-                self.rows[row].itemID = self.recipes[scrollPos + row].itemID;
-                self.rows[row].link = self.recipes[scrollPos + row].link;
-                self.rows[row]:ClearReagents()
-                local i = 1;
-                for reagentID, count in pairs(self.recipes[scrollPos + row].reagents) do
-                    if self.rows[row].reagentIcons[i] then
-                        if GuildbookUI.playerContainerItems[reagentID] then
-                            if GuildbookUI.playerContainerItems[reagentID] >= count then
-                                self.rows[row].reagentIcons[i].greenBorder:Show()
-                            elseif GuildbookUI.playerContainerItems[reagentID] < count then
-                                self.rows[row].reagentIcons[i].purpleBorder:Show()
-                            end
-                        else
-                            self.rows[row].reagentIcons[i].orangeBorder:Show()
-                        end
-                        self.rows[row].reagentIcons[i]:SetItem(reagentID)
-                        self.rows[row].reagentIcons[i].count:SetText(count)
-                        i = i + 1;
-                    end
-                end
-            end
-        end
-    end
-end
 
-function GuildbookRecipesListviewMixin:OnMouseWheel(delta)
-    local x = self.scrollBar:GetValue()
-    self.scrollBar:SetValue(x - delta)
-end
 
 
 
@@ -1730,73 +1431,11 @@ end
 
 
 
---------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- tradeskill characters listview
---------------------------------------------------------------------------------------------------------------------------------------------------------------------
-GuildbookCharactersListviewMixin = {}
-GuildbookCharactersListviewMixin.rows = {}
-GuildbookCharactersListviewMixin.characters = {}
 
-function GuildbookCharactersListviewMixin:OnLoad()
-    for i = 1, 9 do
-        local f = CreateFrame("FRAME", "GuildbookUiCharactersListview"..i, self, "GuildbookCharacterListviewItem")
-        f:SetPoint("TOP", 0, ((i-1)*-45)-2)
-        f:SetSize(195, 45)
 
-        GuildbookCharactersListviewMixin.rows[i] = f;
-    end
-end
 
 
-function GuildbookCharactersListviewMixin:ClearRows()
-    for _, row in ipairs(self.rows) do
-        row:ClearCharacter()
-    end
-end
-
-
-function GuildbookCharactersListviewMixin:ScrollBar_OnValueChanged()
-    if self.characters and #self.characters > 0 then
-        local scrollPos = math.floor(self.scrollBar:GetValue()) - 1;
-        for i = 1, 9 do
-            self.rows[i]:SetCharacter(self.characters[i + scrollPos], GuildbookRecipesListviewMixin.selectedRecipeLink)
-        end
-    end
-end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+--TODO: consider updated this to the new listbox widget ?
 
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -3497,7 +3136,7 @@ function GuildbookProfilesMixin:LoadStats()
                             local def = self.character.PaperDollStats[stat.key].Base + self.character.PaperDollStats[stat.key].Mod
                             f[stat.key]:SetText(def)
                         elseif (stat.key):find("ManaRegen") then
-                            f[stat.key]:SetText(gb:TrimNumber(self.character.PaperDollStats[stat.key] * 5))
+                            f[stat.key]:SetText(gb:FormatNumberForCharacterStats(self.character.PaperDollStats[stat.key] * 5))
                         else
                             f[stat.key]:SetText(self.character.PaperDollStats[stat.key])
                         end
@@ -3687,279 +3326,6 @@ end
 
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- my sacks (old addon being merged, or just removed at some point)
---------------------------------------------------------------------------------------------------------------------------------------------------------------------
-GuildbookMySacksListviewItemMixin = {}
-
-function GuildbookMySacksListviewItemMixin:UpdateItem()
-    if self.item and self.item.itemID then
-        self.Icon:SetTexture(self.item.icon)
-        self.Link:SetText(self.item.link)
-        self.Count:SetText(self.item.count)
-        self.Type:SetText(self.item.itemType)
-        self.SubType:SetText(self.item.itemSubtype)
-
-        for k, icon in ipairs(self.characterIcons) do
-            icon:Hide()
-        end
-        
-        local i = 1;
-        for k, v in ipairs(self.item.characters) do
-            if GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME] and GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][v.guid] then
-                local character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][v.guid]
-                if character and character.profile and character.profile.avatar then
-                    self["character"..i].background:SetTexture(character.profile.avatar)                  
-                else
-                    self["character"..i].background:SetAtlas(string.format("raceicon-%s-%s", character.Race, character.Gender))
-                end
-                self["character"..i].tooltipText = string.format("%s |cffffffff%s", gb.Data.Class[character.Class].FontColour..character.Name, v.count)
-                self["character"..i]:Show()
-                i = i + 1;
-            end
-        end
-
-        self.tooltip.link = self.item.link
-    end
-end
-
-
-function GuildbookMySacksListviewItemMixin:OnEnter()
-
-end
-
-function GuildbookMySacksListviewItemMixin:OnLeave()
-    GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-end
-
-GuildbookMySacksMixin = {}
-GuildbookMySacksMixin.rows ={}
-GuildbookMySacksMixin.items = {}
-GuildbookMySacksMixin.processed = {}
-
-function GuildbookMySacksMixin:OnLoad()
-    for i = 1, 14 do
-        local f = CreateFrame("FRAME", "GuildbookUiMySacksListview"..i, self.listview, "GuildbookMySacksListviewItem")
-        f:SetPoint("TOPLEFT", 5, ((i-1)*-30)-2)
-        f:SetSize(880, 30)
-
-        local x = ((i-14) *-1) * 0.025
-        f.anim.fadeIn:SetStartDelay((x^x)) -- - 0.68)
-        self.rows[i] = f;
-    end
-end
-
-function GuildbookMySacksMixin:OnMouseWheel(delta)
-    local x = self.listview.scrollBar:GetValue()
-    self.listview.scrollBar:SetValue(x - delta)
-end
-
-function GuildbookMySacksMixin:ScrollBar_OnValueChanged()
-    if #self.items > 0 then
-        local scrollPos = math.floor(self.listview.scrollBar:GetValue()) - 1;
-        for row = 1, 14 do
-            if self.items[scrollPos + row] then
-                self.rows[row].item = self.items[scrollPos + row]
-                self.rows[row]:UpdateItem()
-            end
-        end
-    end
-end
-
-local BAG_PROCESS_DELAY = 0.15;
-local function processContainers(t, db, location)
-    local guids = {};
-    for guid, items in pairs(t) do
-        table.insert(guids, guid)
-    end
-    local i = 1;
-    C_Timer.NewTicker(BAG_PROCESS_DELAY, function()
-        if not gb.PlayerMixin then
-            gb.PlayerMixin = PlayerLocation:CreateFromGUID(guids[i])
-        else
-            gb.PlayerMixin:SetGUID(guids[i])
-        end
-        if gb.PlayerMixin:IsValid() then
-            local name = C_PlayerInfo.GetName(gb.PlayerMixin)
-            if not name then
-                return
-            end
-            name = Ambiguate(name, 'none')
-            GuildbookUI.statusText:SetText("processing container items for "..name)
-            for itemID, info in pairs(t[guids[i]]) do
-                if not GuildbookMySacksMixin.processed[itemID] then
-                    local iType = select(2, GetItemInfoInstant(itemID))
-                    local iSubType = select(3, GetItemInfoInstant(itemID))
-                    local s = info.link:find("|h")
-                    local e = info.link:find("|h", s+1)
-                    table.insert(db, {
-                        itemID = itemID,
-                        itemType = iType,
-                        itemSubtype = iSubType,
-                        itemName = info.link:sub(s,e),
-                        icon = info.icon,
-                        count = info.count,
-                        link = info.link,
-                        quality = info.quality,
-                        characters = {
-                            { 
-                                guid = guids[i], 
-                                name = name, 
-                                count = info.count,
-                                location = location,
-                            },
-                        }
-                    })
-                    GuildbookMySacksMixin.processed[itemID] = true
-                else
-                    for k,v in ipairs(db) do
-                        if v.itemID == itemID then
-                            v.count = v.count + info.count;
-                            local exists = false
-                            for _, c in ipairs(v.characters) do
-                                if c.guid == guids[i] then
-                                    c.count = c.count + info.count;
-                                    exists = true
-                                end
-                            end
-                            if exists == false then
-                                table.insert(v.characters, {
-                                    guid = guids[i],
-                                    name = name,
-                                    count = info.count,
-                                    location = location,
-                                })
-                            end
-                        end
-                    end
-                end
-            end
-        end
-        i = i + 1;
-    end, #guids)
-
-    return #guids * BAG_PROCESS_DELAY;
-end
-
-function GuildbookMySacksMixin:OnHide()
-    for row = 1, 14 do
-        if self.items[row] then
-            self.rows[row]:SetAlpha(0)
-        end
-    end
-end
-
-function GuildbookMySacksMixin:OnShow()
-    if not GUILDBOOK_GLOBAL then
-        return;
-    end
-    if not GUILDBOOK_GLOBAL.MySacks then
-        return;
-    end
-    gb:ScanPlayerBags()
-
-    wipe(self.items)
-    wipe(self.processed)
-
-    local delay = processContainers(GUILDBOOK_GLOBAL.MySacks.Bags, self.items, "BAGS")
-
-    C_Timer.After(delay, function()
-        if GUILDBOOK_GLOBAL.MySacks.Banks and next(GUILDBOOK_GLOBAL.MySacks.Banks) then
-            local delay2 = processContainers(GUILDBOOK_GLOBAL.MySacks.Banks, self.items, "BANK")
-            C_Timer.After(delay2, function()
-                if #self.items > 0 then
-                    table.sort(self.items, function(a,b)
-                        if a.itemType == b.itemType then
-                            if a.itemSubtype == b.itemSubtype then
-                                if a.quality == b.quality then
-                                    return a.itemName < b.itemName
-                                else
-                                    return a.quality > b.quality;
-                                end
-                            else
-                                return a.itemSubtype < b.itemSubtype;
-                            end
-                        else
-                            return a.itemType < b.itemType;
-                        end
-                    end)
-                end            
-                self.listview.scrollBar:SetMinMaxValues(1, (#self.items-13 > 0 and #self.items - 13 or 1))        
-                for row = 1, 14 do
-                    if self.items[row] then
-                        self.rows[row].item = self.items[row]
-                        self.rows[row]:UpdateItem()
-                        self.rows[row].anim:Play()
-                    end
-                end
-            end)
-        else
-            if #self.items > 0 then
-                table.sort(self.items, function(a,b)
-                    if a.itemType == b.itemType then
-                        if a.itemSubtype == b.itemSubtype then
-                            if a.quality == b.quality then
-                                return a.link < b.link
-                            else
-                                return a.quality > b.quality;
-                            end
-                        else
-                            return a.itemSubtype < b.itemSubtype;
-                        end
-                    else
-                        return a.itemType < b.itemType;
-                    end
-                end)
-            end            
-            self.listview.scrollBar:SetMinMaxValues(1, #self.items-13)        
-            for row = 1, 14 do
-                if self.items[row] then
-                    self.rows[row].item = self.items[row]
-                    self.rows[row]:UpdateItem()
-                    self.rows[row].anim:Play()
-                end
-            end
-        end
-    end)
-
-
-end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- search
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 GuildbookSearchMixin = {}
@@ -4102,13 +3468,6 @@ function GuildbookSearchMixin:Search(term)
                     iconType = "fileID",
                     info = string.format("%s %s %s %s; %s %s", (itemType and itemType or ""), (itemSubType and itemSubType or ""), "ItemID:", recipe.itemID, "Source:", recipe.profession),
                     func = function()
-                        -- for k, but in ipairs(GuildbookProfessionListviewMixin.profButtons) do
-                        --     if but.tradeskill:lower() == recipe.profession:lower() then
-                        --         GuildbookUI.tradeskills.recipesListview.searchResultRecipeID = recipe.name
-                        --         navigateTo(GuildbookUI.tradeskills)
-                        --         but.func()
-                        --     end
-                        -- end
                         if gb.tradeskillRecipes then
                             GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Flush()
                             GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Insert(recipe)
@@ -4631,359 +3990,34 @@ end
 -- guild bank
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 GuildbookGuildBankMixin = {}
-GuildbookGuildBankMixin.rows = {}
-GuildbookGuildBankMixin.items = {}
-GuildbookGuildBankMixin.listviewItems = {}
-GuildbookGuildBankMixin.sortOrder = true;
-GuildbookGuildBankMixin.sort = "Class";
-GuildbookGuildBankMixin.filter = nil;
 
 function GuildbookGuildBankMixin:OnLoad()
     
-    for i = 1, 14 do
-        local f = CreateFrame("FRAME", nil, self.listview, "GuildbookGuildBankListviewItem")
-        f:SetPoint("TOPLEFT", 5, ((i-1)*-30)-2)
-        f:SetSize(880, 30)
+    -- for i = 1, 14 do
+    --     local f = CreateFrame("FRAME", nil, self.listview, "GuildbookGuildBankListviewItem")
+    --     f:SetPoint("TOPLEFT", 5, ((i-1)*-30)-2)
+    --     f:SetSize(880, 30)
 
-        self.rows[i] = f
-    end
+    --     self.rows[i] = f
+    -- end
 
     self.item:SetText(L["GUILDBANK_HEADER_ITEM"])
     self.count:SetText(L["GUILDBANK_HEADER_COUNT"])
-    self.subType:SetText(L["GUILDBANK_HEADER_SUBTYPE"])
 
     self.buttonDropdownMenus = {
-        Bank = {},
-        Type = {},
+        characters = {},
+        itemTypes = {},
+        itemSubTypes = {}
     }
 
-    self.sortType.menu = self.buttonDropdownMenus.Type
-    self.sortBank.menu = self.buttonDropdownMenus.Bank
-
-    self.refresh:SetText("|cffffffff"..L["GUILDBANK_REFRESH"])
-    self.refresh:SetScript("OnClick", function()
-        self.refresh:Disable()
-        C_Timer.After(20, function()
-            self.refresh:Enable()
-        end)
-        self:RequestBankData()
-    end)
+    self.sortType.menu = self.buttonDropdownMenus.itemType
+    self.sortSubType.menu = self.buttonDropdownMenus.itemSubType
+    self.sortCharacter.menu = self.buttonDropdownMenus.characters
 
 end
 
 function GuildbookGuildBankMixin:OnShow()
-    -- dont always spam chat comms when showing
-    if #self.items == 0 then
-        self:RequestBankData()
-    end
-end
 
-function GuildbookGuildBankMixin:RequestBankData()
-    self:ClearRows()
-    wipe(self.buttonDropdownMenus.Type)
-    wipe(self.buttonDropdownMenus.Bank)
-    self.listview.spinner:Show()
-    self.listview.commits:Show()
-    self.listview.data:Show()
-    self.listview.anim:Play()
-    --GuildRoster()
-    local guildBankCharacters = {}
-    local totalMembers, onlineMembers, _ = GetNumGuildMembers()
-    table.insert(self.buttonDropdownMenus.Bank, {
-        text = L["GUILDBANK_ALL_BANKS"],
-        func = function()
-            self.filter = nil;
-            self.sort = "Bank";
-            self:SortListview()
-            
-        end,
-    })
-    for i = 1, totalMembers do
-        local name, _, _, _, _, _, publicNote, _, isOnline, _, _, _, _, _, _, _, guid = GetGuildRosterInfo(i)
-        if publicNote:lower():find('guildbank') then
-            name = Ambiguate(name, 'none')
-            table.insert(guildBankCharacters, name)
-            table.insert(self.buttonDropdownMenus.Bank, {
-                text = name,
-                func = function()
-                    self.filter = name
-                    self.sort = "Bank";
-                    self:SortListview()
-
-                end,
-            })
-        end
-    end
-
-    local commitsText, dataText = "", ""
-    self.listview.commits:SetText(commitsText)
-    self.listview.data:SetText(dataText)
-    local delay = 2.0
-    local idx = 2
-    if guildBankCharacters and #guildBankCharacters > 0 then
-
-        --remove old banks
-        if GUILDBOOK_GLOBAL.GuildBank then
-            for bank, info in pairs(GUILDBOOK_GLOBAL.GuildBank) do
-                local exists = false
-                for _, b in ipairs(guildBankCharacters) do
-                    if b == bank then
-                        exists = true
-                    end
-                end
-                if exists == false then
-                    GUILDBOOK_GLOBAL.GuildBank[bank] = nil
-                end
-            end
-        end
-
-        -- fire off the first request
-        local bank = guildBankCharacters[1]
-        gb:RequestGuildBankCommits(bank)
-        commitsText = commitsText..L["GUILDBANK_REQUEST_COMMITS"]..bank.."\n"
-        self.listview.commits:SetText(commitsText)
-
-        C_Timer.After(1.25, function()
-            if gb.BankCharacters[bank].Source then
-                gb:RequestGuildBankItems(gb.BankCharacters[bank].Source, bank)
-                dataText = dataText..L["GUILDBANK_REQUEST_INFO"]..gb.BankCharacters[bank].Source.." ["..bank.."]\n"
-                self.listview.data:SetText(dataText)
-            end
-        end)
-
-        -- stagger any extra requests
-        if #guildBankCharacters > 1 then
-            C_Timer.NewTicker(delay, function()
-                if guildBankCharacters[idx]then
-                    local bank = guildBankCharacters[idx]
-
-                    gb.BankRequests = {}
-                    gb:RequestGuildBankCommits(bank)
-                    commitsText = commitsText..L["GUILDBANK_REQUEST_COMMITS"]..bank.."\n"
-                    self.listview.commits:SetText(commitsText)
-
-                    C_Timer.After(1.25, function()
-                        if gb.BankCharacters[bank].Source then
-                            gb:RequestGuildBankItems(gb.BankCharacters[bank].Source, bank)
-                            dataText = dataText..L["GUILDBANK_REQUEST_INFO"]..gb.BankCharacters[bank].Source.." ["..bank.."]\n"
-                            self.listview.data:SetText(dataText)
-                        end
-                    end)
-                    idx = idx + 1;
-                end
-            end, #guildBankCharacters - 1)
-        end
-
-        C_Timer.After((delay * #guildBankCharacters) + 1.0, function()
-            self:RequestBankItemInfo()
-        end)
-    end
-end
-
-function GuildbookGuildBankMixin:RequestBankItemInfo()
-    local itemCount = 0;
-    if GUILDBOOK_GLOBAL.GuildBank then
-        for bank, info in pairs(GUILDBOOK_GLOBAL.GuildBank) do
-            for itemID, count in pairs(info.Data) do
-                itemCount = itemCount + 1;
-            end
-            itemCount = itemCount + 1;
-        end
-    end
-    self.items = {}
-    local itemTypes = {}
-    local i = 0;
-    if GUILDBOOK_GLOBAL.GuildBank then
-        table.insert(self.buttonDropdownMenus.Type, {
-            text = L["GUILDBANK_ALL_TYPES"],
-            func = function()
-                self.filter = nil;
-                self.sort = "Type";
-                self:SortListview()
-            end,
-        })
-        for bank, info in pairs(GUILDBOOK_GLOBAL.GuildBank) do
-            i = i + 1;
-            table.insert(self.items, {
-                ItemID = -1,
-                Count = 1,
-                Type = GetCoinTextureString(info.Money),
-                SubType = "",
-                Class = -1,
-                SubClass = info.Money,
-                Icon = 133784,
-                Link = nil,
-                Bank = bank,
-            })
-            for itemID, count in pairs(info.Data) do
-                i = i + 1;
-                local itemID, itemType, itemSubType, itemEquipLoc, icon, itemClassID, itemSubClassID = GetItemInfoInstant(itemID)
-                if not itemTypes[itemType] then
-                    table.insert(self.buttonDropdownMenus.Type, {
-                        text = itemType,
-                        func = function()
-                            self.filter = itemType
-                            self.sort = "Type";
-                            self:SortListview()
-                        end,
-                    })
-                    itemTypes[itemType] = true
-                end
-                local _, link = GetItemInfo(itemID)
-                if not link then
-                    local item = Item:CreateFromItemID(itemID)
-                    item:ContinueOnItemLoad(function()
-                        link = item:GetItemLink()
-                        table.insert(self.items, {
-                            ItemID = itemID,
-                            Count = count,
-                            Type = itemType,
-                            SubType = itemSubType,
-                            Class = itemClassID,
-                            SubClass = itemSubClassID,
-                            Icon = icon,
-                            Link = link,
-                            Bank = bank,
-                        })
-                        if i == itemCount then
-                            self:LoadBankItems(itemCount)
-                        end
-                    end)
-                else
-                    table.insert(self.items, {
-                        ItemID = itemID,
-                        Count = count,
-                        Type = itemType,
-                        SubType = itemSubType,
-                        Class = itemClassID,
-                        SubClass = itemSubClassID,
-                        Icon = icon,
-                        Link = link,
-                        Bank = bank,
-                    })
-                    if i == itemCount then
-                        self:LoadBankItems(itemCount)
-                    end
-                end
-            end
-        end
-    end
-end
-
-function GuildbookGuildBankMixin:ClearRows()
-    for i = 1, 14 do
-        self.rows[i].link = nil
-        self.rows[i].Icon:SetTexture(nil)
-        self.rows[i].Link:SetText(" ")
-        self.rows[i].Count:SetText(" ")
-        self.rows[i].Type:SetText(" ")
-        self.rows[i].SubType:SetText(" ")
-        self.rows[i].Bank:SetText(" ")
-        self.rows[i].Index:SetText(" ")
-        self.rows[i]:SetAlpha(0)
-    end
-end
-
-function GuildbookGuildBankMixin:LoadBankItems(itemCount)
-    self.listview.scrollBar:SetMinMaxValues(1, (itemCount < 14) and 1 or itemCount-13)
-    self.listview.scrollBar:SetValue(1)
-    -- for now
-    table.sort(self.items, function(a, b)
-        if a.Class == b.Class then
-            return a.SubClass < b.SubClass;
-        else
-            return a.Class < b.Class;
-        end
-    end)
-
-    self:SortListview()
-    self.listview.spinner:Hide()
-    self.listview.commits:Hide()
-    self.listview.data:Hide()
-    self.listview.anim:Stop()
-end
-
-
-function GuildbookGuildBankMixin:SortListview()
-
-    wipe(self.listviewItems)
-
-    if self.filter and self.sort then
-        for k, item in ipairs(self.items) do
-            if item[self.sort] == self.filter then
-                table.insert(self.listviewItems, item)
-            end
-        end
-    else
-        for k, item in ipairs(self.items) do
-            table.insert(self.listviewItems, item)
-        end
-    end
-
-    table.sort(self.listviewItems, function(a,b)
-        if a.Class == b.Class then
-            if a.SubClass == b.SubClass then
-                return a.Link < b.Link
-            else
-                return a.SubClass < b.SubClass;
-            end
-        else
-            return a.Class < b.Class;
-        end
-    end)
-
-    self:ClearRows()
-
-    if self.listviewItems then
-        for i = 1, 14 do
-            local scrollPos = math.floor(self.listview.scrollBar:GetValue()) - 1;
-            if self.listviewItems[i + scrollPos] then
-                local item = self.listviewItems[i + scrollPos]
-                self.rows[i].link = item.Link
-                self.rows[i].Icon:SetTexture(item.Icon)
-                self.rows[i].Link:SetText(item.Link and item.Link or L["GUILDBANK_FUNDS"])
-                self.rows[i].Count:SetText(item.Link and "x"..item.Count or "")
-                self.rows[i].Type:SetText(item.Type)
-                self.rows[i].SubType:SetText(item.Link and item.SubType or L["GUILDBANK_CURRENCY"])
-                self.rows[i].Bank:SetText(item.Bank)
-    
-                self.rows[i].Index:SetText(i + scrollPos)
-
-                self.rows[i].anim:Play()
-            end
-        end
-    end
-
-    self.listview.scrollBar:SetMinMaxValues(1, (#self.listviewItems < 14) and 1 or #self.listviewItems-13)
-    self.listview.scrollBar:SetValue(1)
-
-end
-
-
-function GuildbookGuildBankMixin:OnMouseWheel(delta)
-    local x = self.listview.scrollBar:GetValue()
-    self.listview.scrollBar:SetValue(x - delta)
-end
-
-
-function GuildbookGuildBankMixin:ScrollBar_OnValueChanged()
-    if self.listviewItems then
-        for i = 1, 14 do
-            local scrollPos = math.floor(self.listview.scrollBar:GetValue()) - 1;
-            if self.listviewItems[i + scrollPos] then
-                local item = self.listviewItems[i + scrollPos]
-                self.rows[i].link = item.Link
-                self.rows[i].Icon:SetTexture(item.Icon)
-                self.rows[i].Link:SetText(item.Link and item.Link or L["GUILDBANK_FUNDS"])
-                self.rows[i].Count:SetText(item.Link and "x"..item.Count or "")
-                self.rows[i].Type:SetText(item.Type)
-                self.rows[i].SubType:SetText(item.Link and item.SubType or L["GUILDBANK_CURRENCY"])
-                self.rows[i].Bank:SetText(item.Bank)
-    
-                self.rows[i].Index:SetText(i + scrollPos)
-            end
-        end
-    end
 end
 
 

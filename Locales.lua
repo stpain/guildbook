@@ -107,11 +107,7 @@ Use this feature to browse your guild database- Find a recipe, pattern, characte
 ]]
 local bankIcon = CreateAtlasMarkup("ShipMissionIcon-Treasure-Map", 16, 16)
 local bankHelp = [[
-Guild bank:
-The guild bank feature works using a commit system, whenever a guildbank character views their bank, the data is sent to all online guild members as a 'commit'. When you view the guild bank, Guildbook will send a request to online guild members for their commit timestamp and then select the member with the latest commit.
-Guildbook then sends a request to that member for the commit data.
-
-As this process involves a lot of comms, there is a cooldown of 30s between requesting bank data, and the request process is staggered so that comms messages dont cause issues for other addons.
+Coming soon
 ]]
 L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s %s %s", slashCommandsIcon, slashCommandsHelp, rosterIcon, rosterHelp, tradeskillIcon, tradeskillHelp, profileIcon, profileHelp, searchIcon, searchHelp, bankIcon, bankHelp)
 
@@ -183,8 +179,10 @@ L["FEET"]							= "feet"
 L["WEAPONS"]						= "weapons"
 L["OFF_HAND"]						= "off hand"	
 L["MISC"]							= "misc"
+L["CONSUMABLES"]					= "consumables"
 
 
+L["PHASE2GB"]						= "With the arrival of guild banks to TBCC i have removed the guild bank system from Guildbook. I am working on something to replace it though!"
 L['GUILDBANK']						= "Guild bank"
 L["GUILDBANK_HEADER_ITEM"]			= "Item link"
 L["GUILDBANK_HEADER_COUNT"]			= "Count"
@@ -211,7 +209,7 @@ L["INVITE_TO_GROUP"]                = "Invite to group"
 L["SEND_TRADE_ENQUIRY"]             = "Send message about item"
 L["REFRESH_ROSTER"]                 = "Refresh roster"
 L["EDIT"]                           = "Edit profile"
-L["GUILD_BANK"]                     = "Guild bank (Legacy feature)"
+L["GUILD_BANK"]                     = "Useless tooltip!"
 L["ALTS"]                           = "Alt characters"
 L["USE_MAIN_PROFILE"]               = "Use main character profile"
 L["MY_SACKS"]                       = "My containers"
@@ -663,6 +661,7 @@ elseif locale == 'frFR' then
 	L["ROSTER_ALL_RANKS"]				= "Tous"
 	
 	--guildbank
+	L["PHASE2GB"]						= "Avec l'arrivée des banques de guilde sur TBCC, j'ai décidé d'enlever le système de banque de Guildbook. Néanmoins, je travaille sur quelque chose afin de le remplacer!"
 	L['GUILDBANK']						= "Banque de Guilde"
 	L["GUILDBANK_HEADER_ITEM"]			= "Objets"
 	L["GUILDBANK_HEADER_COUNT"]			= "Nombre"
@@ -704,6 +703,7 @@ elseif locale == 'frFR' then
 	L["WEAPONS"]						= "Armes"
 	L["OFF_HAND"]						= "Main gauche"
 	L["MISC"]							= "Autres"
+	L["CONSUMABLES"]					= "Consommables"
 
 	L["PROFILES"]                       = "Profiles"
 	L["CHAT"]                           = "Chat"
@@ -717,7 +717,7 @@ elseif locale == 'frFR' then
 	L["SEND_TRADE_ENQUIRY"]             = "Envoyer un message à propos de l'objet"
 	L["REFRESH_ROSTER"]                 = "Rafraîchir registre"
 	L["EDIT"]                           = "Modifier profile"
-	L["GUILD_BANK"]                     = "Banque de Guilde (Fonctionnalité héritée)"
+	L["GUILD_BANK"]                     = "Banque de Guilde (EN CONSTRUCTION)"
 	L["ALTS"]                           = "Personnages secondaires"
 	L["USE_MAIN_PROFILE"]               = "Utiliser profil du Personnage Principal"
 	L["MY_SACKS"]                       = "Mes sacs"
@@ -1023,9 +1023,8 @@ Utiliser cette fonction pour explorer la base de données de votre Guilde - Trou
 local bankIcon = CreateAtlasMarkup("ShipMissionIcon-Treasure-Map", 16, 16)
 local bankHelp = [[
 Banque de guilde:
-La fonction de banque de guilde foctionne via un système de "commit", à chaque fois qu'un personnage banque ouvre sa banque, les données sont envoyées à tous les membres en ligne en tant que commit. Quand vous regardez la fenêtre de banque de guilde, Guildbook va envoyer une requête aux membres en ligne pour récupérer leurs commits et va sélectionner (et récupérer) le plus récent.
 
-Vu que ce procédé implique beaucoup de traffic, il y a un temps de recharge de 30sec entre les requêtes et le processus de requête est ralentit pour éviter que le traffic pose un soucis à d'autres addons.
+Bientôt
 ]]
 L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s %s %s", slashCommandsIcon, slashCommandsHelp, rosterIcon, rosterHelp, tradeskillIcon, tradeskillHelp, profileIcon, profileHelp, searchIcon, searchHelp, bankIcon, bankHelp)	
 

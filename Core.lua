@@ -45,13 +45,16 @@ Guildbook.FONT_COLOUR = '|cff0070DE'
 Guildbook.ContextMenu_Separator = "|TInterface/COMMON/UI-TooltipDivider:8:150|t"
 Guildbook.ContextMenu_Separator_Wide = "|TInterface/COMMON/UI-TooltipDivider:8:250|t"
 Guildbook.PlayerMixin = nil
+
 Guildbook.COMMS_DELAY = 0.0
 Guildbook.COMM_LOCK_COOLDOWN = 20.0
+Guildbook.GUILD_NAME = nil;
 
 Guildbook.Colours = {
     Blue = CreateColor(0.1, 0.58, 0.92, 1),
     Orange = CreateColor(0.79, 0.6, 0.15, 1),
     Yellow = CreateColor(1.0, 0.82, 0, 1),
+    LightRed = CreateColor(216/255,69/255,75/255)
     --fullRGBa = CreateColorFromBytes(1.0, 0.82, 0, 1),
 }
 for class, t in pairs(Guildbook.Data.Class) do
@@ -62,7 +65,6 @@ end
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 --slash commands
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
-local prepared= false;
 SLASH_GUILDBOOK1 = '/guildbook'
 SLASH_GUILDBOOK2 = '/gbk'
 SLASH_GUILDBOOK3 = '/gb'
@@ -119,7 +121,7 @@ function Guildbook:Init()
     -- this makes the bank/calendar legacy features work
     if not self.GuildFrame then
         self.GuildFrame = {
-            "GuildBankFrame",
+            --"GuildBankFrame",
             "GuildCalendarFrame",
         }
     end
@@ -199,33 +201,6 @@ function Guildbook:Init()
             blockCommsDuringInstance = false,
         }
         DEBUG('func', 'init', "created default config table")
-    end
-
-    if self.version < 5.0 then
-        if not GUILDBOOK_GLOBAL.configUpdate then
-            local lowestRank = GuildControlGetRankName(GuildControlGetNumRanks())
-            GUILDBOOK_GLOBAL.config = {
-                privacy = {
-                    shareInventoryMinRank = lowestRank,
-                    shareTalentsMinRank = lowestRank,
-                    shareProfileMinRank = lowestRank,
-                },
-                modifyDefaultGuildRoster = true,
-                showTooltipTradeskills = true,
-                showTooltipTradeskillsRecipes = true,
-                showMinimapButton = true,
-                showMinimapCalendarButton = true,
-                showTooltipCharacterInfo = true,
-                showTooltipMainCharacter = true,
-                showTooltipMainSpec = true,
-                showTooltipProfessions = true,
-                parsePublicNotes = false,
-                showInfoMessages = true,
-                blockCommsDuringCombat = true,
-                blockCommsDuringInstance = true,
-            }
-            DEBUG('func', 'init', "config update false, adding config table")
-        end
     end
 
     if GUILDBOOK_GLOBAL.config.showInfoMessages == nil then
@@ -319,22 +294,6 @@ function Guildbook:Init()
             -- self:AddLine(GetCoinTextureString(gold))
         end
 
-        -- local characters = {}
-        -- if 1 == 1 then -- place holder for a options setting
-        --     if GUILDBOOK_GLOBAL.MySacks then
-        --         if GUILDBOOK_GLOBAL.MySacks.Banks then
-        --             for guid, items in pairs(GUILDBOOK_GLOBAL.MySacks.Banks) do
-        --                 if items[itemID] then
-        --                     table.insert(characters, {
-        --                         guid = guid,
-        --                         count = items[itemID].count,
-        --                     })
-        --                 end
-        --             end
-        --         end
-        --     end
-        -- end
-
     end)
 
     local tooltipIcon = CreateFrame("FRAME", "GuildbookTooltipIcon")
@@ -402,20 +361,6 @@ function Guildbook:Init()
             end
         end
     end)
-
-    --remove after a few updates
-    GUILDBOOK_GLOBAL.TooltipInfo = nil
-    GUILDBOOK_GLOBAL.TooltipInfoMainSpec = nil
-    GUILDBOOK_GLOBAL.TooltipInfoMainCharacter = nil
-    GUILDBOOK_GLOBAL.TooltipInfoProfessions = nil
-    GUILDBOOK_GLOBAL.ShowMinimapButton = nil
-    GUILDBOOK_GLOBAL.ShowMinimapCalendarButton = nil
-    GUILDBOOK_GLOBAL['Build'] = nil
-    GUILDBOOK_GLOBAL.Modules = nil
-
-
-    -- removing this for the time being
-    GUILDBOOK_GLOBAL.MySacks = nil;
 end
 
 
@@ -590,31 +535,33 @@ function Guildbook:Load()
     minimapCalendarButton.menu = {
         {
             text = L["CHAT"],
-            func = function() 
-                GuildbookUI:OpenTo("chat") 
+            func = function()
+                GuildbookUI:OpenTo("chat")
             end,
         },
         {
             text = L["ROSTER"],
-            func = function() 
-                GuildbookUI:OpenTo("roster") 
+            func = function()
+                GuildbookUI:OpenTo("roster")
             end,
         },
         {
             text = L["TRADESKILLS"],
             func = function() 
-                GuildbookUI:OpenTo("tradeskills") 
+                GuildbookUI:OpenTo("tradeskills")
             end,
         },
         {
-            text = L['GUILDBANK'],
-            func = function() 
-                GuildbookUI:OpenTo("guildbank") 
+            text = L["OPEN_PROFILE"],
+            func = function()
+                GuildbookUI:Show()
+                GuildbookUI:OpenTo("profiles")
+                GuildbookUI.profiles:LoadCharacter("player")
             end,
         },
         {
             text = L["OPTIONS"],
-            func = function() 
+            func = function()
                 InterfaceOptionsFrame_OpenToCategory(addonName)
                 InterfaceOptionsFrame_OpenToCategory(addonName)
             end,
@@ -670,7 +617,7 @@ function Guildbook:Load()
     self.recipeIdsQueried, self.craftIdsQueried = {}, {}
     C_Timer.After(12, function()
         self:RequestTradeskillData()
-        DEBUG("func", "Load", "requested tradeskill recipe\\item data")
+        DEBUG("func", "Load", [[requested tradeskill recipe\item data]])
     end)
     C_Timer.After(15, function()
         Guildbook:SendGuildCalendarEvents()
@@ -689,12 +636,16 @@ function Guildbook:Load()
         DEBUG("func", "Load", "requested deleted calendar events")
     end)
 
-    if not GUILDBOOK_GLOBAL.configUpdate then
-        local news = "There has been some changes made to how Guildbook stores your settings. For this update only, they have been reset to default values, you should check and make any changes as needed."
+    if not GUILDBOOK_GLOBAL.guildBankRemoved then
+        GUILDBOOK_GLOBAL.guildBankRemoved = false;
+    end
+    if (tonumber(self.version) == 4.9662) and GUILDBOOK_GLOBAL.guildBankRemoved == false then
+        local news = L["PHASE2GB"]
         StaticPopup_Show('GuildbookUpdates', self.version, news)
     end
 
     self.addonLoaded = true
+    self.GUILD_NAME = self:GetGuildName()
 
     -- not sure about this, could do it without the popup ?
     if GUILDBOOK_CHARACTER and GUILDBOOK_CHARACTER.Profession1 then
@@ -778,6 +729,7 @@ function Guildbook.CapitalizeString(s)
     end
 end
 
+
 function Guildbook:MakeFrameMoveable(frame)
     frame:SetMovable(true)
     frame:EnableMouse(true)
@@ -787,278 +739,43 @@ function Guildbook:MakeFrameMoveable(frame)
 end
 
 
-function Guildbook:RequestTradeskillData()
-    if self.addonLoaded == false then
-        return;
-    end
-    local delay = GUILDBOOK_GLOBAL['Debug'] and 0.05 or 0.1
-    local recipeIdsToQuery = {}
-    local charactersWithRecipe = {}
-    if not self.tradeskillRecipes then
-        self.tradeskillRecipes = {}
-    end
-    if not self.tradeskillRecipesKeys then
-        self.tradeskillRecipesKeys = {}
-    end
-    local guild = self.GetGuildName()
-    if not guild then
-        return;
-    end
-    if not GUILDBOOK_GLOBAL then
-        return;
-    end
-    if not GUILDBOOK_GLOBAL.GuildRosterCache[guild] then
-        return;
-    end
-    DEBUG("func", "RequestTradeskillData", "begin looping character cache")
-    for guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[guild]) do
-        if character.Profession1 and character.Profession1 ~= "-" then
-            local prof = character.Profession1
-            if character[prof] and next(character[prof]) ~= nil then
-                for recipeID, reagents in pairs(character[prof]) do
-                    if not charactersWithRecipe[recipeID] then
-                        charactersWithRecipe[recipeID] = {}
-                    end
-                    table.insert(charactersWithRecipe[recipeID], guid)
-                    if prof == "Enchanting" then
-                        if not self.craftIdsQueried[recipeID] then
-                            --DEBUG("func", "RequestTradeskillData", "adding ENCHANT to query: "..recipeID)
-                            self.craftIdsQueried[recipeID] = true;
-                            table.insert(recipeIdsToQuery, {
-                                recipeID = recipeID,
-                                prof = "Enchanting", 
-                                reagents = reagents or false,
-                            })
-                        end
-                    else
-                        if not self.recipeIdsQueried[recipeID] then
-                            --DEBUG("func", "RequestTradeskillData", "adding TRADESKILL to query: "..recipeID)
-                            self.recipeIdsQueried[recipeID] = true;
-                            table.insert(recipeIdsToQuery, {
-                                recipeID = recipeID,
-                                prof = prof, 
-                                reagents = reagents or false,
-                            })
-                        end
-                    end
-                end
-            end
-        end
-        if character.Profession2 and character.Profession2 ~= "-" then
-            local prof = character.Profession2
-            if character[prof] and next(character[prof]) ~= nil then
-                for recipeID, reagents in pairs(character[prof]) do
-                    if not charactersWithRecipe[recipeID] then
-                        charactersWithRecipe[recipeID] = {}
-                    end
-                    table.insert(charactersWithRecipe[recipeID], guid)
-                    if prof == "Enchanting" then
-                        if not self.craftIdsQueried[recipeID] then
-                            --DEBUG("func", "RequestTradeskillData", "adding ENCHANT to query: "..recipeID)
-                            self.craftIdsQueried[recipeID] = true;
-                            table.insert(recipeIdsToQuery, {
-                                recipeID = recipeID,
-                                prof = "Enchanting", 
-                                reagents = reagents or false,
-                            })
-                        end
-                    else
-                        if not self.recipeIdsQueried[recipeID] then
-                            --DEBUG("func", "RequestTradeskillData", "adding TRADESKILL to query: "..recipeID)
-                            self.recipeIdsQueried[recipeID] = true;
-                            table.insert(recipeIdsToQuery, {
-                                recipeID = recipeID,
-                                prof = prof, 
-                                reagents = reagents or false,
-                            })
-                        end
-                    end
-                end
-            end
-        end
-        if character.Cooking and type(character.Cooking) == "table" then
-            for recipeID, reagents in pairs(character.Cooking) do
-                if not charactersWithRecipe[recipeID] then
-                    charactersWithRecipe[recipeID] = {}
-                end
-                table.insert(charactersWithRecipe[recipeID], guid)
-                if not self.recipeIdsQueried[recipeID] then
-                    --DEBUG("func", "RequestTradeskillData", "adding COOKING to query: "..recipeID)
-                    self.recipeIdsQueried[recipeID] = true;
-                    table.insert(recipeIdsToQuery, {
-                        recipeID = recipeID,
-                        prof = "Cooking", 
-                        reagents = reagents or false,
-                    })
-                end
-            end
-        end
-    end
-    --DEBUG("func", "RequestTradeskillData", "recipes to query "..#recipeIdsToQuery)
-    if #recipeIdsToQuery > 0 then
-        local recipesToProcess = #recipeIdsToQuery;
-        local startTime = time();
-        self:PrintMessage(string.format("found %s recipes, estimated duration %s", #recipeIdsToQuery, SecondsToTime(#recipeIdsToQuery*delay)))
-        table.sort(recipeIdsToQuery, function(a,b)
-            if a.prof == b.prof then
-                return a.recipeID > b.recipeID -- sort highest id first, should help display newest expansion items sooner
-            else
-                return a.prof < b.prof
-            end
-        end)
-        local i = 1;
-        DEBUG('func', 'tradeskill data requst', string.format("found %s recipes, estimated duration %s", #recipeIdsToQuery, SecondsToTime(#recipeIdsToQuery*delay)))
-
-        local statusBar = GuildbookUI.tradeskills.statusBar
-        statusBar:SetValue(0)
-        statusBar:Show()
-        local statusBarText = GuildbookUI.tradeskills.statusBarText
-        statusBarText:SetText("Loading...")
-        statusBarText:Show()
-        
-        C_Timer.NewTicker(delay, function()
-            if not recipeIdsToQuery[i] then
-                return
-            end
-            local recipeID = recipeIdsToQuery[i].recipeID
-            local prof = recipeIdsToQuery[i].prof
-            local reagents = recipeIdsToQuery[i].reagents
-            local l, r, n, e, x, ic = false, false, false, false, 0, false
-            local thaokyProf, spellID = LCI:GetItemSource(recipeID)
-            local tradeskill = LCI:GetCraftProfession(recipeID)
-            local _, _, _, equipLoc = GetItemInfoInstant(recipeID)
-            if not equipLoc then
-                equipLoc = 0
-            end
-            -- if i < 20 then
-            --     --DEBUG("func", "GET_PROF_DATA", string.format("gb prof: %s thaoky prof: %s", prof, tradeskill or "no thaoky data"))
-            -- end
-            -- if prof ~= thaokyProf then
-            --     --DEBUG("func", "GET_PROF_DATA", string.format("gb prof: %s thaoky prof: %s", prof, thaokyProf or "no thaoky data"))
-            -- end
-            if spellID then
-                x = LCI:GetCraftXPack(spellID)
-            end
-            if prof == 'Enchanting' then
-                l = GetSpellLink(recipeID)
-                r = 1
-                n = GetSpellInfo(recipeID)
-                if not n then
-                    n = "unknown"
-                end
-                e = true
-            else
-                n, l, r, _, _, _, _, _, _, ic = GetItemInfo(recipeID)
-            end
-            if not l and not n and not r and not ic then
-                if prof == 'Enchanting' then                    
-                    local spell = Spell:CreateFromSpellID(recipeID)
-                    local _, _, _, equipLoc = GetItemInfoInstant(recipeID)
-                    if equipLoc == nil then
-                        equipLoc = 0
-                    end
-                    spell:ContinueOnSpellLoad(function()
-                        l = GetSpellLink(recipeID)
-                        n, _, ic = GetSpellInfo(recipeID)
-                        if not n then
-                            n = "unknown"
-                        end
-                        if not ic then
-                            ic = 136244
-                        end
-                        e = true
-                        table.insert(self.tradeskillRecipes, {
-                            itemID = recipeID,
-                            reagents = reagents,
-                            rarity = 1,
-                            link = l,
-                            icon = ic,
-                            expsanion = x;
-                            enchant = e,
-                            name = n,
-                            profession = prof,
-                            equipLocation = equipLoc,
-                            charactersWithRecipe = charactersWithRecipe[recipeID],
-                        })
-                        recipesToProcess = recipesToProcess - 1;
-                        --DEBUG('func', 'tradeskill data requst', string.format("added recipeID %s prof %s link %s", recipeID, prof, l))
-                    end)
-                else
-                    local item = Item:CreateFromItemID(recipeID)
-                    item:ContinueOnItemLoad(function()
-                        l = item:GetItemLink()
-                        r = item:GetItemQuality()
-                        n = item:GetItemName()
-                        ic = item:GetItemIcon()
-                        table.insert(self.tradeskillRecipes, {
-                            itemID = recipeID,
-                            reagents = reagents,
-                            rarity = r,
-                            link = l,
-                            icon = ic,
-                            expansion = x;
-                            enchant = false,
-                            name = n,
-                            profession = prof,
-                            equipLocation = equipLoc,
-                            charactersWithRecipe = charactersWithRecipe[recipeID],
-                        })
-                        recipesToProcess = recipesToProcess - 1;
-                        --DEBUG('func', 'tradeskill data requst', string.format("added recipeID %s prof %s link %s", recipeID, prof, l))
-                    end)
-                end
-            else
-                if prof == "Enchanting" then
-                    ic = 136244
-                end
-                table.insert(self.tradeskillRecipes, {
-                    itemID = recipeID,
-                    reagents = reagents,
-                    rarity = r,
-                    link = l,
-                    icon = ic,
-                    enchant = e,
-                    expansion = x;
-                    name = n,
-                    profession = prof,
-                    equipLocation = equipLoc,
-                    charactersWithRecipe = charactersWithRecipe[recipeID],
-                })
-                recipesToProcess = recipesToProcess - 1;
-                --DEBUG('func', 'tradeskill data requst', string.format("added recipeID %s prof %s link %s", recipeID, prof, l))
-            end
-
-            statusBar:SetValue(i / #recipeIdsToQuery)
-            statusBarText:SetText(string.format(L["PROCESSED_RECIPES_SS"], i, #recipeIdsToQuery))
-
-            i = i + 1;
-            if i > #recipeIdsToQuery then
-
-                for k, v in ipairs(self.tradeskillRecipes) do
-                    self.tradeskillRecipesKeys[v.itemID] = k
-                    statusBarText:SetText(string.format("mapping keys %s of %s", k, #self.tradeskillRecipes))
-                end
-
-                statusBar:Hide()
-                statusBarText:SetText("")
-                statusBarText:Hide()
-
-                self:PrintMessage(string.format("all tradeskill recipes processed, took %s", SecondsToTime(time()-startTime)))
-                DEBUG('func', 'tradeskill data requst', string.format("all tradeskill recipes processed, took %s", SecondsToTime(time()-startTime)))
-
-                return;
-            end
-
-        end, #recipeIdsToQuery)
-    else
-        DEBUG('func', 'tradeskill data requst', "no new recipes to query")
+--- return the players guild name if they belong to one
+function Guildbook:GetGuildName()
+    if IsInGuild() and GetGuildInfo("player") then
+        local guildName, _, _, _ = GetGuildInfo('player')
+        return guildName
     end
 end
 
+
+--- print a message
+-- @param msg string the message to print
+function Guildbook:PrintMessage(msg)
+    if not GUILDBOOK_GLOBAL then
+        return;
+    end
+    if not GUILDBOOK_GLOBAL.config then
+        return;
+    end
+    if GUILDBOOK_GLOBAL.config.showInfoMessages == true then
+        print(string.format('[%sGuildbook|r] %s', Guildbook.FONT_COLOUR, msg))
+    end
+end
+
+
 local helperIcons = 1
-function Guildbook:CreateHelperIcon(parent, relTo, anchor, relPoint, x, y, tooltiptext)
+---create and return a yellow 'i' icon with a mouseover tooltip
+---@param parent any global frame name or string frame name
+---@param relTo any global frame name or string frame name
+---@param anchor string anchor point
+---@param relPoint string anchor point
+---@param x number x offset
+---@param y number y offset
+---@param tooltiptext string text to display in tooltip
+---@return ... frame the icon frame
+function Guildbook:CreateHelperIcon(parent, anchor, relTo, relPoint, x, y, tooltiptext)
     local f = CreateFrame('FRAME', tostring('GuildbookHelperIcons'..helperIcons), parent)
-    f:SetPoint(relTo, anchor, relPoint, x, y)
+    f:SetPoint(anchor, relTo, relPoint, x, y)
     f:SetSize(20, 20)
     f.texture = f:CreateTexture('$parentTexture', 'ARTWORK')
     f.texture:SetAllPoints(f)
@@ -1075,7 +792,10 @@ function Guildbook:CreateHelperIcon(parent, relTo, anchor, relPoint, x, y, toolt
     return f
 end
 
-function Guildbook:TrimNumber(num)
+---format number to 2dp for character stat data/display
+---@param num number the number value to format
+---@return ... number the formatted number or 1
+function Guildbook:FormatNumberForCharacterStats(num)
     if type(num) == 'number' then
         local trimmed = string.format("%.2f", num)
         return tonumber(trimmed)
@@ -1084,9 +804,12 @@ function Guildbook:TrimNumber(num)
     end
 end
 
+---get guild calendar events between given range
+---@param start number the number representing the start date/time as returned by time()
+---@param duration number the duration of the range, expressed as number of days
+---@return table events table of events
 function Guildbook:GetCalendarEvents(start, duration)
-    local guildName = Guildbook:GetGuildName()
-    if not guildName then
+    if type(self.GUILD_NAME) ~= "string" then
         return
     end
     local events = {}
@@ -1158,43 +881,43 @@ function Guildbook:GetPaperDollStats()
             negBuff = modDef;
         end
         GUILDBOOK_CHARACTER['PaperDollStats'].Defence = {
-            Base = self:TrimNumber(baseDef),
-            Mod = self:TrimNumber(modDef),
+            Base = self:FormatNumberForCharacterStats(baseDef),
+            Mod = self:FormatNumberForCharacterStats(modDef),
         }
 
         local baseArmor, effectiveArmor, armr, posBuff, negBuff = UnitArmor('player');
-        GUILDBOOK_CHARACTER['PaperDollStats'].Armor = self:TrimNumber(baseArmor)
-        GUILDBOOK_CHARACTER['PaperDollStats'].Block = self:TrimNumber(GetBlockChance());
-        GUILDBOOK_CHARACTER['PaperDollStats'].Parry = self:TrimNumber(GetParryChance());
-        GUILDBOOK_CHARACTER['PaperDollStats'].ShieldBlock = self:TrimNumber(GetShieldBlock());
-        GUILDBOOK_CHARACTER['PaperDollStats'].Dodge = self:TrimNumber(GetDodgeChance());
+        GUILDBOOK_CHARACTER['PaperDollStats'].Armor = self:FormatNumberForCharacterStats(baseArmor)
+        GUILDBOOK_CHARACTER['PaperDollStats'].Block = self:FormatNumberForCharacterStats(GetBlockChance());
+        GUILDBOOK_CHARACTER['PaperDollStats'].Parry = self:FormatNumberForCharacterStats(GetParryChance());
+        GUILDBOOK_CHARACTER['PaperDollStats'].ShieldBlock = self:FormatNumberForCharacterStats(GetShieldBlock());
+        GUILDBOOK_CHARACTER['PaperDollStats'].Dodge = self:FormatNumberForCharacterStats(GetDodgeChance());
 
         --local expertise, offhandExpertise, rangedExpertise = GetExpertise();
-		GUILDBOOK_CHARACTER['PaperDollStats'].Expertise = self:TrimNumber(GetExpertise()); --will display mainhand expertise but it stores offhand expertise as well, need to find a way to access it
+		GUILDBOOK_CHARACTER['PaperDollStats'].Expertise = self:FormatNumberForCharacterStats(GetExpertise()); --will display mainhand expertise but it stores offhand expertise as well, need to find a way to access it
         --local base, casting = GetManaRegen();
-        GUILDBOOK_CHARACTER['PaperDollStats'].SpellHit = self:TrimNumber(GetCombatRatingBonus(CR_HIT_SPELL) + GetSpellHitModifier());
-        GUILDBOOK_CHARACTER['PaperDollStats'].MeleeHit = self:TrimNumber(GetCombatRatingBonus(CR_HIT_MELEE) + GetHitModifier());
-	    GUILDBOOK_CHARACTER['PaperDollStats'].RangedHit = self:TrimNumber(GetCombatRatingBonus(CR_HIT_RANGED));
+        GUILDBOOK_CHARACTER['PaperDollStats'].SpellHit = self:FormatNumberForCharacterStats(GetCombatRatingBonus(CR_HIT_SPELL) + GetSpellHitModifier());
+        GUILDBOOK_CHARACTER['PaperDollStats'].MeleeHit = self:FormatNumberForCharacterStats(GetCombatRatingBonus(CR_HIT_MELEE) + GetHitModifier());
+	    GUILDBOOK_CHARACTER['PaperDollStats'].RangedHit = self:FormatNumberForCharacterStats(GetCombatRatingBonus(CR_HIT_RANGED));
 
-        GUILDBOOK_CHARACTER['PaperDollStats'].RangedCrit = self:TrimNumber(GetRangedCritChance());
-        GUILDBOOK_CHARACTER['PaperDollStats'].MeleeCrit = self:TrimNumber(GetCritChance());
+        GUILDBOOK_CHARACTER['PaperDollStats'].RangedCrit = self:FormatNumberForCharacterStats(GetRangedCritChance());
+        GUILDBOOK_CHARACTER['PaperDollStats'].MeleeCrit = self:FormatNumberForCharacterStats(GetCritChance());
 
-	    GUILDBOOK_CHARACTER['PaperDollStats'].Haste = self:TrimNumber(GetHaste());
+	    GUILDBOOK_CHARACTER['PaperDollStats'].Haste = self:FormatNumberForCharacterStats(GetHaste());
         local base, casting = GetManaRegen()
-	    GUILDBOOK_CHARACTER['PaperDollStats'].ManaRegen = base and self:TrimNumber(base) or 0;
-	    GUILDBOOK_CHARACTER['PaperDollStats'].ManaRegenCasting = casting and self:TrimNumber(casting) or 0;
+	    GUILDBOOK_CHARACTER['PaperDollStats'].ManaRegen = base and self:FormatNumberForCharacterStats(base) or 0;
+	    GUILDBOOK_CHARACTER['PaperDollStats'].ManaRegenCasting = casting and self:FormatNumberForCharacterStats(casting) or 0;
 
         local minCrit = 100
         for id, school in pairs(spellSchools) do
             if GetSpellCritChance(id) < minCrit then
                 minCrit = GetSpellCritChance(id)
             end
-            GUILDBOOK_CHARACTER['PaperDollStats']['SpellDmg'..school] = self:TrimNumber(GetSpellBonusDamage(id));
-            GUILDBOOK_CHARACTER['PaperDollStats']['SpellCrit'..school] = self:TrimNumber(GetSpellCritChance(id));
+            GUILDBOOK_CHARACTER['PaperDollStats']['SpellDmg'..school] = self:FormatNumberForCharacterStats(GetSpellBonusDamage(id));
+            GUILDBOOK_CHARACTER['PaperDollStats']['SpellCrit'..school] = self:FormatNumberForCharacterStats(GetSpellCritChance(id));
         end
-        GUILDBOOK_CHARACTER['PaperDollStats'].SpellCrit = self:TrimNumber(minCrit)
+        GUILDBOOK_CHARACTER['PaperDollStats'].SpellCrit = self:FormatNumberForCharacterStats(minCrit)
 
-        GUILDBOOK_CHARACTER['PaperDollStats'].HealingBonus = self:TrimNumber(GetSpellBonusHealing());
+        GUILDBOOK_CHARACTER['PaperDollStats'].HealingBonus = self:FormatNumberForCharacterStats(GetSpellBonusHealing());
 
         local lowDmg, hiDmg, offlowDmg, offhiDmg, posBuff, negBuff, percentmod = UnitDamage("player");
         local mainSpeed, offSpeed = UnitAttackSpeed("player");
@@ -1212,15 +935,15 @@ function Guildbook:GetPaperDollStats()
             if offSpeed < 1 then 
                 offSpeed = 1
             end
-            GUILDBOOK_CHARACTER['PaperDollStats'].MeleeDmgOH = self:TrimNumber((olow + ohigh) / 2.0)
-            GUILDBOOK_CHARACTER['PaperDollStats'].MeleeDpsOH = self:TrimNumber(((olow + ohigh) / 2.0) / offSpeed)
+            GUILDBOOK_CHARACTER['PaperDollStats'].MeleeDmgOH = self:FormatNumberForCharacterStats((olow + ohigh) / 2.0)
+            GUILDBOOK_CHARACTER['PaperDollStats'].MeleeDpsOH = self:FormatNumberForCharacterStats(((olow + ohigh) / 2.0) / offSpeed)
         else
             --offSpeed = 1
-            GUILDBOOK_CHARACTER['PaperDollStats'].MeleeDmgOH = self:TrimNumber(0)
-            GUILDBOOK_CHARACTER['PaperDollStats'].MeleeDpsOH = self:TrimNumber(0)
+            GUILDBOOK_CHARACTER['PaperDollStats'].MeleeDmgOH = self:FormatNumberForCharacterStats(0)
+            GUILDBOOK_CHARACTER['PaperDollStats'].MeleeDpsOH = self:FormatNumberForCharacterStats(0)
         end
-        GUILDBOOK_CHARACTER['PaperDollStats'].MeleeDmgMH = self:TrimNumber((mlow + mhigh) / 2.0)
-        GUILDBOOK_CHARACTER['PaperDollStats'].MeleeDpsMH = self:TrimNumber(((mlow + mhigh) / 2.0) / mainSpeed)
+        GUILDBOOK_CHARACTER['PaperDollStats'].MeleeDmgMH = self:FormatNumberForCharacterStats((mlow + mhigh) / 2.0)
+        GUILDBOOK_CHARACTER['PaperDollStats'].MeleeDpsMH = self:FormatNumberForCharacterStats(((mlow + mhigh) / 2.0) / mainSpeed)
 
         local speed, lowDmg, hiDmg, posBuff, negBuff, percent = UnitRangedDamage("player");
         local low = (lowDmg + posBuff + negBuff) * percent
@@ -1229,42 +952,32 @@ function Guildbook:GetPaperDollStats()
         if low < 1 then low = 1 end
         if high < 1 then high = 1 end
         local dmg = (low + high) / 2.0
-        GUILDBOOK_CHARACTER['PaperDollStats'].RangedDmg = self:TrimNumber(dmg)
-        GUILDBOOK_CHARACTER['PaperDollStats'].RangedDps = self:TrimNumber(dmg/speed)
+        GUILDBOOK_CHARACTER['PaperDollStats'].RangedDmg = self:FormatNumberForCharacterStats(dmg)
+        GUILDBOOK_CHARACTER['PaperDollStats'].RangedDps = self:FormatNumberForCharacterStats(dmg/speed)
 
         local base, posBuff, negBuff = UnitAttackPower('player')
-        GUILDBOOK_CHARACTER['PaperDollStats'].AttackPower = self:TrimNumber(base + posBuff + negBuff)
+        GUILDBOOK_CHARACTER['PaperDollStats'].AttackPower = self:FormatNumberForCharacterStats(base + posBuff + negBuff)
 
         for k, stat in pairs(statIDs) do
             local a, b, c, d = UnitStat("player", k);
-            GUILDBOOK_CHARACTER['PaperDollStats'][stat] = self:TrimNumber(b)
+            GUILDBOOK_CHARACTER['PaperDollStats'][stat] = self:FormatNumberForCharacterStats(b)
             --DEBUG('func', 'GetPaperDollStats', string.format("%s = %s", stat, b))
         end
         self:SetCharacterInfo(UnitGUID("player"), "PaperDollStats", GUILDBOOK_CHARACTER['PaperDollStats'])
     end
 end
 
-
-function Guildbook:IsCharacterInGuildCache(guid)
-    if guid:find('Player') then
-        local guildName = Guildbook:GetGuildName()
-        if guildName and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
-            if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] then
-                return true
-            else
-                return false
-            end
-        end
-    end
-end
-
-
+---fetch the character table from the cache/db
+---@param guid string the characters guid
+---@return table character returns either the character table from the cache or false
 function Guildbook:GetCharacterFromCache(guid)
-    if guid and guid:find('Player') then
-        local guildName = Guildbook:GetGuildName()
-        if guildName and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
-            if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid] then
-                return GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid]
+    if type(self.GUILD_NAME) ~= "string" then
+        return
+    end
+    if type(guid) == "string" and guid:find('Player') then
+        if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'] and GUILDBOOK_GLOBAL['GuildRosterCache'][self.GUILD_NAME] then
+            if GUILDBOOK_GLOBAL['GuildRosterCache'][self.GUILD_NAME][guid] then
+                return GUILDBOOK_GLOBAL['GuildRosterCache'][self.GUILD_NAME][guid]
             else
                 return false;
             end
@@ -1459,31 +1172,6 @@ function Guildbook:ImportGuildTradeskillRecipes(text)
     end
 end
 
-
-
---- return the players guild name if they belong to one
-function Guildbook:GetGuildName()
-    if IsInGuild() and GetGuildInfo("player") then
-        local guildName, _, _, _ = GetGuildInfo('player')
-        return guildName
-    end
-end
-
-
---- print a message
--- @param msg string the message to print
-function Guildbook:PrintMessage(msg)
-    if not GUILDBOOK_GLOBAL then
-        return;
-    end
-    if not GUILDBOOK_GLOBAL.config then
-        return;
-    end
-    if GUILDBOOK_GLOBAL.config.showInfoMessages == true then
-        print(string.format('[%sGuildbook|r] %s', Guildbook.FONT_COLOUR, msg))
-    end
-end
-
 ---check if you share data with this players rank
 ---@param player string target or senders name
 ---@param rule string the privacy setting (key) to check
@@ -1544,24 +1232,14 @@ function Guildbook:CheckPrivacyRankSettings()
 end
 
 function Guildbook:ScanPlayerBags()
-    if not GUILDBOOK_GLOBAL then
-        return;
-    end
-    if not GUILDBOOK_GLOBAL.MySacks then -- my sacks is an addon i made which im going to use in guildbook
-        GUILDBOOK_GLOBAL.MySacks = {
-            Bags = {},
-            Banks = {},
-        }
-    end
-    GUILDBOOK_GLOBAL.MySacks.Bags[UnitGUID("player")] = {}
     for bag = 0, 4 do
         for slot = 1, GetContainerNumSlots(bag) do
-            local icon, count, _, quality, _, _, link, _, _, id = GetContainerItemInfo(bag, slot)
-            if id and count and link and quality then
-                if not GUILDBOOK_GLOBAL.MySacks.Bags[UnitGUID("player")][id] then
-                    GUILDBOOK_GLOBAL.MySacks.Bags[UnitGUID("player")][id] = {count = count, link = link, quality = quality, icon = icon}
+            local icon, itemCount, locked, quality, readable, lootable, itemLink, isFiltered, noValue, itemID = GetContainerItemInfo(bag, slot)
+            if itemID and itemCount then
+                if not GuildbookUI.playerContainerItems[itemID] then
+                    GuildbookUI.playerContainerItems[itemID] = itemCount
                 else
-                    GUILDBOOK_GLOBAL.MySacks.Bags[UnitGUID("player")][id].count = GUILDBOOK_GLOBAL.MySacks.Bags[UnitGUID("player")][id].count + count;
+                    GuildbookUI.playerContainerItems[itemID] = GuildbookUI.playerContainerItems[itemID] + itemCount
                 end
             end
         end
@@ -1570,110 +1248,357 @@ end
 
 
 function Guildbook:ScanPlayerBank()
-    if not GUILDBOOK_GLOBAL.MySacks then -- my sacks is an addon i made which im going to use in guildbook
-        GUILDBOOK_GLOBAL.MySacks = {
-            Bags = {},
-            Banks = {},
-        }
-    end
-    GUILDBOOK_GLOBAL.MySacks.Banks[UnitGUID("player")] = {}
     -- main bank
-    for slot = 1, 28 do
-        local icon, count, _, quality, _, _, link, _, _, id = GetContainerItemInfo(-1, slot)
-        if id and count and link and quality then
-            if not GUILDBOOK_GLOBAL.MySacks.Banks[UnitGUID("player")][id] then
-                GUILDBOOK_GLOBAL.MySacks.Banks[UnitGUID("player")][id] = {count = count, link = link, quality = quality, icon = icon}
+    for slot = 1, GetContainerNumSlots(-1) do
+        local icon, itemCount, locked, quality, readable, lootable, itemLink, isFiltered, noValue, itemID = GetContainerItemInfo(-1, slot)
+        if itemID and itemCount then
+            if not GuildbookUI.playerContainerItems[itemID] then
+                GuildbookUI.playerContainerItems[itemID] = itemCount
             else
-                GUILDBOOK_GLOBAL.MySacks.Banks[UnitGUID("player")][id].count = GUILDBOOK_GLOBAL.MySacks.Banks[UnitGUID("player")][id].count + count;
+                GuildbookUI.playerContainerItems[itemID] = GuildbookUI.playerContainerItems[itemID] + itemCount
             end
         end
     end
     -- bank bags
     for bag = 5, 11 do
         for slot = 1, GetContainerNumSlots(bag) do
-            local icon, count, _, quality, _, _, link, _, _, id = GetContainerItemInfo(bag, slot)
-            if id and count and link and quality then
-                if not GUILDBOOK_GLOBAL.MySacks.Banks[UnitGUID("player")][id] then
-                    GUILDBOOK_GLOBAL.MySacks.Banks[UnitGUID("player")][id] = {count = count, link = link, quality = quality, icon = icon}
+            local icon, itemCount, locked, quality, readable, lootable, itemLink, isFiltered, noValue, itemID = GetContainerItemInfo(bag, slot)
+            if itemID and itemCount then
+                if not GuildbookUI.playerContainerItems[itemID] then
+                    GuildbookUI.playerContainerItems[itemID] = itemCount
                 else
-                    GUILDBOOK_GLOBAL.MySacks.Banks[UnitGUID("player")][id].count = GUILDBOOK_GLOBAL.MySacks.Banks[UnitGUID("player")][id].count + count;
+                    GuildbookUI.playerContainerItems[itemID] = GuildbookUI.playerContainerItems[itemID] + itemCount
                 end
             end
         end
     end
 end
 
--- THIS FUNCTION WILL GO AWAY WHEN GUILD BANKS GET ADDED
---- scans the players bags and bank for guild bank sharing
---- creates a table in the character saved vars with scan time so we can check which data is newest
-function Guildbook:ScanPlayerContainers()
-    --if BankFrame:IsVisible() then
-        local name = Ambiguate(UnitName("player"), 'none')
 
-        local copper = GetMoney()
-
-        if not GUILDBOOK_GLOBAL["GuildBank"] then
-            GUILDBOOK_GLOBAL["GuildBank"] = {}
-        end
-        GUILDBOOK_GLOBAL["GuildBank"][name] = {
-            Commit = GetServerTime(),
-            Data = {},
-            Money = copper,
-        }
-
-        -- player bags
-        for bag = 0, 4 do
-            for slot = 1, GetContainerNumSlots(bag) do
-                local _, count, _, _, _, _, link, _, _, id = GetContainerItemInfo(bag, slot)
-                if id and count then
-                    if not GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] then
-                        GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = count
+---this function will scan the guild members professions and record unique recipeIDs
+---it then processes the recipeIDs to get info about them
+---finally it then adds the recipe data to an addon table
+function Guildbook:RequestTradeskillData()
+    if self.addonLoaded == false then
+        return;
+    end
+    local delay = GUILDBOOK_GLOBAL['Debug'] and 0.05 or 0.1
+    local recipeIdsToQuery = {}
+    local charactersWithRecipe = {}
+    local charactersWithEnchantRecipe = {}
+    if not self.tradeskillRecipes then
+        self.tradeskillRecipes = {}
+    end
+    if not self.tradeskillRecipesKeys then
+        self.tradeskillRecipesKeys = {}
+    end
+    if not self.tradeskillEnchantRecipesKeys then
+        self.tradeskillEnchantRecipesKeys = {}
+    end
+    if type(self.GUILD_NAME) ~= "string" then
+        return;
+    end
+    if not GUILDBOOK_GLOBAL then
+        return;
+    end
+    if not GUILDBOOK_GLOBAL.GuildRosterCache[self.GUILD_NAME] then
+        return;
+    end
+    DEBUG("func", "RequestTradeskillData", "begin looping character cache")
+    for guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[self.GUILD_NAME]) do
+        if character.Profession1 and character.Profession1 ~= "-" then
+            local prof = character.Profession1
+            if character[prof] and next(character[prof]) ~= nil then
+                for recipeID, reagents in pairs(character[prof]) do
+                    if prof == "Enchanting" then
+                        if not charactersWithEnchantRecipe[recipeID] then
+                            charactersWithEnchantRecipe[recipeID] = {}
+                        end
+                        table.insert(charactersWithEnchantRecipe[recipeID], guid)
+                        if not self.craftIdsQueried[recipeID] then
+                            --DEBUG("func", "RequestTradeskillData", "adding ENCHANT to query: "..recipeID)
+                            self.craftIdsQueried[recipeID] = true;
+                            table.insert(recipeIdsToQuery, {
+                                recipeID = recipeID,
+                                prof = "Enchanting", 
+                                reagents = reagents or false,
+                            })
+                        end
                     else
-                        GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] + count
+                        if not charactersWithRecipe[recipeID] then
+                            charactersWithRecipe[recipeID] = {}
+                        end
+                        table.insert(charactersWithRecipe[recipeID], guid)
+                        if not self.recipeIdsQueried[recipeID] then
+                            --DEBUG("func", "RequestTradeskillData", "adding TRADESKILL to query: "..recipeID)
+                            self.recipeIdsQueried[recipeID] = true;
+                            table.insert(recipeIdsToQuery, {
+                                recipeID = recipeID,
+                                prof = prof, 
+                                reagents = reagents or false,
+                            })
+                        end
                     end
                 end
             end
         end
+        if character.Profession2 and character.Profession2 ~= "-" then
+            local prof = character.Profession2
+            if character[prof] and next(character[prof]) ~= nil then
+                for recipeID, reagents in pairs(character[prof]) do
+                    if not charactersWithRecipe[recipeID] then
+                        charactersWithRecipe[recipeID] = {}
+                    end
+                    if prof == "Enchanting" then
+                        if not charactersWithEnchantRecipe[recipeID] then
+                            charactersWithEnchantRecipe[recipeID] = {}
+                        end
+                        table.insert(charactersWithEnchantRecipe[recipeID], guid)
+                        if not self.craftIdsQueried[recipeID] then
+                            --DEBUG("func", "RequestTradeskillData", "adding ENCHANT to query: "..recipeID)
+                            self.craftIdsQueried[recipeID] = true;
+                            table.insert(recipeIdsToQuery, {
+                                recipeID = recipeID,
+                                prof = "Enchanting", 
+                                reagents = reagents or false,
+                            })
+                        end
+                    else
+                        if not charactersWithRecipe[recipeID] then
+                            charactersWithRecipe[recipeID] = {}
+                        end
+                        table.insert(charactersWithRecipe[recipeID], guid)
+                        if not self.recipeIdsQueried[recipeID] then
+                            --DEBUG("func", "RequestTradeskillData", "adding TRADESKILL to query: "..recipeID)
+                            self.recipeIdsQueried[recipeID] = true;
+                            table.insert(recipeIdsToQuery, {
+                                recipeID = recipeID,
+                                prof = prof, 
+                                reagents = reagents or false,
+                            })
+                        end
+                    end
+                end
+            end
+        end
+        if character.Cooking and type(character.Cooking) == "table" then
+            for recipeID, reagents in pairs(character.Cooking) do
+                if not charactersWithRecipe[recipeID] then
+                    charactersWithRecipe[recipeID] = {}
+                end
+                table.insert(charactersWithRecipe[recipeID], guid)
+                if not self.recipeIdsQueried[recipeID] then
+                    --DEBUG("func", "RequestTradeskillData", "adding COOKING to query: "..recipeID)
+                    self.recipeIdsQueried[recipeID] = true;
+                    table.insert(recipeIdsToQuery, {
+                        recipeID = recipeID,
+                        prof = "Cooking", 
+                        reagents = reagents or false,
+                    })
+                end
+            end
+        end
+    end
+    --DEBUG("func", "RequestTradeskillData", "recipes to query "..#recipeIdsToQuery)
+    if #recipeIdsToQuery > 0 then
+        local recipesToProcess = #recipeIdsToQuery;
+        local startTime = time();
+        self:PrintMessage(string.format("found %s recipes, estimated duration %s", #recipeIdsToQuery, SecondsToTime(#recipeIdsToQuery*delay)))
+        table.sort(recipeIdsToQuery, function(a,b)
+            if a.prof == b.prof then
+                return a.recipeID > b.recipeID -- sort highest id first, should help display newest expansion items sooner
+            else
+                return a.prof < b.prof
+            end
+        end)
+        local i = 1;
+        DEBUG('func', 'tradeskill data requst', string.format("found %s recipes, estimated duration %s", #recipeIdsToQuery, SecondsToTime(#recipeIdsToQuery*delay)))
 
-        -- main bank
-        for slot = 1, 28 do
-            local _, count, _, _, _, _, link, _, _, id = GetContainerItemInfo(-1, slot)
-            if id and count then
-                if not GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] then
-                    GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = count
+        local statusBar = GuildbookUI.tradeskills.statusBar
+        statusBar:SetValue(0)
+        statusBar:Show()
+        local statusBarText = GuildbookUI.tradeskills.statusBarText
+        statusBarText:SetText("Loading...")
+        statusBarText:Show()
+        
+        C_Timer.NewTicker(delay, function()
+            if not recipeIdsToQuery[i] then
+                return
+            end
+            local recipeID = recipeIdsToQuery[i].recipeID
+            local prof = recipeIdsToQuery[i].prof
+            local reagents = recipeIdsToQuery[i].reagents
+            local l, r, n, e, x, ic = false, false, false, false, 0, false
+            local thaokyItemSource, spellID = LCI:GetItemSource(recipeID)
+            local thaokyCraftProfession = LCI:GetCraftProfession(recipeID)
+            local _, _, _, equipLoc, _, itemClassID, itemSubClassID = GetItemInfoInstant(recipeID)
+            if not equipLoc then
+                equipLoc = "INVTYPE_NON_EQUIP"
+            end
+            if prof == "Enchanting" then
+                equipLoc = "INVTYPE_NON_EQUIP";
+            end
+            -- if i < 20 then
+            --     --DEBUG("func", "GET_PROF_DATA", string.format("gb prof: %s thaoky prof: %s", prof, tradeskill or "no thaoky data"))
+            -- end
+            -- if prof ~= thaokyProf then
+            --     --DEBUG("func", "GET_PROF_DATA", string.format("gb prof: %s thaoky prof: %s", prof, thaokyProf or "no thaoky data"))
+            -- end
+            if spellID then
+                x = LCI:GetCraftXPack(spellID)
+            end
+            if prof == 'Enchanting' then
+                l = GetSpellLink(recipeID)
+                r = 1
+                n = GetSpellInfo(recipeID)
+                if not n then
+                    n = "unknown"
+                end
+                e = true
+            else
+                n, l, r, _, _, _, _, _, _, ic = GetItemInfo(recipeID)
+            end
+            if not l and not n and not r and not ic then
+                if prof == 'Enchanting' then                    
+                    local spell = Spell:CreateFromSpellID(recipeID)
+                    local _, _, _, equipLoc = GetItemInfoInstant(recipeID)
+                    if equipLoc == nil then
+                        equipLoc = 0
+                    end
+                    spell:ContinueOnSpellLoad(function()
+                        l = GetSpellLink(recipeID)
+                        n, _, ic = GetSpellInfo(recipeID)
+                        if not n then
+                            n = "unknown"
+                        end
+                        if not ic then
+                            ic = 136244
+                        end
+                        e = true
+                        table.insert(self.tradeskillRecipes, {
+                            itemID = recipeID,
+                            reagents = reagents,
+                            rarity = 1,
+                            link = l,
+                            icon = ic,
+                            expsanion = x;
+                            enchant = true,
+                            name = n,
+                            profession = prof,
+                            equipLocation = equipLoc,
+                            class = -1,
+                            subClass = -1,
+                            charactersWithRecipe = charactersWithEnchantRecipe[recipeID],
+                            thaokyCraftProfession = thaokyCraftProfession,
+                            thaokyItemSource = thaokyItemSource,
+                        })
+                        recipesToProcess = recipesToProcess - 1;
+                        --DEBUG('func', 'tradeskill data requst', string.format("added recipeID %s prof %s link %s", recipeID, prof, l))
+                    end)
                 else
-                    GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] + count
+                    local item = Item:CreateFromItemID(recipeID)
+                    item:ContinueOnItemLoad(function()
+                        l = item:GetItemLink()
+                        r = item:GetItemQuality()
+                        n = item:GetItemName()
+                        ic = item:GetItemIcon()
+                        table.insert(self.tradeskillRecipes, {
+                            itemID = recipeID,
+                            reagents = reagents,
+                            rarity = r,
+                            link = l,
+                            icon = ic,
+                            expansion = x;
+                            enchant = false,
+                            name = n,
+                            profession = prof,
+                            equipLocation = equipLoc,
+                            class = itemClassID,
+                            subClass = itemSubClassID,
+                            charactersWithRecipe = charactersWithRecipe[recipeID],
+                            thaokyCraftProfession = thaokyCraftProfession,
+                            thaokyItemSource = thaokyItemSource,
+                        })
+                        recipesToProcess = recipesToProcess - 1;
+                        --DEBUG('func', 'tradeskill data requst', string.format("added recipeID %s prof %s link %s", recipeID, prof, l))
+                    end)
                 end
+            else
+                if prof == "Enchanting" then
+                    table.insert(self.tradeskillRecipes, {
+                        itemID = recipeID,
+                        reagents = reagents,
+                        rarity = r,
+                        link = l,
+                        icon = 136244,
+                        enchant = true,
+                        expansion = x;
+                        name = n,
+                        profession = prof,
+                        equipLocation = equipLoc,
+                        class = -1,
+                        subClass = -1,
+                        charactersWithRecipe = charactersWithEnchantRecipe[recipeID],
+                        thaokyCraftProfession = thaokyCraftProfession,
+                        thaokyItemSource = thaokyItemSource,
+                    })
+                else
+                    table.insert(self.tradeskillRecipes, {
+                        itemID = recipeID,
+                        reagents = reagents,
+                        rarity = r,
+                        link = l,
+                        icon = ic,
+                        enchant = false,
+                        expansion = x;
+                        name = n,
+                        profession = prof,
+                        equipLocation = equipLoc,
+                        class = itemClassID,
+                        subClass = itemSubClassID,
+                        charactersWithRecipe = charactersWithRecipe[recipeID],
+                        thaokyCraftProfession = thaokyCraftProfession,
+                        thaokyItemSource = thaokyItemSource,
+                    })
+                end
+                recipesToProcess = recipesToProcess - 1;
+                --DEBUG('func', 'tradeskill data requst', string.format("added recipeID %s prof %s link %s", recipeID, prof, l))
             end
-        end
 
-        -- bank bags
-        for bag = 5, 11 do
-            for slot = 1, GetContainerNumSlots(bag) do
-                local _, count, _, _, _, _, link, _, _, id = GetContainerItemInfo(bag, slot)
-                if id and count then
-                    if not GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] then
-                        GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = count
+            statusBar:SetValue(i / #recipeIdsToQuery)
+            statusBarText:SetText(string.format(L["PROCESSED_RECIPES_SS"], i, #recipeIdsToQuery))
+
+            i = i + 1;
+            if i > #recipeIdsToQuery then
+
+                for k, v in ipairs(self.tradeskillRecipes) do
+                    if v.enchant then
+                        self.tradeskillEnchantRecipesKeys[v.itemID] = k
                     else
-                        GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] + count
+                        self.tradeskillRecipesKeys[v.itemID] = k
                     end
+                    statusBarText:SetText(string.format("mapping keys %s of %s", k, #self.tradeskillRecipes))
                 end
+
+                statusBar:Hide()
+                statusBarText:SetText("")
+                statusBarText:Hide()
+
+                self:PrintMessage(string.format("all tradeskill recipes processed, took %s", SecondsToTime(time()-startTime)))
+                DEBUG('func', 'tradeskill data requst', string.format("all tradeskill recipes processed, took %s", SecondsToTime(time()-startTime)))
+
+                return;
             end
-        end
 
-        local bankUpdate = {
-            type = 'GUILD_BANK_DATA_RESPONSE',
-            payload = {
-                Data = GUILDBOOK_GLOBAL["GuildBank"][name].Data,
-                Commit = GUILDBOOK_GLOBAL["GuildBank"][name].Commit,
-                Money = GUILDBOOK_GLOBAL["GuildBank"][name].Money,
-                Bank = name,
-            }
-        }
-        self:Transmit(bankUpdate, 'GUILD', nil, 'BULK')
-        --DEBUG('comms_out', 'ScanPlayerContainers', 'sending guild bank data due to new commit')
+        end, #recipeIdsToQuery)
+    else
+        DEBUG('func', 'tradeskill data requst', "no new recipes to query")
+    end
+end
 
-    --end
+
+function Guildbook:CheckCharacterProfessionsForErrors()
+
 end
 
 
@@ -1913,8 +1838,8 @@ function Guildbook:ScanGuildRoster(callback)
         end
         local memberGUIDs = {}
         local currentGUIDs = {}
-        if not self.onlineMembers then
-            self.onlineMembers = {}
+        if not self.onlineZoneInfo then
+            self.onlineZoneInfo = {}
         end
         local faction = self.player.faction
         if not faction then
@@ -1954,7 +1879,10 @@ function Guildbook:ScanGuildRoster(callback)
             end
             currentGUIDs[i] = { GUID = guid, lvl = level, exists = true, online = isOnline, rank = rankName, pubNote = publicNote, offNote = officerNote}
             memberGUIDs[guid] = true;
-            self.onlineMembers[name] = isOnline
+            self.onlineZoneInfo[guid] = {
+                online = isOnline,
+                zone = zone,
+            }
             --name = Ambiguate(name, 'none')
             --table.insert(GUILDBOOK_GLOBAL['RosterExcel'], string.format("%s,%s,%s,%s,%s", name, class, rankName, level, publicNote))
         end
@@ -2451,8 +2379,9 @@ end
 
 local versionsChecked = {}
 function Guildbook:OnVersionInfoRecieved(data, distribution, sender)
+    -- we dont care about our own version check
     if data.senderGUID == UnitGUID("player") then
-        --return;
+        return;
     end
     if data.payload then
         if tonumber(self.version) < tonumber(data.payload) then
@@ -2465,6 +2394,9 @@ function Guildbook:OnVersionInfoRecieved(data, distribution, sender)
             self:SendVersionData() -- if our version is newer send it back to inform the player
         end
     end
+    -- the idea here is to update characters when they come online, allowing 30s means the player logging on has time for addons to load up
+    -- the issue is however, they might log off before 30s which results in the 'No playername ...' system messages
+    -- TODO: revise this system and improve
     C_Timer.After(30, function()
         self:UpdatePlayer(sender)
     end)
@@ -3634,19 +3566,13 @@ function Guildbook:GUILD_ROSTER_UPDATE(...)
     end)
 end
 
-function Guildbook:BAG_UPDATE()
-    --self:ScanPlayerBags()
+function Guildbook:BAG_UPDATE_DELAYED()
+    self:ScanPlayerBags()
 end
 
--- added to automate the guild bank scan
+
 function Guildbook:BANKFRAME_OPENED()
-    for i = 1, GetNumGuildMembers() do
-        local _, _, _, _, _, _, publicNote, _, _, _, _, _, _, _, _, _, GUID = GetGuildRosterInfo(i)
-        if publicNote:lower():find('guildbank') and GUID == UnitGUID('player') then
-            self:ScanPlayerContainers()
-        end
-    end
-    --self:ScanPlayerBank()
+
 end
 
 -- added this to the closed event to be extra accurate
@@ -3654,13 +3580,7 @@ local bankScanned = false;
 function Guildbook:BANKFRAME_CLOSED()
     if bankScanned == false then
         DEBUG("event", "BANKFRAME_CLOSED", "scanning items")
-        for i = 1, GetNumGuildMembers() do
-            local _, _, _, _, _, _, publicNote, _, _, _, _, _, _, _, _, _, GUID = GetGuildRosterInfo(i)
-            if publicNote:lower():find('guildbank') and GUID == UnitGUID('player') then
-                self:ScanPlayerContainers()
-            end
-        end
-        --self:ScanPlayerBank()
+        self:ScanPlayerBank()
         bankScanned = true;
     else
         bankScanned = false;
@@ -3862,7 +3782,7 @@ Guildbook.EventFrame:RegisterEvent('SKILL_LINES_CHANGED')
 Guildbook.EventFrame:RegisterEvent('RAID_ROSTER_UPDATE')
 Guildbook.EventFrame:RegisterEvent('BANKFRAME_OPENED')
 Guildbook.EventFrame:RegisterEvent('BANKFRAME_CLOSED')
-Guildbook.EventFrame:RegisterEvent('BAG_UPDATE')
+Guildbook.EventFrame:RegisterEvent('BAG_UPDATE_DELAYED')
 Guildbook.EventFrame:RegisterEvent('CHAT_MSG_GUILD')
 Guildbook.EventFrame:RegisterEvent('CHAT_MSG_WHISPER')
 Guildbook.EventFrame:RegisterEvent('CHAT_MSG_SYSTEM')

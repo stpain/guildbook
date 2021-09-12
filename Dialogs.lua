@@ -40,8 +40,6 @@ StaticPopupDialogs['Error'] = {
     timeout = 0,
     whileDead = true,
     hideOnEscape = false,
-    preferredIndex = 3,
-    showAlert = 1,
 }
 
 StaticPopupDialogs['Reload'] = {
@@ -54,8 +52,6 @@ StaticPopupDialogs['Reload'] = {
     timeout = 0,
     whileDead = true,
     hideOnEscape = false,
-    preferredIndex = 3,
-    showAlert = 1,
 }
 
 StaticPopupDialogs['GuildbookDeleteGuild'] = {
@@ -74,8 +70,6 @@ StaticPopupDialogs['GuildbookDeleteGuild'] = {
     timeout = 0,
     whileDead = true,
     hideOnEscape = false,
-    preferredIndex = 3,
-    showAlert = 1,
 }
 
 StaticPopupDialogs['GuildbookResetCharacter'] = {
@@ -97,8 +91,6 @@ StaticPopupDialogs['GuildbookResetCharacter'] = {
     timeout = 0,
     whileDead = true,
     hideOnEscape = false,
-    preferredIndex = 3,
-    showAlert = 1,
 }
 
 StaticPopupDialogs['GuildbookResetCacheCharacter'] = {
@@ -118,8 +110,6 @@ StaticPopupDialogs['GuildbookResetCacheCharacter'] = {
     timeout = 0,
     whileDead = true,
     hideOnEscape = false,
-    preferredIndex = 3,
-    showAlert = 1,
 }
 
 StaticPopupDialogs['GuildbookResetGlobalSettings'] = {
@@ -140,8 +130,6 @@ StaticPopupDialogs['GuildbookResetGlobalSettings'] = {
     timeout = 0,
     whileDead = true,
     hideOnEscape = false,
-    preferredIndex = 3,
-    showAlert = 1,
 }
 
 StaticPopupDialogs['GuildbookGatheringDatabaseEditObject'] = {
@@ -175,8 +163,6 @@ StaticPopupDialogs['GuildbookGatheringDatabaseEditObject'] = {
     timeout = 0,
     whileDead = true,
     hideOnEscape = false,
-    preferredIndex = 3,
-    showAlert = 1,
 }
 
 StaticPopupDialogs['MainCharacterAddAltCharacter'] = {
@@ -215,8 +201,6 @@ StaticPopupDialogs['MainCharacterAddAltCharacter'] = {
     timeout = 0,
     whileDead = true,
     hideOnEscape = false,
-    preferredIndex = 3,
-    showAlert = 1,
 }
 
 StaticPopupDialogs['MainCharacterRemoveAltCharacter'] = {
@@ -253,8 +237,6 @@ StaticPopupDialogs['MainCharacterRemoveAltCharacter'] = {
     timeout = 0,
     whileDead = true,
     hideOnEscape = false,
-    preferredIndex = 3,
-    showAlert = 1,
 }
 
 StaticPopupDialogs['GuildbookUpdateAvailable'] = {
@@ -278,20 +260,17 @@ StaticPopupDialogs['GuildbookUpdates'] = {
     text = 'Guildbook Version: %s\n\n%s',
     button1 = 'OK',
     OnAccept = function(self)
-        GUILDBOOK_GLOBAL.configUpdate = true
-    end,
-    OnShow = function(self)
-    end,
-    OnHide = function(self)
-        --self.icon:SetTexture("Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew")
+        GUILDBOOK_GLOBAL.guildBankRemoved = true;
     end,
     timeout = 0,
     whileDead = true,
     hideOnEscape = false,
     preferredIndex = 3,
-    showAlert = 1,
+    showAlert = true,
 }
 
+---this popup was an attempt at having the addon auto scan a players professions
+---its not used at the moment as there is a slight 'clunk' during log in and i wasnt happy with it
 StaticPopupDialogs['GuildbookFirstLoad'] = {
     text = L["DIALOG_CHARACTER_FIRST_LOAD"],
     button1 = "",
@@ -334,20 +313,22 @@ StaticPopupDialogs['GuildbookFirstLoad'] = {
 }
 
 
+---this popup is used to confirm the user wants to remove a tradeskill recipe item from the loaded profession
+---its a plaster to fix an issue of items loading into the wrong professions
 StaticPopupDialogs['GuildbookDeleteRecipeFromCharacters'] = {
     text = "%s",
     button1 = "OK",
     button2 = "Cancel",
     OnAccept = function(self, t)
         if t.itemLink and t.characters then
-            for _, char in ipairs(t.characters) do
-                local character = Guildbook:GetCharacterFromCache(char.guid)
+            for _, guid in ipairs(t.characters) do
+                local character = Guildbook:GetCharacterFromCache(guid)
                 if character and character[t.prof] then
-                    character[t.prof][t.recipeID] = nil;
-                    --print(string.format("removed %s from %s for %s", t.itemLink, character.Name, t.prof))
+                    --character[t.prof][t.recipeID] = nil;
+                    print(string.format("removed %s from %s for %s, with index %s", t.itemLink, character.Name, t.prof, t.listviewIndex))
                 end
             end
-            t.listview:RemoveRecipe(t.recipeID)
+            --t.listview.DataProvider:Removeindex(t.listviewIndex)
         end
     end,
 }
