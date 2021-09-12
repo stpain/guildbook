@@ -1145,20 +1145,20 @@ GuildbookTradeskillsMixin = {}
 
 ---filter button data/info table
 local invSlots = {
-    { atlas = "transmog-nav-slot-head", tooltip = "head", globals = "INVTYPE_HEAD", },
-    { atlas = "transmog-nav-slot-shoulder", tooltip = "shoulder", globals = "INVTYPE_SHOULDER", },
-    { atlas = "transmog-nav-slot-back", tooltip = "back", globals = "INVTYPE_CLOAK", },
-    { atlas = "transmog-nav-slot-chest", tooltip = "chest", globals = { "INVTYPE_CHEST", "INTYPE_ROBE", }, },
-    { atlas = "transmog-nav-slot-wrist", tooltip = "wrist", globals = "INVTYPE_WRIST", },
-    { atlas = "transmog-nav-slot-hands", tooltip = "hands", globals = "INVTYPE_HAND", },
-    { atlas = "transmog-nav-slot-waist", tooltip = "waist", globals = "INVTYPE_WAIST", },
-    { atlas = "transmog-nav-slot-legs", tooltip = "legs", globals = "INVTYPE_LEGS", },
-    { atlas = "transmog-nav-slot-feet", tooltip = "feet", globals = "INVTYPE_FEET", },
-    { atlas = "transmog-nav-slot-mainhand", tooltip = "weapons", globals = { "INVTYPE_WEAPON", "INVTYPE_2HWEAPON", "INVTYPE_WEAPONMAINHAND", "INVTYPE_RANGED", "INVTYPE_RANGEDRIGHT", "INVTYPE_THROWN", }, },
-    { atlas = "transmog-nav-slot-secondaryhand", tooltip = "off hand", globals = { "INVTYPE_WEAPONOFFHAND", "INVTYPE_SHIELD", "INVTYPE_HOLDABLE", }, },
-    { atlas = "transmog-nav-slot-enchant", tooltip = "misc", globals = { "INVTYPE_FINGER", "INVTYPE_NECK", "INVTYPE_TRINKET", "INVTYPE_BAG", "INVTYPE_QUIVER", }, },
-    { atlas = "bags-icon-consumables", tooltip = "consumables", globals = "CONSUMABLES" },
-    { atlas = "transmog-icon-remove", tooltip = "clear", globals = "CLEAR_ALL_FILTERS" },
+    { atlas = "transmog-nav-slot-head", tooltip = L["HEAD"], globals = "INVTYPE_HEAD", },
+    { atlas = "transmog-nav-slot-shoulder", tooltip = L["SHOULDER"], globals = "INVTYPE_SHOULDER", },
+    { atlas = "transmog-nav-slot-back", tooltip = L["BACK"], globals = "INVTYPE_CLOAK", },
+    { atlas = "transmog-nav-slot-chest", tooltip = L["CHEST"], globals = { "INVTYPE_CHEST", "INTYPE_ROBE", }, },
+    { atlas = "transmog-nav-slot-wrist", tooltip = L["WRIST"], globals = "INVTYPE_WRIST", },
+    { atlas = "transmog-nav-slot-hands", tooltip = L["HANDS"], globals = "INVTYPE_HAND", },
+    { atlas = "transmog-nav-slot-waist", tooltip = L["WAIST"], globals = "INVTYPE_WAIST", },
+    { atlas = "transmog-nav-slot-legs", tooltip = L["LEGS"], globals = "INVTYPE_LEGS", },
+    { atlas = "transmog-nav-slot-feet", tooltip = L["FEET"], globals = "INVTYPE_FEET", },
+    { atlas = "transmog-nav-slot-mainhand", tooltip = L["WEAPONS"], globals = { "INVTYPE_WEAPON", "INVTYPE_2HWEAPON", "INVTYPE_WEAPONMAINHAND", "INVTYPE_RANGED", "INVTYPE_RANGEDRIGHT", "INVTYPE_THROWN", }, },
+    { atlas = "transmog-nav-slot-secondaryhand", tooltip = L["OFF_HAND"], globals = { "INVTYPE_WEAPONOFFHAND", "INVTYPE_SHIELD", "INVTYPE_HOLDABLE", }, },
+    { atlas = "transmog-nav-slot-enchant", tooltip = L["MISC"], globals = { "INVTYPE_FINGER", "INVTYPE_NECK", "INVTYPE_TRINKET", "INVTYPE_BAG", "INVTYPE_QUIVER", }, },
+	{ atlas = "bags-icon-consumables", tooltip = L["CONSUMABLES"], globals = "CONSUMABLES" },
+    { atlas = "transmog-icon-remove", tooltip = "clear", globals = nil },
 }
 
 local function filterConsumables(subType)
