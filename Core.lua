@@ -640,7 +640,7 @@ function Guildbook:Load()
         GUILDBOOK_GLOBAL.guildBankRemoved = false;
     end
     if (tonumber(self.version) == 4.9662) and GUILDBOOK_GLOBAL.guildBankRemoved == false then
-        local news = "With the arrival of guild banks to TBCC i have removed the guild bank system from Guildbook. I am working on something to replace it though!"
+        local news = L["PHASE2GB"]
         StaticPopup_Show('GuildbookUpdates', self.version, news)
     end
 
