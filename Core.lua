@@ -396,7 +396,7 @@ function Guildbook:PLAYER_ENTERING_WORLD()
     C_Timer.After(3.0, function()
         local guildName = self:GetGuildName()
         if not guildName then
-            Guildbook.Debug("event", "PEW", "not in a guild or no guild name")
+            Guildbook.DEBUG("event", "PEW", "not in a guild or no guild name")
             return -- if not in a guild just exit for now, all saved vars have been created and the player race/faction stored for the session
         end
         self:ScanGuildRoster(function()
@@ -3266,7 +3266,7 @@ function Guildbook:CHARACTER_POINTS_CHANGED(...)
             self.talentPointsChangedTimer = C_Timer.NewTimer(
                 15,
                 function() 
-                    self:GetCharacterTalentInfo()
+                    self:GetCharacterTalentInfo("primary")
                 end
             )
         end
@@ -3530,7 +3530,7 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
     --     data.senderGUID = self:GetGuildMemberGUID(sender)
     -- end
 
-    Guildbook.DEBUG('comms_in', 'ON_COMMS_RECEIVED', string.format("%s from %s", data.type, sender), data)
+    Guildbook.DEBUG('comms_in', string.format("%s -> %s", 'ON_COMMS_RECEIVED', distribution), string.format("%s from %s", data.type, sender), data)
 
     if data.type == "DB_SET" then
         self:DB_OnDataReceived(data, distribution, sender)
