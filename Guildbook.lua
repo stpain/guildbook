@@ -3158,7 +3158,7 @@ function GuildbookProfilesMixin:CreateTalentUI()
         for row = 1, self.NUM_TALENT_ROWS do
             self.contentPane.scrollChild.talents.talentTree[spec][row] = {}
             for col = 1, 4 do
-                local f = CreateFrame('FRAME', tostring('GuildbookProfilesTalents'..spec..row..col), self.contentPane.scrollChild.talents, BackdropTemplateMixin and "BackdropTemplate")
+                local f = CreateFrame('BUTTON', tostring('GuildbookProfilesTalents'..spec..row..col), self.contentPane.scrollChild.talents, BackdropTemplateMixin and "BackdropTemplate")
                 f:SetSize(28, 28)
                 f:SetPoint('TOPLEFT', 3+((colPoints[col] * 0.83) + ((spec - 1) * 217)), ((rowPoints[row] * 0.83) * -1) - 34)
 
@@ -3180,7 +3180,11 @@ function GuildbookProfilesMixin:CreateTalentUI()
                 f.Points:SetPoint('CENTER', f.pointsBackground, 'CENTER', 1, 0)
 
                 f:SetScript('OnEnter', function(self)
-                    if self.name then
+                    if self.link then
+                        GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
+                        GameTooltip:SetHyperlink(self.link)
+                        GameTooltip:Show()
+                    elseif self.name then
                         GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
                         --GameTooltip:SetSpellByID(self.spellID)
                         GameTooltip:AddLine(self.name)
@@ -3192,6 +3196,11 @@ function GuildbookProfilesMixin:CreateTalentUI()
                 end)
                 f:SetScript('OnLeave', function(self)
                     GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+                end)
+                f:SetScript('OnClick', function(self, mouseButton)
+                    if ( mouseButton == "LeftButton" ) and ( IsModifiedClick("CHATLINK") ) and ( self.link ) then
+                        ChatEdit_InsertLink(self.link)
+                    end
                 end)
 
 
@@ -3232,6 +3241,7 @@ function GuildbookProfilesMixin:LoadTalents(spec)
                     self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].name = info.Name
                     self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].rank = info.Rank
                     self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].maxRank = info.MxRnk
+                    self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].link = info.Link
                     --self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].Points:SetText(info.Rank) --string.format("%s / %s", info.Rank, info.MxRnk))
                     self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].Points:Show()
                     self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].pointsBackground:Show()

@@ -2153,6 +2153,7 @@ function Guildbook:GetCharacterTalentInfo(activeTalents)
                     MxRnk = maxRank,
                     Icon = iconTexture,
                     Name = name,
+                    Link = GetTalentLink(tabIndex, talentIndex),
                 })
             end
         end
