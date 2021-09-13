@@ -23,7 +23,6 @@ the copyright holders.
 local addonName, Guildbook = ...
 
 local L = Guildbook.Locales
-local DEBUG = Guildbook.DEBUG
 local PRINT = Guildbook.PRINT
 
 
@@ -83,7 +82,7 @@ StaticPopupDialogs['GuildbookResetCharacter'] = {
             GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][UnitGUID('player')] = nil
         end
         GUILDBOOK_CHARACTER = Guildbook.Data.DefaultCharacterSettings
-        DEBUG("error", "ResetCharacterData", "set character saved var table to default values")
+        Guildbook.DEBUG("error", "ResetCharacterData", "set character saved var table to default values")
     end,
     OnCancel = function(self)
 

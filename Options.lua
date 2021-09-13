@@ -23,7 +23,6 @@ the copyright holders.
 local addonName, Guildbook = ...
 
 local L = Guildbook.Locales
-local DEBUG = Guildbook.DEBUG
 
 Guildbook.OptionsInterface = {}
 
@@ -46,7 +45,7 @@ end
 --         end
 --         GUILDBOOK_CHARACTER['AttunementsKeys'][instance] = self:GetChecked()
 --         self:SetChecked(GUILDBOOK_CHARACTER['AttunementsKeys'][instance])
---         DEBUG(' ', 'set instance: '..instance..' attunement key as: '..tostring(self:GetChecked()))
+--         Guildbook.DEBUG(' ', 'set instance: '..instance..' attunement key as: '..tostring(self:GetChecked()))
 --     end
 -- end
 

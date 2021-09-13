@@ -3,7 +3,6 @@
 local _, gb = ...
 
 local L = gb.Locales
-local DEBUG = gb.DEBUG
 
 local LCI = LibStub:GetLibrary("LibCraftInfo-1.0")
 local LibGraph = LibStub("LibGraph-2.0");
@@ -625,7 +624,7 @@ function GuildbookRosterListviewItemMixin:OnEnter()
     local colour = CreateColor(0.1, 0.58, 0.92, 1)
     local function formatTradeskill(prof, spec)
         if spec then
-            return string.format("%s [%s]", prof, Guildbook.Colours.Blue:WrapTextInColorCode((GetSpellInfo(spec))));
+            return string.format("%s [%s]", prof, gb.Colours.Blue:WrapTextInColorCode((GetSpellInfo(spec))));
         elseif prof then
             return prof;
         else
@@ -3016,7 +3015,7 @@ function GuildbookProfilesMixin:AddCharacterModelFrame(target, race, gender)
         f:SetScript('OnShow', function(self)
             --print("SHOWING MODEL", race, gender)
             self.anim:Play()
-            DEBUG('func', 'CharacterModel_OnShow', 'showing model '..race..' '..gender)
+            gb.DEBUG('func', 'CharacterModel_OnShow', 'showing model '..race..' '..gender)
             C_Timer.After(0.1, function()
                 self:SetRotation(0.1)
                 self:SetPosition(0.0, 0.0, -0.04)
@@ -3067,7 +3066,7 @@ function GuildbookProfilesMixin:AddCharacterModelFrame(target, race, gender)
 
         self.characterModels[race][gender] = f
     else
-        DEBUG('func', 'CreateCharacterModel', race..' '..gender..' exists')
+        gb.DEBUG('func', 'CreateCharacterModel', race..' '..gender..' exists')
         if not self.sidePane:IsVisible() then
             self:LoadCharacterModelItems()
         end
@@ -3223,7 +3222,7 @@ function GuildbookProfilesMixin:LoadTalents(spec)
     self:HideTalentIcons()
     if self.character and self.character.Talents then
         if self.character.Talents[spec] then
-            DEBUG('func', 'ProfilesFrame:Load Talents', 'loading character talents')
+            gb.DEBUG('func', 'ProfilesFrame:Load Talents', 'loading character talents')
             for k, info in ipairs(self.character.Talents[spec]) do
                 --print(info.Name, info.Rank, info.MaxRank, info.Icon, info.Tab, info.Row, info.Col)
                 if self.contentPane.scrollChild.talents.talentTree[info.Tab] and self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row] then
@@ -3456,11 +3455,11 @@ function GuildbookSearchMixin:Search(term)
     end
     -- search professions
     if gb.tradeskillRecipes and #gb.tradeskillRecipes > 0 then
-        --DEBUG("func", "Search", "tradeskillRecipes exists > 0")
+        --gb.DEBUG("func", "Search", "tradeskillRecipes exists > 0")
         for k, recipe in ipairs(gb.tradeskillRecipes) do
-            --DEBUG("func", "Search", string.format("recipe name: %s, search term: %s", recipe.name, term))
+            --gb.DEBUG("func", "Search", string.format("recipe name: %s, search term: %s", recipe.name, term))
             if recipe.name:lower():find(term:lower()) and not self.processed[recipe.link] then
-                --DEBUG("func", "Search", "match found")
+                --gb.DEBUG("func", "Search", "match found")
                 local itemID, itemType, itemSubType, itemEquipLoc, icon, itemClassID, itemSubClassID = GetItemInfoInstant(recipe.itemID)
                 table.insert(self.results, {
                     resultKey = resultKeys["tradeskill"],
@@ -3480,7 +3479,7 @@ function GuildbookSearchMixin:Search(term)
             end
         end
     else
-        DEBUG("func", "Search", "tradeskillRecipes NOT exists > 0")
+        gb.DEBUG("func", "Search", "tradeskillRecipes NOT exists > 0")
     end
 
 
@@ -3944,7 +3943,7 @@ function GuildbookPrivacyMixin:OnShow()
     table.insert(self.shareTalents.menu, {
         text =  L["NONE"],
         func = function()
-            DEBUG("func", "PrivacySelection_Changed", "set talent privacy setting to none")
+            gb.DEBUG("func", "PrivacySelection_Changed", "set talent privacy setting to none")
             GUILDBOOK_GLOBAL.config.privacy.shareTalentsMinRank = "none";
             updateInfo(self.talentsSharingInfo, "none")
             gb:SendPrivacyInfo(nil, "GUILD")

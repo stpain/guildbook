@@ -1,0 +1,52 @@
+<UI>
+
+    <Frame name="GuildbookDebuggerListviewTemplate" mixin="GuildbookDebuggerListviewMixin" virtual="true">
+        <Frames>
+            <Frame parentKey="ScrollBox" inherits="WowScrollBoxList"/>
+            <EventFrame parentKey="ScrollBar" inherits="WowTrimScrollBar">
+                <Anchors>
+                    <Anchor point="TOPRIGHT"/>
+                    <Anchor point="BOTTOMRIGHT"/>
+                </Anchors>
+            </EventFrame>
+        </Frames>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+        </Scripts>
+    </Frame>
+
+    <Frame name="GuildbookDebuggerListviewItemTemplate" mixin="GuildbookDebuggerListviewItemTemplateMixin" enableMouse="true" virtual="true">
+        <Size y="24"/>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="background" setAllPoints="true">
+
+                </Texture>
+            </Layer>
+            <Layer level="HIGHLIGHT">
+                <Texture parentKey="highlight" setAllPoints="true" atlas="search-highlight-large" />
+            </Layer>
+            <Layer level="OVERLAY">
+                <FontString parentKey="timestamp" inherits="GameFontNormal">
+                    <Color r="1" g="1" b="1"/>
+                    <Anchors>
+                        <Anchor point="LEFT" x="0" y="0"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="blockName" inherits="GameFontNormal">
+                    <Color r="1" g="1" b="1"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent.timestamp" relativePoint="RIGHT" x="10" y="0"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="message" inherits="GameFontNormal">
+                    <Color r="1" g="1" b="1"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent.blockName" relativePoint="RIGHT" x="10" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+    </Frame>
+
+</UI>

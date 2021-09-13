@@ -18,15 +18,18 @@ Libs\AceComm-3.0\AceComm-3.0.xml
 Libs\LibSerialize\lib.xml
 Libs\LibCraftInfo-1.0\LibCraftInfo-1.0.xml
 
-Debugger.lua
-
 Locales.lua
 
 Templates.lua
 Templates.xml
 
-ModBlizzUI.lua
 Data.lua
+
+Debugger.xml
+Debugger.lua
+
+ModBlizzUI.lua
+
 Core.lua
 Calendar.lua
 Dialogs.lua

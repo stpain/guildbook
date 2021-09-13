@@ -906,21 +906,6 @@
         </Scripts>
     </Frame>
 
-    <Frame name="GuildbookDebuggerListviewTemplate" mixin="GuildbookDebuggerListviewMixin" virtual="true">
-        <Frames>
-            <Frame parentKey="ScrollBox" inherits="WowScrollBoxList"/>
-            <EventFrame parentKey="ScrollBar" inherits="WowTrimScrollBar">
-                <Anchors>
-                    <Anchor point="TOPRIGHT"/>
-                    <Anchor point="BOTTOMRIGHT"/>
-                </Anchors>
-            </EventFrame>
-        </Frames>
-        <Scripts>
-            <OnLoad method="OnLoad"/>
-        </Scripts>
-    </Frame>
-
     <Frame name="GuildbookTradeSkillItemsListviewTemplate" mixin="GuildbookTradeSkillItemsListviewMixin" virtual="true">
         <Frames>
             <Frame parentKey="ScrollBox" inherits="WowScrollBoxList"/>
