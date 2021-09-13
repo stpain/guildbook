@@ -393,9 +393,10 @@ function Guildbook:PLAYER_ENTERING_WORLD()
         end
     end)
     GuildRoster() -- this will trigger a roster scan but we set addonLoaded as false at top of file to skip the auto roster scan so this is first scan
-    C_Timer.After(2.0, function()
+    C_Timer.After(3.0, function()
         local guildName = self:GetGuildName()
         if not guildName then
+            Guildbook.Debug("event", "PEW", "not in a guild or no guild name")
             return -- if not in a guild just exit for now, all saved vars have been created and the player race/faction stored for the session
         end
         self:ScanGuildRoster(function()
