@@ -1934,27 +1934,27 @@ function Guildbook:ScanGuildRoster(callback)
                         end
 
                         -- this was a bug found where i used Prof1 instead of Profession1
-                        if not info.Profession1 then
-                            info.Profession1 = (info.Prof1 and info.Prof1 or "-")
-                        end
-                        if not info.Profession2 then
-                            info.Profession2 = (info.Prof2 and info.Prof2 or "-")
-                        end
+                        -- if not info.Profession1 then
+                        --     info.Profession1 = (info.Prof1 and info.Prof1 or "-")
+                        -- end
+                        -- if not info.Profession2 then
+                        --     info.Profession2 = (info.Prof2 and info.Prof2 or "-")
+                        -- end
                         -- if info.Profession1 == "-" and info.Profession2 == "-" then
                         --     DEBUG("func", "ScanGuildRoster", string.format("no prof keys for %s", info.Name))
                         -- end
                         -- remove the old
-                        info.Prof1 = nil
-                        info.Prof2 = nil
-                        if not info.Profession1Level then
-                            info.Profession1Level = (info.Prof1Level and info.Prof1Level or "-")
-                        end
-                        if not info.Profession2Level then
-                            info.Profession2Level = (info.Prof2Level and info.Prof2Level or "-")
-                        end
+                        -- info.Prof1 = nil
+                        -- info.Prof2 = nil
+                        -- if not info.Profession1Level then
+                        --     info.Profession1Level = (info.Prof1Level and info.Prof1Level or "-")
+                        -- end
+                        -- if not info.Profession2Level then
+                        --     info.Profession2Level = (info.Prof2Level and info.Prof2Level or "-")
+                        -- end
                         -- remove the old
-                        info.Prof1Level = nil
-                        info.Prof2Level = nil
+                        -- info.Prof1Level = nil
+                        -- info.Prof2Level = nil
 
                         for _, prof in ipairs(Guildbook.Data.Professions) do
                             if info[prof.Name] then
@@ -1981,15 +1981,6 @@ function Guildbook:ScanGuildRoster(callback)
                                     end
                                 end
                             end
-                        end
-
-                        if info.UNKNOWN then
-                            info.UNKNOWN = nil
-                            DEBUG('func', 'ScanGuildRoster', string.format('removed table UNKNOWN from %s', name))
-                        end
-
-                        if info.AttunementsKeys then
-                            info.AttunementsKeys = nil;
                         end
 
                         if info.MainCharacter then

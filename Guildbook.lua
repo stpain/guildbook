@@ -752,45 +752,49 @@ function GuildbookRosterListviewItemMixin:SetCharacter(member)
     else
         self.MainSpecIcon:Hide()
     end
-    local prof1 = false;
-    if self.character.Profession1 == "Engineering" then -- blizz has a spelling error on this atlasname
-        prof1 = "Enginnering";
-    end
     if self.character.Profession1 ~= "-" then
-        local prof = prof1 and prof1 or self.character.Profession1
-        self.Prof1.icon:SetAtlas(string.format("Mobile-%s", prof))
-        if self.character.Profession1Spec then
-            --local profSpec = GetSpellDescription(self.character.Profession1Spec)
-            local profSpec = GetSpellInfo(self.character.Profession1Spec)
-            self.Prof1.tooltipText = gb:GetLocaleProf(prof).." |cffffffff"..profSpec
-        else
-            self.Prof1.tooltipText = gb:GetLocaleProf(prof)
+        local prof1 = self.character.Profession1
+        if prof1 then
+            if prof1 == "Engineering" then
+                self.Prof1.icon:SetAtlas("Mobile-Enginnering")
+            else
+                self.Prof1.icon:SetAtlas(string.format("Mobile-%s", prof1))
+            end
+            if self.character.Profession1Spec then
+                --local profSpec = GetSpellDescription(self.character.Profession1Spec)
+                local profSpec = GetSpellInfo(self.character.Profession1Spec)
+                self.Prof1.tooltipText = gb:GetLocaleProf(prof1).." |cffffffff"..profSpec
+            else
+                self.Prof1.tooltipText = gb:GetLocaleProf(prof1)
+            end
+            self.Prof1.func = function()
+                loadGuildMemberTradeskills(self.guid, prof1)
+            end
+            self.Prof1:Show()
         end
-        self.Prof1.func = function()
-            loadGuildMemberTradeskills(self.guid, prof)
-        end
-        self.Prof1:Show()
     else
         self.Prof1:Hide()
     end
-    local prof2 = false;
-    if self.character.Profession2 == "Engineering" then -- blizz has a spelling error on this atlasname
-        prof2 = "Enginnering";
-    end
     if self.character.Profession2 ~= "-" then
-        local prof = prof2 and prof2 or self.character.Profession2
-        self.Prof2.icon:SetAtlas(string.format("Mobile-%s", prof))
-        if self.character.Profession2Spec then
-            --local profSpec = GetSpellDescription(self.character.Profession2Spec)
-            local profSpec = GetSpellInfo(self.character.Profession2Spec)
-            self.Prof2.tooltipText = gb:GetLocaleProf(prof).." |cffffffff"..profSpec
-        else
-            self.Prof2.tooltipText = gb:GetLocaleProf(prof)
+        local prof2 = self.character.Profession2
+        if prof2 then
+            if prof2 == "Engineering" then
+                self.Prof2.icon:SetAtlas("Mobile-Enginnering")
+            else
+                self.Prof2.icon:SetAtlas(string.format("Mobile-%s", prof2))
+            end
+            if self.character.Profession2Spec then
+                --local profSpec = GetSpellDescription(self.character.Profession2Spec)
+                local profSpec = GetSpellInfo(self.character.Profession2Spec)
+                self.Prof2.tooltipText = gb:GetLocaleProf(prof2).." |cffffffff"..profSpec
+            else
+                self.Prof2.tooltipText = gb:GetLocaleProf(prof2)
+            end
+            self.Prof2.func = function()
+                loadGuildMemberTradeskills(self.guid, prof2)
+            end
+            self.Prof2:Show()
         end
-        self.Prof2.func = function()
-            loadGuildMemberTradeskills(self.guid, prof)
-        end
-        self.Prof2:Show()
     else
         self.Prof2:Hide()
     end
