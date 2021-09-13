@@ -38,7 +38,9 @@ function Guildbook.DEBUG(id, func, msg, data)
             i = 1
         end
         Guildbook.DebuggerWindow.ScrollBar:SetMinMaxValues(1, i)
-        Guildbook.DebuggerWindow.ScrollBar:SetValue(i)
+        if Guildbook.DebuggerWindow.ScrollBar:GetValue() == (i - 1) then
+            Guildbook.DebuggerWindow.ScrollBar:SetValue(i)
+        end
         C_Timer.After(0, function()
             for i = 1, 40 do
                 Guildbook.DebuggerWindow.Listview[i]:Show()
