@@ -745,7 +745,7 @@ function GuildbookRosterListviewItemMixin:SetCharacter(member)
     end
     if self.character.MainSpec and self.character.MainSpec ~= "-" then
         --print(mainSpec, self.character.MainSpec, self.character.Name)
-        local icon = Guildbook:GetClassSpecAtlasName(self.character.Class, self.character.MainSpec)
+        local icon = gb:GetClassSpecAtlasName(self.character.Class, self.character.MainSpec)
         self.MainSpecIcon:SetAtlas(icon)
         self.MainSpecIcon:Show()
         self.MainSpec:SetText(L[self.character.MainSpec])
@@ -3757,7 +3757,7 @@ function GuildbookStatsMixin:OnShow()
                 -- f.statsusBars[s.spec]:SetWidth(percent * scaler)
                 -- f.statsusBars[s.spec]:SetPoint("LEFT", offset, 0)
                 -- offset = offset + (percent * scaler);
-                local spec = Guildbook:GetClassSpecAtlasName(f.className, s.spec)
+                local spec = gb:GetClassSpecAtlasName(f.className, s.spec)
                 local icon = CreateAtlasMarkup(spec, 16,16)
 
                 specString = specString..icon.." "..s.spec..": "..s.count.."  "
