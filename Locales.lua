@@ -605,20 +605,20 @@ elseif locale == 'frFR' then
 
     L['OptionsAbout'] = 'Guildbook options et informations. Traduction française par Belrand@Auberdine'
 	L['Version'] = 'Version'
-	L['Author'] = 'Auteur : |cffffffffstpain (|r|cffF58CBACopperbolts|r |cffffffffand|r |cff0070DEKylanda|r|cffffffff) |r'
+	L['Author'] = 'Auteur: |cffffffffstpain (|r|cffF58CBACopperbolts|r |cffffffffand|r |cff0070DEKylanda|r|cffffffff) |r'
 	
 	L["OPTIONS"]						= "Options & Paramètres"
 	L["MINIMAP_CALENDAR_RIGHTCLICK"]	= "Clique droit pour menu"
-	L["MINIMAP_CALENDAR_EVENTS"]		= "Événements"
+	L["MINIMAP_CALENDAR_EVENTS"]		= "Evénements"
 		
-	L["NEW_VERSION_1"] = "Une nouvelle version est disponible, probablement pour réparer certaines choses... ou en casser d'autres !"
-	L["NEW_VERSION_2"] = "Il y a une nouvelle version de Guildbook, disponible en téléchargement chez tous les bons distributeurs d'Addons !"
-	L["NEW_VERSION_3"] = "Haha, si vous pensiez que la dernière MàJ ne changeait pas grand chose, vous devriez télécharger la nouvelle, elle fera probablement la même chose... ou moins !"
-	L["NEW_VERSION_4"] = "La Horde est rouge, l'Alliance est bleue, télécharge la nouvelle mise à jour sale paresseux !"
+	L["NEW_VERSION_1"] = "Une nouvelle version est disponible, probablement pour réparer certaines choses...ou en casser d'autres!"
+	L["NEW_VERSION_2"] = "Il y a une nouvelle version de Guildbook, disponible en téléchargement chez tous les bons distributeurs d'Addons!"
+	L["NEW_VERSION_3"] = "Haha, si vous pensiez que la dernière MàJ ne changeait pas grand chose, vous devriez télécharger la nouvelle, elle fera probablement la même chose...ou moins!"
+	L["NEW_VERSION_4"] = "La Horde est rouge, l'Alliance est bleue, télécharge la nouvelle mise à jour sale paresseux!"
 
 	L["GUILDBOOK_DATA_SHARE_HEADER"]    = "Partage de données Guildbook \n\nVous pouvez partager vos données de Métiers en cliquant sur Exporter pour générer une chaîne caractères. Ensuite, faites un Copier/Coller de cette chaîne quelque part.\nPour importez des données de Métiers, il suffit de coller la chaîne de caractère \nci-dessous et cliquer sur Importer."
 	L["GUILDBOOK_LOADER_HEADER"]        = "Bienvenue sur Guildbook"
-	L["TOOLTIP_ITEM_RECIPE_HEADER"]     = "Utilisé pour :"
+	L["TOOLTIP_ITEM_RECIPE_HEADER"]     = "Utilisé pour:"
 
 	--mod blizz guild roster
 	L['Online']                         = 'En Ligne'
@@ -661,7 +661,7 @@ elseif locale == 'frFR' then
 	L["ROSTER_ALL_RANKS"]				= "Tous"
 	
 	--guildbank
-	L["PHASE2GB"]						= "Avec l'arrivée des banques de guilde sur TBCC, j'ai décidé d'enlever le système de banque de Guildbook. Néanmoins, je travaille sur quelque chose afin de le remplacer !"
+	L["PHASE2GB"]						= "Avec l'arrivée des banques de guilde sur TBCC, j'ai décidé d'enlever le système de banque de Guildbook. Néanmoins, je travaille sur quelque chose afin de le remplacer!"
 	L['GUILDBANK']						= "Banque de Guilde"
 	L["GUILDBANK_HEADER_ITEM"]			= "Objets"
 	L["GUILDBANK_HEADER_COUNT"]			= "Nombre"
@@ -734,7 +734,7 @@ elseif locale == 'frFR' then
 	L["MAIN_CHARACTER_REMOVE_ALT"]		= "Enlever personnage"
 	L["DIALOG_MAIN_CHAR_ADD"]			= "Tapez le nom du personnage, il doit être membre de la guilde."
 	L["DIALOG_MAIN_CHAR_REMOVE"]		= "SVP, entrez le nom du personnage."
-	L["DIALOG_MAIN_CHAR_ADD_FOUND"]		= "Personnage trouvé : %s Niveau %s %s"
+	L["DIALOG_MAIN_CHAR_ADD_FOUND"]		= "Personnage trouvé: %s Niveau %s %s"
 
 	-- class and spec
 	L['DEATHKNIGHT']                    = 'Chevalier de la mort'
@@ -853,8 +853,8 @@ elseif locale == 'frFR' then
 
 	-- old stuff but might use again
 	L['GuildBank']                      = 'Banque de Guilde'
-	L['Events']                         = 'Événements'
-	L['WorldEvents']                    = 'Événements mondiaux'
+	L['Events']                         = 'Evénements'
+	L['WorldEvents']                    = 'Evénements mondiaux'
 	L['Attunements']                    = 'Accès'
 	L["Guild"]                          = "Guilde"
 
@@ -879,7 +879,7 @@ elseif locale == 'frFR' then
 	L["INSTANCE_LOCKS"]                 = "Instances verrouilées"
 	L["CREATE_EVENT"]                   = "Créer événement"
 	L["DELETE_EVENT"]                   = "Suppr. événement"
-	L["EVENT"]                          = "Événement"
+	L["EVENT"]                          = "Evénement"
 	L["EVENT_TYPE"]                     = "Type d'événement"
 	L["TITLE"]                          = "Titre"
 	L["DESCRIPTION"]                    = "Description"
@@ -898,7 +898,7 @@ elseif locale == 'frFR' then
 	L["MINIMAP_TOOLTIP_MIDDLECLICK"]	= "|cffffffffClique molette|r Ouvrir l'onglet de guilde Blizzard"
 	
 	--raids name
-	L["MC"]				    = "Cœur du Magma"
+	L["MC"]				    = "Coeur du Magma"
 	L["BWL"]			    = "Repaire de l'Aile noire"
 	L["AQ20"]                           = "AQ20"
 	L["AQ40"]			    = "AQ40"
@@ -1009,7 +1009,8 @@ local profileIcon = CreateAtlasMarkup("GarrMission_MissionIcon-Recruit", 16, 16)
 local profileHelp = 
 [[
 Profile:
-Vous pouvez sélection votre(vos) spé(s) et sélectionn un personnage principal. Si vous utilisez plusieurs comptes, vous pouvez ajouter un autre personnage que vous pouvez ajouter comme personnage principal. (Les autres personnages seront automatiquement ajouté en sélectionnant le personnage principal)
+Vous pouvez sélection votre(vos) spé(s) et sélectionn un personnage principal. Si vous utilisez plusieurs comptes, vous pouvez ajouter un autre personnage que vous pouvez ajouter comme personnage principal. (Les autres personnages seront automatiquement ajouté en sélectionnant le personnage principal
+You can select your spec(s) and edit your main character. If you use multiple accounts you can add another character which you can then select as a main. (Alts are set by selecting a main character from the alts profile).
 
 ]]
 local searchIcon = CreateAtlasMarkup("shop-games-magnifyingglass", 16, 16)
