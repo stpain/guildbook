@@ -745,7 +745,7 @@ function GuildbookRosterListviewItemMixin:SetCharacter(member)
     end
     if self.character.MainSpec and self.character.MainSpec ~= "-" then
         --print(mainSpec, self.character.MainSpec, self.character.Name)
-        local icon = Guildbook:GetClassSpecAtlasName(self.character.Class, self.character.MainSpec)
+        local icon = gb:GetClassSpecAtlasName(self.character.Class, self.character.MainSpec)
         self.MainSpecIcon:SetAtlas(icon)
         self.MainSpecIcon:Show()
         self.MainSpec:SetText(L[self.character.MainSpec])
@@ -939,9 +939,6 @@ function GuildbookMixin:OnLoad()
     self.backgroundModel = CreateFrame('PlayerModel', "GuildbookBackgroundModel", self, BackdropTemplateMixin and "BackdropTemplate")
     self.backgroundModel:SetPoint('TOPLEFT', 0, -55)
     self.backgroundModel:SetPoint('BOTTOMRIGHT', 0, 0)
-    --self.backgroundModel:SetModel("interface/buttons/talktomequestion_white.m2")
-    --self.backgroundModel:SetModel("creature/arthaslichking/arthaslichking.m2")
-    --self.backgroundModel:SetModel("environments/stars/shadowmoonillidan.m2")
     self.backgroundModel:SetModel("creature/illidan/illidan.m2")
     self.backgroundModel:SetPosition(0,0,-0.2)
     self.backgroundModel:SetKeepModelOnHide(true)
@@ -3757,7 +3754,7 @@ function GuildbookStatsMixin:OnShow()
                 -- f.statsusBars[s.spec]:SetWidth(percent * scaler)
                 -- f.statsusBars[s.spec]:SetPoint("LEFT", offset, 0)
                 -- offset = offset + (percent * scaler);
-                local spec = Guildbook:GetClassSpecAtlasName(f.className, s.spec)
+                local spec = gb:GetClassSpecAtlasName(f.className, s.spec)
                 local icon = CreateAtlasMarkup(spec, 16,16)
 
                 specString = specString..icon.." "..s.spec..": "..s.count.."  "
