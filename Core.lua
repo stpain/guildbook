@@ -78,7 +78,13 @@ SlashCmdList['GUILDBOOK'] = function(msg)
         Guildbook:PrintMessage(Guildbook.version)
 
     elseif msg == "test" then
-        GuildbookDataShare:Show()
+        local numCrafts = GetNumCrafts()
+        for i = 1, numCrafts do
+            local name, _, _type, _, _, _, _ = GetCraftInfo(i)
+            if name and (_type == "optimal" or _type == "medium" or _type == "easy" or _type == "trivial") then
+                print(name)
+            end
+        end
     end
 end
 
@@ -619,12 +625,14 @@ function Guildbook:Load()
         Guildbook.DEBUG("func", "Load", "requested deleted calendar events")
     end)
 
+    --TODO: update this to new db comms
     ---check and send profession recipe data
     local prof1 = self:GetCharacterInfo(UnitGUID("player"), "Profession1")
     if Guildbook.Data.Profession[prof1] then
         if GUILDBOOK_CHARACTER[prof1] then
             C_Timer.After(18, function()
                 self:SendTradeskillData(UnitGUID("player"), GUILDBOOK_CHARACTER[prof1], prof1, "GUILD", nil)
+                --self:DB_SendCharacterData(UnitGUID("player"), prof1, GUILDBOOK_CHARACTER[prof1], "GUILD", nil, "NORMAL")
                 Guildbook.DEBUG("func", "Load", string.format("send prof recipes for %s", prof1))
             end)
         end
@@ -634,6 +642,7 @@ function Guildbook:Load()
         if GUILDBOOK_CHARACTER[prof2] then
             C_Timer.After(22, function()
                 self:SendTradeskillData(UnitGUID("player"), GUILDBOOK_CHARACTER[prof2], prof2, "GUILD", nil)
+                --self:DB_SendCharacterData(UnitGUID("player"), prof2, GUILDBOOK_CHARACTER[prof2], "GUILD", nil, "NORMAL")
                 Guildbook.DEBUG("func", "Load", string.format("send prof recipes for %s", prof2))
             end)
         end
@@ -1740,9 +1749,11 @@ end
 --- scan the players trade skills
 --- this is used to get data about the players professions, recipes and reagents
 function Guildbook:ScanTradeSkill()
-    if TradeSkillFrame and not TradeSkillFrame:IsVisible() then
-        return; -- only scan if our tradeskill frame is open
-    end
+
+    -- as some addons might cause the default ui not to show or be visible i've changed the scan logic, we now check if any new recipes appear from the scan and if so send updates
+    -- if TradeSkillFrame and not TradeSkillFrame:IsVisible() then
+    --     --return; -- only scan if our tradeskill frame is open
+    -- end
     local localeProf = GetTradeSkillLine() -- this returns local name
     if Guildbook:GetEnglishProf(localeProf) then
         local prof = Guildbook:GetEnglishProf(localeProf) --convert to english
@@ -1759,9 +1770,16 @@ function Guildbook:ScanTradeSkill()
             end
         end
         Guildbook.DEBUG("func", "ScanTradeskill", "created or reset table for "..prof)
-        --local i = 1;
+        -- get the current recipe count, we will compare this to the scan count to determine if we send data
+        local dbRecipes = self:GetCharacterInfo(UnitGUID("player"), prof)
+        local dbRecipeCount = 0;
+        local headersCount = 0;
+        if dbRecipes then
+            for k, v in pairs(dbRecipes) do
+                dbRecipeCount = dbRecipeCount + 1;
+            end
+        end
         local numTradeskills = GetNumTradeSkills()
-        --C_Timer.NewTicker(0.005, function()
         for i = 1, numTradeskills do
             local name, _type, _, _, _ = GetTradeSkillInfo(i)
             if name and (_type == "optimal" or _type == "medium" or _type == "easy" or _type == "trivial") then -- this was a fix thanks to Sigma regarding their addon showing all recipes
@@ -1782,21 +1800,28 @@ function Guildbook:ScanTradeSkill()
                                 end
                                 reagentLinks[reagentLink] = reagentCount;
                             end
-                            Guildbook.DEBUG("func", "Scantradeskill", string.format("added %s to %s", link, prof), {reagents = reagentLinks, link = link})
+                            --Guildbook.DEBUG("func", "Scantradeskill", string.format("added %s to %s", link, prof), {reagents = reagentLinks, link = link})
                         end
                     end
                 end
+            elseif _type == "header" or _type == "subheader" then
+                headersCount = headersCount + 1;
             end
             if i == numTradeskills then
-                Guildbook.DEBUG("func", "Scantradeskill", string.format("scanned %s recipes", numTradeskills))
-                self:SetCharacterInfo(UnitGUID("player"), prof, GUILDBOOK_CHARACTER[prof])
-                local elapsed = GetTime() - Guildbook.lastProfTransmit
-                if elapsed > Guildbook.COMM_LOCK_COOLDOWN then
-                    self:SendTradeskillData(UnitGUID("player"), GUILDBOOK_CHARACTER[prof], prof, "GUILD", nil)
-                    Guildbook.lastProfTransmit = GetTime()
-                    Guildbook.DEBUG("func", "Scantradeskill", "sending data for "..prof)
+                Guildbook.DEBUG("func", "Scantradeskill", string.format("scanned %s recipes, found %s recipes in db", (numTradeskills - headersCount), dbRecipeCount))
+                if dbRecipeCount and ((numTradeskills - headersCount) > dbRecipeCount) then
+                    self:SetCharacterInfo(UnitGUID("player"), prof, GUILDBOOK_CHARACTER[prof])
+                    local elapsed = GetTime() - Guildbook.lastProfTransmit
+                    if elapsed > Guildbook.COMM_LOCK_COOLDOWN then
+                        --self:SendTradeskillData(UnitGUID("player"), GUILDBOOK_CHARACTER[prof], prof, "GUILD", nil)
+                        self:DB_SendCharacterData(UnitGUID("player"), prof, GUILDBOOK_CHARACTER[prof], "GUILD", nil, "NORMAL")
+                        Guildbook.lastProfTransmit = GetTime()
+                        Guildbook.DEBUG("func", "Scantradeskill", "sending data for "..prof)
+                    else
+                        Guildbook.DEBUG("func", "Scantradeskill", string.format("%s remaining before comm lock off", Guildbook.COMM_LOCK_COOLDOWN-elapsed))
+                    end
                 else
-                    Guildbook.DEBUG("func", "Scantradeskill", string.format("%s remaining before comm lock off", Guildbook.COMM_LOCK_COOLDOWN-elapsed))
+                    Guildbook.DEBUG("func", "Scantradeskill", string.format("no new recipes found during scan, update skipped"))
                 end
             end
         end
@@ -1808,9 +1833,9 @@ end
 --- scan the players enchanting recipes, enchanting works a little differently 
 --- this is used to get data about the players professions, recipes and reagents
 function Guildbook:ScanCraftSkills_Enchanting()
-    if not CraftFrame:IsVisible() then
-        return; -- only scan if our craft frame is open
-    end
+    -- if not CraftFrame:IsVisible() then
+    --     return; -- only scan if our craft frame is open
+    -- end
     local currentCraftingWindow = GetCraftSkillLine(1)
     local engProf = Guildbook:GetEnglishProf(currentCraftingWindow)
     if Guildbook:GetEnglishProf(currentCraftingWindow) == "Enchanting" then -- check we have enchanting open
@@ -1823,6 +1848,14 @@ function Guildbook:ScanCraftSkills_Enchanting()
             end
         end
         --local i = 1;
+        local dbRecipes = self:GetCharacterInfo(UnitGUID("player"), "Enchanting")
+        local dbRecipeCount = 0;
+        local headersCount = 0;
+        if dbRecipes then
+            for k, v in pairs(dbRecipes) do
+                dbRecipeCount = dbRecipeCount + 1;
+            end
+        end
         local numCrafts = GetNumCrafts()
         --C_Timer.NewTicker(0.005, function()
         for i = 1, numCrafts do
@@ -1849,20 +1882,28 @@ function Guildbook:ScanCraftSkills_Enchanting()
                             end
                             reagentLinks[reagentLink] = reagentCount;
                         end
-                        Guildbook.DEBUG("func", "Scantradeskill", string.format("added %s to %s", name, "Enchanting"), {reagents = reagentLinks, link = name})
+                        --Guildbook.DEBUG("func", "Scantradeskill", string.format("added %s to %s", name, "Enchanting"), {reagents = reagentLinks, link = name})
                     end
                 end
+            elseif _type == "header" or _type == "subheader" then
+                headersCount = headersCount + 1;
             end
             if i == numCrafts then
-                Guildbook.DEBUG("func", "Scantradeskill", string.format("scanned %s recipes", numCrafts))
-                self:SetCharacterInfo(UnitGUID("player"), "Enchanting", GUILDBOOK_CHARACTER.Enchanting)
-                local elapsed = GetTime() - Guildbook.lastProfTransmit
-                if elapsed > Guildbook.COMM_LOCK_COOLDOWN then
-                    self:SendTradeskillData(UnitGUID("player"), GUILDBOOK_CHARACTER["Enchanting"], "Enchanting", "GUILD", nil)
-                    Guildbook.lastProfTransmit = GetTime()
-                    Guildbook.DEBUG("func", "Scantradeskill", "sending data for Enchanting")
+                Guildbook.DEBUG("func", "Scantradeskill", string.format("scanned %s recipes, found %s recipes in db", (numCrafts - headersCount), dbRecipeCount))
+                if dbRecipeCount and ((numCrafts - headersCount) > dbRecipeCount) then
+                    Guildbook.DEBUG("func", "Scantradeskill", string.format("scanned %s recipes", numCrafts))
+                    self:SetCharacterInfo(UnitGUID("player"), "Enchanting", GUILDBOOK_CHARACTER.Enchanting)
+                    local elapsed = GetTime() - Guildbook.lastProfTransmit
+                    if elapsed > Guildbook.COMM_LOCK_COOLDOWN then
+                        --self:SendTradeskillData(UnitGUID("player"), GUILDBOOK_CHARACTER["Enchanting"], "Enchanting", "GUILD", nil)
+                        self:DB_SendCharacterData(UnitGUID("player"), "Enchanting", GUILDBOOK_CHARACTER["Enchanting"], "GUILD", nil, "NORMAL")
+                        Guildbook.lastProfTransmit = GetTime()
+                        Guildbook.DEBUG("func", "Scantradeskill", "sending data for Enchanting")
+                    else
+                        Guildbook.DEBUG("func", "Scantradeskill", string.format("%s remaining before comm lock off", Guildbook.COMM_LOCK_COOLDOWN-elapsed))
+                    end
                 else
-                    Guildbook.DEBUG("func", "Scantradeskill", string.format("%s remaining before comm lock off", Guildbook.COMM_LOCK_COOLDOWN-elapsed))
+
                 end
             end
         end
@@ -2844,10 +2885,7 @@ function Guildbook:OnTradeSkillsReceived(response, distribution, sender)
                 end
                 i = i + 1;
             end
-            -- now check the prof exists as a key
-            if character.Profession1 ~= response.payload.profession and character.Profession2 ~= response.payload.profession then
-                Guildbook:CharacterDataRequest(sender) -- this is to get the prof name added as a key
-            end
+
             --character[response.payload.profession] = response.payload.recipes
             GuildbookUI.statusText:SetText(string.format("%s data for [|cffffffff%s|r] sent by %s", prof, character.Name, sender))
             Guildbook.DEBUG('func', 'OnTradeSkillsReceived', 'updating db, set: '..character.Name..' prof: '..response.payload.profession)
