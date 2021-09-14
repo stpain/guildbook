@@ -1026,6 +1026,7 @@ function Guildbook:GetCharacterInfo(guid, key)
             return GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][guid][key];
         end
     end
+    return false;
 end
 
 ---sends all character data to the target player (inventory, profile, talents and privacy) using a 3 second stagger
@@ -1778,6 +1779,10 @@ function Guildbook:ScanTradeSkill()
             for k, v in pairs(dbRecipes) do
                 dbRecipeCount = dbRecipeCount + 1;
             end
+        else
+            if dbRecipes == nil or dbRecipes == false then
+                dbRecipes = 0;
+            end
         end
         local numTradeskills = GetNumTradeSkills()
         for i = 1, numTradeskills do
@@ -1854,6 +1859,10 @@ function Guildbook:ScanCraftSkills_Enchanting()
         if dbRecipes then
             for k, v in pairs(dbRecipes) do
                 dbRecipeCount = dbRecipeCount + 1;
+            end
+        else
+            if dbRecipes == nil or dbRecipes == false then
+                dbRecipes = 0;
             end
         end
         local numCrafts = GetNumCrafts()
