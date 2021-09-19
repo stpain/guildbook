@@ -136,8 +136,10 @@ function GuildbookOptionsTooltipTradeskill_OnClick(self)
     end
     if self:GetChecked() == false then
         GuildbookOptionsTooltipTradeskillRecipes:Disable()
+        GuildbookOptionsTooltipTradeskillRecipesForCharacter:Disable()
     else
         GuildbookOptionsTooltipTradeskillRecipes:Enable()
+        GuildbookOptionsTooltipTradeskillRecipesForCharacter:Enable()
     end
     GUILDBOOK_GLOBAL.config.showTooltipTradeskills = self:GetChecked()
 end
@@ -150,6 +152,16 @@ function GuildbookOptionsTooltipTradeskillRecipes_OnClick(self)
         GUILDBOOK_GLOBAL.config = {}
     end
     GUILDBOOK_GLOBAL.config.showTooltipTradeskillsRecipes = self:GetChecked()
+end
+
+function GuildbookOptionsTooltipTradeskillRecipesForCharacter_OnClick(self)
+    if not GUILDBOOK_GLOBAL then
+        return
+    end
+    if not GUILDBOOK_GLOBAL.config then
+        GUILDBOOK_GLOBAL.config = {}
+    end
+    GUILDBOOK_GLOBAL.config.showTooltipTradeskillsRecipesForCharacter = self:GetChecked()
 end
 
 function GuildbookOptionsTooltipInfo_OnClick(self)

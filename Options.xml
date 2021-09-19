@@ -454,6 +454,35 @@ the copyright holders.
                     </OnClick>
                 </Scripts>
             </CheckButton>
+            <CheckButton name="$parentTooltipTradeskillRecipesForCharacter" inherits="ChatConfigCheckButtonTemplate">
+                <Size x="24" y="24"/>
+                <Layers>
+                    <Layer>
+                        <FontString name="$parentText" text="Show recipes for your character only" inherits="GameFontNormal">
+                            <Color r="1" g="1" b="1" a="1"/>
+                            <FontHeight val="12"/>
+                            <Anchors>
+                                <Anchor point="LEFT">
+                                    <offset x="24" y="0"/>
+                                </Anchor>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>                
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="GuildbookOptionsTooltipTradeskillRecipes" relativePoint="BOTTOMLEFT">
+                        <Offset x="0" y="-2"/>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self.tooltip = 'Display a list of recipes for your characters tradeskills that use the current item.'
+                    </OnLoad>
+                    <OnClick>
+                        GuildbookOptionsTooltipTradeskillRecipesForCharacter_OnClick(self)
+                    </OnClick>
+                </Scripts>
+            </CheckButton>
 
             <Button name="$parentResetCharacterData" inherits="UIPanelButtonTemplate" text="Reset Character Settings">
                 <Size x="190" y="25"/>

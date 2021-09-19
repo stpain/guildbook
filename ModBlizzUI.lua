@@ -24,17 +24,12 @@ local addonName, Guildbook = ...
 local L = Guildbook.Locales
 
 --set constants
-local ROSTER_VISIBLE = true
 local FRIENDS_FRAME_WIDTH = FriendsFrame:GetWidth()
 local GUILD_FRAME_WIDTH = GuildFrame:GetWidth()
-local GUILD_INFO_FRAME_WIDTH = GuildInfoFrame:GetWidth()
-local GUILD_MEMBER_DETAIL_FRAME_WIDTH = GuildMemberDetailFrame:GetWidth()
+-- local GUILD_INFO_FRAME_WIDTH = GuildInfoFrame:GetWidth()
+-- local GUILD_MEMBER_DETAIL_FRAME_WIDTH = GuildMemberDetailFrame:GetWidth()
 local GUILD_INFORMATION_BUTTON_WIDTH = GuildFrameGuildInformationButton:GetWidth()
-C_Timer.After(5, function() 
-    GuildFrameGuildInformationButton:ClearAllPoints()
-    GuildFrameGuildInformationButton:SetPoint('RIGHT', GuildFrameAddMemberButton, 'LEFT', -2.0, 0)
-    GuildFrameGuildInformationButton:SetWidth(GUILD_INFORMATION_BUTTON_WIDTH)
-end)
+
 -- config stuff
 Guildbook.GuildFrame = {
     ColumnHeaders = {
@@ -60,12 +55,22 @@ Guildbook.GuildFrame = {
 
 function Guildbook:ModBlizzUI()
 
+    FRIENDS_FRAME_WIDTH = FriendsFrame:GetWidth()
+    GUILD_FRAME_WIDTH = GuildFrame:GetWidth()
+    GUILD_INFORMATION_BUTTON_WIDTH = GuildFrameGuildInformationButton:GetWidth()
+
     -- adjust blizz layout and add widgets
     GuildFrameGuildListToggleButton:Hide()
 
+    GuildFrameGuildInformationButton:ClearAllPoints()
+    GuildFrameGuildInformationButton:SetPoint('RIGHT', GuildFrameAddMemberButton, 'LEFT', -2.0, 0)
+    GuildFrameGuildInformationButton:SetWidth(GUILD_INFORMATION_BUTTON_WIDTH)
+
     GuildFrame:HookScript('OnShow', function(self)
-        self:SetWidth(830)
-        FriendsFrame:SetWidth(830)
+        C_Timer.After(0.01, function()
+            self:SetWidth(830)
+            FriendsFrame:SetWidth(830)
+        end)
     end)
     
     GuildFrame:HookScript('OnHide', function(self)

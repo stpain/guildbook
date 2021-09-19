@@ -401,6 +401,7 @@ GuildbookRecipeListviewItemMixin = {}
 function GuildbookRecipeListviewItemMixin:Init(item)
     self.item = item;
     for _, reagent in pairs(self.reagentIcons) do
+        reagent:SetFrameStrata("TOOLTIP")
         reagent.icon:SetTexture(nil)
         reagent.greenBorder:Hide()
         reagent.orangeBorder:Hide()
@@ -1368,18 +1369,33 @@ function GuildbookTradeskillProfessionListview:OnLoad()
                 end
                 if GuildbookUI.tradeskills.filteredItems then
                     GuildbookUI.statusText:SetText(string.format("found %s recipes for %s", #GuildbookUI.tradeskills.filteredItems, prof.Name))
-                    table.sort(GuildbookUI.tradeskills.filteredItems, function(a,b)
-                        if a.expansion == b.expansion then
-                            if a.rarity == b.rarity then
-                                return a.name < b.name
+                    if prof.Name == "Jewelcrafting" then
+                        table.sort(GuildbookUI.tradeskills.filteredItems, function(a,b)
+                            if a.expansion == b.expansion then
+                                if a.rarity == b.rarity then
+                                    return a.subClass < b.subClass
+                                else
+                                    return a.rarity > b.rarity
+                                end
                             else
-                                return a.rarity > b.rarity
+                                return a.expansion > b.expansion
                             end
-                        else
-                            return a.expansion > b.expansion
-                        end
-                    end)
-                    GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:InsertTable(GuildbookUI.tradeskills.filteredItems)
+                        end)
+                        GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:InsertTable(GuildbookUI.tradeskills.filteredItems)
+                    else
+                        table.sort(GuildbookUI.tradeskills.filteredItems, function(a,b)
+                            if a.expansion == b.expansion then
+                                if a.rarity == b.rarity then
+                                    return a.name < b.name
+                                else
+                                    return a.rarity > b.rarity
+                                end
+                            else
+                                return a.expansion > b.expansion
+                            end
+                        end)
+                        GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:InsertTable(GuildbookUI.tradeskills.filteredItems)
+                    end
                 end
             end
 
@@ -3066,7 +3082,7 @@ function GuildbookProfilesMixin:AddCharacterModelFrame(target, race, gender)
 
         self.characterModels[race][gender] = f
     else
-        gb.DEBUG('func', 'CreateCharacterModel', race..' '..gender..' exists')
+        --gb.DEBUG('func', 'CreateCharacterModel', race..' '..gender..' exists')
         if not self.sidePane:IsVisible() then
             self:LoadCharacterModelItems()
         end

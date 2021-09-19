@@ -44,6 +44,11 @@ L['OptionsAbout'] = 'Guildbook options and about. Thanks to Belrand@Auberdine fo
 L['Version'] = 'Version'
 L['Author'] = 'Author: |cffffffffstpain (|r|cffF58CBACopperbolts|r |cffffffffand|r |cff0070DEKylanda|r|cffffffff)|r'
 
+-- this is the start of the option ui updates, will go through the option panel and rewrite it with locales for stuff
+L["TOOLTIP_SHOW_TRADESKILLS"]		= "Display a list of tradeskills that use the current item. (Data is taken from Guildbook database)"
+L["TOOLTIP_SHOW_RECIPES"]			= "Include recipes that use the current item under each tradeskill."
+L["TOOLTIP_SHOW_RECIPES"]			= "Only show recipes for your characters tradeskills."
+
 L["OPTIONS"]						= "Options & Settings"
 L["MINIMAP_CALENDAR_RIGHTCLICK"]	= "Right click for menu"
 L["MINIMAP_CALENDAR_EVENTS"]		= "Events"

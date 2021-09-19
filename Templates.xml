@@ -508,7 +508,7 @@
         </Scripts>
     </Frame>
 
-    <Frame name="GuildbookItemIconFrame" mixin="GuildbookItemIconFrameMixin" virtual="true">
+    <Frame name="GuildbookItemIconFrame" mixin="GuildbookItemIconFrameMixin"  virtual="true">
         <Layers>
             <Layer level="BACKGROUND">
                 <Texture parentKey="icon" setAllPoints="true">

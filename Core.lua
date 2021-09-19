@@ -256,6 +256,10 @@ function Guildbook:Init()
             return;
         end
         local name, link = GameTooltip:GetItem()
+        local character = Guildbook:GetCharacterFromCache(UnitGUID("player"))
+        if not character then
+            return;
+        end
         if link then
             local itemID = GetItemInfoInstant(link) 
             if itemID then
@@ -279,8 +283,16 @@ function Guildbook:Init()
                                         end
                                         self:AddLine(Guildbook.Data.Profession[recipe.profession].FontStringIconMEDIUM.."  "..recipe.profession)
                                     end
-                                    if GUILDBOOK_GLOBAL.config.showTooltipTradeskillsRecipes then
-                                        self:AddLine(recipe.name, 1,1,1,1)
+                                    if GUILDBOOK_GLOBAL.config.showTooltipTradeskillsRecipesForCharacter then
+                                        if character.Profession1 and (character.Profession1 == recipe.profession) then
+                                            self:AddLine(recipe.name, 1,1,1,1)
+                                        elseif character.Profession2 and (character.Profession2 == recipe.profession) then
+                                            self:AddLine(recipe.name, 1,1,1,1)
+                                        end
+                                    else
+                                        if GUILDBOOK_GLOBAL.config.showTooltipTradeskillsRecipes then
+                                            self:AddLine(recipe.name, 1,1,1,1)
+                                        end
                                     end
                                 end
                             end
@@ -1643,6 +1655,7 @@ local profSpecData = {
 -- get the name of any professions the player has, the profession level
 -- also check the secondary professions fishing, cooking, first aid
 -- this will update the character saved var which is then read when a request comes in
+local lastCharacterProfessionTransmit = 30.0; -- set this to 30s so that the first scan will always update as its more than the 15s delay
 function Guildbook:GetCharacterProfessions()
     Guildbook.DEBUG("func", "GetCharacterProfessions", "scanning character skills for profession info")
 
@@ -1718,29 +1731,42 @@ function Guildbook:GetCharacterProfessions()
         GUILDBOOK_CHARACTER['CookingLevel'] = myCharacter.Cooking
         GUILDBOOK_CHARACTER['FirstAidLevel'] = myCharacter.FirstAid
 
+        local delay = 15.0
+        if ((GetTime() - lastCharacterProfessionTransmit) > delay) then
+            self:DB_SendCharacterData(guid, "Profession1", myCharacter.Prof1, "GUILD", nil, "NORMAL")
+            C_Timer.After(0.2, function()
+                self:DB_SendCharacterData(guid, "Profession1Level", myCharacter.Prof1Level, "GUILD", nil, "NORMAL")
+            end)
+            C_Timer.After(0.4, function()
+                self:DB_SendCharacterData(guid, "Profession2", myCharacter.Prof2, "GUILD", nil, "NORMAL")
+            end)
+            C_Timer.After(0.6, function()
+                self:DB_SendCharacterData(guid, "Profession2Level", myCharacter.Prof2Level, "GUILD", nil, "NORMAL")
+            end)
+            C_Timer.After(0.8, function()
+                self:DB_SendCharacterData(guid, "CookingLevel", myCharacter.Cooking, "GUILD", nil, "NORMAL")
+            end)        
+            C_Timer.After(1.0, function()
+                self:DB_SendCharacterData(guid, "FishingLevel", myCharacter.Fishing, "GUILD", nil, "NORMAL")
+            end)
+            C_Timer.After(1.2, function()
+                self:DB_SendCharacterData(guid, "FirstAidLevel", myCharacter.FirstAid, "GUILD", nil, "NORMAL")
+            end)
+            if type(GUILDBOOK_CHARACTER.Profession1Spec) == "number" then
+                C_Timer.After(1.4, function()            
+                    self:DB_SendCharacterData(guid, "Profession1Spec", GUILDBOOK_CHARACTER.Profession2Spec, "GUILD", nil, "NORMAL")
+                end)
+            end
+            if type(GUILDBOOK_CHARACTER.Profession2Spec) == "number" then
+                C_Timer.After(1.6, function()            
+                    self:DB_SendCharacterData(guid, "Profession2Spec", GUILDBOOK_CHARACTER.Profession2Spec, "GUILD", nil, "NORMAL")
+                end)
+            end
 
-        self:DB_SendCharacterData(guid, "Profession1", myCharacter.Prof1, "GUILD", nil, "NORMAL")
-        C_Timer.After(0.2, function()
-            self:DB_SendCharacterData(guid, "Profession2", myCharacter.Prof2, "GUILD", nil, "NORMAL")
-        end)
-        C_Timer.After(0.4, function()
-            self:DB_SendCharacterData(guid, "CookingLevel", myCharacter.Cooking, "GUILD", nil, "NORMAL")
-        end)        
-        C_Timer.After(0.6, function()
-            self:DB_SendCharacterData(guid, "FishingLevel", myCharacter.Fishing, "GUILD", nil, "NORMAL")
-        end)
-        C_Timer.After(0.8, function()
-            self:DB_SendCharacterData(guid, "FirstAidLevel", myCharacter.FirstAid, "GUILD", nil, "NORMAL")
-        end)
-        if type(GUILDBOOK_CHARACTER.Profession1Spec) == "number" then
-            C_Timer.After(1.0, function()            
-                self:DB_SendCharacterData(guid, "Profession1Spec", GUILDBOOK_CHARACTER.Profession2Spec, "GUILD", nil, "NORMAL")
-            end)
-        end
-        if type(GUILDBOOK_CHARACTER.Profession2Spec) == "number" then
-            C_Timer.After(1.2, function()            
-                self:DB_SendCharacterData(guid, "Profession2Spec", GUILDBOOK_CHARACTER.Profession2Spec, "GUILD", nil, "NORMAL")
-            end)
+            lastCharacterProfessionTransmit = GetTime()
+        else
+            local remaining = self:FormatNumberForCharacterStats(delay - (GetTime() - lastCharacterProfessionTransmit))
+            Guildbook.DEBUG("func", "GetCharacterProfessions", string.format("comm delay less than %ss skipping update, %ss remaining", delay, remaining))
         end
 
     end
@@ -2336,15 +2362,15 @@ end
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function Guildbook:Transmit(data, channel, target, priority)
     local inInstance, instanceType = IsInInstance()
-    if not instanceType == "none" then
-        if GUILDBOOK_GLOBAL.config and GUILDBOOK_GLOBAL.config.blockCommsDuringInstance == true then
+    if instanceType ~= "none" then
+        if GUILDBOOK_GLOBAL.config and (GUILDBOOK_GLOBAL.config.blockCommsDuringInstance == true) then
             GuildbookUI.statusText:SetText("blocked data comms while in an instance")
             return;
         end
     end
     local inLockdown = InCombatLockdown()
     if inLockdown then
-        if GUILDBOOK_GLOBAL.config and GUILDBOOK_GLOBAL.config.blockCommsDuringCombat == true then
+        if GUILDBOOK_GLOBAL.config and (GUILDBOOK_GLOBAL.config.blockCommsDuringCombat == true) then
             GuildbookUI.statusText:SetText("blocked data comms while in combat")
             return;
         end
@@ -3320,6 +3346,7 @@ function Guildbook:CHARACTER_POINTS_CHANGED(...)
     end
 end
 
+
 function Guildbook:SKILL_LINES_CHANGED()
     if self.addonLoaded then
         C_Timer.After(1.0, function()
@@ -3538,15 +3565,15 @@ end
 function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
 
     local inInstance, instanceType = IsInInstance()
-    if not instanceType == "none" then
-        if GUILDBOOK_GLOBAL.config and GUILDBOOK_GLOBAL.config.blockCommsDuringInstance == true then
+    if instanceType ~= "none" then
+        if GUILDBOOK_GLOBAL.config and (GUILDBOOK_GLOBAL.config.blockCommsDuringInstance == true) then
             GuildbookUI.statusText:SetText("blocked data comms while in an instance")
             return;
         end
     end
     local inLockdown = InCombatLockdown()
     if inLockdown then
-        if GUILDBOOK_GLOBAL.config and GUILDBOOK_GLOBAL.config.blockCommsDuringCombat == true then
+        if GUILDBOOK_GLOBAL.config and (GUILDBOOK_GLOBAL.config.blockCommsDuringCombat == true) then
             GuildbookUI.statusText:SetText("blocked data comms while in combat")
             return;
         end
@@ -3577,7 +3604,7 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
     --     data.senderGUID = self:GetGuildMemberGUID(sender)
     -- end
 
-    Guildbook.DEBUG('comms_in', string.format("%s -> %s", 'ON_COMMS_RECEIVED', distribution), string.format("%s from %s", data.type, sender), data)
+    Guildbook.DEBUG('comms_in', string.format("ON_COMMS_RECEIVED <%s>", distribution), string.format("%s from %s", data.type, sender), data)
 
     if data.type == "DB_SET" then
         self:DB_OnDataReceived(data, distribution, sender)
