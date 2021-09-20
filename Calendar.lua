@@ -473,6 +473,16 @@ function Guildbook:SetupGuildCalendarFrame()
         end
         local thisMonthDay, nextMonthDay = 1, 1
         local today = date("*t")
+
+        local dmfStart = 1;
+        local dmfEnd = 2;
+        local dmfLocation = "Elwynn"
+        if Guildbook.DarkmoonFaireSchedule[self.date.year] then
+            dmfStart = Guildbook.DarkmoonFaireSchedule[self.date.year][self.date.month].start
+            dmfEnd = Guildbook.DarkmoonFaireSchedule[self.date.year][self.date.month].ends
+            dmfLocation = Guildbook.DarkmoonFaireSchedule[self.date.year][self.date.month].location
+        end
+
         for i, day in ipairs(Guildbook.GuildFrame.GuildCalendarFrame.MonthView) do
             for b = 1, 3 do
                 day['eventButton'..b]:Hide()
@@ -510,21 +520,18 @@ function Guildbook:SetupGuildCalendarFrame()
                     year = self.date.year,
                 }
                 day:Hide()
-                local dmf = 'Elwynn'
-                if day.date.month % 2 == 0 then
-                    dmf = 'Mulgore'
+
+                if thisMonthDay == dmfStart then
+                    day.worldEventTexture:SetTexture(Guildbook.CalendarWorldEvents[L["DARKMOON_FAIRE"]][dmfLocation]['Start'])
+                    day.dmf = dmfLocation
                 end
-                if i == 7 then
-                    day.worldEventTexture:SetTexture(Guildbook.CalendarWorldEvents[L["DARKMOON_FAIRE"]][dmf]['Start'])
-                    day.dmf = dmf
+                if thisMonthDay > dmfStart and thisMonthDay < dmfEnd then
+                    day.worldEventTexture:SetTexture(Guildbook.CalendarWorldEvents[L["DARKMOON_FAIRE"]][dmfLocation]['OnGoing'])
+                    day.dmf = dmfLocation
                 end
-                if i > 7 and i < 14 then
-                    day.worldEventTexture:SetTexture(Guildbook.CalendarWorldEvents[L["DARKMOON_FAIRE"]][dmf]['OnGoing'])
-                    day.dmf = dmf
-                end
-                if i == 14 then
-                    day.worldEventTexture:SetTexture(Guildbook.CalendarWorldEvents[L["DARKMOON_FAIRE"]][dmf]['End'])
-                    day.dmf = dmf
+                if thisMonthDay == dmfEnd then
+                    day.worldEventTexture:SetTexture(Guildbook.CalendarWorldEvents[L["DARKMOON_FAIRE"]][dmfLocation]['End'])
+                    day.dmf = dmfLocation
                 end
 
                 for eventName, event in pairs(Guildbook.CalendarWorldEvents) do

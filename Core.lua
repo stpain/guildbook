@@ -20,6 +20,21 @@ the copyright holders.
 
 ]==]--
 
+
+--[[
+    code logic
+
+    1 addon loaded = create saved vars
+    2 play entering world = get player info (faction,race etc)
+    3 load
+        scan player professions
+        scan talents
+        scan inventory
+        check privacy
+        send calendar data
+        send tradeskill recipes
+]]
+
 local addonName, Guildbook = ...
 
 Guildbook.addonLoaded = false
@@ -1068,7 +1083,7 @@ function Guildbook:SendMyCharacterData_Staggered(player, mod)
 end
 
 local playersUpdated = {}
----sends my character data to target player, has a 30 second comm lock if already sent
+---sends my character data to target player, has a 30 second comm lock if already sent - doesnt send tradeskill recipes
 ---@param player any
 function Guildbook:UpdatePlayer(player)
     if not player then
@@ -1300,36 +1315,55 @@ function Guildbook:ScanPlayerBank()
 end
 
 
----this function will scan the guild members professions and record unique recipeIDs
----it then processes the recipeIDs to get info about them
----finally it then adds the recipe data to an addon table
+---scan all guild members profesion recipeIDs and if no data make a request with a staggered loop
 function Guildbook:RequestTradeskillData()
     if self.addonLoaded == false then
         return;
     end
+
+    -- for debugging speed things up
     local delay = GUILDBOOK_GLOBAL['Debug'] and 0.05 or 0.1
+
+    -- a sequential table of IDs to process { recipeID = number, prof = string, reagents = table or false}
     local recipeIdsToQuery = {}
+
+    -- a lookup table holding character guids for each recipeID { [recipeID] = { guid1, guid2, guid3, ...} }
     local charactersWithRecipe = {}
+
+    -- a lookup table holding character guids for each enchanting recipeID { [recipeID] = { guid1, guid2, guid3, ...} } enchants are spells not items
     local charactersWithEnchantRecipe = {}
+    
+    -- a sequential table for all tradeskill items, this must never be sorted as the keys are mapped
     if not self.tradeskillRecipes then
         self.tradeskillRecipes = {}
     end
+
     if not self.tradeskillRecipesKeys then
+        -- a lookup table to use for finding an tradeskill from the main table { [recipeID] = key }
         self.tradeskillRecipesKeys = {}
     end
     if not self.tradeskillEnchantRecipesKeys then
+        -- a lookup table to use for finding an enchant from the main table { [recipeID] = key }
         self.tradeskillEnchantRecipesKeys = {}
     end
+
+    -- if we have no guild then exit
     if type(self.GUILD_NAME) ~= "string" then
         return;
     end
+
+    -- if we have no saved var then exit
     if not GUILDBOOK_GLOBAL then
         return;
     end
+
+    -- if we have no saved var then exit
     if not GUILDBOOK_GLOBAL.GuildRosterCache[self.GUILD_NAME] then
         return;
     end
     Guildbook.DEBUG("func", "RequestTradeskillData", "begin looping character cache")
+
+    -- loop all the recipes we have from all members
     for guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[self.GUILD_NAME]) do
         if character.Profession1 and character.Profession1 ~= "-" then
             local prof = character.Profession1
@@ -1426,7 +1460,6 @@ function Guildbook:RequestTradeskillData()
     end
     --Guildbook.DEBUG("func", "RequestTradeskillData", "recipes to query "..#recipeIdsToQuery)
     if #recipeIdsToQuery > 0 then
-        local recipesToProcess = #recipeIdsToQuery;
         local startTime = time();
         self:PrintMessage(string.format("found %s recipes, estimated duration %s", #recipeIdsToQuery, SecondsToTime(#recipeIdsToQuery*delay)))
         table.sort(recipeIdsToQuery, function(a,b)
@@ -1445,17 +1478,35 @@ function Guildbook:RequestTradeskillData()
         local statusBarText = GuildbookUI.tradeskills.statusBarText
         statusBarText:SetText("Loading...")
         statusBarText:Show()
-        
+
         C_Timer.NewTicker(delay, function()
             if not recipeIdsToQuery[i] then
                 return
             end
+
             local recipeID = recipeIdsToQuery[i].recipeID
+
+            -- ---check if we have mapped a key for this recipe, if so then that means we've already made a request for data
+            -- if self.tradeskillRecipesKeys[recipeID] then
+            --     --Guildbook.DEBUG('func', 'tradeskill data requst', string.format("key mapping for %s found, skipping request", recipeID))
+            --     return
+            -- else
+            --     --Guildbook.DEBUG('func', 'tradeskill data requst', string.format("key mapping for %s NOT found, requesting data", recipeID))
+            -- end
+            -- if self.tradeskillEnchantRecipesKeys[recipeID] then
+            --     --Guildbook.DEBUG('func', 'tradeskill data requst', string.format("key mapping for %s found, skipping request", recipeID))
+            --     return
+            -- else
+            --     --Guildbook.DEBUG('func', 'tradeskill data requst', string.format("key mapping for %s NOT found, requesting data", recipeID))
+            -- end
+
             local prof = recipeIdsToQuery[i].prof
             local reagents = recipeIdsToQuery[i].reagents
-            local l, r, n, e, x, ic = false, false, false, false, 0, false
-            local thaokyItemSource, spellID = LCI:GetItemSource(recipeID)
-            local thaokyCraftProfession = LCI:GetCraftProfession(recipeID)
+
+            local link, rarity, name, expansion, icon = false, false, false, 0, false
+
+            local _, spellID = LCI:GetItemSource(recipeID)
+
             local _, _, _, equipLoc, _, itemClassID, itemSubClassID = GetItemInfoInstant(recipeID)
             if not equipLoc then
                 equipLoc = "INVTYPE_NON_EQUIP"
@@ -1463,27 +1514,21 @@ function Guildbook:RequestTradeskillData()
             if prof == "Enchanting" then
                 equipLoc = "INVTYPE_NON_EQUIP";
             end
-            -- if i < 20 then
-            --     --Guildbook.DEBUG("func", "GET_PROF_DATA", string.format("gb prof: %s thaoky prof: %s", prof, tradeskill or "no thaoky data"))
-            -- end
-            -- if prof ~= thaokyProf then
-            --     --Guildbook.DEBUG("func", "GET_PROF_DATA", string.format("gb prof: %s thaoky prof: %s", prof, thaokyProf or "no thaoky data"))
-            -- end
+
             if spellID then
-                x = LCI:GetCraftXPack(spellID)
+                expansion = LCI:GetCraftXPack(spellID)
             end
             if prof == 'Enchanting' then
-                l = GetSpellLink(recipeID)
-                r = 1
-                n = GetSpellInfo(recipeID)
-                if not n then
-                    n = "unknown"
+                link = GetSpellLink(recipeID)
+                rarity = 1
+                name = GetSpellInfo(recipeID)
+                if not name then
+                    name = "unknown"
                 end
-                e = true
             else
-                n, l, r, _, _, _, _, _, _, ic = GetItemInfo(recipeID)
+                name, link, rarity, _, _, _, _, _, _, icon = GetItemInfo(recipeID)
             end
-            if not l and not n and not r and not ic then
+            if not link and not name and not rarity and not icon then
                 if prof == 'Enchanting' then                    
                     local spell = Spell:CreateFromSpellID(recipeID)
                     local _, _, _, equipLoc = GetItemInfoInstant(recipeID)
@@ -1491,60 +1536,53 @@ function Guildbook:RequestTradeskillData()
                         equipLoc = 0
                     end
                     spell:ContinueOnSpellLoad(function()
-                        l = GetSpellLink(recipeID)
-                        n, _, ic = GetSpellInfo(recipeID)
-                        if not n then
-                            n = "unknown"
+                        link = GetSpellLink(recipeID)
+                        name, _, icon = GetSpellInfo(recipeID)
+                        if not name then
+                            name = "unknown"
                         end
-                        if not ic then
-                            ic = 136244
+                        if not icon then
+                            icon = 136244
                         end
-                        e = true
                         table.insert(self.tradeskillRecipes, {
                             itemID = recipeID,
                             reagents = reagents,
                             rarity = 1,
-                            link = l,
-                            icon = ic,
-                            expsanion = x;
+                            link = link,
+                            icon = icon,
+                            expsanion = expansion,
                             enchant = true,
-                            name = n,
+                            name = name,
                             profession = prof,
                             equipLocation = equipLoc,
                             class = -1,
                             subClass = -1,
                             charactersWithRecipe = charactersWithEnchantRecipe[recipeID],
-                            thaokyCraftProfession = thaokyCraftProfession,
-                            thaokyItemSource = thaokyItemSource,
                         })
-                        recipesToProcess = recipesToProcess - 1;
                         --Guildbook.DEBUG('func', 'tradeskill data requst', string.format("added recipeID %s prof %s link %s", recipeID, prof, l))
                     end)
                 else
                     local item = Item:CreateFromItemID(recipeID)
                     item:ContinueOnItemLoad(function()
-                        l = item:GetItemLink()
-                        r = item:GetItemQuality()
-                        n = item:GetItemName()
-                        ic = item:GetItemIcon()
+                        link = item:GetItemLink()
+                        rarity = item:GetItemQuality()
+                        name = item:GetItemName()
+                        icon = item:GetItemIcon()
                         table.insert(self.tradeskillRecipes, {
                             itemID = recipeID,
                             reagents = reagents,
-                            rarity = r,
-                            link = l,
-                            icon = ic,
-                            expansion = x;
+                            rarity = rarity,
+                            link = link,
+                            icon = icon,
+                            expansion = expansion,
                             enchant = false,
-                            name = n,
+                            name = name,
                             profession = prof,
                             equipLocation = equipLoc,
                             class = itemClassID,
                             subClass = itemSubClassID,
                             charactersWithRecipe = charactersWithRecipe[recipeID],
-                            thaokyCraftProfession = thaokyCraftProfession,
-                            thaokyItemSource = thaokyItemSource,
                         })
-                        recipesToProcess = recipesToProcess - 1;
                         --Guildbook.DEBUG('func', 'tradeskill data requst', string.format("added recipeID %s prof %s link %s", recipeID, prof, l))
                     end)
                 end
@@ -1553,40 +1591,35 @@ function Guildbook:RequestTradeskillData()
                     table.insert(self.tradeskillRecipes, {
                         itemID = recipeID,
                         reagents = reagents,
-                        rarity = r,
-                        link = l,
+                        rarity = rarity,
+                        link = link,
                         icon = 136244,
                         enchant = true,
-                        expansion = x;
-                        name = n,
+                        expansion = expansion,
+                        name = name,
                         profession = prof,
                         equipLocation = equipLoc,
                         class = -1,
                         subClass = -1,
                         charactersWithRecipe = charactersWithEnchantRecipe[recipeID],
-                        thaokyCraftProfession = thaokyCraftProfession,
-                        thaokyItemSource = thaokyItemSource,
                     })
                 else
                     table.insert(self.tradeskillRecipes, {
                         itemID = recipeID,
                         reagents = reagents,
-                        rarity = r,
-                        link = l,
-                        icon = ic,
+                        rarity = rarity,
+                        link = link,
+                        icon = icon,
                         enchant = false,
-                        expansion = x;
-                        name = n,
+                        expansion = expansion,
+                        name = name,
                         profession = prof,
                         equipLocation = equipLoc,
                         class = itemClassID,
                         subClass = itemSubClassID,
                         charactersWithRecipe = charactersWithRecipe[recipeID],
-                        thaokyCraftProfession = thaokyCraftProfession,
-                        thaokyItemSource = thaokyItemSource,
                     })
                 end
-                recipesToProcess = recipesToProcess - 1;
                 --Guildbook.DEBUG('func', 'tradeskill data requst', string.format("added recipeID %s prof %s link %s", recipeID, prof, l))
             end
 
@@ -1596,6 +1629,7 @@ function Guildbook:RequestTradeskillData()
             i = i + 1;
             if i > #recipeIdsToQuery then
 
+                --- create or update the recipeID key mapping
                 for k, v in ipairs(self.tradeskillRecipes) do
                     if v.enchant then
                         self.tradeskillEnchantRecipesKeys[v.itemID] = k
@@ -1776,11 +1810,6 @@ end
 --- scan the players trade skills
 --- this is used to get data about the players professions, recipes and reagents
 function Guildbook:ScanTradeSkill()
-
-    -- as some addons might cause the default ui not to show or be visible i've changed the scan logic, we now check if any new recipes appear from the scan and if so send updates
-    -- if TradeSkillFrame and not TradeSkillFrame:IsVisible() then
-    --     --return; -- only scan if our tradeskill frame is open
-    -- end
     local localeProf = GetTradeSkillLine() -- this returns local name
     if Guildbook:GetEnglishProf(localeProf) then
         local prof = Guildbook:GetEnglishProf(localeProf) --convert to english
@@ -1844,7 +1873,6 @@ function Guildbook:ScanTradeSkill()
                     self:SetCharacterInfo(UnitGUID("player"), prof, GUILDBOOK_CHARACTER[prof])
                     local elapsed = GetTime() - Guildbook.lastProfTransmit
                     if elapsed > Guildbook.COMM_LOCK_COOLDOWN then
-                        --self:SendTradeskillData(UnitGUID("player"), GUILDBOOK_CHARACTER[prof], prof, "GUILD", nil)
                         self:DB_SendCharacterData(UnitGUID("player"), prof, GUILDBOOK_CHARACTER[prof], "GUILD", nil, "NORMAL")
                         Guildbook.lastProfTransmit = GetTime()
                         Guildbook.DEBUG("func", "Scantradeskill", "sending data for "..prof)
@@ -1856,8 +1884,6 @@ function Guildbook:ScanTradeSkill()
                 end
             end
         end
-            --i = i + 1;
-        --end, c)
     end
 end
 
@@ -1930,7 +1956,6 @@ function Guildbook:ScanCraftSkills_Enchanting()
                     self:SetCharacterInfo(UnitGUID("player"), "Enchanting", GUILDBOOK_CHARACTER.Enchanting)
                     local elapsed = GetTime() - Guildbook.lastProfTransmit
                     if elapsed > Guildbook.COMM_LOCK_COOLDOWN then
-                        --self:SendTradeskillData(UnitGUID("player"), GUILDBOOK_CHARACTER["Enchanting"], "Enchanting", "GUILD", nil)
                         self:DB_SendCharacterData(UnitGUID("player"), "Enchanting", GUILDBOOK_CHARACTER["Enchanting"], "GUILD", nil, "NORMAL")
                         Guildbook.lastProfTransmit = GetTime()
                         Guildbook.DEBUG("func", "Scantradeskill", "sending data for Enchanting")
@@ -2533,12 +2558,23 @@ function Guildbook:DB_OnDataReceived(data, distribution, sender)
     if not data.payload then
         return;
     end
-    if data.payload.key and (type(data.payload.key) ~= "string") then
+    if type(data.payload.key) ~= "string" then
         return;
     end
     if data.payload.guid and data.payload.info then
         Guildbook.DEBUG("db_func", "DB_OnDataReceived", string.format("received %s info from %s", data.payload.key, sender), data)
         self:SetCharacterInfo(data.payload.guid, data.payload.key, data.payload.info)
+    end
+
+    --for new users, the addon will have scanned their professions but because there would be no data during the load for this function to loop the key mapping wouldnt be complete
+    --so if we get tradeskill data call the function, it only makes requests where data is missing so will skip repeated requests
+    --need to sort out some callbacks but for now we check if the key was a profession and if so request data
+    --this function will only request data for recipes where data hasnt been requested
+
+
+    if Guildbook.Data.Profession[data.payload.key] then
+        Guildbook.DEBUG('db_func', 'DB_OnDataReceived', string.format("received data for %s, calling function > RequestTradeskillData", data.payload.key))
+        self:RequestTradeskillData()
     end
 end
 
