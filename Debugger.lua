@@ -10,6 +10,7 @@ local debugTypeToClassColour = {
     ['comms_out'] = CreateColor(Guildbook.Data.Class.SHAMAN.RGB),
     ['comms_in'] = CreateColor(Guildbook.Data.Class.PALADIN.RGB),
     ['db_func'] = CreateColor(Guildbook.Data.Class.DRUID.RGB),
+    ['tsdb'] = CreateColor(Guildbook.Data.Class.WARLOCK.RGB),
 }
 GuildbookDebuggerListviewItemTemplateMixin = {}
 function GuildbookDebuggerListviewItemTemplateMixin:Init(elementData)
@@ -96,6 +97,7 @@ Guildbook.DebugColours = {
     ['comms_out'] = '|cff8787ED', --warlock
     ['comms_in'] = '|cff0070DD', --shaman
     ['db_func'] = "|cffFF7D0A", --druid
+    ['tsdb'] = "|cffF58CBA", --paladin
 }
 
 -- table to hold debug messages

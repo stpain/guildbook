@@ -477,8 +477,30 @@ L["HALLOWS_END"]					= "Hallows End"
 L["FEAST_OF_WINTER_VEIL"]			= "Feast of Winter Veil"
 L["BREWFEST"]						= "Brewfest"
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 -- grab the clients locale
 local locale = GetLocale()
+
+
+
+
+
+
 
 --[[
     german  - this needs to be updated
@@ -600,6 +622,21 @@ if locale == "deDE" then
     L['Holy'] = 'Heilig'
     L['Discipline'] = 'Disziplin'
     L['Shadow'] = 'Schatten'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1035,7 +1072,23 @@ Bientôt
 L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s %s %s", slashCommandsIcon, slashCommandsHelp, rosterIcon, rosterHelp, tradeskillIcon, tradeskillHelp, profileIcon, profileHelp, searchIcon, searchHelp, bankIcon, bankHelp)	
 
 
---[[ chinese
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--[[ 
+	chinese
 ]]
 
 elseif locale == "zhCN" then
@@ -1223,6 +1276,454 @@ elseif locale == "zhCN" then
 
 
 
+
+
+
+
+
+
+
+
+
+elseif locale == "ruRU" then
+
+	--options page
+	L['OptionsAbout'] = 'Guildbook options and about. Thanks to Belrand@Auberdine for the French translations'
+	L['Version'] = 'Version'
+	L['Author'] = 'Author: |cffffffffstpain (|r|cffF58CBACopperbolts|r |cffffffffand|r |cff0070DEKylanda|r|cffffffff)|r'
+
+	-- this is the start of the option ui updates, will go through the option panel and rewrite it with locales for stuff
+	L["TOOLTIP_SHOW_TRADESKILLS"]		= "Display a list of tradeskills that use the current item. (Data is taken from Guildbook database)"
+	L["TOOLTIP_SHOW_RECIPES"]			= "Include recipes that use the current item under each tradeskill."
+	L["TOOLTIP_SHOW_RECIPES"]			= "Only show recipes for your characters tradeskills."
+
+	L["OPTIONS"]						= "Options & Settings"
+	L["MINIMAP_CALENDAR_RIGHTCLICK"]	= "Right click for menu"
+	L["MINIMAP_CALENDAR_EVENTS"]		= "Events"
+
+	L["DIALOG_CHARACTER_FIRST_LOAD"]	= "Welcome to Guildbook, click below to scan your characters professions."
+
+	L["NEW_VERSION_1"] = "new version available, probably fixes a few things, might break something else though!"
+	L["NEW_VERSION_2"] = "there is a totally new awesome version of guildbook, available to downlaod from all good addon providers!"
+	L["NEW_VERSION_3"] = "lol, if you thought the last update did not a lot, you should get the new one, probably does about the same.....or less!"
+	L["NEW_VERSION_4"] = "hordies are red, alliance are blue, guildbook updates just for you!"
+
+	L["GUILDBOOK_DATA_SHARE_HEADER"]	= "Guildbook data share \n\nYou can share your tradeskill data by clicking export to generate a data string. Then copy/paste this to somewhere like discord. \nTo import tradeskill data paste a data string into the box below and click import."
+	L["GUILDBOOK_LOADER_HEADER"]        = "Welcome to Guildbook"
+	L["TOOLTIP_ITEM_RECIPE_HEADER"]     = "Used for the following"
+
+	L["HELP_ABOUT"]						= "Help & about"
+
+	-- this is just a quick thing, will make the how section more fleshed out
+	-- this is a nasty way to do this, its horrible and i need to make the help & about much better
+	local slashCommandsIcon = CreateTextureMarkup(136377, 64, 64, 16, 16, 0, 1, 0, 1, 0, 0)
+	local slashCommandsHelp = [[
+	Slash commands:
+	You can use /guildbook, /gbk or /gb.
+	/guildbook open - this will open Guildbook
+	/guildbook [interface] - this will open to a specific area (roster, tradeskills, chat, profiles, calendar, stats, guildbank, search, privacy)
+
+	]]
+	local rosterIcon = CreateAtlasMarkup("poi-workorders", 16, 16)
+	local rosterHelp = [[
+	Roster:
+	You can sort the roster by clicking the column headers. You can also filter the roster by class or rank, to do this right click the headers. There is the option under class to filter the roster to just your own characters too!
+
+	]]
+	local tradeskillIcon = CreateAtlasMarkup("Mobile-Blacksmithing", 16, 16)
+	local tradeskillHelp = 
+	[[
+	Tradeskills (Professions):
+	Guildbook will process recipe/item IDs when it loads, this process can take a few minutes. Once complete you can view available crafts by profession and/or by equipment slot (head, hands, feet etc).
+
+	Guildbook will share your tradeskill recipes with other guild members. 
+	Open your tradeskill to trigger the scan of the recipes. This will save to your character and account database for the guild and sends to online guild members. Once this process is complete, future data will be sent to all online guild members when you log in. 
+
+	You can also push data by opening a tradeskill (cooldown enabled to prevent spam).
+	You can also use the import/export feature, click the icon above the profession list and follow the instructions.
+
+	]]
+	local profileIcon = CreateAtlasMarkup("GarrMission_MissionIcon-Recruit", 16, 16)
+	local profileHelp = 
+	[[
+	Profile:
+	Edit as you wish, add your personal information or not.
+	You can select your spec(s) and edit your main character. If you use multiple accounts you can add another character which you can then select as a main. (Alts are set by selecting a main character from the alts profile).
+
+	]]
+	local searchIcon = CreateAtlasMarkup("shop-games-magnifyingglass", 16, 16)
+	local searchHelp = 
+	[[
+	Search:
+	Use this feature to browse your guild database- Find a recipe, pattern, character name.
+
+	]]
+	local bankIcon = CreateAtlasMarkup("ShipMissionIcon-Treasure-Map", 16, 16)
+	local bankHelp = [[
+	Coming soon
+	]]
+	L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s %s %s", slashCommandsIcon, slashCommandsHelp, rosterIcon, rosterHelp, tradeskillIcon, tradeskillHelp, profileIcon, profileHelp, searchIcon, searchHelp, bankIcon, bankHelp)
+
+
+
+	--mod blizz guild roster, these are key/values in the ModBlizz file that add extra columns
+	L['Online']                         = 'Online'
+	L['MainSpec']                       = 'Main Spec'
+	L['Rank']                           = 'Rank'
+	L['Note']                           = 'Note'
+	L['Profession1']                    = 'Profession 1'
+	L['Profession2']                    = 'Profession 2'
+
+
+	-- roster listview and tooltip, these are also sort keys and should be lower case
+	L["name"]                           = "Name"
+	L["level"]                          = "Level"
+	L["mainSpec"]                       = "Main Spec"
+	L["prof1"]                          = "Trade"
+	L["location"]                       = "Location"
+	L["rankName"]                       = "Rank"
+	L["publicNote"]                     = "Public Note"
+	L["class"]                          = "Class"
+	L["attunements"]                    = "Attunements"
+
+
+	-- xml strings
+	L["PROFILE_TITLE"]                  = "Profile"
+	L["REAL_NAME"]                      = "Name"
+	L["REAL_DOB"]                       = "Birthday"
+	L["REAL_BIO"]                       = "Bio"
+	L["AVATAR"]                         = "Avatar"
+	L["MAIN_CHARACTER"]                 = "Main character"
+	L["ALT_CHARACTERS"]                 = "Alt characters"
+	L["MAIN_SPEC"]                      = "Main spec"
+	L["OFF_SPEC"]                       = "Off spec"
+	L["PRIVACY"]                        = "Privacy"
+	L["PRIVACY_ABOUT"]                  = "Set the lowest rank you wish to share data with. Profile data includes name, birthday, bio and avatar. Inventory data is the equipment your character has (this is |cffFFD100NOT|r your bags/bank). Talents are, well, your talents!"
+	L["INVENTORY"]                      = "Inventory"
+	L["TALENTS"]                        = "Talents"
+
+	L["ROSTER_MY_CHARACTERS"]			= "My characters"
+	L["ROSTER_ALL_CLASSES"]				= "All"
+	L["ROSTER_ALL_RANKS"]				= "All"
+
+	L["TRADESKILLS"]					= "Professions"
+	L["TRADESKILLS_RECIPES"]			= "Recipes"
+	L["TRADESKILLS_CHARACTERS"]			= "Characters"
+	L["TRADESKILL_GUILD_RECIPES"]		= "Guild Recipes"
+	L["TRADESKILLS_SHARE_RECIPES"]		= "Share this characters recipes"
+	L["TRADESKILLS_EXPORT_RECIPES"]		= "Import or export tradeskill data"
+	L["IMPORT"]							= "Import"
+	L["EXPORT"]							= "Export"
+	L["CAN_CRAFT"]                      = "[Guildbook] are you able to craft %s ?"
+	L["REMOVE_RECIPE_FROM_PROF_SS"]		= "Remove %s from %s ?"
+	L["REMOVE_RECIPE_FROM_PROF"]		= "Right click to remove from this tradeskill."
+	L["PROCESSED_RECIPES_SS"]			= "Processed %s of %s recipes"
+	L["TRADESKILL_SLOT_FILTER_S"]		= "Filter %s items"
+	L["TRADESKILL_SLOT_REMOVE"]			= "Clear filters"
+	L["HEAD"]							= "head"
+	L["SHOULDER"]						= "shoulder"
+	L["BACK"]							= "back"
+	L["CHEST"]							= "chest"
+	L["WRIST"]							= "wrist"
+	L["HANDS"]							= "hands"	
+	L["WAIST"]							= "waist"
+	L["LEGS"]							= "legs"
+	L["FEET"]							= "feet"
+	L["WEAPONS"]						= "weapons"
+	L["OFF_HAND"]						= "off hand"	
+	L["MISC"]							= "misc"
+	L["CONSUMABLES"]					= "consumables"
+
+
+	L["PHASE2GB"]						= "With the arrival of guild banks to TBCC i have removed the guild bank system from Guildbook. I am working on something to replace it though!"
+	L['GUILDBANK']						= "Guild bank"
+	L["GUILDBANK_HEADER_ITEM"]			= "Item link"
+	L["GUILDBANK_HEADER_COUNT"]			= "Count"
+	L["GUILDBANK_SORT_TYPE"]			= "Type"
+	L["GUILDBANK_HEADER_SUBTYPE"]		= "Subtype"
+	L["GUILDBANK_SORT_BANK"]			= "Source"
+	L["GUILDBANK_REFRESH"]				= "Refresh"
+	L["GUILDBANK_ALL_BANKS"]			= "All banks"
+	L["GUILDBANK_ALL_TYPES"]			= "All types"
+	L["GUILDBANK_REQUEST_COMMITS"]		= "requesting commits for "
+	L["GUILDBANK_REQUEST_INFO"]			= "requesting data from "
+	L["GUILDBANK_FUNDS"]				= "Gold available"
+	L["GUILDBANK_CURRENCY"]				= "Currency"
+
+	L["PROFILES"]                       = "Profiles"
+	L["CHAT"]                           = "Chat"
+	L["ROSTER"]                         = "Roster"
+	L["CALENDAR"]                       = "Calendar"
+	L["SEARCH"]                         = "Search"
+	L["MY_PROFILE"]                     = "My profile"
+	L["OPEN_PROFILE"]                   = "Open profile"
+	L["OPEN_CHAT"]                      = "Open chat"
+	L["INVITE_TO_GROUP"]                = "Invite to group"
+	L["SEND_TRADE_ENQUIRY"]             = "Send message about item"
+	L["REFRESH_ROSTER"]                 = "Refresh roster"
+	L["EDIT"]                           = "Edit profile"
+	L["GUILD_BANK"]                     = "Useless tooltip!"
+	L["ALTS"]                           = "Alt characters"
+	L["USE_MAIN_PROFILE"]               = "Use main character profile"
+	L["MY_SACKS"]                       = "My containers"
+	L["BAGS"]                           = "Bags"
+	L["BANK"]                           = "Bank"
+	L["STATS"]                          = "Statistics"
+
+	L["RESET_AVATAR"]					= "Reset avatar"
+
+	L["PRIVACY_HEADER"]                 = "Privacy settings"
+	L["NONE"]                           = "None"
+	L["SHARING_NOBODY"]		    		= "Sharing with nobody"
+	L["SHARING_WITH"]		    		= "Sharing with"
+
+	L["MAIN_CHARACTER_ADD_ALT"]			= "Add character.\n|cffFFFF00Use this to add a character from a different account. You will then be able to select it as main character."
+	L["MAIN_CHARACTER_REMOVE_ALT"]		= "Remove character"
+	L["DIALOG_MAIN_CHAR_ADD"]			= "Type the name of your character, must be a guild member."
+	L["DIALOG_MAIN_CHAR_REMOVE"]		= "Please enter the characters name."
+	L["DIALOG_MAIN_CHAR_ADD_FOUND"]		= "Found character: %s Level: %s %s"
+
+	--attributes
+	L["STRENGTH"]						= "Strength"
+	L["AGILITY"]						= "Agility"
+	L["STAMINA"]						= "Stamina"
+	L["INTELLECT"]						= "Intellect"
+	L["SPIRIT"]							= "Spirit"
+	--defence
+	L["ARMOR"]							= "Armor"
+	L["DEFENSE"]						= "Defence"
+	L["DODGE"]							= "Dodge"
+	L["PARRY"]							= "Parry"
+	L["BLOCK"]							= "Block"
+	--melee
+	L["EXPERTISE"]						= "Expertise"
+	L["HIT_CHANCE"]						= "Hit"
+	L["MELEE_CRIT"]						= "Crit"
+	L["MH_DMG"]							= "Main hand dmg"
+	L["OH_DMG"] 						= "Off hand dmg"
+	L["MH_DPS"] 						= "Main hand dps"
+	L["OH_DPS"] 						= "Off hand dps"
+	--ranged
+	L["RANGED_HIT"] 					= "Hit"
+	L["RANGED_CRIT"] 					= "Crit"
+	L["RANGED_DMG"] 					= "Damage"
+	L["RANGED_DPS"] 					= "Dps"
+	--spells
+	L["SPELL_HASTE"] 					= "Haste"
+	L["MANA_REGEN"] 					= "Mana Regen"
+	L["MANA_REGEN_CASTING"] 			= "Mana Regen (casting)"
+	L["SPELL_HIT"] 						= "Hit"
+	L["SPELL_CRIT"] 					= "Crit"
+	L["HEALING_BONUS"] 					= "Healing bonus"
+	L["SPELL_DMG_HOLY"] 				= "Holy"
+	L["SPELL_DMG_FROST"] 				= "Frost"
+	L["SPELL_DMG_SHADOW"] 				= "Shadow"
+	L["SPELL_DMG_ARCANE"] 				= "Arcane"
+	L["SPELL_DMG_FIRE"] 				= "Fire"
+	L["SPELL_DMG_NATURE"] 				= "Nature"
+
+
+
+	-- class and spec
+	-- class is upper case
+	L['DEATHKNIGHT']                    = 'Deathknight'
+	L['DRUID']                          = 'Druid'
+	L['HUNTER']                         = 'Hunter'
+	L['MAGE']                           = 'Mage'
+	L['PALADIN']                        = 'Paladin'
+	L['PRIEST']                         = 'Priest'
+	L['SHAMAN']                         = 'Shaman'
+	L['ROGUE']                          = 'Rogue'
+	L['WARLOCK']                        = 'Warlock'
+	L['WARRIOR']                        = 'Warrior'
+	--mage/dk
+	L['Arcane']                         = 'Arcane'
+	L['Fire']                           = 'Fire'
+	L['Frost']                          = 'Frost'
+	L['Blood']                          = 'Blood'
+	L['Unholy']                         = 'Unholy'
+	--druid/shaman
+	L['Restoration']                    = 'Restoration'
+	L['Enhancement']                    = 'Enhancement'
+	L['Elemental']                      = 'Elemental'
+	L["Warden"]							= "Warden"
+	L['Cat']                            = 'Cat'
+	L['Bear']                           = 'Bear'
+	L['Balance']                        = 'Balance'
+	L['Guardian']                       = 'Guardian'
+	L["Feral"]							= "Feral"
+	--rogue
+	L['Assassination']                  = 'Assassination'
+	L['Combat']                         = 'Combat'
+	L['Subtlety']                       = 'Subtlety'
+	--hunter
+	L['Marksmanship']                   = 'Marksmanship'
+	L['Beast Master']                   = 'Beast Master'
+	L['BeastMaster']                   	= 'Beast Master' -- the smart detect spec system could return this value
+	L['Survival']                       = 'Survival'
+	--warlock
+	L['Destruction']                    = 'Destruction'
+	L['Affliction']                     = 'Affliction'
+	L['Demonology']                     = 'Demonology'
+	--warrior/paladin/priest
+	L['Fury']                           = 'Fury'
+	L['Arms']                           = 'Arms'
+	L['Protection']                     = 'Protection'
+	L['Retribution']                    = 'Retribution'
+	L['Holy']                           = 'Holy'
+	L['Discipline']                     = 'Discipline'
+	L['Shadow']                         = 'Shadow'
+
+	--odds
+	L["Warden"]							= "Warden"
+	L["Frost (Tank)"]					= "Frost (Tank)"
+
+	--date time
+	L['JANUARY']                        = 'January'
+	L['FEBRUARY']                       = 'February'
+	L['MARCH']                          = 'March'
+	L['APRIL']                          = 'April'
+	L['MAY']                            = 'May'
+	L['JUNE']                           = 'June'
+	L['JULY']                           = 'July'
+	L['AUGUST']                         = 'August'
+	L['SEPTEMBER']                      = 'September'
+	L['OCTOBER']                        = 'October'
+	L['NOVEMBER']                       = 'November'
+	L['DECEMBER']                       = 'December'
+
+	L["MONDAY"]			    			= "Monday"
+	L["TUESDAY"]			    		= "Tuesday"
+	L["WEDNESDAY"]			    		= "Wednesday"
+	L["THURSDAY"]			    		= "Thursday"
+	L["FRIDAY"]			   				= "Friday"
+	L["SATURDAY"]			    		= "Saturday"
+	L["SUNDAY"]			    			= "Sunday"
+
+
+	-- old stuff but might use again
+	L['GuildBank']                      = 'Guild Bank'
+	L['Events']                         = 'Events'
+	L['WorldEvents']                    = 'World Events'
+	L['Attunements']                    = 'Attunements'
+	L["Guild"]                          = "Guild"
+
+
+	L['Roles']                          = 'Roles'
+	L['Tank']                           = 'Tank'
+	L['Melee']                          = 'Melee'
+	L['Ranged']                         = 'Ranged'
+	L['Healer']                         = 'Healer'
+	L['ClassRoleSummary']               = 'Class & Role Summary'
+	L['RoleChart']                      = 'Roles (Online Members)'
+	L['ClassChart']                     = 'Classes (All Members)'
+
+	-- calendar help icon
+	L['calendarHelpText'] = [[
+	Calendar
+
+	|cffffffffGuildbook provides an in-game calendar for guilds to 
+	schedule events. It's loosely based on an older version of the
+	Blizzard calendar and functions in a similar manner. Currently 
+	up to 3 events per day will be shown (an option to access more 
+	will be added) on the day tiles.|r
+
+	|cff00BFF3The calendar sends/receives data when a player logs in, 
+	when an event is created or deleted and when an event is modified. 
+	Events should sync with guild members although this is not guaranteed 
+	as it relies on there being enough overlap between player sessions.
+
+	Data sent is limited to 4 weeks to reduce demand on the addon chat 
+	systems, events can be created for any date and will sync once they 
+	fall within 4 weeks of the current date|r.
+	]]
+
+	--guildbank help icon
+	L["GUILDBANKHELPTEXT"]	= [[
+	Guild Bank
+
+	|cffffffffGuildbook provides an in-game guild bank for guild 
+	to share bank character's inventory.
+	|r
+
+	|cff00BFF3To use the Guild Bank, add the word 'Guildbank'
+	to the Public Note of the character being used as a bank
+	(this will add them to the dropdown menu).
+	Said character must then open his bank 
+	to sync his inventory with connected Guild Members.
+
+	The guild bank sends/receives data when a player logs in, 
+	only the most recent data is being used, thus bank characters
+	should sync their inventory after every change within it.
+
+	Multiple bank characters are supported.|r
+	]]
+
+
+	--legacy stuff
+	L["SELECT_BANK_CHARACTER"]          = "Select bank character"
+	L["DUNGEON"]                        = "Dungeon"
+	L["RAID"]                           = "Raid"
+	L['PVP']							= 'PVP'
+	L["MEETING"]                        = "Meeting"
+	L["OTHER"]                          = "Other"
+	L["GUILD_CALENDAR"]                 = "Guild Calendar"
+	L["INSTANCE_LOCKS"]                 = "Instance locks"
+	L["CREATE_EVENT"]                   = "Create event"
+	L["DELETE_EVENT"]                   = "Delete event"
+	L["EVENT"]                          = "Event"
+	L["EVENT_TYPE"]                     = "Event type"
+	L["TITLE"]                          = "Title"
+	L["DESCRIPTION"]                    = "Description"
+	L["UPDATE"]                         = "Update"
+	L["ATTENDING"]                      = "Attending"
+	L["TENTATIVE"]                      = "Tentative"
+	L["DECLINE"]                        = "Decline"
+
+	L["YEARS"]                          = "years"
+	L["MONTHS"]                         = "months"
+	L["DAYS"]                           = "days"
+	L["HOURS"]                          = "hours"
+	L['< an hour']			    		= '< an hour'
+
+	L["GENERAL"]			    		= "General"
+	L["MINIMAP_TOOLTIP_LEFTCLICK"]		= '|cffffffffLeft Click|r Open Guildbook'
+	L["MINIMAP_TOOLTIP_LEFTCLICK_SHIFT"]= "Shift + "..'|cffffffffLeft Click|r Open Chat'
+	L["MINIMAP_TOOLTIP_RIGHTCLICK"]		= '|cffffffffRight Click|r Options'
+	L["MINIMAP_TOOLTIP_MIDDLECLICK"]	= "|cffffffffMiddle Click|r Open Blizzard roster"
+
+	L["MC"]								= "Molten Core"
+	L["BWL"]							= "Blackwing Lair"
+	L["AQ20"]                           = "AQ20"
+	L["AQ40"]							= "AQ40"
+	L["Naxxramas"]						= "Naxxramas"
+	L["ZG"]								= "Zul'Gurub"
+	L["Onyxia"]							= "Onyxia"
+	L["Magtheridon"]					= "Magtheridon's Lair"
+	L["SSC"]							= "Serpentshrine Cavern"
+	L["TK"]								= "Tempest Keep"
+	L["Gruul"]							= "Gruul's Lair"
+	L["Hyjal"]							= "Hyjal Summit"
+	L["SWP"]							= "Sunwell Plateau"
+	L["BT"]								= "Black Temple"
+	L["Karazhan"]						= "Karazhan"
+
+	--availability (Data.lua)
+	L['Not Available'] 					= 'Not Available'
+	L['Morning'] 						= 'Morning'
+	L['Afternoon'] 						= 'Afternoon'
+	L['Evening'] 						= 'Evening'
+
+	--world events
+	L["DARKMOON_FAIRE"]					= "Darkmoon Faire"
+	L["DMF display"]					= '|cffffffffDarkmoon Faire - ' --this is needed for the calendar
+	L["LOVE IS IN THE AIR"]				= "Love is in the air"
+	L["CHILDRENS_WEEK"]					= "Children's Week"				
+	L["MIDSUMMER_FIRE_FESTIVAL"]		= "Midsummer Fire Festival"
+	L["HARVEST_FESTIVAL"]				= "Harvest Festival"
+	L["HALLOWS_END"]					= "Hallows End"
+	L["FEAST_OF_WINTER_VEIL"]			= "Feast of Winter Veil"
+	L["BREWFEST"]						= "Brewfest"
 
 end
 
