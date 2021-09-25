@@ -168,7 +168,33 @@ end
 
 
 
-
+local function loadCharactersWithRecipe(recipe)
+    GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Flush()
+    local charactersWithRecipe = {}
+    local sorting = {}
+    if recipe.enchant == true then
+        for k, guid in ipairs(gb.charactersWithEnchantRecipe[recipe.itemID]) do
+            table.insert(sorting, {
+                guid = guid,
+                online = gb.onlineZoneInfo[guid].online and 1 or 0,
+            })
+        end
+    else
+        for k, guid in ipairs(gb.charactersWithRecipe[recipe.itemID]) do
+            table.insert(sorting, {
+                guid = guid,
+                online = gb.onlineZoneInfo[guid].online and 1 or 0,
+            })
+        end
+    end
+    table.sort(sorting, function(a,b)
+        return a.online > b.online
+    end)
+    for k, character in ipairs(sorting) do
+        table.insert(charactersWithRecipe, character.guid)
+    end
+    GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:InsertTable(charactersWithRecipe)
+end
 
 
 
@@ -444,6 +470,23 @@ function GuildbookRecipeListviewItemMixin:OnEnter()
         -- GameTooltip:AddLine(" ")
         -- GameTooltip:AddLine(gb.Colours.Blue:WrapTextInColorCode(L["REMOVE_RECIPE_FROM_PROF"]))
 
+        GameTooltip:AddLine(" ")
+        GameTooltip:AddLine(gb.Colours.BlizzBlue:WrapTextInColorCode(L["TRADESKILLS_REAGENTS"]))
+        if self.item.reagents then
+            for reagentID, count in pairs(self.item.reagents) do
+                local name, _, _, _, _, _, _, _, _, icon = GetItemInfo(reagentID)
+                if not name then
+                    local item = Item:CreateFromItemID(reagentID)
+                    item:ContinueOnItemLoad(function()
+                        local name = item:GetItemName()
+                        GameTooltip:AddDoubleLine(name, count, 1,1,1, 1,1,1)
+                    end)
+                else
+                    GameTooltip:AddDoubleLine(name, count, 1,1,1, 1,1,1)
+                end
+            end
+        end
+
         -- this adds the item table to the tooltip for debugging reasons
         if GUILDBOOK_GLOBAL.Debug then
             GameTooltip:AddLine(" ")
@@ -472,7 +515,7 @@ end
 
 function GuildbookRecipeListviewItemMixin:OnMouseDown(button)
 
-    local index = self:GetOrderIndex();
+    --local index = self:GetOrderIndex();
 
     -- this is an option for users to remove an item from a tradeskill if its somehow been mixed up
     -- its not the best option to use however
@@ -498,24 +541,7 @@ function GuildbookRecipeListviewItemMixin:OnMouseDown(button)
 
     -- load the characters who can craft the item
     else
-        GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Flush()
-
-        -- we want to show characters who are online first in the list so we need to make a sorting table to enable sorting by offline/online status
-        local charactersWithRecipe = {}
-        local sorting = {}
-        for k, guid in ipairs(self.item.charactersWithRecipe) do
-            table.insert(sorting, {
-                guid = guid,
-                online = gb.onlineZoneInfo[guid].online and 1 or 0,
-            })
-        end
-        table.sort(sorting, function(a,b)
-            return a.online > b.online
-        end)
-        for k, character in ipairs(sorting) do
-            table.insert(charactersWithRecipe, character.guid)
-        end
-        GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:InsertTable(charactersWithRecipe)
+        loadCharactersWithRecipe(self.item)
     end
 
 end
@@ -523,19 +549,6 @@ end
 function GuildbookRecipeListviewItemMixin:OnMouseUp()
 
 end
-
--- function GuildbookRecipeListviewItemMixin:ClearReagents()
---     for _, reagent in pairs(self.reagentIcons) do
---         reagent.icon:SetTexture(nil)
---         reagent.greenBorder:Hide()
---         reagent.orangeBorder:Hide()
---         reagent.purpleBorder:Hide()
---         reagent.count:SetText("")
---         reagent.link = nil
---     end
--- end
-
-
 
 
 
@@ -1165,6 +1178,7 @@ local invSlots = {
 local function filterConsumables(subType)
     if gb.tradeskillRecipes then
         GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Flush()
+        GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Flush()
         GuildbookUI.tradeskills.filteredItems = nil
         GuildbookUI.tradeskills.filteredItems = {}
         for k, item in ipairs(gb.tradeskillRecipes) do
@@ -2765,18 +2779,18 @@ function GuildbookProfilesMixin:LoadCharacter(player)
                 self:GetParent().statusText:SetText("requesting talents")
                 gb:SendTalentInfoRequest(self.character.Name, 'primary')
             end)
-            C_Timer.After(transmitStagger * 4, function()
-                if self.character.Profession1 then
-                    self:GetParent().statusText:SetText("requesting profession 1")
-                    gb:SendTradeSkillsRequest(self.character.Name, self.character.Profession1)
-                end
-            end)
-            C_Timer.After(transmitStagger * 5, function()
-                if self.character.Profession2 then
-                    self:GetParent().statusText:SetText("requesting profession 2")
-                    gb:SendTradeSkillsRequest(self.character.Name, self.character.Profession2)
-                end
-            end)
+            -- C_Timer.After(transmitStagger * 4, function()
+            --     if self.character.Profession1 then
+            --         self:GetParent().statusText:SetText("requesting profession 1")
+            --         gb:SendTradeSkillsRequest(self.character.Name, self.character.Profession1)
+            --     end
+            -- end)
+            -- C_Timer.After(transmitStagger * 5, function()
+            --     if self.character.Profession2 then
+            --         self:GetParent().statusText:SetText("requesting profession 2")
+            --         gb:SendTradeSkillsRequest(self.character.Name, self.character.Profession2)
+            --     end
+            -- end)
         else
             gb:GetCharacterInventory()
             gb:GetCharacterTalentInfo('primary')
@@ -3497,6 +3511,7 @@ function GuildbookSearchMixin:Search(term)
                         if gb.tradeskillRecipes then
                             GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Flush()
                             GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Insert(recipe)
+                            loadCharactersWithRecipe(recipe)
                             navigateTo(GuildbookUI.tradeskills)
                         end
                     end,

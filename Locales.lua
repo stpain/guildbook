@@ -160,6 +160,7 @@ L["ROSTER_ALL_RANKS"]				= "All"
 
 L["TRADESKILLS"]					= "Professions"
 L["TRADESKILLS_RECIPES"]			= "Recipes"
+L["TRADESKILLS_REAGENTS"]			= "Reagents"
 L["TRADESKILLS_CHARACTERS"]			= "Characters"
 L["TRADESKILL_GUILD_RECIPES"]		= "Guild Recipes"
 L["TRADESKILLS_SHARE_RECIPES"]		= "Share this characters recipes"
@@ -503,125 +504,454 @@ local locale = GetLocale()
 
 
 --[[
-    german  - this needs to be updated
+    german  - thanks to Nezzquikk from discord for these translations
 ]]
 if locale == "deDE" then
 
-    -- buttons, labels and texts
-    L['CharacterName'] = 'Data Recipient'
-    L['OptionsAbout'] = 'Guildbook erlaubt es Spielern, mehrere Informationen mit ihren Gildenmitgliedern zu teilen. Nutze die unten aufgeführten Optionen, um deine Charakter-Ausrichtung/Twinks für deinen Charakter zu setzen.'
-    L['Summary'] = 'Zusammenfassung'
-    L['SummaryHeader'] = 'Gildenübersicht'
-    L['Roster'] = 'Roster'
-    L['CharacterLevel'] = 'Charakter Level'
-    L['Name'] = 'Name'
-    L['Roles'] = 'Rolle(n)'
-    L['Tank'] = 'Tank'
-    L['Melee'] = 'Nahkampf'
-    L['Ranged'] = 'Fernkampf'
-    L['Healer'] = 'Heiler'
-    L['ClassRoleSummary'] = 'Klassen- & Rollenzusammenfassung'
-    L['RoleChart'] = 'Rollen (Online Mitglieder)'
-    L['ClassChart'] = 'Klassen (Alle Mitglieder)'
-    L['Online'] = 'Online'
-    L['Offline'] = 'Offline'
-    L['SearchFor'] = 'Suche...'
-    L['Info'] = 'Info'
-    L['Specializations'] = 'Spezialisierung'
-    L['ItemLevel'] = 'Item Level'
-    L['MainSpec'] = 'Main Spec'
-    L['Main'] = 'Main:'
-    L['Rank'] = 'Rang'
-    L['Note'] = 'Notiz'
-    L['OffSpec'] = 'Off Spec:'
-    L['IsPvpSpec'] = '  PVP'
-    L['Class'] = 'Klasse'
-    L['FirstAid'] = 'Erste Hilfe'
-    L['Fishing'] = 'Angeln'
-    L['Cooking'] = 'Kochkunst'
-    L['Professions'] = 'Fertigkeiten'
-    L['Profession1'] = 'Beruf 1'
-    L['Profession2'] = 'Beruf 2'
-    L['Profiles'] = 'Profile'
-    L['Profile'] = 'Profil'
-    L['Chat'] = 'Chat'
-    L['Statistics'] = 'Statistik'
-    L['Calendar'] = 'Kalender'
-    L['GuildBank'] = 'Gildenbank'
-    L['EditCharacterInfo'] = 'Deine Charakter Informationen sollten unten eingeblendet sein. Aktualisiere deine Spezialisierungen und - falls dies ein Twink ist - gib den Namen deines Mainchars an.\nDrücke <Bestätigen>, um die Informationen mit der Gilde zu teilen.'
-    L['SaveCharacterData'] = 'Bestätigen'
-    L['MainCharacterNameInputDesc'] = 'Main Char'
-    L['MainCharacter'] = 'Main Char'
-    L['Gems'] = 'Gems'
-    L['Enchants'] = 'Verzauberungen'
-    L['ilvl'] = 'ilvl'
-    L['Guild Information'] = 'Gilden Information'
-    L['ClassRolesSummary'] = 'Klassen- & Rollenzusammenfassung'
-    L['RaidRoster'] = 'Raid Roster |cffffffff(Rechtsklick auf einen Spieler für mehr Optionen.)|r'
-    L['Cancel'] = 'Abbrechen'
-    L['GuildBank'] = 'Gildenbank'
 
-    --professions
-    L['Alchemy'] = "Alchimie"
-    L["Blacksmithing"] = "Schmiedekunst"
-    L["Enchanting"] = "Verzauberkunst"
-    L["Engineering"] = "Ingenieurskunst"
-    --['Inscription'] = 'Inscription',
-    L['Jewelcrafting'] = 'Juwelenschleifen'
-    L['Tailoring'] = "Schneiderei"
-    L['Leatheroworking'] = "Lederverarbeitung"
-    L['Herbalism'] = "Kräuterkunde"
-    L['Skinning'] = "Kürschnerei"
-    L['Mining'] = "Bergbau"
-    L['First Aid'] = 'Erste Hilfe'
-    L['Fishing'] = 'Angeln'
-    L['Cooking'] = 'Kochkunst'
+	--options page
+	L['OptionsAbout'] = 'Guildbook options and about. Thanks to Belrand@Auberdine for the French translations.'
+	L['Version'] = 'Version'
+	L['Author'] = 'Autor: |cffffffffstpain (|r|cffF58CBACopperbolts|r |cffffffffand|r |cff0070DEKylanda|r|cffffffff)|r'
 
-    -- class and spec
-    L['DEATHKNIGHT'] = 'Todesritter'
-    L['DRUID'] = 'Druide'
-    L['HUNTER'] = 'Jäger'
-    L['MAGE'] = 'Magíer'
-    L['PALADIN'] = 'Paladin'
-    L['PRIEST'] = 'Priester'
-    L['SHAMAN'] = 'Schamane'
-    L['ROGUE'] = 'Schurke'
-    L['WARLOCK'] = 'Hexenmeister'
-    L['WARRIOR'] = 'Krieger'
-    --mage/dk
-    L['Arcane'] = 'Arkan'
-    L['Fire'] = 'Feuer'
-    L['Frost'] = 'Frost'
-    L['Blood'] = 'Blut'
-    L['Unholy'] = 'Unheilig'
-    --druid/shaman
-    L['Restoration'] = 'Wiederherst.'
-    L['Enhancement'] = 'Verstärk.'
-    L['Elemental'] = 'Elementar.'
-    L['Cat'] = 'Katze'
-    L['Bear'] = 'Bär'
-	L['Feral Combat'] = 'Wilder Kampf'
-    L['Balance'] = 'Gleichgewicht'
-    --rogue
-    L['Assassination'] = 'Meucheln'
-    L['Combat'] = 'Kampf'
-    L['Subtlety'] = 'Täuschung'
-    --hunter
-    L['Marksmanship'] = 'Treffsicherheit'
-    L['Beast Master'] = 'Tierherrschaft'
-    L['Survival'] = 'Überleben'
-    --warlock
-    L['Destruction'] = 'Zerstörung'
-    L['Affliction'] = 'Gebrechen'
-    L['Demonology'] = 'Dämonologie'
-    --warrior/paladin/priest
-    L['Fury'] = 'Furor'
-    L['Arms'] = 'Waffen'
-    L['Protection'] = 'Schutz'
-    L['Retribution'] = 'Vergeltung'
-    L['Holy'] = 'Heilig'
-    L['Discipline'] = 'Disziplin'
-    L['Shadow'] = 'Schatten'
+	-- this is the start of the option ui updates, will go through the option panel and rewrite it with locales for stuff
+	L["TOOLTIP_SHOW_TRADESKILLS"]		= "Zeigt eine Liste der Berufe an, die den aktuellen Gegenstand verwenden. (Die Daten stammen aus der Guildbook-Datenbank)"
+	L["TOOLTIP_SHOW_RECIPES"]			= "Fügen Sie Rezepte, die den aktuellen Gegenstand verwenden, unter jeder Fertigkeit ein."
+	L["TOOLTIP_SHOW_RECIPES"]			= "Zeige nur Rezepte für die Berufe deiner Charaktere an."
+
+	L["OPTIONS"]						= "Optionen & Einstellungen"
+	L["MINIMAP_CALENDAR_RIGHTCLICK"]	= "Rechtsklick für Menü"
+	L["MINIMAP_CALENDAR_EVENTS"]		= "Ereignisse"
+
+	L["DIALOG_CHARACTER_FIRST_LOAD"]	= "Willkommen bei Guildbook, klicken Sie unten, um die Berufe Ihrer Charaktere zu scannen."
+
+	L["NEW_VERSION_1"] = "Eine neue Version ist verfügbar, behebt wahrscheinlich ein paar Dinge, könnte aber auch etwas anderes kaputt machen!"
+	L["NEW_VERSION_2"] = "Es gibt eine völlig neue, fantastische Version von Guildbook, die bei allen guten Addon-Anbietern heruntergeladen werden kann!"
+	L["NEW_VERSION_3"] = "lol, wenn du dachtest, dass das letzte Update nicht viel gebracht hat, solltest du dir das neue holen, das macht wahrscheinlich ungefähr das gleiche.....oder weniger!"
+	L["NEW_VERSION_4"] = "Hordies sind rot, Allianzen sind blau, Guildbook-Updates sind super schlau!"
+
+	L["GUILDBOOK_DATA_SHARE_HEADER"]	= "Gildenbuchdaten freigeben \n\nSie können Ihre Berufe teilen, indem Sie auf exportieren klicken, um einen Zeichenkette zu erzeugen. Kopieren Sie diesen dann und fügen Sie ihn z. B. in Discord ein. \nUm Daten von Berufen zu importieren, füge eine Zeichenkette in das Feld unten ein und klicke auf importieren."
+	L["GUILDBOOK_LOADER_HEADER"]        = "Willkommen bei Guildbook"
+	L["TOOLTIP_ITEM_RECIPE_HEADER"]     = "Wird für Folgendes verwendet"
+
+	L["HELP_ABOUT"]						= "Hilfe & Infos"
+
+	-- this is just a quick thing, will make the how section more fleshed out
+	-- this is a nasty way to do this, its horrible and i need to make the help & about much better
+	local slashCommandsIcon = CreateTextureMarkup(136377, 64, 64, 16, 16, 0, 1, 0, 1, 0, 0)
+	local slashCommandsHelp = [[
+	Slash commands:
+	Sie können /guildbook, /gbk oder /gb verwenden.
+	/guildbook open - dies öffnet das Guildbook
+	/guildbook [Ansicht] - öffnet einen bestimmten Bereich (Gilde, Berufe, Chat, Profile, Kalender, Statistiken, Gildenbank, Suche, Datenschutz)
+
+	]]
+	local rosterIcon = CreateAtlasMarkup("poi-workorders", 16, 16)
+	local rosterHelp = [[
+	Gildenfenster:
+	Sie können das Gildenfenster sortieren, indem Sie auf die Spaltenüberschriften klicken. Du kannst das Gildenfenster auch nach Klasse oder Rang filtern, indem du mit der rechten Maustaste auf die Überschriften klickst. Unter "Klasse" gibt es die Möglichkeit, das Gildenfenster nur nach deinen eigenen Charakteren zu filtern!
+
+	]]
+	local tradeskillIcon = CreateAtlasMarkup("Mobile-Blacksmithing", 16, 16)
+	local tradeskillHelp = 
+	[[
+	Berufe:
+	Guildbook verarbeitet die Rezept-/Gegenstände-IDs, wenn es geladen wird; dieser Vorgang kann einige Minuten dauern. Sobald dies abgeschlossen ist, können Sie die verfügbaren Gegenstände nach Beruf und/oder nach Ausrüstungsplatz (Kopf, Hände, Füße usw.) anzeigen.
+
+	Mit Guildbook könnt ihr eure Rezepte mit anderen Gildenmitgliedern teilen. 
+	Öffnen Sie das Fenster eines Berufs, um den Scan der Rezepte auszulösen. Dies wird in Ihrer Charakter- und Account-Datenbank für die Gilde gespeichert und an die Online-Gildenmitglieder gesendet. Sobald dieser Vorgang abgeschlossen ist, werden zukünftige Daten an alle Online-Gildenmitglieder gesendet, wenn ihr euch einloggt. 
+
+	Ihr könnt auch Daten verschicken, indem ihr das Fenster eines Berufs öffnet (Abklingzeit aktiviert, um Spam zu verhindern).
+	Ihr könnt auch die Import/Export-Funktion nutzen, indem ihr auf das Symbol über der Berufsliste klickt und den Anweisungen folgt.
+
+
+	]]
+	local profileIcon = CreateAtlasMarkup("GarrMission_MissionIcon-Recruit", 16, 16)
+	local profileHelp = 
+	[[
+	Profil:
+	Bearbeiten Sie ihr Profil nach Belieben, fügen Sie Ihre persönlichen Informationen optional hinzu.
+	Sie können Ihre Spezialisierungen auswählen und Ihre Hauptfigur bearbeiten. Wenn Sie mehrere Konten verwenden, können Sie einen weiteren Charakter hinzufügen, den Sie dann als Hauptcharakter auswählen können. (Alts werden durch Auswahl eines Hauptcharakters aus dem Alt-Profil festgelegt).
+
+	]]
+	local searchIcon = CreateAtlasMarkup("shop-games-magnifyingglass", 16, 16)
+	local searchHelp = 
+	[[
+	Suchen:
+	Verwenden Sie diese Funktion, um Ihre Gilden-Datenbank zu durchsuchen: Suchen Sie ein Rezept, ein Rezeptmuster oder einen Charakternamen.
+
+	]]
+	local bankIcon = CreateAtlasMarkup("ShipMissionIcon-Treasure-Map", 16, 16)
+	local bankHelp = [[
+	Demnächst verfügbar
+	]]
+	L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s %s %s", slashCommandsIcon, slashCommandsHelp, rosterIcon, rosterHelp, tradeskillIcon, tradeskillHelp, profileIcon, profileHelp, searchIcon, searchHelp, bankIcon, bankHelp)
+
+
+
+	--mod blizz guild roster, these are key/values in the ModBlizz file that add extra columns
+	L['Online']                         = 'Online'
+	L['MainSpec']                       = 'Main Spec'
+	L['Rank']                           = 'Rank'
+	L['Note']                           = 'Notiz'
+	L['Profession1']                    = 'Beruf 1'
+	L['Profession2']                    = 'Beruf 2'
+
+
+	-- roster listview and tooltip, these are also sort keys and should be lower case
+	L["name"]                           = "Name"
+	L["level"]                          = "Level"
+	L["mainSpec"]                       = "Main Spec"
+	L["prof1"]                          = "Berufe"
+	L["location"]                       = "Ort"
+	L["rankName"]                       = "Rang"
+	L["publicNote"]                     = "Öffentl. Notiz"
+	L["class"]                          = "Klasse"
+	L["attunements"]                    = "Errungschaften"
+
+
+	-- xml strings
+	L["PROFILE_TITLE"]                  = "Profil"
+	L["REAL_NAME"]                      = "Name"
+	L["REAL_DOB"]                       = "Geburtsdatum"
+	L["REAL_BIO"]                       = "Bio"
+	L["AVATAR"]                         = "Avatar"
+	L["MAIN_CHARACTER"]                 = "Hauptcharakter"
+	L["ALT_CHARACTERS"]                 = "Alt-Charakter"
+	L["MAIN_SPEC"]                      = "Main spec"
+	L["OFF_SPEC"]                       = "Off spec"
+	L["PRIVACY"]                        = "Datenschutz"
+	L["PRIVACY_ABOUT"]                  = "Legen Sie den niedrigsten Rang fest, für den Sie Daten freigeben möchten. Zu den Profildaten gehören Name, Geburtstag, Lebenslauf und Avatar. Inventardaten sind die Ausrüstung, die dein Charakter besitzt (Welche |cffFFD100NICHT|r in deinen Taschen/Bank liegt). Talentspezialisierung ist, nun ja, deine Talentspezialisierungen!"
+	L["INVENTORY"]                      = "Inventar"
+	L["TALENTS"]                        = "Talentspezialisierung"
+
+	L["ROSTER_MY_CHARACTERS"]			= "Mein Charakter"
+	L["ROSTER_ALL_CLASSES"]				= "Alle"
+	L["ROSTER_ALL_RANKS"]				= "Alle"
+
+	L["TRADESKILLS"]					= "Berufe"
+	L["TRADESKILLS_RECIPES"]			= "Rezepte"
+	L["TRADESKILLS_CHARACTERS"]			= "Charaktere"
+	L["TRADESKILL_GUILD_RECIPES"]		= "Gildenrezepte"
+	L["TRADESKILLS_SHARE_RECIPES"]		= "Teilen Sie die Rezepte dieses Charakters"
+	L["TRADESKILLS_EXPORT_RECIPES"]		= "Importieren oder exportieren von Berufsinhalten"
+	L["IMPORT"]							= "importieren"
+	L["EXPORT"]							= "exportieren"
+	L["CAN_CRAFT"]                      = "[Guildbook] bist du in der Lage %s herzustellen?"
+	L["REMOVE_RECIPE_FROM_PROF_SS"]		= "Entferne %s von %s ?"
+	L["REMOVE_RECIPE_FROM_PROF"]		= "Klicken Sie mit der rechten Maustaste, um sie aus diesem Beruf zu entfernen."
+	L["PROCESSED_RECIPES_SS"]			= "Verarbeitet %s von %s Rezepten"
+	L["TRADESKILL_SLOT_FILTER_S"]		= "Filter %s Gegenstände"
+	L["TRADESKILL_SLOT_REMOVE"]			= "Filter aufheben"
+	L["HEAD"]							= "Kopf"
+	L["SHOULDER"]						= "Schultern"
+	L["BACK"]							= "Rücken"
+	L["CHEST"]							= "Brust"
+	L["WRIST"]							= "Handgelenk"
+	L["HANDS"]							= "Hände"	
+	L["WAIST"]							= "Taille"
+	L["LEGS"]							= "Beine"
+	L["FEET"]							= "Füße"
+	L["WEAPONS"]						= "Waffen"
+	L["OFF_HAND"]						= "Schildhand"	
+	L["MISC"]							= "Sonstiges"
+	L["CONSUMABLES"]					= "Verbrauchsmaterial"
+
+
+	L["PHASE2GB"]						= "Mit der Einführung der Gildenbanken in TBCC habe ich das Gildenbanksystem aus dem Gildenbuch entfernt. Ich arbeite aber an einem Ersatz!"
+	L['GUILDBANK']						= "Gildenbank"
+	L["GUILDBANK_HEADER_ITEM"]			= "Gegenstandslink"
+	L["GUILDBANK_HEADER_COUNT"]			= "Zählen"
+	L["GUILDBANK_SORT_TYPE"]			= "Typ"
+	L["GUILDBANK_HEADER_SUBTYPE"]		= "Untertyp"
+	L["GUILDBANK_SORT_BANK"]			= "Quelle"
+	L["GUILDBANK_REFRESH"]				= "Aktualisieren"
+	L["GUILDBANK_ALL_BANKS"]			= "Alle Banken"
+	L["GUILDBANK_ALL_TYPES"]			= "Alle Typen"
+	L["GUILDBANK_REQUEST_COMMITS"]		= "Anfordern von Commits für "
+	L["GUILDBANK_REQUEST_INFO"]			= "Anfordern von Daten von "
+	L["GUILDBANK_FUNDS"]				= "Gold verfügbar"
+	L["GUILDBANK_CURRENCY"]				= "Währung"
+
+	L["PROFILES"]                       = "Profile"
+	L["CHAT"]                           = "Chat"
+	L["ROSTER"]                         = "Gilde"
+	L["CALENDAR"]                       = "Kalender"
+	L["SEARCH"]                         = "Suche"
+	L["MY_PROFILE"]                     = "Mein Profile"
+	L["OPEN_PROFILE"]                   = "Profil öffnen"
+	L["OPEN_CHAT"]                      = "Chat öffnen"
+	L["INVITE_TO_GROUP"]                = "Zur Gruppe einladen"
+	L["SEND_TRADE_ENQUIRY"]             = "Nachricht über Gegenstand schicken"
+	L["REFRESH_ROSTER"]                 = "Gilde aktualisieren"
+	L["EDIT"]                           = "Profil bearbeiten"
+	L["GUILD_BANK"]                     = "Nutzloser Tooltip!"
+	L["ALTS"]                           = "Alt-Charakter"
+	L["USE_MAIN_PROFILE"]               = "Profil des Hauptcharakters verwenden"
+	L["MY_SACKS"]                       = "Meine Behälter"
+	L["BAGS"]                           = "Taschen"
+	L["BANK"]                           = "Bank"
+	L["STATS"]                          = "Statistiken"
+
+	L["RESET_AVATAR"]					= "Avatar zurücksetzen"
+
+	L["PRIVACY_HEADER"]                 = "Datenschutzeinstellungen"
+	L["NONE"]                           = "Keine"
+	L["SHARING_NOBODY"]		    		= "Teilen mit niemandem"
+	L["SHARING_WITH"]		    		= "Teilen mit"
+
+	L["MAIN_CHARACTER_ADD_ALT"]			= "Charakter hinzufügen.\n|cffFFFF00Verwenden Sie dies, um einen Charakter von einem anderen Konto hinzuzufügen. Sie können ihn dann als Hauptcharakter auswählen."
+	L["MAIN_CHARACTER_REMOVE_ALT"]		= "Charakter entfernen"
+	L["DIALOG_MAIN_CHAR_ADD"]			= "Gib den Namen deines Charakters ein, er muss ein Gildenmitglied sein."
+	L["DIALOG_MAIN_CHAR_REMOVE"]		= "Bitte geben Sie den Namen des Charakters ein."
+	L["DIALOG_MAIN_CHAR_ADD_FOUND"]		= "Charakter gefunden: %s Level: %s %s"
+
+	--attributes
+	L["STRENGTH"]						= "Strength"
+	L["AGILITY"]						= "Beweglichkeit"
+	L["STAMINA"]						= "Ausdauer"
+	L["INTELLECT"]						= "Intelligenz"
+	L["SPIRIT"]							= "Willenskraft"
+	--defence
+	L["ARMOR"]							= "Rüstung"
+	L["DEFENSE"]						= "Verteidigung"
+	L["DODGE"]							= "Ausweichen"
+	L["PARRY"]							= "Parieren"
+	L["BLOCK"]							= "Blocken"
+	--melee
+	L["EXPERTISE"]						= "Fachwissen"
+	L["HIT_CHANCE"]						= "Hit"
+	L["MELEE_CRIT"]						= "Crit"
+	L["MH_DMG"]							= "Main hand Schaden"
+	L["OH_DMG"] 						= "Off hand Schaden"
+	L["MH_DPS"] 						= "Main hand Schaden"
+	L["OH_DPS"] 						= "Off hand Schaden"
+	--ranged
+	L["RANGED_HIT"] 					= "Hit"
+	L["RANGED_CRIT"] 					= "Crit"
+	L["RANGED_DMG"] 					= "Schaden"
+	L["RANGED_DPS"] 					= "Dps"
+	--spells
+	L["SPELL_HASTE"] 					= "Tempowertung"
+	L["MANA_REGEN"] 					= "Mana-Regenerierung"
+	L["MANA_REGEN_CASTING"] 			= "Mana-Regenerierung (während dem casten)"
+	L["SPELL_HIT"] 						= "Hit"
+	L["SPELL_CRIT"] 					= "Crit"
+	L["HEALING_BONUS"] 					= "Heilbonus"
+	L["SPELL_DMG_HOLY"] 				= "Heilig"
+	L["SPELL_DMG_FROST"] 				= "Frost"
+	L["SPELL_DMG_SHADOW"] 				= "Schatten"
+	L["SPELL_DMG_ARCANE"] 				= "Arkan"
+	L["SPELL_DMG_FIRE"] 				= "Feuer"
+	L["SPELL_DMG_NATURE"] 				= "Natur"
+
+
+
+	-- class and spec
+	-- class is upper case
+	L['DEATHKNIGHT']                    = 'Todesritter'
+	L['DRUID']                          = 'Druid'
+	L['HUNTER']                         = 'Jäger'
+	L['MAGE']                           = 'Magier'
+	L['PALADIN']                        = 'Paladin'
+	L['PRIEST']                         = 'Priester'
+	L['SHAMAN']                         = 'Schamane'
+	L['ROGUE']                          = 'Schurke'
+	L['WARLOCK']                        = 'Hexenmeister'
+	L['WARRIOR']                        = 'Krieger'
+	--mage/dk
+	L['Arcane']                         = 'Arkan'
+	L['Fire']                           = 'Feuer'
+	L['Frost']                          = 'Frost'
+	L['Blood']                          = 'Blut'
+	L['Unholy']                         = 'Unheilig'
+	--druid/shaman
+	L['Restoration']                    = 'Wiederherstellung'
+	L['Enhancement']                    = 'Verstärkung'
+	L['Elemental']                      = 'Elementar'
+	L["Warden"]							= "Warden"
+	L['Cat']                            = 'Katze'
+	L['Bear']                           = 'Bär'
+	L['Balance']                        = 'Gleichgewicht'
+	L['Guardian']                       = 'Wächter'
+	L["Feral"]							= "Wildheit"
+	--rogue
+	L['Assassination']                  = 'Meucheln'
+	L['Combat']                         = 'Kampf'
+	L['Subtlety']                       = 'Täuschung'
+	--hunter
+	L['Marksmanship']                   = 'Treffsicherheit'
+	L['Beast Master']                   = 'Tierherrschaft'
+	L['BeastMaster']                   	= 'Tierherrschaft' -- the smart detect spec system could return this value
+	L['Survival']                       = 'Überleben'
+	--warlock
+	L['Destruction']                    = 'Zerstörung'
+	L['Affliction']                     = 'Gebrechen'
+	L['Demonology']                     = 'Dämonologie'
+	--warrior/paladin/priest
+	L['Fury']                           = 'Furor'
+	L['Arms']                           = 'Waffen'
+	L['Protection']                     = 'Schutz'
+	L['Retribution']                    = 'Vergeltung'
+	L['Holy']                           = 'Heilig'
+	L['Discipline']                     = 'Disziplin'
+	L['Shadow']                         = 'Schatten'
+
+	--odds
+	L["Warden"]							= "Warden"
+	L["Frost (Tank)"]					= "Frost (Tank)"
+
+	--date time
+	L['JANUARY']                        = 'Januar'
+	L['FEBRUARY']                       = 'Februar'
+	L['MARCH']                          = 'März'
+	L['APRIL']                          = 'April'
+	L['MAY']                            = 'Mai'
+	L['JUNE']                           = 'Juni'
+	L['JULY']                           = 'Juli'
+	L['AUGUST']                         = 'August'
+	L['SEPTEMBER']                      = 'September'
+	L['OCTOBER']                        = 'Oktober'
+	L['NOVEMBER']                       = 'November'
+	L['DECEMBER']                       = 'Dezember'
+
+	L["MONDAY"]			    			= "Montag"
+	L["TUESDAY"]			    		= "Dienstag"
+	L["WEDNESDAY"]			    		= "Mittwoch"
+	L["THURSDAY"]			    		= "Donnerstag"
+	L["FRIDAY"]			   				= "Freitag"
+	L["SATURDAY"]			    		= "Samstag"
+	L["SUNDAY"]			    			= "Sonntag"
+
+
+	-- old stuff but might use again
+	L['GuildBank']                      = 'Gildenbank'
+	L['Events']                         = 'Ereignisse'
+	L['WorldEvents']                    = 'Weltereignisse'
+	L['Attunements']                    = 'Errungenschaften'
+	L["Guild"]                          = "Gilde"
+
+
+	L['Roles']                          = 'Rollen'
+	L['Tank']                           = 'Tank'
+	L['Melee']                          = 'Nahkampf'
+	L['Ranged']                         = 'Fernkampf'
+	L['Healer']                         = 'Heiler'
+	L['ClassRoleSummary']               = 'Klasse & Rollen Zusammenfassung'
+	L['RoleChart']                      = 'Rollen (Mitglieder Online)'
+	L['ClassChart']                     = 'Klasse (Alle Mitglieder)'
+
+	-- calendar help icon
+	L['calendarHelpText'] = [[
+	Kalender
+
+	|cffffffffGuildbook bietet einen spielinternen Kalender für Gilden, um 
+	Ereignisse zu planen. Er basiert lose auf einer älteren Version des
+	Blizzard-Kalenders und funktioniert auf ähnliche Weise. Derzeit 
+	werden bis zu 3 Ereignisse pro Tag auf den Tageskacheln angezeigt (eine Option zum Zugriff auf mehr 
+	wird noch hinzugefügt).|r
+
+	|cff00BFF3Der Kalender sendet/empfängt Daten, wenn sich ein Spieler anmeldet, 
+	wenn ein Ereignis erstellt oder gelöscht wird und wenn ein Ereignis geändert wird. 
+	Ereignisse sollten mit Gildenmitgliedern synchronisiert werden, obwohl dies nicht garantiert ist 
+	da das davon abhängt, dass es genügend Überschneidungen zwischen den Spielersitzungen gibt.
+
+	Die gesendeten Daten sind auf 4 Wochen begrenzt, um die Nachfrage nach den Addon-Chat 
+	zu senken. Ereignisse können für jedes Datum erstellt und  synchronisiert werden, sobald sie 
+	innerhalb von 4 Wochen nach dem aktuellen Datum liegen|r.
+	]]
+
+	--guildbank help icon
+	L["GUILDBANKHELPTEXT"]	= [[
+	Gildenbank
+
+	|cffffffffGuildbook bietet eine spielinterne Gildenbank für die Gilde 
+	um das Inventar des Bankcharakters zu teilen.
+	|r
+
+	|cff00BFF3Um die Gildenbank zu benutzen, fügen Sie das Wort 'Gildenbank'
+	in die öffentliche Notiz des Charakters ein, der als Bank verwendet werden soll
+	(dadurch wird er zum Dropdown-Menü hinzugefügt).
+	Der besagte Charakter muss dann seine Bank öffnen 
+	um sein Inventar mit den angeschlossenen Gildenmitgliedern zu synchronisieren.
+
+	Die Gildenbank sendet/empfängt Daten, wenn sich ein Spieler anmeldet, 
+	Es werden nur die aktuellsten Daten verwendet, daher sollten Bankcharaktere
+	ihr Inventar nach jeder Änderung synchronisieren.
+
+	Es werden mehrere Bankcharaktere unterstützt.|r
+	]]
+
+
+	--legacy stuff
+	L["SELECT_BANK_CHARACTER"]          = "Bankcharakter auswählen"
+	L["DUNGEON"]                        = "Dungeon"
+	L["RAID"]                           = "Raid"
+	L['PVP']							= 'PVP'
+	L["MEETING"]                        = "Meeting"
+	L["OTHER"]                          = "Andere"
+	L["GUILD_CALENDAR"]                 = "Gildenkalender"
+	L["INSTANCE_LOCKS"]                 = "Instanzsperren"
+	L["CREATE_EVENT"]                   = "Ereignis erstellen"
+	L["DELETE_EVENT"]                   = "Ereignis löschen"
+	L["EVENT"]                          = "Ereignis"
+	L["EVENT_TYPE"]                     = "Ereignistyp"
+	L["TITLE"]                          = "Titel"
+	L["DESCRIPTION"]                    = "Beschreibung"
+	L["UPDATE"]                         = "Aktualisierung"
+	L["ATTENDING"]                      = "Antretend"
+	L["TENTATIVE"]                      = "Abwesend"
+	L["DECLINE"]                        = "Abbrechen"
+
+	L["YEARS"]                          = "Jahre"
+	L["MONTHS"]                         = "Monate"
+	L["DAYS"]                           = "Tage"
+	L["HOURS"]                          = "Stunden"
+	L['< an hour']			    		= '< eine Stunde'
+
+	L["GENERAL"]			    		= "Allgemein"
+	L["MINIMAP_TOOLTIP_LEFTCLICK"]		= '|cffffffffLinksklick|r öffne Guildbook'
+	L["MINIMAP_TOOLTIP_LEFTCLICK_SHIFT"]= "Shift + "..'|cffffffffLinksklick|r öffne Chat'
+	L["MINIMAP_TOOLTIP_RIGHTCLICK"]		= '|cffffffffRechtsklick|r Optionen'
+	L["MINIMAP_TOOLTIP_MIDDLECLICK"]	= "|cffffffffMittlere Muastaste|r Öffne Blizzard Gildenfenster"
+
+	L["MC"]								= "Geschmolzener Kern"
+	L["BWL"]							= "Pechschwingenhort"
+	L["AQ20"]                           = "AQ20"
+	L["AQ40"]							= "AQ40"
+	L["Naxxramas"]						= "Naxxramas"
+	L["ZG"]								= "Zul'Gurub"
+	L["Onyxia"]							= "Onyxia"
+	L["Magtheridon"]					= "Magtheridons Kammer"
+	L["SSC"]							= "Höhle des Schlangenschreins"
+	L["TK"]								= "Festung der Stürme"
+	L["Gruul"]							= "Gruuls Unterschlupf"
+	L["Hyjal"]							= "Hyjalgipfel"
+	L["SWP"]							= "Sonnenbrunnenplateau"
+	L["BT"]								= "Schwarzer Tempel"
+	L["Karazhan"]						= "Karazhan"
+
+	--availability (Data.lua)
+	L['Not Available'] 					= 'Nicht verfügbar'
+	L['Morning'] 						= 'Morgens'
+	L['Afternoon'] 						= 'Nachmittag'
+	L['Evening'] 						= 'Abend'
+
+	--world events
+	L["DARKMOON_FAIRE"]					= "Dunkelmond-Jahrmarkt"
+	L["DMF display"]					= '|cffffffffDunkelmond-Jahrmarkt - ' --this is needed for the calendar
+	L["LOVE IS IN THE AIR"]				= "Liebe liegt in der Luft"
+	L["CHILDRENS_WEEK"]					= "Kinderwoche"				
+	L["MIDSUMMER_FIRE_FESTIVAL"]		= "Sonnenwendfest"
+	L["HARVEST_FESTIVAL"]				= "Erntedankfest"
+	L["HALLOWS_END"]					= "Schlotternächte"
+	L["FEAST_OF_WINTER_VEIL"]			= "Winterhauchfest"
+	L["BREWFEST"]						= "Braufest"
+
+
+
+
+
 
 
 

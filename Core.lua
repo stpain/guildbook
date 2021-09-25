@@ -68,7 +68,8 @@ Guildbook.Colours = {
     Blue = CreateColor(0.1, 0.58, 0.92, 1),
     Orange = CreateColor(0.79, 0.6, 0.15, 1),
     Yellow = CreateColor(1.0, 0.82, 0, 1),
-    LightRed = CreateColor(216/255,69/255,75/255)
+    LightRed = CreateColor(216/255,69/255,75/255),
+    BlizzBlue = CreateColor(0,191/255,243/255),
 }
 for class, t in pairs(Guildbook.Data.Class) do
     Guildbook.Colours[class] = CreateColor(t.RGB[1], t.RGB[2], t.RGB[3], 1)
@@ -444,7 +445,7 @@ function Guildbook:Load()
     -- this will make sure rank changes are handled, just set any privacy rule to the lowest rank if its wrong
     self:CheckPrivacyRankSettings()
 
-    ---scan for prof data and update online guild members, THIS DOES SEND COMMS including prof name, level, spec and the secondary prof levels but NOT RECIPE DATA
+    -- scan for prof data and update online guild members, THIS DOES SEND COMMS including prof name, level, spec and the secondary prof levels but NOT RECIPE DATA
     self:GetCharacterProfessions()
 
     local ldb = LibStub("LibDataBroker-1.1")
@@ -658,8 +659,8 @@ function Guildbook:Load()
     if Guildbook.Data.Profession[prof1] then
         if GUILDBOOK_CHARACTER[prof1] then
             C_Timer.After(18, function()
-                self:SendTradeskillData(UnitGUID("player"), GUILDBOOK_CHARACTER[prof1], prof1, "GUILD", nil)
-                --self:DB_SendCharacterData(UnitGUID("player"), prof1, GUILDBOOK_CHARACTER[prof1], "GUILD", nil, "NORMAL")
+                --self:SendTradeskillData(UnitGUID("player"), GUILDBOOK_CHARACTER[prof1], prof1, "GUILD", nil)
+                self:DB_SendCharacterData(UnitGUID("player"), prof1, GUILDBOOK_CHARACTER[prof1], "GUILD", nil, "NORMAL")
                 Guildbook.DEBUG("func", "Load", string.format("send prof recipes for %s", prof1))
             end)
         end
@@ -668,8 +669,8 @@ function Guildbook:Load()
     if Guildbook.Data.Profession[prof2] then
         if GUILDBOOK_CHARACTER[prof2] then
             C_Timer.After(22, function()
-                self:SendTradeskillData(UnitGUID("player"), GUILDBOOK_CHARACTER[prof2], prof2, "GUILD", nil)
-                --self:DB_SendCharacterData(UnitGUID("player"), prof2, GUILDBOOK_CHARACTER[prof2], "GUILD", nil, "NORMAL")
+                --self:SendTradeskillData(UnitGUID("player"), GUILDBOOK_CHARACTER[prof2], prof2, "GUILD", nil)
+                self:DB_SendCharacterData(UnitGUID("player"), prof2, GUILDBOOK_CHARACTER[prof2], "GUILD", nil, "NORMAL")
                 Guildbook.DEBUG("func", "Load", string.format("send prof recipes for %s", prof2))
             end)
         end
@@ -686,8 +687,21 @@ function Guildbook:Load()
     self.addonLoaded = true
     self.GUILD_NAME = self:GetGuildName()
 
-end
 
+
+    -- quick clean up
+    if GUILDBOOK_TSDB and GUILDBOOK_TSDB.enchantItems then
+        for _, recipe in pairs(GUILDBOOK_TSDB.enchantItems) do
+            recipe.charactersWithRecipe = nil
+        end
+    end
+    if GUILDBOOK_TSDB and GUILDBOOK_TSDB.recipeItems then
+        for _, recipe in pairs(GUILDBOOK_TSDB.recipeItems) do
+            recipe.charactersWithRecipe = nil
+        end
+    end
+
+end
 
 
 
@@ -1328,24 +1342,21 @@ function Guildbook:RequestTradeskillData()
     local recipeIdsToQuery = {}
 
     -- a lookup table holding character guids for each recipeID { [recipeID] = { guid1, guid2, guid3, ...} }
-    local charactersWithRecipe = {}
+    self.charactersWithRecipe = {}
 
     -- a lookup table holding character guids for each enchanting recipeID { [recipeID] = { guid1, guid2, guid3, ...} } enchants are spells not items
-    local charactersWithEnchantRecipe = {}
+    self.charactersWithEnchantRecipe = {}
     
-    -- a sequential table for all tradeskill items, this must never be sorted as the keys are mapped
+    -- a sequential table for all tradeskill items, this doesnt need to wiped each time i dont think anyways - this must never be sorted as the keys are mapped
     if not self.tradeskillRecipes then
         self.tradeskillRecipes = {}
     end
 
-    if not self.tradeskillRecipesKeys then
-        -- a lookup table to use for finding an tradeskill from the main table { [recipeID] = key }
-        self.tradeskillRecipesKeys = {}
-    end
-    if not self.tradeskillEnchantRecipesKeys then
-        -- a lookup table to use for finding an enchant from the main table { [recipeID] = key }
-        self.tradeskillEnchantRecipesKeys = {}
-    end
+    -- a lookup table to use for finding an tradeskill from the main table { [recipeID] = key }
+    self.tradeskillRecipesKeys = {}
+
+    -- a lookup table to use for finding an enchant from the main table { [recipeID] = key }
+    self.tradeskillEnchantRecipesKeys = {}
 
     -- if we have no guild then exit
     if type(self.GUILD_NAME) ~= "string" then
@@ -1370,10 +1381,10 @@ function Guildbook:RequestTradeskillData()
             if character[prof] and next(character[prof]) ~= nil then
                 for recipeID, reagents in pairs(character[prof]) do
                     if prof == "Enchanting" then
-                        if not charactersWithEnchantRecipe[recipeID] then
-                            charactersWithEnchantRecipe[recipeID] = {}
+                        if not self.charactersWithEnchantRecipe[recipeID] then
+                            self.charactersWithEnchantRecipe[recipeID] = {}
                         end
-                        table.insert(charactersWithEnchantRecipe[recipeID], guid)
+                        table.insert(self.charactersWithEnchantRecipe[recipeID], guid)
                         if not self.craftIdsQueried[recipeID] then
                             
                             -- if the user has the tradeskill db addon loaded check there for item data first and add to table if exists
@@ -1389,10 +1400,10 @@ function Guildbook:RequestTradeskillData()
                             self.craftIdsQueried[recipeID] = true;
                         end
                     else
-                        if not charactersWithRecipe[recipeID] then
-                            charactersWithRecipe[recipeID] = {}
+                        if not self.charactersWithRecipe[recipeID] then
+                            self.charactersWithRecipe[recipeID] = {}
                         end
-                        table.insert(charactersWithRecipe[recipeID], guid)
+                        table.insert(self.charactersWithRecipe[recipeID], guid)
                         if not self.recipeIdsQueried[recipeID] then
 
                             -- if the user has the tradeskill db addon loaded check there for item data first and add to table if exists
@@ -1416,10 +1427,10 @@ function Guildbook:RequestTradeskillData()
             if character[prof] and next(character[prof]) ~= nil then
                 for recipeID, reagents in pairs(character[prof]) do
                     if prof == "Enchanting" then
-                        if not charactersWithEnchantRecipe[recipeID] then
-                            charactersWithEnchantRecipe[recipeID] = {}
+                        if not self.charactersWithEnchantRecipe[recipeID] then
+                            self.charactersWithEnchantRecipe[recipeID] = {}
                         end
-                        table.insert(charactersWithEnchantRecipe[recipeID], guid)
+                        table.insert(self.charactersWithEnchantRecipe[recipeID], guid)
                         if not self.craftIdsQueried[recipeID] then
                             
                             -- if the user has the tradeskill db addon loaded check there for item data first and add to table if exists
@@ -1435,10 +1446,10 @@ function Guildbook:RequestTradeskillData()
                             self.craftIdsQueried[recipeID] = true;
                         end
                     else
-                        if not charactersWithRecipe[recipeID] then
-                            charactersWithRecipe[recipeID] = {}
+                        if not self.charactersWithRecipe[recipeID] then
+                            self.charactersWithRecipe[recipeID] = {}
                         end
-                        table.insert(charactersWithRecipe[recipeID], guid)
+                        table.insert(self.charactersWithRecipe[recipeID], guid)
                         if not self.recipeIdsQueried[recipeID] then
 
                             -- if the user has the tradeskill db addon loaded check there for item data first and add to table if exists
@@ -1459,10 +1470,10 @@ function Guildbook:RequestTradeskillData()
         end
         if character.Cooking and type(character.Cooking) == "table" then
             for recipeID, reagents in pairs(character.Cooking) do
-                if not charactersWithRecipe[recipeID] then
-                    charactersWithRecipe[recipeID] = {}
+                if not self.charactersWithRecipe[recipeID] then
+                    self.charactersWithRecipe[recipeID] = {}
                 end
-                table.insert(charactersWithRecipe[recipeID], guid)
+                table.insert(self.charactersWithRecipe[recipeID], guid)
                 if not self.recipeIdsQueried[recipeID] then
 
                     -- if the user has the tradeskill db addon loaded check there for item data first and add to table if exists
@@ -1561,7 +1572,7 @@ function Guildbook:RequestTradeskillData()
                             equipLocation = equipLoc,
                             class = -1,
                             subClass = -1,
-                            charactersWithRecipe = charactersWithEnchantRecipe[recipeID],
+                            --charactersWithRecipe = self.charactersWithEnchantRecipe[recipeID],
                         }
                         table.insert(self.tradeskillRecipes, recipe)
                         if GUILDBOOK_TSDB and GUILDBOOK_TSDB.enchantItems then
@@ -1588,7 +1599,7 @@ function Guildbook:RequestTradeskillData()
                             equipLocation = equipLoc,
                             class = itemClassID,
                             subClass = itemSubClassID,
-                            charactersWithRecipe = charactersWithRecipe[recipeID],
+                            --charactersWithRecipe = self.charactersWithRecipe[recipeID],
                         }
                         table.insert(self.tradeskillRecipes, recipe)
                         if GUILDBOOK_TSDB and GUILDBOOK_TSDB.recipeItems then
@@ -1611,7 +1622,7 @@ function Guildbook:RequestTradeskillData()
                         equipLocation = equipLoc,
                         class = -1,
                         subClass = -1,
-                        charactersWithRecipe = charactersWithEnchantRecipe[recipeID],
+                        --charactersWithRecipe = self.charactersWithEnchantRecipe[recipeID],
                     }
                     table.insert(self.tradeskillRecipes, recipe)
                     if GUILDBOOK_TSDB and GUILDBOOK_TSDB.enchantItems then
@@ -1631,7 +1642,7 @@ function Guildbook:RequestTradeskillData()
                         equipLocation = equipLoc,
                         class = itemClassID,
                         subClass = itemSubClassID,
-                        charactersWithRecipe = charactersWithRecipe[recipeID],
+                        --charactersWithRecipe = self.charactersWithRecipe[recipeID],
                     }
                     table.insert(self.tradeskillRecipes, recipe)
                     if GUILDBOOK_TSDB and GUILDBOOK_TSDB.recipeItems then
@@ -1725,7 +1736,6 @@ local profSpecData = {
 -- get the name of any professions the player has, the profession level
 -- also check the secondary professions fishing, cooking, first aid
 -- this will update the character saved var which is then read when a request comes in
-local lastCharacterProfessionTransmit = 30.0; -- set this to 30s so that the first scan will always update as its more than the 15s delay
 function Guildbook:GetCharacterProfessions()
     Guildbook.DEBUG("func", "GetCharacterProfessions", "scanning character skills for profession info")
 
@@ -1801,43 +1811,11 @@ function Guildbook:GetCharacterProfessions()
         GUILDBOOK_CHARACTER['CookingLevel'] = myCharacter.Cooking
         GUILDBOOK_CHARACTER['FirstAidLevel'] = myCharacter.FirstAid
 
-        local delay = 15.0
-        if ((GetTime() - lastCharacterProfessionTransmit) > delay) then
-            self:DB_SendCharacterData(guid, "Profession1", myCharacter.Prof1, "GUILD", nil, "NORMAL")
-            C_Timer.After(0.2, function()
-                self:DB_SendCharacterData(guid, "Profession1Level", myCharacter.Prof1Level, "GUILD", nil, "NORMAL")
-            end)
-            C_Timer.After(0.4, function()
-                self:DB_SendCharacterData(guid, "Profession2", myCharacter.Prof2, "GUILD", nil, "NORMAL")
-            end)
-            C_Timer.After(0.6, function()
-                self:DB_SendCharacterData(guid, "Profession2Level", myCharacter.Prof2Level, "GUILD", nil, "NORMAL")
-            end)
-            C_Timer.After(0.8, function()
-                self:DB_SendCharacterData(guid, "CookingLevel", myCharacter.Cooking, "GUILD", nil, "NORMAL")
-            end)        
-            C_Timer.After(1.0, function()
-                self:DB_SendCharacterData(guid, "FishingLevel", myCharacter.Fishing, "GUILD", nil, "NORMAL")
-            end)
-            C_Timer.After(1.2, function()
-                self:DB_SendCharacterData(guid, "FirstAidLevel", myCharacter.FirstAid, "GUILD", nil, "NORMAL")
-            end)
-            if type(GUILDBOOK_CHARACTER.Profession1Spec) == "number" then
-                C_Timer.After(1.4, function()            
-                    self:DB_SendCharacterData(guid, "Profession1Spec", GUILDBOOK_CHARACTER.Profession2Spec, "GUILD", nil, "NORMAL")
-                end)
-            end
-            if type(GUILDBOOK_CHARACTER.Profession2Spec) == "number" then
-                C_Timer.After(1.6, function()            
-                    self:DB_SendCharacterData(guid, "Profession2Spec", GUILDBOOK_CHARACTER.Profession2Spec, "GUILD", nil, "NORMAL")
-                end)
-            end
-
-            lastCharacterProfessionTransmit = GetTime()
-        else
-            local remaining = self:FormatNumberForCharacterStats(delay - (GetTime() - lastCharacterProfessionTransmit))
-            Guildbook.DEBUG("func", "GetCharacterProfessions", string.format("comm delay less than %ss skipping update, %ss remaining", delay, remaining))
-        end
+        -- both of these functions will return out if their respective tradeskill windows are not open so they are safe to call here
+        C_Timer.After(2.0, function()
+            self:ScanTradeskillRecipes()
+            self:ScanEnchantingRecipes()
+        end)
 
     end
 end
@@ -1845,12 +1823,15 @@ end
 
 --- scan the players trade skills
 --- this is used to get data about the players professions, recipes and reagents
-function Guildbook:ScanTradeSkill()
+function Guildbook:ScanTradeskillRecipes(pushRecipes)
     local localeProf = GetTradeSkillLine() -- this returns local name
+    if localeProf == "UNKNOWN" then
+        return; -- exit as the window isnt open
+    end
     if Guildbook:GetEnglishProf(localeProf) then
         local prof = Guildbook:GetEnglishProf(localeProf) --convert to english
         if not prof then
-            Guildbook.DEBUG("func", "ScanTradeskill", "couldnt get english name for tradeskill, scan cancelled")
+            Guildbook.DEBUG("func", "ScanTradeskillRecipes", "couldnt get english name for tradeskill, scan cancelled")
             return
         end
         GUILDBOOK_CHARACTER[prof] = {}
@@ -1861,20 +1842,8 @@ function Guildbook:ScanTradeSkill()
                 self:SetCharacterInfo(UnitGUID("player"), "Profession2", prof)
             end
         end
-        Guildbook.DEBUG("func", "ScanTradeskill", "created or reset table for "..prof)
+        Guildbook.DEBUG("func", "ScanTradeskillRecipes", "created or reset table for "..prof)
         -- get the current recipe count, we will compare this to the scan count to determine if we send data
-        local dbRecipes = self:GetCharacterInfo(UnitGUID("player"), prof)
-        local dbRecipeCount = 0;
-        local headersCount = 0;
-        if dbRecipes then
-            for k, v in pairs(dbRecipes) do
-                dbRecipeCount = dbRecipeCount + 1;
-            end
-        else
-            if dbRecipes == nil or dbRecipes == false then
-                dbRecipes = 0;
-            end
-        end
         local numTradeskills = GetNumTradeSkills()
         for i = 1, numTradeskills do
             local name, _type, _, _, _ = GetTradeSkillInfo(i)
@@ -1886,7 +1855,6 @@ function Guildbook:ScanTradeSkill()
                         GUILDBOOK_CHARACTER[prof][itemID] = {}
                         local numReagents = GetTradeSkillNumReagents(i);
                         if numReagents > 0 then
-                            local reagentLinks = {}
                             for j = 1, numReagents do
                                 local _, _, reagentCount, _ = GetTradeSkillReagentInfo(i, j)
                                 local reagentLink = GetTradeSkillReagentItemLink(i, j)
@@ -1894,29 +1862,9 @@ function Guildbook:ScanTradeSkill()
                                 if reagentID and reagentCount then
                                     GUILDBOOK_CHARACTER[prof][itemID][reagentID] = reagentCount
                                 end
-                                reagentLinks[reagentLink] = reagentCount;
                             end
-                            --Guildbook.DEBUG("func", "Scantradeskill", string.format("added %s to %s", link, prof), {reagents = reagentLinks, link = link})
                         end
                     end
-                end
-            elseif _type == "header" or _type == "subheader" then
-                headersCount = headersCount + 1;
-            end
-            if i == numTradeskills then
-                Guildbook.DEBUG("func", "Scantradeskill", string.format("scanned %s recipes, found %s recipes in db", (numTradeskills - headersCount), dbRecipeCount))
-                if dbRecipeCount and ((numTradeskills - headersCount) > dbRecipeCount) then
-                    self:SetCharacterInfo(UnitGUID("player"), prof, GUILDBOOK_CHARACTER[prof])
-                    local elapsed = GetTime() - Guildbook.lastProfTransmit
-                    if elapsed > Guildbook.COMM_LOCK_COOLDOWN then
-                        self:DB_SendCharacterData(UnitGUID("player"), prof, GUILDBOOK_CHARACTER[prof], "GUILD", nil, "NORMAL")
-                        Guildbook.lastProfTransmit = GetTime()
-                        Guildbook.DEBUG("func", "Scantradeskill", "sending data for "..prof)
-                    else
-                        Guildbook.DEBUG("func", "Scantradeskill", string.format("%s remaining before comm lock off", Guildbook.COMM_LOCK_COOLDOWN-elapsed))
-                    end
-                else
-                    Guildbook.DEBUG("func", "Scantradeskill", string.format("no new recipes found during scan, update skipped"))
                 end
             end
         end
@@ -1925,11 +1873,11 @@ end
 
 --- scan the players enchanting recipes, enchanting works a little differently 
 --- this is used to get data about the players professions, recipes and reagents
-function Guildbook:ScanCraftSkills_Enchanting()
-    -- if not CraftFrame:IsVisible() then
-    --     return; -- only scan if our craft frame is open
-    -- end
+function Guildbook:ScanEnchantingRecipes(pushRecipes)
     local currentCraftingWindow = GetCraftSkillLine(1)
+    if currentCraftingWindow == nil then
+        return; -- exit as no craft open
+    end
     local engProf = Guildbook:GetEnglishProf(currentCraftingWindow)
     if Guildbook:GetEnglishProf(currentCraftingWindow) == "Enchanting" then -- check we have enchanting open
         GUILDBOOK_CHARACTER['Enchanting'] = {}
@@ -1940,73 +1888,110 @@ function Guildbook:ScanCraftSkills_Enchanting()
                 self:SetCharacterInfo(UnitGUID("player"), "Profession2", "Enchanting")
             end
         end
-        --local i = 1;
-        local dbRecipes = self:GetCharacterInfo(UnitGUID("player"), "Enchanting")
-        local dbRecipeCount = 0;
-        local headersCount = 0;
-        if dbRecipes then
-            for k, v in pairs(dbRecipes) do
-                dbRecipeCount = dbRecipeCount + 1;
-            end
-        else
-            if dbRecipes == nil or dbRecipes == false then
-                dbRecipes = 0;
-            end
-        end
         local numCrafts = GetNumCrafts()
-        --C_Timer.NewTicker(0.005, function()
         for i = 1, numCrafts do
             local name, _, _type, _, _, _, _ = GetCraftInfo(i)
-            --if name and (_type ~= "header") then
             if name and (_type == "optimal" or _type == "medium" or _type == "easy" or _type == "trivial") then -- this was a fix thanks to Sigma regarding their addon showing all recipes
                 local _, _, _, _, _, _, itemID = GetSpellInfo(name)
                 if itemID then
                     GUILDBOOK_CHARACTER['Enchanting'][itemID] = {}
-                    --Guildbook.DEBUG('func', 'ScanTradeSkill_Enchanting', string.format('|cff0070DEEnchanting item|r: %s, with ID: %s added', name, itemID))
                     local numReagents = GetCraftNumReagents(i);
-                    --Guildbook.DEBUG('func', 'ScanTradeSkill_Enchanting', string.format('this recipe has %s reagents', numReagents))
                     if numReagents > 0 then
-                        local reagentLinks = {}
                         for j = 1, numReagents do
                             local _, _, reagentCount = GetCraftReagentInfo(i, j)
                             local reagentLink = GetCraftReagentItemLink(i, j)
                             if reagentLink then
                                 local reagentID = select(1, GetItemInfoInstant(reagentLink))
-                                --Guildbook.DEBUG('func', 'Enchanting', 'reagent id: '..reagentID)
                                 if reagentID and reagentCount then
                                     GUILDBOOK_CHARACTER['Enchanting'][itemID][reagentID] = reagentCount
                                 end
                             end
-                            reagentLinks[reagentLink] = reagentCount;
                         end
-                        --Guildbook.DEBUG("func", "Scantradeskill", string.format("added %s to %s", name, "Enchanting"), {reagents = reagentLinks, link = name})
                     end
-                end
-            elseif _type == "header" or _type == "subheader" then
-                headersCount = headersCount + 1;
-            end
-            if i == numCrafts then
-                Guildbook.DEBUG("func", "Scantradeskill", string.format("scanned %s recipes, found %s recipes in db", (numCrafts - headersCount), dbRecipeCount))
-                if dbRecipeCount and ((numCrafts - headersCount) > dbRecipeCount) then
-                    Guildbook.DEBUG("func", "Scantradeskill", string.format("scanned %s recipes", numCrafts))
-                    self:SetCharacterInfo(UnitGUID("player"), "Enchanting", GUILDBOOK_CHARACTER.Enchanting)
-                    local elapsed = GetTime() - Guildbook.lastProfTransmit
-                    if elapsed > Guildbook.COMM_LOCK_COOLDOWN then
-                        self:DB_SendCharacterData(UnitGUID("player"), "Enchanting", GUILDBOOK_CHARACTER["Enchanting"], "GUILD", nil, "NORMAL")
-                        Guildbook.lastProfTransmit = GetTime()
-                        Guildbook.DEBUG("func", "Scantradeskill", "sending data for Enchanting")
-                    else
-                        Guildbook.DEBUG("func", "Scantradeskill", string.format("%s remaining before comm lock off", Guildbook.COMM_LOCK_COOLDOWN-elapsed))
-                    end
-                else
-
                 end
             end
         end
-            --i = i + 1;
-        --end, numCrafts)
     end
 end
+
+
+---send your characters tradeskill data including recipes to all onlinie guild members, this sends using a stagger system with a 2s stagger, total time to send is about 2.5s
+function Guildbook:SendCharacterTradeskillData()
+
+    if not GUILDBOOK_CHARACTER then
+        return;
+    end
+
+    local guid = UnitGUID("player")
+
+    if type(GUILDBOOK_CHARACTER.Profession1) == "string" then
+        self:DB_SendCharacterData(guid, "Profession1", GUILDBOOK_CHARACTER.Profession1, "GUILD", nil, "NORMAL")
+    end
+    if type(GUILDBOOK_CHARACTER.Profession1Level) == "number" then
+        C_Timer.After(0.2, function()
+            self:DB_SendCharacterData(guid, "Profession1Level", GUILDBOOK_CHARACTER.Profession1Level, "GUILD", nil, "NORMAL")
+        end)
+    end
+    if type(GUILDBOOK_CHARACTER.Profession2) == "string" then
+        C_Timer.After(0.4, function()
+            self:DB_SendCharacterData(guid, "Profession2", GUILDBOOK_CHARACTER.Profession2, "GUILD", nil, "NORMAL")
+        end)
+    end
+    if type(GUILDBOOK_CHARACTER.Profession2Level) == "number" then
+        C_Timer.After(0.6, function()
+            self:DB_SendCharacterData(guid, "Profession2Level", GUILDBOOK_CHARACTER.Profession2Level, "GUILD", nil, "NORMAL")
+        end)
+    end
+    if type(GUILDBOOK_CHARACTER.Cooking) == "number" then
+        C_Timer.After(0.8, function()
+            self:DB_SendCharacterData(guid, "CookingLevel", GUILDBOOK_CHARACTER.Cooking, "GUILD", nil, "NORMAL")
+        end) 
+    end  
+    if type(GUILDBOOK_CHARACTER.Fishing) == "number" then
+        C_Timer.After(1.0, function()
+            self:DB_SendCharacterData(guid, "FishingLevel", GUILDBOOK_CHARACTER.Fishing, "GUILD", nil, "NORMAL")
+        end)
+    end
+    if type(GUILDBOOK_CHARACTER.FirstAid) == "number" then
+        C_Timer.After(1.2, function()
+            self:DB_SendCharacterData(guid, "FirstAidLevel", GUILDBOOK_CHARACTER.FirstAid, "GUILD", nil, "NORMAL")
+        end)
+    end
+    if type(GUILDBOOK_CHARACTER.Profession1Spec) == "number" then
+        C_Timer.After(1.4, function()            
+            self:DB_SendCharacterData(guid, "Profession1Spec", GUILDBOOK_CHARACTER.Profession2Spec, "GUILD", nil, "NORMAL")
+        end)
+    end
+    if type(GUILDBOOK_CHARACTER.Profession2Spec) == "number" then
+        C_Timer.After(1.6, function()            
+            self:DB_SendCharacterData(guid, "Profession2Spec", GUILDBOOK_CHARACTER.Profession2Spec, "GUILD", nil, "NORMAL")
+        end)
+    end
+    C_Timer.After(1.8, function()
+        local prof1 = self:GetCharacterInfo(UnitGUID("player"), "Profession1")
+        if Guildbook.Data.Profession[prof1] then
+            if GUILDBOOK_CHARACTER[prof1] then
+                self:DB_SendCharacterData(UnitGUID("player"), prof1, GUILDBOOK_CHARACTER[prof1], "GUILD", nil, "NORMAL")
+                Guildbook.DEBUG("func", "Load", string.format("send prof recipes for %s", prof1))
+            end
+        end  
+    end)
+    C_Timer.After(2.2, function()
+        local prof2 = self:GetCharacterInfo(UnitGUID("player"), "Profession2")
+        if Guildbook.Data.Profession[prof2] then
+            if GUILDBOOK_CHARACTER[prof2] then
+                self:DB_SendCharacterData(UnitGUID("player"), prof2, GUILDBOOK_CHARACTER[prof2], "GUILD", nil, "NORMAL")
+                Guildbook.DEBUG("func", "Load", string.format("send prof recipes for %s", prof2))
+            end
+        end  
+    end)
+
+end
+
+
+
+
+
 
 local profAbbrev = {
     ["alch"] = "Alchemy",
@@ -2530,7 +2515,9 @@ function Guildbook:OnVersionInfoRecieved(data, distribution, sender)
     -- the idea here is to update characters when they come online, allowing 30s means the player logging on has time for addons to load up
     -- the issue is however, they might log off before 30s which results in the 'No playername ...' system messages
     -- TODO: revise this system and improve
-    C_Timer.After(30, function()
+
+    -- revision 1 is to simpy reduce the wait to 5s as the update func has a built in 30s comm lock for alt switchers etc
+    C_Timer.After(5, function()
         self:UpdatePlayer(sender)
     end)
 end
@@ -3408,56 +3395,56 @@ function Guildbook:CHARACTER_POINTS_CHANGED(...)
         if self.talentPointsChangedTimer then
             self.talentPointsChangedTimer:Cancel()
         else
-            self.talentPointsChangedTimer = C_Timer.NewTimer(
-                15,
-                function() 
-                    self:GetCharacterTalentInfo("primary")
-                end
-            )
+            self.talentPointsChangedTimer = C_Timer.NewTimer(10.0, function()
+                self:GetCharacterTalentInfo("primary")
+            end)
         end
     end
 end
+
 
 
 function Guildbook:SKILL_LINES_CHANGED()
     if self.addonLoaded then
-        C_Timer.After(1.0, function()
-            self:GetCharacterProfessions()
-        end)
+        self:GetCharacterProfessions()
     end
 end
 
-local lastTradeskillScan = GetTime()
+
+---the time waited before sending character tradeskill data, as players could be power leveling a prof we dont want to spam everytime the level up
+local scanDelay = 15.0
+
+local tradeskillScanQueued = false;
 function Guildbook:TRADE_SKILL_UPDATE()
     if self.addonLoaded then
-        local elapsed = GetTime() - lastTradeskillScan
-        lastTradeskillScan = GetTime()
-        if elapsed < 0.8 then
-            Guildbook.DEBUG('func', 'TRADE_SKILL_UPDATE', 'update event within 0.8s of previous......event skipped')
-            return;
+        self:ScanTradeskillRecipes()
+        if tradeskillScanQueued == true then
+            Guildbook.DEBUG("event", "TRADES_KILL_UPDATE", "craft scan queued already")
+        else
+            tradeskillScanQueued = true;
+            C_Timer.After(scanDelay, function()
+                self:SendCharacterTradeskillData()
+                tradeskillScanQueued = false;
+                Guildbook.DEBUG("event", "TRADES_KILL_UPDATE", "craft scan queue reset")
+            end)
         end
-        self:GetCharacterProfessions()
-        C_Timer.After(1.25, function()
-            Guildbook.DEBUG('func', 'TRADE_SKILL_UPDATE', 'scanning skills')
-            self:ScanTradeSkill()
-        end)
     end
 end
 
-local lastTradeskillScan_Crafts = GetTime()
+local craftsScanQueued = false;
 function Guildbook:CRAFT_UPDATE()
     if self.addonLoaded then
-        local elapsed = GetTime() - lastTradeskillScan_Crafts
-        lastTradeskillScan_Crafts = GetTime()
-        if elapsed < 0.8 then
-            Guildbook.DEBUG('func', 'CRAFT_UPDATE', 'update event within 0.8s of previous......event skipped')
-            return;
+        self:ScanEnchantingRecipes()
+        if craftsScanQueued == true then
+            Guildbook.DEBUG("event", "CRAFT_UPDATE", "craft scan queued already")
+        else
+            craftsScanQueued = true;
+            C_Timer.After(scanDelay, function()
+                self:SendCharacterTradeskillData()
+                craftsScanQueued = false;
+                Guildbook.DEBUG("event", "CRAFT_UPDATE", "craft scan queue reset")
+            end)
         end
-        self:GetCharacterProfessions()
-        C_Timer.After(1.25, function()
-            Guildbook.DEBUG('func', 'CRAFT_UPDATE', 'scanning skills enchanting')
-            self:ScanCraftSkills_Enchanting()
-        end)
     end
 end
 
