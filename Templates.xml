@@ -708,6 +708,13 @@
             </AnimationGroup>
         </Animations>
         <Scripts>
+            <OnMouseDown>
+                if self.link then
+                    if IsControlKeyDown() then
+                        DressUpItemLink(self.link)
+                    end
+                end
+            </OnMouseDown>
             <OnEnter>
                 if self.link then
                     GameTooltip:SetOwner(self, 'ANCHOR_TOPRIGHT')
@@ -827,7 +834,7 @@
         </Layers>
     </Frame>
 
-    <Frame name="GuildbookGuildBankListviewItem" mixin="GuildbookMySacksListviewItemMixin" virtual="true" enableMouse="true">
+    <Frame name="GuildbookGuildBankListviewItem"  virtual="true" enableMouse="true">
         <Animations>
             <AnimationGroup parentKey="anim" setToFinalAlpha="true">
                 <Alpha parentKey="fadeIn" duration="0.33" fromAlpha="0" toAlpha="1"/>

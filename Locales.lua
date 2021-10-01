@@ -39,6 +39,16 @@ local addonName, Guildbook = ...
 -- locales table
 local L = {}
 
+L["UPDATE_NEWS"] = [[
+With the news of the WoW Classic "Season of Mastery" I wanted to make Guildbook 
+work for both Classic TBC and Classic era servers. 
+
+The guild bank feature has been added back so that 1 version will work for 
+both versions of the game.
+]]
+L["DIALOG_SHOW_UPDATES"]			= "Display again"
+L["DIALOG_DONT_SHOW_UPDATES"]		= "Confirm & hide"
+
 --options page
 L['OptionsAbout'] = 'Guildbook options and about. Thanks to Belrand@Auberdine for the French translations'
 L['Version'] = 'Version'

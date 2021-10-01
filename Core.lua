@@ -676,18 +676,18 @@ function Guildbook:Load()
         end
     end
 
-    if not GUILDBOOK_GLOBAL.guildBankRemoved then
-        GUILDBOOK_GLOBAL.guildBankRemoved = false;
+    if not GUILDBOOK_GLOBAL.showUpdateNews then
+        GUILDBOOK_GLOBAL.showUpdateNews = true;
     end
-    if (tonumber(self.version) == 4.9662) and GUILDBOOK_GLOBAL.guildBankRemoved == false then
-        local news = L["PHASE2GB"]
-        StaticPopup_Show('GuildbookUpdates', self.version, news)
+    if GUILDBOOK_GLOBAL.showUpdateNews == true then
+        StaticPopup_Show('GuildbookUpdates', self.version)
     end
 
     self.addonLoaded = true
     self.GUILD_NAME = self:GetGuildName()
 
 
+    GUILDBOOK_GLOBAL.guildBankRemoved = nil
 
     -- quick clean up
     if GUILDBOOK_TSDB and GUILDBOOK_TSDB.enchantItems then
@@ -944,9 +944,21 @@ function Guildbook:GetPaperDollStats()
         --local expertise, offhandExpertise, rangedExpertise = GetExpertise();
 		GUILDBOOK_CHARACTER['PaperDollStats'].Expertise = self:FormatNumberForCharacterStats(GetExpertise()); --will display mainhand expertise but it stores offhand expertise as well, need to find a way to access it
         --local base, casting = GetManaRegen();
-        GUILDBOOK_CHARACTER['PaperDollStats'].SpellHit = self:FormatNumberForCharacterStats(GetCombatRatingBonus(CR_HIT_SPELL) + GetSpellHitModifier());
-        GUILDBOOK_CHARACTER['PaperDollStats'].MeleeHit = self:FormatNumberForCharacterStats(GetCombatRatingBonus(CR_HIT_MELEE) + GetHitModifier());
-	    GUILDBOOK_CHARACTER['PaperDollStats'].RangedHit = self:FormatNumberForCharacterStats(GetCombatRatingBonus(CR_HIT_RANGED));
+
+        --to work with all versions we have to adjust the values we get
+        if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
+			GUILDBOOK_CHARACTER['PaperDollStats'].SpellHit = self:FormatNumberForCharacterStats(GetSpellHitModifier());
+			GUILDBOOK_CHARACTER['PaperDollStats'].MeleeHit = self:FormatNumberForCharacterStats(GetHitModifier());
+			GUILDBOOK_CHARACTER['PaperDollStats'].RangedHit = self:FormatNumberForCharacterStats(GetHitModifier());
+			
+		elseif WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC then
+			GUILDBOOK_CHARACTER['PaperDollStats'].SpellHit = self:FormatNumberForCharacterStats(GetCombatRatingBonus(CR_HIT_SPELL) + GetSpellHitModifier());
+			GUILDBOOK_CHARACTER['PaperDollStats'].MeleeHit = self:FormatNumberForCharacterStats(GetCombatRatingBonus(CR_HIT_MELEE) + GetHitModifier());
+			GUILDBOOK_CHARACTER['PaperDollStats'].RangedHit = self:FormatNumberForCharacterStats(GetCombatRatingBonus(CR_HIT_RANGED));
+
+		else
+		
+		end
 
         GUILDBOOK_CHARACTER['PaperDollStats'].RangedCrit = self:FormatNumberForCharacterStats(GetRangedCritChance());
         GUILDBOOK_CHARACTER['PaperDollStats'].MeleeCrit = self:FormatNumberForCharacterStats(GetCritChance());
@@ -1282,6 +1294,91 @@ function Guildbook:CheckPrivacyRankSettings()
         end
     end
 end
+
+
+
+
+
+
+-- THIS FUNCTION WILL GO AWAY WHEN GUILD BANKS GET ADDED
+--- scans the players bags and bank for guild bank sharing
+--- creates a table in the character saved vars with scan time so we can check which data is newest
+function Guildbook:ScanPlayerContainers()
+    --if BankFrame:IsVisible() then
+        local name = Ambiguate(UnitName("player"), 'none')
+
+        local copper = GetMoney()
+
+        if not GUILDBOOK_GLOBAL["GuildBank"] then
+            GUILDBOOK_GLOBAL["GuildBank"] = {}
+        end
+        GUILDBOOK_GLOBAL["GuildBank"][name] = {
+            Commit = GetServerTime(),
+            Data = {},
+            Money = copper,
+        }
+
+        -- player bags
+        for bag = 0, 4 do
+            for slot = 1, GetContainerNumSlots(bag) do
+                local _, count, _, _, _, _, link, _, _, id = GetContainerItemInfo(bag, slot)
+                if id and count then
+                    if not GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] then
+                        GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = count
+                    else
+                        GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] + count
+                    end
+                end
+            end
+        end
+
+        -- main bank
+        for slot = 1, 28 do
+            local _, count, _, _, _, _, link, _, _, id = GetContainerItemInfo(-1, slot)
+            if id and count then
+                if not GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] then
+                    GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = count
+                else
+                    GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] + count
+                end
+            end
+        end
+
+        -- bank bags
+        for bag = 5, 11 do
+            for slot = 1, GetContainerNumSlots(bag) do
+                local _, count, _, _, _, _, link, _, _, id = GetContainerItemInfo(bag, slot)
+                if id and count then
+                    if not GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] then
+                        GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = count
+                    else
+                        GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] + count
+                    end
+                end
+            end
+        end
+
+        local bankUpdate = {
+            type = 'GUILD_BANK_DATA_RESPONSE',
+            payload = {
+                Data = GUILDBOOK_GLOBAL["GuildBank"][name].Data,
+                Commit = GUILDBOOK_GLOBAL["GuildBank"][name].Commit,
+                Money = GUILDBOOK_GLOBAL["GuildBank"][name].Money,
+                Bank = name,
+            }
+        }
+        self:Transmit(bankUpdate, 'GUILD', nil, 'BULK')
+        --DEBUG('comms_out', 'ScanPlayerContainers', 'sending guild bank data due to new commit')
+
+    --end
+end
+
+
+
+
+
+
+
 
 
 ---this is used by the tradeskill recipe listview to set the reagent icon border colour
@@ -3074,6 +3171,134 @@ end
 
 
 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- guild bank comms
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Guildbook.BankCharacters = {}
+Guildbook.BankRequests = {}
+-- update for new guild bank ui
+-- send request for each character > add character to table as normal
+
+function Guildbook:RequestGuildBankCommits(character)
+    self.BankCharacters[character] = {}
+    local request = {
+        type = 'GUILD_BANK_COMMIT_REQUEST',
+        payload = character,
+    }
+    Guildbook.DEBUG("func", "RequestGuildBankCommits", string.format("request guild bank commits for %s", character))
+    self:Transmit(request, 'GUILD', nil, 'NORMAL')
+end
+
+
+-- this will still work as its just checking the saved var data for a bank character commit
+function Guildbook:OnGuildBankCommitRequested(data, distribution, sender)
+    if distribution == 'GUILD' then
+        if GUILDBOOK_GLOBAL["GuildBank"] and GUILDBOOK_GLOBAL["GuildBank"][data.payload] and GUILDBOOK_GLOBAL["GuildBank"][data.payload].Commit then
+            local response = {
+                type = 'GUILD_BANK_COMMIT_RESPONSE',
+                payload = { 
+                    Commit = GUILDBOOK_GLOBAL["GuildBank"][data.payload].Commit,
+                    Character = data.payload
+                }
+            }
+            Guildbook.DEBUG('comms_out', 'OnGuildBankCommitRequested', string.format("%s has requested guild bank commits for %s", sender, data.payload))
+            self:Transmit(response, 'WHISPER', sender, 'NORMAL')
+        end
+    end
+end
+
+-- use the new table
+local lastCommitResponse = -1000;
+function Guildbook:OnGuildBankCommitReceived(data, distribution, sender)
+    if distribution == 'WHISPER' then
+        lastCommitResponse = GetTime()
+        Guildbook.DEBUG("func", "OnGuildBankCommitReceived", string.format("sender: %s commit time: %s", sender, data.payload.Commit))
+        if not self.BankCharacters[data.payload.Character].Commit then
+            self.BankCharacters[data.payload.Character].Commit = data.payload.Commit;
+            self.BankCharacters[data.payload.Character].Source = sender;
+            Guildbook.DEBUG("func", "OnGuildBankCommitReceived", string.format("%s has latest commit time", sender))
+        else
+            if tonumber(data.payload.Commit) > tonumber(self.BankCharacters[data.payload.Character].Commit) then
+                self.BankCharacters[data.payload.Character].Commit = data.payload.Commit;
+                self.BankCharacters[data.payload.Character].Source = sender;
+                Guildbook.DEBUG("func", "OnGuildBankCommitReceived", string.format("%s has latest commit time", sender))
+            end
+        end
+    end
+end
+
+
+-- this will be used in loop, for bank, info in pairs(Guildbook.BankCharacters) do. info = { Commit = commit time, Source = player with newest data }
+function Guildbook:RequestGuildBankItems(source, bank)
+    if not source then
+        return;
+    end
+    local request = {
+        type = 'GUILD_BANK_DATA_REQUEST',
+        payload = bank,
+    }
+    Guildbook.DEBUG('comms_out', 'RequestGuildBankItems', string.format("requesting guild bank items from %s", source))
+    self:Transmit(request, 'WHISPER', source, 'NORMAL')
+end
+
+
+
+-- this should remain the same as its ust returning data using a character name as key
+function Guildbook:OnGuildBankDataRequested(data, distribution, sender)
+    if distribution == 'WHISPER' then
+        local response = {
+            type = 'GUILD_BANK_DATA_RESPONSE',
+            payload = {
+                Data = GUILDBOOK_GLOBAL["GuildBank"][data.payload].Data,
+                Commit = GUILDBOOK_GLOBAL["GuildBank"][data.payload].Commit,
+                Money = GUILDBOOK_GLOBAL["GuildBank"][data.payload].Money,
+                Bank = data.payload,
+            }
+        }
+        self:Transmit(response, 'WHISPER', sender, 'BULK')
+        Guildbook.DEBUG('comms_out', 'OnGuildBankDataRequested', string.format('%s has requested bank data, sending data for bank character %s', sender, data.payload))
+    end
+end
+
+-- this should also remain the same as we just save the data
+function Guildbook:OnGuildBankDataReceived(data, distribution, sender)
+    if distribution == 'WHISPER' or distribution == 'GUILD' then
+        if not GUILDBOOK_GLOBAL["GuildBank"] then
+            GUILDBOOK_GLOBAL["GuildBank"] = {
+                [data.payload.Bank] = {
+                    Commit = data.payload.Commit,
+                    Data = data.payload.Data,
+                    Money = data.payload.Money,
+                }
+            }
+        else
+            GUILDBOOK_GLOBAL["GuildBank"][data.payload.Bank] = {
+                Commit = data.payload.Commit,
+                Data = data.payload.Data,
+                Money = data.payload.Money,
+            }
+        end
+    end
+    -- self.GuildFrame.GuildBankFrame:ProcessBankData(data.payload.Data, data.payload.Money)
+    -- self.GuildFrame.GuildBankFrame:RefreshSlots()
+
+    -- how do we know the timing of all this????
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3597,8 +3822,15 @@ function Guildbook:BAG_UPDATE_DELAYED()
 end
 
 
+-- added to automate the guild bank scan
 function Guildbook:BANKFRAME_OPENED()
-
+    for i = 1, GetNumGuildMembers() do
+        local _, _, _, _, _, _, publicNote, _, _, _, _, _, _, _, _, _, GUID = GetGuildRosterInfo(i)
+        if publicNote:lower():find('guildbank') and GUID == UnitGUID('player') then
+            self:ScanPlayerContainers()
+        end
+    end
+    self:ScanPlayerBank()
 end
 
 -- added this to the closed event to be extra accurate
@@ -3606,6 +3838,12 @@ local bankScanned = false;
 function Guildbook:BANKFRAME_CLOSED()
     if bankScanned == false then
         Guildbook.DEBUG("event", "BANKFRAME_CLOSED", "scanning items")
+        for i = 1, GetNumGuildMembers() do
+            local _, _, _, _, _, _, publicNote, _, _, _, _, _, _, _, _, _, GUID = GetGuildRosterInfo(i)
+            if publicNote:lower():find('guildbank') and GUID == UnitGUID('player') then
+                self:ScanPlayerContainers()
+            end
+        end
         self:ScanPlayerBank()
         bankScanned = true;
     else
@@ -3722,17 +3960,17 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
 
 
 --==================================
-    elseif data.type == 'GUILD_BANK_COMMIT_REQUEST' then
-        self:OnGuildBankCommitRequested(data, distribution, sender)
+elseif data.type == 'GUILD_BANK_COMMIT_REQUEST' then
+    self:OnGuildBankCommitRequested(data, distribution, sender)
 
-    elseif data.type == 'GUILD_BANK_COMMIT_RESPONSE' then
-        self:OnGuildBankCommitReceived(data, distribution, sender)
+elseif data.type == 'GUILD_BANK_COMMIT_RESPONSE' then
+    self:OnGuildBankCommitReceived(data, distribution, sender)
 
-    elseif data.type == 'GUILD_BANK_DATA_REQUEST' then
-        self:OnGuildBankDataRequested(data, distribution, sender)
+elseif data.type == 'GUILD_BANK_DATA_REQUEST' then
+    self:OnGuildBankDataRequested(data, distribution, sender)
 
-    elseif data.type == 'GUILD_BANK_DATA_RESPONSE' then
-        self:OnGuildBankDataReceived(data, distribution, sender)
+elseif data.type == 'GUILD_BANK_DATA_RESPONSE' then
+    self:OnGuildBankDataReceived(data, distribution, sender)
 --==================================
 
 
