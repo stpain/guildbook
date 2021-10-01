@@ -986,7 +986,7 @@ if locale == "deDE" then
 ]]
 elseif locale == 'frFR' then
 	L["UPDATE_NEWS"] = [[
-Avec la nouvelle update the WoW Classic "La Saison de la Maîtrise", j'ai voulu que Guildbook 
+Avec la nouvelle mise à jour de WoW Classic, "La Saison de la Maîtrise", j'ai voulu que Guildbook 
 fonctionne pour l'ensemble des versions de WoW Classic.
 
 Résultat, la Banque de Guilde de Guildbook a été restaurée afin qu'une unique version de l'addon 
