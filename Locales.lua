@@ -985,6 +985,15 @@ if locale == "deDE" then
     french
 ]]
 elseif locale == 'frFR' then
+	L["UPDATE_NEWS"] = [[
+With the news of the WoW Classic "Season of Mastery" I wanted to make Guildbook 
+work for both Classic TBC and Classic era servers. 
+
+The guild bank feature has been added back so that 1 version will work for 
+both versions of the game.
+]]
+	L["DIALOG_SHOW_UPDATES"]			= "Afficher à nouveau"
+	L["DIALOG_DONT_SHOW_UPDATES"]		= "Ok, ne plus montrer"
 
     L['OptionsAbout'] = 'Guildbook options et informations. Traduction française par Belrand@Auberdine'
 	L['Version'] = 'Version'
@@ -1100,7 +1109,7 @@ elseif locale == 'frFR' then
 	L["SEND_TRADE_ENQUIRY"]             = "Envoyer un message à propos de l'objet"
 	L["REFRESH_ROSTER"]                 = "Rafraîchir registre"
 	L["EDIT"]                           = "Modifier profile"
-	L["GUILD_BANK"]                     = "Banque de Guilde (EN CONSTRUCTION)"
+	L["GUILD_BANK"]                     = "Banque de Guilde"
 	L["ALTS"]                           = "Personnages secondaires"
 	L["USE_MAIN_PROFILE"]               = "Utiliser profil du Personnage Principal"
 	L["MY_SACKS"]                       = "Mes sacs"
@@ -1312,6 +1321,7 @@ elseif locale == 'frFR' then
 	L["HARVEST_FESTIVAL"]		    = "Fête des moissons"
 	L["HALLOWS_END"]		    = "Sanssaint "
 	L["FEAST_OF_WINTER_VEIL"]	    = "Voile d'hiver"
+	L["BREWFEST"]				= "Fête des Brasseurs"
 
 
 
