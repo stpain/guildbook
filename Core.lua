@@ -676,7 +676,7 @@ function Guildbook:Load()
         end
     end
 
-    if not GUILDBOOK_GLOBAL.showUpdateNews then
+    if GUILDBOOK_GLOBAL.showUpdateNews == nil then
         GUILDBOOK_GLOBAL.showUpdateNews = true;
     end
     if GUILDBOOK_GLOBAL.showUpdateNews == true then
