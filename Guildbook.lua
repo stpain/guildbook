@@ -149,6 +149,9 @@ local function loadGuildMemberTradeskills(guid, prof)
 end
 
 
+---returns a list of player GUIDs that have a match for the given prof
+---@param prof string the profession to search for
+---@return table 
 local function getAllPlayersWithTradeskill(prof)
     local characters = {}
     if GUILD_NAME then
@@ -167,7 +170,8 @@ local function getAllPlayersWithTradeskill(prof)
 end
 
 
-
+---load characters into the characters with recipe listview sorted by online status
+---@param recipe table the recipe table or at least a table with a .itemID field
 local function loadCharactersWithRecipe(recipe)
     GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Flush()
     local charactersWithRecipe = {}
@@ -222,7 +226,7 @@ end
     this is the character listview for the tradeskill ui
 
     its purpose is to show which characters have a certain tradeskill
-    it can then be filtered by tradeskill recipes b clicking the recipe
+    it can then be filtered by tradeskill recipes by clicking the recipe
 
     selecting a character will show that characters recipes for the currently selected tradeskill
 
@@ -363,14 +367,6 @@ function GuildbookCharacterListviewItemMixin:SetCharacter(guid)
     end
 end
 
-function GuildbookCharacterListviewItemMixin:ClearCharacter()
-    self.Icon:SetTexture(nil)
-    self.Name:SetText("")
-    self.Zone:SetText("")
-    self.sendMessage:Hide()
-    self.itemLink = nil;
-    self.character = nil;
-end
 
 
 
