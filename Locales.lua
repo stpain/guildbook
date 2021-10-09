@@ -1437,6 +1437,444 @@ L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s %s %s"
 
 
 
+--thanks to Эхо from discord for these translations
+
+elseif locale == "ruRU" then
+
+	--options page
+	L['OptionsAbout'] = 'Опции Guildbook. Спасибо Калимер@Пламегор и гильдии <Чистое небо>@Рок-Делар за перевод на русский язык. Если Вы обнаружили опечатку или ошибку - сообщите Эхо#8608 (Discord)'
+	L['Version'] = 'Версия'
+	L['Author'] = 'Автор: |cffffffffstpain (|r|cffF58CBACopperbolts|r |cffffffffand|r |cff0070DEKylanda|r|cffffffff)|r'
+	
+	L["OPTIONS"]                        = "Опции и настройки"
+	L["MINIMAP_CALENDAR_RIGHTCLICK"]    = "Щелкните ПКМ, чтобы открыть меню"
+	L["MINIMAP_CALENDAR_EVENTS"]        = "События"
+	
+	L["DIALOG_CHARACTER_FIRST_LOAD"]    = "Добро пожаловать в Guildbook. Нажмите, чтобы просканировать профессии ваших персонажей."
+	
+	L["NEW_VERSION_1"] = "Доступна новая версия. Возможно, кое-что исправлено, а может быть мы что-то и сломали!"
+	L["NEW_VERSION_2"] = "Доступна совершенно новая классная версия аддона, которую можно скачать из открытых источников!"
+	L["NEW_VERSION_3"] = "Хах, если вы думали, что последнее обновление было незначительным, то скачайте новое. Оно примерно такое же... или даже еще меньше!"
+	L["NEW_VERSION_4"] = "Орда - красная, Альянс - синий, новая обнова - только для тебя!"
+	
+	L["GUILDBOOK_DATA_SHARE_HEADER"]    = "Поделиться данными Guildbook \n\nВы можете поделиться информацией о своих профессиях, нажав кнопку «Экспорт», чтобы сгенерировать код. Затем скопируйте его и вставьте куда-нибудь - например, в Discord. \nЧтобы импортировать данные - нажмите соответствующую кнопку."
+	L["GUILDBOOK_LOADER_HEADER"]        = "Добро пожаловать в Guildbook"
+	L["TOOLTIP_ITEM_RECIPE_HEADER"]     = "Используется для"
+	
+	L["HELP_ABOUT"]                     = "Помощь & Об аддоне"
+	
+	-- this is just a quick thing, will make the how section more fleshed out
+	-- this is a nasty way to do this, its horrible and i need to make the help & about much better
+	local slashCommandsIcon = CreateTextureMarkup(136377, 64, 64, 16, 16, 0, 1, 0, 1, 0, 0)
+	local slashCommandsHelp = [[
+	Команды:
+	Вы можете использовать /guildbook, /gbk или /gb.
+	/guildbook open - открыть Guildbook
+	/guildbook [interface] - открыть определенный раздел (список гильдии, профессии, чат, профили, календарь, статистика, банк гильдии, поиск, приватность)
+	
+	]]
+	local rosterIcon = CreateAtlasMarkup("poi-workorders", 16, 16)
+	local rosterHelp = [[
+	Список гильдии:
+	Вы можете отсортировать список гильдии, кликнув по названию колонки. Например, нажав на заголовок "Класс" или "Звание" вы отфильтруете всех участников в опреденном порядке.
+	
+	]]
+	local tradeskillIcon = CreateAtlasMarkup("Mobile-Blacksmithing", 16, 16)
+	local tradeskillHelp = 
+	[[
+	Профессии:
+	Guildbook будет сканировать рецепты игроков при загрузке и этот процесс может занять несколько минут. После завершения вы сможете посмотреть доступные рецепты по профессиям или слотам экипировки (голова, кисти рук, ступни и т.д.).
+	
+	Guildbook отправляет список ваших рецептов другим членам гильдии. Откройте окно профессии, чтобы запустить сканирование рецептов. Полученные данные будут сохранены в вашем профиле и отправлены членам гильдии, находящимся в сети. 
+	Данные будут отправляться каждый раз, когда вы входите в игру и открываете окно профессии. Обновление можно запустить вручную: нажмите кнопку "Импорт/экспорт" над списком профессий и следуйте инструкциям. 
+	
+	]]
+	local profileIcon = CreateAtlasMarkup("GarrMission_MissionIcon-Recruit", 16, 16)
+	local profileHelp = 
+	[[
+	Профиль:
+	Редактируйте по своему желанию. Добавлять персональную информацию о себе или нет - решать только вам.
+	Вы можете выбрать свою основную специализацию и указать основного персонажа. Если вы используете несколько учетных записей, вы можете добавить еще одного персонажа, которого затем можно будет выбрать в качестве основного. (Альты устанавливаются выбором главного героя из профиля альтов).
+	
+	]]
+	local searchIcon = CreateAtlasMarkup("shop-games-magnifyingglass", 16, 16)
+	local searchHelp = 
+	[[
+	Поиск:
+	Используйте этот инструмент для поиска внутри своей гильдии. Ищите название рецепта, имя персонажа и многое другое.
+	
+	]]
+	local bankIcon = CreateAtlasMarkup("ShipMissionIcon-Treasure-Map", 16, 16)
+	local bankHelp = [[
+	Coming soon
+	]]
+	L["HELP_ABOUT_CREDITS"]             = string.format("%s %s %s %s %s %s %s %s %s %s %s %s", slashCommandsIcon, slashCommandsHelp, rosterIcon, rosterHelp, tradeskillIcon, tradeskillHelp, profileIcon, profileHelp, searchIcon, searchHelp, bankIcon, bankHelp)
+	
+	
+	
+	--mod blizz guild roster, these are key/values in the ModBlizz file that add extra columns
+	L['Online']                         = 'В сети'
+	L['MainSpec']                       = 'Специализация'
+	L['Rank']                           = 'Звание'
+	L['Note']                           = 'Заметка'
+	L['Profession1']                    = 'Профессия 1'
+	L['Profession2']                    = 'Профессия 2'
+	
+	
+	-- roster listview and tooltip, these are also sort keys and should be lower case
+	L["name"]                           = "Имя"
+	L["level"]                          = "Ур."
+	L["mainSpec"]                       = "Специализация"
+	L["prof1"]                          = "Профессии"
+	L["location"]                       = "Зона"
+	L["rankName"]                       = "Звание"
+	L["publicNote"]                     = "Заметка"
+	L["class"]                          = "Класс"
+	L["attunements"]                    = "Достижения"
+	
+	
+	-- xml strings
+	L["PROFILE_TITLE"]                  = "Профиль"
+	L["REAL_NAME"]                      = "Имя"
+	L["REAL_DOB"]                       = "День рождения"
+	L["REAL_BIO"]                       = "О себе"
+	L["AVATAR"]                         = "Аватар"
+	L["MAIN_CHARACTER"]                 = "Основной персонаж"
+	L["ALT_CHARACTERS"]                 = "Альт"
+	L["MAIN_SPEC"]                      = "Специализация"
+	L["OFF_SPEC"]                       = "Оффспек"
+	L["PRIVACY"]                        = "Приватность"
+	L["PRIVACY_ABOUT"]                  = "Установите минимиальное звание, кому будет предоставлена информация профиля. Данные профиля включают имя, дату рождения, о себе и аватар. Инвентарь включает надетую экипировку (НЕ сумки/банк). Таланты, как ни странно, это ваши таланты"
+	L["INVENTORY"]                      = "Инвентарь"
+	L["TALENTS"]                        = "Таланты"
+	
+	L["ROSTER_MY_CHARACTERS"]           = "Мои персонажи"
+	L["ROSTER_ALL_CLASSES"]             = "Все классы"
+	L["ROSTER_ALL_RANKS"]               = "Все звания"
+	
+	L["TRADESKILLS"]                    = "Профессии"
+	L["TRADESKILLS_RECIPES"]            = "Рецепты"
+	L["TRADESKILLS_CHARACTERS"]         = "Персонажи"
+	L["TRADESKILL_GUILD_RECIPES"]       = "Гильдейские рецепты"
+	L["TRADESKILLS_SHARE_RECIPES"]      = "Поделиться рецептами этого персонажа"
+	L["TRADESKILLS_EXPORT_RECIPES"]     = "Импорт/экспорт"
+	L["IMPORT"]                         = "Импорт"
+	L["EXPORT"]                         = "Экспорт"
+	L["CAN_CRAFT"]                      = "[Guildbook] умеешь ли ты делать %s ?"
+	L["REMOVE_RECIPE_FROM_PROF_SS"]     = "Удалить %s из %s ?"
+	L["REMOVE_RECIPE_FROM_PROF"]        = "Кликни ПКМ, чтобы удалить из этой профессии."
+	L["PROCESSED_RECIPES_SS"]           = "Обработано %s из %s рецептов"
+	L["TRADESKILL_SLOT_FILTER_S"]       = "Фильтр: %s"
+	L["TRADESKILL_SLOT_REMOVE"]         = "Сбросить фильтры"
+	L["HEAD"]                           = "голова"
+	L["SHOULDER"]                       = "плечи"
+	L["BACK"]                           = "спина"
+	L["CHEST"]                          = "грудь"
+	L["WRIST"]                          = "наручи"
+	L["HANDS"]                          = "кисти рук"    
+	L["WAIST"]                          = "пояс"
+	L["LEGS"]                           = "ноги"
+	L["FEET"]                           = "ступни"
+	L["WEAPONS"]                        = "оружие"
+	L["OFF_HAND"]                       = "левая рука"  
+	L["MISC"]                           = "разное"
+	L["CONSUMABLES"]                    = "расходуемые"
+	
+	
+	L["PHASE2GB"]                       = "С появлением гильдейских банков в TBCC аналогичная система в Guildbook удалена. Я работаю над тем, чтобы заменить его чем-либо!"
+	L['GUILDBANK']                      = "Банк гильдии"
+	L["GUILDBANK_HEADER_ITEM"]          = "Item link"
+	L["GUILDBANK_HEADER_COUNT"]         = "Count"
+	L["GUILDBANK_SORT_TYPE"]            = "Type"
+	L["GUILDBANK_HEADER_SUBTYPE"]       = "Subtype"
+	L["GUILDBANK_SORT_BANK"]            = "Source"
+	L["GUILDBANK_REFRESH"]              = "Refresh"
+	L["GUILDBANK_ALL_BANKS"]            = "All banks"
+	L["GUILDBANK_ALL_TYPES"]            = "All types"
+	L["GUILDBANK_REQUEST_COMMITS"]      = "requesting commits for "
+	L["GUILDBANK_REQUEST_INFO"]         = "requesting data from "
+	L["GUILDBANK_FUNDS"]                = "Gold available"
+	L["GUILDBANK_CURRENCY"]             = "Currency"
+	
+	L["PROFILES"]                       = "Профили"
+	L["CHAT"]                           = "Чат"
+	L["ROSTER"]                         = "Список гильдии"
+	L["CALENDAR"]                       = "Календарь"
+	L["SEARCH"]                         = "Поиск"
+	L["MY_PROFILE"]                     = "Мой профиль"
+	L["OPEN_PROFILE"]                   = "Открыть профиль"
+	L["OPEN_CHAT"]                      = "Открыть чат"
+	L["INVITE_TO_GROUP"]                = "Пригласить в группу"
+	L["SEND_TRADE_ENQUIRY"]             = "Отправить сообщение о предмете"
+	L["REFRESH_ROSTER"]                 = "Обновить список"
+	L["EDIT"]                           = "Редактировать профиль"
+	L["GUILD_BANK"]                     = "Бесполезная подсказка!"
+	L["ALTS"]                           = "Все персонажи"
+	L["USE_MAIN_PROFILE"]               = "Использовать профиль основного персонажа"
+	L["MY_SACKS"]                       = "Мои сумки"
+	L["BAGS"]                           = "Сумки"
+	L["BANK"]                           = "Банк"
+	L["STATS"]                          = "Статистика"
+	
+	L["RESET_AVATAR"]                   = "Удалить аватар"
+	
+	L["PRIVACY_HEADER"]                 = "Настройки приватности"
+	L["NONE"]                           = ""
+	L["SHARING_NOBODY"]                 = "Ни с кем не делиться"
+	L["SHARING_WITH"]                   = "Поделиться с"
+	
+	L["MAIN_CHARACTER_ADD_ALT"]         = "Добавить персонажа.\n|cffFFFF00Используйте это, чтобы добавить персонажа с другой учетной записи, после чего вы сможете указать его как основного"
+	L["MAIN_CHARACTER_REMOVE_ALT"]      = "Удалить персонажа"
+	L["DIALOG_MAIN_CHAR_ADD"]           = "Введите имя вашего персонажа. Он должен быть членом гильдии."
+	L["DIALOG_MAIN_CHAR_REMOVE"]        = "Пожалуйста, введите имя персонажа."
+	L["DIALOG_MAIN_CHAR_ADD_FOUND"]     = "Найти персонажа: %s Уровень: %s %s"
+	
+	--attributes
+	L["STRENGTH"]                       = "Сила"
+	L["AGILITY"]                        = "Ловкость"
+	L["STAMINA"]                        = "Выносливость"
+	L["INTELLECT"]                      = "Интеллект"
+	L["SPIRIT"]                         = "Дух"
+	--defence
+	L["ARMOR"]                          = "Броня"
+	L["DEFENSE"]                        = "Защита"
+	L["DODGE"]                          = "Уклонение"
+	L["PARRY"]                          = "Парирование"
+	L["BLOCK"]                          = "Блок"
+	--melee
+	L["EXPERTISE"]                      = "Мастерство"
+	L["HIT_CHANCE"]                     = "Меткость"
+	L["MELEE_CRIT"]                     = "Крит"
+	L["MH_DMG"]                         = "Урон основного оружия"
+	L["OH_DMG"]                         = "Урон оружия в левой руке"
+	L["MH_DPS"]                         = "УвС основного оружия"
+	L["OH_DPS"]                         = "УвС оружия в левой руке"
+	--ranged
+	L["RANGED_HIT"]                     = "Меткость"
+	L["RANGED_CRIT"]                    = "Крит"
+	L["RANGED_DMG"]                     = "Урон"
+	L["RANGED_DPS"]                     = "УвС"
+	--spells
+	L["SPELL_HASTE"]                    = "Скорость чтения заклинаний"
+	L["MANA_REGEN"]                     = "Реген маны"
+	L["MANA_REGEN_CASTING"]             = "Реген маны (при прочтении заклинаний)"
+	L["SPELL_HIT"]                      = "Меткость"
+	L["SPELL_CRIT"]                     = "Крит"
+	L["HEALING_BONUS"]                  = "Бонус исцеления"
+	L["SPELL_DMG_HOLY"]                 = "Свет"
+	L["SPELL_DMG_FROST"]                = "Лёд"
+	L["SPELL_DMG_SHADOW"]               = "Тьма"
+	L["SPELL_DMG_ARCANE"]               = "Тайная магия"
+	L["SPELL_DMG_FIRE"]                 = "Огонь"
+	L["SPELL_DMG_NATURE"]               = "Природа"
+	
+	
+	
+	-- class and spec
+	-- class is upper case
+	L['DEATHKNIGHT']                    = 'Рыцарь смерти'
+	L['DRUID']                          = 'Друид'
+	L['HUNTER']                         = 'Охотник'
+	L['MAGE']                           = 'Маг'
+	L['PALADIN']                        = 'Паладин'
+	L['PRIEST']                         = 'Жрец'
+	L['SHAMAN']                         = 'Шаман'
+	L['ROGUE']                          = 'Разбойник'
+	L['WARLOCK']                        = 'Чернокнижник'
+	L['WARRIOR']                        = 'Воин'
+	--mage/dk
+	L['Arcane']                         = 'Тайная магия'
+	L['Fire']                           = 'Огонь'
+	L['Frost']                          = 'Лёд'
+	L['Blood']                          = 'Кровь'
+	L['Unholy']                         = 'Нечестивость'
+	--druid/shaman
+	L['Restoration']                    = 'Восстановление'
+	L['Enhancement']                    = 'Совершенствование'
+	L['Elemental']                      = 'Стихии'
+	L["Warden"]                         = "Страж"
+	L['Cat']                            = 'Кот'
+	L['Bear']                           = 'Медведь'
+	L['Balance']                        = 'Баланс'
+	L['Guardian']                       = 'Страж'
+	L["Feral"]                          = "Сила зверя"
+	--rogue
+	L['Assassination']                  = 'Ликвидация'
+	L['Combat']                         = 'Бой'
+	L['Subtlety']                       = 'Скрытность'
+	--hunter
+	L['Marksmanship']                   = 'Стрельба'
+	L['Beast Master']                   = 'Чувство зверя'
+	L['BeastMaster']                    = 'Чувство зверя' -- the smart detect spec system could return this value
+	L['Survival']                       = 'Выживание'
+	--warlock
+	L['Destruction']                    = 'Разрушение'
+	L['Affliction']                     = 'Колдовство'
+	L['Demonology']                     = 'Демонология'
+	--warrior/paladin/priest
+	L['Fury']                           = 'Неиствовство'
+	L['Arms']                           = 'Оружие'
+	L['Protection']                     = 'Защита'
+	L['Retribution']                    = 'Воздаяние'
+	L['Holy']                           = 'Свет'
+	L['Discipline']                     = 'Послушание'
+	L['Shadow']                         = 'Тьма'
+	
+	--odds
+	L["Warden"]                         = "Страж"
+	L["Frost (Tank)"]                   = "Лёд (Танк)"
+	
+	--date time
+	L['JANUARY']                        = 'Января'
+	L['FEBRUARY']                       = 'Февраля'
+	L['MARCH']                          = 'Марта'
+	L['APRIL']                          = 'Апреля'
+	L['MAY']                            = 'Мая'
+	L['JUNE']                           = 'Июня'
+	L['JULY']                           = 'Июля'
+	L['AUGUST']                         = 'Августа'
+	L['SEPTEMBER']                      = 'Сентября'
+	L['OCTOBER']                        = 'Октября'
+	L['NOVEMBER']                       = 'Ноября'
+	L['DECEMBER']                       = 'Декабря'
+	
+	L["MONDAY"]                         = "Понедельник"
+	L["TUESDAY"]                        = "Вторник"
+	L["WEDNESDAY"]                      = "Среда"
+	L["THURSDAY"]                       = "Четверг"
+	L["FRIDAY"]                         = "Пятница"
+	L["SATURDAY"]                       = "Суббота"
+	L["SUNDAY"]                         = "Воскресенье"
+	
+	
+	-- old stuff but might use again
+	L['GuildBank']                      = 'Банк гильдии'
+	L['Events']                         = 'События'
+	L['WorldEvents']                    = 'Мировые события'
+	L['Attunements']                    = 'Достижения'
+	L["Guild"]                          = "Гильдия"
+	
+	
+	L['Roles']                          = 'Роли'
+	L['Tank']                           = 'Танк'
+	L['Melee']                          = 'Ближний бой'
+	L['Ranged']                         = 'Дальний бой'
+	L['Healer']                         = 'Целитель'
+	L['ClassRoleSummary']               = 'Сводка по классам и ролям'
+	L['RoleChart']                      = 'Роли (участники в сети'
+	L['ClassChart']                     = 'Классы (все участники)'
+	
+	-- calendar help icon
+	L['calendarHelpText'] = [[
+	Calendar
+	
+	|cffffffffВ [Guildbook] включён внутриигровой календарь событий гильдии, основанный на старой версии календаря
+	Blizzard. В слоте каждого дня отображается до трёх событий (в будущем их количество будет увеличено).|r
+	
+	|cff00BFF3Календарь синхронизирует данные между игроками, когда игрок входит в игру, а также при создании, удалении или изменении события. Синхронизацию между всеми игроками гильдии нельзя гарантировать, так как для передачи данных между игроками они должны быть в сети.
+	
+	Для уменьшения объёма передаваемых данных синхронизируются только события ближайших 4 недель.
+	Вы можете создавать события на любые даты, но они будут синхронизироваться только когда до них будет оставаться менее 4 недель.|r.
+	]]
+	
+	--guildbank help icon
+	L["GUILDBANKHELPTEXT"]  = [[
+	Guild Bank
+	
+	|cffffffffGuildbook provides an in-game guild bank for guild 
+	to share bank character's inventory.
+	|r
+	
+	|cff00BFF3To use the Guild Bank, add the word 'Guildbank'
+	to the Public Note of the character being used as a bank
+	(this will add them to the dropdown menu).
+	Said character must then open his bank 
+	to sync his inventory with connected Guild Members.
+	
+	The guild bank sends/receives data when a player logs in, 
+	only the most recent data is being used, thus bank characters
+	should sync their inventory after every change within it.
+	
+	Multiple bank characters are supported.|r
+	]]
+	
+	
+	--legacy stuff
+	L["SELECT_BANK_CHARACTER"]          = "Выбрать банковского персонажа"
+	L["DUNGEON"]                        = "Подземелье"
+	L["RAID"]                           = "Рейд"
+	L['PVP']                            = 'PvP'
+	L["MEETING"]                        = "Встреча"
+	L["OTHER"]                          = "Другое"
+	L["GUILD_CALENDAR"]                 = "Календарь гильдии"
+	L["INSTANCE_LOCKS"]                 = "Заблокированные подземелья"
+	L["CREATE_EVENT"]                   = "Создать событие"
+	L["DELETE_EVENT"]                   = "Удалить событие"
+	L["EVENT"]                          = "Событие"
+	L["EVENT_TYPE"]                     = "Тип события"
+	L["TITLE"]                          = "Заголовок"
+	L["DESCRIPTION"]                    = "Описание"
+	L["UPDATE"]                         = "Обновить"
+	L["ATTENDING"]                      = "Посетить"
+	L["TENTATIVE"]                      = "Возможно"
+	L["DECLINE"]                        = "Отклонить"
+	
+	L["YEARS"]                          = "годы"
+	L["MONTHS"]                         = "месяцев"
+	L["DAYS"]                           = "дней"
+	L["HOURS"]                          = "часов"
+	L['< an hour']                      = '< меньше часа'
+	
+	L["GENERAL"]                        = "Основные"
+	L["MINIMAP_TOOLTIP_LEFTCLICK"]      = '|cffffffffLeft Click|r Открыть Guildbook'
+	L["MINIMAP_TOOLTIP_LEFTCLICK_SHIFT"]= "Shift + "..'|cffffffffLeft Click|r Открыть чат'
+	L["MINIMAP_TOOLTIP_RIGHTCLICK"]     = '|cffffffffRight Click|r Опции'
+	L["MINIMAP_TOOLTIP_MIDDLECLICK"]    = "|cffffffffMiddle Click|r Открыть окно гильдии Blizzard"
+	
+	L["MC"]                             = "Огненные недра"
+	L["BWL"]                            = "Логово Крыла Тьмы"
+	L["AQ20"]                           = "Руины Ан'Киража"
+	L["AQ40"]                           = "Храм Ан'Киража"
+	L["Naxxramas"]                      = "Наксрамас"
+	L["ZG"]                             = "Зул'Гуруб"
+	L["Onyxia"]                         = "Логово Ониксии"
+	L["Magtheridon"]                    = "Логовора Магтеридона"
+	L["SSC"]                            = "Змеиное Святилище"
+	L["TK"]                             = "Крепость Бурь"
+	L["Gruul"]                          = "Логово Груула"
+	L["Hyjal"]                          = "Вершина Хиджала"
+	L["SWP"]                            = "Плато Солнечного колодца"
+	L["BT"]                             = "Черный храм"
+	L["Karazhan"]                       = "Каражан"
+	
+	--availability (Data.lua)
+	L['Not Available']                  = 'Недоступен'
+	L['Morning']                        = 'Утро'
+	L['Afternoon']                      = 'После полудня'
+	L['Evening']                        = 'Вечер'
+	
+	--world events
+	L["DARKMOON_FAIRE"]                 = "Ярмарка Новолуния"
+	L["DMF display"]                    = '|cffffffffЯрмарка Новолуния - ' --this is needed for the calendar
+	L["LOVE IS IN THE AIR"]             = "Любовная лихорадка"
+	L["CHILDRENS_WEEK"]                 = "Детская неделя"             
+	L["MIDSUMMER_FIRE_FESTIVAL"]        = "Огненный солнцеворот"
+	L["HARVEST_FESTIVAL"]               = "Неделя урожая"
+	L["HALLOWS_END"]                    = "Тыквовин"
+	L["FEAST_OF_WINTER_VEIL"]           = "Праздник Зимнего покрова"
+	L["BREWFEST"]						= "Хмельной фестиваль"
+	
+
+
+
+
+
+
+
+
+
+
+
 
 --[[ 
 	chinese
