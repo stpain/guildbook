@@ -166,12 +166,7 @@
         <Size x="25" y="25"/>
         <Layers>
             <Layer level="HIGHLIGHT">
-                <Texture atlas="transmog-frame-pink" setAllPoints="true">
-                    <!-- <Size x="25" y="25"/> -->
-                    <!-- <Anchors>
-                        <Anchor point="CENTER"/>
-                    </Anchors> -->
-                </Texture>
+                <Texture atlas="transmog-frame-pink" setAllPoints="true"/>
             </Layer>
         </Layers>
         <Scripts>
