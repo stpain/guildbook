@@ -169,6 +169,8 @@ L["ROSTER_MY_CHARACTERS"]			= "My characters"
 L["ROSTER_ALL_CLASSES"]				= "All"
 L["ROSTER_ALL_RANKS"]				= "All"
 
+L["ROSTER_VIEW_RECIPES"]			= "Click to view recipes"
+
 L["TRADESKILLS"]					= "Professions"
 L["TRADESKILLS_RECIPES"]			= "Recipes"
 L["TRADESKILLS_REAGENTS"]			= "Reagents"

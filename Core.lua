@@ -191,7 +191,7 @@ function Guildbook:Init()
         GUILDBOOK_GLOBAL['CommsDelay'] = 1.0
     end
     Guildbook.CommsDelaySlider:SetValue(GUILDBOOK_GLOBAL['CommsDelay'])
-
+    self.COMMS_DELAY = GUILDBOOK_GLOBAL['CommsDelay']
 
     if not GUILDBOOK_GLOBAL.config then
         local lowestRank = GuildControlGetRankName(GuildControlGetNumRanks())
@@ -659,7 +659,6 @@ function Guildbook:Load()
     if Guildbook.Data.Profession[prof1] then
         if GUILDBOOK_CHARACTER[prof1] then
             C_Timer.After(18, function()
-                --self:SendTradeskillData(UnitGUID("player"), GUILDBOOK_CHARACTER[prof1], prof1, "GUILD", nil)
                 self:DB_SendCharacterData(UnitGUID("player"), prof1, GUILDBOOK_CHARACTER[prof1], "GUILD", nil, "NORMAL")
                 Guildbook.DEBUG("func", "Load", string.format("send prof recipes for %s", prof1))
             end)
@@ -669,7 +668,6 @@ function Guildbook:Load()
     if Guildbook.Data.Profession[prof2] then
         if GUILDBOOK_CHARACTER[prof2] then
             C_Timer.After(22, function()
-                --self:SendTradeskillData(UnitGUID("player"), GUILDBOOK_CHARACTER[prof2], prof2, "GUILD", nil)
                 self:DB_SendCharacterData(UnitGUID("player"), prof2, GUILDBOOK_CHARACTER[prof2], "GUILD", nil, "NORMAL")
                 Guildbook.DEBUG("func", "Load", string.format("send prof recipes for %s", prof2))
             end)
@@ -2645,11 +2643,25 @@ function Guildbook:DB_RequestCharacterData(guid, key, channel, target, priority)
             key = key,
         }
     }
-    self:Transmit(transmition, channel, target, priority)
+    self:Transmit(transmition, "WHISPER", target, priority)
 end
 
 function Guildbook:DB_OnDataRequest(data, distribution, sender)
+    if not data then
+        return;
+    end
+    if distribution ~= "WHISPER" then
+        return;
+    end
+    if data.type == "DB_GET" then
+        if (type(data.payload.guid) == "string") and (data.payload.guid == UnitGUID("player")) then
+            if GUILDBOOK_CHARACTER and (type(data.payload.key) == "string") and (GUILDBOOK_CHARACTER[data.payload.key]) then
+                self:DB_SendCharacterData(UnitGUID("player"), data.payload.key, GUILDBOOK_CHARACTER[data.payload.key], "WHISPER", sender, "NORMAL")
+            else
 
+            end
+        end
+    end
 end
 
 function Guildbook:DB_SendCharacterData(guid, key, info, channel, target, priority)
@@ -2696,6 +2708,14 @@ function Guildbook:DB_OnDataReceived(data, distribution, sender)
         Guildbook.DEBUG('db_func', 'DB_OnDataReceived', string.format("received data for %s, calling function > RequestTradeskillData", data.payload.key))
         self:RequestTradeskillData()
     end
+
+    C_Timer.After(self.COMMS_DELAY, function()
+        if GuildbookUI.tradeskills.awaitingCharacterRecipes == true then
+            GuildbookTradeskillProfessionListview:LoadCharacterTradeskillRecipes(data.payload.guid, data.payload.key)
+            GuildbookUI.tradeskills.awaitingCharacterRecipes = false;
+        end    
+    end)
+
 end
 
 
@@ -3052,7 +3072,6 @@ function Guildbook:OnTradeSkillsReceived(response, distribution, sender)
             if not character then
                 return
             end
-            local i, j = 0, 0;
             local prof = response.payload.profession
             if not prof then
                 return
@@ -3061,21 +3080,10 @@ function Guildbook:OnTradeSkillsReceived(response, distribution, sender)
                 return
             end
             Guildbook.DEBUG("func", "OnTradeSkillsReceived", string.format("received %s data from %s", prof, sender))
-            if not character[prof] then
-                character[prof] = {}
-                Guildbook.DEBUG("func", "OnTradeSkillsReceived", string.format("created table for %s", prof))
-            end
-            for recipeID, reagents in pairs(response.payload.recipes) do
-                -- local item = Item:CreateFromItemID(recipeID)
-                -- item:ContinueOnItemLoad(function()
-                
-                -- end)
-                if not character[prof][recipeID] then
-                    character[prof][recipeID] = reagents
-                    j = j + 1;
-                end
-                i = i + 1;
-            end
+
+            --set the recipes, changed this to just set what is received to reflect the current recpes
+            character[prof] = response.payload.recipes
+            Guildbook.DEBUG("func", "OnTradeSkillsReceived", string.format("created or reset table for %s", prof))
 
             --character[response.payload.profession] = response.payload.recipes
             GuildbookUI.statusText:SetText(string.format("%s data for [|cffffffff%s|r] sent by %s", prof, character.Name, sender))
@@ -3905,6 +3913,9 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
 
     if data.type == "DB_SET" then
         self:DB_OnDataReceived(data, distribution, sender)
+
+    elseif data.type == "DB_GET" then
+        self:DB_OnDataRequest(data, distribution, sender)
 
     -- tradeskills
     elseif data.type == "TRADESKILLS_REQUEST" then

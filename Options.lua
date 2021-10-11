@@ -246,6 +246,7 @@ function GuildbookOptions_OnLoad(self)
         _G[Guildbook.CommsDelaySlider:GetName()..'Text']:SetText(string.format("%.2f", self:GetValue() + 0.4))
         if GUILDBOOK_GLOBAL then
             GUILDBOOK_GLOBAL['CommsDelay'] = self:GetValue() -- there is a hidden delay in the loading process of character data so this is a slight lie
+            Guildbook.COMMS_DELAY = self:GetValue()
         end
     end)
     Guildbook.CommsDelaySlider.tooltipText = 'Adjust the delay between the comms traffic and the UI refreshing'
