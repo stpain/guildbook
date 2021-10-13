@@ -4110,6 +4110,12 @@ function GuildbookGuildBankMixin:OnLoad()
         f:SetPoint("TOPLEFT", 5, ((i-1)*-30)-2)
         f:SetSize(880, 30)
 
+        f:SetScript("OnMouseDown", function(self)
+            if IsShiftKeyDown() and self.link then
+                HandleModifiedItemClick(self.link)
+            end
+        end)
+
         self.rows[i] = f
     end
 
