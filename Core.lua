@@ -1262,10 +1262,11 @@ function Guildbook:ShareWithPlayer(player, rule)
     local privacyRank = GUILDBOOK_GLOBAL.config.privacy[rule]
     local target = self:GetGuildMemberGUID(player)
     if not target then
-        return
+        return false;
     end
     target = Ambiguate(target, "none")
     local senderRank = GuildControlGetRankName(C_GuildInfo.GetGuildRankOrder(target))
+    ---lower ranks are actually higher in the guild as the GM starts at rank 1 numerically, so check if the sender is of a lower numerical rank (they are higher in the guild) than the rule
     if ranks[senderRank] and ranks[privacyRank] and (ranks[senderRank] <= ranks[privacyRank]) then
         return true;
     end
@@ -2444,6 +2445,7 @@ function Guildbook:GetCharacterInventory()
 end
 
 function Guildbook:GetGuildMemberGUID(player)
+    GuildRoster()
     local guildName = Guildbook:GetGuildName()
     if guildName then
         local totalMembers, _, _ = GetNumGuildMembers()
@@ -2548,6 +2550,7 @@ function Guildbook:Transmit(data, channel, target, priority)
                 else
                     Guildbook.DEBUG('error', 'SendCommMessage_TargetOffline', string.format("type: %s, channel: %s target: %s, prio: %s", data.type or 'nil', channel, (target or 'nil'), priority))
                 end
+                return; --no need to keep checking the roster at this point
             end
         end
     else
@@ -2643,7 +2646,10 @@ function Guildbook:DB_RequestCharacterData(guid, key, channel, target, priority)
             key = key,
         }
     }
-    self:Transmit(transmition, "WHISPER", target, priority)
+    if type(channel) ~= "string" then
+        channel = "WHISPER";
+    end
+    self:Transmit(transmition, channel, target, priority)
 end
 
 function Guildbook:DB_OnDataRequest(data, distribution, sender)
