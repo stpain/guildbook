@@ -23,7 +23,9 @@ function GuildbookDebuggerListviewItemTemplateMixin:Init(elementData)
         GameTooltip:SetOwner(self, 'ANCHOR_LEFT', -20, 0)
         if elementData.tooltipTable then
             for k, v in pairs(elementData.tooltipTable) do
-                if type(v) == "table" then
+                if type(v) ~= "table" then
+                    GameTooltip:AddDoubleLine("> "..k, v)
+                else
                     for a, b in pairs(v) do
                         GameTooltip:AddDoubleLine("> "..a, b)
                         if type(b) == "table" then

@@ -1893,7 +1893,7 @@ function GuildbookRosterMixin:RowOpenProfile_OnMouseDown(row)
         if row.guid == UnitGUID("player") then
             self:GetParent().profiles:LoadCharacter("player")
         else
-            self:GetParent().profiles:LoadCharacter()
+            self:GetParent().profiles:LoadCharacter(row.guid)
         end
     end
 
@@ -2824,25 +2824,25 @@ function GuildbookProfilesMixin:LoadCharacter(player)
     self:HideTalentIcons()
     self:HideProfile()
     if self.character then
-        if not player then
+        if player and player:find("Player-") then
             self:GetParent().statusBar:SetValue(0)
             self:GetParent().statusBar.duration = gb.COMMS_DELAY + (transmitStagger * 5)
             self:GetParent().statusBar.endTime = GetTime() + self:GetParent().statusBar.duration
             self:GetParent().statusBar.active = true
 
             self:GetParent().statusText:SetText("requesting profile")
-            gb:SendProfileRequest(self.character.Name)
+            gb:SendProfileRequest(player)
             C_Timer.After(transmitStagger * 1, function()
                 self:GetParent().statusText:SetText("requesting character data")
-                gb:CharacterDataRequest(self.character.Name)
+                gb:CharacterDataRequest(player)
             end)
             C_Timer.After(transmitStagger * 2, function()
                 self:GetParent().statusText:SetText("requesting inventory")
-                gb:SendInventoryRequest(self.character.Name)
+                gb:SendInventoryRequest(player)
             end)
             C_Timer.After(transmitStagger * 3, function()
                 self:GetParent().statusText:SetText("requesting talents")
-                gb:SendTalentInfoRequest(self.character.Name, 'primary')
+                gb:SendTalentInfoRequest(player, 'primary')
             end)
             -- C_Timer.After(transmitStagger * 4, function()
             --     if self.character.Profession1 then
@@ -3500,7 +3500,7 @@ function GuildbookSearchMixin:Search(term)
                 func = function()
                     GuildbookUI.profiles.character = character;
                     --navigateTo(GuildbookUI.profiles)
-                    GuildbookUI.profiles:LoadCharacter()
+                    GuildbookUI.profiles:LoadCharacter(guid)
                 end,
             })
         end
@@ -4172,15 +4172,16 @@ function GuildbookGuildBankMixin:RequestBankData()
     for i = 1, totalMembers do
         local name, _, _, _, _, _, publicNote, _, isOnline, _, _, _, _, _, _, _, guid = GetGuildRosterInfo(i)
         if publicNote:lower():find('guildbank') then
-            name = Ambiguate(name, 'none')
-            table.insert(guildBankCharacters, name)
+            table.insert(guildBankCharacters, {
+                name = name,
+                guid = guid,
+            })
             table.insert(self.buttonDropdownMenus.Bank, {
                 text = name,
                 func = function()
                     self.filter = name
                     self.sort = "Bank";
                     self:SortListview()
-
                 end,
             })
         end
@@ -4195,10 +4196,10 @@ function GuildbookGuildBankMixin:RequestBankData()
 
         --remove old banks
         if GUILDBOOK_GLOBAL.GuildBank then
-            for bank, info in pairs(GUILDBOOK_GLOBAL.GuildBank) do
+            for bank, info in pairs(GUILDBOOK_GLOBAL.GuildBank) do --bank should be a guid but some older name keys may still exist
                 local exists = false
                 for _, b in ipairs(guildBankCharacters) do
-                    if b == bank then
+                    if (b.name == bank) or (Ambiguate(b.name, "none") == bank) or (b.guid == bank) then
                         exists = true
                     end
                 end
@@ -4210,14 +4211,14 @@ function GuildbookGuildBankMixin:RequestBankData()
 
         -- fire off the first request
         local bank = guildBankCharacters[1]
-        gb:RequestGuildBankCommits(bank)
-        commitsText = commitsText..L["GUILDBANK_REQUEST_COMMITS"]..bank.."\n"
+        gb:RequestGuildBankCommits(bank.guid)
+        commitsText = commitsText..L["GUILDBANK_REQUEST_COMMITS"]..bank.name.."\n"
         self.listview.commits:SetText(commitsText)
 
         C_Timer.After(1.25, function()
-            if gb.BankCharacters[bank].Source then
-                gb:RequestGuildBankItems(gb.BankCharacters[bank].Source, bank)
-                dataText = dataText..L["GUILDBANK_REQUEST_INFO"]..gb.BankCharacters[bank].Source.." ["..bank.."]\n"
+            if gb.BankCharacters[bank.guid].Source then
+                gb:RequestGuildBankItems(gb.BankCharacters[bank.guid].Source, bank.guid)
+                dataText = dataText..L["GUILDBANK_REQUEST_INFO"]..gb.BankCharacters[bank.guid].Source.." ["..bank.name.."]\n"
                 self.listview.data:SetText(dataText)
             end
         end)
@@ -4229,14 +4230,14 @@ function GuildbookGuildBankMixin:RequestBankData()
                     local bank = guildBankCharacters[idx]
 
                     gb.BankRequests = {}
-                    gb:RequestGuildBankCommits(bank)
-                    commitsText = commitsText..L["GUILDBANK_REQUEST_COMMITS"]..bank.."\n"
+                    gb:RequestGuildBankCommits(bank.guid)
+                    commitsText = commitsText..L["GUILDBANK_REQUEST_COMMITS"]..bank.name.."\n"
                     self.listview.commits:SetText(commitsText)
 
                     C_Timer.After(1.25, function()
-                        if gb.BankCharacters[bank].Source then
-                            gb:RequestGuildBankItems(gb.BankCharacters[bank].Source, bank)
-                            dataText = dataText..L["GUILDBANK_REQUEST_INFO"]..gb.BankCharacters[bank].Source.." ["..bank.."]\n"
+                        if gb.BankCharacters[bank.guid].Source then
+                            gb:RequestGuildBankItems(gb.BankCharacters[bank.guid].Source, bank.guid)
+                            dataText = dataText..L["GUILDBANK_REQUEST_INFO"]..gb.BankCharacters[bank.guid].Source.." ["..bank.name.."]\n"
                             self.listview.data:SetText(dataText)
                         end
                     end)

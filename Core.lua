@@ -685,7 +685,7 @@ function Guildbook:Load()
     self.GUILD_NAME = self:GetGuildName()
 
 
-    GUILDBOOK_GLOBAL.guildBankRemoved = nil
+    --GUILDBOOK_GLOBAL.guildBankRemoved = nil
 
     -- quick clean up
     if GUILDBOOK_TSDB and GUILDBOOK_TSDB.enchantItems then
@@ -1081,7 +1081,7 @@ function Guildbook:GetCharacterInfo(guid, key)
 end
 
 ---sends all character data to the target player (inventory, profile, talents and privacy) using a 3 second stagger
----@param player string character to send data to
+---@param player string character guid to send data to
 ---@param mod number a stagger modifier, if nil defaults as 1
 function Guildbook:SendMyCharacterData_Staggered(player, mod)
     if not mod then 
@@ -1108,7 +1108,7 @@ end
 
 local playersUpdated = {}
 ---sends my character data to target player, has a 30 second comm lock if already sent - doesnt send tradeskill recipes
----@param player any
+---@param player string the players guid
 function Guildbook:UpdatePlayer(player)
     if not player then
         return
@@ -1260,12 +1260,11 @@ function Guildbook:ShareWithPlayer(player, rule)
         ranks[GuildControlGetRankName(i)] = i;
     end
     local privacyRank = GUILDBOOK_GLOBAL.config.privacy[rule]
-    local target = self:GetGuildMemberGUID(player)
-    if not target then
+    local targetGUID = self:GetGuildMemberGUID(player)
+    if not targetGUID then
         return false;
     end
-    target = Ambiguate(target, "none")
-    local senderRank = GuildControlGetRankName(C_GuildInfo.GetGuildRankOrder(target))
+    local senderRank = GuildControlGetRankName(C_GuildInfo.GetGuildRankOrder(targetGUID))
     ---lower ranks are actually higher in the guild as the GM starts at rank 1 numerically, so check if the sender is of a lower numerical rank (they are higher in the guild) than the rule
     if ranks[senderRank] and ranks[privacyRank] and (ranks[senderRank] <= ranks[privacyRank]) then
         return true;
@@ -1304,14 +1303,14 @@ end
 --- creates a table in the character saved vars with scan time so we can check which data is newest
 function Guildbook:ScanPlayerContainers()
     --if BankFrame:IsVisible() then
-        local name = Ambiguate(UnitName("player"), 'none')
+        local guid = UnitGUID("player")
 
         local copper = GetMoney()
 
         if not GUILDBOOK_GLOBAL["GuildBank"] then
             GUILDBOOK_GLOBAL["GuildBank"] = {}
         end
-        GUILDBOOK_GLOBAL["GuildBank"][name] = {
+        GUILDBOOK_GLOBAL["GuildBank"][guid] = {
             Commit = GetServerTime(),
             Data = {},
             Money = copper,
@@ -1322,10 +1321,10 @@ function Guildbook:ScanPlayerContainers()
             for slot = 1, GetContainerNumSlots(bag) do
                 local _, count, _, _, _, _, link, _, _, id = GetContainerItemInfo(bag, slot)
                 if id and count then
-                    if not GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] then
-                        GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = count
+                    if not GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] then
+                        GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] = count
                     else
-                        GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] + count
+                        GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] = GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] + count
                     end
                 end
             end
@@ -1335,10 +1334,10 @@ function Guildbook:ScanPlayerContainers()
         for slot = 1, 28 do
             local _, count, _, _, _, _, link, _, _, id = GetContainerItemInfo(-1, slot)
             if id and count then
-                if not GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] then
-                    GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = count
+                if not GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] then
+                    GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] = count
                 else
-                    GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] + count
+                    GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] = GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] + count
                 end
             end
         end
@@ -1348,10 +1347,10 @@ function Guildbook:ScanPlayerContainers()
             for slot = 1, GetContainerNumSlots(bag) do
                 local _, count, _, _, _, _, link, _, _, id = GetContainerItemInfo(bag, slot)
                 if id and count then
-                    if not GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] then
-                        GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = count
+                    if not GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] then
+                        GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] = count
                     else
-                        GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] = GUILDBOOK_GLOBAL["GuildBank"][name].Data[id] + count
+                        GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] = GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] + count
                     end
                 end
             end
@@ -1360,10 +1359,10 @@ function Guildbook:ScanPlayerContainers()
         local bankUpdate = {
             type = 'GUILD_BANK_DATA_RESPONSE',
             payload = {
-                Data = GUILDBOOK_GLOBAL["GuildBank"][name].Data,
-                Commit = GUILDBOOK_GLOBAL["GuildBank"][name].Commit,
-                Money = GUILDBOOK_GLOBAL["GuildBank"][name].Money,
-                Bank = name,
+                Data = GUILDBOOK_GLOBAL["GuildBank"][guid].Data,
+                Commit = GUILDBOOK_GLOBAL["GuildBank"][guid].Commit,
+                Money = GUILDBOOK_GLOBAL["GuildBank"][guid].Money,
+                Bank = guid,
             }
         }
         self:Transmit(bankUpdate, 'GUILD', nil, 'BULK')
@@ -2153,7 +2152,7 @@ function Guildbook:ScanGuildRoster(callback)
         GUILDBOOK_GLOBAL['RosterExcel'] = {}
         for i = 1, totalMembers do
             --local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, guid = GetGuildRosterInfo(i)
-            local name, rankName, _, level, class, zone, publicNote, officerNote, isOnline, _, _, _, _, _, _, _, guid = GetGuildRosterInfo(i)
+            local name, rankName, _, level, class, zone, publicNote, officerNote, isOnline, _, _, achievementPoints, _, _, _, _, guid = GetGuildRosterInfo(i)
             name = Ambiguate(name, 'none')
             if not GUILDBOOK_GLOBAL.GuildRosterCache[guild][guid] then
                 GUILDBOOK_GLOBAL.GuildRosterCache[guild][guid] = {
@@ -2180,7 +2179,7 @@ function Guildbook:ScanGuildRoster(callback)
                 };
                 table.insert(newGUIDs, guid)
             end
-            currentGUIDs[i] = { GUID = guid, lvl = level, exists = true, online = isOnline, rank = rankName, pubNote = publicNote, offNote = officerNote}
+            currentGUIDs[i] = { name = name, GUID = guid, lvl = level, exists = true, online = isOnline, rank = rankName, pubNote = publicNote, offNote = officerNote}
             memberGUIDs[guid] = true;
             self.onlineZoneInfo[guid] = {
                 online = isOnline,
@@ -2224,6 +2223,13 @@ function Guildbook:ScanGuildRoster(callback)
                         info.Gender = sex;
                         info.Class = class;
                         info.Name = Ambiguate(name, 'none');
+
+                        --for connected realms we need the full name
+                        if realm == "" then
+                            realm = GetNormalizedRealmName()
+                        end
+                        info.FullName = string.format("%s-%s", name, realm)
+                        
                         info.PublicNote = currentGUIDs[i].pubNote;
                         info.OfficerNote = currentGUIDs[i].offNote;
                         info.RankName = currentGUIDs[i].rank;
@@ -2259,32 +2265,33 @@ function Guildbook:ScanGuildRoster(callback)
                         -- info.Prof1Level = nil
                         -- info.Prof2Level = nil
 
-                        for _, prof in ipairs(Guildbook.Data.Professions) do
-                            if info[prof.Name] then
-                                --Guildbook.DEBUG("func", "ScanGuildRoster", string.format("found %s in %s db", prof.Name, info.Name))
-                                local exists = false;
-                                if info.Profession1 == prof.Name then
-                                    exists = true;
-                                end
-                                if info.Profession2 == prof.Name then
-                                    exists = true;
-                                end
-                                if exists == false then
-                                    if info.Profession1 == "-" then
-                                        info.Profession1 = prof.Name
-                                        Guildbook.DEBUG("func", "ScanGuildRoster", string.format("set %s profession1 as %s because it was blank", info.Name, prof.Name))
-                                    else
-                                        if info.Profession2 == "-" then
-                                            info.Profession2 = prof.Name
-                                            Guildbook.DEBUG("func", "ScanGuildRoster", string.format("set %s profession2 as %s because it was blank", info.Name, prof.Name))
-                                        else
-                                            info[prof.Name] = nil
-                                            Guildbook.DEBUG("func", "ScanGuildRoster", string.format("|cffC41F3Bremoved|r %s from %s", prof.Name, info.Name))
-                                        end
-                                    end
-                                end
-                            end
-                        end
+                        --this was intended to update prof if a player changes but didnt work as intended
+                        -- for _, prof in ipairs(Guildbook.Data.Professions) do
+                        --     if info[prof.Name] then
+                        --         --Guildbook.DEBUG("func", "ScanGuildRoster", string.format("found %s in %s db", prof.Name, info.Name))
+                        --         local exists = false;
+                        --         if info.Profession1 == prof.Name then
+                        --             exists = true;
+                        --         end
+                        --         if info.Profession2 == prof.Name then
+                        --             exists = true;
+                        --         end
+                        --         if exists == false then
+                        --             if info.Profession1 == "-" then
+                        --                 info.Profession1 = prof.Name
+                        --                 Guildbook.DEBUG("func", "ScanGuildRoster", string.format("set %s profession1 as %s because it was blank", info.Name, prof.Name))
+                        --             else
+                        --                 if info.Profession2 == "-" then
+                        --                     info.Profession2 = prof.Name
+                        --                     Guildbook.DEBUG("func", "ScanGuildRoster", string.format("set %s profession2 as %s because it was blank", info.Name, prof.Name))
+                        --                 else
+                        --                     info[prof.Name] = nil
+                        --                     Guildbook.DEBUG("func", "ScanGuildRoster", string.format("|cffC41F3Bremoved|r %s from %s", prof.Name, info.Name))
+                        --                 end
+                        --             end
+                        --         end
+                        --     end
+                        -- end
 
                         if info.MainCharacter then
                             info.Alts = {}
@@ -2320,6 +2327,8 @@ function Guildbook:ScanGuildRoster(callback)
                         GuildbookUI.roster:ParseGuildRoster()
                     end
                 end)
+
+                --this is to continue loading the addon it only happens during the loading sequence
                 if callback then
                     callback()
                 end
@@ -2328,19 +2337,6 @@ function Guildbook:ScanGuildRoster(callback)
 
     end
 end
-
-
-function Guildbook:RequestOnlineMembersProfessionData(onlineMembers)
-    if not onlineMembers then
-        return
-    end
-    if type(onlineMembers) ~= "table" then
-        return
-    end
-    local numOnline = #onlineMembers
-
-end
-
 
 
 
@@ -2451,7 +2447,7 @@ function Guildbook:GetGuildMemberGUID(player)
         local totalMembers, _, _ = GetNumGuildMembers()
         for i = 1, totalMembers do
             local name, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, GUID = GetGuildRosterInfo(i)
-            if Ambiguate(name, "none") == Ambiguate(player, "none") then
+            if name == player then
                 return GUID;
             end
         end
@@ -2503,7 +2499,24 @@ end
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- comms
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-function Guildbook:Transmit(data, channel, target, priority)
+--[[
+    changes 4.98
+
+    to make the adon work for connected realms this function was changed to take a targetGUID instead of a target name
+    using a guid we can fetch the character info from the addons guild roster cache
+    this info will contain name, realm and fullName fields which can be used to send the message
+
+    functions that call Guildbook:Transmit will need to be adjusted to pass in the targetGUID
+    no errors will be thrown as the function will check for a valid character from the cache before attempting to send
+    this change only effects calls that use the WHISPER channel any calls using the GUILD channel will be uneffected
+]]
+
+---send an addon message through the aceComm lib
+---@param data table the data to send including a comm type
+---@param channel string the addon channel to use for the comm
+---@param targetGUID string the targets GUID, this is used to make comms work on conneted realms - only required for WHISPER comms
+---@param priority string the prio to use
+function Guildbook:Transmit(data, channel, targetGUID, priority)
     local inInstance, instanceType = IsInInstance()
     if instanceType ~= "none" then
         if GUILDBOOK_GLOBAL.config and (GUILDBOOK_GLOBAL.config.blockCommsDuringInstance == true) then
@@ -2528,39 +2541,42 @@ function Guildbook:Transmit(data, channel, target, priority)
 
     -- clean up the target name when using a whisper
     if channel == 'WHISPER' then
-        target = Ambiguate(target, 'none')
-    end
 
-    -- only send to online players, this was to reduce/remove chat spam, its not 100% efficient but knowing who is online is a grey area
-    if target ~= nil then
-        local totalMembers, _, _ = GetNumGuildMembers()
-        for i = 1, totalMembers do
-            local name, _, _, _, _, _, _, _, isOnline = GetGuildRosterInfo(i)
-            name = Ambiguate(name, "none")
-            if name == target then
-                if isOnline == true then
-                    local serialized = LibSerialize:Serialize(data);
-                    local compressed = LibDeflate:CompressDeflate(serialized);
-                    local encoded    = LibDeflate:EncodeForWoWAddonChannel(compressed);
-                
-                    if addonName and encoded and channel and priority then
-                        Guildbook.DEBUG('comms_out', 'SendCommMessage_TargetOnline', string.format("type: %s, channel: %s target: %s, prio: %s", data.type or 'nil', channel, (target or 'nil'), priority))
-                        self:SendCommMessage(addonName, encoded, channel, target, priority)
+        --find character first before looping roster
+        local character = self:GetCharacterFromCache(targetGUID)
+        if type(character) == "table" and character.FullName then
+            local target = character.FullName;
+
+            local totalMembers, _, _ = GetNumGuildMembers()
+            for i = 1, totalMembers do
+                local name, rankName, _, _, _, _, _, _, isOnline, _, _, _, _, _, _, _, guid = GetGuildRosterInfo(i)
+
+                if guid == targetGUID then
+                    if isOnline == true then
+                        local serialized = LibSerialize:Serialize(data);
+                        local compressed = LibDeflate:CompressDeflate(serialized);
+                        local encoded    = LibDeflate:EncodeForWoWAddonChannel(compressed);
+                    
+                        if addonName and encoded and channel and priority then
+                            Guildbook.DEBUG('comms_out', 'SendCommMessage_TargetOnline', string.format("type: %s, channel: %s target: %s, prio: %s", data.type or 'nil', channel, (target or 'nil'), priority), data)
+                            self:SendCommMessage(addonName, encoded, channel, target, priority)
+                        end
+                    else
+                        Guildbook.DEBUG('error', 'SendCommMessage_TargetOffline', string.format("type: %s, channel: %s target: %s, prio: %s", data.type or 'nil', channel, (target or 'nil'), priority))
                     end
-                else
-                    Guildbook.DEBUG('error', 'SendCommMessage_TargetOffline', string.format("type: %s, channel: %s target: %s, prio: %s", data.type or 'nil', channel, (target or 'nil'), priority))
+                    return; --no need to keep checking the roster at this point
                 end
-                return; --no need to keep checking the roster at this point
             end
         end
-    else
+
+    elseif channel == "GUILD" then
         local serialized = LibSerialize:Serialize(data);
         local compressed = LibDeflate:CompressDeflate(serialized);
         local encoded    = LibDeflate:EncodeForWoWAddonChannel(compressed);
     
         if addonName and encoded and channel and priority then
-            Guildbook.DEBUG('comms_out', 'SendCommMessage_NoTarget', string.format("type: %s, channel: %s target: %s, prio: %s", data.type or 'nil', channel, (target or 'nil'), priority))
-            self:SendCommMessage(addonName, encoded, channel, target, priority)
+            Guildbook.DEBUG('comms_out', 'SendCommMessage_NoTarget', string.format("type: %s, channel: %s target: %s, prio: %s", data.type or 'nil', channel, 'nil', priority))
+            self:SendCommMessage(addonName, encoded, channel, nil, priority)
         end
     end
 
@@ -2616,7 +2632,7 @@ function Guildbook:OnVersionInfoRecieved(data, distribution, sender)
 
     -- revision 1 is to simpy reduce the wait to 5s as the update func has a built in 30s comm lock for alt switchers etc
     C_Timer.After(5, function()
-        self:UpdatePlayer(sender)
+        self:UpdatePlayer(data.senderGUID)
     end)
 end
 
@@ -2649,7 +2665,7 @@ function Guildbook:DB_RequestCharacterData(guid, key, channel, target, priority)
     if type(channel) ~= "string" then
         channel = "WHISPER";
     end
-    self:Transmit(transmition, channel, target, priority)
+    self:Transmit(transmition, channel, guid, priority)
 end
 
 function Guildbook:DB_OnDataRequest(data, distribution, sender)
@@ -2662,7 +2678,7 @@ function Guildbook:DB_OnDataRequest(data, distribution, sender)
     if data.type == "DB_GET" then
         if (type(data.payload.guid) == "string") and (data.payload.guid == UnitGUID("player")) then
             if GUILDBOOK_CHARACTER and (type(data.payload.key) == "string") and (GUILDBOOK_CHARACTER[data.payload.key]) then
-                self:DB_SendCharacterData(UnitGUID("player"), data.payload.key, GUILDBOOK_CHARACTER[data.payload.key], "WHISPER", sender, "NORMAL")
+                self:DB_SendCharacterData(UnitGUID("player"), data.payload.key, GUILDBOOK_CHARACTER[data.payload.key], "WHISPER", data.senderGUID, "NORMAL")
             else
 
             end
@@ -2730,6 +2746,10 @@ end
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 local lastPrivacyTransmit = -1000
 local privacyTransmitQueued = false
+
+---comment
+---@param target string targets guid
+---@param channel any
 function Guildbook:SendPrivacyInfo(target, channel)
     if not GUILDBOOK_GLOBAL.config and not GUILDBOOK_GLOBAL.config.privacy then
         return;
@@ -2866,7 +2886,7 @@ function Guildbook:OnProfileRequest(request, distribution, sender)
     if distribution ~= "WHISPER" then
         return
     end
-    self:SendProfileInfo(sender, "WHISPER")
+    self:SendProfileInfo(request.senderGUID, "WHISPER")
 end
 
 function Guildbook:OnProfileReponse(response, distribution, sender)
@@ -2925,7 +2945,7 @@ function Guildbook:OnTalentInfoRequest(request, distribution, sender)
     if distribution ~= "WHISPER" then
         return
     end
-    self:SendTalentInfo(sender, "WHISPER")
+    self:SendTalentInfo(request.senderGUID, "WHISPER")
 end
 
 function Guildbook:OnTalentInfoReceived(response, distribution, sender)
@@ -2986,7 +3006,7 @@ function Guildbook:OnCharacterInventoryRequest(data, distribution, sender)
     if distribution ~= 'WHISPER' then
         return
     end
-    self:SendInventoryInfo(sender, "WHISPER")
+    self:SendInventoryInfo(data.senderGUID, "WHISPER")
 end
 
 
@@ -3142,7 +3162,7 @@ function Guildbook:OnCharacterDataRequested(request, distribution, sender)
     if distribution ~= 'WHISPER' then
         return
     end
-    self:SendCharacterData(sender, "WHISPER")
+    self:SendCharacterData(request.senderGUID, "WHISPER")
 end
 
 function Guildbook:OnCharacterDataReceived(data, distribution, sender)
@@ -3193,30 +3213,34 @@ Guildbook.BankRequests = {}
 -- update for new guild bank ui
 -- send request for each character > add character to table as normal
 
-function Guildbook:RequestGuildBankCommits(character)
-    self.BankCharacters[character] = {}
-    local request = {
-        type = 'GUILD_BANK_COMMIT_REQUEST',
-        payload = character,
-    }
-    Guildbook.DEBUG("func", "RequestGuildBankCommits", string.format("request guild bank commits for %s", character))
-    self:Transmit(request, 'GUILD', nil, 'NORMAL')
+function Guildbook:RequestGuildBankCommits(charactersGUID)
+    self.BankCharacters[charactersGUID] = {}
+    local character = self:GetCharacterFromCache(charactersGUID)
+    if character then
+        local request = {
+            type = 'GUILD_BANK_COMMIT_REQUEST',
+            bankCharactersGUID = charactersGUID,
+            bankCharactersName = character.Name,
+        }
+        Guildbook.DEBUG("func", "RequestGuildBankCommits", string.format("request guild bank commits for %s", character.Name))
+        self:Transmit(request, 'GUILD', nil, 'NORMAL')
+    end
 end
 
 
 -- this will still work as its just checking the saved var data for a bank character commit
 function Guildbook:OnGuildBankCommitRequested(data, distribution, sender)
     if distribution == 'GUILD' then
-        if GUILDBOOK_GLOBAL["GuildBank"] and GUILDBOOK_GLOBAL["GuildBank"][data.payload] and GUILDBOOK_GLOBAL["GuildBank"][data.payload].Commit then
+        if GUILDBOOK_GLOBAL["GuildBank"] and GUILDBOOK_GLOBAL["GuildBank"][data.bankCharactersGUID] and GUILDBOOK_GLOBAL["GuildBank"][data.bankCharactersGUID].Commit then
             local response = {
                 type = 'GUILD_BANK_COMMIT_RESPONSE',
                 payload = { 
-                    Commit = GUILDBOOK_GLOBAL["GuildBank"][data.payload].Commit,
-                    Character = data.payload
+                    Commit = GUILDBOOK_GLOBAL["GuildBank"][data.bankCharactersGUID].Commit,
+                    CharacterGUID = data.bankCharactersGUID
                 }
             }
-            Guildbook.DEBUG('comms_out', 'OnGuildBankCommitRequested', string.format("%s has requested guild bank commits for %s", sender, data.payload))
-            self:Transmit(response, 'WHISPER', sender, 'NORMAL')
+            Guildbook.DEBUG('comms_out', 'OnGuildBankCommitRequested', string.format("%s has requested guild bank commits for %s", sender, data.bankCharactersName))
+            self:Transmit(response, 'WHISPER', data.senderGUID, 'NORMAL')
         end
     end
 end
@@ -3227,14 +3251,21 @@ function Guildbook:OnGuildBankCommitReceived(data, distribution, sender)
     if distribution == 'WHISPER' then
         lastCommitResponse = GetTime()
         Guildbook.DEBUG("func", "OnGuildBankCommitReceived", string.format("sender: %s commit time: %s", sender, data.payload.Commit))
-        if not self.BankCharacters[data.payload.Character].Commit then
-            self.BankCharacters[data.payload.Character].Commit = data.payload.Commit;
-            self.BankCharacters[data.payload.Character].Source = sender;
+
+        --data.payload.CharacterGUID is the actual bank character
+        --data.senderGUID is the player with the latest commit for the bank character
+
+        ---if we have no data for this characterGUID then just save the commit
+        if not self.BankCharacters[data.payload.CharacterGUID].Commit then
+            self.BankCharacters[data.payload.CharacterGUID].Commit = data.payload.Commit;
+            self.BankCharacters[data.payload.CharacterGUID].Source = data.senderGUID;
             Guildbook.DEBUG("func", "OnGuildBankCommitReceived", string.format("%s has latest commit time", sender))
+
+        ---if we do have data we want to check if this commit is newer and if so then save it
         else
-            if tonumber(data.payload.Commit) > tonumber(self.BankCharacters[data.payload.Character].Commit) then
-                self.BankCharacters[data.payload.Character].Commit = data.payload.Commit;
-                self.BankCharacters[data.payload.Character].Source = sender;
+            if tonumber(data.payload.Commit) > tonumber(self.BankCharacters[data.payload.CharacterGUID].Commit) then
+                self.BankCharacters[data.payload.CharacterGUID].Commit = data.payload.Commit;
+                self.BankCharacters[data.payload.CharacterGUID].Source = data.senderGUID;
                 Guildbook.DEBUG("func", "OnGuildBankCommitReceived", string.format("%s has latest commit time", sender))
             end
         end
@@ -3269,7 +3300,7 @@ function Guildbook:OnGuildBankDataRequested(data, distribution, sender)
                 Bank = data.payload,
             }
         }
-        self:Transmit(response, 'WHISPER', sender, 'BULK')
+        self:Transmit(response, 'WHISPER', data.senderGUID, 'BULK')
         Guildbook.DEBUG('comms_out', 'OnGuildBankDataRequested', string.format('%s has requested bank data, sending data for bank character %s', sender, data.payload))
     end
 end
@@ -3908,12 +3939,6 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
     if data.version and data.version == self.version then
         --return;
     end
-
-    -- this is a little plaster while we move into the newer comms
-    -- its not great as it loops the roster each call but allows for older versions to still work
-    -- if not data.senderGUID then
-    --     data.senderGUID = self:GetGuildMemberGUID(sender)
-    -- end
 
     Guildbook.DEBUG('comms_in', string.format("ON_COMMS_RECEIVED <%s>", distribution), string.format("%s from %s", data.type, sender), data)
 
