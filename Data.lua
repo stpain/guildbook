@@ -921,7 +921,9 @@ Guildbook.Data.InventorySlotNames = {
     { Name = 'TRINKET0SLOT'},
     { Name = 'TRINKET1SLOT'},
 
+    { Name = 'MAINHANDSLOT'},
     { Name = 'SECONDARYHANDSLOT'},
+    { Name = 'RANGEDSLOT'},
 }
 
 Guildbook.Data.ProfessionDescriptions = {

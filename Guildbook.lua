@@ -3258,7 +3258,7 @@ function GuildbookProfilesMixin:CreateTalentUI()
                 f:SetPoint('TOPLEFT', 3+((colPoints[col] * 0.83) + ((spec - 1) * 217)), ((rowPoints[row] * 0.83) * -1) - 34)
 
                 -- background texture inc border
-                f.border = f:CreateTexture('$parentborder', 'BORDER')
+                f.border = f:CreateTexture('$parentBorder', 'BORDER')
                 f.border:SetPoint('TOPLEFT', -7, 7)
                 f.border:SetPoint('BOTTOMRIGHT', 7, -7)
                 f.border:SetAtlas("orderhalltalents-spellborder")
@@ -3278,6 +3278,7 @@ function GuildbookProfilesMixin:CreateTalentUI()
                     if self.link then
                         GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
                         GameTooltip:SetHyperlink(self.link)
+                        --GameTooltip:SetTalent(spec, 3)
                         GameTooltip:Show()
                     elseif self.name then
                         GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
@@ -3311,6 +3312,7 @@ function GuildbookProfilesMixin:HideTalentIcons()
         for col = 1, 4 do
             for row = 1, self.NUM_TALENT_ROWS do
                 self.contentPane.scrollChild.talents.talentTree[tab][row][col]:Hide()
+                self.contentPane.scrollChild.talents.talentTree[tab][row][col].TalentIndex = nil;
             end
         end
     end
@@ -3341,6 +3343,8 @@ function GuildbookProfilesMixin:LoadTalents(spec)
                     self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].Points:Show()
                     self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].pointsBackground:Show()
 
+                    self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].TalentIndex = info.Index
+
                     if info.Rank > 0 then
                         self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].Icon:SetDesaturated(false)
                         if info.Rank < info.MxRnk then
@@ -3369,6 +3373,29 @@ function GuildbookProfilesMixin:LoadTalents(spec)
             self.contentPane.scrollChild.talents.tree3:SetAlpha(0.6)
 
         end
+
+        -- local classId;
+        -- for i = 1, GetNumClasses() do
+        --     local className, classFile, classID = GetClassInfo(i)
+        --     if className and (classFile:lower() == self.character.Class:lower()) then
+        --         classId = classID;
+        --     end
+        -- end
+
+        -- for spec = 1, 3 do
+        --     for row = 1, self.NUM_TALENT_ROWS do
+        --         for col = 1, 4 do
+        --             local talent = self.contentPane.scrollChild.talents.talentTree[spec][row][col]
+        --             if talent.TalentIndex then
+        --                 talent:SetScript("OnEnter", function(self, classId)
+        --                     GameTooltip:SetOwner(talent, 'ANCHOR_RIGHT')
+        --                     GameTooltip:SetTalent(spec, talent.TalentIndex, true, classId)
+        --                     GameTooltip:Show()
+        --                 end)
+        --             end
+        --         end
+        --     end
+        -- end
     end
 end
 

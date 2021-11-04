@@ -2368,6 +2368,7 @@ function Guildbook:GetCharacterTalentInfo(activeTalents)
                     MxRnk = maxRank,
                     Icon = iconTexture,
                     Name = name,
+                    Index = talentIndex,
                     Link = GetTalentLink(tabIndex, talentIndex),
                 })
             end
@@ -2481,6 +2482,198 @@ end
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+local Character = {}
+Character.InventorySlots = {
+    "HEADSLOT",
+    "NECKSLOT",
+    "SHOULDERSLOT",
+    "BACKSLOT",
+    "CHESTSLOT",
+    "SHIRTSLOT",
+    "TABARDSLOT",
+    "WRISTSLOT",
+    "MAINHANDSLOT",
+    "RANGEDSLOT",
+    "HANDSSLOT",
+    "WAISTSLOT",
+    "LEGSSLOT",
+    "FEETSLOT",
+    "FINGER0SLOT",
+    "FINGER1SLOT",
+    "TRINKET0SLOT",
+    "TRINKET1SLOT",
+    "MAINHANDSLOT",
+    "SECONDARYHANDSLOT",
+    "RANGEDSLOT",
+}
+Character.TradeskillSpecSpells = {
+    --Alchemy:
+    [28672] = 171,
+    [28677] = 171,
+    [28675] = 171,
+    --Engineering:
+    [20222] = 202,
+    [20219] = 202,
+    --Tailoring:
+    [26798] = 197,
+    [26797] = 197,
+    [26801] = 197,
+    --Blacksmithing:
+    [9788] = 164,
+    [17039] = 164,
+    [17040] = 164,
+    [17041] = 164,
+    [9787] = 164,
+    --Leatherworking:
+    [10656] = 165,
+    [10658] = 165,
+    [10660] = 165,
+}
+
+---scan the character paperdoll sheet for their inventory
+---@param setName string the name to identify this gear set
+function Character:GetInventory(setName)
+    local t = {}
+    for _, slot in ipairs(self.InventorySlots) do
+        local link = GetInventoryItemLink('player', GetInventorySlotInfo(slot)) or false;
+        if link ~= nil then
+            t[slot] = link;
+        end
+    end
+    return t;
+end
+
+---returns the characters ilvl for their current gear
+---@return number itemLevel gear ilvl
+function Character:GetItemLevel()
+    local itemLevel, itemCount = 0, 0
+	for _, slot in ipairs(self.InventorySlots) do
+		local link = GetInventoryItemLink('player', GetInventorySlotInfo(slot))
+		if link then
+			local _, _, _, ilvl = GetItemInfo(link)
+            if not ilvl then ilvl = 0 end
+			itemLevel = itemLevel + ilvl;
+			itemCount = itemCount + 1;
+		end
+    end
+    -- due to an error with LibSerialize which is now fixed we make sure we return a number
+    if math.floor(itemLevel/itemCount) > 0 then
+        return math.floor(itemLevel/itemCount)
+    else
+        return 0
+    end
+end
+
+---return 2 tables about the characters talents
+---@return table tabs info about each talent tab `.points = points spent in tab .spec = the english spec name .texture = filePath `
+---@return table talents an ipairs table of each talent, its row/column/rank/icon/name/link/index
+function Character:GetTalentInfo()
+    local tabs, talents = {}, {}
+    for tabIndex = 1, GetNumTalentTabs() do
+        local _, texture, pointsSpent, fileName = GetTalentTabInfo(tabIndex)
+        local engSpec = Guildbook.Data.TalentBackgroundToSpec[fileName]
+        table.insert(tabs, {
+            points = pointsSpent, 
+            spec = engSpec,
+            texture = fileName,
+        });
+        for talentIndex = 1, GetNumTalents(tabIndex) do
+            local name, iconTexture, row, column, rank, maxRank, isExceptional, available = GetTalentInfo(tabIndex, talentIndex)
+            table.insert(talents, {
+                Tab = tabIndex,
+                Row = row,
+                Col = column,
+                Rank = rank,
+                MxRnk = maxRank,
+                Icon = iconTexture,
+                Name = name,
+                Index = talentIndex,
+                Link = GetTalentLink(tabIndex, talentIndex),
+            });
+        end
+    end
+    return tabs, talents;
+end
+
+
+function Character:GetProfessionInfo()
+    local myCharacter = { 
+        Fishing = 0,
+        Cooking = 0,
+        FirstAid = 0,
+        Prof1 = '-',
+        Prof1Level = 0,
+        Prof1Spec = 0,
+        Prof2 = '-',
+        Prof2Level = 0,
+        Prof2Spec = 0
+    }
+    for s = 1, GetNumSkillLines() do
+        local skill, _, _, level, _, _, _, _, _, _, _, _, _ = GetSkillLineInfo(s)
+        if Guildbook:GetEnglishProf(skill) == 'Fishing' then 
+            Guildbook.DEBUG("func", "Character:GetProfessionInfo", "found fishing updating level")
+            myCharacter.Fishing = level
+        elseif Guildbook:GetEnglishProf(skill) == 'Cooking' then
+            Guildbook.DEBUG("func", "Character:GetProfessionInfo", "found cooking updating level")
+            myCharacter.Cooking = level
+        elseif Guildbook:GetEnglishProf(skill) == 'First Aid' then
+            Guildbook.DEBUG("func", "Character:GetProfessionInfo", "found first aid updating level")
+            myCharacter.FirstAid = level
+        else
+            for k, prof in pairs(Guildbook.Data.Profession) do
+                if prof.Name == Guildbook:GetEnglishProf(skill) then
+                    Guildbook.DEBUG("func", "Character:GetProfessionInfo", string.format("found %s", prof.Name))
+                    if myCharacter.Prof1 == '-' then
+                        myCharacter.Prof1 = Guildbook:GetEnglishProf(skill)
+                        Guildbook.DEBUG("func", "Character:GetProfessionInfo", string.format("setting Profession1 as %s", prof.Name))
+                        myCharacter.Prof1Level = level
+                    else
+                        if myCharacter.Prof2 == '-' then
+                            myCharacter.Prof2 = Guildbook:GetEnglishProf(skill)
+                            Guildbook.DEBUG("func", "Character:GetProfessionInfo", string.format("setting Profession2 as %s", prof.Name))
+                            myCharacter.Prof2Level = level
+                        end
+                    end
+                    if myCharacter.Prof1 == myCharacter.Prof2 then
+                        myCharacter.Prof2 = Guildbook:GetEnglishProf(skill)
+                        myCharacter.Prof2Level = level
+                        Guildbook.DEBUG("func", "Character:GetProfessionInfo", string.format("updated setting for Profession2 > set as %s", prof.Name))
+                    end
+                end
+            end
+        end
+    end
+    local _, _, offset, numSlots = GetSpellTabInfo(1)
+    for j = offset+1, offset+numSlots do
+        -- get spell id
+        local _, spellID = GetSpellBookItemInfo(j, BOOKTYPE_SPELL)
+        -- check if spell is a prof spec
+        if self.TradeskillSpecSpells[spellID] then
+            -- grab the english name for prof
+            local engProf = Guildbook.ProfessionNames.enUS[self.TradeskillSpecSpells[spellID]]
+            -- assign the prof spec
+            if myCharacter.Prof1 == engProf then
+                myCharacter.Prof1Spec = tonumber(spellID)
+            elseif myCharacter.Prof2 == engProf then
+                myCharacter.Prof2Spec = tonumber(spellID)
+            end
+        end
+    end
+    return myCharacter;
+end
 
 
 
@@ -2729,14 +2922,16 @@ function Guildbook:DB_OnDataReceived(data, distribution, sender)
     if Guildbook.Data.Profession[data.payload.key] then
         Guildbook.DEBUG('db_func', 'DB_OnDataReceived', string.format("received data for %s, calling function > RequestTradeskillData", data.payload.key))
         self:RequestTradeskillData()
-    end
 
-    C_Timer.After(self.COMMS_DELAY, function()
-        if GuildbookUI.tradeskills.awaitingCharacterRecipes == true then
-            GuildbookTradeskillProfessionListview:LoadCharacterTradeskillRecipes(data.payload.guid, data.payload.key)
-            GuildbookUI.tradeskills.awaitingCharacterRecipes = false;
-        end    
-    end)
+        local guid, prof = data.payload.guid, data.payload.key;
+
+        C_Timer.After(self.COMMS_DELAY, function()
+            if GuildbookUI.tradeskills.awaitingCharacterRecipes == true then
+                GuildbookTradeskillProfessionListview:LoadCharacterTradeskillRecipes(guid, prof)
+                GuildbookUI.tradeskills.awaitingCharacterRecipes = false;
+            end    
+        end)
+    end
 
 end
 
@@ -3942,7 +4137,13 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
 
     Guildbook.DEBUG('comms_in', string.format("ON_COMMS_RECEIVED <%s>", distribution), string.format("%s from %s", data.type, sender), data)
 
-    if data.type == "DB_SET" then
+    if data.type == "ALL_CHAR_DATA_REQUEST" then
+        --self:PrepareCharacterData()
+        
+    elseif data.type == "ALL_CHAR_DATA_RESPONSE" then
+        --self:SaveCharacterData()
+
+    elseif data.type == "DB_SET" then
         self:DB_OnDataReceived(data, distribution, sender)
 
     elseif data.type == "DB_GET" then
