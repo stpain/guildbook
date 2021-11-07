@@ -7,10 +7,14 @@ local debugTypeToClassColour = {
     ['error'] = CreateColor(Guildbook.Data.Class.DEATHKNIGHT.RGB),
     ['func'] = CreateColor(Guildbook.Data.Class.HUNTER.RGB),
     ['event'] = CreateColor(Guildbook.Data.Class.ROGUE.RGB),
-    ['comms_out'] = CreateColor(Guildbook.Data.Class.SHAMAN.RGB),
+    ['comms_out'] = CreateColor(Guildbook.Data.Class.PALADIN.RGB),
     ['comms_in'] = CreateColor(Guildbook.Data.Class.PALADIN.RGB),
-    ['db_func'] = CreateColor(Guildbook.Data.Class.DRUID.RGB),
-    ['tsdb'] = CreateColor(Guildbook.Data.Class.WARLOCK.RGB),
+    ['db_func'] = CreateColor(Guildbook.Data.Class.PALADIN.RGB),
+    ['tsdb'] = CreateColor(Guildbook.Data.Class.PALADIN.RGB),
+
+    ["commsMixin"] = CreateColor(Guildbook.Data.Class.SHAMAN.RGB),
+    ["rosterCacheMixin"] = CreateColor(Guildbook.Data.Class.WARLOCK.RGB),
+    ["characterMixin"] = CreateColor(Guildbook.Data.Class.DRUID.RGB),
 }
 GuildbookDebuggerListviewItemTemplateMixin = {}
 function GuildbookDebuggerListviewItemTemplateMixin:Init(elementData)
@@ -21,7 +25,7 @@ function GuildbookDebuggerListviewItemTemplateMixin:Init(elementData)
     self.message:SetText(elementData.message)
     self:SetScript("OnEnter", function()
         GameTooltip:SetOwner(self, 'ANCHOR_LEFT', -20, 0)
-        if elementData.tooltipTable then
+        if elementData.tooltipTable and type(elementData.tooltipTable) == "table" then
             for k, v in pairs(elementData.tooltipTable) do
                 if type(v) ~= "table" then
                     GameTooltip:AddDoubleLine("> "..k, v)
@@ -31,31 +35,33 @@ function GuildbookDebuggerListviewItemTemplateMixin:Init(elementData)
                         if type(b) == "table" then
                             for c, d in pairs(b) do
                                 if d then
-                                    GameTooltip:AddDoubleLine(">> "..c, d)
+                                    --GameTooltip:AddDoubleLine(">> "..c, d)
                                 end                            end
                             for c, d in ipairs(b) do
                                 if d then
-                                    GameTooltip:AddDoubleLine(">> "..c, d)
+                                    --GameTooltip:AddDoubleLine(">> "..c, d)
                                 end  
                             end
                         end
                     end
-                    for a, b in ipairs(v) do
-                        GameTooltip:AddDoubleLine("> "..a, b)
-                        if type(b) == "table" then
-                            for c, d in pairs(b) do
-                                if d then
-                                    GameTooltip:AddDoubleLine(">> "..c, d)
-                                end                            end
-                            for c, d in ipairs(b) do
-                                if d then
-                                    GameTooltip:AddDoubleLine(">> "..c, d)
-                                end                           
-                            end
-                        end
-                    end
+                    -- for a, b in ipairs(v) do
+                    --     GameTooltip:AddDoubleLine("> "..a, b)
+                    --     if type(b) == "table" then
+                    --         for c, d in pairs(b) do
+                    --             if d then
+                    --                 GameTooltip:AddDoubleLine(">> "..c, d)
+                    --             end                            end
+                    --         for c, d in ipairs(b) do
+                    --             if d then
+                    --                 GameTooltip:AddDoubleLine(">> "..c, d)
+                    --             end                           
+                    --         end
+                    --     end
+                    -- end
                 end
             end
+        else
+            GameTooltip:AddDoubleLine("-", elementData.tooltipTable)
         end
         GameTooltip:Show()
     end)

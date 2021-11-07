@@ -2495,7 +2495,357 @@ end
 
 
 
-local Character = {}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--[[
+    working on making the code easier to read and manage
+    at the moment everything is just in the Guildbook addon table
+
+    so making some tables to seperate various features and/or functions
+
+    Character - will handle anything related to the players character
+    Tradeskill - will target tradeskill specific jobs
+    Database ?
+    Guild ?
+]]
+
+
+
+
+
+
+
+local Tradeskills = {}
+Tradeskills.CurrentLocale = GetLocale()
+Tradeskills.TradeskillNames = {
+    "Alchemy",
+    "Blacksmithing",
+    "Enchanting",
+    "Engineering",
+    "Inscription",
+    "Jewelcrafting",
+    "Leatherworking",
+    "Tailoring",
+    "Mining",
+    "Herbalism",
+    "Skinning",
+}
+Tradeskills.SpecializationSpellsIDs = {
+    --Alchemy:
+    [28672] = 171,
+    [28677] = 171,
+    [28675] = 171,
+    --Engineering:
+    [20222] = 202,
+    [20219] = 202,
+    --Tailoring:
+    [26798] = 197,
+    [26797] = 197,
+    [26801] = 197,
+    --Blacksmithing:
+    [9788] = 164,
+    [17039] = 164,
+    [17040] = 164,
+    [17041] = 164,
+    [9787] = 164,
+    --Leatherworking:
+    [10656] = 165,
+    [10658] = 165,
+    [10660] = 165,
+}
+Tradeskills.TradeskillIDsToLocaleName = {
+	enUS = {
+		[164] = "Blacksmithing",
+		[165] = "Leatherworking",
+		[171] = "Alchemy",
+		[182] = "Herbalism",
+		[185] = "Cooking",
+		[186] = "Mining",
+		[197] = "Tailoring",
+		[202] = "Engineering",
+		[333] = "Enchanting",
+		[356] = "Fishing",
+		[393] = "Skinning",
+		[755] = "Jewelcrafting",
+		[773] = "Inscription",
+		--[-1] = "First Aid"
+	},
+	deDE = {
+		[164] = "Schmiedekunst",
+		[165] = "Lederverarbeitung",
+		[171] = "Alchimie",
+		[182] = "Kräuterkunde",
+		[185] = "Kochkunst",
+		[186] = "Bergbau",
+		[197] = "Schneiderei",
+		[202] = "Ingenieurskunst",
+		[333] = "Verzauberkunst",
+		[356] = "Angeln",
+		[393] = "Kürschnerei",
+		[755] = "Juwelenschleifen",
+		[773] = "Inschriftenkunde",
+	},
+	frFR = {
+		[164] = "Forge",
+		[165] = "Travail du cuir",
+		[171] = "Alchimie",
+		[182] = "Herboristerie",
+		[185] = "Cuisine",
+		[186] = "Minage",
+		[197] = "Couture",
+		[202] = "Ingénierie",
+		[333] = "Enchantement",
+		[356] = "Pêche",
+		[393] = "Dépeçage",
+		[755] = "Joaillerie",
+		[773] = "Calligraphie",
+	},
+	esMX = {
+		[164] = "Herrería",
+		[165] = "Peletería",
+		[171] = "Alquimia",
+		[182] = "Herboristería",
+		[185] = "Cocina",
+		[186] = "Minería",
+		[197] = "Sastrería",
+		[202] = "Ingeniería",
+		[333] = "Encantamiento",
+		[356] = "Pesca",
+		[393] = "Desuello",
+		[755] = "Joyería",
+		[773] = "Inscripción",
+	},
+	-- discovered this locale exists also maybe esAL ?
+	esES = {
+        [164] = "Herrería",
+        [165] = "Peletería",
+        [171] = "Alquimia",
+        [182] = "Herboristería",
+        [185] = "Cocina",
+        [186] = "Minería",
+        [197] = "Sastrería",
+        [202] = "Ingeniería",
+        [333] = "Encantamiento",
+        [356] = "Pesca",
+        [393] = "Desuello",
+        [755] = "Joyería",
+        [773] = "Inscripción",
+    },
+	ptBR = {
+		[164] = "Ferraria",
+		[165] = "Couraria",
+		[171] = "Alquimia",
+		[182] = "Herborismo",
+		[185] = "Culinária",
+		[186] = "Mineração",
+		[197] = "Alfaiataria",
+		[202] = "Engenharia",
+		[333] = "Encantamento",
+		[356] = "Pesca",
+		[393] = "Esfolamento",
+		[755] = "Joalheria",
+		[773] = "Escrivania",
+	},
+	ruRU = {
+		[164] = "Кузнечное дело",
+		[165] = "Кожевничество",
+		[171] = "Алхимия",
+		[182] = "Травничество",
+		[185] = "Кулинария",
+		[186] = "Горное дело",
+		[197] = "Портняжное дело",
+		[202] = "Инженерное дело",
+		[333] = "Наложение чар",
+		[356] = "Рыбная ловля",
+		[393] = "Снятие шкур",
+		[755] = "Ювелирное дело",
+		[773] = "Начертание",
+	},
+	zhCN = {
+		[164] = "锻造",
+		[165] = "制皮",
+		[171] = "炼金术",
+		[182] = "草药学",
+		[185] = "烹饪",
+		[186] = "采矿",
+		[197] = "裁缝",
+		[202] = "工程学",
+		[333] = "附魔",
+		[356] = "钓鱼",
+		[393] = "剥皮",
+		[755] = "珠宝加工",
+		[773] = "铭文",
+	},
+	zhTW = {
+		[164] = "鍛造",
+		[165] = "製皮",
+		[171] = "鍊金術",
+		[182] = "草藥學",
+		[185] = "烹飪",
+		[186] = "採礦",
+		[197] = "裁縫",
+		[202] = "工程學",
+		[333] = "附魔",
+		[356] = "釣魚",
+		[393] = "剝皮",
+		[755] = "珠寶設計",
+		[773] = "銘文學",
+	},
+	koKR = {
+		[164] = "대장기술",
+		[165] = "가죽세공",
+		[171] = "연금술",
+		[182] = "약초채집",
+		[185] = "요리",
+		[186] = "채광",
+		[197] = "재봉술",
+		[202] = "기계공학",
+		[333] = "마법부여",
+		[356] = "낚시",
+		[393] = "무두질",
+		[755] = "보석세공",
+		[773] = "주문각인",
+	},
+}
+Tradeskills.TradeskillLocaleNameToID = tInvert(Tradeskills.TradeskillIDsToLocaleName[Tradeskills.CurrentLocale])
+
+function Tradeskills:GetEnglishNameFromID(tradeskillID)
+    if self.TradeskillIDsToLocaleName.enUS[tradeskillID] then
+        return self.TradeskillIDsToLocaleName.enUS[tradeskillID];
+    end
+end
+
+function Tradeskills:GetEnglishNameFromTradeskillName(tradeskillName)
+    local tradeskillID = self.TradeskillLocaleNameToID[tradeskillName]
+    if tradeskillID then
+        local tradeskill = self:GetEnglishNameFromID(tradeskillID)
+        return tostring(tradeskill);
+    end
+end
+
+
+
+
+
+
+
+
+
+
+local GuildRosterCache = CreateFromMixins(CallbackRegistryMixin)
+GuildRosterCache:GenerateCallbackEvents({
+    "OnCharacterTableChanged",
+})
+GuildRosterCache.CurrentGuildName = nil;
+GuildRosterCache.PreviousCharacterTableChangedEvent = -1000;
+
+function GuildRosterCache:UpdateCharacterTable(guid, key, info)
+
+    if self.CurrentGuildName and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[self.CurrentGuildName] and GUILDBOOK_GLOBAL.GuildRosterCache[self.CurrentGuildName][guid] then
+        local characterTable = GUILDBOOK_GLOBAL.GuildRosterCache[self.CurrentGuildName][guid];
+        characterTable[key] = info;
+
+        Guildbook.DEBUG("rosterCacheMixin", "GuildRosterCache:UpdateCharacterTable", string.format("updated %s for %s", key, characterTable.Name), info)
+
+        ---the cache might get updated from a loop so we add a check to make its only called once
+        if (GetTime() - 1.0) > self.PreviousCharacterTableChangedEvent then
+            self.PreviousCharacterTableChangedEvent = GetTime()
+            C_Timer.After(0.5, function()
+                self:TriggerEvent("OnCharacterTableChanged", self, characterTable)
+            end)
+        end
+    end
+
+end
+
+
+function GuildRosterCache:Init()
+
+    CallbackRegistryMixin.OnLoad(self)
+
+    if IsInGuild() and GetGuildInfo("player") then
+        local guildName, _, _, _ = GetGuildInfo('player')
+        self.CurrentGuildName = guildName;
+    end
+
+    ---pass the table to the UI to register the callbacks
+    GuildbookUI:SetupCacheCallback(self)
+
+end
+
+
+C_Timer.After(10, function()
+    GuildRosterCache:Init()
+end)
+
+
+
+
+
+
+
+
+local Character = CreateFromMixins(CallbackRegistryMixin)
+Character:GenerateCallbackEvents(
+    {
+        "OnCharacterTalentsChanged",
+        "OnCharacterTradeskillsInfoChanged",
+        "OnCharacterTradeskillRecipesChanged",
+        "OnCharacterInventoryChanged",
+        "OnCharacterPaperdollStatsChanged",
+    }
+)
+Character.TriggerEventDelay = 0.5;
 Character.InventorySlots = {
     "HEADSLOT",
     "NECKSLOT",
@@ -2519,29 +2869,35 @@ Character.InventorySlots = {
     "SECONDARYHANDSLOT",
     "RANGEDSLOT",
 }
-Character.TradeskillSpecSpells = {
-    --Alchemy:
-    [28672] = 171,
-    [28677] = 171,
-    [28675] = 171,
-    --Engineering:
-    [20222] = 202,
-    [20219] = 202,
-    --Tailoring:
-    [26798] = 197,
-    [26797] = 197,
-    [26801] = 197,
-    --Blacksmithing:
-    [9788] = 164,
-    [17039] = 164,
-    [17040] = 164,
-    [17041] = 164,
-    [9787] = 164,
-    --Leatherworking:
-    [10656] = 165,
-    [10658] = 165,
-    [10660] = 165,
+Character.StatIDs = {
+    [1] = 'Strength',
+    [2] = 'Agility',
+    [3] = 'Stamina',
+    [4] = 'Intellect',
+    [5] = 'Spirit',
 }
+Character.SpellSchools = {
+    [2] = 'Holy',
+    [3] = 'Fire',
+    [4] = 'Nature',
+    [5] = 'Frost',
+    [6] = 'Shadow',
+    [7] = 'Arcane',
+}
+
+
+---format number to 2dp for character stat data/display
+---@param num number the number value to format
+---@return ... number the formatted number or 1
+function Character:FormatNumberForCharacterStats(num)
+    if type(num) == 'number' then
+        local trimmed = string.format("%.2f", num)
+        return tonumber(trimmed)
+    else
+        return 1.0;
+    end
+end
+
 
 ---scan the character paperdoll sheet for their inventory
 ---@param setName string the name to identify this gear set
@@ -2553,8 +2909,9 @@ function Character:GetInventory(setName)
             t[slot] = link;
         end
     end
-    return t;
+    GUILDBOOK_CHARACTER.Inventory[setName] = t;
 end
+
 
 ---returns the characters ilvl for their current gear
 ---@return number itemLevel gear ilvl
@@ -2577,10 +2934,9 @@ function Character:GetItemLevel()
     end
 end
 
----return 2 tables about the characters talents
----@return table tabs info about each talent tab `.points = points spent in tab .spec = the english spec name .texture = filePath `
----@return table talents an ipairs table of each talent, its row/column/rank/icon/name/link/index
-function Character:GetTalentInfo()
+
+---scan the players talents and update the GUILDBOOK_CHARACTER table
+function Character:ScanPlayerTalents()
     local tabs, talents = {}, {}
     for tabIndex = 1, GetNumTalentTabs() do
         local _, texture, pointsSpent, fileName = GetTalentTabInfo(tabIndex)
@@ -2605,52 +2961,56 @@ function Character:GetTalentInfo()
             });
         end
     end
-    return tabs, talents;
+    GUILDBOOK_CHARACTER.Talents["primary"] = talents;
+    GUILDBOOK_CHARACTER.TalentTabs["primary"] = tabs;
 end
 
 
-function Character:GetProfessionInfo()
-    local myCharacter = { 
-        Fishing = 0,
-        Cooking = 0,
-        FirstAid = 0,
-        Prof1 = '-',
-        Prof1Level = 0,
-        Prof1Spec = 0,
-        Prof2 = '-',
-        Prof2Level = 0,
-        Prof2Spec = 0
+---scan the players skills and update the GUILDBOOK_CHARACTER table
+function Character:ScanForTradeskillInfo()
+
+    local characterTradeskillsInfo = {
+        Profession1 = "-",
+        Profession2 = "-",
     }
+
+    Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", "scanning for tradeskill info")
     for s = 1, GetNumSkillLines() do
         local skill, _, _, level, _, _, _, _, _, _, _, _, _ = GetSkillLineInfo(s)
-        if Guildbook:GetEnglishProf(skill) == 'Fishing' then 
-            Guildbook.DEBUG("func", "Character:GetProfessionInfo", "found fishing updating level")
-            myCharacter.Fishing = level
-        elseif Guildbook:GetEnglishProf(skill) == 'Cooking' then
-            Guildbook.DEBUG("func", "Character:GetProfessionInfo", "found cooking updating level")
-            myCharacter.Cooking = level
-        elseif Guildbook:GetEnglishProf(skill) == 'First Aid' then
-            Guildbook.DEBUG("func", "Character:GetProfessionInfo", "found first aid updating level")
-            myCharacter.FirstAid = level
+        if Tradeskills:GetEnglishNameFromTradeskillName(skill) == 'Fishing' then 
+            Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", "found fishing updating level")
+            characterTradeskillsInfo.FishingLevel = level
+
+        elseif Tradeskills:GetEnglishNameFromTradeskillName(skill) == 'Cooking' then
+            Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", "found cooking updating level")
+            characterTradeskillsInfo.CookingLevel = level
+
+        elseif Tradeskills:GetEnglishNameFromTradeskillName(skill) == 'First Aid' then
+            Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", "found first aid updating level")
+            characterTradeskillsInfo.FirstAidLevel = level
+
         else
-            for k, prof in pairs(Guildbook.Data.Profession) do
-                if prof.Name == Guildbook:GetEnglishProf(skill) then
-                    Guildbook.DEBUG("func", "Character:GetProfessionInfo", string.format("found %s", prof.Name))
-                    if myCharacter.Prof1 == '-' then
-                        myCharacter.Prof1 = Guildbook:GetEnglishProf(skill)
-                        Guildbook.DEBUG("func", "Character:GetProfessionInfo", string.format("setting Profession1 as %s", prof.Name))
-                        myCharacter.Prof1Level = level
+            for _, prof in pairs(Tradeskills.TradeskillNames) do
+                if prof == Tradeskills:GetEnglishNameFromTradeskillName(skill) then
+                    Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", string.format("found %s", prof))
+
+                    if characterTradeskillsInfo.Profession1 == '-' then
+                        characterTradeskillsInfo.Profession1 = Tradeskills:GetEnglishNameFromTradeskillName(skill)
+                        Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", string.format("setting Profession1 as %s", prof))
+                        characterTradeskillsInfo.Profession1Level = level
+
                     else
-                        if myCharacter.Prof2 == '-' then
-                            myCharacter.Prof2 = Guildbook:GetEnglishProf(skill)
-                            Guildbook.DEBUG("func", "Character:GetProfessionInfo", string.format("setting Profession2 as %s", prof.Name))
-                            myCharacter.Prof2Level = level
+                        if characterTradeskillsInfo.Profession2 == '-' then
+                            characterTradeskillsInfo.Profession2 = Tradeskills:GetEnglishNameFromTradeskillName(skill)
+                            Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", string.format("setting Profession2 as %s", prof))
+                            characterTradeskillsInfo.Profession2Level = level
                         end
                     end
-                    if myCharacter.Prof1 == myCharacter.Prof2 then
-                        myCharacter.Prof2 = Guildbook:GetEnglishProf(skill)
-                        myCharacter.Prof2Level = level
-                        Guildbook.DEBUG("func", "Character:GetProfessionInfo", string.format("updated setting for Profession2 > set as %s", prof.Name))
+
+                    if characterTradeskillsInfo.Profession1 == characterTradeskillsInfo.Profession2 then
+                        characterTradeskillsInfo.Profession2 = Tradeskills:GetEnglishNameFromTradeskillName(skill)
+                        characterTradeskillsInfo.Profession2Level = level
+                        Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", string.format("updated setting for Profession2 > set as %s", prof))
                     end
                 end
             end
@@ -2661,19 +3021,684 @@ function Character:GetProfessionInfo()
         -- get spell id
         local _, spellID = GetSpellBookItemInfo(j, BOOKTYPE_SPELL)
         -- check if spell is a prof spec
-        if self.TradeskillSpecSpells[spellID] then
+        if Tradeskills.SpecializationSpellsIDs[spellID] then
             -- grab the english name for prof
-            local engProf = Guildbook.ProfessionNames.enUS[self.TradeskillSpecSpells[spellID]]
+            local engProf = Tradeskills:GetEnglishNameFromID(Tradeskills.SpecializationSpellsIDs[spellID])
             -- assign the prof spec
-            if myCharacter.Prof1 == engProf then
-                myCharacter.Prof1Spec = tonumber(spellID)
-            elseif myCharacter.Prof2 == engProf then
-                myCharacter.Prof2Spec = tonumber(spellID)
+            if characterTradeskillsInfo.Profession1 == engProf then
+                characterTradeskillsInfo.Profession1Spec = tonumber(spellID)
+
+            elseif characterTradeskillsInfo.Profession2 == engProf then
+                characterTradeskillsInfo.Profession2Spec = tonumber(spellID)
             end
         end
     end
-    return myCharacter;
+
+    ---clean up any old data
+    self:RemoveOldTradeskillRecipeTables()
+
+    ---notify any listeners
+    C_Timer.After(self.TriggerEventDelay, function()
+        self:TriggerEvent("OnCharacterTradeskillsInfoChanged", self, characterTradeskillsInfo)
+    end)
 end
+
+
+---scan the players currently opened tradeskill recipes and trigger the changed event
+function Character:ScanTradeskillRecipes()
+    local localeProf = GetTradeSkillLine() -- this returns local name
+    if localeProf == "UNKNOWN" then
+        return; -- exit as the window isnt open
+    end
+
+    local englishProf = Tradeskills:GetEnglishNameFromTradeskillName(localeProf)
+    if not englishProf then
+        Guildbook.DEBUG("func", "Character:ScanForTradeskillInfo", "englishProf not known")
+        return; -- english prof name acts as a key so we must have it to continue
+    end
+
+    Guildbook.DEBUG("func", "Character:ScanForTradeskillInfo", string.format("scanning for tradeskill recipes [%s]", englishProf))
+
+    local tradeskillRecipes = {}
+    local numTradeskills = GetNumTradeSkills()
+    for i = 1, numTradeskills do
+        local name, _type, _, _, _ = GetTradeSkillInfo(i)
+        if name and (_type == "optimal" or _type == "medium" or _type == "easy" or _type == "trivial") then -- this was a fix thanks to Sigma regarding their addon showing all recipes
+            local link = GetTradeSkillItemLink(i)
+            if link then
+                local itemID = GetItemInfoInstant(link)
+                if itemID then
+                    tradeskillRecipes[itemID] = {}
+                    local numReagents = GetTradeSkillNumReagents(i);
+                    if numReagents > 0 then
+                        for j = 1, numReagents do
+                            local _, _, reagentCount, _ = GetTradeSkillReagentInfo(i, j)
+                            local reagentLink = GetTradeSkillReagentItemLink(i, j)
+                            local reagentID = GetItemInfoInstant(reagentLink)
+                            if reagentID and reagentCount then
+                                tradeskillRecipes[itemID][reagentID] = reagentCount
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    --self:ScanForTradeskillInfo()
+
+    C_Timer.After(self.TriggerEventDelay, function()
+        self:TriggerEvent("OnCharacterTradeskillRecipesChanged", self, englishProf, tradeskillRecipes)
+    end)
+end
+
+
+---scan the players enchanting recipes and trigger the changed event
+function Character:ScanEnchantingRecipes()
+    local currentCraftingWindow = GetCraftSkillLine(1)
+    if currentCraftingWindow == nil then
+        return; -- exit as no craft open
+    end
+
+    local englishProf = Tradeskills:GetEnglishNameFromTradeskillName(currentCraftingWindow)
+    if not englishProf then
+        return; -- english prof name acts as a key so we must have it to continue
+    end
+
+    Guildbook.DEBUG("func", "Character:ScanForTradeskillInfo", string.format("scanning for tradeskill recipes [%s]", englishProf))
+
+    local tradeskillRecipes = {}
+    if englishProf == "Enchanting" then -- check we have enchanting open
+        local numCrafts = GetNumCrafts()
+        for i = 1, numCrafts do
+            local name, _, _type, _, _, _, _ = GetCraftInfo(i)
+            if name and (_type == "optimal" or _type == "medium" or _type == "easy" or _type == "trivial") then -- this was a fix thanks to Sigma regarding their addon showing all recipes
+                local _, _, _, _, _, _, itemID = GetSpellInfo(name)
+                if itemID then
+                    tradeskillRecipes[itemID] = {}
+                    local numReagents = GetCraftNumReagents(i);
+                    if numReagents > 0 then
+                        for j = 1, numReagents do
+                            local _, _, reagentCount = GetCraftReagentInfo(i, j)
+                            local reagentLink = GetCraftReagentItemLink(i, j)
+                            if reagentLink then
+                                local reagentID = select(1, GetItemInfoInstant(reagentLink))
+                                if reagentID and reagentCount then
+                                    tradeskillRecipes[itemID][reagentID] = reagentCount
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    --self:ScanForTradeskillInfo()
+
+    C_Timer.After(self.TriggerEventDelay, function()
+        self:TriggerEvent("OnCharacterTradeskillRecipesChanged", self, englishProf, tradeskillRecipes)
+    end)
+end
+
+
+---remove any old/unused recipe tables, defaults to GUILDBOOK_CHARACTER if no table provided
+function Character:RemoveOldTradeskillRecipeTables(characterData)
+    local characterName = "-";
+    if characterData and characterData.Name then
+        characterName = characterData.Name;
+    else
+        characterName = UnitName("player")
+    end
+    if not characterData then
+        characterData = GUILDBOOK_CHARACTER;
+    end
+    for _, tradeskill in ipairs(Tradeskills.TradeskillNames) do
+        local isCurrentTradeskill = false;
+        if characterData.Profession1 == tradeskill or characterData.Profession2 == tradeskill then
+            isCurrentTradeskill = true;
+            Guildbook.DEBUG("func", "Character:RemoveOldTradeskillRecipeTables", string.format("Keeping %s table for %s", tradeskill, characterName), characterData)
+        end
+        if isCurrentTradeskill == false and characterData[tradeskill] then
+            characterData[tradeskill] = nil;
+            Guildbook.DEBUG("func", "Character:RemoveOldTradeskillRecipeTables", string.format("Removed %s table from %s", tradeskill, characterName), characterData)
+        end
+    end
+end
+
+
+---scan the paperdoll frame for character stats and update the GUILDBOOK_CHARACTER table
+---@param specName string the name to save stats under, defaults to current if not provided
+function Character:GetPaperDollStats(specName)
+
+    ---to make things work for wrath we will have to move the paperdoll stats into a sub table 'current' and then we can use the same system as inventory to hold stats per spec
+    if GUILDBOOK_CHARACTER.PaperDollStats then
+        GUILDBOOK_CHARACTER.PaperDollStats.Current = {}
+
+        ---copy the values into new table
+        for k, v in pairs(GUILDBOOK_CHARACTER.PaperDollStats) do
+            GUILDBOOK_CHARACTER.PaperDollStats.Current[k] = v;
+        end
+
+        ---remove any values that arent a table
+        for k, v in pairs(GUILDBOOK_CHARACTER.PaperDollStats) do
+            if type(v) ~= "table" then
+                GUILDBOOK_CHARACTER.PaperDollStats[k] = nil;
+            elseif k == "Defence" then
+                GUILDBOOK_CHARACTER.PaperDollStats[k] = nil;
+            end
+        end
+    end
+
+    local stats = GUILDBOOK_CHARACTER.PaperDollStats.Current;
+
+    if specName then
+        if not GUILDBOOK_CHARACTER.PaperDollStats[specName] then
+            GUILDBOOK_CHARACTER.PaperDollStats[specName] = {}
+        end
+        stats = GUILDBOOK_CHARACTER.PaperDollStats[specName];
+    end
+
+    ---do i need to wipe it each time?
+    --wipe(stats);
+
+    ---go through gettign each stat value
+    local numSkills = GetNumSkillLines();
+    local skillIndex = 0;
+    local currentHeader = nil;
+
+    for i = 1, numSkills do
+        local skillName = select(1, GetSkillLineInfo(i));
+        local isHeader = select(2, GetSkillLineInfo(i));
+
+        if isHeader ~= nil and isHeader then
+            currentHeader = skillName;
+        else
+            if (currentHeader == "Weapon Skills" and skillName == 'Defense') then
+                skillIndex = i;
+                break;
+            end
+        end
+    end
+
+    local baseDef, modDef;
+    if (skillIndex > 0) then
+        baseDef = select(4, GetSkillLineInfo(skillIndex));
+        modDef = select(6, GetSkillLineInfo(skillIndex));
+    else
+        baseDef, modDef = UnitDefense('player')
+    end
+
+    local posBuff = 0;
+    local negBuff = 0;
+    if ( modDef > 0 ) then
+        posBuff = modDef;
+    elseif ( modDef < 0 ) then
+        negBuff = modDef;
+    end
+    stats.Defence = {
+        Base = self:FormatNumberForCharacterStats(baseDef),
+        Mod = self:FormatNumberForCharacterStats(modDef),
+    }
+
+    local baseArmor, effectiveArmor, armr, posBuff, negBuff = UnitArmor('player');
+    stats.Armor = self:FormatNumberForCharacterStats(baseArmor)
+    stats.Block = self:FormatNumberForCharacterStats(GetBlockChance());
+    stats.Parry = self:FormatNumberForCharacterStats(GetParryChance());
+    stats.ShieldBlock = self:FormatNumberForCharacterStats(GetShieldBlock());
+    stats.Dodge = self:FormatNumberForCharacterStats(GetDodgeChance());
+
+    --local expertise, offhandExpertise, rangedExpertise = GetExpertise();
+    stats.Expertise = self:FormatNumberForCharacterStats(GetExpertise()); --will display mainhand expertise but it stores offhand expertise as well, need to find a way to access it
+    --local base, casting = GetManaRegen();
+
+    --to work with all versions we have to adjust the values we get
+    if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
+        stats.SpellHit = self:FormatNumberForCharacterStats(GetSpellHitModifier());
+        stats.MeleeHit = self:FormatNumberForCharacterStats(GetHitModifier());
+        stats.RangedHit = self:FormatNumberForCharacterStats(GetHitModifier());
+        
+    elseif WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC then
+        stats.SpellHit = self:FormatNumberForCharacterStats(GetCombatRatingBonus(CR_HIT_SPELL) + GetSpellHitModifier());
+        stats.MeleeHit = self:FormatNumberForCharacterStats(GetCombatRatingBonus(CR_HIT_MELEE) + GetHitModifier());
+        stats.RangedHit = self:FormatNumberForCharacterStats(GetCombatRatingBonus(CR_HIT_RANGED));
+
+    else
+    
+    end
+
+    stats.RangedCrit = self:FormatNumberForCharacterStats(GetRangedCritChance());
+    stats.MeleeCrit = self:FormatNumberForCharacterStats(GetCritChance());
+
+    stats.Haste = self:FormatNumberForCharacterStats(GetHaste());
+    local base, casting = GetManaRegen()
+    stats.ManaRegen = base and self:FormatNumberForCharacterStats(base) or 0;
+    stats.ManaRegenCasting = casting and self:FormatNumberForCharacterStats(casting) or 0;
+
+    local minCrit = 100
+    for id, school in pairs(self.SpellSchools) do
+        if GetSpellCritChance(id) < minCrit then
+            minCrit = GetSpellCritChance(id)
+        end
+        stats['SpellDmg'..school] = self:FormatNumberForCharacterStats(GetSpellBonusDamage(id));
+        stats['SpellCrit'..school] = self:FormatNumberForCharacterStats(GetSpellCritChance(id));
+    end
+    stats.SpellCrit = self:FormatNumberForCharacterStats(minCrit)
+
+    stats.HealingBonus = self:FormatNumberForCharacterStats(GetSpellBonusHealing());
+
+    local lowDmg, hiDmg, offlowDmg, offhiDmg, posBuff, negBuff, percentmod = UnitDamage("player");
+    local mainSpeed, offSpeed = UnitAttackSpeed("player");
+    local mlow = (lowDmg + posBuff + negBuff) * percentmod
+    local mhigh = (hiDmg + posBuff + negBuff) * percentmod
+    local olow = (offlowDmg + posBuff + negBuff) * percentmod
+    local ohigh = (offhiDmg + posBuff + negBuff) * percentmod
+    if mainSpeed < 1 then mainSpeed = 1 end
+    if mlow < 1 then mlow = 1 end
+    if mhigh < 1 then mhigh = 1 end
+    if olow < 1 then olow = 1 end
+    if ohigh < 1 then ohigh = 1 end
+
+    if offSpeed then
+        if offSpeed < 1 then 
+            offSpeed = 1
+        end
+        stats.MeleeDmgOH = self:FormatNumberForCharacterStats((olow + ohigh) / 2.0)
+        stats.MeleeDpsOH = self:FormatNumberForCharacterStats(((olow + ohigh) / 2.0) / offSpeed)
+    else
+        --offSpeed = 1
+        stats.MeleeDmgOH = self:FormatNumberForCharacterStats(0)
+        stats.MeleeDpsOH = self:FormatNumberForCharacterStats(0)
+    end
+    stats.MeleeDmgMH = self:FormatNumberForCharacterStats((mlow + mhigh) / 2.0)
+    stats.MeleeDpsMH = self:FormatNumberForCharacterStats(((mlow + mhigh) / 2.0) / mainSpeed)
+
+    local speed, lowDmg, hiDmg, posBuff, negBuff, percent = UnitRangedDamage("player");
+    local low = (lowDmg + posBuff + negBuff) * percent
+    local high = (hiDmg + posBuff + negBuff) * percent
+    if speed < 1 then speed = 1 end
+    if low < 1 then low = 1 end
+    if high < 1 then high = 1 end
+    local dmg = (low + high) / 2.0
+    stats.RangedDmg = self:FormatNumberForCharacterStats(dmg)
+    stats.RangedDps = self:FormatNumberForCharacterStats(dmg/speed)
+
+    local base, posBuff, negBuff = UnitAttackPower('player')
+    stats.AttackPower = self:FormatNumberForCharacterStats(base + posBuff + negBuff)
+
+    for k, stat in pairs(self.StatIDs) do
+        local a, b, c, d = UnitStat("player", k);
+        stats[stat] = self:FormatNumberForCharacterStats(b)
+    end
+end
+
+
+---initialises Character, sets up the listener for events
+function Character:Init()
+
+    CallbackRegistryMixin.OnLoad(self)
+
+    self.listener = CreateFrame("Frame")
+    self.listener:RegisterEvent("TRADE_SKILL_UPDATE")
+    self.listener:RegisterEvent('CRAFT_UPDATE')
+    self.listener:RegisterEvent('SKILL_LINES_CHANGED')
+    self.listener:RegisterEvent('CHARACTER_POINTS_CHANGED')
+
+    self.listener:SetScript("OnEvent", function(_, event, ...)
+        Guildbook.DEBUG("event", "Character:OnEvent", string.format("listener event %s", event))
+
+        if event == "TRADE_SKILL_UPDATE" then
+            self:ScanTradeskillRecipes()
+
+        elseif event == "CRAFT_UPDATE" then
+            self:ScanEnchantingRecipes()
+
+        elseif event == "SKILL_LINES_CHANGED" then
+            self:ScanForTradeskillInfo()
+
+        elseif event == "CHARACTER_POINTS_CHANGED" then
+            --self:ScanPlayerTalents()
+
+        end
+    end)
+end
+
+
+
+Character:Init()
+
+
+
+
+
+
+
+
+
+
+
+
+local Comms = {}
+Comms.DELAY = 2.0;
+Comms.PREFIX = "GUILDBOOK";
+Comms.SendMessageCooldowns = {
+    ["SendCharacterTradeskillInfo"] = -1000,
+    ["SendCharacterTradeskillsRecipes"] = -1000,
+}
+
+function Comms:Init()
+
+    AceComm:Embed(self)
+    self:RegisterComm(self.PREFIX)
+
+    Character:RegisterCallback("OnCharacterTradeskillsInfoChanged", self.SendCharacterTradeskillInfo, self)
+    Character:RegisterCallback("OnCharacterTradeskillRecipesChanged", self.SendCharacterTradeskillsRecipes, self)
+end
+
+
+function Comms:OnCommReceived(prefix, message, distribution, sender)
+
+    ---check if we want to process comms data
+    local inInstance, instanceType = IsInInstance()
+    if instanceType ~= "none" then
+        if GUILDBOOK_GLOBAL.config and (GUILDBOOK_GLOBAL.config.blockCommsDuringInstance == true) then
+            GuildbookUI.statusText:SetText("blocked data comms while in an instance")
+            return;
+        end
+    end
+    local inLockdown = InCombatLockdown()
+    if inLockdown then
+        if GUILDBOOK_GLOBAL.config and (GUILDBOOK_GLOBAL.config.blockCommsDuringCombat == true) then
+            GuildbookUI.statusText:SetText("blocked data comms while in combat")
+            return;
+        end
+    end
+
+    if prefix ~= self.PREFIX then 
+        return 
+    end
+    local decoded = LibDeflate:DecodeForWoWAddonChannel(message);
+    if not decoded then
+        return;
+    end
+    local decompressed = LibDeflate:DecompressDeflate(decoded);
+    if not decompressed then
+        return;
+    end
+    local success, data = LibSerialize:Deserialize(decompressed);
+    if not success or type(data) ~= "table" then
+        return;
+    end
+
+    Guildbook.DEBUG('commsMixin', string.format("Comms:OnCommsReceived <%s>", distribution), string.format("%s from %s", data.type, sender), data)
+    
+    self:ProcessIncomingData(data)
+end
+
+
+function Comms:ProcessIncomingData(data)
+
+    if data.type and self[data.type] then
+        self[data.type](Comms, data)
+        Guildbook.DEBUG('commsMixin', "Comms:ProcessIncomingData", string.format("Comms func %s exists", data.type), data)
+    end
+
+end
+
+
+function Comms:CHARACTER_TRADESKILLS_RECIPES_UPDATE(data)
+
+    if type(data) ~= "table" then
+        Guildbook.DEBUG('commsMixin', "error", "data is not a table", data)
+        return;
+    end
+
+    if data.senderGUID and data.payload.tradeskill then
+        if type(data.payload.recipes) == "table" then
+            GuildRosterCache:UpdateCharacterTable(data.senderGUID, data.payload.tradeskill, data.payload.recipes)
+        end
+    end
+
+end
+
+
+function Comms:CHARACTER_TRADESKILLS_INFO_UPDATE(data)
+
+    if type(data) ~= "table" then
+        Guildbook.DEBUG('commsMixin', "error", "data is not a table", data)
+        return;
+    end
+
+    if data.senderGUID and type(data.payload) == "table" then
+        for k, v in pairs(data.payload) do
+            GuildRosterCache:UpdateCharacterTable(data.senderGUID, k, v)
+        end
+    end
+
+end
+
+
+function Comms:SendCharacterTalentData()
+
+end
+
+
+function Comms:SendCharacterTradeskillInfo(characterMixin, tradeskillsInfo)
+
+    local tradeskillInfoUpdate = {
+        type = "CHARACTER_TRADESKILLS_INFO_UPDATE",
+        payload = {
+            Profession1 = tradeskillsInfo.Profession1,
+            Profession1Level = tradeskillsInfo.Profession1Level,
+            Profession1Spec = tradeskillsInfo.Profession1Spec,
+            Profession2 = tradeskillsInfo.Profession2,
+            Profession2Level = tradeskillsInfo.Profession2Level,
+            Profession2Spec = tradeskillsInfo.Profession2Spec,
+
+            FishingLevel = tradeskillsInfo.FishingLevel,
+            CookingLevel = tradeskillsInfo.CookingLevel,
+            FirstAidLevel = tradeskillsInfo.FirstAidLevel,
+        }
+    }
+
+    if (GetTime() - 5.0) > self.SendMessageCooldowns.SendCharacterTradeskillInfo then
+        self:Transmit(tradeskillInfoUpdate, "GUILD", nil, "NORMAL")
+        Guildbook.DEBUG("commsMixin", "Comms:SendCharacterTradeskillInfo", "sending tradeskill info updates", tradeskillInfoUpdate)
+        self.SendMessageCooldowns.SendCharacterTradeskillInfo = GetTime()
+    else
+        Guildbook.DEBUG("commsMixin", "Comms:SendCharacterTradeskillInfo", "tradeskill info update not sent, is within 5.0s of last transmition")
+    end
+
+end
+
+
+function Comms:SendCharacterTradeskillsRecipes(characterMixin, tradeskillName, tradeskillRecipes)
+
+    local tradeskillsRecipesUpdate = {
+        type = "CHARACTER_TRADESKILLS_RECIPES_UPDATE",
+        payload = {
+            tradeskill = tradeskillName,
+            recipes = tradeskillRecipes,
+        }
+    }
+
+    if (GetTime() - 5.0) > self.SendMessageCooldowns.SendCharacterTradeskillsRecipes then
+        self:Transmit(tradeskillsRecipesUpdate, "GUILD", nil, "NORMAL")
+        Guildbook.DEBUG("commsMixin", "Comms:SendCharacterTradeskillsRecipes", "sending tradeskill recipes recipes", tradeskillsRecipesUpdate)
+        self.SendMessageCooldowns.SendCharacterTradeskillsRecipes = GetTime()
+    else
+        Guildbook.DEBUG("commsMixin", "Comms:SendCharacterTradeskillsRecipes", "tradeskill info update not sent, is within 5.0s of last transmition")
+    end
+
+end
+
+
+
+
+function Comms:SendCharacterDataToGuild(characterData)
+
+    local payload = {
+        type == "CHARACTER_DATA_UPDATED",
+        payload = characterData,
+    }
+
+    --self:Transmit(payload, "GUILD", nil, "LOW")
+end
+
+
+function Comms:SendCharacterDataToPlayer(targetGUID)
+    --self:Transmit(GUILDBOOK_CHARACTER, "WHISPER", targetGUID, "LOW")
+end
+
+
+---send an addon message through the aceComm lib
+---@param data table the data to send including a comm type
+---@param channel string the addon channel to use for the comm
+---@param targetGUID string the targets GUID, this is used to make comms work on conneted realms - only required for WHISPER comms
+---@param priority string the prio to use
+function Comms:Transmit(data, channel, targetGUID, priority)
+    local inInstance, instanceType = IsInInstance()
+    if instanceType ~= "none" then
+        if GUILDBOOK_GLOBAL.config and (GUILDBOOK_GLOBAL.config.blockCommsDuringInstance == true) then
+            GuildbookUI.statusText:SetText("blocked data comms while in an instance")
+            return;
+        end
+    end
+    local inLockdown = InCombatLockdown()
+    if inLockdown then
+        if GUILDBOOK_GLOBAL.config and (GUILDBOOK_GLOBAL.config.blockCommsDuringCombat == true) then
+            GuildbookUI.statusText:SetText("blocked data comms while in combat")
+            return;
+        end
+    end
+    if not Guildbook:GetGuildName() then
+        return;
+    end
+
+    -- add the version and sender guid to the message
+    data["version"] = tostring(Guildbook.version);
+    data["senderGUID"] = UnitGUID("player")
+
+    -- clean up the target name when using a whisper
+    if channel == 'WHISPER' then
+
+        --find character first before looping roster
+        local character = Guildbook:GetCharacterFromCache(targetGUID)
+        if type(character) == "table" and character.FullName then
+            local target = character.FullName;
+
+            local totalMembers, _, _ = GetNumGuildMembers()
+            for i = 1, totalMembers do
+                local name, rankName, _, _, _, _, _, _, isOnline, _, _, _, _, _, _, _, guid = GetGuildRosterInfo(i)
+
+                -- i think we can move the privacy check in here using the rankName value to work out if we share with the target
+                -- we can then also have a central place to send a privacy error message to the target
+
+                if guid == targetGUID then
+                    if isOnline == true then
+                        local serialized = LibSerialize:Serialize(data);
+                        local compressed = LibDeflate:CompressDeflate(serialized);
+                        local encoded    = LibDeflate:EncodeForWoWAddonChannel(compressed);
+                    
+                        if encoded and channel and priority then
+                            Guildbook.DEBUG('comms_out', 'SendCommMessage_TargetOnline', string.format("type: %s, channel: %s target: %s, prio: %s", data.type or 'nil', channel, (target or 'nil'), priority), data)
+                            Guildbook:SendCommMessage(Comms.PREFIX, encoded, channel, target, priority)
+                        end
+                    else
+                        Guildbook.DEBUG('error', 'SendCommMessage_TargetOffline', string.format("type: %s, channel: %s target: %s, prio: %s", data.type or 'nil', channel, (target or 'nil'), priority))
+                    end
+                    return; --no need to keep checking the roster at this point
+                end
+            end
+        end
+
+    elseif channel == "GUILD" then
+        local serialized = LibSerialize:Serialize(data);
+        local compressed = LibDeflate:CompressDeflate(serialized);
+        local encoded    = LibDeflate:EncodeForWoWAddonChannel(compressed);
+    
+        if encoded and channel and priority then
+            Guildbook.DEBUG('comms_out', 'SendCommMessage_NoTarget', string.format("type: %s, channel: %s target: %s, prio: %s", data.type or 'nil', channel, 'nil', priority))
+            Guildbook:SendCommMessage(Comms.PREFIX, encoded, channel, nil, priority)
+        end
+    end
+end
+
+
+
+Comms:Init()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2743,6 +3768,9 @@ function Guildbook:Transmit(data, channel, targetGUID, priority)
             local totalMembers, _, _ = GetNumGuildMembers()
             for i = 1, totalMembers do
                 local name, rankName, _, _, _, _, _, _, isOnline, _, _, _, _, _, _, _, guid = GetGuildRosterInfo(i)
+
+                -- i think we can move the privacy check in here using the rankName value to work out if we share with the target
+                -- we can then also have a central place to send a privacy error message to the target
 
                 if guid == targetGUID then
                     if isOnline == true then
@@ -4130,9 +5158,6 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
     local success, data = LibSerialize:Deserialize(decompressed);
     if not success or type(data) ~= "table" then
         return;
-    end
-    if data.version and data.version == self.version then
-        --return;
     end
 
     Guildbook.DEBUG('comms_in', string.format("ON_COMMS_RECEIVED <%s>", distribution), string.format("%s from %s", data.type, sender), data)

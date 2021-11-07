@@ -1018,7 +1018,6 @@ function GuildbookMixin:OnLoad()
 end
 
 
-
 function GuildbookMixin:OnUpdate()
     if self.statusBar.active then
         local complete = 1 - ((self.statusBar.endTime - GetTime()) / self.statusBar.duration)
@@ -1030,6 +1029,31 @@ function GuildbookMixin:OnUpdate()
         end
     end
 end
+
+
+function GuildbookMixin:SetupCacheCallback(cache)
+    cache:RegisterCallback("OnCharacterTableChanged", self.OnCharacterTableChanged, self)
+end
+
+---use this to update the ui
+function GuildbookMixin:OnCharacterTableChanged(_, characterTable)
+    print("ui callback func")
+    --DevTools_Dump({characterTable})
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
