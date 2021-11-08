@@ -1033,12 +1033,20 @@ end
 
 function GuildbookMixin:SetupCacheCallback(cache)
     cache:RegisterCallback("OnCharacterTableChanged", self.OnCharacterTableChanged, self)
+    --cache:RegisterCallback("OnPlayerCharacterTableChanged", self.OnCharacterTableChanged, self)
 end
 
 ---use this to update the ui
 function GuildbookMixin:OnCharacterTableChanged(_, characterTable)
-    print("ui callback func")
+
     --DevTools_Dump({characterTable})
+
+
+    ---thsi is just for testing as the ui code will need to be restructured due to the new callback update
+    GuildbookUI.profiles.character = characterTable
+    GuildbookUI.profiles:LoadTalents("primary")
+    GuildbookUI.profiles:LoadInventory()
+
 end
 
 

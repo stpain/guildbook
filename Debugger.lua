@@ -13,7 +13,7 @@ local debugTypeToClassColour = {
     ['tsdb'] = CreateColor(Guildbook.Data.Class.PALADIN.RGB),
 
     ["commsMixin"] = CreateColor(Guildbook.Data.Class.SHAMAN.RGB),
-    ["rosterCacheMixin"] = CreateColor(Guildbook.Data.Class.WARLOCK.RGB),
+    ["databaseMixin"] = CreateColor(Guildbook.Data.Class.WARLOCK.RGB),
     ["characterMixin"] = CreateColor(Guildbook.Data.Class.DRUID.RGB),
 }
 GuildbookDebuggerListviewItemTemplateMixin = {}
