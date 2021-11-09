@@ -347,12 +347,21 @@ end
 
 
 
+--[[
+    @class Database
 
+    the database class provides functions to update the account wide saved variables and the per character saved variables
+    whenever a value is changed a callback is triggered
+]]
 
 local Database = CreateFromMixins(CallbackRegistryMixin)
 Database:GenerateCallbackEvents({
     "OnCharacterTableChanged",
     "OnPlayerCharacterTableChanged",
+    "OnPlayerCharacterTradeskillsChanged",
+    "OnPlayerCharacterTradeskillRecipesChanged",
+    -- "OnPlayerCharacterTalentsChanged",
+    -- "OnPlayerCharacterInventoryChanged",
 })
 Database.CurrentGuildName = nil;
 
@@ -420,7 +429,11 @@ end
 
 
 
+--[[
+    @class Character
 
+    the Character class listens for changes to the players character and sends this data to the Database class
+]]
 
 
 local Character = CreateFromMixins(CallbackRegistryMixin)
@@ -566,48 +579,58 @@ end
 ---scan the players skills and update the GUILDBOOK_CHARACTER table
 function Character:ScanForTradeskillInfo()
 
+    ---expand all the headers first to get proper return values
+    --ExpandSkillHeader(0)
+
     local characterTradeskillsInfo = {
         Profession1 = "-",
         Profession2 = "-",
+        Profession1Level = 1,
+        Profession2Level = 1,
+        Profession1Spec = nil,
+        Profession2Spec = nil,
     }
 
     Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", "scanning for tradeskill info")
     for s = 1, GetNumSkillLines() do
         local skill, _, _, level, _, _, _, _, _, _, _, _, _ = GetSkillLineInfo(s)
-        if Tradeskills:GetEnglishNameFromTradeskillName(skill) == 'Fishing' then 
-            Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", "found fishing updating level")
-            characterTradeskillsInfo.FishingLevel = level
+        local engSkill = Tradeskills:GetEnglishNameFromTradeskillName(skill)
+        if engSkill then
+            if engSkill == 'Fishing' then 
+                Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", "found fishing updating level")
+                characterTradeskillsInfo.FishingLevel = level
 
-        elseif Tradeskills:GetEnglishNameFromTradeskillName(skill) == 'Cooking' then
-            Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", "found cooking updating level")
-            characterTradeskillsInfo.CookingLevel = level
+            elseif engSkill == 'Cooking' then
+                Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", "found cooking updating level")
+                characterTradeskillsInfo.CookingLevel = level
 
-        elseif Tradeskills:GetEnglishNameFromTradeskillName(skill) == 'First Aid' then
-            Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", "found first aid updating level")
-            characterTradeskillsInfo.FirstAidLevel = level
+            elseif engSkill == 'First Aid' then
+                Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", "found first aid updating level")
+                characterTradeskillsInfo.FirstAidLevel = level
 
-        else
-            for _, prof in pairs(Tradeskills.TradeskillNames) do
-                if prof == Tradeskills:GetEnglishNameFromTradeskillName(skill) then
-                    Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", string.format("found %s", prof))
+            else
+                for _, prof in pairs(Tradeskills.TradeskillNames) do
+                    if prof == engSkill then
+                        Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", string.format("found %s", prof))
 
-                    if characterTradeskillsInfo.Profession1 == '-' then
-                        characterTradeskillsInfo.Profession1 = Tradeskills:GetEnglishNameFromTradeskillName(skill)
-                        Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", string.format("setting Profession1 as %s", prof))
-                        characterTradeskillsInfo.Profession1Level = level
+                        if characterTradeskillsInfo.Profession1 == '-' then
+                            characterTradeskillsInfo.Profession1 = engSkill
+                            Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", string.format("setting Profession1 as %s", engSkill))
+                            characterTradeskillsInfo.Profession1Level = level
 
-                    else
-                        if characterTradeskillsInfo.Profession2 == '-' then
-                            characterTradeskillsInfo.Profession2 = Tradeskills:GetEnglishNameFromTradeskillName(skill)
-                            Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", string.format("setting Profession2 as %s", prof))
-                            characterTradeskillsInfo.Profession2Level = level
+                        else
+                            if characterTradeskillsInfo.Profession2 == '-' then
+                                characterTradeskillsInfo.Profession2 = engSkill
+                                Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", string.format("setting Profession2 as %s", engSkill))
+                                characterTradeskillsInfo.Profession2Level = level
+                            end
                         end
-                    end
 
-                    if characterTradeskillsInfo.Profession1 == characterTradeskillsInfo.Profession2 then
-                        characterTradeskillsInfo.Profession2 = Tradeskills:GetEnglishNameFromTradeskillName(skill)
-                        characterTradeskillsInfo.Profession2Level = level
-                        Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", string.format("updated setting for Profession2 > set as %s", prof))
+                        if characterTradeskillsInfo.Profession1 == characterTradeskillsInfo.Profession2 then
+                            characterTradeskillsInfo.Profession2 = engSkill
+                            characterTradeskillsInfo.Profession2Level = level
+                            Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", string.format("updated setting for Profession2 > set as %s", engSkill))
+                        end
                     end
                 end
             end
@@ -617,6 +640,33 @@ function Character:ScanForTradeskillInfo()
     for j = offset+1, offset+numSlots do
         -- get spell id
         local _, spellID = GetSpellBookItemInfo(j, BOOKTYPE_SPELL)
+
+        ---this could be used as a backup to get the player tradeskills, wont help with prof level though nor for gathering profs
+        local localeSpellName = GetSpellInfo(spellID)
+        local engSpellName = Tradeskills:GetEnglishNameFromTradeskillName(localeSpellName)
+
+        ---herbalism is listed as "Find herbs" with a spell ID of 2383 so just override this
+        if spellID == 2383 then
+            engSpellName = "Herbalism";
+
+        ---mining is listed as "Find minerals" so override this too
+        elseif spellID == 2580 then
+            engSpellName = "Mining";
+        end
+
+        ---if the skill headers for professions wernt expanding when scanned then we have no data returned, 
+        ---so we can get the prof names via the spellbook tab, prof level will default back to 1 but recipes will work as the prof name acts as a key
+        if engSpellName then
+            if engSpellName ~= "Cooking" and engSpellName ~= "Fishing" and engSpellName ~= "First Aid" then
+                if characterTradeskillsInfo.Profession1 == "-" then
+                    characterTradeskillsInfo.Profession1 = engSpellName;
+                    Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", string.format("updated prof1 to %s via spellbook scan", engSpellName))
+                else
+                    characterTradeskillsInfo.Profession2 = engSpellName;
+                    Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", string.format("updated prof2 to %s via spellbook scan", engSpellName))
+                end
+            end
+        end
         -- check if spell is a prof spec
         if Tradeskills.SpecializationSpellsIDs[spellID] then
             -- grab the english name for prof
@@ -633,6 +683,17 @@ function Character:ScanForTradeskillInfo()
 
     ---clean up any old data
     self:RemoveOldTradeskillRecipeTables()
+
+    Database:UpdatePlayerCharacterTable("Profession1", characterTradeskillsInfo.Profession1)
+    Database:UpdatePlayerCharacterTable("Profession1Level", characterTradeskillsInfo.Profession1Level)
+    if type(characterTradeskillsInfo.Profession1Spec) == "number" then
+        Database:UpdatePlayerCharacterTable("Profession1Spec", characterTradeskillsInfo.Profession1Spec)
+    end
+    Database:UpdatePlayerCharacterTable("Profession2", characterTradeskillsInfo.Profession2)
+    Database:UpdatePlayerCharacterTable("Profession2Level", characterTradeskillsInfo.Profession2Level)
+    if type(characterTradeskillsInfo.Profession2Spec) == "number" then
+        Database:UpdatePlayerCharacterTable("Profession2Spec", characterTradeskillsInfo.Profession2Spec)
+    end
 
     ---notify any listeners, tradeskill info is always shared
     C_Timer.After(self.TriggerEventDelay, function()
@@ -772,7 +833,11 @@ function Character:GetPaperDollStats(specName)
 
         ---copy the values into new table
         for k, v in pairs(GUILDBOOK_CHARACTER.PaperDollStats) do
-            GUILDBOOK_CHARACTER.PaperDollStats.Current[k] = v;
+            if type(k) == "string" then
+                GUILDBOOK_CHARACTER.PaperDollStats.Current[k] = v;
+            elseif k == "Defence" then
+                GUILDBOOK_CHARACTER.PaperDollStats.Current[k] = v;
+            end
         end
 
         ---remove any values that arent a table
@@ -783,21 +848,22 @@ function Character:GetPaperDollStats(specName)
                 GUILDBOOK_CHARACTER.PaperDollStats[k] = nil;
             end
         end
+    else
+        GUILDBOOK_CHARACTER.PaperDollStats = {
+            Current = {},
+        }
     end
 
-    local stats = GUILDBOOK_CHARACTER.PaperDollStats.Current;
+    local stats = {};
 
-    if specName then
-        if not GUILDBOOK_CHARACTER.PaperDollStats[specName] then
-            GUILDBOOK_CHARACTER.PaperDollStats[specName] = {}
-        end
-        stats = GUILDBOOK_CHARACTER.PaperDollStats[specName];
+    if not specName then
+        specName = "Current";
     end
 
     ---do i need to wipe it each time?
-    --wipe(stats);
+    wipe(stats);
 
-    ---go through gettign each stat value
+    ---go through getting each stat value
     local numSkills = GetNumSkillLines();
     local skillIndex = 0;
     local currentHeader = nil;
@@ -925,6 +991,9 @@ function Character:GetPaperDollStats(specName)
         local a, b, c, d = UnitStat("player", k);
         stats[stat] = self:FormatNumberForCharacterStats(b)
     end
+
+
+    Database:UpdatePlayerCharacterTable("PaperDollStats", stats, specName)
 end
 
 
@@ -932,6 +1001,8 @@ end
 function Character:Init()
 
     CallbackRegistryMixin.OnLoad(self)
+
+    self:GetPaperDollStats()
 
     self.listener = CreateFrame("Frame")
     self.listener:RegisterEvent("TRADE_SKILL_UPDATE")
@@ -953,6 +1024,9 @@ function Character:Init()
 
         elseif event == "CHARACTER_POINTS_CHANGED" then
             self:ScanPlayerTalents()
+
+            ---as talents can/do effect crit chance, hit chance, power etc we should scan the paperdoll stats as well
+            self:GetPaperDollStats()
 
         end
     end)
@@ -989,6 +1063,7 @@ Comms.SendMessageCooldowns = {
     ["SendCharacterTradeskillInfo"] = -1000,
     ["SendCharacterTradeskillsRecipes"] = -1000,
 }
+Comms.SendPlayerCharacterUpdatesQueued = false;
 
 function Comms:Init()
 
@@ -998,6 +1073,8 @@ function Comms:Init()
     Character:RegisterCallback("OnCharacterTradeskillsInfoChanged", self.SendCharacterTradeskillInfo, self)
     Character:RegisterCallback("OnCharacterTradeskillRecipesChanged", self.SendCharacterTradeskillsRecipes, self)
 
+    ---this is a slightly special case as some of the table data is under privacy rules so it needs to be checked and removed
+    Database:RegisterCallback("OnPlayerCharacterTableChanged", self.SendPlayerCharacterUpdates, self)
 
     self:SayHello()
 end
@@ -1241,12 +1318,15 @@ end
 
 function Comms:SendCharacterTradeskillInfo(characterMixin, tradeskillsInfo)
 
+    DevTools_Dump({tradeskillsInfo})
+
     local tradeskillInfoUpdate = {
         type = "CHARACTER_TRADESKILLS_INFO_UPDATE",
         payload = {
             Profession1 = tradeskillsInfo.Profession1,
             Profession1Level = tradeskillsInfo.Profession1Level,
             Profession1Spec = tradeskillsInfo.Profession1Spec,
+
             Profession2 = tradeskillsInfo.Profession2,
             Profession2Level = tradeskillsInfo.Profession2Level,
             Profession2Spec = tradeskillsInfo.Profession2Spec,
@@ -1288,6 +1368,43 @@ function Comms:SendCharacterTradeskillsRecipes(characterMixin, tradeskillName, t
 
 end
 
+
+
+function Comms:SendPlayerCharacterUpdates(databaseMixin, characterSavedVar)
+
+    local characterData = {
+        type = "PLAYER_CHARACTER_UPDATE",
+        payload = {
+            MainSpec = GUILDBOOK_CHARACTER.MainSpec,
+            OffSpec = GUILDBOOK_CHARACTER.OffSpec,
+            Profession1 = GUILDBOOK_CHARACTER.Profession1,
+            Profession1Level = GUILDBOOK_CHARACTER.Profession1Level,
+            Profession2 = GUILDBOOK_CHARACTER.Profession2,
+            Profession2Level = GUILDBOOK_CHARACTER.Profession2Level,
+        }
+    }
+
+    ---add the tradeskills specs if they exist
+    if type(GUILDBOOK_CHARACTER.Profession1Spec) == "number" then
+        characterData.payload.Profession1Spec = GUILDBOOK_CHARACTER.Profession1Spec;
+    end
+    if type(GUILDBOOK_CHARACTER.Profession2Spec) == "number" then
+        characterData.payload.Profession2Spec = GUILDBOOK_CHARACTER.Profession2Spec;
+    end
+
+    ---as player character data could be updated multiple times very quickly lets make sure we dont spam the chat channels and add a short cooldown buffer
+    if self.SendPlayerCharacterUpdatesQueued == false then
+        Guildbook.DEBUG("commsMixin", "Comms:SendPlayerCharacterUpdates", "queuing player character updates", characterData)
+        C_Timer.After(3.0, function()
+            self:Transmit(characterData, "GUILD", nil, "NORMAL")
+            Guildbook.DEBUG("commsMixin", "Comms:SendPlayerCharacterUpdates", "sending player character updates", characterData)
+            self.SendPlayerCharacterUpdatesQueued = false;
+        end)
+        self.SendPlayerCharacterUpdatesQueued = true;
+    else
+        Guildbook.DEBUG("commsMixin", "Comms:SendPlayerCharacterUpdates", "player character updates already in queue", characterData)
+    end
+end
 
 
 

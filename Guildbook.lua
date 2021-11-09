@@ -1043,9 +1043,9 @@ function GuildbookMixin:OnCharacterTableChanged(_, characterTable)
 
 
     ---thsi is just for testing as the ui code will need to be restructured due to the new callback update
-    GuildbookUI.profiles.character = characterTable
-    GuildbookUI.profiles:LoadTalents("primary")
-    GuildbookUI.profiles:LoadInventory()
+    -- GuildbookUI.profiles.character = characterTable
+    -- GuildbookUI.profiles:LoadTalents("primary")
+    -- GuildbookUI.profiles:LoadInventory()
 
 end
 
@@ -3258,6 +3258,8 @@ function GuildbookProfilesMixin:LoadStats()
                 if self.contentPane.scrollChild.stats[k] then
                     local f = self.contentPane.scrollChild.stats[k]
                     f[stat.key]:SetText("")
+
+                    ---thsi will need to be updated due to the change from adding child tables for stat sets, Current is default
                     if self.character.PaperDollStats[stat.key] then
                         if stat.key == "Defence" and self.character.PaperDollStats[stat.key].Base and self.character.PaperDollStats[stat.key].Mod then
                             local def = self.character.PaperDollStats[stat.key].Base + self.character.PaperDollStats[stat.key].Mod
