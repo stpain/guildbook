@@ -288,6 +288,12 @@ function Guildbook:SetupGuildCalendarFrame()
             f:RegisterForClicks('AnyDown')
             f:SetEnabled(true)
 
+            f.lockoutText = f:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+            f.lockoutText:SetPoint("TOP", 0, -3)
+            f.lockoutText:SetSize(dayW * 0.8, dayH/4)
+            f.lockoutText:SetTextColor(1,1,1,1)
+            f.lockoutText:SetJustifyH("LEFT")
+
             local texLeft = random(0,1) * CALENDAR_DAYBUTTON_NORMALIZED_TEX_WIDTH;
             local texRight = texLeft + CALENDAR_DAYBUTTON_NORMALIZED_TEX_WIDTH;
             local texTop = random(0,1) * CALENDAR_DAYBUTTON_NORMALIZED_TEX_HEIGHT;
@@ -383,6 +389,14 @@ function Guildbook:SetupGuildCalendarFrame()
                         GameTooltip:AddLine('|cffffffff'..v.title)
                     end
                 end
+
+                if self.lockouts then
+                    for _, lockout in ipairs(self.lockouts) do
+                        GameTooltip:AddLine(L["CALENDAR_TOOLTIP_LOCKOUTS"])
+                        GameTooltip:AddDoubleLine(string.format("|cffffffff[%s/%s] %s", lockout.Progress, lockout.Encounters, lockout.Name), lockout.characterName)
+                    end
+                end
+
                 GameTooltip:Show()
             end)
             f:SetScript('OnLeave', function(self)
@@ -399,21 +413,23 @@ function Guildbook:SetupGuildCalendarFrame()
                 end
                 if self.events then
                     for k, event in ipairs(self.events) do
-                        f['eventButton'..k]:Show()
-                        f['eventButton'..k].text:SetText('|cffffffff'..event.title)
-                        f['eventButton'..k].event = event
+                        if k < 4 then
+                            f['eventButton'..k]:Show()
+                            f['eventButton'..k].text:SetText('|cffffffff'..event.title)
+                            f['eventButton'..k].event = event
 
-                        -- change this to just use the first texture in the event list
-                        -- for now find a raid to add the texture
-                        if event.type == 1 then
+                            -- change this to just use the first texture in the event list
+                            -- for now find a raid to add the texture
+                            if event.type == 1 then
 
-                            for k, raid in ipairs(raids) do
-                                if raid.name == event.title then
-                                    f.guildEventTexture:SetTexture(string.format("interface/encounterjournal/ui-ej-dungeonbutton-%s", raid.textureKey))
-                                    f.guildEventTexture:Show()
+                                for k, raid in ipairs(raids) do
+                                    if raid.name == event.title then
+                                        f.guildEventTexture:SetTexture(string.format("interface/encounterjournal/ui-ej-dungeonbutton-%s", raid.textureKey))
+                                        f.guildEventTexture:Show()
+                                    end
                                 end
-                            end
 
+                            end
                         end
 
                     end
@@ -483,6 +499,26 @@ function Guildbook:SetupGuildCalendarFrame()
             dmfLocation = Guildbook.DarkmoonFaireSchedule[self.date.year][self.date.month].location
         end
 
+
+        local lockoutsThisMonth = {}
+        if GUILDBOOK_GLOBAL.myLockouts then
+            for guid, lockouts in pairs(GUILDBOOK_GLOBAL.myLockouts) do
+                for _, lockout in ipairs(lockouts) do
+                    local reset = date("*t", time(today) + lockout.Resets);
+                    local character = Guildbook.Database:FetchCharacterTableByGUID(guid)
+                    if character and (reset.month == self.date.month) then
+                        local newLockout = {}
+                        newLockout.characterName = character.Name
+                        newLockout.day = reset.day;
+                        for k, v in pairs(lockout) do
+                            newLockout[k] = v;
+                        end
+                        table.insert(lockoutsThisMonth, newLockout)
+                    end
+                end
+            end
+        end
+
         for i, day in ipairs(Guildbook.GuildFrame.GuildCalendarFrame.MonthView) do
             for b = 1, 3 do
                 day['eventButton'..b]:Hide()
@@ -494,6 +530,7 @@ function Guildbook:SetupGuildCalendarFrame()
             day.dateText:SetText(' ')
             day.worldEventTexture:SetTexture(nil)
             day.guildEventTexture:SetTexture(nil)
+            day.lockoutText:SetText("")
 
             day.currentDayTexture:Hide()
 
@@ -608,6 +645,16 @@ function Guildbook:SetupGuildCalendarFrame()
                             end
                         end
                         day.worldEventTexture:SetTexCoord(0.0, 0.71, 0.0, 0.55)
+                    end
+                end
+
+                day.lockouts = {}
+                if lockoutsThisMonth and #lockoutsThisMonth > 0 then
+                    for _, lockout in ipairs(lockoutsThisMonth) do
+                        if lockout.day == day.date.day then
+                            day.lockoutText:SetText(string.format("%s resets", lockout.Name))
+                            table.insert(day.lockouts, lockout)
+                        end
                     end
                 end
 
@@ -1057,7 +1104,7 @@ function Guildbook:SetupGuildCalendarFrame()
 
             -- this allows us to modify events from any of our characters, other default to just check if its the current character
             if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.myCharacters then
-                if GUILDBOOK_GLOBAL.myCharacters[self.event.owner] == true or GUILDBOOK_GLOBAL.myCharacters[self.event.owner] == false then -- we just need to know the guid exists true or false here is not important
+                if GUILDBOOK_GLOBAL.myCharacters[self.event.owner] then
                     --print("got owner")
                     self.EventDescriptionEditbox:Enable()
                     self.EventDescriptionEditboxParent.UpdateButton:Show()
@@ -1217,7 +1264,7 @@ function Guildbook:SetupGuildCalendarFrame()
 
 
     function self.GuildFrame.GuildCalendarFrame:UpdateInstanceInfo()
-        local info = Guildbook.GetInstanceInfo()
+        local info = Guildbook.Character:GetInstanceInfo()
         if info and next(info) then
             if #info > 1 then
                 table.sort(info, function(a, b) return a.Resets < b.Resets end)

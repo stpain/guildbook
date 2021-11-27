@@ -191,7 +191,9 @@ StaticPopupDialogs['MainCharacterAddAltCharacter'] = {
     OnAccept = function(self)
         local guid = Guildbook:GetGuildMemberGUID(self.editBox:GetText())
         if guid then
-            GUILDBOOK_GLOBAL.myCharacters[guid] = true
+            if not GUILDBOOK_GLOBAL.myCharacters[guid] then
+                GUILDBOOK_GLOBAL.myCharacters[guid] = true
+            end
         end
     end,
     OnCancel = function(self)

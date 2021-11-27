@@ -4,7 +4,7 @@ local _, Guildbook = ...
 
 
 local debugTypeToClassColour = {
-    ['error'] = CreateColor(Guildbook.Data.Class.DEATHKNIGHT.RGB),
+    ['error'] = CreateColor(Guildbook.Data.Class.PALADIN.RGB),
     ['func'] = CreateColor(Guildbook.Data.Class.HUNTER.RGB),
     ['event'] = CreateColor(Guildbook.Data.Class.ROGUE.RGB),
     ['comms_out'] = CreateColor(Guildbook.Data.Class.PALADIN.RGB),

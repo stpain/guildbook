@@ -129,6 +129,10 @@ L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s %s %s"
 
 
 
+L["CALENDAR_TOOLTIP_LOCKOUTS"] 		= "Lockouts"
+
+
+
 --mod blizz guild roster, these are key/values in the ModBlizz file that add extra columns
 L['Online']                         = 'Online'
 L['MainSpec']                       = 'Main Spec'
@@ -136,6 +140,7 @@ L['Rank']                           = 'Rank'
 L['Note']                           = 'Note'
 L['Profession1']                    = 'Profession 1'
 L['Profession2']                    = 'Profession 2'
+L["Fishing"]						= "Fishing"
 
 
 -- roster listview and tooltip, these are also sort keys and should be lower case

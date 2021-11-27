@@ -1,6 +1,6 @@
 zlib License
 
-Copyright �2019 Samuel Thomas Pain
+Copyright �2021 Samuel Thomas Pain
 
 This software is provided 'as-is', without any express or implied
 warranty.  In no event will the authors be held liable for any damages

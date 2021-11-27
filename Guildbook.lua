@@ -2,7 +2,10 @@
 -- grab the addon table
 local _, gb = ...
 
-local L = gb.Locales
+local L = gb.Locales;
+local Database = gb.Database;
+local Comms = gb.Comms;
+local Character = gb.Character;
 
 local LCI = LibStub:GetLibrary("LibCraftInfo-1.0")
 local LibGraph = LibStub("LibGraph-2.0");
@@ -1013,7 +1016,6 @@ function GuildbookMixin:OnLoad()
         GuildbookDataShare:Show()
     end
 
-    --self.portraitButton
 
 end
 
@@ -1031,21 +1033,35 @@ function GuildbookMixin:OnUpdate()
 end
 
 
-function GuildbookMixin:SetupCacheCallback(cache)
-    cache:RegisterCallback("OnCharacterTableChanged", self.OnCharacterTableChanged, self)
-    --cache:RegisterCallback("OnPlayerCharacterTableChanged", self.OnCharacterTableChanged, self)
-end
 
+
+--[[
+    thoughts
+
+    with the new callbacks i can set up functions to refresh the view
+
+    do we need to setup a tradeskill refresh?
+
+    profile refresh should be in place although not 100% tested
+]]
+
+---ctrl-H to this area for the new database callback function !!!!!!
 ---use this to update the ui
-function GuildbookMixin:OnCharacterTableChanged(_, characterTable)
+function GuildbookMixin:OnCharacterTableChanged(_, guid, characterTable)
 
     --DevTools_Dump({characterTable})
 
+    ---if the profile view is open and we have a matching guid then refresh the view, dont reload for the players character as they might be editing etc
+    if self.profiles.contentPane:IsVisible() then
+        if (self.profiles.characterGUID and self.profiles.characterGUID == guid) then
+            if guid ~= UnitGUID("player") then
+                self.profiles:LoadCharacter(guid)
+                self.statusText:SetText(string.format("character table changed, updating view for %s", characterTable.Name))
+            end
+        end
+    end
 
-    ---thsi is just for testing as the ui code will need to be restructured due to the new callback update
-    -- GuildbookUI.profiles.character = characterTable
-    -- GuildbookUI.profiles:LoadTalents("primary")
-    -- GuildbookUI.profiles:LoadInventory()
+    
 
 end
 
@@ -1385,13 +1401,26 @@ local professions = {
     { id = 164, Name = 'Blacksmithing', Atlas = "Mobile-Blacksmithing", },
     { id = 333, Name = 'Enchanting', Atlas = "Mobile-Enchanting", },
     { id = 202, Name = 'Engineering', Atlas = "Mobile-Enginnering", },
-    { id = 773, Name = 'Inscription', Atlas = "Mobile-Inscription", },
-    { id = 755, Name = 'Jewelcrafting', Atlas = "Mobile-Jewelcrafting", },
+    -- { id = 773, Name = 'Inscription', Atlas = "Mobile-Inscription", },
+    -- { id = 755, Name = 'Jewelcrafting', Atlas = "Mobile-Jewelcrafting", },
     { id = 165, Name = 'Leatherworking', Atlas = "Mobile-Leatherworking", },
     { id = 197, Name = 'Tailoring', Atlas = "Mobile-Tailoring", },
     { id = 186, Name = 'Mining', Atlas = "Mobile-Mining", },
     { id = 185, Name = 'Cooking', Atlas = "Mobile-Cooking", },
 }
+
+if WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC then
+    -- table.insert(professions,{
+    --     id = 773,
+    --     name = "Inscription",
+    --     Atlas = "Mobile-Inscription",
+    -- })
+    table.insert(professions,{
+        id = 755,
+        Name = "Jewelcrafting",
+        Atlas = "Mobile-Jewelcrafting",
+    })
+end
 
 function GuildbookTradeskillProfessionListview:LoadCharacterTradeskillRecipes(guid, prof)
     local character = gb:GetCharacterFromCache(guid)
@@ -1456,6 +1485,7 @@ function GuildbookTradeskillProfessionListview:LoadCharacterTradeskillRecipes(gu
 end
 
 function GuildbookTradeskillProfessionListview:OnLoad()
+    table.sort(professions, function(a,b) return a.Name < b.Name end)
     for i, prof in ipairs(professions) do
         local f = CreateFrame("FRAME", "GuildbookUiProfessionListview"..i, self, "GuildbookListviewItem")
         f:SetSize(175, 40)
@@ -2759,10 +2789,14 @@ function GuildbookProfilesMixin:OnShow()
             f:SetPoint("TOPRIGHT", self.contentPane.scrollChild.frames[k-1], "BOTTOMRIGHT", 0, 0)
         end
     end
+
+    ---construct the main character drop down
     local myCharacters = {}
     if GUILDBOOK_GLOBAL.myCharacters then
-        for guid, isMain in pairs(GUILDBOOK_GLOBAL.myCharacters) do
+        --loop the guids listed, these are set as characters are made
+        for guid, _ in pairs(GUILDBOOK_GLOBAL.myCharacters) do
             if GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][guid] then
+                --get the character table info
                 local character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][guid]
                 table.insert(myCharacters, {
                     text = character.Name,
@@ -2771,6 +2805,8 @@ function GuildbookProfilesMixin:OnShow()
                             main = false;
                         end
                         GUILDBOOK_GLOBAL.myCharacters[guid] = true;
+
+                        --when selecting an alt update all characters the player has in the guild
                         for _guid, _ in pairs(GUILDBOOK_GLOBAL.myCharacters) do
                             if GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][_guid] then
                                 local alt = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][_guid]
@@ -2778,7 +2814,8 @@ function GuildbookProfilesMixin:OnShow()
                                 alt.MainCharacter = guid;
                                 GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][_guid].MainCharacter = guid;
                                 --print("new value:",alt.MainCharacter)
-                                GUILDBOOK_CHARACTER.MainCharacter = guid;
+                                --GUILDBOOK_CHARACTER.MainCharacter = guid;
+                                Database:UpdatePlayerCharacterTable("MainCharacter", guid)
                                 --print(string.format("set %s as main character for %s", character.Name, alt.Name))
                             end
                         end
@@ -2801,6 +2838,8 @@ function GuildbookProfilesMixin:MyProfile_OnEditChanged(edit, text)
     end
     GUILDBOOK_CHARACTER.profile[edit] = text;
 
+    Database:UpdatePlayerCharacterTable(edit, text, "profile")
+
     if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME] and GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][UnitGUID("player")] then
         local character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][UnitGUID("player")]
         if not character.profile then
@@ -2810,14 +2849,20 @@ function GuildbookProfilesMixin:MyProfile_OnEditChanged(edit, text)
     end
 end
 
+
+---this function is a bit messy and needs to be tidied up, for now i will just make sure its loading
+---@param player string if loading the players character set this as "player"
 function GuildbookProfilesMixin:LoadCharacter(player)
     if not GUILD_NAME then
         return;
     end
     self:ShowSummary(false) -- hide the profile summary frame and show side/content
     navigateTo(self)
+
+    --if we are loading the players character we want to setup the edit options etc
     if player and player == "player" then
         self.character = gb:GetCharacterFromCache(UnitGUID("player"))
+        self.characterGUID = UnitGUID("player")
         if not self.character then
             return;
         end
@@ -2850,96 +2895,64 @@ function GuildbookProfilesMixin:LoadCharacter(player)
         local smartGuessMainSpec = GUILDBOOK_CHARACTER.smartGuessMainSpec == true and "Detect spec" or "Manual update"
         self.contentPane.scrollChild.profile.mainSpecSmartGuessDropDown.Text:SetText(smartGuessMainSpec)
         self.contentPane.scrollChild.profile.offSpecDropDown.menu = offSpec
+
+    else
+        self.characterGUID = player;
     end
     self:HideCharacterModels()
     self:HideInventoryIcons()
     self:HideTalentIcons()
     self:HideProfile()
     if self.character then
-        if player and player:find("Player-") then
-            self:GetParent().statusBar:SetValue(0)
-            self:GetParent().statusBar.duration = gb.COMMS_DELAY + (transmitStagger * 5)
-            self:GetParent().statusBar.endTime = GetTime() + self:GetParent().statusBar.duration
-            self:GetParent().statusBar.active = true
-
-            self:GetParent().statusText:SetText("requesting profile")
-            gb:SendProfileRequest(player)
-            C_Timer.After(transmitStagger * 1, function()
-                self:GetParent().statusText:SetText("requesting character data")
-                gb:CharacterDataRequest(player)
-            end)
-            C_Timer.After(transmitStagger * 2, function()
-                self:GetParent().statusText:SetText("requesting inventory")
-                gb:SendInventoryRequest(player)
-            end)
-            C_Timer.After(transmitStagger * 3, function()
-                self:GetParent().statusText:SetText("requesting talents")
-                gb:SendTalentInfoRequest(player, 'primary')
-            end)
-            -- C_Timer.After(transmitStagger * 4, function()
-            --     if self.character.Profession1 then
-            --         self:GetParent().statusText:SetText("requesting profession 1")
-            --         gb:SendTradeSkillsRequest(self.character.Name, self.character.Profession1)
-            --     end
-            -- end)
-            -- C_Timer.After(transmitStagger * 5, function()
-            --     if self.character.Profession2 then
-            --         self:GetParent().statusText:SetText("requesting profession 2")
-            --         gb:SendTradeSkillsRequest(self.character.Name, self.character.Profession2)
-            --     end
-            -- end)
+        if player and player == "player" then
+            self.contentPane.scrollChild.profile.edit:Show()
         else
-            gb:GetCharacterInventory()
-            gb:GetCharacterTalentInfo('primary')
+            self.contentPane.scrollChild.profile.edit:Hide()
+            for _, f in ipairs(self.contentPane.scrollChild.profile.displayEdit) do
+                f:SetShown(false)
+            end
+            for _, fs in ipairs(self.contentPane.scrollChild.profile.displayStrings) do
+                fs:SetShown(true)
+            end
         end
-
-        local delay = (player and player == "player") and 0 or transmitStagger * 1;
-        C_Timer.After(gb.COMMS_DELAY + delay, function()
-            if player and player == "player" then
-                self.contentPane.scrollChild.profile.edit:Show()
-            else
-                self.contentPane.scrollChild.profile.edit:Hide()
-                for _, f in ipairs(self.contentPane.scrollChild.profile.displayEdit) do
-                    f:SetShown(false)
-                end
-                for _, fs in ipairs(self.contentPane.scrollChild.profile.displayStrings) do
-                    fs:SetShown(true)
-                end
-            end
-            self:LoadProfile()
-            self:LoadTalents("primary")
-            self:LoadInventory()
-            self:LoadStats()
-            if self.character.Inventory and self.character.Inventory.Current and next(self.character.Inventory.Current) and self.character.Race and self.character.Gender and self.characterModels[self.character.Race:upper()] and self.characterModels[self.character.Race:upper()][self.character.Gender:upper()] then
-                self.defaultModel:Hide()
-                self.characterModels[self.character.Race:upper()][self.character.Gender:upper()]:Show()
-            else
-                self.defaultModel:Show()
-            end
-            --self.fadeIn:Play()
-            if self.character.Class then
-                self.background:SetAtlas("legionmission-complete-background-"..(self.character.Class:lower()))
-            end
-            if self.character.Race then
-                self.sidePane.background:SetAtlas("transmog-background-race-"..(self.character.Race:lower()))
-            end
-            self.sidePane.name:SetText(string.format("%s  Lvl %s", self.character.Name, self.character.Level))
-            if self.character.MainSpec then
-                self.sidePane.spec:SetText(string.format("%s %s", self.character.MainSpec, self.character.Class:sub(1,1):upper()..self.character.Class:sub(2):lower()))
-            else
-                self.sidePane.spec:SetText("-")
-            end
-            if self.character.Profession1 then
-                self.sidePane.prof1:SetText(string.format("%s [%s]", self.character.Profession1, self.character.Profession1Level))
-            else
-                self.sidePane.prof1:SetText("-")
-            end
-            if self.character.Profession2 then
-                self.sidePane.prof2:SetText(string.format("%s [%s]", self.character.Profession2, self.character.Profession2Level))
-            else
-                self.sidePane.prof2:SetText("-")
-            end
-        end)
+        self:LoadProfile()
+        self:LoadTalents("primary")
+        self:LoadInventory()
+        self:LoadStats()
+        if self.character.Inventory and self.character.Inventory.Current and next(self.character.Inventory.Current) and self.character.Race and self.character.Gender and self.characterModels[self.character.Race:upper()] and self.characterModels[self.character.Race:upper()][self.character.Gender:upper()] then
+            self.defaultModel:Hide()
+            self.characterModels[self.character.Race:upper()][self.character.Gender:upper()]:Show()
+        else
+            self.defaultModel:Show()
+        end
+        --self.fadeIn:Play()
+        if self.character.Class then
+            self.background:SetAtlas("legionmission-complete-background-"..(self.character.Class:lower()))
+        end
+        if self.character.Race then
+            self.sidePane.background:SetAtlas("transmog-background-race-"..(self.character.Race:lower()))
+        end
+        self.sidePane.name:SetText(string.format("%s  Lvl %s", self.character.Name, self.character.Level))
+        if self.character.MainSpec then
+            self.sidePane.spec:SetText(string.format("%s %s", self.character.MainSpec, self.character.Class:sub(1,1):upper()..self.character.Class:sub(2):lower()))
+        else
+            self.sidePane.spec:SetText("-")
+        end
+        if self.character.Profession1 then
+            self.sidePane.prof1:SetText(string.format("%s [%s]", self.character.Profession1, self.character.Profession1Level))
+        else
+            self.sidePane.prof1:SetText("-")
+        end
+        if self.character.Profession2 then
+            self.sidePane.prof2:SetText(string.format("%s [%s]", self.character.Profession2, self.character.Profession2Level))
+        else
+            self.sidePane.prof2:SetText("-")
+        end
+        if self.character.FishingLevel then
+            self.sidePane.fishing:SetText(string.format("%s [%s]", gb.ProfessionNames[GetLocale()][356], self.character.FishingLevel))
+        else
+            self.sidePane.fishing:SetText("-")
+        end
     else
         self.defaultModel:Show()
     end    
@@ -3265,7 +3278,7 @@ function GuildbookProfilesMixin:LoadStats()
                             local def = self.character.PaperDollStats[stat.key].Base + self.character.PaperDollStats[stat.key].Mod
                             f[stat.key]:SetText(def)
                         elseif (stat.key):find("ManaRegen") then
-                            f[stat.key]:SetText(gb:FormatNumberForCharacterStats(self.character.PaperDollStats[stat.key] * 5))
+                            f[stat.key]:SetText(string.format("%.2f", self.character.PaperDollStats[stat.key] * 5))  --Character:FormatNumberForCharacterStats(self.character.PaperDollStats[stat.key] * 5))
                         else
                             f[stat.key]:SetText(self.character.PaperDollStats[stat.key])
                         end
