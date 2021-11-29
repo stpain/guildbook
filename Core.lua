@@ -2201,14 +2201,8 @@ end
 function Guildbook:PLAYER_ENTERING_WORLD()
 
     if self.addonLoaded == true then
-        return;
-
-    else
-        if not GUILDBOOK_GLOBAL.myLockouts then
-            GUILDBOOK_GLOBAL.myLockouts = {}
-        end
-
         GUILDBOOK_GLOBAL.myLockouts[UnitGUID("player")] = Character:GetInstanceInfo() or {};
+        return;
     end
 
     Guildbook.DEBUG("event", "PLAYER_ENTERING_WORLD", "")

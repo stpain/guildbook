@@ -258,6 +258,7 @@ function Guildbook:SetupGuildCalendarFrame()
     local CALENDAR_DAYBUTTON_NORMALIZED_TEX_HEIGHT = 90 / 256 - 0.001
     local dayW, dayH = 70, 53
 
+    --when i scaled up into the new UI i just scaled the sizes
     dayW = dayW * 1.26
     dayH = dayH * 1.26
 
@@ -288,9 +289,14 @@ function Guildbook:SetupGuildCalendarFrame()
             f:RegisterForClicks('AnyDown')
             f:SetEnabled(true)
 
+            f.dateText = f:CreateFontString('$parentDateText', 'OVERLAY', 'GameFontNormalSmall')
+            f.dateText:SetPoint('TOPLEFT', 5, -4)
+            f.dateText:SetTextColor(1,1,1,1)
+            f.dateText:SetSize(20,20)
+
             f.lockoutText = f:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-            f.lockoutText:SetPoint("TOP", 0, -3)
-            f.lockoutText:SetSize(dayW * 0.8, dayH/4)
+            f.lockoutText:SetPoint("LEFT", f.dateText, "RIGHT", 2, 0)
+            f.lockoutText:SetSize(60, 20)
             f.lockoutText:SetTextColor(1,1,1,1)
             f.lockoutText:SetJustifyH("LEFT")
 
@@ -367,10 +373,6 @@ function Guildbook:SetupGuildCalendarFrame()
             f.events = {}
             f.worldEvents = {}
 
-            f.dateText = f:CreateFontString('$parentDateText', 'OVERLAY', 'GameFontNormalSmall')
-            f.dateText:SetPoint('TOPLEFT', 3, -3)
-            f.dateText:SetTextColor(1,1,1,1)
-
             f:SetScript('OnEnter', function(self)
                 GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
                 --if self.worldEvents and next(self.worldEvents) then
@@ -391,8 +393,9 @@ function Guildbook:SetupGuildCalendarFrame()
                 end
 
                 if self.lockouts then
+                    GameTooltip:AddLine("")
+                    GameTooltip:AddLine(L["CALENDAR_TOOLTIP_LOCKOUTS"])
                     for _, lockout in ipairs(self.lockouts) do
-                        GameTooltip:AddLine(L["CALENDAR_TOOLTIP_LOCKOUTS"])
                         GameTooltip:AddDoubleLine(string.format("|cffffffff[%s/%s] %s", lockout.Progress, lockout.Encounters, lockout.Name), lockout.characterName)
                     end
                 end
@@ -500,24 +503,27 @@ function Guildbook:SetupGuildCalendarFrame()
         end
 
 
-        local lockoutsThisMonth = {}
+        self.lockoutsThisMonth = {}
         if GUILDBOOK_GLOBAL.myLockouts then
             for guid, lockouts in pairs(GUILDBOOK_GLOBAL.myLockouts) do
-                for _, lockout in ipairs(lockouts) do
-                    local reset = date("*t", time(today) + lockout.Resets);
-                    local character = Guildbook.Database:FetchCharacterTableByGUID(guid)
-                    if character and (reset.month == self.date.month) then
-                        local newLockout = {}
-                        newLockout.characterName = character.Name
-                        newLockout.day = reset.day;
-                        for k, v in pairs(lockout) do
-                            newLockout[k] = v;
+                local character = Guildbook.Database:FetchCharacterTableByGUID(guid)
+                if character then
+                    for _, lockout in ipairs(lockouts) do
+                        local reset = date("*t", time(today) + lockout.Resets);
+                        if reset.month == self.date.month then
+                            local newLockout = {}
+                            newLockout.characterName = character.Name
+                            newLockout.day = reset.day;
+                            for k, v in pairs(lockout) do
+                                newLockout[k] = v;
+                            end
+                            table.insert(self.lockoutsThisMonth, newLockout)
                         end
-                        table.insert(lockoutsThisMonth, newLockout)
                     end
                 end
             end
         end
+        --DevTools_Dump({self.lockoutsThisMonth})
 
         for i, day in ipairs(Guildbook.GuildFrame.GuildCalendarFrame.MonthView) do
             for b = 1, 3 do
@@ -649,8 +655,8 @@ function Guildbook:SetupGuildCalendarFrame()
                 end
 
                 day.lockouts = {}
-                if lockoutsThisMonth and #lockoutsThisMonth > 0 then
-                    for _, lockout in ipairs(lockoutsThisMonth) do
+                if self.lockoutsThisMonth and #self.lockoutsThisMonth > 0 then
+                    for _, lockout in ipairs(self.lockoutsThisMonth) do
                         if lockout.day == day.date.day then
                             day.lockoutText:SetText(string.format("%s resets", lockout.Name))
                             table.insert(day.lockouts, lockout)

@@ -1,6 +1,6 @@
 ## Interface: 11400
 ## Author: Copperbolts
-## Version: 4.97311
+## Version: 4.9732
 ## Title: Guildbook
 ## Notes: Guild addon for guild stuff!
 ## SavedVariables: GUILDBOOK_GLOBAL
