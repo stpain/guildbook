@@ -396,9 +396,11 @@ function Guildbook:SetupGuildCalendarFrame()
                     GameTooltip:AddLine("")
                     GameTooltip:AddLine(L["CALENDAR_TOOLTIP_LOCKOUTS"])
                     for _, lockout in ipairs(self.lockouts) do
-                        GameTooltip:AddDoubleLine(string.format("|cffffffff[%s/%s] %s", lockout.Progress, lockout.Encounters, lockout.Name), lockout.characterName)
+                        GameTooltip:AddDoubleLine(string.format("|cffffffff%s %s [%s/%s]", lockout.time, lockout.Name, lockout.Progress, lockout.Encounters), Guildbook.Colours[lockout.characterClass]:WrapTextInColorCode(lockout.characterName))
                     end
                 end
+
+                -- chest mp5 
 
                 GameTooltip:Show()
             end)
@@ -509,11 +511,13 @@ function Guildbook:SetupGuildCalendarFrame()
                 local character = Guildbook.Database:FetchCharacterTableByGUID(guid)
                 if character then
                     for _, lockout in ipairs(lockouts) do
-                        local reset = date("*t", time(today) + lockout.Resets);
-                        if reset.month == self.date.month then
+                        --local reset = date("*t", time(today) + lockout.Resets);
+                        if type(lockout.Resets) == "table" and (lockout.Resets.month == self.date.month) then
                             local newLockout = {}
                             newLockout.characterName = character.Name
-                            newLockout.day = reset.day;
+                            newLockout.characterClass = character.Class
+                            newLockout.day = lockout.Resets.day;
+                            newLockout.time = string.format("%.2d:%.2d:%.2d", lockout.Resets.hour, lockout.Resets.min, lockout.Resets.sec)
                             for k, v in pairs(lockout) do
                                 newLockout[k] = v;
                             end
@@ -1273,7 +1277,7 @@ function Guildbook:SetupGuildCalendarFrame()
         local info = Guildbook.Character:GetInstanceInfo()
         if info and next(info) then
             if #info > 1 then
-                table.sort(info, function(a, b) return a.Resets < b.Resets end)
+                table.sort(info, function(a, b) return a.Name < b.Name end)
             end
             for k, raid in ipairs(info) do
                 --local dateObj = date('*t', tonumber(GetTime() + raid.Resets))
@@ -1291,14 +1295,22 @@ function Guildbook:SetupGuildCalendarFrame()
                     f.raid:SetText(raid.Name)
 
                     f.unlocks = f:CreateFontString(nil, 'OVERLAY', 'GameFontNormalSmall')
-                    f.unlocks:SetPoint('LEFT', 220, 0)                    
-                    f.unlocks:SetText(SecondsToTime(raid.Resets))
+                    f.unlocks:SetPoint('LEFT', 220, 0)
+                    if type(info.Resets) == "table" then               
+                        f.unlocks:SetText(string.format("%.2d %s", info.Resets.day, monthNames[info.Resets.month]))
+                    elseif type(info.Resets) == "number" then
+                        f.unlocks:SetText(SecondsToTime(raid.Resets))
+                    end
 
                     self.InstanceInfoFrame.rows[k] = f
                 else
                     self.InstanceInfoFrame.rows[k].progress:SetText(raid.Progress..'/'..raid.Encounters)
                     self.InstanceInfoFrame.rows[k].raid:SetText(raid.Name)
-                    self.InstanceInfoFrame.rows[k].unlocks:SetText(SecondsToTime(raid.Resets))
+                    if type(info.Resets) == "table" then               
+                        self.InstanceInfoFrame.rows[k].unlocks:SetText(string.format("%.2d %s", info.Resets.day, monthNames[info.Resets.month]))
+                    elseif type(info.Resets) == "number" then
+                        self.InstanceInfoFrame.rows[k].unlocks:SetText(SecondsToTime(raid.Resets))
+                    end
                 end
             end
         end
@@ -1310,6 +1322,12 @@ function Guildbook:SetupGuildCalendarFrame()
         --FriendsFrame:SetHeight(FRIENDS_FRAME_HEIGHT + 90)
 
         self:UpdateInstanceInfo()
+
+        if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.myLockouts then
+            local lockouts = Guildbook.Character:GetInstanceInfo()
+            --DevTools_Dump({lockouts})
+            GUILDBOOK_GLOBAL.myLockouts[UnitGUID("player")] = lockouts;
+        end
     end)
 
     self.GuildFrame.GuildCalendarFrame:SetScript('OnHide', function(self)

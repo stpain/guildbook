@@ -619,13 +619,21 @@ function Character:FormatNumberForCharacterStats(num)
 end
 
 
-
+---changed this to now store a datetime table for the actual reset instead of the duration in seconds
 function Character:GetInstanceInfo()
     local t = {}
+    local today = date("*t")
     if GetNumSavedInstances() > 0 then
         for i = 1, GetNumSavedInstances() do
             local name, id, reset, difficulty, locked, extended, instanceIDMostSig, isRaid, maxPlayers, difficultyName, numEncounters, encounterProgress = GetSavedInstanceInfo(i)
-            tinsert(t, { Name = name, ID = id, Resets = reset, Encounters = numEncounters, Progress = encounterProgress })
+            local resets = date("*t", time(today) + reset);
+            table.insert(t, { 
+                Name = name,
+                ID = id, 
+                Resets = resets, 
+                Encounters = numEncounters, 
+                Progress = encounterProgress 
+            })
             --local msg = string.format("name=%s, id=%s, reset=%s, difficulty=%s, locked=%s, numEncounters=%s", tostring(name), tostring(id), tostring(reset), tostring(difficulty), tostring(locked), tostring(numEncounters))
         end
     end
@@ -2144,6 +2152,9 @@ function Guildbook:Init()
     tooltipIcon.icon:SetAllPoints()
     -- hook the tooltip for guild characters
     GameTooltip:HookScript('OnTooltipSetUnit', function(self)
+        if InCombatLockdown() then
+            return;
+        end
         if not GUILDBOOK_GLOBAL then
             return;
         end
@@ -2201,7 +2212,8 @@ end
 function Guildbook:PLAYER_ENTERING_WORLD()
 
     if self.addonLoaded == true then
-        GUILDBOOK_GLOBAL.myLockouts[UnitGUID("player")] = Character:GetInstanceInfo() or {};
+        local lockouts = Character:GetInstanceInfo()
+        GUILDBOOK_GLOBAL.myLockouts[UnitGUID("player")] = lockouts;
         return;
     end
 
@@ -2333,6 +2345,7 @@ function Guildbook:Load()
             tooltip:AddLine(L["MINIMAP_CALENDAR_RIGHTCLICK"], 0.1, 0.58, 0.92, 1)
             -- get events for next 7 days
             local upcomingEvents = Guildbook:GetCalendarEvents(time(now), 7)
+            --DevTools_Dump({upcomingEvents})
             if upcomingEvents and next(upcomingEvents) then
                 tooltip:AddLine(' ')
                 tooltip:AddLine(L['Events'])
@@ -3680,7 +3693,7 @@ function Guildbook:Transmit(data, channel, targetGUID, priority)
     
         if addonName and encoded and channel and priority then
             Guildbook.DEBUG('comms_out', 'SendCommMessage_NoTarget', string.format("type: %s, channel: %s target: %s, prio: %s", data.type or 'nil', channel, 'nil', priority))
-            --self:SendCommMessage(addonName, encoded, channel, nil, priority)
+            self:SendCommMessage(addonName, encoded, channel, nil, priority)
         end
     end
 
@@ -4327,9 +4340,9 @@ end
 function Guildbook:OnGuildCalendarEventDeleted(data, distribution, sender)
     self.GuildFrame.GuildCalendarFrame.EventFrame:RegisterEventDeleted(data.payload)
     Guildbook.DEBUG('func', 'OnGuildCalendarEventDeleted', string.format('Guild calendar event %s has been deleted', data.payload.title))
-    --C_Timer.After(1, function()
+    C_Timer.After(1, function()
         Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:RemoveDeletedEvents()
-    --end)
+    end)
 end
 
 

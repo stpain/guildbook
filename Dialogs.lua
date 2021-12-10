@@ -100,7 +100,9 @@ StaticPopupDialogs['GuildbookResetCacheCharacter'] = {
         wipe(GUILDBOOK_CHARACTER)
         local guildName = Guildbook:GetGuildName()
         if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
-            GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][t.guid] = nil
+            if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][t.guid] then
+                GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][t.guid] = Guildbook.Data.DefaultCharacterSettings;
+            end
         end
     end,
     OnCancel = function(self)
@@ -121,6 +123,7 @@ StaticPopupDialogs['GuildbookResetGlobalSettings'] = {
             GUILDBOOK_GLOBAL = Guildbook.Data.DefaultGlobalSettings
             GuildbookOptionsDebugCB:SetChecked(GUILDBOOK_GLOBAL['Debug'])
         end
+        Guildbook.addonLoaded = false;
         ReloadUI()
     end,
     OnCancel = function(self)
