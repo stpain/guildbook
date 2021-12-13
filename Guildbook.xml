@@ -561,18 +561,18 @@
                                         <Anchor point="TOP" relativePoint="BOTTOM" relativeKey="$parent.prof1" x="0" y="-5"/>
                                     </Anchors>
                                 </FontString>
-                                <FontString parentKey="fishing" inherits="GameFontNormal" text="-">
+                                <FontString parentKey="cooking" inherits="GameFontNormal" text="-">
                                     <Color r="1" g="1" b="1"/>
                                     <Size x="200" y="20"/>
                                     <Anchors>
                                         <Anchor point="TOP" relativePoint="BOTTOM" relativeKey="$parent.prof2" x="0" y="-5"/>
                                     </Anchors>
                                 </FontString>
-                                <FontString parentKey="cooking" inherits="GameFontNormal" text="-">
+                                <FontString parentKey="fishing" inherits="GameFontNormal" text="-">
                                     <Color r="1" g="1" b="1"/>
                                     <Size x="200" y="20"/>
                                     <Anchors>
-                                        <Anchor point="TOP" relativePoint="BOTTOM" relativeKey="$parent.fishing" x="0" y="-5"/>
+                                        <Anchor point="TOP" relativePoint="BOTTOM" relativeKey="$parent.cooking" x="0" y="-5"/>
                                     </Anchors>
                                 </FontString>
                             </Layer>
@@ -636,13 +636,13 @@
                                 <Frames>
 
                                     <Frame parentKey="profile" parentArray="frames">
-                                        <Size y="350"/>
+                                        <Size y="380"/>
                                         <Layers>
                                             <Layer level="BACKGROUND">
 
                                             </Layer>
                                             <Layer level="OVERLAY">
-                                                <FontString parentKey="title" inherits="GameFontNormalLarge" parentArray="localStrings">
+                                                <FontString parentKey="profileSectionTitle" inherits="GameFontNormalHuge" parentArray="localStrings">
                                                     <Color r="1" g="1" b="1"/>
                                                     <Anchors>
                                                         <Anchor point="TOP" x="0" y="0"/>
@@ -774,7 +774,7 @@
                                                     <Color r="1" g="1" b="1"/>
                                                     <Size x="75" y="30"/>
                                                     <Anchors>
-                                                        <Anchor relativeKey="$parent.mainCharacterLabel" relativePoint="BOTTOMLEFT" point="TOPLEFT" x="0" y="-20"/>
+                                                        <Anchor relativeKey="$parent.mainCharacterLabel" relativePoint="BOTTOMLEFT" point="TOPLEFT" x="0" y="-6"/>
                                                     </Anchors>
                                                     <KeyValues>
                                                         <KeyValue key="locale" value="ALT_CHARACTERS" type="string"/>
@@ -949,13 +949,13 @@
                                             <Frame parentKey="altCharactersContainer">
                                                 <Size y="50"/>
                                                 <Anchors>
-                                                    <Anchor relativeKey="$parent.altCharactersLabel" relativePoint="RIGHT" point="LEFT" x="20" y="0"/>
+                                                    <Anchor relativeKey="$parent.altCharactersLabel" relativePoint="BOTTOMLEFT" point="TOPLEFT" x="0" y="-10"/>
                                                     <Anchor point="RIGHT" x="-5" y="0"/>
                                                 </Anchors>
                                                 <Frames> 
                                                     <Frame parentKey="avatar1" parentArray="avatars" inherits="GuildbookProfileSummaryRowAvatarTemplate">
                                                         <Anchors>
-                                                            <Anchor point="LEFT" x="5" y="0"/>
+                                                            <Anchor point="LEFT" x="0" y="0"/>
                                                         </Anchors>
                                                     </Frame>
                                                     <Frame parentKey="avatar2" parentArray="avatars" inherits="GuildbookProfileSummaryRowAvatarTemplate">
@@ -998,7 +998,7 @@
                                                             <Anchor point="LEFT" relativeKey="$parent.avatar8" relativePoint="RIGHT" x="0" y="0"/>
                                                         </Anchors>
                                                     </Frame>
-                                                    <Frame parentKey="scrollRight" enableMouse="true">
+                                                    <!-- <Frame parentKey="scrollRight" enableMouse="true">
                                                         <Size x="35"/>
                                                         <Anchors>
                                                             <Anchor point="TOPRIGHT" x="0" y="0"/>
@@ -1020,7 +1020,7 @@
                                                                 self.glow:Hide()
                                                             </OnLeave>
                                                         </Scripts>
-                                                    </Frame>
+                                                    </Frame> -->
                                                 </Frames>
                                             </Frame>
 
@@ -1053,7 +1053,7 @@
                                         </Anchors>
                                         <Layers>
                                             <Layer level="ARTWORK">
-                                                <FontString parentKey="title" inherits="GameFontNormalLarge" text="Inventory">
+                                                <FontString parentKey="profileSectionTitle" inherits="GameFontNormalHuge" text="Inventory">
                                                     <Color r="1" g="1" b="1"/>
                                                     <Anchors>
                                                         <Anchor point="TOP" x="0" y="-5"/>
@@ -1172,7 +1172,7 @@
                                         </Anchors>
                                         <Layers>
                                             <Layer level="ARTWORK">
-                                                <FontString parentKey="title" inherits="GameFontNormalLarge" text="Stats">
+                                                <FontString parentKey="profileSectionTitle" inherits="GameFontNormalHuge" text="Stats">
                                                     <Color r="1" g="1" b="1"/>
                                                     <Anchors>
                                                         <Anchor point="TOP" x="0" y="-5"/>
@@ -1222,7 +1222,7 @@
                                         </Anchors>
                                         <Layers>
                                             <Layer level="ARTWORK">
-                                                <FontString parentKey="title" inherits="GameFontNormalLarge" text="Talents">
+                                                <FontString parentKey="profileSectionTitle" inherits="GameFontNormalHuge" text="Talents">
                                                     <Color r="1" g="1" b="1"/>
                                                     <Anchors>
                                                         <Anchor point="TOP" x="0" y="-5"/>

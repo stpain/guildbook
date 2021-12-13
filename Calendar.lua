@@ -884,7 +884,10 @@ function Guildbook:SetupGuildCalendarFrame()
     end)
 
     self.GuildFrame.GuildCalendarFrame.EventFrame.ClassTabs = {}
+
+    --use this an ordered list so the tabs are always the same layout
     local classes = {
+        --[0] = 'DEATHKNIGHT',
         [1] = 'DRUID',
         [2] = 'HUNTER',
         [3] = 'MAGE',
@@ -894,12 +897,14 @@ function Guildbook:SetupGuildCalendarFrame()
         [7] = 'SHAMAN',
         [8] = 'WARLOCK',
         [9] = 'WARRIOR',
+        [10] = "Total",
     }
-    for i = 1, 9 do 
-        local class = Guildbook.Data.Class[classes[i]]
-        local f = CreateFrame('BUTTON', tostring('GuildbookGuildFrameGuildCalendarFrameEventFrameClassTab'..classes[i]), self.GuildFrame.GuildCalendarFrame.EventFrame, BackdropTemplateMixin and "BackdropTemplate")
+    for i = 1, 10 do 
+        local class = Guildbook.Data.Class[classes[i]] or {Icon = nil} --change this to set an icon for total as it doesnt exist in the db for classes
+        local f = CreateFrame('FRAME', tostring('GuildbookGuildFrameGuildCalendarFrameEventFrameClassTab'..classes[i]), self.GuildFrame.GuildCalendarFrame.EventFrame, BackdropTemplateMixin and "BackdropTemplate")
         f:SetPoint('TOPLEFT', self.GuildFrame.GuildCalendarFrame.EventFrame, 'TOPRIGHT', -4, (i * -32) + 10)
         f:SetSize(40, 40)
+        f:EnableMouse(true)
         -- tab border texture
         f.background = f:CreateTexture('$parentBackground', 'BACKGROUND')
         f.background:SetAllPoints(f)
@@ -917,6 +922,16 @@ function Guildbook:SetupGuildCalendarFrame()
         f.text:SetTextColor(1,1,1,1)
         f.text:SetText('0')
         f.text:SetFont("Fonts\\FRIZQT__.TTF", 10, 'OUTLINE')
+
+        f:SetScript("OnEnter", function(f)
+            GameTooltip:SetOwner(f, 'ANCHOR_RIGHT', -10, -30)
+            GameTooltip:AddLine(classes[i]:sub(1,1)..classes[i]:sub(2):lower(), 1,1,1,1)
+            GameTooltip:Show()
+        end)
+
+        f:SetScript("OnLeave", function()
+            GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+        end)
 
         self.GuildFrame.GuildCalendarFrame.EventFrame.ClassTabs[classes[i]] = f
     end
@@ -940,44 +955,59 @@ function Guildbook:SetupGuildCalendarFrame()
 
 
     function self.GuildFrame.GuildCalendarFrame.EventFrame:UpdateClassTabs()
-        local attending = false;
+        --local attending = false;
         --reset the counts
-        for i = 1, 10 do
-            if classes[i] then
-                local classTab = self.ClassTabs[classes[i]]
-                classTab.text:SetText("0")
-                classTab.icon:SetVertexColor(0.3,0.3,0.3)
-            end
+        for k, tab in pairs(self.ClassTabs) do
+            tab.text:SetText("0")
+            tab.icon:SetVertexColor(0.3,0.3,0.3)
         end
-        if self.event and next(self.event.attend) then   
-            local i = 0
+        -- for i = 1, 10 do
+        --     if classes[i] then
+        --         local classTab = self.ClassTabs[classes[i]]
+        --         classTab.text:SetText("0")
+        --         classTab.icon:SetVertexColor(0.3,0.3,0.3)
+        --     end
+        -- end
+        if self.event and next(self.event.attend) then
+            local totalAttending = 0;
             for guid, info in pairs(self.event.attend) do
-                if guid == UnitGUID("player") then
-                    if info.Status == 1 then
-                        attending = true
-                    elseif info.Status == 2 then
-                        attending = true
-                    end
-                end
+                -- if guid == UnitGUID("player") then
+                --     if info.Status == 1 then
+                --         attending = true
+                --     elseif info.Status == 2 then
+                --         attending = true
+                --     end
+                -- end
                 -- dont update if the player is declining
                 if info.Status ~= 0 then
-                    i = i + 1
-                    if not Guildbook.PlayerMixin then
-                        Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
-                    else
-                        Guildbook.PlayerMixin:SetGUID(guid)
-                    end
-                    if Guildbook.PlayerMixin:IsValid() then
-                        local _, class, _ = C_PlayerInfo.GetClass(Guildbook.PlayerMixin)
-                        --local name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
-                        if class then
-                            local count = tonumber(self.ClassTabs[class].text:GetText())
-                            self.ClassTabs[class].text:SetText(count + 1)
-                            self.ClassTabs[class].icon:SetVertexColor(1,1,1)
+                    totalAttending = totalAttending + 1; --update this even if no character table available?
+                    local character = Guildbook.Database:FetchCharacterTableByGUID(guid)
+                    if character then
+                        if character.Class then
+                            local count = tonumber(self.ClassTabs[character.Class].text:GetText())
+                            if type(count) == "number" then
+                                self.ClassTabs[character.Class].text:SetText(count + 1)
+                                self.ClassTabs[character.Class].icon:SetVertexColor(1,1,1)
+                            end
                         end
+                        -- if not Guildbook.PlayerMixin then
+                        --     Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
+                        -- else
+                        --     Guildbook.PlayerMixin:SetGUID(guid)
+                        -- end
+                        -- if Guildbook.PlayerMixin:IsValid() then
+                        --     local _, class, _ = C_PlayerInfo.GetClass(Guildbook.PlayerMixin)
+                        --     --local name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
+                        --     if class then
+                        --         local count = tonumber(self.ClassTabs[class].text:GetText())
+                        --         self.ClassTabs[class].text:SetText(count + 1)
+                        --         self.ClassTabs[class].icon:SetVertexColor(1,1,1)
+                        --     end
+                        -- end
                     end
                 end
             end
+            self.ClassTabs.Total.text:SetText(totalAttending)
         end
     end
 
@@ -1038,6 +1068,8 @@ function Guildbook:SetupGuildCalendarFrame()
                     return a.status
                 end
             end)
+
+            --for this we could make a temp table to first sort by class/name, this would allow the list to be viewed/sorted by attending status and then class/name ?
             for guid, info in pairs(self.event.attend) do
                 local character = Guildbook:GetCharacterFromCache(guid)
                 if not character then

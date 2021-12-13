@@ -396,6 +396,25 @@ function Database:UpdateCharacterTable(guid, key, info)
 end
 
 
+---fetch character info using guid and key
+---@param guid string the characters GUID
+---@param key string the key to fetch
+---@return any
+function Database:GetCharacterInfo(guid, key)
+    if self.currentGuildName and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'] and GUILDBOOK_GLOBAL['GuildRosterCache'][self.currentGuildName] and GUILDBOOK_GLOBAL['GuildRosterCache'][self.currentGuildName][guid] then
+        local characterName = GUILDBOOK_GLOBAL['GuildRosterCache'][self.currentGuildName][guid].Name
+        Guildbook.DEBUG("databaseMixin", "Database:GetCharacterInfo", string.format("found %s for %s", key, characterName))
+        return GUILDBOOK_GLOBAL['GuildRosterCache'][self.currentGuildName][guid][key];
+
+    else
+        local characterName = GUILDBOOK_GLOBAL['GuildRosterCache'][self.currentGuildName][guid].Name or "no name or character table"
+        Guildbook.DEBUG("databaseMixin", "Database:GetCharacterInfo", string.format("unable to find %s for %s", key, characterName))
+        return GUILDBOOK_GLOBAL['GuildRosterCache'][self.currentGuildName][guid][key];
+    end
+    return false;
+end
+
+
 
 function Database:FetchCharacterTableByGUID(guid)
 
@@ -412,6 +431,10 @@ function Database:FetchCharacterTableByGUID(guid)
 end
 
 
+
+--- THIS WAS SUCH A DUMB IDEA AND I DO NOT KNOW WHY I DID IT THIS WAY AS A BETTER OPTION WOULD BE t[key][tab] !!!!!!!!!!!!!!!!!!!!!!!
+--- so this next function is kinda backwards atm, i should fix it but meh
+
 ---update the per character saved variable table
 ---@param key string the table key to update
 ---@param info any the new value
@@ -426,6 +449,7 @@ function Database:UpdatePlayerCharacterTable(key, info, tab)
 
     if type(tab) ~= "string" then
         t = GUILDBOOK_CHARACTER;
+        print("t = GUILDBOOK_CHARACTER")
     else
         if GUILDBOOK_CHARACTER[tab] then
             t = GUILDBOOK_CHARACTER[tab];
@@ -433,6 +457,7 @@ function Database:UpdatePlayerCharacterTable(key, info, tab)
             GUILDBOOK_CHARACTER[tab] = {};
             t = GUILDBOOK_CHARACTER[tab];
         end
+        print("t =", tab)
     end
 
     if type(t) ~= "table" then
@@ -446,7 +471,7 @@ function Database:UpdatePlayerCharacterTable(key, info, tab)
 
     if t then
         t[key] = info;
-        Guildbook.DEBUG("databaseMixin", "Database:UpdatePlayerCharacterTable", string.format("set or updated %s", key))
+        Guildbook.DEBUG("databaseMixin", "Database:UpdatePlayerCharacterTable", string.format("set or updated %s", key), info)
         ---to avoid multiple triggers in < 1s we add a small queue system
         if self.onPlayerCharacterTableChanged_IsTriggered == false then
             C_Timer.After(1.5, function()
@@ -985,23 +1010,19 @@ end
 function Character:GetPaperDollStats(specName)
 
     ---to make things work for wrath we will have to move the paperdoll stats into a sub table 'current' and then we can use the same system as inventory to hold stats per spec
-    if GUILDBOOK_CHARACTER.PaperDollStats then
+    if GUILDBOOK_CHARACTER.PaperDollStats and not GUILDBOOK_CHARACTER.PaperDollStats.Current then
         GUILDBOOK_CHARACTER.PaperDollStats.Current = {}
 
         ---copy the values into new table
         for k, v in pairs(GUILDBOOK_CHARACTER.PaperDollStats) do
-            if type(k) == "string" then
-                GUILDBOOK_CHARACTER.PaperDollStats.Current[k] = v;
-            elseif k == "Defence" then
-                GUILDBOOK_CHARACTER.PaperDollStats.Current[k] = v;
-            end
+            GUILDBOOK_CHARACTER.PaperDollStats.Current[k] = v;
         end
 
         ---remove any values that arent a table
         for k, v in pairs(GUILDBOOK_CHARACTER.PaperDollStats) do
             if type(v) ~= "table" then
                 GUILDBOOK_CHARACTER.PaperDollStats[k] = nil;
-            elseif k == "Defence" then
+            elseif k == "Defence" then -- defence is a table
                 GUILDBOOK_CHARACTER.PaperDollStats[k] = nil;
             end
         end
@@ -1011,10 +1032,13 @@ function Character:GetPaperDollStats(specName)
         }
     end
 
+    GUILDBOOK_CHARACTER.Current = nil;
+
     local stats = {};
 
-    if not specName then
+    if specName == nil then
         specName = "Current";
+        Guildbook.DEBUG("func", "Character:GetPaperDollStats", "using 'Current' as spec name for paper doll stats")
     end
 
     ---do i need to wipe it each time?
@@ -1150,7 +1174,7 @@ function Character:GetPaperDollStats(specName)
     end
 
 
-    Database:UpdatePlayerCharacterTable("PaperDollStats", stats, specName)
+    Database:UpdatePlayerCharacterTable(specName, stats, "PaperDollStats")
 end
 
 
@@ -1223,6 +1247,8 @@ function Character:Init()
 
         elseif event == "PLAYER_EQUIPMENT_CHANGED" then
             self:GetInventory()
+
+            self:GetPaperDollStats()
 
         elseif event == "CHARACTER_POINTS_CHANGED" then
             self:ScanPlayerTalents()
@@ -1689,6 +1715,7 @@ function Comms:SendPlayerCharacterUpdates(databaseMixin, characterSavedVar)
             MainSpec = characterSavedVar.MainSpec,
             OffSpec = characterSavedVar.OffSpec,
             MainCharacter = characterSavedVar.MainCharacter,
+            PaperDollStats = characterSavedVar.PaperDollStats,
             
             ---we can add in here ilvl, main, alts etc - need to check how they were set up though
         }
@@ -1698,7 +1725,7 @@ function Comms:SendPlayerCharacterUpdates(databaseMixin, characterSavedVar)
     if self.sendPlayerCharacterUpdates_IsQueued == false then
         Guildbook.DEBUG("commsMixin", "Comms:SendPlayerCharacterUpdates", "queuing player character updates", self.playerCharacterUpdate)
         C_Timer.After(self.sendPlayerCharacterUpdatesQueueTimer, function()
-            --self:Transmit(self.playerCharacterUpdate, "GUILD", nil, "NORMAL")
+            self:Transmit(self.playerCharacterUpdate, "GUILD", nil, "NORMAL")
             Guildbook.DEBUG("commsMixin", "Comms:SendPlayerCharacterUpdates", "sending player character updates", self.playerCharacterUpdate)
             self.sendPlayerCharacterUpdates_IsQueued = false;
         end)
@@ -1730,7 +1757,7 @@ function Comms:CHARACTER_ONLINE(data)
 
     Guildbook.DEBUG("commsMixin", "Comms:CHARACTER_ONLINE", "someone came online", data)
 
-    local randomDelay = math.random(1,12)
+    local randomDelay = math.random(1,3)
 
     C_Timer.After(randomDelay, function()
         self:SayHelloBack(data.senderGUID)

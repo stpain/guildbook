@@ -1951,7 +1951,7 @@ end
 
 function GuildbookRosterMixin:RowOpenProfile_OnMouseDown(row)
     if GUILD_NAME then
-        self:GetParent().profiles.character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][row.guid];
+        self:GetParent().profiles.character = Database:FetchCharacterTableByGUID(row.guid);
         if row.guid == UnitGUID("player") then
             self:GetParent().profiles:LoadCharacter("player")
         else
@@ -2953,6 +2953,11 @@ function GuildbookProfilesMixin:LoadCharacter(player)
         else
             self.sidePane.fishing:SetText("-")
         end
+        if self.character.CookingLevel then
+            self.sidePane.cooking:SetText(string.format("%s [%s]", gb.ProfessionNames[GetLocale()][185], self.character.CookingLevel))
+        else
+            self.sidePane.cooking:SetText("-")
+        end
     else
         self.defaultModel:Show()
     end    
@@ -3079,13 +3084,17 @@ function GuildbookProfilesMixin:LoadProfile()
     end
 
     if self.character.Alts and #self.character.Alts > 0 then
-        local i = 1; -- ?
+        local i = 1;
         for _, guid in ipairs(self.character.Alts) do
+            local guidsName = Database:GetCharacterInfo(guid, "Name");
+            --print("alt name = ", guidsName, "profile name = ", self.character.Name)
             local avatar = self.contentPane.scrollChild.profile.altCharactersContainer.avatars[i]
-            if gb:GetCharacterInfo(guid, "Name") ~= self.character.Name then
-                avatar:SetCharacter(guid)
-                avatar:Show()
-                i = i + 1;
+            if avatar then
+                if guidsName ~= self.character.Name then
+                    avatar:SetCharacter(guid)
+                    avatar:Show()
+                    i = i + 1;
+                end
             end
         end
     end
@@ -3261,26 +3270,30 @@ function GuildbookProfilesMixin:CreateStatsUI()
 end
 
 
-function GuildbookProfilesMixin:LoadStats()
+function GuildbookProfilesMixin:LoadStats(spec)
     if not self.character then
         return;
     end
-    if self.character.PaperDollStats then
+    if spec == nil then
+        spec = "Current";
+    end
+    if self.character.PaperDollStats and self.character.PaperDollStats[spec] then
+
+        local stats = self.character.PaperDollStats[spec];
+
         for k, group in pairs(self.characterStats) do
             for i, stat in ipairs(group) do
                 if self.contentPane.scrollChild.stats[k] then
                     local f = self.contentPane.scrollChild.stats[k]
                     f[stat.key]:SetText("")
-
-                    ---thsi will need to be updated due to the change from adding child tables for stat sets, Current is default
-                    if self.character.PaperDollStats[stat.key] then
-                        if stat.key == "Defence" and self.character.PaperDollStats[stat.key].Base and self.character.PaperDollStats[stat.key].Mod then
-                            local def = self.character.PaperDollStats[stat.key].Base + self.character.PaperDollStats[stat.key].Mod
+                    if stats[stat.key] then
+                        if stat.key == "Defence" and stats[stat.key].Base and stats[stat.key].Mod then
+                            local def = stats[stat.key].Base + stats[stat.key].Mod
                             f[stat.key]:SetText(def)
                         elseif (stat.key):find("ManaRegen") then
-                            f[stat.key]:SetText(string.format("%.2f", self.character.PaperDollStats[stat.key] * 5))  --Character:FormatNumberForCharacterStats(self.character.PaperDollStats[stat.key] * 5))
+                            f[stat.key]:SetText(string.format("%.2f", stats[stat.key] * 5))  --Character:FormatNumberForCharacterStats(stats[stat.key] * 5))
                         else
-                            f[stat.key]:SetText(self.character.PaperDollStats[stat.key])
+                            f[stat.key]:SetText(stats[stat.key])
                         end
                     end
                 end
