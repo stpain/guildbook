@@ -21,20 +21,6 @@ the copyright holders.
 ]==]--
 
 
---[[
-    code logic
-
-    1 addon loaded = create saved vars
-    2 play entering world = get player info (faction,race etc)
-    3 load
-        scan player professions
-        scan talents
-        scan inventory
-        check privacy
-        send calendar data
-        send tradeskill recipes
-]]
-
 local addonName, Guildbook = ...
 
 Guildbook.addonLoaded = false
@@ -97,27 +83,6 @@ SlashCmdList['GUILDBOOK'] = function(msg)
 
     end
 end
-
-
-
-
-
-
-
-
---[[
-    working on making the code easier to read and manage
-    at the moment everything is just in the Guildbook addon table
-
-    so making some tables to seperate various features and/or functions
-
-    Character - will handle anything related to the players character
-    Tradeskill - will target tradeskill specific jobs
-    Database ?
-    Guild ?
-]]
-
-
 
 
 
@@ -361,12 +326,11 @@ Database:GenerateCallbackEvents({
     "OnPlayerCharacterTableChanged",
     "OnPlayerCharacterTradeskillsInfoChanged",
     "OnPlayerCharacterTradeskillRecipesChanged",
-    -- "OnPlayerCharacterTalentsChanged",
-    -- "OnPlayerCharacterInventoryChanged",
-
     "OnGuildbookConfigChanged",
 })
 Database.currentGuildName = nil;
+
+--to save spamming data we use basic queue/timer system, these bool values determine if a calback is queued ro not
 Database.onCharacterTableChanged_IsTriggered = false;
 Database.onPlayerCharacterTableChanged_IsTriggered = false;
 Database.onPlayerCharacterTradeskillsInfoChanged_IsTriggered = false;
@@ -441,12 +405,18 @@ end
 
 function Database:FetchCharacterTableByGUID(guid)
 
+    if type(guid) ~= "string" then
+        Guildbook.DEBUG("databaseMixin", "Database:FetchCharacterTableByGUID", "guid is nto of type string", {guid = guid})
+        return;
+    end
+
     if self.currentGuildName and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName] and GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName][guid] then
         Guildbook.DEBUG("databaseMixin", "Database:FetchCharacterTableByGUID", string.format("found character table for %s", GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName][guid].Name))
         return GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName][guid];
 
-    else
-        Guildbook.DEBUG("databaseMixin", "Database:FetchCharacterTableByGUID", "unable to find character table")
+    elseif guid:find("Player-") then
+        local localizedClass, englishClass, localizedRace, englishRace, sex, name, realm = GetPlayerInfoByGUID(guid)
+        Guildbook.DEBUG("databaseMixin", "Database:FetchCharacterTableByGUID", string.format("unable to find character table for %s-%s", name or "no-name", realm or "no-realm"))
         return false;
     end
 
@@ -715,8 +685,10 @@ function Character:GetInventory(setName)
     end
 
     --- added the item level stat to this function so we can grab the characters ilvl for their gear sets
-    if math.floor(itemLevel/itemCount) > 0 then
-        Database:UpdatePlayerCharacterTable(setName, itemLevel, "ItemLevel")
+    --local itemLvl = math.floor(itemLevel/itemCount)
+    local ilvl = self:FormatNumberForCharacterStats(itemLevel/itemCount)
+    if ilvl > 0 then
+        Database:UpdatePlayerCharacterTable(setName, ilvl, "ItemLevel")
     else
         Database:UpdatePlayerCharacterTable(setName, 0, "ItemLevel")
     end
@@ -1332,6 +1304,7 @@ local Comms = {}
 ---this value can be adjusted but its purpose is to allow all bulk comms to be received before we process the data - there is a settings slider for this which needs to be hooked up maybe or just set as a default value
 Comms.DELAY = 2.0;
 Comms.PREFIX = "GUILDBOOK";
+Comms.version = nil;
 
 Comms.privacyRules = {
     shareInventoryMinRank = "Inventory",
@@ -1422,6 +1395,8 @@ function Comms:Init()
     AceComm:Embed(self)
     self:RegisterComm(self.PREFIX)
 
+    self.version = tonumber(GetAddOnMetadata('Guildbook', "Version"));
+
     if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.config and GUILDBOOK_GLOBAL.config.addGuildChatSpecAndMainCharacterInfo == true then
         ChatFrame_AddMessageEventFilter("CHAT_MSG_GUILD", self.CharacterSpecAndMainChatFilter)
     end
@@ -1465,7 +1440,7 @@ function Comms:Transmit(data, channel, targetGUID, priority)
     end
 
     -- add the version and sender guid to the message
-    data["version"] = tonumber(GetAddOnMetadata('Guildbook', "Version"));
+    data["version"] = self.version;
     data["senderGUID"] = UnitGUID("player")
 
     -- clean up the target name when using a whisper
@@ -1639,7 +1614,9 @@ function Comms:SayHello()
 
     local greeting = {
         type = "CHARACTER_ONLINE",
-        payload = "hello world",
+        payload = {
+            version = self.version,
+        }
     }
 
     self:Transmit(greeting, "GUILD", nil, "NORMAL")
@@ -1831,7 +1808,7 @@ function Comms:SendPlayerCharacterUpdates(databaseMixin, characterSavedVar)
             OffSpec = characterSavedVar.OffSpec,
             MainCharacter = characterSavedVar.MainCharacter,
             PaperDollStats = characterSavedVar.PaperDollStats,
-            
+            ItemLevel = characterSavedVar.ItemLevel,
             ---we can add in here ilvl, main, alts etc - need to check how they were set up though
         }
     }
@@ -1868,9 +1845,54 @@ function Comms:SayHelloBack(targetGUID)
 end
 
 
+function Comms:TellGuildMemberItsTimeToUpdate(targetGUID)
+
+    local update = {
+        type = "GUILDBOOK_UPDATE",
+        payload = {
+            version = self.version,
+        }
+    }
+
+    self:Transmit(update, "WHISPER", targetGUID, "NORMAL")
+end
+
+
+function Comms:OnUpdateMessage(data)
+    if type(data.payload.version) == "number" then
+        if self.version < data.payload.version then
+            if not self.versionsChecked[data.payload.version] then
+                local msgID = math.random(4)
+                print(string.format('[%sGuildbook|r] %s', Guildbook.FONT_COLOUR, L["NEW_VERSION_"..msgID]))
+                self.versionsChecked[data.payload.version] = true;
+            end
+        end
+    end
+end
+
+
+
+
 function Comms:OnCharacterOnline(data)
 
     Guildbook.DEBUG("commsMixin", "Comms:OnCharacterOnline", "someone came online", data)
+
+    --- lets check their version info and tell them to update if they're running older version
+    if type(data.payload.version) == "number" then
+        if self.version < data.payload.version then
+            if not self.versionsChecked[data.payload.version] then
+                local msgID = math.random(4)
+                print(string.format('[%sGuildbook|r] %s', Guildbook.FONT_COLOUR, L["NEW_VERSION_"..msgID]))
+                self.versionsChecked[data.payload.version] = true;
+            end
+
+        -- send update after 10s
+        elseif self.version > data.payload.version then
+            C_Timer.After(10.0, function()
+                self:TellGuildMemberItsTimeToUpdate(data.senderGUID)
+            end)
+        end
+    end
 
     local randomDelay = math.random(1,3)
 
@@ -2005,6 +2027,7 @@ Comms.MessageHandlers = {
     ["CHARACTER_TRADESKILLS_INFO_UPDATE"] = Comms.OnCharacterTradeskillsInfoUpdate,
     ["CHARACTER_TRADESKILLS_RECIPES_UPDATE"] = Comms.OnCharacterTradeskillsRecipesUpdate,
     ["PLAYER_CHARACTER_UPDATE"] = Comms.OnCharacterUpdate,
+    ["GUILDBOOK_UPDATE"] = Comms.OnUpdateMessage,
 }
 
 
@@ -2628,12 +2651,19 @@ function Guildbook:Load()
         Guildbook.DEBUG("func", "Load", "requested deleted calendar events")
     end)
 
-    if GUILDBOOK_GLOBAL.showUpdateNews == nil then
-        GUILDBOOK_GLOBAL.showUpdateNews = true;
+    if not GUILDBOOK_GLOBAL.lastVersionUpdate then
+        GUILDBOOK_GLOBAL.lastVersionUpdate = {}
     end
-    if GUILDBOOK_GLOBAL.showUpdateNews == true then
-        StaticPopup_Show('GuildbookUpdates', self.version)
+
+    local updates  = "There has been some major changes to how guildbook sends data, this should make for a better experience however there may be some compatability issues with older versions."
+    
+    if not GUILDBOOK_GLOBAL.lastVersionUpdate[self.version] then
+        StaticPopup_Show('GuildbookUpdates', self.version, updates)
+
+        GUILDBOOK_GLOBAL.lastVersionUpdate[self.version] = true;
     end
+
+    GUILDBOOK_GLOBAL.showUpdateNews = nil;
 
     self.addonLoaded = true
     self.GUILD_NAME = self:GetGuildName()
@@ -3761,6 +3791,12 @@ end
     functions that call Guildbook:Transmit will need to be adjusted to pass in the targetGUID
     no errors will be thrown as the function will check for a valid character from the cache before attempting to send
     this change only effects calls that use the WHISPER channel any calls using the GUILD channel will be uneffected
+
+
+    to further add to this update, there is now a dedicated Comms class (lua table) which handles any data messages
+    this function remains to provide some backwards compatibilty while players get themselves updated etc
+
+    the calendar and guild bank will need to be updated to work with the new comms class as well so this wont be removed until then
 ]]
 
 ---send an addon message through the aceComm lib

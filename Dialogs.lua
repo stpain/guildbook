@@ -261,15 +261,15 @@ StaticPopupDialogs['GuildbookUpdateAvailable'] = {
 }
 
 StaticPopupDialogs['GuildbookUpdates'] = {
-    text = 'Guildbook Version: %s\n\n'..L["UPDATE_NEWS"],
-    button1 = L["DIALOG_SHOW_UPDATES"],
-    button2 = L["DIALOG_DONT_SHOW_UPDATES"],
+    text = 'Guildbook Version: %s\n\n%s',
+    button1 = "Ok",
+    --button2 = L["DIALOG_DONT_SHOW_UPDATES"],
     OnAccept = function(self)
         GUILDBOOK_GLOBAL.showUpdateNews = true;
     end,
-    OnCancel = function(self)
-        GUILDBOOK_GLOBAL.showUpdateNews = false;
-    end,
+    -- OnCancel = function(self)
+    --     GUILDBOOK_GLOBAL.showUpdateNews = false;
+    -- end,
     timeout = 0,
     whileDead = true,
     hideOnEscape = false,

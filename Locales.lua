@@ -40,12 +40,9 @@ local addonName, Guildbook = ...
 local L = {}
 
 L["UPDATE_NEWS"] = [[
-With the news of the WoW Classic "Season of Mastery",
-I wanted to make Guildbook work for both Classic TBC 
-and Classic era servers. 
-
-The guild bank feature has been added back so that 1 
-version will work for both versions of the game.
+There has been some major changes to how guildbook sends data, this should
+make for a better experience however there may be some compatability issues
+with older versions.
 ]]
 L["DIALOG_SHOW_UPDATES"]			= "Display again"
 L["DIALOG_DONT_SHOW_UPDATES"]		= "Confirm & hide"
