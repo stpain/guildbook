@@ -202,13 +202,22 @@ function GuildbookOptionsTooltipInfoMainCharacter_OnClick(self)
     GUILDBOOK_GLOBAL.config.showTooltipMainCharacter = self:GetChecked()
 end
 
-function GuildbookOptionsShowSpecAndMainCharacterGuildChat_OnClick(self)
+function GuildbookOptionsShowSpecGuildChat_OnClick(self)
     if not GUILDBOOK_GLOBAL then
         return
     end
     
     ---this system will be implemented in the big options rewrite !!!!!!
-    Guildbook.Database:UpdateGuildbookConfig("addGuildChatSpecAndMainCharacterInfo", self:GetChecked())
+    Guildbook.Database:UpdateGuildbookConfig("showSpecGuildChat", self:GetChecked())
+end
+
+function GuildbookOptionsShowMainCharacterGuildChat_OnClick(self)
+    if not GUILDBOOK_GLOBAL then
+        return
+    end
+    
+    ---this system will be implemented in the big options rewrite !!!!!!
+    Guildbook.Database:UpdateGuildbookConfig("showMainCharacterGuildChat", self:GetChecked())
 end
 
 function GuildbookOptions_OnLoad(self)

@@ -385,7 +385,9 @@ function Database:UpdateGuildbookConfig(setting, newValue)
                 Guildbook.DEBUG("databaseMixin", "Database:UpdateGuildbookConfig", string.format("set %s to new value %s", setting, tostring(newValue)))
                 self:TriggerEvent("OnGuildbookConfigChanged", self, GUILDBOOK_GLOBAL.config)
             else
-
+                GUILDBOOK_GLOBAL.config[setting] = newValue;
+                Guildbook.DEBUG("databaseMixin", "Database:UpdateGuildbookConfig", string.format("created new config setting for %s set value as %s", setting, tostring(newValue)))
+                self:TriggerEvent("OnGuildbookConfigChanged", self, GUILDBOOK_GLOBAL.config)
             end
         end
     end
@@ -1331,6 +1333,12 @@ local Comms = {}
 Comms.DELAY = 2.0;
 Comms.PREFIX = "GUILDBOOK";
 
+Comms.privacyRules = {
+    shareInventoryMinRank = "Inventory",
+    shareTalentsMinRank = "Talents",
+    shareProfileMinRank = "Profile",
+}
+
 ---these values control when we send data about the players recipes
 Comms.sendPlayerCharacterTradeskillRecipes_IsQueued = false;
 Comms.sendPlayerCharacterTradeskillRecipesQueueTimer = 3.0;
@@ -1359,11 +1367,15 @@ function Comms.CharacterSpecAndMainChatFilter(self, event, msg, author, ...)
     if character then
         local atlas = nil;
         local main = nil;
-        if character.Class and character.MainSpec and (character.MainSpec ~= "-") then
+
+        -- check if we want to show spec icon
+        if (GUILDBOOK_GLOBAL.config.showSpecGuildChat == true) and character.Class and character.MainSpec and (character.MainSpec ~= "-") then
             local icon = Guildbook:GetClassSpecAtlasName(character.Class, character.MainSpec)
             atlas = CreateAtlasMarkup(icon, 12,12)
         end
-        if character.MainCharacter then
+
+        -- check if we want to add main character namew
+        if (GUILDBOOK_GLOBAL.config.showMainCharacterGuildChat == true) and character.MainCharacter and (character.MainCharacter ~= UnitGUID("player")) then
             local mainChar = Database:FetchCharacterTableByGUID(character.MainCharacter)
             if mainChar then
                 main = Guildbook.Colours[mainChar.Class]:WrapTextInColorCode(mainChar.Name)
@@ -1395,10 +1407,10 @@ end
 
 function Comms:OnGuildbookConfigChanged(db, config)
 
-    if config.addGuildChatSpecAndMainCharacterInfo == true then
-        ChatFrame_AddMessageEventFilter("CHAT_MSG_GUILD", self.CharacterSpecAndMainChatFilter)
-    else
+    if config.showSpecGuildChat == false and config.showMainCharacterGuildChat == false then
         ChatFrame_RemoveMessageEventFilter("CHAT_MSG_GUILD", self.CharacterSpecAndMainChatFilter)
+    else
+        ChatFrame_AddMessageEventFilter("CHAT_MSG_GUILD", self.CharacterSpecAndMainChatFilter)
     end
 end
 
@@ -1543,18 +1555,18 @@ function Comms:OnCommReceived(prefix, message, distribution, sender)
     
     ---before we process the data pause to allow all messages to be put together again
     C_Timer.After(self.DELAY, function()
-        self:ProcessIncomingData(data)
+        self:ProcessIncomingData(data, sender)
     end)
 end
 
 
-function Comms:ProcessIncomingData(data)
+function Comms:ProcessIncomingData(data, sender)
 
     if type(data) == "table" and type(data.type) == "string" then
         if self.MessageHandlers[data.type] then
 
             Guildbook.DEBUG('commsMixin', "Comms:ProcessIncomingData", string.format("MessageHandler %s does exist", data.type), data)
-            self.MessageHandlers[data.type](self, data)
+            self.MessageHandlers[data.type](self, data, sender)
 
         else
             Guildbook.DEBUG('commsMixin', "Comms:ProcessIncomingData", string.format("MessageHandler %s does NOT exist", data.type), data)
@@ -1617,8 +1629,9 @@ end
 
 
 
-function Comms:PRIVACY_NOTICE(data)
-    Guildbook.DEBUG("commsMixin", "Comms:PRIVACY_NOTICE", "-", data)
+function Comms:OnPrivacyNotice(data, sender)
+    Guildbook.DEBUG("commsMixin", "Comms:OnPrivacyNotice", "-", data)
+    GuildbookUI.statusText:SetText(string.format("%s does not share %s", sender, self.privacyRules[data.payload]))
 end
 
 
@@ -2156,7 +2169,8 @@ function Guildbook:Init()
             showMinimapCalendarButton = true,
             showTooltipCharacterInfo = true,
             showTooltipMainCharacter = true,
-            addGuildChatSpecAndMainCharacterInfo = true,
+            showSpecGuildChat = true,
+            showMainCharacterGuildChat = true,
             showTooltipMainSpec = true,
             showTooltipProfessions = true,
             parsePublicNotes = false,
@@ -2202,7 +2216,8 @@ function Guildbook:Init()
     GuildbookOptionsTooltipInfoMainSpec:SetChecked(config.showTooltipMainSpec)
     GuildbookOptionsTooltipInfoProfessions:SetChecked(config.showTooltipProfessions)
     GuildbookOptionsTooltipInfoMainCharacter:SetChecked(config.showTooltipMainCharacter)
-    GuildbookOptionsShowSpecAndMainCharacterGuildChat:SetChecked(config.addGuildChatSpecAndMainCharacterInfo)
+    GuildbookOptionsShowSpecGuildChat:SetChecked(config.showSpecGuildChat)
+    GuildbookOptionsShowMainCharacterGuildChat:SetChecked(config.showMainCharacterGuildChat)
 
     GuildbookOptionsShowInfoMessages:SetChecked(config.showInfoMessages)
 

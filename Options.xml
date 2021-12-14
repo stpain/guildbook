@@ -486,11 +486,11 @@ the copyright holders.
 
 
 
-            <CheckButton name="$parentShowSpecAndMainCharacterGuildChat" inherits="ChatConfigCheckButtonTemplate">
+            <CheckButton name="$parentShowMainCharacterGuildChat" inherits="ChatConfigCheckButtonTemplate">
                 <Size x="24" y="24"/>
                 <Layers>
                     <Layer>
-                        <FontString name="$parentText" text="Show spec and main character in chat" inherits="GameFontNormal">
+                        <FontString name="$parentText" text="Show main character in guild chat" inherits="GameFontNormal">
                             <Color r="1" g="1" b="1" a="1"/>
                             <FontHeight val="12"/>
                             <Anchors>
@@ -508,10 +508,40 @@ the copyright holders.
                 </Anchors>
                 <Scripts>
                     <OnLoad>
-                        self.tooltip = 'Show the characters main spec and main character name (if an alt) in the guild chat messages. Can only show data where the player has set these values'
+                        self.tooltip = 'Show the characters main character name (if an alt) in the guild chat messages. Can only show data where the player has set this value'
                     </OnLoad>
                     <OnClick>
-                        GuildbookOptionsShowSpecAndMainCharacterGuildChat_OnClick(self)
+                        GuildbookOptionsShowMainCharacterGuildChat_OnClick(self)
+                    </OnClick>
+                </Scripts>
+            </CheckButton>
+
+            <CheckButton name="$parentShowSpecGuildChat" inherits="ChatConfigCheckButtonTemplate">
+                <Size x="24" y="24"/>
+                <Layers>
+                    <Layer>
+                        <FontString name="$parentText" text="Show spec in guild chat" inherits="GameFontNormal">
+                            <Color r="1" g="1" b="1" a="1"/>
+                            <FontHeight val="12"/>
+                            <Anchors>
+                                <Anchor point="LEFT">
+                                    <offset x="24" y="0"/>
+                                </Anchor>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>                
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="GuildbookOptionsShowMainCharacterGuildChat" relativePoint="BOTTOMLEFT">
+                        <Offset x="0" y="-2"/>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self.tooltip = 'Show the characters main spec in the guild chat messages. Can only show data where the player has set this value.'
+                    </OnLoad>
+                    <OnClick>
+                        GuildbookOptionsShowSpecGuildChat_OnClick(self)
                     </OnClick>
                 </Scripts>
             </CheckButton>
