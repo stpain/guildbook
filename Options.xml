@@ -484,6 +484,40 @@ the copyright holders.
                 </Scripts>
             </CheckButton>
 
+
+
+            <CheckButton name="$parentShowSpecAndMainCharacterGuildChat" inherits="ChatConfigCheckButtonTemplate">
+                <Size x="24" y="24"/>
+                <Layers>
+                    <Layer>
+                        <FontString name="$parentText" text="Show spec and main character in chat" inherits="GameFontNormal">
+                            <Color r="1" g="1" b="1" a="1"/>
+                            <FontHeight val="12"/>
+                            <Anchors>
+                                <Anchor point="LEFT">
+                                    <offset x="24" y="0"/>
+                                </Anchor>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>                
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="GuildbookOptionsTooltipTradeskill" relativePoint="BOTTOMLEFT">
+                        <Offset x="0" y="-135"/>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self.tooltip = 'Show the characters main spec and main character name (if an alt) in the guild chat messages. Can only show data where the player has set these values'
+                    </OnLoad>
+                    <OnClick>
+                        GuildbookOptionsShowSpecAndMainCharacterGuildChat_OnClick(self)
+                    </OnClick>
+                </Scripts>
+            </CheckButton>
+
+
+
             <Button name="$parentResetCharacterData" inherits="UIPanelButtonTemplate" text="Reset Character Settings">
                 <Size x="190" y="25"/>
                 <Anchors>
@@ -597,7 +631,7 @@ the copyright holders.
 
 
 
-	<Frame name="PortraitTemplate" mixin="PortraitMixin" virtual="true">
+	<!-- <Frame name="PortraitTemplate" mixin="PortraitMixin" virtual="true">
 		<Size x="52" y="60"/>
 		<Layers>
 			<Layer level="BORDER">
@@ -644,6 +678,6 @@ the copyright holders.
 				</Texture>
 			</Layer>
 		</Layers>
-	</Frame>
+	</Frame> -->
 
 </UI>

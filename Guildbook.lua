@@ -1053,8 +1053,19 @@ function GuildbookMixin:OnCharacterTableChanged(_, guid, characterTable)
 
     ---if the profile view is open and we have a matching guid then refresh the view, dont reload for the players character as they might be editing etc
     if self.profiles.contentPane:IsVisible() then
-        if (self.profiles.characterGUID and self.profiles.characterGUID == guid) then
+        --print("profile open")
+        if self.profiles.characterGUID and (self.profiles.characterGUID == guid) then
+            --print("characterGUID matches guid")
+
+            --DevTools_Dump({guid, self.profiles.characterGUID, self.profiles.editOpen})
             if guid ~= UnitGUID("player") then
+                --print("guid is not player")
+                self.profiles:LoadCharacter(guid)
+                self.statusText:SetText(string.format("character table changed, updating view for %s", characterTable.Name))
+            end
+
+            if self.profiles.editOpen == false then
+                --print("edit is false")
                 self.profiles:LoadCharacter(guid)
                 self.statusText:SetText(string.format("character table changed, updating view for %s", characterTable.Name))
             end
@@ -2437,24 +2448,19 @@ end
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- profiles
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 GuildbookProfilesMixin = {}
 GuildbookProfilesMixin.character = nil;
+GuildbookProfilesMixin.characterGUID = nil;
+GuildbookProfilesMixin.editOpen = false;
 GuildbookProfilesMixin.characterModels = {}
+local numTalRows = {
+    [1] = 7.0, --classic
+    [5] = 9.0, --tbc
+    [99999] = 11.0, --wrath
+}
 GuildbookProfilesMixin.NUM_TALENT_ROWS = 9.0
 GuildbookProfilesMixin.summaryRows = {}
 GuildbookProfilesMixin.characterStats = {

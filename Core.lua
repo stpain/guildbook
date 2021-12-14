@@ -363,12 +363,33 @@ Database:GenerateCallbackEvents({
     "OnPlayerCharacterTradeskillRecipesChanged",
     -- "OnPlayerCharacterTalentsChanged",
     -- "OnPlayerCharacterInventoryChanged",
+
+    "OnGuildbookConfigChanged",
 })
 Database.currentGuildName = nil;
 Database.onCharacterTableChanged_IsTriggered = false;
 Database.onPlayerCharacterTableChanged_IsTriggered = false;
 Database.onPlayerCharacterTradeskillsInfoChanged_IsTriggered = false;
 Database.onPlayerCharacterTradeskillRecipesChanged_IsTriggered = false;
+
+
+
+function Database:UpdateGuildbookConfig(setting, newValue)
+
+    --DevTools_Dump({setting, newValue})
+    
+    if GUILDBOOK_GLOBAL then
+        if GUILDBOOK_GLOBAL.config then
+            if GUILDBOOK_GLOBAL.config[setting] ~= nil then
+                GUILDBOOK_GLOBAL.config[setting] = newValue;
+                Guildbook.DEBUG("databaseMixin", "Database:UpdateGuildbookConfig", string.format("set %s to new value %s", setting, tostring(newValue)))
+                self:TriggerEvent("OnGuildbookConfigChanged", self, GUILDBOOK_GLOBAL.config)
+            else
+
+            end
+        end
+    end
+end
 
 
 ---update a character table in the account wide saved var (guild roster cache) - t[guid][key] = info
@@ -449,15 +470,16 @@ function Database:UpdatePlayerCharacterTable(key, info, tab)
 
     if type(tab) ~= "string" then
         t = GUILDBOOK_CHARACTER;
-        print("t = GUILDBOOK_CHARACTER")
+        Guildbook.DEBUG("databaseMixin", "Database:UpdatePlayerCharacterTable", "using the GUILDBOOK_CHARACTER table")
     else
         if GUILDBOOK_CHARACTER[tab] then
             t = GUILDBOOK_CHARACTER[tab];
+            Guildbook.DEBUG("databaseMixin", "Database:UpdatePlayerCharacterTable", string.format("using GUILDBOOK_CHARACTER[%s] table", tab))
         else
             GUILDBOOK_CHARACTER[tab] = {};
             t = GUILDBOOK_CHARACTER[tab];
+            Guildbook.DEBUG("databaseMixin", "Database:UpdatePlayerCharacterTable", string.format("%s does NOT exist, created GUILDBOOK_CHARACTER[%s] table", tab, tab))
         end
-        print("t =", tab)
     end
 
     if type(t) ~= "table" then
@@ -676,11 +698,25 @@ function Character:GetInventory(setName)
     end
 
     local t = {}
+    local itemLevel, itemCount = 0, 0
     for _, slot in ipairs(self.InventorySlots) do
         local link = GetInventoryItemLink('player', GetInventorySlotInfo(slot)) or false;
         if link ~= nil then
             t[slot] = link;
+            if link ~= false then
+                local _, _, _, ilvl = GetItemInfo(link)
+                if not ilvl then ilvl = 0 end
+                itemLevel = itemLevel + ilvl;
+                itemCount = itemCount + 1;
+            end
         end
+    end
+
+    --- added the item level stat to this function so we can grab the characters ilvl for their gear sets
+    if math.floor(itemLevel/itemCount) > 0 then
+        Database:UpdatePlayerCharacterTable(setName, itemLevel, "ItemLevel")
+    else
+        Database:UpdatePlayerCharacterTable(setName, 0, "ItemLevel")
     end
 
     ---some players may choose not to share this info with everyone in their guild so all we need to do is update the database
@@ -1178,7 +1214,8 @@ function Character:GetPaperDollStats(specName)
 end
 
 
-
+---check any system messages for a skill up and update the db
+---@param message string the system message sent
 function Character:OnChatMessageSystem(message)
     local skill, value = message:match(self.SkillUpPattern)
     if skill and value then
@@ -1293,9 +1330,6 @@ local Comms = {}
 ---this value can be adjusted but its purpose is to allow all bulk comms to be received before we process the data - there is a settings slider for this which needs to be hooked up maybe or just set as a default value
 Comms.DELAY = 2.0;
 Comms.PREFIX = "GUILDBOOK";
-Comms.MessageTypes = {
-
-}
 
 ---these values control when we send data about the players recipes
 Comms.sendPlayerCharacterTradeskillRecipes_IsQueued = false;
@@ -1313,11 +1347,74 @@ Comms.sendPlayerCharacterUpdatesQueueTimer = 3.0;
 Comms.playerCharacterUpdate = {};
 
 
+function Comms.CharacterSpecAndMainChatFilter(self, event, msg, author, ...)
+
+    local guid = select(10, ...)
+    local character = Database:FetchCharacterTableByGUID(guid)
+
+    if 1 == 1 then
+        author = Ambiguate(author, "none")
+    end
+
+    if character then
+        local atlas = nil;
+        local main = nil;
+        if character.Class and character.MainSpec and (character.MainSpec ~= "-") then
+            local icon = Guildbook:GetClassSpecAtlasName(character.Class, character.MainSpec)
+            atlas = CreateAtlasMarkup(icon, 12,12)
+        end
+        if character.MainCharacter then
+            local mainChar = Database:FetchCharacterTableByGUID(character.MainCharacter)
+            if mainChar then
+                main = Guildbook.Colours[mainChar.Class]:WrapTextInColorCode(mainChar.Name)
+            end
+        end
+
+        local sender = nil;
+
+        if atlas ~= nil then
+            sender = string.format("%s %s", atlas, author)
+        end
+
+        if main ~= nil then
+            sender = string.format("%s [%s]", sender, main)
+        end
+
+        if sender ~= nil then
+            return false, msg, sender, ...
+        end
+
+        return false, msg, author, ...
+
+    else
+        return false, msg, author, ...
+    end
+
+end
+
+
+function Comms:OnGuildbookConfigChanged(db, config)
+
+    if config.addGuildChatSpecAndMainCharacterInfo == true then
+        ChatFrame_AddMessageEventFilter("CHAT_MSG_GUILD", self.CharacterSpecAndMainChatFilter)
+    else
+        ChatFrame_RemoveMessageEventFilter("CHAT_MSG_GUILD", self.CharacterSpecAndMainChatFilter)
+    end
+end
+
+
+
 
 function Comms:Init()
 
     AceComm:Embed(self)
     self:RegisterComm(self.PREFIX)
+
+    if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.config and GUILDBOOK_GLOBAL.config.addGuildChatSpecAndMainCharacterInfo == true then
+        ChatFrame_AddMessageEventFilter("CHAT_MSG_GUILD", self.CharacterSpecAndMainChatFilter)
+    end
+
+    Database:RegisterCallback("OnGuildbookConfigChanged", self.OnGuildbookConfigChanged, self)
 
     ---tradeskill data is always shared so hook up the callbacks so we can send updates
     Database:RegisterCallback("OnPlayerCharacterTradeskillsInfoChanged", self.SendCharacterTradeskillInfo, self)
@@ -1453,13 +1550,18 @@ end
 
 function Comms:ProcessIncomingData(data)
 
-    if data.type and self[data.type] then
-        Guildbook.DEBUG('commsMixin', "Comms:ProcessIncomingData", string.format("Comms func %s exists", data.type), data)
-        self[data.type](Comms, data)
+    if type(data) == "table" and type(data.type) == "string" then
+        if self.MessageHandlers[data.type] then
+
+            Guildbook.DEBUG('commsMixin', "Comms:ProcessIncomingData", string.format("MessageHandler %s does exist", data.type), data)
+            self.MessageHandlers[data.type](self, data)
+
+        else
+            Guildbook.DEBUG('commsMixin', "Comms:ProcessIncomingData", string.format("MessageHandler %s does NOT exist", data.type), data)
+        end
 
     else
-        Guildbook.DEBUG('commsMixin', "Comms:ProcessIncomingData", string.format("Comms func %s does NOT exist", data.type), data)
-
+        Guildbook.DEBUG('commsMixin', "Comms:ProcessIncomingData", "data is NOT a table and data.type is NOT a string", data)
     end
 
 end
@@ -1541,7 +1643,7 @@ function Comms:SendCharacterTalentsInfo(targetGUID)
     end
 
     local talentsInfo = {
-        type = "CHARACTER_TALENTS_INFO_UPDATE",
+        type = "CHARACTER_TALENTS_UPDATE",
         payload = {
             talents = GUILDBOOK_CHARACTER.Talents,
             talentTabs = GUILDBOOK_CHARACTER.TalentTabs,
@@ -1562,7 +1664,7 @@ function Comms:SendCharacterProfileInfo(targetGUID)
     end
 
     local profileInfo = {
-        type = "CHARACTER_PROFILE_INFO",
+        type = "CHARACTER_PROFILE_UPDATE",
         payload = GUILDBOOK_CHARACTER.profile,
     }
 
@@ -1581,7 +1683,7 @@ function Comms:SendCharacterInventoryInfo(targetGUID)
     end
 
     local inventoryInfo = {
-        type = "CHARACTER_INVENTORY_INFO_UPDATE",
+        type = "CHARACTER_INVENTORY_UPDATE",
         payload = {
             inventory = GUILDBOOK_CHARACTER.Inventory,
         },
@@ -1753,9 +1855,9 @@ function Comms:SayHelloBack(targetGUID)
 end
 
 
-function Comms:CHARACTER_ONLINE(data)
+function Comms:OnCharacterOnline(data)
 
-    Guildbook.DEBUG("commsMixin", "Comms:CHARACTER_ONLINE", "someone came online", data)
+    Guildbook.DEBUG("commsMixin", "Comms:OnCharacterOnline", "someone came online", data)
 
     local randomDelay = math.random(1,3)
 
@@ -1793,10 +1895,10 @@ end
 
 
 
-function Comms:CHARACTER_TRADESKILLS_RECIPES_UPDATE(data)
+function Comms:OnCharacterTradeskillsRecipesUpdate(data)
 
     if type(data) ~= "table" then
-        Guildbook.DEBUG('commsMixin', "error CHARACTER_TRADESKILLS_RECIPES_UPDATE", "data is not a table", data)
+        Guildbook.DEBUG('commsMixin', "Comms:OnCharacterTradeskillsRecipesUpdate", "data is not a table", data)
         return;
     end
 
@@ -1809,10 +1911,10 @@ function Comms:CHARACTER_TRADESKILLS_RECIPES_UPDATE(data)
 end
 
 
-function Comms:CHARACTER_TRADESKILLS_INFO_UPDATE(data)
+function Comms:OnCharacterTradeskillsInfoUpdate(data)
 
     if type(data) ~= "table" then
-        Guildbook.DEBUG('commsMixin', "error CHARACTER_TRADESKILLS_INFO_UPDATE", "data is not a table", data)
+        Guildbook.DEBUG('commsMixin', "Comms:OnCharacterTradeskillsInfoUpdate", "data is not a table", data)
         return;
     end
 
@@ -1826,10 +1928,10 @@ end
 
 
 
-function Comms:CHARACTER_TALENTS_INFO_UPDATE(data)
+function Comms:OnCharacterTalentsUpdate(data)
 
     if type(data) ~= "table" then
-        Guildbook.DEBUG('commsMixin', "error CHARACTER_TALENTS_INFO_UPDATE", "data is not a table", data)
+        Guildbook.DEBUG('commsMixin', "Comms:OnCharacterTalentsUpdate", "data is not a table", data)
         return;
     end
 
@@ -1842,10 +1944,10 @@ end
 
 
 
-function Comms:CHARACTER_INVENTORY_INFO_UPDATE(data)
+function Comms:OnCharacterInventoryUpdate(data)
 
     if type(data) ~= "table" then
-        Guildbook.DEBUG('commsMixin', "error CHARACTER_INVENTORY_INFO_UPDATE", "data is not a table", data)
+        Guildbook.DEBUG('commsMixin', "Comms:OnCharacterInventoryUpdate", "data is not a table", data)
         return;
     end
 
@@ -1857,10 +1959,10 @@ end
 
 
 
-function Comms:PLAYER_CHARACTER_UPDATE(data)
+function Comms:OnCharacterUpdate(data)
 
     if type(data) ~= "table" then
-        Guildbook.DEBUG('commsMixin', "error PLAYER_CHARACTER_UPDATE", "data is not a table", data)
+        Guildbook.DEBUG('commsMixin', "Comms:OnCharacterUpdate", "data is not a table", data)
         return;
     end
 
@@ -1869,7 +1971,7 @@ function Comms:PLAYER_CHARACTER_UPDATE(data)
             if type(k) == "string" then
                 Database:UpdateCharacterTable(data.senderGUID, k, v)
             else
-                Guildbook.DEBUG('commsMixin', "error PLAYER_CHARACTER_UPDATE", "updating db, key is not a string value", {
+                Guildbook.DEBUG('commsMixin', "Comms:OnCharacterUpdate", "updating db, key is not a string value", {
                     ["key"] = k,
                     ["value"] = v,
                 })
@@ -1880,20 +1982,17 @@ function Comms:PLAYER_CHARACTER_UPDATE(data)
 end
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+---pointers to the message handler functions, this table allows message functions to be added/removed enabled/disabled etc
+Comms.MessageHandlers = {
+    ["PRIVACY_NOTICE"] = Comms.OnPrivacyNotice,
+    ["CHARACTER_ONLINE"] = Comms.OnCharacterOnline,
+    ["CHARACTER_TALENTS_UPDATE"] = Comms.OnCharacterTalentsUpdate,
+    ["CHARACTER_PROFILE_UPDATE"] = Comms.OnCharacterProfileUpdate,
+    ["CHARACTER_INVENTORY_UPDATE"] = Comms.OnCharacterInventoryUpdate,
+    ["CHARACTER_TRADESKILLS_INFO_UPDATE"] = Comms.OnCharacterTradeskillsInfoUpdate,
+    ["CHARACTER_TRADESKILLS_RECIPES_UPDATE"] = Comms.OnCharacterTradeskillsRecipesUpdate,
+    ["PLAYER_CHARACTER_UPDATE"] = Comms.OnCharacterUpdate,
+}
 
 
 
@@ -2057,6 +2156,7 @@ function Guildbook:Init()
             showMinimapCalendarButton = true,
             showTooltipCharacterInfo = true,
             showTooltipMainCharacter = true,
+            addGuildChatSpecAndMainCharacterInfo = true,
             showTooltipMainSpec = true,
             showTooltipProfessions = true,
             parsePublicNotes = false,
@@ -2065,6 +2165,7 @@ function Guildbook:Init()
             blockCommsDuringInstance = false,
         }
         Guildbook.DEBUG('func', 'init', "created default config table")
+
     end
 
     if GUILDBOOK_GLOBAL.config.showInfoMessages == nil then
@@ -2083,6 +2184,11 @@ function Guildbook:Init()
         Guildbook.DEBUG('func', 'init', "no blockCommsDuringInstance, adding as true")
         GuildbookOptionsBlockCommsDuringInstance:SetChecked(true)
     end
+    if GUILDBOOK_GLOBAL.config.addGuildChatSpecAndMainCharacterInfo == nil then
+        GUILDBOOK_GLOBAL.config.addGuildChatSpecAndMainCharacterInfo = true;
+        Guildbook.DEBUG('func', 'init', "no add spec and main to guild chat, adding as true")
+        GuildbookOptionsShowSpecAndMainCharacterGuildChat:SetChecked(true)
+    end
 
     local config = GUILDBOOK_GLOBAL.config
     GuildbookOptionsTooltipTradeskill:SetChecked(config.showTooltipTradeskills and config.showTooltipTradeskills or false)
@@ -2096,6 +2202,7 @@ function Guildbook:Init()
     GuildbookOptionsTooltipInfoMainSpec:SetChecked(config.showTooltipMainSpec)
     GuildbookOptionsTooltipInfoProfessions:SetChecked(config.showTooltipProfessions)
     GuildbookOptionsTooltipInfoMainCharacter:SetChecked(config.showTooltipMainCharacter)
+    GuildbookOptionsShowSpecAndMainCharacterGuildChat:SetChecked(config.addGuildChatSpecAndMainCharacterInfo)
 
     GuildbookOptionsShowInfoMessages:SetChecked(config.showInfoMessages)
 
