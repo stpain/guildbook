@@ -222,12 +222,18 @@ end
 
 function GuildbookOptions_OnLoad(self)
 
+    GuildbookOptionsShowSpecGuildChat:Disable()
+    GuildbookOptionsShowSpecGuildChatText:SetTextColor(0.5, 0.5, 0.5, 0.5)
+
     local version = GetAddOnMetadata('Guildbook', "Version")
 
     GuildbookOptionsTitle:SetText('Guildbook')
     GuildbookOptionsAbout:SetText(L['OptionsAbout'])
     GuildbookOptionsVersion:SetText(L['Version']..' '..version)
     GuildbookOptionsAuthor:SetText(L['Author'])
+
+    GuildbookOptionsDiscordLink:SetText("https://discord.gg/5PfPAWHPhY")
+    GuildbookOptionsDiscordLink:SetCursorPosition(0)
 
     local deleteGuildDropdown = CreateFrame('FRAME', 'GuildbookDeleteGuildDropDown', GuildbookOptions, "UIDropDownMenuTemplate")
     deleteGuildDropdown:SetPoint("BOTTOMLEFT", 0, 160)

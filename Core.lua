@@ -1327,15 +1327,26 @@ Comms.sendPlayerCharacterUpdates_IsQueued = false;
 Comms.sendPlayerCharacterUpdatesQueueTimer = 3.0;
 Comms.playerCharacterUpdate = {};
 
+-- local function GbFormatLink(atlas, linkType, linkDisplayText, ...)
+-- 	local linkFormatTable = { ("|H%s"):format(linkType), ... };
+-- 	local returnLink = table.concat(linkFormatTable, ":");
+-- 	if linkDisplayText then
+-- 		return atlas .. returnLink .. ("|h%s|h"):format(linkDisplayText);
+-- 	else
+-- 		return atlas .. returnLink .. "|h";
+-- 	end
+-- end
+
+
 
 function Comms.CharacterSpecAndMainChatFilter(self, event, msg, author, ...)
 
+    --local lineID = select(9, ...)
+    --print(lineID)
     local guid = select(10, ...)
     local character = Database:FetchCharacterTableByGUID(guid)
 
-    if 1 == 1 then
-        author = Ambiguate(author, "none")
-    end
+    --author = Ambiguate(author, "none")
 
     if character then
         local atlas = nil;
@@ -1355,18 +1366,28 @@ function Comms.CharacterSpecAndMainChatFilter(self, event, msg, author, ...)
             end
         end
 
-        local sender = nil;
+        --local playerLink = GbFormatLink("player", ) -- GetPlayerLink(author, Ambiguate(author, "none"), lineID)
+        --local playerLink = GbFormatLink(atlas, "player", author, author, lineID or 0, 0, "");
 
-        if atlas ~= nil then
-            sender = string.format("%s %s", atlas, author)
+        --local sender = nil;
+        --local newMessage = nil;
+
+        if atlas ~= nil and main == nil then
+            --sender = string.format("%s %s", atlas, author)
+            --newMessage = string.format("%s %s", atlas, msg)            
+
+        elseif atlas == nil and main ~= nil then
+            --sender = string.format("%s [%s]", author, main)
+            --newMessage = string.format("[%s] %s", main, msg)
+
+        elseif atlas ~= nil and main ~= nil then
+            --sender = string.format("%s %s [%s]", atlas, author, main)
+            --newMessage = string.format("%s [%s] %s", atlas, main, msg)
+
         end
 
         if main ~= nil then
-            sender = string.format("%s [%s]", sender, main)
-        end
-
-        if sender ~= nil then
-            return false, msg, sender, ...
+            return false, string.format("[%s] %s", main, msg), author, ...
         end
 
         return false, msg, author, ...
@@ -1380,7 +1401,7 @@ end
 
 function Comms:OnGuildbookConfigChanged(db, config)
 
-    if config.showSpecGuildChat == false and config.showMainCharacterGuildChat == false then
+    if config.showMainCharacterGuildChat == false then
         ChatFrame_RemoveMessageEventFilter("CHAT_MSG_GUILD", self.CharacterSpecAndMainChatFilter)
     else
         ChatFrame_AddMessageEventFilter("CHAT_MSG_GUILD", self.CharacterSpecAndMainChatFilter)
@@ -1397,8 +1418,12 @@ function Comms:Init()
 
     self.version = tonumber(GetAddOnMetadata('Guildbook', "Version"));
 
-    if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.config and GUILDBOOK_GLOBAL.config.addGuildChatSpecAndMainCharacterInfo == true then
-        ChatFrame_AddMessageEventFilter("CHAT_MSG_GUILD", self.CharacterSpecAndMainChatFilter)
+    if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.config then
+        if GUILDBOOK_GLOBAL.config.showMainCharacterGuildChat == false then
+            ChatFrame_RemoveMessageEventFilter("CHAT_MSG_GUILD", self.CharacterSpecAndMainChatFilter)
+        else
+            ChatFrame_AddMessageEventFilter("CHAT_MSG_GUILD", self.CharacterSpecAndMainChatFilter)
+        end
     end
 
     Database:RegisterCallback("OnGuildbookConfigChanged", self.OnGuildbookConfigChanged, self)
@@ -2221,11 +2246,7 @@ function Guildbook:Init()
         Guildbook.DEBUG('func', 'init', "no blockCommsDuringInstance, adding as true")
         GuildbookOptionsBlockCommsDuringInstance:SetChecked(true)
     end
-    if GUILDBOOK_GLOBAL.config.addGuildChatSpecAndMainCharacterInfo == nil then
-        GUILDBOOK_GLOBAL.config.addGuildChatSpecAndMainCharacterInfo = true;
-        Guildbook.DEBUG('func', 'init', "no add spec and main to guild chat, adding as true")
-        GuildbookOptionsShowSpecAndMainCharacterGuildChat:SetChecked(true)
-    end
+    GUILDBOOK_GLOBAL.config.addGuildChatSpecAndMainCharacterInfo = nil
 
     local config = GUILDBOOK_GLOBAL.config
     GuildbookOptionsTooltipTradeskill:SetChecked(config.showTooltipTradeskills and config.showTooltipTradeskills or false)
@@ -2656,7 +2677,7 @@ function Guildbook:Load()
     end
 
     local updates  = "There has been some major changes to how guildbook sends data, this should make for a better experience however there may be some compatability issues with older versions."
-    
+
     if not GUILDBOOK_GLOBAL.lastVersionUpdate[self.version] then
         StaticPopup_Show('GuildbookUpdates', self.version, updates)
 

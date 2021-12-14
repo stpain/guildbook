@@ -40,10 +40,19 @@ the copyright holders.
                             <offset x="16" y="-40"/>
                         </Anchor>
                         <Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT">
-                            <offset x="-16" y="-120"/>
-                        </Anchor>                        
+                            <offset x="-16" y="-70"/>
+                        </Anchor> 
                     </Anchors>
                 </FontString>
+                <FontString name="$parentDiscord" inherits="GameFontNormal" text="Discord" justifyH="LEFT" justifyV="MIDDLE">
+                    <Size x="80" y="24"/>
+                    <FontHeight val="11"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeTo="$parentAbout" relativePoint="BOTTOMLEFT">
+                            <offset x="0" y="-2"/>
+                        </Anchor>
+                    </Anchors>
+                </FontString> 
                 <FontString name="$parentAuthor" inherits="GameFontNormal">
                     <FontHeight val="11"/>
                     <Anchors>
@@ -64,7 +73,7 @@ the copyright holders.
                     <FontHeight val="11"/>
                     <Anchors>
                         <Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-                            <offset x="16" y="-90"/>
+                            <offset x="16" y="-105"/>
                         </Anchor>
                     </Anchors>
                 </FontString>               
@@ -80,7 +89,7 @@ the copyright holders.
                     <FontHeight val="11"/>
                     <Anchors>
                         <Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-                            <offset x="16" y="-200"/>
+                            <offset x="16" y="-215"/>
                         </Anchor>
                     </Anchors>
                 </FontString>
@@ -103,6 +112,14 @@ the copyright holders.
             </Layer>
         </Layers>
         <Frames>
+            <Editbox name="$parentDiscordLink" inherits="InputBoxTemplate" autoFocus="false">
+                <Size x="200" y="20"/>
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parentDiscord" relativePoint="RIGHT">
+                        <offset x="16" y="0"/>
+                    </Anchor>
+                </Anchors>
+            </Editbox>
             <CheckButton name="$parentShowMinimapButton" inherits="ChatConfigCheckButtonTemplate" >
                 <Size x="24" y="24"/>
                 <Layers>
@@ -120,7 +137,7 @@ the copyright holders.
                 </Layers>                
                 <Anchors>
                     <Anchor point="TOPLEFT">
-                        <Offset x="16" y="-110"/>
+                        <Offset x="16" y="-125"/>
                     </Anchor>
                 </Anchors>
                 <Scripts>
@@ -178,7 +195,7 @@ the copyright holders.
                 </Layers>                
                 <Anchors>
                     <Anchor point="TOPLEFT">
-                        <Offset x="200" y="-110"/>
+                        <Offset x="200" y="-125"/>
                     </Anchor>
                 </Anchors>
                 <Scripts>
@@ -207,7 +224,7 @@ the copyright holders.
                 </Layers>                
                 <Anchors>
                     <Anchor point="TOPLEFT">
-                        <Offset x="400" y="-110"/>
+                        <Offset x="400" y="-125"/>
                     </Anchor>
                 </Anchors>
                 <Scripts>
@@ -296,7 +313,7 @@ the copyright holders.
                 </Layers>                
                 <Anchors>
                     <Anchor point="TOPLEFT">
-                        <Offset x="16" y="-220"/>
+                        <Offset x="16" y="-235"/>
                     </Anchor>
                 </Anchors>
                 <Scripts>
@@ -413,7 +430,7 @@ the copyright holders.
                 </Layers>                
                 <Anchors>
                     <Anchor point="TOPLEFT">
-                        <Offset x="300" y="-220"/>
+                        <Offset x="300" y="-235"/>
                     </Anchor>
                 </Anchors>
                 <Scripts>
