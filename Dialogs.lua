@@ -42,9 +42,9 @@ StaticPopupDialogs['Error'] = {
 }
 
 StaticPopupDialogs['Reload'] = {
-    text = 'Settings have changed and a UI reload is required!',
-    button1 = 'Reload UI',
-    --button2 = 'Cancel',
+    text = L["SETTINGS_CHANGED_RELOAD"],
+    button1 = L["RELOAD_UI"],
+    --button2 = L["CANCEL"],
     OnAccept = function(self)
         ReloadUI()
     end,
@@ -54,9 +54,9 @@ StaticPopupDialogs['Reload'] = {
 }
 
 StaticPopupDialogs['GuildbookDeleteGuild'] = {
-    text = 'Delete all data for %s',
-    button1 = 'Yes',
-    button2 = 'Cancel',
+    text = L["DELETE_GUILD_DATA"],
+    button1 = L["YES"],
+    button2 = L["CANCEL"],
     OnAccept = function(self, data)
         GUILDBOOK_GLOBAL['GuildRosterCache'][data.Guild] = nil
         GUILDBOOK_GLOBAL['Calendar'][data.Guild] = nil
@@ -72,9 +72,9 @@ StaticPopupDialogs['GuildbookDeleteGuild'] = {
 }
 
 StaticPopupDialogs['GuildbookResetCharacter'] = {
-    text = 'Reset data for '..select(1, UnitName("player"))..' to default values?',
-    button1 = 'Reset',
-    button2 = 'Cancel',
+    text = L["RESET_CHARACTER_DATA"],
+    button1 = L["RESET"],
+    button2 = L["CANCEL"],
     OnAccept = function(self)
         wipe(GUILDBOOK_CHARACTER)
         local guildName = Guildbook:GetGuildName()
@@ -93,9 +93,9 @@ StaticPopupDialogs['GuildbookResetCharacter'] = {
 }
 
 StaticPopupDialogs['GuildbookResetCacheCharacter'] = {
-    text = 'Reset data for %s?',
-    button1 = 'Reset',
-    button2 = 'Cancel',
+    text = L["RESET_CACHE_CHAR_DATA"],
+    button1 = L["RESET"],
+    button2 = L["CANCEL"],
     OnAccept = function(self, t)
         wipe(GUILDBOOK_CHARACTER)
         local guildName = Guildbook:GetGuildName()
@@ -114,9 +114,9 @@ StaticPopupDialogs['GuildbookResetCacheCharacter'] = {
 }
 
 StaticPopupDialogs['GuildbookResetGlobalSettings'] = {
-    text = 'Reset global settings to default values? \n\nThis will delete all data about all guilds you are a member of.',
-    button1 = 'Reset',
-    button2 = 'Cancel',
+    text = L["RESET_GLOBAL_SETTINGS"],
+    button1 = L["RESET"],
+    button2 = L["CANCEL"],
     OnAccept = function(self)
         if GUILDBOOK_GLOBAL then
             wipe(GUILDBOOK_GLOBAL)
@@ -136,8 +136,8 @@ StaticPopupDialogs['GuildbookResetGlobalSettings'] = {
 
 StaticPopupDialogs['GuildbookGatheringDatabaseEditObject'] = {
     text = '-',
-    button1 = 'Update',
-    button2 = 'Cancel',
+    button1 = L["UPDATE"],
+    button2 = L["CANCEL"],
     hasEditBox = true,
     OnShow = function(self)
         self.button1:Disable()
@@ -169,8 +169,8 @@ StaticPopupDialogs['GuildbookGatheringDatabaseEditObject'] = {
 
 StaticPopupDialogs['MainCharacterAddAltCharacter'] = {
     text = L["DIALOG_MAIN_CHAR_ADD"],
-    button1 = 'Update',
-    button2 = 'Cancel',
+    button1 = L["UPDATE"],
+    button2 = L["CANCEL"],
     hasEditBox = true,
     OnShow = function(self)
         self.button1:Disable()
@@ -209,8 +209,8 @@ StaticPopupDialogs['MainCharacterAddAltCharacter'] = {
 
 StaticPopupDialogs['MainCharacterRemoveAltCharacter'] = {
     text = L["DIALOG_MAIN_CHAR_REMOVE"],
-    button1 = 'Update',
-    button2 = 'Cancel',
+    button1 = L["UPDATE"],
+    button2 = L["CANCEL"],
     hasEditBox = true,
     OnShow = function(self)
         self.button1:Disable()
