@@ -2676,7 +2676,7 @@ function Guildbook:Load()
         GUILDBOOK_GLOBAL.lastVersionUpdate = {}
     end
 
-    local updates  = "There has been some major changes to how guildbook sends data, this should make for a better experience however there may be some compatability issues with older versions."
+    local updates  = L["UPDATE_NEWS"]
 
     if not GUILDBOOK_GLOBAL.lastVersionUpdate[self.version] then
         StaticPopup_Show('GuildbookUpdates', self.version, updates)
