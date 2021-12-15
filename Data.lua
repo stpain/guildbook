@@ -939,7 +939,6 @@ Guildbook.Data.ProfessionDescriptions = {
     Tailoring = 'Sew cloth armor and many kinds of bags using dye, thread and cloth gathered from humanoid enemies during your travels. Tailors can also fashion nets to slow enemies with, rideable flying carpets, and magical threads which empower items they are stitched into.',
     Cooking = '',
     Mining = '',
-	FristAid = '',
 }
 
 
