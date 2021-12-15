@@ -1425,7 +1425,7 @@ local professions = {
     { id = 197, Name = 'Tailoring', Atlas = "Mobile-Tailoring", },
     { id = 186, Name = 'Mining', Atlas = "Mobile-Mining", },
     { id = 185, Name = 'Cooking', Atlas = "Mobile-Cooking", },
-	{ id = 129, Name = 'First Aid', Atlas = "Mobile-FirstAid", },
+    --{ id = 129, Name = 'First Aid', Atlas = "Mobile-FirstAid", },
 }
 
 if WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC then
