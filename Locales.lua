@@ -991,11 +991,11 @@ if locale == "deDE" then
 ]]
 elseif locale == 'frFR' then
 	L["UPDATE_NEWS"] = [[
-Avec la nouvelle mise à jour de WoW Classic, "La Saison de la Maîtrise", j'ai voulu que Guildbook 
-fonctionne pour l'ensemble des versions de WoW Classic.
+Il y a eu de grand changement à la manière dont Guildbook partage ses données,
+cela permettra une meilleur expérience, mais peut entraîner des soucis de
+compatibilité avec les anciennes version.
 
-Résultat, la Banque de Guilde de Guildbook a été restaurée afin qu'une unique version de l'addon 
-fonctionne sur les deux versions du jeu.
+Merci de télécharger "Guildbook TSDB" sur Curseforge si ce n'est pas déjà fait.
 ]]
 	L["DIALOG_SHOW_UPDATES"]			= "Afficher à nouveau"
 	L["DIALOG_DONT_SHOW_UPDATES"]		= "Ok, ne plus montrer"
