@@ -272,7 +272,7 @@ Tradeskills.TradeskillIDsToLocaleName = {
 		[393] = "剝皮",
 		[755] = "珠寶設計",
 		[773] = "銘文學",
-		[129] = "急救", --Couldn't find proper one so I used CN one, sorry -Belrand
+		[129] = "急救", --don't know if right one, I used CN one, sorry -Belrand
 	},
 	koKR = {
 		[164] = "대장기술",
@@ -2963,7 +2963,6 @@ local characterTradeskills = {
     ['Tailoring'] = false,
     ['Cooking'] = false,
     ['Mining'] = false,
-	['First Aid'] = false,
 }
 
 ---generate a serialize string of guild members recipes using tradeskill and recipeID as keys to reduce size. the serialized table is t[prof][recipeID] = {reagents={}, characters={guid1, guid2}}
