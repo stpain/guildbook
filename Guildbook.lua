@@ -76,6 +76,14 @@ function GuildbookDataShareMixin:OnShow()
 end
 
 
+
+
+
+
+
+
+
+
 ---this function is called from the roster listview when clicking a characters profession icon
 ---@param guid string the character guid
 ---@param prof string the profession name to use
@@ -94,68 +102,67 @@ local function loadGuildMemberTradeskills(guid, prof)
         GuildbookUI.statusText:SetText("tradeskill enchant recipes not processed yet, key mapping not ready")
         return
     end
-    local character = gb:GetCharacterFromCache(guid)
+    local character = Database:FetchCharacterTableByGUID(guid)
     if not character then
         return
     end
-    GuildbookUI.tradeskills.awaitingCharacterRecipes = true;
     if prof == "Enginnering" then prof = "Engineering" end -- fix it back due to blizz spelling error
-    gb:DB_RequestCharacterData(guid, prof, "WHISPER", character.Name, "NORMAL")
-    -- local recipes = {}
-    -- if prof ~= "allRecipes" and character[prof] then
-    --     for itemID, _ in pairs(character[prof]) do
-    --         if prof == "Enchanting" then
-    --             local key = gb.tradeskillEnchantRecipesKeys[itemID]
-    --             table.insert(recipes, gb.tradeskillRecipes[key])
-    --         else
-    --             local key = gb.tradeskillRecipesKeys[itemID]
-    --             table.insert(recipes, gb.tradeskillRecipes[key])
-    --         end
-    --     end
+    local recipes = {}
+    if prof ~= "allRecipes" and character[prof] then
+        for itemID, _ in pairs(character[prof]) do
+            if prof == "Enchanting" then
+                local key = gb.tradeskillEnchantRecipesKeys[itemID]
+                table.insert(recipes, gb.tradeskillRecipes[key])
+            else
+                local key = gb.tradeskillRecipesKeys[itemID]
+                table.insert(recipes, gb.tradeskillRecipes[key])
+            end
+        end
 
-    -- ---if no prof is given then load all the characters recipes
-    -- elseif prof == "allRecipes" then
-    --     local prof1 = character.Profession1
-    --     if prof1 and character[prof1] then
-    --         for itemID, _ in pairs(character[prof1]) do
-    --             if prof1 == "Enchanting" then
-    --                 local key = gb.tradeskillEnchantRecipesKeys[itemID]
-    --                 table.insert(recipes, gb.tradeskillRecipes[key])
-    --             else
-    --                 local key = gb.tradeskillRecipesKeys[itemID]
-    --                 table.insert(recipes, gb.tradeskillRecipes[key])
-    --             end
-    --         end
-    --     end
-    --     local prof2 = character.Profession2
-    --     if prof2 and character[prof2] then
-    --         for itemID, _ in pairs(character[prof2]) do
-    --             if prof2 == "Enchanting" then
-    --                 local key = gb.tradeskillEnchantRecipesKeys[itemID]
-    --                 table.insert(recipes, gb.tradeskillRecipes[key])
-    --             else
-    --                 local key = gb.tradeskillRecipesKeys[itemID]
-    --                 table.insert(recipes, gb.tradeskillRecipes[key])
-    --             end
-    --         end
-    --     end
-    -- end
-    -- if recipes and next(recipes) ~= nil then
-    --     GuildbookUI.statusText:SetText(string.format("found %s recipes for %s [%s]", #recipes, prof, character.Name))
-    --     table.sort(recipes, function(a,b)
-    --         if a.expansion == b.expansion then
-    --             if a.rarity == b.rarity then
-    --                 return a.name < b.name
-    --             else
-    --                 return a.rarity > b.rarity
-    --             end
-    --         else
-    --             return a.expansion > b.expansion
-    --         end
-    --     end)
-    --     GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:InsertTable(recipes)
-    -- end
-    -- GuildbookUI:OpenTo("tradeskills")
+    ---if no prof is given then load all the characters recipes
+    elseif prof == "allRecipes" then
+        local prof1 = character.Profession1
+        if prof1 and character[prof1] then
+            for itemID, _ in pairs(character[prof1]) do
+                if prof1 == "Enchanting" then
+                    local key = gb.tradeskillEnchantRecipesKeys[itemID]
+                    table.insert(recipes, gb.tradeskillRecipes[key])
+                else
+                    local key = gb.tradeskillRecipesKeys[itemID]
+                    table.insert(recipes, gb.tradeskillRecipes[key])
+                end
+            end
+        end
+        local prof2 = character.Profession2
+        if prof2 and character[prof2] then
+            for itemID, _ in pairs(character[prof2]) do
+                if prof2 == "Enchanting" then
+                    local key = gb.tradeskillEnchantRecipesKeys[itemID]
+                    table.insert(recipes, gb.tradeskillRecipes[key])
+                else
+                    local key = gb.tradeskillRecipesKeys[itemID]
+                    table.insert(recipes, gb.tradeskillRecipes[key])
+                end
+            end
+        end
+    end
+    if recipes and next(recipes) ~= nil then
+        GuildbookUI.statusText:SetText(string.format("found %s recipes for %s [%s]", #recipes, prof, character.Name))
+        table.sort(recipes, function(a,b)
+            if a.expansion == b.expansion then
+                if a.rarity == b.rarity then
+                    return a.name < b.name
+                else
+                    return a.rarity > b.rarity
+                end
+            else
+                return a.expansion > b.expansion
+            end
+        end)
+        GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:InsertTable(recipes)
+        GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:InsertTable({guid})
+    end
+    GuildbookUI:OpenTo("tradeskills")
 end
 
 

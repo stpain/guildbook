@@ -298,6 +298,8 @@ function Tradeskills:GetEnglishNameFromTradeskillName(tradeskillName)
     end
 end
 
+
+
 Guildbook.Tradeskills = Tradeskills;
 
 
@@ -323,6 +325,7 @@ Guildbook.Tradeskills = Tradeskills;
 local Database = CreateFromMixins(CallbackRegistryMixin)
 Database:GenerateCallbackEvents({
     "OnCharacterTableChanged", -- only this clients UI needs to listen to this
+    --"OnCharacterTradeskillRecipesChanged", -- and this
     "OnPlayerCharacterTableChanged",
     "OnPlayerCharacterTradeskillsInfoChanged",
     "OnPlayerCharacterTradeskillRecipesChanged",
@@ -335,6 +338,7 @@ Database.onCharacterTableChanged_IsTriggered = false;
 Database.onPlayerCharacterTableChanged_IsTriggered = false;
 Database.onPlayerCharacterTradeskillsInfoChanged_IsTriggered = false;
 Database.onPlayerCharacterTradeskillRecipesChanged_IsTriggered = false;
+--Database.onCharacterTradeskillRecipesChanged_IsTriggered = false;
 
 
 
@@ -378,6 +382,23 @@ function Database:UpdateCharacterTable(guid, key, info)
            end)
            self.onCharacterTableChanged_IsTriggered = true;
         end
+    end
+
+end
+
+
+
+
+function Database:UpdateCharacterTradeskillRecipes(guid, tradeskill, recipes)
+
+    if self.currentGuildName and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName] and GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName][guid] then
+        local characterTable = GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName][guid];
+        characterTable[tradeskill] = recipes;
+
+        Guildbook.DEBUG("databaseMixin", "Database:UpdateCharacterTradeskillRecipes", string.format("updated %s for %s", tradeskill, characterTable.Name), recipes)
+
+        ---this function should be moved into the tradeskill class and possibly re worked ???
+        Guildbook:RequestTradeskillData()
     end
 
 end
@@ -1964,7 +1985,7 @@ function Comms:OnCharacterTradeskillsRecipesUpdate(data)
 
     if data.senderGUID and data.payload.tradeskill then
         if type(data.payload.recipes) == "table" then
-            Database:UpdateCharacterTable(data.senderGUID, data.payload.tradeskill, data.payload.recipes)
+            Database:UpdateCharacterTradeskillRecipes(data.senderGUID, data.payload.tradeskill, data.payload.recipes)
         end
     end
 
@@ -2135,7 +2156,7 @@ function Guildbook:Init()
 
     -- grab version number
     self.version = tonumber(GetAddOnMetadata('Guildbook', "Version"))
-    self:SendVersionData()
+    --self:SendVersionData()
 
     -- this makes the bank/calendar legacy features work
     if not self.GuildFrame then
@@ -3208,7 +3229,7 @@ function Guildbook:RequestTradeskillData()
         self.tradeskillRecipes = {}
     end
 
-    -- a lookup table to use for finding an tradeskill from the main table { [recipeID] = key }
+    -- a lookup table to use for finding a tradeskill from the main table { [recipeID] = key }
     self.tradeskillRecipesKeys = {}
 
     -- a lookup table to use for finding an enchant from the main table { [recipeID] = key }
@@ -3357,7 +3378,7 @@ function Guildbook:RequestTradeskillData()
 
     if #recipeIdsToQuery > 0 then
         local startTime = time();
-        self:PrintMessage(string.format("found %s recipes, estimated duration %s", #recipeIdsToQuery, SecondsToTime(#recipeIdsToQuery*delay)))
+        --self:PrintMessage(string.format("found %s recipes, estimated duration %s", #recipeIdsToQuery, SecondsToTime(#recipeIdsToQuery*delay)))
         table.sort(recipeIdsToQuery, function(a,b)
             if a.prof == b.prof then
                 return a.recipeID > b.recipeID -- sort highest id first, should help display newest expansion items sooner
@@ -3528,7 +3549,7 @@ function Guildbook:RequestTradeskillData()
                 statusBarText:SetText("")
                 statusBarText:Hide()
 
-                self:PrintMessage(string.format("all tradeskill recipes processed, took %s", SecondsToTime(time()-startTime)))
+                --self:PrintMessage(string.format("all tradeskill recipes processed, took %s", SecondsToTime(time()-startTime)))
                 Guildbook.DEBUG('func', 'tradeskill data requst', string.format("all tradeskill recipes processed, took %s", SecondsToTime(time()-startTime)))
 
                 return;
@@ -3919,146 +3940,6 @@ function Guildbook:Transmit(data, channel, targetGUID, priority)
     --     Guildbook.DEBUG('comms_out', 'SendCommMessage', string.format("type: %s, channel: %s target: %s, prio: %s", data.type or 'nil', channel, (target or 'nil'), priority))
     --     self:SendCommMessage(addonName, encoded, channel, target, priority)
     -- end
-end
-
-function Guildbook:SendVersionData()
-    if not self.version then
-        return
-    end
-    local version = {
-        type = "VERSION_INFO",
-        payload = self.version,
-    }
-    --self:Transmit(version, "GUILD", nil, "NORMAL")
-end
-
-local versionsChecked = {}
-function Guildbook:OnVersionInfoRecieved(data, distribution, sender)
-    -- we dont care about our own version check
-    if data.senderGUID == UnitGUID("player") then
-        return;
-    end
-    if data.payload then
-        if tonumber(self.version) < tonumber(data.payload) then
-            if not versionsChecked[data.payload] then -- if we havent seen this version number then inform the player
-                local msgID = math.random(4)
-                print(string.format('[%sGuildbook|r] %s', Guildbook.FONT_COLOUR, L["NEW_VERSION_"..msgID]))
-                versionsChecked[data.payload] = true;
-            end            
-        elseif tonumber(self.version) > tonumber(data.payload) then
-            self:SendVersionData() -- if our version is newer send it back to inform the player
-        end
-    end
-    -- the idea here is to update characters when they come online, allowing 30s means the player logging on has time for addons to load up
-    -- the issue is however, they might log off before 30s which results in the 'No playername ...' system messages
-    -- TODO: revise this system and improve
-
-end
-
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- send anything comms
---[[
-    the idea of this set of comms is to create a more universal method of sending data
-    it will be using the newer roster cache get/set functions
-    it allows the addon to send a specific key/value
-]]
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
----send a request for character data
----@param guid string the guid for the character
----@param key string the key for the data requested
----@param channel string should be WHISPER for almost all requests
----@param target string the characters name you are whispering
----@param priority string should be NORMAL for almost all requests
-function Guildbook:DB_RequestCharacterData(guid, key, channel, target, priority)
-    if not guid then
-        return
-    end
-    local transmition = {
-        type = "DB_GET",
-        payload = {
-            guid = guid,
-            key = key,
-        }
-    }
-    if type(channel) ~= "string" then
-        channel = "WHISPER";
-    end
-    self:Transmit(transmition, channel, guid, priority)
-end
-
-function Guildbook:DB_OnDataRequest(data, distribution, sender)
-    if not data then
-        return;
-    end
-    if distribution ~= "WHISPER" then
-        return;
-    end
-    if data.type == "DB_GET" then
-        if (type(data.payload.guid) == "string") and (data.payload.guid == UnitGUID("player")) then
-            if GUILDBOOK_CHARACTER and (type(data.payload.key) == "string") and (GUILDBOOK_CHARACTER[data.payload.key]) then
-                self:DB_SendCharacterData(UnitGUID("player"), data.payload.key, GUILDBOOK_CHARACTER[data.payload.key], "WHISPER", data.senderGUID, "NORMAL")
-            else
-
-            end
-        end
-    end
-end
-
-function Guildbook:DB_SendCharacterData(guid, key, info, channel, target, priority)
-    if not guid then
-        return
-    end
-    if type(key) ~= "string" then
-        return
-    end
-    local transmition = {
-        type = "DB_SET",
-        payload = {
-            guid = guid,
-            key = key,
-            info = info,
-        }
-    }
-    self:Transmit(transmition, channel, target, priority)
-end
-
-
-function Guildbook:DB_OnDataReceived(data, distribution, sender)
-    if not data then
-        return;
-    end
-    if not data.payload then
-        return;
-    end
-    if type(data.payload.key) ~= "string" then
-        return;
-    end
-    if data.payload.guid and data.payload.info then
-        Guildbook.DEBUG("db_func", "DB_OnDataReceived", string.format("received %s info from %s", data.payload.key, sender), data)
-        self:SetCharacterInfo(data.payload.guid, data.payload.key, data.payload.info)
-    end
-
-    --for new users, the addon will have scanned their professions but because there would be no data during the load for this function to loop the key mapping wouldnt be complete
-    --so if we get tradeskill data call the function, it only makes requests where data is missing so will skip repeated requests
-    --need to sort out some callbacks but for now we check if the key was a profession and if so request data
-    --this function will only request data for recipes where data hasnt been requested
-
-
-    if Guildbook.Data.Profession[data.payload.key] then
-        Guildbook.DEBUG('db_func', 'DB_OnDataReceived', string.format("received data for %s, calling function > RequestTradeskillData", data.payload.key))
-        self:RequestTradeskillData()
-
-        local guid, prof = data.payload.guid, data.payload.key;
-
-        C_Timer.After(self.COMMS_DELAY, function()
-            if GuildbookUI.tradeskills.awaitingCharacterRecipes == true then
-                GuildbookTradeskillProfessionListview:LoadCharacterTradeskillRecipes(guid, prof)
-                GuildbookUI.tradeskills.awaitingCharacterRecipes = false;
-            end    
-        end)
-    end
-
 end
 
 
