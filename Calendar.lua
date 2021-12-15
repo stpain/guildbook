@@ -1,6 +1,6 @@
 --[==[
 
-Copyright ©2020 Samuel Thomas Pain
+Copyright ©2022 Samuel Thomas Pain
 
 The contents of this addon, excluding third-party resources, are
 copyrighted to their authors with all rights reserved.

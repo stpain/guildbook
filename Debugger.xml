@@ -1,3 +1,6 @@
+
+
+
 <UI>
 
     <Frame name="GuildbookDebuggerListviewTemplate" mixin="GuildbookDebuggerListviewMixin" virtual="true">

@@ -1,6 +1,6 @@
 --[==[
 
-Copyright ©2020 Samuel Thomas Pain
+Copyright ©2022 Samuel Thomas Pain
 
 The contents of this addon, excluding third-party resources, are
 copyrighted to their authors with all rights reserved.
@@ -298,6 +298,10 @@ function Tradeskills:GetEnglishNameFromTradeskillName(tradeskillName)
     end
 end
 
+
+function Tradeskills:RequestRecipeInfo()
+
+end
 
 
 Guildbook.Tradeskills = Tradeskills;
@@ -1380,9 +1384,9 @@ function Comms.CharacterSpecAndMainChatFilter(self, event, msg, author, ...)
         end
 
         -- check if we want to add main character namew
-        if (GUILDBOOK_GLOBAL.config.showMainCharacterGuildChat == true) and character.MainCharacter and (character.MainCharacter ~= UnitGUID("player")) then
+        if (GUILDBOOK_GLOBAL.config.showMainCharacterGuildChat == true) and character.MainCharacter then
             local mainChar = Database:FetchCharacterTableByGUID(character.MainCharacter)
-            if mainChar then
+            if mainChar and (guid ~= character.MainCharacter) then
                 main = Guildbook.Colours[mainChar.Class]:WrapTextInColorCode(mainChar.Name)
             end
         end
@@ -4817,14 +4821,8 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
 
     Guildbook.DEBUG('comms_in', string.format("ON_COMMS_RECEIVED <%s>", distribution), string.format("%s from %s", data.type, sender), data)
 
-    if data.type == "DB_SET" then
-        self:DB_OnDataReceived(data, distribution, sender)
-
-    elseif data.type == "DB_GET" then
-        self:DB_OnDataRequest(data, distribution, sender)
-
     -- tradeskills
-    elseif data.type == "TRADESKILLS_REQUEST" then
+    if data.type == "TRADESKILLS_REQUEST" then
         self:OnTradeSkillsRequested(data, distribution, sender)
 
     elseif data.type == "TRADESKILLS_RESPONSE" then
