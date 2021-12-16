@@ -2552,7 +2552,7 @@ function Guildbook:Load()
         
                 Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:ClearAllPoints()
                 Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('TOPLEFT', GuildbookUI.calendar, 'TOPRIGHT', 4, 50)
-                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('BOTTOMRIGHT', GuildbookUI.calendar, 'BOTTOMRIGHT', 254, 0)
+                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('BOTTOMRIGHT', GuildbookUI.calendar, 'BOTTOMRIGHT', 264, 0)
             end
         end,
         OnTooltipShow = function(tooltip)
@@ -2696,12 +2696,15 @@ function Guildbook:Load()
         Guildbook:RequestGuildCalendarDeletedEvents()
         Guildbook.DEBUG("func", "Load", "requested deleted calendar events")
     end)
+    C_Timer.After(21, function()
+        Guildbook:RemoveOldEventsFromSavedVarFile()
+    end)
 
     if not GUILDBOOK_GLOBAL.lastVersionUpdate then
         GUILDBOOK_GLOBAL.lastVersionUpdate = {}
     end
 
-    local updates  = "There has been some major changes to how guildbook sends data, this should make for a better experience however there may be some compatability issues with older versions."
+    local updates  = "Added an event start time option to the calendar as well as some calendar bug fixes.\n\nYou can also find a discord link in the options menu."
 
     if not GUILDBOOK_GLOBAL.lastVersionUpdate[self.version] then
         StaticPopup_Show('GuildbookUpdates', self.version, updates)
@@ -4494,45 +4497,26 @@ function Guildbook:OnGuildCalendarEventsReceived(data, distribution, sender)
                     Guildbook.DEBUG('func', 'OnGuildCalendarEventsReceived', 'event exists!')
                     -- loop the db events for attending guid
                     for guid, info in pairs(dbEvent.attend) do
-                        local name;
-                        if not Guildbook.PlayerMixin then
-                            Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
-                        else
-                            Guildbook.PlayerMixin:SetGUID(guid)
-                        end
-                        if Guildbook.PlayerMixin:IsValid() then
-                            name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
-                        end
-                        if not name then
-                            name = '[unknown name]'
-                        end
+                        local character = Database:FetchCharacterTableByGUID(guid)
                         -- is there a matching guid 
                         if recievedEvent.attend and recievedEvent.attend[guid] then
                             if tonumber(info.Updated) < tonumber(recievedEvent.attend[guid].Updated) then
                                 info.Status = recievedEvent.attend[guid].Status
                                 info.Updated = recievedEvent.attend[guid].Updated
-                                Guildbook.DEBUG('func', 'OnGuildCalendarEventsReceived', string.format("updated %s attend status for %s", name, dbEvent.title))
+                                Guildbook.DEBUG('func', 'OnGuildCalendarEventsReceived', string.format("updated %s attend status for %s", character.Name or "no name", dbEvent.title))
                             end
                         else
-                            Guildbook.DEBUG('func', 'OnGuildCalendarEventsReceived', string.format("%s wasn't in the sent event attending data", name))
+                            Guildbook.DEBUG('func', 'OnGuildCalendarEventsReceived', string.format("%s wasn't in the sent event attending data", character.Name or "no name"))
                         end
                     end
                     -- loop the recieved event attending table and add any missing players
                     for guid, info in pairs(recievedEvent.attend) do
-                        local name = '-'
-                        if not Guildbook.PlayerMixin then
-                            Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
-                        else
-                            Guildbook.PlayerMixin:SetGUID(guid)
-                        end
-                        if Guildbook.PlayerMixin:IsValid() then
-                            name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
-                        end
+                        local character = Database:FetchCharacterTableByGUID(guid)
                         if not dbEvent.attend[guid] then
                             dbEvent.attend[guid] = {}
                             dbEvent.attend[guid].Updated = GetServerTime()
                             dbEvent.attend[guid].Status = info.Status
-                            Guildbook.DEBUG('func', 'OnGuildCalendarEventsReceived', string.format("added %s attend status for %s", name, dbEvent.title))
+                            Guildbook.DEBUG('func', 'OnGuildCalendarEventsReceived', string.format("added %s attend status for %s", character.Name or "no name", dbEvent.title))
                         end
                     end
                 end
@@ -4605,13 +4589,39 @@ function Guildbook:OnGuildCalendarEventUpdated(data, distribution, sender)
             end
         end
     end
-    Guildbook.DEBUG('func', 'OnGuildCalendarEventUpdated', string.format("%s has updated the event %s", sender, data.payload.title))
+    Guildbook.DEBUG('func', 'OnGuildCalendarEventUpdated', string.format("%s has updated the event %s", sender, data.payload.title), data)
 end
 
 
 
 
+function Guildbook:RemoveOldEventsFromSavedVarFile()
+    local today = date('*t')
+    local weeks8 = 60*60*24*55
+    local timeToday = time(today)
+    --local thePast = date('*t', (time(today) - weeks8)) -- 8 weeks ago (minus 1 day)
+    local guildName = Guildbook:GetGuildName()
+    if guildName and GUILDBOOK_GLOBAL['Calendar'][guildName] then
+        for i, event in ipairs(GUILDBOOK_GLOBAL['Calendar'][guildName]) do
+            local eventTimestamp = time(event.date)
+            --print("event time:", eventTimestamp, "timeToday:", timeToday, "diff:", timeToday-eventTimestamp, "8 weeks:", weeks8)
+            if eventTimestamp < (timeToday - weeks8) then
+                Guildbook.DEBUG('func', 'RemoveOldEventsFromSavedVarFile', string.format("event %s is more then 8 weeks old, removing from saved var", event.title), event)
 
+                GUILDBOOK_GLOBAL['Calendar'][guildName][i] = nil;
+            end
+            -- if GUILDBOOK_GLOBAL['CalendarDeleted'][guildName] then
+            --     for k, v in pairs(GUILDBOOK_GLOBAL['CalendarDeleted'][guildName]) do
+            --         local guid, timestamp = strsplit(">", k)
+            --         if event.owner == guid and event.created == tonumber(timestamp) then
+            --             Guildbook.DEBUG('func', 'RemoveOldEventsFromSavedVarFile', string.format("removing %s from saved var calendar deleted table", event.title), event)
+            --             GUILDBOOK_GLOBAL['CalendarDeleted'][guildName][k] = nil;
+            --         end
+            --     end
+            -- end
+        end
+    end
+end
 
 
 

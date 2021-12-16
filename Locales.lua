@@ -448,6 +448,7 @@ L["ATTENDING"]                      = "Attending"
 L["TENTATIVE"]                      = "Tentative"
 L["DECLINE"]                        = "Decline"
 
+L["TIME"]							= "Time"
 L["YEARS"]                          = "years"
 L["MONTHS"]                         = "months"
 L["DAYS"]                           = "days"
