@@ -1250,6 +1250,8 @@ end
 ---initialises Character, sets up the listener for events
 function Character:Init()
 
+    Guildbook.DEBUG("func", "Character:Init", "initialising the character class")
+
     CallbackRegistryMixin.OnLoad(self)
 
     self.listener = CreateFrame("Frame")
@@ -1259,6 +1261,11 @@ function Character:Init()
     self.listener:RegisterEvent("CHARACTER_POINTS_CHANGED")
     self.listener:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
     self.listener:RegisterEvent("CHAT_MSG_SKILL")
+
+    --lets grab some data as we've loaded
+    self:GetInventory()
+    self:GetPaperDollStats()
+    self:ScanPlayerTalents()
 
     self.listener:SetScript("OnEvent", function(_, event, ...)
         Guildbook.DEBUG("event", "Character:OnEvent", string.format("event: %s", event))
@@ -1588,6 +1595,9 @@ end
 function Comms:ProcessIncomingData(data, sender)
 
     if type(data) == "table" and type(data.type) == "string" then
+
+        Guildbook.DEBUG('commsMixin', "Comms:ProcessIncomingData", string.format("%s has sent data of type %s", sender, data.type), data)
+
         if self.MessageHandlers[data.type] then
 
             Guildbook.DEBUG('commsMixin', "Comms:ProcessIncomingData", string.format("MessageHandler %s does exist", data.type), data)
@@ -1598,7 +1608,7 @@ function Comms:ProcessIncomingData(data, sender)
         end
 
     else
-        Guildbook.DEBUG('commsMixin', "Comms:ProcessIncomingData", "data is NOT a table and data.type is NOT a string", data)
+        Guildbook.DEBUG('commsMixin', "Comms:ProcessIncomingData", string.format("[%s] data sent is NOT a table and data.type is NOT a string", sender), data)
     end
 
 end
@@ -4601,24 +4611,41 @@ function Guildbook:RemoveOldEventsFromSavedVarFile()
     local timeToday = time(today)
     --local thePast = date('*t', (time(today) - weeks8)) -- 8 weeks ago (minus 1 day)
     local guildName = Guildbook:GetGuildName()
+
+    --lets clean up the calendar deleted table
+    if GUILDBOOK_GLOBAL['CalendarDeleted'][guildName] then
+
+        for k, v in pairs(GUILDBOOK_GLOBAL['CalendarDeleted'][guildName]) do
+            local guid, timestamp = strsplit(">", k)
+            local removeEvent = false;
+            local _event = nil;
+            -- loop the calendar to find a match, an event can be identified by its owner and created values as these combine into a unique string ID (time being a value that will change each second)
+            for i, event in ipairs(GUILDBOOK_GLOBAL['Calendar'][guildName]) do
+                _event = event;
+                if event.owner == guid and tonumber(timestamp) == event.created then
+                    local eventTimestamp = time(event.date)
+                    if eventTimestamp < (timeToday - weeks8) then
+                        removeEvent = true;
+                    end
+                end
+            end
+            if removeEvent == true and (_event ~= nil) then
+                Guildbook.DEBUG('func', 'RemoveOldEventsFromSavedVarFile', string.format("removing %s from saved var calendar deleted table", _event.title), _event)
+                GUILDBOOK_GLOBAL['CalendarDeleted'][guildName][k] = nil;
+            end
+        end
+    end
+
+
     if guildName and GUILDBOOK_GLOBAL['Calendar'][guildName] then
         for i, event in ipairs(GUILDBOOK_GLOBAL['Calendar'][guildName]) do
             local eventTimestamp = time(event.date)
             --print("event time:", eventTimestamp, "timeToday:", timeToday, "diff:", timeToday-eventTimestamp, "8 weeks:", weeks8)
+
             if eventTimestamp < (timeToday - weeks8) then
                 Guildbook.DEBUG('func', 'RemoveOldEventsFromSavedVarFile', string.format("event %s is more then 8 weeks old, removing from saved var", event.title), event)
-
                 GUILDBOOK_GLOBAL['Calendar'][guildName][i] = nil;
             end
-            -- if GUILDBOOK_GLOBAL['CalendarDeleted'][guildName] then
-            --     for k, v in pairs(GUILDBOOK_GLOBAL['CalendarDeleted'][guildName]) do
-            --         local guid, timestamp = strsplit(">", k)
-            --         if event.owner == guid and event.created == tonumber(timestamp) then
-            --             Guildbook.DEBUG('func', 'RemoveOldEventsFromSavedVarFile', string.format("removing %s from saved var calendar deleted table", event.title), event)
-            --             GUILDBOOK_GLOBAL['CalendarDeleted'][guildName][k] = nil;
-            --         end
-            --     end
-            -- end
         end
     end
 end

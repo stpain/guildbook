@@ -1404,9 +1404,9 @@ function Guildbook:SetupGuildCalendarFrame()
 
                     f.unlocks = f:CreateFontString(nil, 'OVERLAY', 'GameFontNormalSmall')
                     f.unlocks:SetPoint('LEFT', 220, 0)
-                    if type(info.Resets) == "table" then        
+                    if type(raid.Resets) == "table" then        
                         f.unlocks:SetText(string.format("%.2d %s", raid.Resets.day, monthNames[raid.Resets.month]))
-                    elseif type(info.Resets) == "number" then
+                    elseif type(raid.Resets) == "number" then
                         f.unlocks:SetText(SecondsToTime(raid.Resets))
                     end
 
@@ -1414,9 +1414,9 @@ function Guildbook:SetupGuildCalendarFrame()
                 else
                     self.InstanceInfoFrame.rows[k].progress:SetText(raid.Progress..'/'..raid.Encounters)
                     self.InstanceInfoFrame.rows[k].raid:SetText(raid.Name)
-                    if type(info.Resets) == "table" then               
+                    if type(raid.Resets) == "table" then               
                         self.InstanceInfoFrame.rows[k].unlocks:SetText(string.format("%.2d %s", raid.Resets.day, monthNames[raid.Resets.month]))
-                    elseif type(info.Resets) == "number" then
+                    elseif type(raid.Resets) == "number" then
                         self.InstanceInfoFrame.rows[k].unlocks:SetText(SecondsToTime(raid.Resets))
                     end
                 end

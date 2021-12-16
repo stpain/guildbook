@@ -149,6 +149,9 @@ local function loadGuildMemberTradeskills(guid, prof)
     if recipes and next(recipes) ~= nil then
         GuildbookUI.statusText:SetText(string.format("found %s recipes for %s [%s]", #recipes, prof, character.Name))
         table.sort(recipes, function(a,b)
+            if type(a.expansion) ~= "number" and type(b.expansion) ~= "number" then
+                return a.rarity  > b.rarity;
+            end
             if a.expansion == b.expansion then
                 if a.rarity == b.rarity then
                     return a.name < b.name
