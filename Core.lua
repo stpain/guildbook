@@ -104,6 +104,7 @@ Tradeskills.TradeskillNames = {
     ["Mining"] = 186,
     ["Herbalism"] = 182,
     ["Skinning"] = 393,
+    ["Cooking"] = 185,
 }
 Tradeskills.SpecializationSpellsIDs = {
     --Alchemy:
@@ -143,7 +144,7 @@ Tradeskills.TradeskillIDsToLocaleName = {
 		[393] = "Skinning",
 		[755] = "Jewelcrafting",
 		[773] = "Inscription",
-		--[-1] = "First Aid"
+		[129] = "First Aid"
 	},
 	deDE = {
 		[164] = "Schmiedekunst",
@@ -2751,7 +2752,7 @@ function Guildbook:Load()
         GUILDBOOK_GLOBAL.lastVersionUpdate = {}
     end
 
-    local updates  = "Added an event start time option to the calendar as well as some calendar bug fixes.\n\nYou can also find a discord link in the options menu."
+    local updates  = "Added first aid as a tradeskill (as requested by some people, or someone!)"
 
     if not GUILDBOOK_GLOBAL.lastVersionUpdate[self.version] then
         StaticPopup_Show('GuildbookUpdates', self.version, updates)
@@ -3447,6 +3448,28 @@ function Guildbook:RequestTradeskillData()
                         table.insert(recipeIdsToQuery, {
                             recipeID = recipeID,
                             prof = "Cooking", 
+                            reagents = reagents or false,
+                        })
+                    end
+                    self.recipeIdsQueried[recipeID] = true;
+                end
+            end
+        end
+        if character["First Aid"] and type(character["First Aid"]) == "table" then
+            for recipeID, reagents in pairs(character["First Aid"]) do
+                if not self.charactersWithRecipe[recipeID] then
+                    self.charactersWithRecipe[recipeID] = {}
+                end
+                table.insert(self.charactersWithRecipe[recipeID], guid)
+                if not self.recipeIdsQueried[recipeID] then
+
+                    -- if the user has the tradeskill db addon loaded check there for item data first and add to table if exists
+                    if GUILDBOOK_TSDB and GUILDBOOK_TSDB.recipeItems and GUILDBOOK_TSDB.recipeItems[recipeID] then
+                        table.insert(self.tradeskillRecipes, GUILDBOOK_TSDB.recipeItems[recipeID])
+                    else
+                        table.insert(recipeIdsToQuery, {
+                            recipeID = recipeID,
+                            prof = "First Aid", 
                             reagents = reagents or false,
                         })
                     end
@@ -4458,12 +4481,12 @@ function Guildbook:OnGuildCalendarEventCreated(data, distribution, sender)
         for k, event in pairs(GUILDBOOK_GLOBAL['Calendar'][guildName]) do
             if event.created == data.payload.created and event.owner == data.payload.owner then
                 exists = true
-                Guildbook.DEBUG('func', 'OnGuildCalendarEventCreated', 'this event already exists in your db')
+                Guildbook.DEBUG('calendarMixin', 'OnGuildCalendarEventCreated', 'this event already exists in your db')
             end
         end
         if exists == false then
             table.insert(GUILDBOOK_GLOBAL['Calendar'][guildName], data.payload)
-            Guildbook.DEBUG('func', 'OnGuildCalendarEventCreated', string.format('Received guild calendar event, title: %s', data.payload.title))
+            Guildbook.DEBUG('calendarMixin', 'OnGuildCalendarEventCreated', string.format('Received guild calendar event, title: %s', data.payload.title))
         end
     end
 end
@@ -4478,7 +4501,7 @@ function Guildbook:SendGuildCalendarEventAttend(event, attend)
         },
     }
     self:Transmit(calendarEvent, 'GUILD', nil, 'NORMAL')
-    Guildbook.DEBUG('func', 'SendGuildCalendarEventAttend', string.format('Sending calendar event attend update to guild, event title: %s, attend: %s', event.title, attend))
+    Guildbook.DEBUG('calendarMixin', 'SendGuildCalendarEventAttend', string.format('Sending calendar event attend update to guild, event title: %s, attend: %s', event.title, attend))
 end
 
 function Guildbook:OnGuildCalendarEventAttendReceived(data, distribution, sender)
@@ -4490,7 +4513,7 @@ function Guildbook:OnGuildCalendarEventAttendReceived(data, distribution, sender
                     ['Updated'] = GetServerTime(),
                     ['Status'] = tonumber(data.payload.a),
                 }
-                Guildbook.DEBUG('func', 'OnGuildCalendarEventAttendReceived', string.format('Updated event %s: %s has set attending to %s', v.title, sender, data.payload.a))
+                Guildbook.DEBUG('calendarMixin', 'OnGuildCalendarEventAttendReceived', string.format('Updated event %s: %s has set attending to %s', v.title, sender, data.payload.a))
             end
         end
     end
@@ -4507,13 +4530,13 @@ function Guildbook:SendGuildCalendarEventDeleted(event)
         type = 'GUILD_CALENDAR_EVENT_DELETED',
         payload = event,
     }
-    Guildbook.DEBUG('func', 'SendGuildCalendarEventDeleted', string.format('Guild calendar event deleted, event title: %s', event.title))
+    Guildbook.DEBUG('calendarMixin', 'SendGuildCalendarEventDeleted', string.format('Guild calendar event deleted, event title: %s', event.title))
     self:Transmit(calendarEventDeleted, 'GUILD', nil, 'NORMAL')
 end
 
 function Guildbook:OnGuildCalendarEventDeleted(data, distribution, sender)
     self.GuildFrame.GuildCalendarFrame.EventFrame:RegisterEventDeleted(data.payload)
-    Guildbook.DEBUG('func', 'OnGuildCalendarEventDeleted', string.format('Guild calendar event %s has been deleted', data.payload.title))
+    Guildbook.DEBUG('calendarMixin', 'OnGuildCalendarEventDeleted', string.format('Guild calendar event %s has been deleted', data.payload.title))
     C_Timer.After(1, function()
         Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:RemoveDeletedEvents()
     end)
@@ -4534,11 +4557,11 @@ function Guildbook:SendGuildCalendarEvents()
         if guildName and GUILDBOOK_GLOBAL['Calendar'][guildName] then
             for k, event in pairs(GUILDBOOK_GLOBAL['Calendar'][guildName]) do
                 if not event.date then
-                    Guildbook.DEBUG("func", 'SendGuildCalendarEvents', "event has no date table "..event.title)
+                    Guildbook.DEBUG("calendarMixin", 'SendGuildCalendarEvents', "event has no date table "..event.title)
                 else
                     if event.date.month >= today.month and event.date.year >= today.year and event.date.month <= future.month and event.date.year <= future.year then
                         table.insert(events, event)
-                        Guildbook.DEBUG('func', 'SendGuildCalendarEvents', string.format('Added event: %s to transmit table', event.title))
+                        Guildbook.DEBUG('calendarMixin', 'SendGuildCalendarEvents', string.format('Added event: %s to transmit table', event.title))
                     end
                 end
             end
@@ -4547,7 +4570,7 @@ function Guildbook:SendGuildCalendarEvents()
                 payload = events,
             }
             self:Transmit(calendarEvents, 'GUILD', nil, 'BULK')
-            Guildbook.DEBUG('func', 'SendGuildCalendarEvents', string.format('range=%s-%s-%s to %s-%s-%s', today.day, today.month, today.year, future.day, future.month, future.year))
+            Guildbook.DEBUG('calendarMixin', 'SendGuildCalendarEvents', string.format('range=%s-%s-%s to %s-%s-%s', today.day, today.month, today.year, future.day, future.month, future.year))
         end
         GUILDBOOK_GLOBAL['LastCalendarTransmit'] = GetServerTime()
     end
@@ -4568,13 +4591,13 @@ function Guildbook:OnGuildCalendarEventsReceived(data, distribution, sender)
     if guildName and GUILDBOOK_GLOBAL['Calendar'][guildName] then
         -- loop the events sent to us
         for k, recievedEvent in ipairs(data.payload) do
-            Guildbook.DEBUG('func', 'OnGuildCalendarEventsReceived', string.format('Received event: %s', recievedEvent.title))
+            Guildbook.DEBUG('calendarMixin', 'OnGuildCalendarEventsReceived', string.format('Received event: %s', recievedEvent.title))
             local exists = false
             -- loop our db for a match
             for _, dbEvent in pairs(GUILDBOOK_GLOBAL['Calendar'][guildName]) do
                 if dbEvent.created == recievedEvent.created and dbEvent.owner == recievedEvent.owner then
                     exists = true
-                    Guildbook.DEBUG('func', 'OnGuildCalendarEventsReceived', 'event exists!')
+                    Guildbook.DEBUG('calendarMixin', 'OnGuildCalendarEventsReceived', 'event exists!')
                     -- loop the db events for attending guid
                     for guid, info in pairs(dbEvent.attend) do
                         local character = Database:FetchCharacterTableByGUID(guid)
@@ -4583,10 +4606,10 @@ function Guildbook:OnGuildCalendarEventsReceived(data, distribution, sender)
                             if tonumber(info.Updated) < tonumber(recievedEvent.attend[guid].Updated) then
                                 info.Status = recievedEvent.attend[guid].Status
                                 info.Updated = recievedEvent.attend[guid].Updated
-                                Guildbook.DEBUG('func', 'OnGuildCalendarEventsReceived', string.format("updated %s attend status for %s", character.Name or "no name", dbEvent.title))
+                                Guildbook.DEBUG('calendarMixin', 'OnGuildCalendarEventsReceived', string.format("updated %s attend status for %s", character.Name or "no name", dbEvent.title))
                             end
                         else
-                            Guildbook.DEBUG('func', 'OnGuildCalendarEventsReceived', string.format("%s wasn't in the sent event attending data", character.Name or "no name"))
+                            Guildbook.DEBUG('calendarMixin', 'OnGuildCalendarEventsReceived', string.format("%s wasn't in the sent event attending data", character.Name or "no name"))
                         end
                     end
                     -- loop the recieved event attending table and add any missing players
@@ -4596,14 +4619,14 @@ function Guildbook:OnGuildCalendarEventsReceived(data, distribution, sender)
                             dbEvent.attend[guid] = {}
                             dbEvent.attend[guid].Updated = GetServerTime()
                             dbEvent.attend[guid].Status = info.Status
-                            Guildbook.DEBUG('func', 'OnGuildCalendarEventsReceived', string.format("added %s attend status for %s", character.Name or "no name", dbEvent.title))
+                            Guildbook.DEBUG('calendarMixin', 'OnGuildCalendarEventsReceived', string.format("added %s attend status for %s", character.Name or "no name", dbEvent.title))
                         end
                     end
                 end
             end
             if exists == false then
                 table.insert(GUILDBOOK_GLOBAL['Calendar'][guildName], recievedEvent)
-                Guildbook.DEBUG('func', 'OnGuildCalendarEventsReceived', string.format('This event is a new event, adding to db: %s', recievedEvent.title))
+                Guildbook.DEBUG('calendarMixin', 'OnGuildCalendarEventsReceived', string.format('This event is a new event, adding to db: %s', recievedEvent.title))
             end
         end
     end
@@ -4620,7 +4643,7 @@ function Guildbook:SendGuildCalendarDeletedEvents()
                 type = 'GUILD_CALENDAR_DELETED_EVENTS',
                 payload = GUILDBOOK_GLOBAL['CalendarDeleted'][guildName],
             }
-            Guildbook.DEBUG('func', 'SendGuildCalendarDeletedEvents', 'Sending deleted calendar events to guild')
+            Guildbook.DEBUG('calendarMixin', 'SendGuildCalendarDeletedEvents', 'Sending deleted calendar events to guild')
             self:Transmit(calendarDeletedEvents, 'GUILD', nil, 'BULK')
         end
         GUILDBOOK_GLOBAL['LastCalendarDeletedTransmit'] = GetServerTime()
@@ -4635,7 +4658,7 @@ function Guildbook:OnGuildCalendarEventsDeleted(data, distribution, sender)
         for k, v in pairs(data.payload) do
             if not GUILDBOOK_GLOBAL['CalendarDeleted'][guildName][k] then
                 GUILDBOOK_GLOBAL['CalendarDeleted'][guildName][k] = true
-                Guildbook.DEBUG('func', 'OnGuildCalendarEventsDeleted', 'Added event to deleted table')
+                Guildbook.DEBUG('calendarMixin', 'OnGuildCalendarEventsDeleted', 'Added event to deleted table')
             end
         end
     end
@@ -4669,7 +4692,7 @@ function Guildbook:OnGuildCalendarEventUpdated(data, distribution, sender)
             end
         end
     end
-    Guildbook.DEBUG('func', 'OnGuildCalendarEventUpdated', string.format("%s has updated the event %s", sender, data.payload.title), data)
+    Guildbook.DEBUG('calendarMixin', 'OnGuildCalendarEventUpdated', string.format("%s has updated the event %s", sender, data.payload.title), data)
 end
 
 
@@ -4685,35 +4708,42 @@ function Guildbook:RemoveOldEventsFromSavedVarFile()
     local eventCount = 0;
     --lets clean up the calendar deleted table
     if GUILDBOOK_GLOBAL['CalendarDeleted'][guildName] then
-
+        local eventsToDelete = {}
         for k, v in pairs(GUILDBOOK_GLOBAL['CalendarDeleted'][guildName]) do
             local guid, timestamp = strsplit(">", k)
             local removeEvent = false;
-            local eventExists = false;
             local _event = nil;
             -- loop the calendar to find a match, an event can be identified by its owner and created values as these combine into a unique string ID (time being a value that will change each second)
             for i, event in ipairs(GUILDBOOK_GLOBAL['Calendar'][guildName]) do
-                _event = event;
                 eventCount = eventCount + 1;
-                if event.owner == guid and tonumber(timestamp) == event.created then
-                    eventExists = true;
+                --print(guid, event.owner)
+                --print(timestamp, event.created)
+                
+                if event.owner == guid and tonumber(timestamp) == tonumber(event.created) then
                     local eventTimestamp = time(event.date)
                     if eventTimestamp < (timeToday - weeks8) then
                         removeEvent = true;
+                        _event = event;
                     end
                 end
             end
             if eventCount > 0 then
-                if (removeEvent == true and type(_event) == "table") or eventExists == false then
-                    Guildbook.DEBUG('func', 'RemoveOldEventsFromSavedVarFile', string.format("removing %s from saved var calendar deleted table", _event.title), _event)
-                    GUILDBOOK_GLOBAL['CalendarDeleted'][guildName][k] = nil;
+                if (removeEvent == true and type(_event) == "table") then
+                    eventsToDelete[k] = _event.title
                 end
             end
         end
 
+        if eventsToDelete and next(eventsToDelete) then
+            for eventID, eventTitle in pairs(eventsToDelete) do
+                Guildbook.DEBUG('calendarMixin', 'RemoveOldEventsFromSavedVarFile', string.format("removing %s from saved var calendar deleted table", eventTitle))
+                GUILDBOOK_GLOBAL['CalendarDeleted'][guildName][eventID] = nil;
+            end
+        end
+
         if eventCount == 0 then
-            Guildbook.DEBUG('func', 'RemoveOldEventsFromSavedVarFile', "wiping all deleted data as no events found in calendar")
-            GUILDBOOK_GLOBAL['CalendarDeleted'][guildName] = {}
+            Guildbook.DEBUG('calendarMixin', 'RemoveOldEventsFromSavedVarFile', "wiping all deleted data as no events found in calendar")
+            --GUILDBOOK_GLOBAL['CalendarDeleted'][guildName] = {}
         end
     end
 
@@ -4724,7 +4754,7 @@ function Guildbook:RemoveOldEventsFromSavedVarFile()
             --print("event time:", eventTimestamp, "timeToday:", timeToday, "diff:", timeToday-eventTimestamp, "8 weeks:", weeks8)
 
             if eventTimestamp < (timeToday - weeks8) then
-                Guildbook.DEBUG('func', 'RemoveOldEventsFromSavedVarFile', string.format("event %s is more then 8 weeks old, removing from saved var", event.title), event)
+                Guildbook.DEBUG('calendarMixin', 'RemoveOldEventsFromSavedVarFile', string.format("event %s is more then 8 weeks old, removing from saved var", event.title), event)
                 GUILDBOOK_GLOBAL['Calendar'][guildName][i] = nil;
             end
         end

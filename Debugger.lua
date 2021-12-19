@@ -24,7 +24,7 @@ local _, Guildbook = ...
 
 
 local debugTypeToClassColour = {
-    ['error'] = CreateColor(Guildbook.Data.Class.PALADIN.RGB),
+    ['error'] = CreateColor(0.77, 0.12, 0.23),
     ['func'] = CreateColor(Guildbook.Data.Class.HUNTER.RGB),
     ['event'] = CreateColor(Guildbook.Data.Class.ROGUE.RGB),
     ['comms_out'] = CreateColor(Guildbook.Data.Class.PALADIN.RGB),
@@ -35,6 +35,7 @@ local debugTypeToClassColour = {
     ["commsMixin"] = CreateColor(Guildbook.Data.Class.SHAMAN.RGB),
     ["databaseMixin"] = CreateColor(Guildbook.Data.Class.WARLOCK.RGB),
     ["characterMixin"] = CreateColor(Guildbook.Data.Class.DRUID.RGB),
+    ["calendarMixin"] = CreateColor({0, 255, 152}), --monk
 }
 GuildbookDebuggerListviewItemTemplateMixin = {}
 function GuildbookDebuggerListviewItemTemplateMixin:Init(elementData)

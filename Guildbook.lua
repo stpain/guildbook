@@ -1469,6 +1469,7 @@ local professions = {
     { id = 197, Name = 'Tailoring', Atlas = "Mobile-Tailoring", },
     { id = 186, Name = 'Mining', Atlas = "Mobile-Mining", },
     { id = 185, Name = 'Cooking', Atlas = "Mobile-Cooking", },
+    { id = 129, Name = 'First Aid', Atlas = "Mobile-FirstAid", },
 }
 
 if WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC then
@@ -1567,6 +1568,7 @@ function GuildbookTradeskillProfessionListview:OnLoad()
                 GuildbookUI.tradeskills.filteredItems = {}
                 for k, item in ipairs(gb.tradeskillRecipes) do
                     if item.profession:lower() == prof.Name:lower() then
+                        --print("found", item.profession, item.name)
                         table.insert(GuildbookUI.tradeskills.filteredItems, item)
                     end
                 end

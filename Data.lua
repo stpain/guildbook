@@ -545,13 +545,17 @@ Guildbook.Data.Profession = {
         Icon = 'Interface\\Icons\\Spell_Holy_SealOfSacrifice', 
         IconID = 135966,
         FontStringIconSMALL ='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:76:140:226:290|t', 
+        FontStringIconMEDIUM ='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:18:18:0:0:512:512:76:140:226:290|t', 
+        FontStringIconLARGE ='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:28:28:0:0:512:512:76:140:226:290|t',
     },
     ["First Aid"] = { 
-        ID = 14, 
+        ID = 14,  --?
         Name = 'FirstAid', 
         Icon = 'Interface\\Icons\\Spell_Holy_SealOfSacrifice', 
         IconID = 135966,
         FontStringIconSMALL ='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:14:14:0:0:512:512:76:140:226:290|t', 
+        FontStringIconMEDIUM ='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:18:18:0:0:512:512:76:140:226:290|t', 
+        FontStringIconLARGE ='|TInterface\\Addons\\Guildbook\\Icons\\Professions\\IconTextures:28:28:0:0:512:512:76:140:226:290|t', 
     },
 }
 

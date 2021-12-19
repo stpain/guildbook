@@ -1371,7 +1371,7 @@ function Guildbook:SetupGuildCalendarFrame()
                 for k, event in pairs(GUILDBOOK_GLOBAL['Calendar'][guildName]) do
                     if event.date.day == date.day and event.date.month == date.month and event.date.year == date.year then
                         table.insert(events, event)
-                        Guildbook.DEBUG('func', 'GuildCalendarFrame:GetEventsForDate', 'found: '..event.title)
+                        Guildbook.DEBUG('calendarMixin', 'GuildCalendarFrame:GetEventsForDate', 'found: '..event.title)
                     end
                 end
             end

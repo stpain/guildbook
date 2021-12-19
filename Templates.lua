@@ -91,7 +91,7 @@ end
 
 function GuildbookListviewItemMixin:SetItem(info)
     self.Icon:SetAtlas(info.Atlas)
-    self.Text:SetText(gb.ProfessionNames[GetLocale()][info.id])
+    self.Text:SetText(gb.Tradeskills.TradeskillIDsToLocaleName[GetLocale()][info.id])
 end
 
 function GuildbookListviewItemMixin:OnMouseDown()
