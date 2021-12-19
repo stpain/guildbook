@@ -3,6 +3,7 @@
 ## Version: 4.9823
 ## Title: Guildbook
 ## Notes: Guild addon for guild stuff!
+## Notes-frFR: Un addon pour les trucs de guilde!
 ## SavedVariables: GUILDBOOK_GLOBAL
 ## SavedVariablesPerCharacter: GUILDBOOK_CHARACTER
 

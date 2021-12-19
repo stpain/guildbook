@@ -40,9 +40,11 @@ local addonName, Guildbook = ...
 local L = {}
 
 L["UPDATE_NEWS"] = [[
-There has been some major changes to how guildbook sends data, this should
+-There has been some major changes to how guildbook sends data, this should
 make for a better experience however there may be some compatability issues
 with older versions.
+
+-Added first aid as a tradeskill (as requested by some people, or someone!)
 ]]
 L["DIALOG_SHOW_UPDATES"]			= "Display again"
 L["DIALOG_DONT_SHOW_UPDATES"]		= "Confirm & hide"
@@ -56,6 +58,17 @@ L['Author'] = 'Author: |cffffffffstpain (|r|cffF58CBACopperbolts|r |cffffffffand
 L["TOOLTIP_SHOW_TRADESKILLS"]		= "Display a list of tradeskills that use the current item. (Data is taken from Guildbook database)"
 L["TOOLTIP_SHOW_RECIPES"]			= "Include recipes that use the current item under each tradeskill."
 L["TOOLTIP_SHOW_RECIPES"]			= "Only show recipes for your characters tradeskills."
+
+--taken direclty from Dialogs.lua -Belrand
+L["YES"] = 'Yes'
+L["CANCEL"] = 'Cancel'
+L["RESET"] = 'Reset'
+L["RELOAD_UI"] = 'Reload UI'
+L["SETTINGS_CHANGED_RELOAD"] = 'Settings have changed and a UI reload is required!'
+L["DELETE_GUILD_DATA"] = 'Delete all data for %s'
+L["RESET_CHARACTER_DATA" ]= 'Reset data for '..select(1, UnitName("player"))..' to default values?'
+L["RESET_CACHE_CHAR_DATA"] = 'Reset data for %s?' --couldn't be tested -Belrand
+L["RESET_GLOBAL_SETTINGS"] = 'Reset global settings to default values? \n\nThis will delete all data about all guilds you are a member of.'
 
 L["OPTIONS"]						= "Options & Settings"
 L["MINIMAP_CALENDAR_RIGHTCLICK"]	= "Right click for menu"
@@ -992,11 +1005,13 @@ if locale == "deDE" then
 ]]
 elseif locale == 'frFR' then
 	L["UPDATE_NEWS"] = [[
-Avec la nouvelle mise à jour de WoW Classic, "La Saison de la Maîtrise", j'ai voulu que Guildbook 
-fonctionne pour l'ensemble des versions de WoW Classic.
+-Il y a eu de grand changement à la manière dont Guildbook partage ses données,
+cela permettra une meilleur expérience, mais peut entraîner des soucis de
+compatibilité avec les anciennes version.
 
-Résultat, la Banque de Guilde de Guildbook a été restaurée afin qu'une unique version de l'addon 
-fonctionne sur les deux versions du jeu.
+Merci de télécharger "Guildbook TSDB" sur Curseforge si ce n'est pas déjà fait.
+
+-Ajout des premiers soins
 ]]
 	L["DIALOG_SHOW_UPDATES"]			= "Afficher à nouveau"
 	L["DIALOG_DONT_SHOW_UPDATES"]		= "Ok, ne plus montrer"
@@ -1008,7 +1023,23 @@ fonctionne sur les deux versions du jeu.
 	L["OPTIONS"]						= "Options & Paramètres"
 	L["MINIMAP_CALENDAR_RIGHTCLICK"]	= "Clique droit pour menu"
 	L["MINIMAP_CALENDAR_EVENTS"]		= "Evénements"
-		
+	
+	-- this is the start of the option ui updates, will go through the option panel and rewrite it with locales for stuff
+	L["TOOLTIP_SHOW_TRADESKILLS"]		= "Affiche une liste de professions utilisant un objet survolé (Les données sont prises de la base de donnée de Guildbook)"
+	L["TOOLTIP_SHOW_RECIPES"]			= "Affiche les recettes utilisant l'objet sous chaque profession"
+	L["TOOLTIP_SHOW_RECIPES"]			= "N'affiche les recettes que pour les professions de vos personnages"
+
+	--taken direclty from Dialogs.lua -Belrand
+	L["YES"] = 'Oui'
+	L["CANCEL"] = 'Annuler'
+	L["RESET"] = 'Reset'
+	L["RELOAD_UI"] = 'Recharger Interface'
+	L["SETTINGS_CHANGED_RELOAD"] = 'Certains Paramètres ont été changés et un rechargement de l\'interface est nécessaire'
+	L["DELETE_GUILD_DATA"] = 'Supprimer les données pour %s?'
+	L["RESET_CHARACTER_DATA" ]= 'Réinitialiser les données pour '..select(1, UnitName("player"))..' aux valeurs par défaut?'
+	L["RESET_CACHE_CHAR_DATA"] = 'Reset data for %s?' --couldn't be tested -Belrand
+	L["RESET_GLOBAL_SETTINGS"] = 'Réinitialiser les données globales de l\'addon? \n\nCela va supprimer les données concernant les guildes dont vous êtes membres.'
+	
 	L["NEW_VERSION_1"] = "Une nouvelle version est disponible, probablement pour réparer certaines choses...ou en casser d'autres!"
 	L["NEW_VERSION_2"] = "Il y a une nouvelle version de Guildbook, disponible en téléchargement chez tous les bons distributeurs d'Addons!"
 	L["NEW_VERSION_3"] = "Haha, si vous pensiez que la dernière MàJ ne changeait pas grand chose, vous devriez télécharger la nouvelle, elle fera probablement la même chose...ou moins!"
@@ -1291,7 +1322,7 @@ fonctionne sur les deux versions du jeu.
 	L["GENERAL"]			    = "Général"
 	L["OPEN"]			    = "Ouvrir"
 	L["MINIMAP_TOOLTIP_LEFTCLICK"]			    = '|cffffffffClique Gauche|r Ouvrir Guildbook'
-	L["MINIMAP_TOOLTIP_LEFTCLICK_SHIFT"]		    = "MAJ + "..'|cffffffffClique Gauche|r Open Chat'
+	L["MINIMAP_TOOLTIP_LEFTCLICK_SHIFT"]		    = "MAJ + "..'|cffffffffClique Gauche|r Ouvrir Chat'
 	L["MINIMAP_TOOLTIP_RIGHTCLICK"]			    = '|cffffffffClique Droit|r Options'
 	L["MINIMAP_TOOLTIP_MIDDLECLICK"]	= "|cffffffffClique molette|r Ouvrir l'onglet de guilde Blizzard"
 	
@@ -2527,7 +2558,7 @@ Guildbook.Locales = L
 
 -- these were taken from the game however some seem to be incorrect so any fixes please post on the curse page for others to see (and me)
 
--- first aid has a proper value but i dont know it so adding as -1
+--[[ keeping it for posterity's sake
 Guildbook.ProfessionNames = {
 	enUS = {
 		[164] = "Blacksmithing",
@@ -2543,7 +2574,7 @@ Guildbook.ProfessionNames = {
 		[393] = "Skinning",
 		[755] = "Jewelcrafting",
 		[773] = "Inscription",
-		--[-1] = "First Aid"
+		[129] = "First Aid",
 	},
 	deDE = {
 		[164] = "Schmiedekunst",
@@ -2559,6 +2590,7 @@ Guildbook.ProfessionNames = {
 		[393] = "Kürschnerei",
 		[755] = "Juwelenschleifen",
 		[773] = "Inschriftenkunde",
+		[129] = "Erste Hilfe",
 	},
 	frFR = {
 		[164] = "Forge",
@@ -2574,6 +2606,7 @@ Guildbook.ProfessionNames = {
 		[393] = "Dépeçage",
 		[755] = "Joaillerie",
 		[773] = "Calligraphie",
+		[129] = "Premiers soins",
 	},
 	esMX = {
 		[164] = "Herrería",
@@ -2589,6 +2622,7 @@ Guildbook.ProfessionNames = {
 		[393] = "Desuello",
 		[755] = "Joyería",
 		[773] = "Inscripción",
+		[129] = "Primeros auxilios",
 	},
 	-- discovered this locale exists also maybe esAL ?
 	esES = {
@@ -2605,6 +2639,7 @@ Guildbook.ProfessionNames = {
         [393] = "Desuello",
         [755] = "Joyería",
         [773] = "Inscripción",
+		[129] = "Primeros auxilios",
     },
 	ptBR = {
 		[164] = "Ferraria",
@@ -2620,6 +2655,7 @@ Guildbook.ProfessionNames = {
 		[393] = "Esfolamento",
 		[755] = "Joalheria",
 		[773] = "Escrivania",
+		[129] = "Primeiros Socorros",
 	},
 	ruRU = {
 		[164] = "Кузнечное дело",
@@ -2635,6 +2671,7 @@ Guildbook.ProfessionNames = {
 		[393] = "Снятие шкур",
 		[755] = "Ювелирное дело",
 		[773] = "Начертание",
+		[129] = "Первая помощь",
 	},
 	zhCN = {
 		[164] = "锻造",
@@ -2650,6 +2687,7 @@ Guildbook.ProfessionNames = {
 		[393] = "剥皮",
 		[755] = "珠宝加工",
 		[773] = "铭文",
+		[129] = "急救",
 	},
 	zhTW = {
 		[164] = "鍛造",
@@ -2665,6 +2703,7 @@ Guildbook.ProfessionNames = {
 		[393] = "剝皮",
 		[755] = "珠寶設計",
 		[773] = "銘文學",
+		[129] = "急救", --Couldn't find proper one so I used CN one, sorry -Belrand
 	},
 	koKR = {
 		[164] = "대장기술",
@@ -2680,8 +2719,9 @@ Guildbook.ProfessionNames = {
 		[393] = "무두질",
 		[755] = "보석세공",
 		[773] = "주문각인",
+		[129] = "응급치료",
 	},
-}
+}]]
 
 
 -- key binding header
