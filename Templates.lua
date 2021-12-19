@@ -226,9 +226,9 @@ function GuildbookDropDownFlyoutButtonMixin:OnMouseDown()
     local text = self.Text:GetText()
     if self.func then
         self:func()
-        if self:GetParent():GetParent().Text and self.updateText then
-            self:GetParent():GetParent().Text:SetTextColor(1,1,1,1)
-            self:GetParent():GetParent().Text:SetText(text)
+        if self:GetParent():GetParent().MenuText then
+            self:GetParent():GetParent().MenuText:SetTextColor(1,1,1,1)
+            self:GetParent():GetParent().MenuText:SetText(text)
         end
     end
     if self:GetParent().delay then

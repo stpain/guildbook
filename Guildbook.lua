@@ -1108,13 +1108,23 @@ GuildbookAvatarPickerMixin = {}
 function GuildbookAvatarPickerMixin:OnLoad()
     -- 1066622 blank icon
 
+    local dups = {1066025,1066036,1066039,1066045,1066051,1066072,1066077,1066088,1066096,1066102,1066117,1066155,1066157,1066265,1066297,1066338,1066365,106642,1066423,1067180,1067197,1067232,1067241,1067256,1067264,1067265,1067276,1067279,1067284,1067292,1067295,1067299,1067301,1067302,1067305,106311,1067312,1067322,1067323,1067326,1067328,1067334,1067336,1067340,1067341,1067342,1067374,1067375,1067377,1067387,1067393,1067397,1067408,167410,1067411,1067412,1067416,1067417,1067419,1067423,1067444,1067454,1067455,1067459,1080907,1108820,1112914,1112927,1138400,1138403,1138413,1138418,1138419,1138420,1138421,1138422,1138424,1138425,1341729,1341751,1341752,1341766,1341794}
+    local duplicates = {}
+    for k, v in ipairs(dups) do
+        duplicates[v] = k;
+    end
+
+    self.CloseButton:Disable()
+
     -- there are lots of duplicates in these textures
     -- TODO: remove duplicates at some point
     self.avatars = {}
     for i = 1066003, 1066533 do
-        table.insert(self.avatars, {
-            fileID = i
-        })
+        if not duplicates[i] then
+            table.insert(self.avatars, {
+                fileID = i
+            })
+        end
     end
     for i = 1067178, 1067332 do
         table.insert(self.avatars, {
@@ -1122,30 +1132,44 @@ function GuildbookAvatarPickerMixin:OnLoad()
         })
     end
     for i = 1067334, 1067476 do
-        table.insert(self.avatars, {
-            fileID = i
-        })
+        if not duplicates[i] then
+            table.insert(self.avatars, {
+                fileID = i
+            })
+        end
     end
     for i = 1396616, 1396708 do
-        table.insert(self.avatars, {
-            fileID = i
-        })
+        if not duplicates[i] then
+            table.insert(self.avatars, {
+                fileID = i
+            })
+        end
     end
     for i = 1401832, 1401894 do
-        table.insert(self.avatars, {
-            fileID = i
-        })
+        if not duplicates[i] then
+            table.insert(self.avatars, {
+                fileID = i
+            })
+        end
     end
     for i = 1416162, 1416410 do
-        table.insert(self.avatars, {
-            fileID = i
-        })
+        if not duplicates[i] then
+            table.insert(self.avatars, {
+                fileID = i
+            })
+        end
     end
     for i = 1416417, 1416429 do
-        table.insert(self.avatars, {
-            fileID = i
-        })
+        if not duplicates[i] then
+            table.insert(self.avatars, {
+                fileID = i
+            })
+        end
     end
+
+    -- keep this sorted like this while i create the fileID/race db
+    table.sort(self.avatars, function(a,b) return a.fileID < b.fileID end)
+
 
     self.gridview = {}
     local i = 1;
@@ -1157,6 +1181,23 @@ function GuildbookAvatarPickerMixin:OnLoad()
             f:EnableMouse(true)
             f.Background:SetTexture(self.avatars[i].fileID)
             f.avatar = self.avatars[i]
+
+            -- f:SetScript("OnEnter", function()
+            --     local atlas = f.Background:GetAtlas()
+            --     local tex = f.Background:GetTexture()
+            --     local texPath = f.Background:GetTextureFilePath()
+
+            --     DevTools_Dump({atlas})
+
+            --     GameTooltip:SetOwner(f, 10, 10)
+            --     GameTooltip:AddLine(tex)
+            --     GameTooltip:AddLine(texPath)
+            --     GameTooltip:Show()
+            -- end)
+
+            -- f:SetScript("OnLeave", function()
+            --     GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+            -- end)
 
             f.func = function()
                 if not GUILDBOOK_CHARACTER then
@@ -2761,6 +2802,9 @@ end
 
 
 function GuildbookProfilesMixin:OnHide()
+    if self.avatarPicker then
+        self.avatarPicker:Hide()
+    end
     if not self.character then
         self:HideInventoryIcons()
         self:HideTalentIcons()
@@ -2835,7 +2879,7 @@ function GuildbookProfilesMixin:OnShow()
                                 --print(string.format("set %s as main character for %s", character.Name, alt.Name))
                             end
                         end
-                        self.contentPane.scrollChild.profile.mainCharacterDropDown.Text:SetText(character.Name)
+                        self.contentPane.scrollChild.profile.mainCharacterDropDown.MenuText:SetText(character.Name)
                         self.contentPane.scrollChild.profile.mainCharacter:SetText(character.Name)
                     end
                 })
@@ -2845,6 +2889,8 @@ function GuildbookProfilesMixin:OnShow()
     end
 end
 
+
+--because we are saving the text in real time, this function just needs to set the db data
 function GuildbookProfilesMixin:MyProfile_OnEditChanged(edit, text)
     if not GUILDBOOK_CHARACTER then
         return;
@@ -2853,16 +2899,6 @@ function GuildbookProfilesMixin:MyProfile_OnEditChanged(edit, text)
         GUILDBOOK_CHARACTER.profile = {}
     end
     GUILDBOOK_CHARACTER.profile[edit] = text;
-
-    Database:UpdatePlayerCharacterTable(edit, text, "profile")
-
-    if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME] and GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][UnitGUID("player")] then
-        local character = GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][UnitGUID("player")]
-        if not character.profile then
-            character.profile = {}
-        end
-        character.profile[edit] = text;
-    end
 end
 
 
@@ -2890,7 +2926,7 @@ function GuildbookProfilesMixin:LoadCharacter(player)
                     self.character.MainSpec = spec
                     GUILDBOOK_CHARACTER.MainSpec = spec
                     self.contentPane.scrollChild.profile.mainSpec:SetText(L[spec])
-                    self.contentPane.scrollChild.profile.mainSpecDropDown.Text:SetText(L[spec])
+                    self.contentPane.scrollChild.profile.mainSpecDropDown.MenuText:SetText(L[spec])
 
                     gb:DB_SendCharacterData(UnitGUID("player"), "MainSpec", spec, "GUILD", nil, "NORMAL")
                 end
@@ -2901,7 +2937,7 @@ function GuildbookProfilesMixin:LoadCharacter(player)
                     self.character.OffSpec = spec
                     GUILDBOOK_CHARACTER.OffSpec = spec
                     self.contentPane.scrollChild.profile.offSpec:SetText(L[spec])
-                    self.contentPane.scrollChild.profile.offSpecDropDown.Text:SetText(L[spec])
+                    self.contentPane.scrollChild.profile.offSpecDropDown.MenuText:SetText(L[spec])
 
                     gb:DB_SendCharacterData(UnitGUID("player"), "OffSpec", spec, "GUILD", nil, "NORMAL")
                 end
@@ -2909,7 +2945,7 @@ function GuildbookProfilesMixin:LoadCharacter(player)
         end
         self.contentPane.scrollChild.profile.mainSpecDropDown.menu = mainSpec
         local smartGuessMainSpec = GUILDBOOK_CHARACTER.smartGuessMainSpec == true and "Detect spec" or "Manual update"
-        self.contentPane.scrollChild.profile.mainSpecSmartGuessDropDown.Text:SetText(smartGuessMainSpec)
+        self.contentPane.scrollChild.profile.mainSpecSmartGuessDropDown.MenuText:SetText(smartGuessMainSpec)
         self.contentPane.scrollChild.profile.offSpecDropDown.menu = offSpec
 
     else
@@ -2993,11 +3029,11 @@ function GuildbookProfilesMixin:Edit_OnMouseDown(self)
     self:GetParent().realDob:SetText(GUILDBOOK_CHARACTER.profile.realDob or "")
     self:GetParent().realBio:SetText(GUILDBOOK_CHARACTER.profile.realBio or "")
 
-    self:GetParent().mainSpecDropDown.Text:SetText(GUILDBOOK_CHARACTER.MainSpec or "")
-    self:GetParent().offSpecDropDown.Text:SetText(GUILDBOOK_CHARACTER.OffSpec or "")
+    self:GetParent().mainSpecDropDown.MenuText:SetText(GUILDBOOK_CHARACTER.MainSpec or "")
+    self:GetParent().offSpecDropDown.MenuText:SetText(GUILDBOOK_CHARACTER.OffSpec or "")
 
     if GUILDBOOK_CHARACTER.MainCharacter and GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][GUILDBOOK_CHARACTER.MainCharacter] then
-        self:GetParent().mainCharacterDropDown.Text:SetText(GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][GUILDBOOK_CHARACTER.MainCharacter].Name)
+        self:GetParent().mainCharacterDropDown.MenuText:SetText(GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][GUILDBOOK_CHARACTER.MainCharacter].Name)
     end
 
     if GUILDBOOK_CHARACTER.profile.avatar then
@@ -3008,20 +3044,27 @@ function GuildbookProfilesMixin:Edit_OnMouseDown(self)
 
     if self.editOpen == true then
         GuildbookUI.profiles.avatarPicker:Show()
+        for _, f in ipairs(self:GetParent().displayEdit) do
+            f:Show()
+        end
+        for _, fs in ipairs(self:GetParent().displayStrings) do
+            fs:Hide()
+        end
     else
         GuildbookUI.profiles.avatarPicker:Hide()
-        if GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][UnitGUID("player")] then
-            GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][UnitGUID("player")].profile = GUILDBOOK_CHARACTER.profile
+        for _, f in ipairs(self:GetParent().displayEdit) do
+            f:Hide()
         end
+        for _, fs in ipairs(self:GetParent().displayStrings) do
+            fs:Show()
+        end
+
+        --assume the player has finished editign for now so update the db
+        --Database:UpdatePlayerCharacterTable("profile", GUILDBOOK_CHARACTER.profile)
     end
 
     GuildbookButtonMixin.OnMouseDown(self)
-    for _, f in ipairs(self:GetParent().displayEdit) do
-        f:SetShown(not f:IsVisible())
-    end
-    for _, fs in ipairs(self:GetParent().displayStrings) do
-        fs:SetShown(not fs:IsVisible())
-    end
+
 end
 
 function GuildbookProfilesMixin:UseMainProfile_OnMouseDown(cb)
@@ -4018,9 +4061,9 @@ GuildbookPrivacyMixin = {}
 function GuildbookPrivacyMixin:OnLoad()
     self.header:SetText(L["PRIVACY"] )
     self.about:SetText(L["PRIVACY_ABOUT"] )
-    self.shareProfile.Text:SetText(L["PROFILE_TITLE"])
-    self.shareInventory.Text:SetText(L["INVENTORY"])
-    self.shareTalents.Text:SetText(L["TALENTS"])
+    self.shareProfile.MenuText:SetText(L["PROFILE_TITLE"])
+    self.shareInventory.MenuText:SetText(L["INVENTORY"])
+    self.shareTalents.MenuText:SetText(L["TALENTS"])
 end
 
 function GuildbookPrivacyMixin:OnShow()
@@ -4267,23 +4310,24 @@ function GuildbookGuildBankMixin:RequestBankData()
         text = L["GUILDBANK_ALL_BANKS"],
         func = function()
             self.filter = nil;
-            self.sort = "Bank";
+            self.sort = "BankGUID";
             self:SortListview()
             
         end,
     })
     for i = 1, totalMembers do
-        local name, _, _, _, _, _, publicNote, _, isOnline, _, _, _, _, _, _, _, guid = GetGuildRosterInfo(i)
+        local name, _, _, _, _, _, publicNote, _, isOnline, _, class, _, _, _, _, _, guid = GetGuildRosterInfo(i)
         if publicNote:lower():find('guildbank') then
+            --local name
             table.insert(guildBankCharacters, {
                 name = name,
                 guid = guid,
             })
             table.insert(self.buttonDropdownMenus.Bank, {
-                text = name,
+                text = gb.Colours[class]:WrapTextInColorCode(name),
                 func = function()
-                    self.filter = name
-                    self.sort = "Bank";
+                    self.filter = guid
+                    self.sort = "BankGUID";
                     self:SortListview()
                 end,
             })
@@ -4377,7 +4421,12 @@ function GuildbookGuildBankMixin:RequestBankItemInfo()
                 self:SortListview()
             end,
         })
-        for bank, info in pairs(GUILDBOOK_GLOBAL.GuildBank) do
+        for guid, info in pairs(GUILDBOOK_GLOBAL.GuildBank) do
+            local bankCharacter = "Unknown";
+            local character = Database:FetchCharacterTableByGUID(guid)
+            if character then
+                bankCharacter = gb.Colours[character.Class]:WrapTextInColorCode(character.Name)
+            end
             i = i + 1;
             table.insert(self.items, {
                 ItemID = -1,
@@ -4388,10 +4437,22 @@ function GuildbookGuildBankMixin:RequestBankItemInfo()
                 SubClass = info.Money,
                 Icon = 133784,
                 Link = nil,
-                Bank = bank,
+                Bank = bankCharacter,
+                BankGUID = guid,
             })
-            for itemID, count in pairs(info.Data) do
-                i = i + 1;
+            for id, count in pairs(info.Data) do -- id could be a link or an itemID
+                local itemID = nil;
+                local linkID = nil;
+                if type(id) == "number" then
+                    itemID = id;
+                elseif type(id) == "string" then
+                    itemID = GetItemInfoInstant(id)
+                    linkID = id; --if we have a link we want to use it for suffix/enchant info etc
+                end
+
+                i = i + 1; --?
+
+                -- add itemTypes to drop down menu
                 local itemID, itemType, itemSubType, itemEquipLoc, icon, itemClassID, itemSubClassID = GetItemInfoInstant(itemID)
                 if not itemTypes[itemType] then
                     table.insert(self.buttonDropdownMenus.Type, {
@@ -4404,11 +4465,13 @@ function GuildbookGuildBankMixin:RequestBankItemInfo()
                     })
                     itemTypes[itemType] = true
                 end
-                local _, link = GetItemInfo(itemID)
-                if not link then
+
+
+                --local _, link = GetItemInfo(itemID)
+                if linkID == nil then
                     local item = Item:CreateFromItemID(itemID)
                     item:ContinueOnItemLoad(function()
-                        link = item:GetItemLink()
+                        local link = item:GetItemLink()
                         table.insert(self.items, {
                             ItemID = itemID,
                             Count = count,
@@ -4418,7 +4481,8 @@ function GuildbookGuildBankMixin:RequestBankItemInfo()
                             SubClass = itemSubClassID,
                             Icon = icon,
                             Link = link,
-                            Bank = bank,
+                            Bank = bankCharacter,
+                            BankGUID = guid,
                         })
                         if i == itemCount then
                             self:LoadBankItems(itemCount)
@@ -4433,8 +4497,9 @@ function GuildbookGuildBankMixin:RequestBankItemInfo()
                         Class = itemClassID,
                         SubClass = itemSubClassID,
                         Icon = icon,
-                        Link = link,
-                        Bank = bank,
+                        Link = linkID,
+                        Bank = bankCharacter,
+                        BankGUID = guid,
                     })
                     if i == itemCount then
                         self:LoadBankItems(itemCount)

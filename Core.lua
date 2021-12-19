@@ -93,17 +93,17 @@ end
 local Tradeskills = {}
 Tradeskills.CurrentLocale = GetLocale()
 Tradeskills.TradeskillNames = {
-    "Alchemy",
-    "Blacksmithing",
-    "Enchanting",
-    "Engineering",
-    "Inscription",
-    "Jewelcrafting",
-    "Leatherworking",
-    "Tailoring",
-    "Mining",
-    "Herbalism",
-    "Skinning",
+    ["Alchemy"] = 171,
+    ["Blacksmithing"] = 164,
+    ["Enchanting"] = 333,
+    ["Engineering"] = 202,
+    ["Inscription"] = 773,
+    ["Jewelcrafting"] = 755,
+    ["Leatherworking"] = 165,
+    ["Tailoring"] = 197,
+    ["Mining"] = 186,
+    ["Herbalism"] = 182,
+    ["Skinning"] = 393,
 }
 Tradeskills.SpecializationSpellsIDs = {
     --Alchemy:
@@ -415,7 +415,11 @@ end
 function Database:GetCharacterInfo(guid, key)
     if self.currentGuildName and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'] and GUILDBOOK_GLOBAL['GuildRosterCache'][self.currentGuildName] and GUILDBOOK_GLOBAL['GuildRosterCache'][self.currentGuildName][guid] then
         local characterName = GUILDBOOK_GLOBAL['GuildRosterCache'][self.currentGuildName][guid].Name
-        Guildbook.DEBUG("databaseMixin", "Database:GetCharacterInfo", string.format("found %s for %s", key, characterName))
+        Guildbook.DEBUG("databaseMixin", "Database:GetCharacterInfo", string.format("found %s for %s", key, characterName), {
+            character = characterName,
+            key = key,
+            value = GUILDBOOK_GLOBAL['GuildRosterCache'][self.currentGuildName][guid][key],
+        })
         return GUILDBOOK_GLOBAL['GuildRosterCache'][self.currentGuildName][guid][key];
 
     else
@@ -470,8 +474,14 @@ function Database:UpdatePlayerCharacterTable(key, info, tab)
         Guildbook.DEBUG("databaseMixin", "Database:UpdatePlayerCharacterTable", "using the GUILDBOOK_CHARACTER table")
     else
         if GUILDBOOK_CHARACTER[tab] then
-            t = GUILDBOOK_CHARACTER[tab];
-            Guildbook.DEBUG("databaseMixin", "Database:UpdatePlayerCharacterTable", string.format("using GUILDBOOK_CHARACTER[%s] table", tab))
+            if type(GUILDBOOK_CHARACTER[tab]) == "table" then
+                t = GUILDBOOK_CHARACTER[tab];
+                Guildbook.DEBUG("databaseMixin", "Database:UpdatePlayerCharacterTable", string.format("using GUILDBOOK_CHARACTER[%s] table", tab))
+            else
+                GUILDBOOK_CHARACTER[tab] = {}
+                t = GUILDBOOK_CHARACTER[tab];
+                Guildbook.DEBUG("databaseMixin", "Database:UpdatePlayerCharacterTable", string.format("GUILDBOOK_CHARACTER[%s] table did NOT exists, created and using new table", tab))
+            end
         else
             GUILDBOOK_CHARACTER[tab] = {};
             t = GUILDBOOK_CHARACTER[tab];
@@ -480,7 +490,7 @@ function Database:UpdatePlayerCharacterTable(key, info, tab)
     end
 
     if type(t) ~= "table" then
-        Guildbook.DEBUG("databaseMixin", "Database:UpdatePlayerCharacterTable", string.format("table not found for key: %s, opt tab: %s", key, tab or "-"), {
+        Guildbook.DEBUG("databaseMixin", "Database:UpdatePlayerCharacterTable", string.format("table not found for key: %s, opt tab: %s > db update cancelled", key, tab or "-"), {
             ["key"] = key,
             ["info"] = info,
             ["tab"] = tab or "-",
@@ -608,6 +618,8 @@ Guildbook.Database = Database;
     the Character class listens for changes to the players character and sends this data to the Database class
 ]]
 local Character = {}
+Character.profession1 = nil;
+Character.profession2 = nil;
 Character.InventorySlots = {
     "HEADSLOT",
     "NECKSLOT",
@@ -825,7 +837,7 @@ function Character:ScanForTradeskillInfo()
                 characterTradeskillsInfo.FirstAidLevel = level
 
             else
-                for _, prof in pairs(Tradeskills.TradeskillNames) do
+                for prof, id in pairs(Tradeskills.TradeskillNames) do
                     if prof == engSkill then
                         Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", string.format("found %s", prof))
 
@@ -912,6 +924,10 @@ function Character:ScanForTradeskillInfo()
         characterTradeskillsInfo.CookingLevel,
         characterTradeskillsInfo.FirstAidLevel
     )
+
+    --lets also make the Character class extra useful by storing some info itself
+    self.profession1 = characterTradeskillsInfo.Profession1
+    self.profession2 = characterTradeskillsInfo.Profession2
 end
 
 
@@ -1026,7 +1042,7 @@ function Character:RemoveOldTradeskillRecipeTables(characterData)
     if not characterData then
         characterData = GUILDBOOK_CHARACTER;
     end
-    for _, tradeskill in ipairs(Tradeskills.TradeskillNames) do
+    for tradeskill, id in pairs(Tradeskills.TradeskillNames) do
         local isCurrentTradeskill = false;
         if characterData.Profession1 == tradeskill or characterData.Profession2 == tradeskill then
             isCurrentTradeskill = true;
@@ -1262,7 +1278,7 @@ function Character:Init()
     self.listener:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
     self.listener:RegisterEvent("CHAT_MSG_SKILL")
 
-    --lets grab some data as we've loaded
+    --lets grab some data as we've loaded, these calls will updste the db which will trigger an outward comms
     self:GetInventory()
     self:GetPaperDollStats()
     self:ScanPlayerTalents()
@@ -1478,6 +1494,12 @@ end
 ---@param targetGUID string the targets GUID, this is used to make comms work on conneted realms - only required for WHISPER comms
 ---@param priority string the prio to use
 function Comms:Transmit(data, channel, targetGUID, priority)
+
+    if targetGUID == UnitGUID("player") then
+        Guildbook.DEBUG('commsMixin', 'Comms:Transmit', "cancel transmit as target is player", data)
+        return;
+    end
+
     local inInstance, instanceType = IsInInstance()
     if instanceType ~= "none" then
         if GUILDBOOK_GLOBAL.config and (GUILDBOOK_GLOBAL.config.blockCommsDuringInstance == true) then
@@ -1648,7 +1670,7 @@ function Comms:CheckPrivacyRuleForTargetGUID(targetGUID, rule)
 end
 
 
----send a responce that something isnt shared
+---send a response that something isnt shared
 ---@param targetGUID string the targetGUID to send data to
 ---@param rule string the privacy rule being queried
 function Comms:SendPrivacyNotice(targetGUID, rule)
@@ -1680,6 +1702,12 @@ function Comms:SayHello()
     }
 
     self:Transmit(greeting, "GUILD", nil, "NORMAL")
+end
+
+---send a request for the target characters profile, talents and inventory
+---@param targetGUID any
+function Comms:RequestCharacterInfo(targetGUID)
+
 end
 
 
@@ -1822,7 +1850,7 @@ function Comms:SendCharacterTradeskillsRecipes(databaseMixin, tradeskillName)
     if self.sendPlayerCharacterTradeskillRecipes_IsQueued == false then
         Guildbook.DEBUG("commsMixin", "Comms:SendCharacterTradeskillsRecipes", "queuing player character tradeskill recipes", self.playerCharacterTradeskillRecipesUpdate)
         C_Timer.After(self.sendPlayerCharacterTradeskillRecipesQueueTimer, function()
-            self:Transmit(self.playerCharacterTradeskillRecipesUpdate, "GUILD", nil, "NORMAL")
+            self:Transmit(self.playerCharacterTradeskillRecipesUpdate, "GUILD", nil, "BULK")
             Guildbook.DEBUG("commsMixin", "Comms:SendCharacterTradeskillsRecipes", "sending tradeskill recipes", self.playerCharacterTradeskillRecipesUpdate)
             self.sendPlayerCharacterTradeskillRecipes_IsQueued = false;
         end)
@@ -1946,15 +1974,14 @@ function Comms:OnCharacterOnline(data)
                 self.versionsChecked[data.payload.version] = true;
             end
 
-        -- send update after 10s
         elseif self.version > data.payload.version then
-            C_Timer.After(10.0, function()
+            C_Timer.After(1.0, function()
                 self:TellGuildMemberItsTimeToUpdate(data.senderGUID)
             end)
         end
     end
 
-    local randomDelay = math.random(1,3)
+    local randomDelay = math.random(2,5)
 
     C_Timer.After(randomDelay, function()
         self:SayHelloBack(data.senderGUID)
@@ -1967,23 +1994,33 @@ function Comms:OnCharacterOnline(data)
         self:SendCharacterTalentsInfo(data.senderGUID);
     end)
 
-    C_Timer.After(randomDelay + 2.0, function()
+    C_Timer.After(randomDelay + 3.0, function()
         self:SendCharacterInventoryInfo(data.senderGUID);
     end)
 
-    C_Timer.After(randomDelay + 3.0, function()
+    C_Timer.After(randomDelay + 5.0, function()
         self:SendCharacterProfileInfo(data.senderGUID);
     end)
 
     --lets also whisper them our current tradeskills info, this doesnt need a privacy check
-    C_Timer.After(randomDelay + 4.0, function()
+    C_Timer.After(randomDelay + 7.0, function()
         self:SendTradeskillInfoToTargetGUID(data.senderGUID);
     end)
 
-    -- should we also whisper our recipes? will need to loop for both profs
-    C_Timer.After(randomDelay + 5.0, function()
-        --self:SendTradeskillsRecipesToTargetGUID(data.senderGUID);
-    end)
+    local myProf1 = Database:GetCharacterInfo(UnitGUID("player"), "Profession1")
+    local myProf2 = Database:GetCharacterInfo(UnitGUID("player"), "Profession2")
+
+    -- should we also whisper our recipes? will need to loop for both profs - LEAVE THE GAP BETWEEN PROFS AS 3s
+    if myProf1 and Tradeskills.TradeskillNames[myProf1] then
+        C_Timer.After(randomDelay + 9.0, function()
+            self:SendTradeskillsRecipesToTargetGUID(myProf1, data.senderGUID);
+        end)
+    end
+    if myProf2 and Tradeskills.TradeskillNames[myProf2] then
+        C_Timer.After(randomDelay + 14.0, function()
+            self:SendTradeskillsRecipesToTargetGUID(myProf2, data.senderGUID);
+        end)
+    end
 
 end
 
@@ -2689,24 +2726,24 @@ function Guildbook:Load()
         Guildbook.DEBUG("func", "Load", [[requesting tradeskill recipe\item data]])
     end)
 
-    ---request calendar data, using a 4s stagger to allow all comms to send
-    C_Timer.After(2, function()
+    ---request calendar data, using a 4s stagger to allow all comms to send, we wait 22s for the general player data to sync etc
+    C_Timer.After(22, function()
         Guildbook:SendGuildCalendarEvents()
         Guildbook.DEBUG("func", "Load", "send calendar events")
     end)
-    C_Timer.After(6, function()
+    C_Timer.After(24, function()
         Guildbook:SendGuildCalendarDeletedEvents()
         Guildbook.DEBUG("func", "Load", "send deleted calendar events")
     end)
-    C_Timer.After(10, function()
+    C_Timer.After(28, function()
         Guildbook:RequestGuildCalendarEvents()
         Guildbook.DEBUG("func", "Load", "requested calendar events")
     end)
-    C_Timer.After(14, function()
+    C_Timer.After(32, function()
         Guildbook:RequestGuildCalendarDeletedEvents()
         Guildbook.DEBUG("func", "Load", "requested deleted calendar events")
     end)
-    C_Timer.After(21, function()
+    C_Timer.After(40, function()
         Guildbook:RemoveOldEventsFromSavedVarFile()
     end)
 
@@ -3120,11 +3157,22 @@ function Guildbook:ScanPlayerContainers()
             for slot = 1, GetContainerNumSlots(bag) do
                 local _, count, _, _, _, _, link, _, _, id = GetContainerItemInfo(bag, slot)
                 if id and count then
-                    if not GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] then
-                        GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] = count
+                    local _, _, _, _, _, classID, subClassID = GetItemInfoInstant(link)
+                    ---if we get a weapon or armour item then use the link so we know suffixes/enchants etc
+                    if classID == 2 or classID == 4 then
+                        if not GUILDBOOK_GLOBAL["GuildBank"][guid].Data[link] then
+                            GUILDBOOK_GLOBAL["GuildBank"][guid].Data[link] = count
+                        else
+                            GUILDBOOK_GLOBAL["GuildBank"][guid].Data[link] = GUILDBOOK_GLOBAL["GuildBank"][guid].Data[link] + count
+                        end
                     else
-                        GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] = GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] + count
+                        if not GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] then
+                            GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] = count
+                        else
+                            GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] = GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] + count
+                        end
                     end
+
                 end
             end
         end
@@ -3133,11 +3181,22 @@ function Guildbook:ScanPlayerContainers()
         for slot = 1, 28 do
             local _, count, _, _, _, _, link, _, _, id = GetContainerItemInfo(-1, slot)
             if id and count then
-                if not GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] then
-                    GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] = count
+                local _, _, _, _, _, classID, subClassID = GetItemInfoInstant(link)
+                ---if we get a weapon or armour item then use the link so we know suffixes/enchants etc
+                if classID == 2 or classID == 4 then
+                    if not GUILDBOOK_GLOBAL["GuildBank"][guid].Data[link] then
+                        GUILDBOOK_GLOBAL["GuildBank"][guid].Data[link] = count
+                    else
+                        GUILDBOOK_GLOBAL["GuildBank"][guid].Data[link] = GUILDBOOK_GLOBAL["GuildBank"][guid].Data[link] + count
+                    end
                 else
-                    GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] = GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] + count
+                    if not GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] then
+                        GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] = count
+                    else
+                        GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] = GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] + count
+                    end
                 end
+
             end
         end
 
@@ -3146,11 +3205,22 @@ function Guildbook:ScanPlayerContainers()
             for slot = 1, GetContainerNumSlots(bag) do
                 local _, count, _, _, _, _, link, _, _, id = GetContainerItemInfo(bag, slot)
                 if id and count then
-                    if not GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] then
-                        GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] = count
+                    local _, _, _, _, _, classID, subClassID = GetItemInfoInstant(link)
+                    ---if we get a weapon or armour item then use the link so we know suffixes/enchants etc
+                    if classID == 2 or classID == 4 then
+                        if not GUILDBOOK_GLOBAL["GuildBank"][guid].Data[link] then
+                            GUILDBOOK_GLOBAL["GuildBank"][guid].Data[link] = count
+                        else
+                            GUILDBOOK_GLOBAL["GuildBank"][guid].Data[link] = GUILDBOOK_GLOBAL["GuildBank"][guid].Data[link] + count
+                        end
                     else
-                        GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] = GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] + count
+                        if not GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] then
+                            GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] = count
+                        else
+                            GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] = GUILDBOOK_GLOBAL["GuildBank"][guid].Data[id] + count
+                        end
                     end
+    
                 end
             end
         end
@@ -3699,7 +3769,7 @@ function Guildbook:ScanGuildRoster(callback)
                         if realm == "" then
                             realm = GetNormalizedRealmName()
                         end
-                        --info.FullName = string.format("%s-%s", name, realm)
+                        --info.Realm = realm;
                         
                         info.PublicNote = currentGUIDs[i].pubNote;
                         info.OfficerNote = currentGUIDs[i].offNote;
@@ -4612,27 +4682,38 @@ function Guildbook:RemoveOldEventsFromSavedVarFile()
     --local thePast = date('*t', (time(today) - weeks8)) -- 8 weeks ago (minus 1 day)
     local guildName = Guildbook:GetGuildName()
 
+    local eventCount = 0;
     --lets clean up the calendar deleted table
     if GUILDBOOK_GLOBAL['CalendarDeleted'][guildName] then
 
         for k, v in pairs(GUILDBOOK_GLOBAL['CalendarDeleted'][guildName]) do
             local guid, timestamp = strsplit(">", k)
             local removeEvent = false;
+            local eventExists = false;
             local _event = nil;
             -- loop the calendar to find a match, an event can be identified by its owner and created values as these combine into a unique string ID (time being a value that will change each second)
             for i, event in ipairs(GUILDBOOK_GLOBAL['Calendar'][guildName]) do
                 _event = event;
+                eventCount = eventCount + 1;
                 if event.owner == guid and tonumber(timestamp) == event.created then
+                    eventExists = true;
                     local eventTimestamp = time(event.date)
                     if eventTimestamp < (timeToday - weeks8) then
                         removeEvent = true;
                     end
                 end
             end
-            if removeEvent == true and (_event ~= nil) then
-                Guildbook.DEBUG('func', 'RemoveOldEventsFromSavedVarFile', string.format("removing %s from saved var calendar deleted table", _event.title), _event)
-                GUILDBOOK_GLOBAL['CalendarDeleted'][guildName][k] = nil;
+            if eventCount > 0 then
+                if (removeEvent == true and type(_event) == "table") or eventExists == false then
+                    Guildbook.DEBUG('func', 'RemoveOldEventsFromSavedVarFile', string.format("removing %s from saved var calendar deleted table", _event.title), _event)
+                    GUILDBOOK_GLOBAL['CalendarDeleted'][guildName][k] = nil;
+                end
             end
+        end
+
+        if eventCount == 0 then
+            Guildbook.DEBUG('func', 'RemoveOldEventsFromSavedVarFile', "wiping all deleted data as no events found in calendar")
+            GUILDBOOK_GLOBAL['CalendarDeleted'][guildName] = {}
         end
     end
 
@@ -4868,13 +4949,13 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
 
     -- privacy
     elseif data.type == "PRIVACY_INFO" then
-        self:OnPrivacyReceived(data, distribution, sender)
+        --self:OnPrivacyReceived(data, distribution, sender)
 
     elseif data.type == "PRIVACY_ERROR" then
-        self:OnPrivacyError(tonumber(data.payload), sender)
+        --self:OnPrivacyError(tonumber(data.payload), sender)
 
     elseif data.type == "VERSION_INFO" then
-        self:OnVersionInfoRecieved(data, distribution, sender)
+        --self:OnVersionInfoRecieved(data, distribution, sender)
 
 
 

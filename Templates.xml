@@ -1395,7 +1395,7 @@
 				</Texture>
             </Layer>
 			<Layer level="ARTWORK">
-				<FontString parentKey="Text" inherits="GameFontNormalSmall" >
+				<FontString parentKey="MenuText" inherits="GameFontNormalSmall" >
 					<Color r="1" g="1" b="1"/>
 					<!-- <Size x="" y=""/> -->
 					<Anchors>
