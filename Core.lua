@@ -797,8 +797,8 @@ function Character:ScanForTradeskillInfo()
     local characterTradeskillsInfo = {
         Profession1 = "-",
         Profession2 = "-",
-        Profession1Level = 0,
-        Profession2Level = 0,
+        Profession1Level = nil,
+        Profession2Level = nil,
         Profession1Spec = nil,
         Profession2Spec = nil,
         FishingLevel = 0,
@@ -810,18 +810,22 @@ function Character:ScanForTradeskillInfo()
     for s = 1, GetNumSkillLines() do
         local skill, isHeader, isExpanded, level, _, _, _, _, _, _, _, _, _ = GetSkillLineInfo(s)
 
-        ---make sure these headers are open so we get proper results, discovered the skill line might not get updated if left perma open so collapse it first then expand again to resfresh the level
-        if skill == "Professions" or skill == "Secondary Skills" then
-            CollapseSkillHeader(s)
-            ExpandSkillHeader(s)
-        end
+        --[[
+            a potential issue with gathermate, if we collapse the headers gathermate cannot find our profession and show data so for now just use the spell book method and hope for headers to be open
+        ]]
 
-        ---return the ui to previous state
-        if isExpanded then
-            ExpandSkillHeader(s)
-        else
-            CollapseSkillHeader(s)
-        end
+        ---make sure these headers are open so we get proper results, discovered the skill line might not get updated if left perma open so collapse it first then expand again to resfresh the level
+        -- if skill == "Professions" or skill == "Secondary Skills" then
+        --     CollapseSkillHeader(s)
+        --     ExpandSkillHeader(s)
+        -- end
+
+        -- ---return the ui to previous state
+        -- if isExpanded then
+        --     ExpandSkillHeader(s)
+        -- else
+        --     CollapseSkillHeader(s)
+        -- end
 
         local engSkill = Tradeskills:GetEnglishNameFromTradeskillName(skill)
         if engSkill then
@@ -982,6 +986,30 @@ function Character:ScanTradeskillRecipes()
         end
     end
 
+    ---we can grab the text from the tradeskill frame and turn it into a number for the players skill level
+    local rankText = TradeSkillRankFrameSkillRank:GetText()
+    if rankText and rankText:find("/") then
+        local currentRank, maxRank = strsplit("/", rankText)
+        if type(currentRank) == "string" then
+            currentRank = tonumber(currentRank)
+        end
+        if type(currentRank) == "number" then
+            Guildbook.DEBUG("func", "Character:ScanTradeskillRecipes", string.format("found prof level [%s] from UI text, looking for match [%s] in char db", currentRank, englishProf))
+            
+            local myProf1 = Database:GetCharacterInfo(UnitGUID("player"), "Profession1")
+            if myProf1 == englishProf then
+                Database:UpdatePlayerCharacterTable("Profession1Level", currentRank)
+
+            else
+                local myProf2 = Database:GetCharacterInfo(UnitGUID("player"), "Profession2")
+                if myProf2 == englishProf then
+                    Database:UpdatePlayerCharacterTable("Profession2Level", currentRank)
+                end
+            end
+
+        end
+    end
+
     Database:UpdatePlayerCharacterTradeskillRecipes(englishProf, tradeskillRecipes)
 
 end
@@ -1025,6 +1053,30 @@ function Character:ScanEnchantingRecipes()
                     end
                 end
             end
+        end
+    end
+
+    ---we can grab the text from the tradeskill frame and turn it into a number for the players skill level
+    local rankText = CraftRankFrameSkillRank:GetText()
+    if rankText and rankText:find("/") then
+        local currentRank, maxRank = strsplit("/", rankText)
+        if type(currentRank) == "string" then
+            currentRank = tonumber(currentRank)
+        end
+        if type(currentRank) == "number" then
+            Guildbook.DEBUG("func", "Character:ScanTradeskillRecipes", string.format("found prof level [%s] from UI text, looking for match [%s] in char db", currentRank, englishProf))
+
+            local myProf1 = Database:GetCharacterInfo(UnitGUID("player"), "Profession1")
+            if myProf1 == englishProf then
+                Database:UpdatePlayerCharacterTable("Profession1Level", currentRank)
+
+            else
+                local myProf2 = Database:GetCharacterInfo(UnitGUID("player"), "Profession2")
+                if myProf2 == englishProf then
+                    Database:UpdatePlayerCharacterTable("Profession2Level", currentRank)
+                end
+            end
+
         end
     end
 
