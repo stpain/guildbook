@@ -987,7 +987,7 @@ function Character:ScanTradeskillRecipes()
     end
 
     ---we can grab the text from the tradeskill frame and turn it into a number for the players skill level
-    local rankText = TradeSkillRankFrameSkillRank:GetText()
+    local rankText = TradeSkillRankFrameSkillRank and TradeSkillRankFrameSkillRank:GetText() or nil;
     if rankText and rankText:find("/") then
         local currentRank, maxRank = strsplit("/", rankText)
         if type(currentRank) == "string" then
@@ -1057,7 +1057,7 @@ function Character:ScanEnchantingRecipes()
     end
 
     ---we can grab the text from the tradeskill frame and turn it into a number for the players skill level
-    local rankText = CraftRankFrameSkillRank:GetText()
+    local rankText = CraftRankFrameSkillRank and CraftRankFrameSkillRank:GetText() or nil;
     if rankText and rankText:find("/") then
         local currentRank, maxRank = strsplit("/", rankText)
         if type(currentRank) == "string" then
