@@ -96,13 +96,19 @@ StaticPopupDialogs['GuildbookResetCacheCharacter'] = {
     text = 'Reset data for %s?',
     button1 = 'Reset',
     button2 = 'Cancel',
+    button3 = "Delete",
     OnAccept = function(self, t)
-        wipe(GUILDBOOK_CHARACTER)
-        local guildName = Guildbook:GetGuildName()
+        local guildName = t.guild -- Guildbook:GetGuildName()
         if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
             if GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][t.guid] then
                 GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][t.guid] = Guildbook.Data.DefaultCharacterSettings;
             end
+        end
+    end,
+    OnAlt = function(self, t)
+        local guildName = t.guild
+        if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
+            GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][t.guid] = nil;
         end
     end,
     OnCancel = function(self)

@@ -686,7 +686,7 @@ function GuildbookRosterListviewItemMixin:OnEnter()
         GameTooltip:AddLine(" ")
         GameTooltip:AddLine(L['ALTS'])
         for _, guid in pairs(character.Alts) do
-            if guid ~= character.MainCharacter then
+            if guid ~= character.MainCharacter and GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][guid] then
                 local s = string.format("%s %s %s",
                 gb.Data.Class[GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][guid].Class].FontStringIconMEDIUM,
                 gb.Data.Class[GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][guid].Class].FontColour,
@@ -843,7 +843,7 @@ end
 
 function GuildbookRosterListviewItemMixin:OnMouseDown(button)
     if button == "RightButton" and self.character then
-    StaticPopup_Show("GuildbookResetCacheCharacter", self.character.Name, nil, {guid = self.guid})
+    StaticPopup_Show("GuildbookResetCacheCharacter", self.character.Name, nil, {guid = self.guid, guild = GUILD_NAME})
     end
 end
 
@@ -947,13 +947,43 @@ function GuildbookMixin:OnHide()
 end
 
 function GuildbookMixin:OnShow()
-    GUILD_NAME = gb:GetGuildName()
+
+    if GUILD_NAME == nil then
+        GUILD_NAME = gb:GetGuildName()
+    else
+
+    end
 
     if GUILDBOOK_CHARACTER.profile and GUILDBOOK_CHARACTER.profile.avatar then
         self.ribbon.myProfile.background:SetTexture(GUILDBOOK_CHARACTER.profile.avatar) 
     else
         SetPortraitTexture(self.ribbon.myProfile.background, "player")
     end
+
+    self.ribbon.guildSelectionDropDown.menu = {}
+    if GUILDBOOK_GLOBAL and next(GUILDBOOK_GLOBAL['GuildRosterCache']) then
+        for guild, _ in pairs(GUILDBOOK_GLOBAL['GuildRosterCache']) do
+            table.insert(self.ribbon.guildSelectionDropDown.menu, {
+                text = guild,
+                func = function()
+                    GUILD_NAME = guild
+                end
+            })
+        end
+    end
+
+    self.home.motd:SetText(GetGuildRosterMOTD())
+
+    self.home.onlineList.DataProvider:Flush()
+    local i = 1;
+    local t = {}
+    for guid, info in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME]) do
+        if i < 21 then
+            table.insert(t, { characterName = info.Name })
+            i = i + 1;
+        end
+    end
+    self.home.onlineList.DataProvider:InsertTable(t)
 
 end
 
@@ -979,6 +1009,22 @@ function GuildbookMixin:OnLoad()
 
 
     self.ribbon:SetFrameLevel(self:GetFrameLevel() - 1)
+    self.ribbon.home.func = function()
+        navigateTo(self.home)
+    end
+    if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
+        self.home.background:SetAtlas("_GarrMissionLocation-BlackrockMountain-Mid")
+        self.home.background:SetAlpha(0.5)
+
+    elseif WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC then
+        self.home.background:SetAtlas("_GarrMissionLocation-Nagrand-Mid")
+        self.home.background:SetAlpha(0.5)
+
+    -- elseif WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC then
+    --     self.home.background:SetAtlas("_GarrMissionLocation-Dalaran-Mid")
+    --     self.home.background:SetAlpha(0.15)
+    end
+
     self.ribbon.profiles.func = function()
         self.profiles:ShowSummary(true)
         navigateTo(self.profiles)
@@ -1088,7 +1134,9 @@ end
 
 
 
+function GuildbookMixin:OnChatMessage(_, channel, sender, senderGUID, message)
 
+end
 
 
 
@@ -1749,7 +1797,7 @@ function GuildbookRosterMixin:OnHide()
 end
 
 function GuildbookRosterMixin:OnShow()
-    GUILD_NAME = gb:GetGuildName()
+    --GUILD_NAME = gb:GetGuildName()
     GuildRoster()
     -- C_Timer.After(0.25, function()
     --     self:ParseGuildRoster()
@@ -2059,9 +2107,15 @@ end
 
 
 
+--[[
+    i cannot understand any of this, what did i drink when i wrote it ?
 
+    lets turn the chats into awesomeness next
 
+    can i use the chat filter system to power chats?
 
+    make 2 listviews left pane for chat selection with guild always at top followed by party / raid then whispers and content listview on right for the chat history bubbles etc
+]]
 
 
 
@@ -2837,7 +2891,7 @@ function GuildbookProfilesMixin:OnShow()
     if gb.addonLoaded == false then
         return;
     end
-    GUILD_NAME = gb:GetGuildName()
+    --GUILD_NAME = gb:GetGuildName()
     if not GUILD_NAME then
         return
     end

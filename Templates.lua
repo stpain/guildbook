@@ -522,3 +522,150 @@ function GuildbookProfileSummaryRowAvatarTemplateMixin:OnMouseUp()
         end
     end
 end
+
+
+
+---this is the listview template mixin
+GuildbookListviewMixin = CreateFromMixins(CallbackRegistryMixin);
+GuildbookListviewMixin:GenerateCallbackEvents(
+    {
+        "OnSelectionChanged",
+        "OnDataTableChanged",
+    }
+);
+
+function GuildbookListviewMixin:OnLoad()
+
+    ---these values are set in the xml frames KeyValues, it allows us to reuse code by setting listview item values in xml
+    if type(self.itemTemplate) ~= "string" then
+        error("self.itemTemplate name not set or not of type string")
+        return;
+    end
+    if type(self.frameType) ~= "string" then
+        error("self.frameType not set or not of type string")
+        return;
+    end
+    if type(self.elementHeight) ~= "number" then
+        error("self.elementHeight not set or not of type number")
+        return;
+    end
+
+    CallbackRegistryMixin.OnLoad(self)
+
+    ---when the user changes the listview (via the menu buttons) the data is flushed and the new data inserted
+    ---here we setup a callback so that any selected items from a previous menu will be reselected
+    self:RegisterCallback("OnDataTableChanged", self.OnDataTableChanged, self)
+
+    self.DataProvider = CreateDataProvider();
+    self.scrollView = CreateScrollBoxListLinearView();
+    self.scrollView:SetDataProvider(self.DataProvider);
+
+    ---height is defined in the xml keyValues
+    local height = self.elementHeight;
+    self.scrollView:SetElementExtent(height);
+
+    self.scrollView:SetElementInitializer(self.frameType, self.itemTemplate, GenerateClosure(self.OnElementInitialize, self));
+    self.scrollView:SetElementResetter(GenerateClosure(self.OnElementReset, self));
+
+    self.selectionBehavior = ScrollUtil.AddSelectionBehavior(self.scrollView);
+    self.selectionBehavior:RegisterCallback("OnSelectionChanged", self.OnElementSelectionChanged, self);
+
+    self.scrollView:SetPadding(5, 5, 5, 5, 1);
+
+    ScrollUtil.InitScrollBoxListWithScrollBar(self.scrollBox, self.scrollBar, self.scrollView);
+
+    local anchorsWithBar = {
+        CreateAnchor("TOPLEFT", self, "TOPLEFT", 4, -4),
+        CreateAnchor("BOTTOMRIGHT", self.scrollBar, "BOTTOMLEFT", 0, 4),
+    };
+    local anchorsWithoutBar = {
+        CreateAnchor("TOPLEFT", self, "TOPLEFT", 4, -4),
+        CreateAnchor("BOTTOMRIGHT", self, "BOTTOMRIGHT", -4, 4),
+    };
+    ScrollUtil.AddManagedScrollBarVisibilityBehavior(self.scrollBox, self.scrollBar, anchorsWithBar, anchorsWithoutBar);
+end
+
+function GuildbookListviewMixin:OnElementInitialize(element, elementData, isNew)
+    if isNew then
+        --Mixin(element, GuildbookBasicListviewTemplateMixin); -- i think this will reduce reusability of the listview
+        element:OnLoad();
+    end
+
+    local height = self.elementHeight;
+
+    element:SetDataBinding(elementData, height);
+    element:RegisterCallback("OnMouseDown", self.OnElementClicked, self);
+end
+
+function GuildbookListviewMixin:OnElementReset(element)
+    element:UnregisterCallback("OnMouseDown", self);
+end
+
+function GuildbookListviewMixin:OnElementClicked(element)
+    self.selectionBehavior:Select(element);
+end
+
+function GuildbookListviewMixin:OnDataTableChanged(newTable)
+    for k, elementData in ipairs(newTable) do
+
+    end
+end
+
+function GuildbookListviewMixin:OnElementSelectionChanged(elementData, selected)
+    --DevTools_Dump({ self.selectionBehavior:GetSelectedElementData() })
+
+    local element = self.scrollView:FindFrame(elementData);
+
+    if element then
+        element:SetSelected(selected);
+    end
+
+    if selected then
+        self:TriggerEvent("OnSelectionChanged", elementData, selected);
+    end
+end
+
+
+
+
+
+GuildbookBasicListviewItemTemplateMixin = CreateFromMixins(CallbackRegistryMixin);
+GuildbookBasicListviewItemTemplateMixin:GenerateCallbackEvents(
+    {
+        "OnMouseDown",
+    }
+);
+
+function GuildbookBasicListviewItemTemplateMixin:OnLoad()
+    CallbackRegistryMixin.OnLoad(self);
+    self:SetScript("OnMouseDown", self.OnMouseDown);
+end
+
+function GuildbookBasicListviewItemTemplateMixin:OnMouseDown()
+    self:TriggerEvent("OnMouseDown", self);
+
+    print(self.text:GetText())
+end
+
+function GuildbookBasicListviewItemTemplateMixin:OnMouseUp()
+
+end
+
+function GuildbookBasicListviewItemTemplateMixin:SetSelected(selected)
+    if self.selected then
+        self.selected:SetShown(selected)
+    end
+end
+
+function GuildbookBasicListviewItemTemplateMixin:SetDataBinding(binding, height)
+
+    if type(height) == "number" then
+        self:SetHeight(height)
+    end
+
+    if binding.characterName then
+        self.text:SetText(binding.characterName)
+    end
+end
+
+

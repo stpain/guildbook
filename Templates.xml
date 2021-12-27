@@ -1514,5 +1514,42 @@
             <OnMouseDown method="OnMouseDown"/>
 		</Scripts>
     </Frame>
+    
 
+    <Frame name="GuildbookListviewTemplate" mixin="GuildbookListviewMixin" virtual="true">
+        <Frames>
+            <Frame parentKey="scrollBox" inherits="WowScrollBoxList"/>
+            <EventFrame parentKey="scrollBar" inherits="WowTrimScrollBar">
+                <Anchors>
+                    <Anchor point="TOPRIGHT"/>
+                    <Anchor point="BOTTOMRIGHT"/>
+                </Anchors>
+            </EventFrame>
+        </Frames>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+        </Scripts>
+    </Frame>
+
+
+
+    <Frame name="GuildbookBasicListviewItemTemplate" mixin="GuildbookBasicListviewItemTemplateMixin" virtual="true">
+        <Layers>
+			<Layer level="HIGHLIGHT">
+				<Texture parentKey="Highlight" atlas="search-highlight-large" useAtlasSize="false" setAllPoints="true"/>
+			</Layer>
+            <Layer level="OVERLAY">
+                <FontString parentKey="text" inherits="GameFontNormalSmall">
+                    <Anchors>
+                        <Anchor point="LEFT" x="4" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnMouseDown method="OnMouseDown"/>
+            <OnMouseUp method="OnMouseUp"/>
+        </Scripts>
+    </Frame>
 </UI>

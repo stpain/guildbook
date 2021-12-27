@@ -50,6 +50,8 @@ Guildbook.COMMS_DELAY = 0.0
 Guildbook.COMM_LOCK_COOLDOWN = 20.0
 Guildbook.GUILD_NAME = nil;
 
+Guildbook.currentGuildSelected = nil;
+
 Guildbook.Colours = {
     Blue = CreateColor(0.1, 0.58, 0.92, 1),
     Orange = CreateColor(0.79, 0.6, 0.15, 1),
@@ -314,13 +316,6 @@ Guildbook.Tradeskills = Tradeskills;
 
 
 
-
-
-
-
-
-
-
 --[[
     Database class
 
@@ -440,8 +435,9 @@ function Database:FetchCharacterTableByGUID(guid)
         return;
     end
 
+    --removed the debug here as it can be spammy
     if self.currentGuildName and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName] and GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName][guid] then
-        Guildbook.DEBUG("databaseMixin", "Database:FetchCharacterTableByGUID", string.format("found character table for %s", GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName][guid].Name))
+        --Guildbook.DEBUG("databaseMixin", "Database:FetchCharacterTableByGUID", string.format("found character table for %s", GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName][guid].Name))
         return GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName][guid];
 
     elseif guid:find("Player-") then
@@ -593,8 +589,9 @@ function Database:Init()
     CallbackRegistryMixin.OnLoad(self)
 
     ---setup the UI callback
-    Database:RegisterCallback("OnCharacterTableChanged", GuildbookUI.OnCharacterTableChanged, GuildbookUI)
+    self:RegisterCallback("OnCharacterTableChanged", GuildbookUI.OnCharacterTableChanged, GuildbookUI)
 
+    -- the database MUST always use the players guild NOT whatever guild is being viewed
     if IsInGuild() and GetGuildInfo("player") then
         local guildName, _, _, _ = GetGuildInfo('player')
         self.currentGuildName = guildName;
@@ -1389,6 +1386,45 @@ Guildbook.Character = Character;
 
 
 
+--[[
+    Chats class
+
+    this class makes use of the chat filters to grab messages sent
+    and then using the triggers the ui can get updates
+]]
+local Chats = CreateFromMixins(CallbackRegistryMixin)
+Chats:GenerateCallbackEvents({
+    "OnGuildMessage",
+    "OnPartyMessage",
+    "OnRaidMessage",
+    "OnWhisperMessage",
+})
+Chats.channels = {
+    guild = {},
+    whispers = {},
+    party = {},
+    raid = {},
+}
+
+function Chats:ChatFilter_Guild(self, event, message, playerName, languageName, channelName, playerName2, specialFlags, zoneChannelID, channelIndex, channelBaseName, unused, lineID, guid)
+    local character = Database:FetchCharacterTableByGUID(guid)
+
+
+end
+
+
+function Chats:Init()
+
+    CallbackRegistryMixin.OnLoad(self)
+
+    ChatFrame_AddMessageEventFilter("CHAT_MSG_GUILD", self.ChatFilter_Guild)
+end
+
+
+
+
+
+
 
 
 
@@ -1567,7 +1603,9 @@ function Comms:Transmit(data, channel, targetGUID, priority)
             return;
         end
     end
-    if not Guildbook:GetGuildName() then
+    if IsInGuild() and GetGuildInfo("player") then
+        -- we just want to make sure we are in a guild here to stop spam
+    else
         return;
     end
 
@@ -2917,6 +2955,22 @@ end
 
 --- return the players guild name if they belong to one
 function Guildbook:GetGuildName()
+    -- if self.currentGuildSelected == nil then
+    --     if IsInGuild() and GetGuildInfo("player") then
+    --         local guildName, _, _, _ = GetGuildInfo('player')
+    --         return guildName
+    --     end
+    -- else
+    --     if type(self.currentGuildSelected) == "string" then
+    --         return self.currentGuildSelected;
+    --     else
+    --         if IsInGuild() and GetGuildInfo("player") then
+    --             local guildName, _, _, _ = GetGuildInfo('player')
+    --             return guildName
+    --         end
+    --     end
+    -- end
+
     if IsInGuild() and GetGuildInfo("player") then
         local guildName, _, _, _ = GetGuildInfo('player')
         return guildName

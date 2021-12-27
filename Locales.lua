@@ -218,6 +218,7 @@ L["GUILDBANK_REQUEST_INFO"]			= "requesting data from "
 L["GUILDBANK_FUNDS"]				= "Gold available"
 L["GUILDBANK_CURRENCY"]				= "Currency"
 
+L["HOME"]							= "Home"
 L["PROFILES"]                       = "Profiles"
 L["CHAT"]                           = "Chat"
 L["ROSTER"]                         = "Roster"

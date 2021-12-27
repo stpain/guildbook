@@ -286,3 +286,7 @@ function GuildbookOptions_OnLoad(self)
 end
 
 
+-- if IsInGuild() and GetGuildInfo("player") then
+--     local guildName, _, _, _ = GetGuildInfo('player')
+--     return guildName
+-- end
