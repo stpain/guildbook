@@ -395,18 +395,23 @@
                 </Frames>
             </Frame>
 
-            <Frame parentKey="home" parentArray="frames" hidden="true">
+            <Frame parentKey="home" mixin="GuildbookHomeMixin" parentArray="frames" hidden="true">
                 <Anchors>
                     <Anchor point="TOPLEFT" relativeKey="$parent.ribbon" relativePoint="BOTTOMLEFT" x="0" y="0"/>
                     <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
                 </Anchors>
                 <Layers>
-                    <!-- <Layer level="BACKGROUND" textureSubLevel="-1">
-                        <Texture parentKey="background" atlas="_GarrMissionLocation-Nagrand-Back" useAtlasSize="false" alpha="0.5">
-                            <TexCoords left="0.0" right="0.65" top="0.0" bottom="1.0"/>
-                            <Anchor point="BOTTOMLEFT" x="0" y="0"/>
+                <!-- groupfinder-icon-role-large-tank auctionhouse-itemheaderframe Artifacts-HeaderBG _Garr_InfoBoxMission-Top -->
+                    <Layer level="BACKGROUND" textureSubLevel="2">
+                        <Texture parentKey="headerBackground" atlas="_Garr_InfoBoxMission-Top" useAtlasSize="false" alpha="0.8" horizTile="true">
+                            <!-- <TexCoords left="0.0" right="0.65" top="0.0" bottom="1.0"/> -->
+                            <Size y="80"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="0" y="0"/>
+                                <Anchor point="TOPRIGHT" x="-4" y="0"/>
+                            </Anchors>
                         </Texture>
-                    </Layer> -->
+                    </Layer>
                     <Layer level="BACKGROUND" textureSubLevel="1">
                         <Texture parentKey="background" atlas="_GarrMissionLocation-Nagrand-Mid" useAtlasSize="false" alpha="0.5">
                             <TexCoords left="0.0" right="0.65" top="0.0" bottom="1.0"/>
@@ -414,42 +419,152 @@
                         </Texture>
                     </Layer>
 
-                    <Layer level="OVERLAY">
+                    <Layer level="OVERLAY" textureSubLevel="6">
                         <FontString parentKey="motd" inherits="GameFontNormalLarge" justifyH="CENTER" justifyV="MIDDLE">
                             <Color r="0.24" g="0.88" b="0.25"/>
-                            <Size y="40"/>
+                            <Size y="80"/>
                             <Anchors>
                                 <Anchor point="TOPLEFT" x="0" y="0"/>
-                                <Anchor point="TOPRIGHT" x="0" y="-40"/>
+                                <Anchor point="TOPRIGHT" x="0" y="0"/>
                             </Anchors>
                         </FontString>
 
-                        <FontString parentKey="onlineListHeader" inherits="GameFontNormalLarge" text="Online members" justifyV="BOTTOM">
-                            <Color r="1" g="1" b="1"/>
-                            <Size x="200" y="30"/>
-                            <Anchors>
-                                <Anchor point="TOPLEFT" relativeKey="$parent.motd" relativePoint="BOTTOMLEFT" x="0" y="0"/>
-                            </Anchors>
-                        </FontString>
                     </Layer>
                 </Layers>
 
                 <Frames>
 
-                    <Frame parentKey="onlineList" inherits="GuildbookListviewTemplate">
-                        <Size x="200"/>
+                    <Frame parentKey="memberList" inherits="GuildbookListviewTemplate">
+                        <Size x="260"/>
                         <Anchors>
-                            <Anchor point="TOPLEFT" relativeKey="$parent.onlineListHeader" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+                            <Anchor point="TOPLEFT" relativeKey="$parent.motd" relativePoint="BOTTOMLEFT" x="0" y="0"/>
                             <Anchor point="BOTTOMLEFT" x="0" y="4"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <FontString parentKey="header" inherits="GameFontNormal" justifyH="CENTER" justifyV="MIDDLE" text="Members (hold shift for extra info)">
+                                    <Color r="1" g="1" b="1"/>
+                                    <Size y="20"/>
+                                    <Anchors>
+                                        <Anchor relativePoint="TOP" point="BOTTOM" x="0" y="20"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                        <KeyValues>
+                            <KeyValue key="frameType" value="FRAME" type="string"/>
+                            <KeyValue key="itemTemplate" value="GuildbookHomeMembersListviewItemTemplate" type="string"/>
+                            <KeyValue key="elementHeight" value="25" type="number"/>
+                            <KeyValue key="isSelectable" value="true" type="boolean"/>
+                            <KeyValue key="scrollToEnd" value="false" type="boolean"/>
+                        </KeyValues>
+                    </Frame>
+
+                    <CheckButton parentKey="showOfflineMembers" inherits="ChatConfigCheckButtonTemplate">
+                        <Size x="24" y="24"/>
+                        <Layers>
+                            <Layer>
+                                <FontString parentKey="label" inherits="GameFontNormalSmall" text="Show offline">
+                                    <Color r="1" g="1" b="1" a="1"/>
+                                    <!-- <FontHeight val="12"/> -->
+                                    <Anchors>
+                                        <Anchor point="LEFT">
+                                            <offset x="24" y="0"/>
+                                        </Anchor>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>                
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT" relativeKey="$parent.memberList" relativePoint="TOPLEFT" x="16" y="1"/>
+                        </Anchors>
+                        <Scripts>
+                            <OnClick>
+                                self:GetParent():ShowOfflineMembers_OnClick()
+                            </OnClick>
+                        </Scripts>
+                    </CheckButton>
+
+                    <Frame parentKey="newsFeed" inherits="GuildbookListviewTemplate">
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture atlas="ClassHall_InfoBoxMission-BackgroundTile" horizTile="true" vertTile="true">
+                                    <Color a="0.4"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="0" y="0"/>
+                                        <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                            <Layer level="OVERLAY">
+                                <FontString parentKey="header" inherits="GameFontNormal" justifyH="CENTER" justifyV="MIDDLE" text="Activity">
+                                    <Color r="1" g="1" b="1"/>
+                                    <Size y="20"/>
+                                    <Anchors>
+                                        <Anchor relativePoint="TOP" point="BOTTOM" x="0" y="1"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                        <Size x="600"/>
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeKey="$parent.memberList" relativePoint="TOPRIGHT" x="4" y="0"/>
+                            <Anchor point="BOTTOMLEFT" relativeKey="$parent.memberList" relativePoint="BOTTOMRIGHT" x="4" y="0"/>
+                            <Anchor point="BOTTOMRIGHT" x="-8" y="0"/>
                         </Anchors>
                         <KeyValues>
                             <KeyValue key="frameType" value="FRAME" type="string"/>
-                            <KeyValue key="itemTemplate" value="GuildbookBasicListviewItemTemplate" type="string"/>
+                            <KeyValue key="itemTemplate" value="GuildbookNewsFeedItemTemplate" type="string"/>
                             <KeyValue key="elementHeight" value="25" type="number"/>
                             <KeyValue key="isSelectable" value="true" type="boolean"/>
+                            <KeyValue key="scrollToEnd" value="true" type="boolean"/>
                         </KeyValues>
                     </Frame>
                 </Frames>
+
+                <Scripts>
+                    <OnLoad method="OnLoad"/>
+                    <OnShow method="OnShow"/>
+                </Scripts>
+            </Frame>
+
+            <Frame parentKey="memberTreeview" parentArray="frames" mixin="GuildbookMemberTreeviewMixin" useParentLevel="true" enableMouse="true" hidden="true">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.ribbon" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="background" atlas="_GarrMissionLocation-TownAlliance-Back" alpha="0.35">
+                        <TexCoords left="0.15" right="0.85" top="0.0" bottom="1.0"/>
+                        <!-- <Size x="217"/> -->
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="0" y="0"/>
+                                <Anchor point="BOTTOMRIGHT" x="-4" y="0"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Frames>
+                    <Slider parentKey="scrollBar" inherits="UIPanelScrollBarTemplate" orientation="VERTICAL">
+                        <Anchors>
+                            <Anchor point="TOPRIGHT" x="-6" y="-42"/>
+                            <Anchor point="BOTTOMRIGHT" x="-6" y="20"/>
+                        </Anchors>
+                        <Scripts>
+                            <OnValueChanged>
+                                self:GetParent():SummaryScrollBar_OnValueChanged()
+                            </OnValueChanged>
+                        </Scripts>
+                    </Slider>
+                </Frames>
+                <Scripts>
+                    <OnLoad method="OnLoad"/>
+                    <OnMouseWheel>
+                        local x = self.scrollBar:GetValue()
+                        self.scrollBar:SetValue(x-delta)
+                    </OnMouseWheel>
+                </Scripts>
             </Frame>
 
             <Frame parentKey="profiles" parentArray="frames" mixin="GuildbookProfilesMixin" useParentLevel="true" hidden="true">
@@ -485,43 +600,6 @@
                     </Frame> -->
 
                     <!--this needs to be removed and set in its own frame-->
-                    <Frame parentKey="summaryPane" useParentLevel="true" enableMouse="true">
-                        <Anchors>
-                            <Anchor point="BOTTOMLEFT" x="0" y="0"/>
-                            <Anchor point="TOPRIGHT" x="0" y="0"/>
-                        </Anchors>
-                        <Layers>
-                            <Layer level="BACKGROUND">
-                                <Texture parentKey="background" atlas="_GarrMissionLocation-TownAlliance-Back" alpha="0.35">
-                                <TexCoords left="0.15" right="0.85" top="0.0" bottom="1.0"/>
-                                <!-- <Size x="217"/> -->
-                                    <Anchors>
-                                        <Anchor point="TOPLEFT" x="0" y="0"/>
-                                        <Anchor point="BOTTOMRIGHT" x="-4" y="0"/>
-                                    </Anchors>
-                                </Texture>
-                            </Layer>
-                        </Layers>
-                        <Frames>
-                            <Slider parentKey="scrollBar" inherits="UIPanelScrollBarTemplate" orientation="VERTICAL">
-                                <Anchors>
-                                    <Anchor point="TOPRIGHT" x="-6" y="-42"/>
-                                    <Anchor point="BOTTOMRIGHT" x="-6" y="20"/>
-                                </Anchors>
-                                <Scripts>
-                                    <OnValueChanged>
-                                        self:GetParent():GetParent():SummaryScrollBar_OnValueChanged()
-                                    </OnValueChanged>
-                                </Scripts>
-                            </Slider>
-                        </Frames>
-                        <Scripts>
-                            <OnMouseWheel>
-                                local x = self.scrollBar:GetValue()
-                                self.scrollBar:SetValue(x-delta)
-                            </OnMouseWheel>
-                        </Scripts>
-                    </Frame>
 
                     <Frame parentKey="sidePane" useParentLevel="true">
                         <!-- <Animations>

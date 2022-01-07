@@ -525,12 +525,24 @@ end
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 ---this is the listview template mixin
 GuildbookListviewMixin = CreateFromMixins(CallbackRegistryMixin);
 GuildbookListviewMixin:GenerateCallbackEvents(
     {
         "OnSelectionChanged",
-        "OnDataTableChanged",
     }
 );
 
@@ -551,10 +563,6 @@ function GuildbookListviewMixin:OnLoad()
     end
 
     CallbackRegistryMixin.OnLoad(self)
-
-    ---when the user changes the listview (via the menu buttons) the data is flushed and the new data inserted
-    ---here we setup a callback so that any selected items from a previous menu will be reselected
-    self:RegisterCallback("OnDataTableChanged", self.OnDataTableChanged, self)
 
     self.DataProvider = CreateDataProvider();
     self.scrollView = CreateScrollBoxListLinearView();
@@ -591,14 +599,21 @@ function GuildbookListviewMixin:OnElementInitialize(element, elementData, isNew)
         element:OnLoad();
     end
 
+    -- if self.scrollToEnd == true then
+    --     self.scrollBox:ScrollToEnd(ScrollBoxConstants.NoScrollInterpolation);
+    -- end
+
     local height = self.elementHeight;
 
     element:SetDataBinding(elementData, height);
     element:RegisterCallback("OnMouseDown", self.OnElementClicked, self);
+
 end
 
 function GuildbookListviewMixin:OnElementReset(element)
     element:UnregisterCallback("OnMouseDown", self);
+
+    element:ResetDataBinding()
 end
 
 function GuildbookListviewMixin:OnElementClicked(element)
@@ -629,43 +644,469 @@ end
 
 
 
-GuildbookBasicListviewItemTemplateMixin = CreateFromMixins(CallbackRegistryMixin);
-GuildbookBasicListviewItemTemplateMixin:GenerateCallbackEvents(
+
+
+
+
+GuildbookNewsFeedItemTemplateMixin = CreateFromMixins(CallbackRegistryMixin);
+GuildbookNewsFeedItemTemplateMixin:GenerateCallbackEvents(
     {
         "OnMouseDown",
     }
 );
 
-function GuildbookBasicListviewItemTemplateMixin:OnLoad()
+function GuildbookNewsFeedItemTemplateMixin:OnLoad()
     CallbackRegistryMixin.OnLoad(self);
     self:SetScript("OnMouseDown", self.OnMouseDown);
 end
 
-function GuildbookBasicListviewItemTemplateMixin:OnMouseDown()
+function GuildbookNewsFeedItemTemplateMixin:OnMouseDown()
     self:TriggerEvent("OnMouseDown", self);
 
     print(self.text:GetText())
 end
 
-function GuildbookBasicListviewItemTemplateMixin:OnMouseUp()
+function GuildbookNewsFeedItemTemplateMixin:OnMouseUp()
 
 end
 
-function GuildbookBasicListviewItemTemplateMixin:SetSelected(selected)
+function GuildbookNewsFeedItemTemplateMixin:SetSelected(selected)
     if self.selected then
         self.selected:SetShown(selected)
     end
 end
 
-function GuildbookBasicListviewItemTemplateMixin:SetDataBinding(binding, height)
+function GuildbookNewsFeedItemTemplateMixin:SetDataBinding(binding, height)
 
     if type(height) == "number" then
         self:SetHeight(height)
     end
 
-    if binding.characterName then
-        self.text:SetText(binding.characterName)
+    if binding.newsType == "lfg" then
+        self.icon:SetAtlas("socialqueuing-icon-eye")
+        self.icon:SetSize(height-2, height-1)
+
+    elseif binding.newsType == "calendarEventCreated" then
+        self.icon:SetAtlas("questdaily")
+        self.icon:SetSize(height-2, height-1)
+
+    elseif binding.newsType == "login" then
+        self.icon:SetAtlas("poi-door-right")
+        self.icon:SetSize(height-2, height-1)
+
+    elseif binding.newsType == "logout" then
+        self.icon:SetAtlas("poi-door-left")
+        self.icon:SetSize(height-2, height-1)
+
+    elseif binding.newsType == "playerJoinedGuild" then
+        self.icon:SetAtlas("greencross")
+        self.icon:SetSize(height-2, height-1)
+
+    elseif binding.newsType == "guildChat" then
+        self.icon:SetAtlas(nil)
+        self.icon:SetSize(1, height)
+
+    end
+
+    if binding.text then
+        self.text:SetText(binding.text)
     end
 end
 
 
+function GuildbookNewsFeedItemTemplateMixin:ResetDataBinding()
+
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---this is the mixin for the character list on the home tab
+GuildbookHomeMembersListviewItemTemplateMixin = CreateFromMixins(CallbackRegistryMixin);
+GuildbookHomeMembersListviewItemTemplateMixin:GenerateCallbackEvents(
+    {
+        "OnMouseDown", -- this is so we can notify the listview that an element was clicked
+        "OnTradeskillClicked",
+        "OnMemberStatusChanged",
+    }
+);
+GuildbookHomeMembersListviewItemTemplateMixin.tooltipIcon = CreateFrame("FRAME", "GuildbookRosterListviewItemTooltipIcon")
+GuildbookHomeMembersListviewItemTemplateMixin.tooltipIcon:SetSize(24, 24)
+GuildbookHomeMembersListviewItemTemplateMixin.tooltipIcon.icon = GuildbookHomeMembersListviewItemTemplateMixin.tooltipIcon:CreateTexture(nil, "BACKGROUND")
+GuildbookHomeMembersListviewItemTemplateMixin.tooltipIcon.icon:SetPoint("CENTER", 0, 0)
+GuildbookHomeMembersListviewItemTemplateMixin.tooltipIcon.icon:SetSize(56, 56)
+GuildbookHomeMembersListviewItemTemplateMixin.tooltipIcon.mask = GuildbookHomeMembersListviewItemTemplateMixin.tooltipIcon:CreateMaskTexture()
+GuildbookHomeMembersListviewItemTemplateMixin.tooltipIcon.mask:SetSize(50,50)
+GuildbookHomeMembersListviewItemTemplateMixin.tooltipIcon.mask:SetPoint("CENTER", 0, 0)
+GuildbookHomeMembersListviewItemTemplateMixin.tooltipIcon.mask:SetTexture("Interface/CHARACTERFRAME/TempPortraitAlphaMask", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+GuildbookHomeMembersListviewItemTemplateMixin.tooltipIcon.icon:AddMaskTexture(GuildbookHomeMembersListviewItemTemplateMixin.tooltipIcon.mask)
+
+function GuildbookHomeMembersListviewItemTemplateMixin:OnLoad()
+    CallbackRegistryMixin.OnLoad(self);
+
+    self:RegisterCallback("OnTradeskillClicked", gb.Tradeskills.LoadGuildMemberTradeskills, gb.Tradeskills)
+
+    gb.Roster:RegisterCallback("OnMemberStatusChanged", self.UpdateStatus, self)
+    gb.Database:RegisterCallback("OnCharacterTableChanged", self.UpdateCharacter, self)
+end
+
+function GuildbookHomeMembersListviewItemTemplateMixin:OnMouseDown()
+
+    self:TriggerEvent("OnMouseDown", self);
+
+    gb.Comms:RequestCharacterInfo(self.characterGUID)
+
+    if self.characterGUID and self.character then
+        GuildbookUI.profiles.character = self.character;
+
+        GuildbookUI.profiles:LoadCharacter(self.characterGUID)
+    end
+
+end
+
+function GuildbookHomeMembersListviewItemTemplateMixin:OnMouseUp()
+
+end
+
+function GuildbookHomeMembersListviewItemTemplateMixin:OnEnter()
+
+    --maybe only show the info with shift? maybe add a setting ?
+    if IsShiftKeyDown() == false then
+        return;
+    end
+
+    if not self.character then
+        return;
+    end
+    GameTooltip:SetOwner(GuildbookUI, "ANCHOR_NONE")
+    GameTooltip:SetPoint("RIGHT", GuildbookUI, "LEFT", -4, 0)
+
+    -- this was to change the tooltip background
+    --self.tooltipBackground:SetAtlas(string.format("UI-Character-Info-%s-BG", self.character.Class:sub(1,1):upper()..self.character.Class:sub(2)))
+
+    local rPerc, gPerc, bPerc, argbHex = GetClassColor(self.character.Class:upper())
+    GameTooltip_SetTitle(GameTooltip, self.character.Name.."\n\n|cffffffff"..L['level'].." "..self.character.Level, CreateColor(rPerc, gPerc, bPerc), nil)
+    if self.tooltipIcon then
+        if self.character.profile and self.character.profile.avatar then
+            self.tooltipIcon.icon:SetTexture(self.character.profile.avatar)
+        elseif self.character.Race and self.character.Gender then
+            local race;
+            if self.character.Race:lower() == "scourge" then
+                race = "undead";
+            else
+                race = self.character.Race:lower()
+            end
+            self.tooltipIcon.icon:SetAtlas(string.format("raceicon-%s-%s", race, self.character.Gender:lower()))
+        end
+        GameTooltip_InsertFrame(GameTooltip, self.tooltipIcon)
+        for k, frame in pairs(GameTooltip.insertedFrames) do
+            if frame:GetName() == "GuildbookRosterListviewItemTooltipIcon" then
+                frame:ClearAllPoints()
+                frame:SetPoint("TOPRIGHT", -20, -20)
+            end
+        end
+    end
+
+    local colour = CreateColor(0.1, 0.58, 0.92, 1)
+    local function formatTradeskill(prof, spec)
+        if spec then
+            return string.format("%s [%s]", prof, gb.Colours.Blue:WrapTextInColorCode((GetSpellInfo(spec))));
+        elseif prof then
+            return prof;
+        else
+            return "-";
+        end
+    end
+
+    GameTooltip:AddLine(L["TRADESKILLS"])
+    GameTooltip:AddDoubleLine(formatTradeskill(self.character.Profession1, self.character.Profession1Spec), self.character.Profession1Level or 0, 1,1,1,1, 1,1,1,1)
+    -- GameTooltip_ShowStatusBar(GameTooltip, 0, 300, 245)
+    -- GameTooltip_ShowProgressBar(GameTooltip, 0, 300, 245)
+    GameTooltip:AddDoubleLine(formatTradeskill(self.character.Profession2, self.character.Profession2Spec), self.character.Profession2Level or 0, 1,1,1,1, 1,1,1,1)
+    if self.character.PublicNote then
+        GameTooltip:AddLine(" ")
+        GameTooltip:AddDoubleLine(L['publicNote'], "|cffffffff"..self.character.PublicNote)
+    end
+
+    if self.character.MainCharacter then
+        local mainCharacter = gb.Database:FetchCharacterTableByGUID(self.character.MainCharacter)
+        if type(mainCharacter) == "string" then
+            GameTooltip:AddLine(" ")
+            GameTooltip:AddLine(L['MAIN_CHARACTER'])
+            local s = string.format("%s %s %s",
+            gb.Data.Class[mainCharacter.Class].FontStringIconMEDIUM,
+            gb.Data.Class[mainCharacter.Class].FontColour,
+            mainCharacter.Name
+            )
+            GameTooltip:AddLine(s)
+        end
+    end
+    if self.character.Alts then
+        GameTooltip:AddLine(" ")
+        GameTooltip:AddLine(L['ALTS'])
+        local alts = gb.Database:FindCharacterAlts(self.characterGUID)
+        for _, alt in ipairs(alts)do
+            if alt ~= self.character then
+                local s = string.format("%s %s %s",
+                gb.Data.Class[alt.Class].FontStringIconMEDIUM,
+                gb.Data.Class[alt.Class].FontColour,
+                alt.Name
+                )
+                GameTooltip:AddLine(s)
+            end
+        end
+        -- for _, guid in pairs(self.character.Alts) do
+        --     if guid ~= self.character.MainCharacter and GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][guid] then
+        --         local s = string.format("%s %s %s",
+        --         gb.Data.Class[GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][guid].Class].FontStringIconMEDIUM,
+        --         gb.Data.Class[GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][guid].Class].FontColour,
+        --         GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][guid].Name
+        --         )
+        --         GameTooltip:AddLine(s)
+        --     end
+        --     --GameTooltip:AddTexture(gb.Data.Class[GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][guid].Class].Icon)
+        -- end
+    end
+    --GameTooltip:AddLine(" ")
+
+    -- i contacted the author of attune to check it was ok to add their addon data 
+    if Attune_DB and Attune_DB.toons[self.character.Name.."-"..GetRealmName()] then
+        GameTooltip:AddLine(" ")
+        GameTooltip:AddLine(L["attunements"])
+
+        local db = Attune_DB.toons[self.character.Name.."-"..GetRealmName()]
+
+        for _, instance in ipairs(Attune_Data.attunes) do
+            if db.attuned[instance.ID] and (instance.FACTION == "Both" or instance.FACTION == self.character.Faction) then
+                local formatPercent = db.attuned[instance.ID] < 100 and "|cffff0000"..db.attuned[instance.ID].."%" or "|cff00ff00"..db.attuned[instance.ID].."%"
+                GameTooltip:AddDoubleLine("|cffffffff"..instance.NAME, formatPercent)
+            end
+        end
+    end
+
+    GameTooltip:Show()
+end
+
+function GuildbookHomeMembersListviewItemTemplateMixin:OnLeave()
+    if GameTooltip.insertedFrames and next(GameTooltip.insertedFrames) ~= nil then
+        for k, frame in pairs(GameTooltip.insertedFrames) do
+            if frame:GetName() == "GuildbookRosterListviewItemTooltipIcon" then
+                frame:Hide()
+            end
+        end
+    end
+    GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+end
+
+function GuildbookHomeMembersListviewItemTemplateMixin:SetSelected(selected)
+    if self.selected then
+        self.selected:SetShown(selected)
+    end
+end
+
+
+---load in the character info
+---@param binding table contains a character guid and a character table
+---@param height number the height of the element, used to set template child objects
+function GuildbookHomeMembersListviewItemTemplateMixin:SetDataBinding(binding, height)
+
+    if type(binding) ~= "table" then
+        return;
+    end
+    if type(height) ~= "number" then
+        return;
+    end
+
+    self.height = height;
+    self:SetHeight(height)
+
+    self.background:SetAlpha(0.7)
+
+    self.characterGUID = binding.characterGUID;
+    self.character = binding.characterTable;
+
+    self.portrait:SetSize(height+2, height+2)
+    self.portrait:SetAtlas(string.format("groupfinder-icon-class-%s", self.character.Class:lower()))
+
+    self:UpdateCharacter(self.characterGUID, self.character)
+
+    --[[
+    local status = gb.Roster.onlineStatus[self.characterGUID]
+    if status and status.isOnline == false then
+        self.name:SetText(gb.Colours.Grey:WrapTextInColorCode(self.character.Name))
+    else
+        self.name:SetText(gb.Colours[self.character.Class]:WrapTextInColorCode(self.character.Name))
+    end
+
+    if type(self.character.MainSpec) == "string" and self.character.MainSpec ~= "-" then
+        local specAtlas = gb:GetClassSpecAtlasName(self.character.Class, self.character.MainSpec)
+
+        if status and status.isOnline == false then
+            self.name:SetText(gb.Colours.Grey:WrapTextInColorCode(self.character.Name).." "..CreateAtlasMarkup(specAtlas, 12,12))
+        else
+            self.name:SetText(gb.Colours[self.character.Class]:WrapTextInColorCode(self.character.Name).." "..CreateAtlasMarkup(specAtlas, 12,12))
+        end
+
+    else        
+        if status and status.isOnline == false then
+            self.name:SetText(gb.Colours.Grey:WrapTextInColorCode(self.character.Name))
+        else
+            self.name:SetText(gb.Colours[self.character.Class]:WrapTextInColorCode(self.character.Name))
+        end
+    end
+
+    if type(self.character.Profession1) == "string" and self.character.Profession1 ~= "-" then
+        if self.character.Profession1 == "Engineering" then
+            self.prof1.icon:SetAtlas("Mobile-Enginnering")
+        else
+            self.prof1.icon:SetAtlas(string.format("Mobile-%s", self.character.Profession1))
+        end
+
+        self.prof1:SetSize(height-2, height-2)
+        self.prof1:EnableMouse(true)
+        self.prof1:Show()
+
+        self.prof1.func = function()
+            self:TriggerEvent("OnTradeskillClicked", self.characterGUID, self.character.Profession1)
+        end
+    end
+
+    if type(self.character.Profession2) == "string" and self.character.Profession2 ~= "-" then
+        if self.character.Profession2 == "Engineering" then
+            self.prof2.icon:SetAtlas("Mobile-Enginnering")
+        else
+            self.prof2.icon:SetAtlas(string.format("Mobile-%s", self.character.Profession2))
+        end
+
+        self.prof2:SetSize(height-2, height-2)
+        self.prof2:EnableMouse(true)
+        self.prof2:Show()
+
+        self.prof2.func = function()
+            self:TriggerEvent("OnTradeskillClicked", self.characterGUID, self.character.Profession2)
+        end
+    end
+]]
+
+end
+
+
+---this only really effects the items in view since the init func will rebind the data
+---@param guid any
+---@param status any
+function GuildbookHomeMembersListviewItemTemplateMixin:UpdateStatus(guid, status)
+
+    if guid ~= self.characterGUID then
+        return;
+    end
+
+    if status.isOnline == false then
+        self.name:SetText(gb.Colours.Grey:WrapTextInColorCode(self.character.Name))
+    else
+        self.name:SetText(gb.Colours[self.character.Class]:WrapTextInColorCode(self.character.Name))
+    end
+
+end
+
+
+
+---this could be combined into a single set data/update func?
+---@param guid any
+---@param character any
+function GuildbookHomeMembersListviewItemTemplateMixin:UpdateCharacter(guid, character)
+
+    if type(self.characterGUID) ~= "string" then
+        return;
+    end
+
+    if guid ~= self.characterGUID then
+        return;
+    end
+
+    self.character = character;
+
+    local status = gb.Roster.onlineStatus[self.characterGUID]
+
+    if type(self.character.MainSpec) == "string" and self.character.MainSpec ~= "-" then
+        local specAtlas = gb:GetClassSpecAtlasName(self.character.Class, self.character.MainSpec)
+
+        if status and status.isOnline == false then
+            self.name:SetText(gb.Colours.Grey:WrapTextInColorCode(self.character.Name).." "..CreateAtlasMarkup(specAtlas, 14,14))
+        else
+            self.name:SetText(gb.Colours[self.character.Class]:WrapTextInColorCode(self.character.Name).." "..CreateAtlasMarkup(specAtlas, 14,14))
+        end
+
+    else        
+        if status and status.isOnline == false then
+            self.name:SetText(gb.Colours.Grey:WrapTextInColorCode(self.character.Name))
+        else
+            self.name:SetText(gb.Colours[self.character.Class]:WrapTextInColorCode(self.character.Name))
+        end
+    end
+
+    if type(self.character.Profession1) == "string" and self.character.Profession1 ~= "-" then
+        if self.character.Profession1 == "Engineering" then
+            self.prof1.icon:SetAtlas("Mobile-Enginnering")
+        else
+            self.prof1.icon:SetAtlas(string.format("Mobile-%s", self.character.Profession1))
+        end
+
+        self.prof1:SetSize(self.height-2, self.height-2)
+        self.prof1:EnableMouse(true)
+        self.prof1:Show()
+
+        self.prof1.func = function()
+            self:TriggerEvent("OnTradeskillClicked", self.characterGUID, self.character.Profession1)
+        end
+    end
+
+    if type(self.character.Profession2) == "string" and self.character.Profession2 ~= "-" then
+        if self.character.Profession2 == "Engineering" then
+            self.prof2.icon:SetAtlas("Mobile-Enginnering")
+        else
+            self.prof2.icon:SetAtlas(string.format("Mobile-%s", self.character.Profession2))
+        end
+
+        self.prof2:SetSize(self.height-2, self.height-2)
+        self.prof2:EnableMouse(true)
+        self.prof2:Show()
+
+        self.prof2.func = function()
+            self:TriggerEvent("OnTradeskillClicked", self.characterGUID, self.character.Profession2)
+        end
+    end
+
+end
+
+
+function GuildbookHomeMembersListviewItemTemplateMixin:ResetDataBinding()
+    
+    self.name:SetText(nil)
+    self.portrait:SetAtlas(nil)
+
+    self.prof1:SetSize(0,1)
+    self.prof1:Hide()
+    self.prof1.icon:SetAtlas(nil)
+    self.prof1.func = nil
+    self.prof1:EnableMouse(false)
+
+    self.prof2:SetSize(0,1)
+    self.prof2:Hide()
+    self.prof2.icon:SetAtlas(nil)
+    self.prof2.func = nil
+    self.prof2:EnableMouse(false)
+end

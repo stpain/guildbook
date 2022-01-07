@@ -239,6 +239,12 @@ L["BAGS"]                           = "Bags"
 L["BANK"]                           = "Bank"
 L["STATS"]                          = "Statistics"
 
+--news feed stuff
+L["NF_PLAYER_LEVEL_UP_SS"]			= "%s just hit level %s!"
+L["NF_PLAYER_LOGIN_S"]				= "%s came online"
+L["NF_PLAYER_LOGOUT_S"]				= "%s logged out"
+--L["NF_LFG_CREATED_S"]				= "%s"
+
 L["RESET_AVATAR"]					= "Reset avatar"
 
 L["PRIVACY_HEADER"]                 = "Privacy settings"

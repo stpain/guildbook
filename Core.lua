@@ -58,6 +58,7 @@ Guildbook.Colours = {
     Yellow = CreateColor(1.0, 0.82, 0, 1),
     LightRed = CreateColor(216/255,69/255,75/255),
     BlizzBlue = CreateColor(0,191/255,243/255),
+    Grey = CreateColor(0.5,0.5,0.5),
 }
 for class, t in pairs(Guildbook.Data.Class) do
     Guildbook.Colours[class] = CreateColor(t.RGB[1], t.RGB[2], t.RGB[3], 1)
@@ -85,6 +86,439 @@ SlashCmdList['GUILDBOOK'] = function(msg)
 
     end
 end
+
+
+
+
+
+
+
+
+--[[
+    Database class
+
+    the database class provides functions to update the account wide saved variables and the per character saved variables
+    whenever a value is changed a callback is triggered
+]]
+local Database = CreateFromMixins(CallbackRegistryMixin)
+Database:GenerateCallbackEvents({
+    "OnCharacterTableChanged", -- only this clients UI needs to listen to this
+    --"OnCharacterTradeskillRecipesChanged", -- and this
+    "OnPlayerCharacterTableChanged",
+    "OnPlayerCharacterTradeskillsInfoChanged",
+    "OnPlayerCharacterTradeskillRecipesChanged",
+    "OnGuildbookConfigChanged",
+})
+Database.currentGuildName = nil;
+
+--to save spamming data we use basic queue/timer system, these bool values determine if a calback is queued ro not
+Database.onCharacterTableChanged_IsTriggered = false;
+Database.onPlayerCharacterTableChanged_IsTriggered = false;
+Database.onPlayerCharacterTradeskillsInfoChanged_IsTriggered = false;
+Database.onPlayerCharacterTradeskillRecipesChanged_IsTriggered = false;
+--Database.onCharacterTradeskillRecipesChanged_IsTriggered = false;
+
+
+
+function Database:UpdateGuildbookConfig(setting, newValue)
+
+    --DevTools_Dump({setting, newValue})
+    
+    if GUILDBOOK_GLOBAL then
+        if GUILDBOOK_GLOBAL.config then
+            if GUILDBOOK_GLOBAL.config[setting] ~= nil then
+                GUILDBOOK_GLOBAL.config[setting] = newValue;
+                Guildbook.DEBUG("databaseMixin", "Database:UpdateGuildbookConfig", string.format("set %s to new value %s", setting, tostring(newValue)))
+                self:TriggerEvent("OnGuildbookConfigChanged", self, GUILDBOOK_GLOBAL.config)
+            else
+                GUILDBOOK_GLOBAL.config[setting] = newValue;
+                Guildbook.DEBUG("databaseMixin", "Database:UpdateGuildbookConfig", string.format("created new config setting for %s set value as %s", setting, tostring(newValue)))
+                self:TriggerEvent("OnGuildbookConfigChanged", self, GUILDBOOK_GLOBAL.config)
+            end
+        end
+    end
+end
+
+
+
+function Database:CharacterExists(guid)
+
+    if self.currentGuildName and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName] and GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName][guid] then
+        return true;
+    end
+
+    return false;
+end
+
+
+
+function Database:FindCharacterAlts(guid)
+
+    local alts = {};
+
+    if self.currentGuildName and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName] then
+        
+        for _guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName]) do
+            if character.MainCharacter == guid then
+                table.insert(alts, character)
+            end
+        end
+
+    end
+
+    return alts;
+
+end
+
+
+
+function Database:AddNewCharacter(guid, nameRealm, level, class, race, gender, publicNote, rankName)
+
+    if self.currentGuildName and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName] then
+
+        local character = {
+            Name = Ambiguate(nameRealm, "none"),
+            Class = class,
+            Race = race,
+            Gender = gender,
+            PublicNote = publicNote,
+            OfficerNote = "",
+            RankName = rankName,
+            MainSpec = '-',
+            OffSpec = '-',
+            MainSpecIsPvP = false,
+            OffSpecIsPvP = false,
+            Profession1 = '-',
+            Profession1Level = 0,
+            Profession2 = '-',
+            Profession2Level = 0,
+            FishingLevel = 0,
+            CookingLevel = 0,
+            FirstAidLevel = 0,
+            MainCharacter = '-',
+            Availability = {
+                Monday = nil,
+                Tuesday = nil,
+                Wednesday = nil,
+                Thursday = nil,
+                Friday = nil,
+                Saturday = nil,
+                Sunday = nil,
+            },
+            CalendarEvents = {},
+            Talents = {
+                primary = {},
+        
+            },
+            PaperDollStats = {
+                Current = {},
+            },
+            Inventory = {
+                Current = {},
+            },
+            profile = {},
+            Alts = {},
+        }
+
+        GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName][guid] = character;
+    end
+
+end
+
+
+
+
+---update a character table in the account wide saved var (guild roster cache) - t[guid][key] = info
+---@param guid string the target character guid - used as a key
+---@param key string the field to update
+---@param info any the new data to set
+function Database:UpdateCharacterTable(guid, key, info)
+
+    if self.currentGuildName and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName] and GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName][guid] then
+        local characterTable = GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName][guid];
+        characterTable[key] = info;
+
+        Guildbook.DEBUG("databaseMixin", "Database:UpdateCharacterTable", string.format("updated %s for %s", key, characterTable.Name), info)
+
+        ---to avoid multiple triggers we add a small queue system
+        if self.onCharacterTableChanged_IsTriggered == false then
+           C_Timer.After(1.5, function()
+                self:TriggerEvent("OnCharacterTableChanged", self, guid, characterTable)
+                self.onCharacterTableChanged_IsTriggered = false;
+           end)
+           self.onCharacterTableChanged_IsTriggered = true;
+        end
+    end
+
+end
+
+
+
+
+function Database:UpdateCharacterTradeskillRecipes(guid, tradeskill, recipes)
+
+    if self.currentGuildName and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName] and GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName][guid] then
+        local characterTable = GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName][guid];
+        characterTable[tradeskill] = recipes;
+
+        Guildbook.DEBUG("databaseMixin", "Database:UpdateCharacterTradeskillRecipes", string.format("updated %s for %s", tradeskill, characterTable.Name), recipes)
+
+        ---this function should be moved into the tradeskill class and possibly re worked ???
+        Guildbook:RequestTradeskillData()
+    end
+
+end
+
+
+---fetch character info using guid and key
+---@param guid string the characters GUID
+---@param key string the key to fetch
+---@return any
+function Database:GetCharacterInfo(guid, key)
+    if self.currentGuildName and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'] and GUILDBOOK_GLOBAL['GuildRosterCache'][self.currentGuildName] and GUILDBOOK_GLOBAL['GuildRosterCache'][self.currentGuildName][guid] then
+        local characterName = GUILDBOOK_GLOBAL['GuildRosterCache'][self.currentGuildName][guid].Name
+        Guildbook.DEBUG("databaseMixin", "Database:GetCharacterInfo", string.format("found %s for %s", key, characterName), {
+            character = characterName,
+            key = key,
+            value = GUILDBOOK_GLOBAL['GuildRosterCache'][self.currentGuildName][guid][key],
+        })
+        return GUILDBOOK_GLOBAL['GuildRosterCache'][self.currentGuildName][guid][key];
+
+    else
+        local characterName = GUILDBOOK_GLOBAL['GuildRosterCache'][self.currentGuildName][guid].Name or "no name or character table"
+        Guildbook.DEBUG("databaseMixin", "Database:GetCharacterInfo", string.format("unable to find %s for %s", key, characterName))
+        return GUILDBOOK_GLOBAL['GuildRosterCache'][self.currentGuildName][guid][key];
+    end
+    return false;
+end
+
+
+
+function Database:FetchCharacterTableByGUID(guid)
+
+    if type(guid) ~= "string" then
+        Guildbook.DEBUG("databaseMixin", "Database:FetchCharacterTableByGUID", "guid is nto of type string", {guid = guid})
+        return;
+    end
+
+    --removed the debug here as it can be spammy
+    if self.currentGuildName and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName] and GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName][guid] then
+        --Guildbook.DEBUG("databaseMixin", "Database:FetchCharacterTableByGUID", string.format("found character table for %s", GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName][guid].Name))
+        return GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName][guid];
+
+    elseif guid:find("Player-") then
+        local localizedClass, englishClass, localizedRace, englishRace, sex, name, realm = GetPlayerInfoByGUID(guid)
+        Guildbook.DEBUG("databaseMixin", "Database:FetchCharacterTableByGUID", string.format("unable to find character table for %s-%s", name or "no-name", realm or "no-realm"))
+        return false;
+    end
+
+    return false;
+end
+
+
+
+--- THIS WAS SUCH A DUMB IDEA AND I DO NOT KNOW WHY I DID IT THIS WAY AS A BETTER OPTION WOULD BE t[key][tab] !!!!!!!!!!!!!!!!!!!!!!!
+--- so this next function is kinda backwards atm, i should fix it but meh
+
+---update the per character saved variable table
+---@param key string the table key to update
+---@param info any the new value
+---@param tab string optional, a child table of GUILDBOOK_CHARACTER to update, ie GUILDBOOK_CHARACTER[tab][key] = info
+function Database:UpdatePlayerCharacterTable(key, info, tab)
+
+    if not GUILDBOOK_CHARACTER then
+        GUILDBOOK_CHARACTER = Guildbook.Data.DefaultCharacterSettings;
+    end
+
+    local t = nil;
+
+    if type(tab) ~= "string" then
+        t = GUILDBOOK_CHARACTER;
+        Guildbook.DEBUG("databaseMixin", "Database:UpdatePlayerCharacterTable", "using the GUILDBOOK_CHARACTER table")
+    else
+        if GUILDBOOK_CHARACTER[tab] then
+            if type(GUILDBOOK_CHARACTER[tab]) == "table" then
+                t = GUILDBOOK_CHARACTER[tab];
+                Guildbook.DEBUG("databaseMixin", "Database:UpdatePlayerCharacterTable", string.format("using GUILDBOOK_CHARACTER[%s] table", tab))
+            else
+                GUILDBOOK_CHARACTER[tab] = {}
+                t = GUILDBOOK_CHARACTER[tab];
+                Guildbook.DEBUG("databaseMixin", "Database:UpdatePlayerCharacterTable", string.format("GUILDBOOK_CHARACTER[%s] table did NOT exists, created and using new table", tab))
+            end
+        else
+            GUILDBOOK_CHARACTER[tab] = {};
+            t = GUILDBOOK_CHARACTER[tab];
+            Guildbook.DEBUG("databaseMixin", "Database:UpdatePlayerCharacterTable", string.format("%s does NOT exist, created GUILDBOOK_CHARACTER[%s] table", tab, tab))
+        end
+    end
+
+    if type(t) ~= "table" then
+        Guildbook.DEBUG("databaseMixin", "Database:UpdatePlayerCharacterTable", string.format("table not found for key: %s, opt tab: %s > db update cancelled", key, tab or "-"), {
+            ["key"] = key,
+            ["info"] = info,
+            ["tab"] = tab or "-",
+        })
+        return;
+    end
+
+    if t then
+        t[key] = nil;
+        t[key] = info;
+        Guildbook.DEBUG("databaseMixin", "Database:UpdatePlayerCharacterTable", string.format("set or updated %s", key), info)
+        ---to avoid multiple triggers in < 1s we add a small queue system
+        if self.onPlayerCharacterTableChanged_IsTriggered == false then
+            C_Timer.After(3.0, function()
+                self:TriggerEvent("OnPlayerCharacterTableChanged", self, GUILDBOOK_CHARACTER)
+                self.onPlayerCharacterTableChanged_IsTriggered = false;
+            end)
+            self.onPlayerCharacterTableChanged_IsTriggered = true;
+        end
+    end
+end
+
+
+
+function Database:UpdatePlayerCharacterTradeskillsInfo(prof1, prof1Level, prof1Spec, prof2, prof2Level, prof2Spec, fishing, cooking, firstAid)
+
+    if not GUILDBOOK_CHARACTER then
+        GUILDBOOK_CHARACTER = Guildbook.Data.DefaultCharacterSettings;
+    end
+
+    if type(prof1) == "string" then
+        GUILDBOOK_CHARACTER.Profession1 = prof1;
+    end
+    if type(prof1Level) == "number" then
+        GUILDBOOK_CHARACTER.Profession1Level = prof1Level;
+    end
+    if type(prof1Spec) == "number" then
+        GUILDBOOK_CHARACTER.Profession1Spec = prof1Spec;
+    end
+
+    if type(prof2) == "string" then
+        GUILDBOOK_CHARACTER.Profession2 = prof2;
+    end
+    if type(prof2Level) == "number" then
+        GUILDBOOK_CHARACTER.Profession2Level = prof2Level;
+    end
+    if type(prof2Spec) == "number" then
+        GUILDBOOK_CHARACTER.Profession2Spec = prof2Spec;
+    end
+
+    if type(fishing) == "number" then
+        GUILDBOOK_CHARACTER.FishingLevel = fishing;
+    end
+    if type(cooking) == "number" then
+        GUILDBOOK_CHARACTER.CookingLevel = cooking;
+    end
+    if type(firstAid) == "number" then
+        GUILDBOOK_CHARACTER.FirstAidLevel = firstAid;
+    end
+
+    Guildbook.DEBUG("databaseMixin", "Database:UpdatePlayerCharacterTradeskillsInfo", "updated player character tradeskills info", {prof1, prof1Level, prof1Spec, prof2, prof2Level, prof2Spec, fishing, cooking, firstAid})
+
+    ---to avoid multiple triggers we use a queue system, as players could power level professions lets increase the queue timer to 10s
+    if self.onPlayerCharacterTradeskillsInfoChanged_IsTriggered == false then
+       C_Timer.After(10.0, function()
+            self:TriggerEvent("OnPlayerCharacterTradeskillsInfoChanged", self)
+            self.onPlayerCharacterTradeskillsInfoChanged_IsTriggered = false;
+       end)
+       self.onPlayerCharacterTradeskillsInfoChanged_IsTriggered = true;
+    end
+
+end
+
+
+
+function Database:UpdatePlayerCharacterTradeskillRecipes(prof, recipes)
+
+    if not GUILDBOOK_CHARACTER then
+        GUILDBOOK_CHARACTER = Guildbook.Data.DefaultCharacterSettings;
+    end
+
+    GUILDBOOK_CHARACTER[prof] = recipes;
+
+    Guildbook.DEBUG("databaseMixin", "Database:UpdatePlayerCharacterTradeskillRecipes", string.format("updated or set recipes for %s", prof), recipes)
+
+    ---to avoid multiple triggers we use a queue system, as players could power level professions lets increase the queue timer to 10s
+    if self.onPlayerCharacterTradeskillRecipesChanged_IsTriggered == false then
+        C_Timer.After(10.0, function()
+             self:TriggerEvent("OnPlayerCharacterTradeskillRecipesChanged", self, prof) --we just need the prof name to use to find the data
+             self.onPlayerCharacterTradeskillRecipesChanged_IsTriggered = false;
+        end)
+        self.onPlayerCharacterTradeskillRecipesChanged_IsTriggered = true;
+     end
+
+end
+
+
+function Database:OnPlayerLogout()
+
+
+end
+
+
+function Database:Init()
+
+    CallbackRegistryMixin.OnLoad(self)
+
+    ---setup the UI callback
+    self:RegisterCallback("OnCharacterTableChanged", GuildbookUI.OnCharacterTableChanged, GuildbookUI)
+
+    -- the database MUST always use the players guild NOT whatever guild is being viewed
+    if IsInGuild() and GetGuildInfo("player") then
+        local guildName, _, _, _ = GetGuildInfo('player')
+        self.currentGuildName = guildName;
+    end
+
+    self.listener = CreateFrame("FRAME")
+    self.listener:RegisterEvent("PLAYER_LOGOUT")
+
+    self.listener:SetScript("OnEvent", function(_, event, ...)
+    
+        if event == "PLAYER_LOGOUT" then
+            self:OnPlayerLogout()
+        end
+    end)
+
+end
+
+Guildbook.Database = Database;
+
+
+
+
+
+
+
+local Class = {}
+Class.Specializations = {
+    ["DEATHKNIGHT"] = {
+        {
+            ["Frost (DPS)"] = {
+                role = "DPS",
+                talentBackground = "DeathKnightFrost",
+                atlas = "",
+            },
+            ["Frost (Tank)"] = {
+                role = "DPS",
+                talentBackground = "DeathKnightFrost"
+            },
+            ["Blood"] = {
+                role = "Tank",
+                talentBackground = "DeathKnightBlood"
+            },
+            ["Unholy"] = {
+                role = "DPS",
+                talentBackground = "DeathKnightUnholy"
+            },
+        },
+    },
+}
+
+
+
+
+
 
 
 
@@ -307,6 +741,106 @@ function Tradeskills:RequestRecipeInfo()
 end
 
 
+---load the characters tradeskills, currently this is triggered by the new home tab member listview
+---@param guid string the characters guid
+---@param prof string the profession to load recipes for or `allRecipes` for all of the characters recipes
+function Tradeskills:LoadGuildMemberTradeskills(guid, prof)
+
+    --hide the selected texture and flush the listviews
+    for _, button in ipairs(GuildbookTradeskillProfessionListview.profButtons) do
+        button.selected:Hide()
+    end
+    GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Flush()
+    GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Flush()
+
+    if prof == "Enchanting" then
+        if not Guildbook.tradeskillEnchantRecipesKeys then
+            return;
+        end
+        if next(Guildbook.tradeskillEnchantRecipesKeys) == nil then
+            GuildbookUI.statusText:SetText("tradeskill enchant recipes not processed yet, key mapping not ready")
+            return
+        end
+
+    else
+        if not Guildbook.tradeskillRecipesKeys then
+            return;
+        end
+        if next(Guildbook.tradeskillRecipesKeys) == nil then
+            GuildbookUI.statusText:SetText("tradeskill recipes not processed yet, key mapping not ready")
+            return
+        end
+        
+    end
+
+
+    local character = Database:FetchCharacterTableByGUID(guid)
+    if not character then
+        return
+    end
+    if prof == "Enginnering" then prof = "Engineering" end -- fix it back due to blizz spelling error
+    local recipes = {}
+    if prof ~= "allRecipes" and character[prof] then
+        for itemID, _ in pairs(character[prof]) do
+            if prof == "Enchanting" then
+                local key = Guildbook.tradeskillEnchantRecipesKeys[itemID]
+                table.insert(recipes, Guildbook.tradeskillRecipes[key])
+            else
+                local key = Guildbook.tradeskillRecipesKeys[itemID]
+                table.insert(recipes, Guildbook.tradeskillRecipes[key])
+            end
+        end
+
+    ---if no prof is given then load all the characters recipes
+    elseif prof == "allRecipes" then
+        local prof1 = character.Profession1
+        if prof1 and character[prof1] then
+            for itemID, _ in pairs(character[prof1]) do
+                if prof1 == "Enchanting" then
+                    local key = Guildbook.tradeskillEnchantRecipesKeys[itemID]
+                    table.insert(recipes, Guildbook.tradeskillRecipes[key])
+                else
+                    local key = Guildbook.tradeskillRecipesKeys[itemID]
+                    table.insert(recipes, Guildbook.tradeskillRecipes[key])
+                end
+            end
+        end
+        local prof2 = character.Profession2
+        if prof2 and character[prof2] then
+            for itemID, _ in pairs(character[prof2]) do
+                if prof2 == "Enchanting" then
+                    local key = Guildbook.tradeskillEnchantRecipesKeys[itemID]
+                    table.insert(recipes, Guildbook.tradeskillRecipes[key])
+                else
+                    local key = Guildbook.tradeskillRecipesKeys[itemID]
+                    table.insert(recipes, Guildbook.tradeskillRecipes[key])
+                end
+            end
+        end
+    end
+    if recipes and next(recipes) ~= nil then
+        GuildbookUI.statusText:SetText(string.format("found %s recipes for %s [%s]", #recipes, prof, character.Name))
+        table.sort(recipes, function(a,b)
+            if type(a.expansion) ~= "number" and type(b.expansion) ~= "number" then
+                return a.rarity  > b.rarity;
+            end
+            if a.expansion == b.expansion then
+                if a.rarity == b.rarity then
+                    return a.name < b.name
+                else
+                    return a.rarity > b.rarity
+                end
+            else
+                return a.expansion > b.expansion
+            end
+        end)
+        GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:InsertTable(recipes)
+        GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:InsertTable({guid})
+    end
+    GuildbookUI:OpenTo("tradeskills")
+end
+
+
 Guildbook.Tradeskills = Tradeskills;
 
 
@@ -316,294 +850,149 @@ Guildbook.Tradeskills = Tradeskills;
 
 
 
+
+
 --[[
-    Database class
+    Roster class
 
-    the database class provides functions to update the account wide saved variables and the per character saved variables
-    whenever a value is changed a callback is triggered
+
 ]]
-local Database = CreateFromMixins(CallbackRegistryMixin)
-Database:GenerateCallbackEvents({
-    "OnCharacterTableChanged", -- only this clients UI needs to listen to this
-    --"OnCharacterTradeskillRecipesChanged", -- and this
-    "OnPlayerCharacterTableChanged",
-    "OnPlayerCharacterTradeskillsInfoChanged",
-    "OnPlayerCharacterTradeskillRecipesChanged",
-    "OnGuildbookConfigChanged",
+local Roster = CreateFromMixins(CallbackRegistryMixin)
+Roster:GenerateCallbackEvents({
+    "OnMemberStatusChanged",
+    "OnMemberJoin",
+    "OnMemberLeave",
+    "OnGuildSelectionChanged",
 })
-Database.currentGuildName = nil;
+Roster.currentplayerRealm = nil;
+Roster.currentGuild = nil;
+Roster.onlineStatus = {};
+Roster.guidToCharacterNameRealm = {}; --?
+Roster.characterNameRealmToGUID = {}; --?
 
---to save spamming data we use basic queue/timer system, these bool values determine if a calback is queued ro not
-Database.onCharacterTableChanged_IsTriggered = false;
-Database.onPlayerCharacterTableChanged_IsTriggered = false;
-Database.onPlayerCharacterTradeskillsInfoChanged_IsTriggered = false;
-Database.onPlayerCharacterTradeskillRecipesChanged_IsTriggered = false;
---Database.onCharacterTradeskillRecipesChanged_IsTriggered = false;
+function Roster:ScanMembers()
 
+    local totalMembers, onlineMember, _ = GetNumGuildMembers()
+    for i = 1, totalMembers do
+        --local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, guid = GetGuildRosterInfo(i)
+        local nameRealm, rankName, _, level, localeClass, zone, publicNote, officerNote, isOnline, _, _, achievementPoints, _, _, _, _, guid = GetGuildRosterInfo(i)
+        local _, class, _, race, gender, name, realm = GetPlayerInfoByGUID(guid)
+        gender = (gender == 3) and "FEMALE" or "MALE"
+        
+        self.onlineStatus[guid] = {
+            isOnline = isOnline,
+            zone = zone,
+        }
+        self.guidToCharacterNameRealm[guid] = nameRealm;
 
+        self.characterNameRealmToGUID[nameRealm] = guid;
 
-function Database:UpdateGuildbookConfig(setting, newValue)
-
-    --DevTools_Dump({setting, newValue})
-    
-    if GUILDBOOK_GLOBAL then
-        if GUILDBOOK_GLOBAL.config then
-            if GUILDBOOK_GLOBAL.config[setting] ~= nil then
-                GUILDBOOK_GLOBAL.config[setting] = newValue;
-                Guildbook.DEBUG("databaseMixin", "Database:UpdateGuildbookConfig", string.format("set %s to new value %s", setting, tostring(newValue)))
-                self:TriggerEvent("OnGuildbookConfigChanged", self, GUILDBOOK_GLOBAL.config)
-            else
-                GUILDBOOK_GLOBAL.config[setting] = newValue;
-                Guildbook.DEBUG("databaseMixin", "Database:UpdateGuildbookConfig", string.format("created new config setting for %s set value as %s", setting, tostring(newValue)))
-                self:TriggerEvent("OnGuildbookConfigChanged", self, GUILDBOOK_GLOBAL.config)
-            end
+        if Database:CharacterExists(guid) == false then
+            Database:AddNewCharacter(guid, nameRealm, level, class, race, gender, publicNote, rankName)
         end
+
     end
 end
 
 
----update a character table in the account wide saved var (guild roster cache) - t[guid][key] = info
----@param guid string the target character guid - used as a key
----@param key string the field to update
----@param info any the new data to set
-function Database:UpdateCharacterTable(guid, key, info)
 
-    if self.currentGuildName and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName] and GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName][guid] then
-        local characterTable = GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName][guid];
-        characterTable[key] = info;
+function Roster:OnChatMessageSystem(...)
+    local msg = ...
 
-        Guildbook.DEBUG("databaseMixin", "Database:UpdateCharacterTable", string.format("updated %s for %s", key, characterTable.Name), info)
+    --- log out doesnt use a player link so this provides a string easily
+    local loggedOut = ERR_FRIEND_OFFLINE_S:gsub("%%s", ".*")
+    if msg:find(loggedOut) then
+        local characterName, _ = strsplit(" ", msg)
 
-        ---to avoid multiple triggers we add a small queue system
-        if self.onCharacterTableChanged_IsTriggered == false then
-           C_Timer.After(1.5, function()
-                self:TriggerEvent("OnCharacterTableChanged", self, guid, characterTable)
-                self.onCharacterTableChanged_IsTriggered = false;
-           end)
-           self.onCharacterTableChanged_IsTriggered = true;
-        end
-    end
-
-end
-
-
-
-
-function Database:UpdateCharacterTradeskillRecipes(guid, tradeskill, recipes)
-
-    if self.currentGuildName and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName] and GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName][guid] then
-        local characterTable = GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName][guid];
-        characterTable[tradeskill] = recipes;
-
-        Guildbook.DEBUG("databaseMixin", "Database:UpdateCharacterTradeskillRecipes", string.format("updated %s for %s", tradeskill, characterTable.Name), recipes)
-
-        ---this function should be moved into the tradeskill class and possibly re worked ???
-        Guildbook:RequestTradeskillData()
-    end
-
-end
-
-
----fetch character info using guid and key
----@param guid string the characters GUID
----@param key string the key to fetch
----@return any
-function Database:GetCharacterInfo(guid, key)
-    if self.currentGuildName and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'] and GUILDBOOK_GLOBAL['GuildRosterCache'][self.currentGuildName] and GUILDBOOK_GLOBAL['GuildRosterCache'][self.currentGuildName][guid] then
-        local characterName = GUILDBOOK_GLOBAL['GuildRosterCache'][self.currentGuildName][guid].Name
-        Guildbook.DEBUG("databaseMixin", "Database:GetCharacterInfo", string.format("found %s for %s", key, characterName), {
-            character = characterName,
-            key = key,
-            value = GUILDBOOK_GLOBAL['GuildRosterCache'][self.currentGuildName][guid][key],
+        GuildbookUI.home:OnNewsFeedReceived(_, {
+            newsType = "logout",
+            text = string.format("%s has gone offline", characterName)
         })
-        return GUILDBOOK_GLOBAL['GuildRosterCache'][self.currentGuildName][guid][key];
 
-    else
-        local characterName = GUILDBOOK_GLOBAL['GuildRosterCache'][self.currentGuildName][guid].Name or "no name or character table"
-        Guildbook.DEBUG("databaseMixin", "Database:GetCharacterInfo", string.format("unable to find %s for %s", key, characterName))
-        return GUILDBOOK_GLOBAL['GuildRosterCache'][self.currentGuildName][guid][key];
-    end
-    return false;
-end
+        local guid = self.characterNameRealmToGUID[characterName] or self.characterNameRealmToGUID[characterName.."-"..self.currentplayerRealm]
+        if guid then
+            self.onlineStatus[guid].isOnline = false;
+            self:TriggerEvent("OnMemberStatusChanged", guid, self.onlineStatus[guid])
+        end
 
-
-
-function Database:FetchCharacterTableByGUID(guid)
-
-    if type(guid) ~= "string" then
-        Guildbook.DEBUG("databaseMixin", "Database:FetchCharacterTableByGUID", "guid is nto of type string", {guid = guid})
-        return;
     end
 
-    --removed the debug here as it can be spammy
-    if self.currentGuildName and GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName] and GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName][guid] then
-        --Guildbook.DEBUG("databaseMixin", "Database:FetchCharacterTableByGUID", string.format("found character table for %s", GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName][guid].Name))
-        return GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName][guid];
+    -- log in does use a player link so takes a bit of work to get the name
+    local loggedIn = ERR_FRIEND_ONLINE_SS:gsub("%%s", ".+"):gsub('%[','%%%1')
+    if msg:find(loggedIn:sub(6)) then
+        local name = strsplit(" ", msg)
+        local s, e = name:find("%["), name:find("%]")
+        local characterName = name:sub(s+1, e-1)
 
-    elseif guid:find("Player-") then
-        local localizedClass, englishClass, localizedRace, englishRace, sex, name, realm = GetPlayerInfoByGUID(guid)
-        Guildbook.DEBUG("databaseMixin", "Database:FetchCharacterTableByGUID", string.format("unable to find character table for %s-%s", name or "no-name", realm or "no-realm"))
-        return false;
-    end
+        GuildbookUI.home:OnNewsFeedReceived(_, {
+            newsType = "login",
+            text = string.format("%s has come online", characterName)
+        })
 
-    return false;
-end
-
-
-
---- THIS WAS SUCH A DUMB IDEA AND I DO NOT KNOW WHY I DID IT THIS WAY AS A BETTER OPTION WOULD BE t[key][tab] !!!!!!!!!!!!!!!!!!!!!!!
---- so this next function is kinda backwards atm, i should fix it but meh
-
----update the per character saved variable table
----@param key string the table key to update
----@param info any the new value
----@param tab string optional, a child table of GUILDBOOK_CHARACTER to update, ie GUILDBOOK_CHARACTER[tab][key] = info
-function Database:UpdatePlayerCharacterTable(key, info, tab)
-
-    if not GUILDBOOK_CHARACTER then
-        GUILDBOOK_CHARACTER = Guildbook.Data.DefaultCharacterSettings;
-    end
-
-    local t = nil;
-
-    if type(tab) ~= "string" then
-        t = GUILDBOOK_CHARACTER;
-        Guildbook.DEBUG("databaseMixin", "Database:UpdatePlayerCharacterTable", "using the GUILDBOOK_CHARACTER table")
-    else
-        if GUILDBOOK_CHARACTER[tab] then
-            if type(GUILDBOOK_CHARACTER[tab]) == "table" then
-                t = GUILDBOOK_CHARACTER[tab];
-                Guildbook.DEBUG("databaseMixin", "Database:UpdatePlayerCharacterTable", string.format("using GUILDBOOK_CHARACTER[%s] table", tab))
-            else
-                GUILDBOOK_CHARACTER[tab] = {}
-                t = GUILDBOOK_CHARACTER[tab];
-                Guildbook.DEBUG("databaseMixin", "Database:UpdatePlayerCharacterTable", string.format("GUILDBOOK_CHARACTER[%s] table did NOT exists, created and using new table", tab))
-            end
-        else
-            GUILDBOOK_CHARACTER[tab] = {};
-            t = GUILDBOOK_CHARACTER[tab];
-            Guildbook.DEBUG("databaseMixin", "Database:UpdatePlayerCharacterTable", string.format("%s does NOT exist, created GUILDBOOK_CHARACTER[%s] table", tab, tab))
+        local guid = self.characterNameRealmToGUID[characterName] or self.characterNameRealmToGUID[characterName.."-"..self.currentplayerRealm]
+        if guid then
+            self.onlineStatus[guid].isOnline = true;
+            self:TriggerEvent("OnMemberStatusChanged", guid, self.onlineStatus[guid])
         end
     end
 
-    if type(t) ~= "table" then
-        Guildbook.DEBUG("databaseMixin", "Database:UpdatePlayerCharacterTable", string.format("table not found for key: %s, opt tab: %s > db update cancelled", key, tab or "-"), {
-            ["key"] = key,
-            ["info"] = info,
-            ["tab"] = tab or "-",
-        })
-        return;
-    end
 
-    if t then
-        t[key] = info;
-        Guildbook.DEBUG("databaseMixin", "Database:UpdatePlayerCharacterTable", string.format("set or updated %s", key), info)
-        ---to avoid multiple triggers in < 1s we add a small queue system
-        if self.onPlayerCharacterTableChanged_IsTriggered == false then
+    local joinedGuild = ERR_GUILD_JOIN_S:gsub("%%s", ".*")
+    if msg:find(joinedGuild) then
+        local name, _ = strsplit(" ", msg)
+        Guildbook.DEBUG("event", "CHAT_MSG_SYSTEM", string.format("%s joined a guild", name))
+
+        GuildbookUI.home:OnNewsFeedReceived(_, {
+            newsType = "playerJoinedGuild",
+            text = string.format("%s has joined the guild", name)
+        })
+
+        if Ambiguate(name, "none") ~= Ambiguate(UnitName("player"), "none") then
+            return;
+        end
+        C_Timer.After(3.0, function()
+            GuildRoster() -- this will trigger a roster scan but we set addonLoaded as false at top of file to skip the auto roster scan so this is first scan
             C_Timer.After(1.5, function()
-                self:TriggerEvent("OnPlayerCharacterTableChanged", self, GUILDBOOK_CHARACTER)
-                self.onPlayerCharacterTableChanged_IsTriggered = false;
+                self:ScanGuildRoster(function()
+                    Guildbook:Load() -- once the roster has been scanned continue to load, its a bit meh but it means we get a full roster scan before loading
+                end)
             end)
-            self.onPlayerCharacterTableChanged_IsTriggered = true;
-        end
-    end
-end
-
-
-
-function Database:UpdatePlayerCharacterTradeskillsInfo(prof1, prof1Level, prof1Spec, prof2, prof2Level, prof2Spec, fishing, cooking, firstAid)
-
-    if not GUILDBOOK_CHARACTER then
-        GUILDBOOK_CHARACTER = Guildbook.Data.DefaultCharacterSettings;
-    end
-
-    if type(prof1) == "string" then
-        GUILDBOOK_CHARACTER.Profession1 = prof1;
-    end
-    if type(prof1Level) == "number" then
-        GUILDBOOK_CHARACTER.Profession1Level = prof1Level;
-    end
-    if type(prof1Spec) == "number" then
-        GUILDBOOK_CHARACTER.Profession1Spec = prof1Spec;
-    end
-
-    if type(prof2) == "string" then
-        GUILDBOOK_CHARACTER.Profession2 = prof2;
-    end
-    if type(prof2Level) == "number" then
-        GUILDBOOK_CHARACTER.Profession2Level = prof2Level;
-    end
-    if type(prof2Spec) == "number" then
-        GUILDBOOK_CHARACTER.Profession2Spec = prof2Spec;
-    end
-
-    if type(fishing) == "number" then
-        GUILDBOOK_CHARACTER.FishingLevel = fishing;
-    end
-    if type(cooking) == "number" then
-        GUILDBOOK_CHARACTER.CookingLevel = cooking;
-    end
-    if type(firstAid) == "number" then
-        GUILDBOOK_CHARACTER.FirstAidLevel = firstAid;
-    end
-
-    Guildbook.DEBUG("databaseMixin", "Database:UpdatePlayerCharacterTradeskillsInfo", "updated player character tradeskills info", {prof1, prof1Level, prof1Spec, prof2, prof2Level, prof2Spec, fishing, cooking, firstAid})
-
-    ---to avoid multiple triggers we use a queue system, as players could power level professions lets increase the queue timer to 10s
-    if self.onPlayerCharacterTradeskillsInfoChanged_IsTriggered == false then
-       C_Timer.After(10.0, function()
-            self:TriggerEvent("OnPlayerCharacterTradeskillsInfoChanged", self)
-            self.onPlayerCharacterTradeskillsInfoChanged_IsTriggered = false;
-       end)
-       self.onPlayerCharacterTradeskillsInfoChanged_IsTriggered = true;
-    end
-
-end
-
-
-
-function Database:UpdatePlayerCharacterTradeskillRecipes(prof, recipes)
-
-    if not GUILDBOOK_CHARACTER then
-        GUILDBOOK_CHARACTER = Guildbook.Data.DefaultCharacterSettings;
-    end
-
-    GUILDBOOK_CHARACTER[prof] = recipes;
-
-    Guildbook.DEBUG("databaseMixin", "Database:UpdatePlayerCharacterTradeskillRecipes", string.format("updated or set recipes for %s", prof), recipes)
-
-    ---to avoid multiple triggers we use a queue system, as players could power level professions lets increase the queue timer to 10s
-    if self.onPlayerCharacterTradeskillRecipesChanged_IsTriggered == false then
-        C_Timer.After(10.0, function()
-             self:TriggerEvent("OnPlayerCharacterTradeskillRecipesChanged", self, prof) --we just need the prof name to use to find the data
-             self.onPlayerCharacterTradeskillRecipesChanged_IsTriggered = false;
         end)
-        self.onPlayerCharacterTradeskillRecipesChanged_IsTriggered = true;
-     end
-
+    end
 end
 
 
-function Database:Init()
+
+function Roster:Init()
 
     CallbackRegistryMixin.OnLoad(self)
 
-    ---setup the UI callback
-    self:RegisterCallback("OnCharacterTableChanged", GuildbookUI.OnCharacterTableChanged, GuildbookUI)
+    self:RegisterCallback("OnMemberStatusChanged", GuildbookUI.home.UpdateMemberList, GuildbookUI.home)
 
-    -- the database MUST always use the players guild NOT whatever guild is being viewed
-    if IsInGuild() and GetGuildInfo("player") then
-        local guildName, _, _, _ = GetGuildInfo('player')
-        self.currentGuildName = guildName;
-    end
+    self.currentplayerRealm = GetNormalizedRealmName()
 
+    self.listener = CreateFrame("FRAME")
+    self.listener:RegisterEvent("GUILD_ROSTER_UPDATE")
+    self.listener:RegisterEvent("CHAT_MSG_SYSTEM")
+    self.listener:SetScript("OnEvent", function(_, event, ...)
+    
+        if event == "GUILD_ROSTER_UPDATE" then
+            self:ScanMembers()
+
+        elseif event == "CHAT_MSG_SYSTEM" then
+            self:OnChatMessageSystem(...)
+
+        end
+
+    end)
+
+    self:ScanMembers()
+
+    
 end
 
-Guildbook.Database = Database;
 
-
-
-
+Guildbook.Roster = Roster;
 
 
 
@@ -615,7 +1004,11 @@ Guildbook.Database = Database;
 
     the Character class listens for changes to the players character and sends this data to the Database class
 ]]
-local Character = {}
+local Character = CreateFromMixins(CallbackRegistryMixin)
+Character:GenerateCallbackEvents({
+    "OnLFGListingCreated",
+    "OnPlayerLevelUp",
+})
 Character.profession1 = nil;
 Character.profession2 = nil;
 Character.InventorySlots = {
@@ -803,69 +1196,6 @@ function Character:ScanForTradeskillInfo()
         FirstAidLevel = 0,
     }
 
-    Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", "scanning for tradeskill info")
-    for s = 1, GetNumSkillLines() do
-        local skill, isHeader, isExpanded, level, _, _, _, _, _, _, _, _, _ = GetSkillLineInfo(s)
-
-        --[[
-            a potential issue with gathermate, if we collapse the headers gathermate cannot find our profession and show data so for now just use the spell book method and hope for headers to be open
-        ]]
-
-        ---make sure these headers are open so we get proper results, discovered the skill line might not get updated if left perma open so collapse it first then expand again to resfresh the level
-        -- if skill == "Professions" or skill == "Secondary Skills" then
-        --     CollapseSkillHeader(s)
-        --     ExpandSkillHeader(s)
-        -- end
-
-        -- ---return the ui to previous state
-        -- if isExpanded then
-        --     ExpandSkillHeader(s)
-        -- else
-        --     CollapseSkillHeader(s)
-        -- end
-
-        local engSkill = Tradeskills:GetEnglishNameFromTradeskillName(skill)
-        if engSkill then
-            if engSkill == 'Fishing' then 
-                Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", "found fishing updating level")
-                characterTradeskillsInfo.FishingLevel = level
-
-            elseif engSkill == 'Cooking' then
-                Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", "found cooking updating level")
-                characterTradeskillsInfo.CookingLevel = level
-
-            elseif engSkill == 'First Aid' then
-                Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", "found first aid updating level")
-                characterTradeskillsInfo.FirstAidLevel = level
-
-            else
-                for prof, id in pairs(Tradeskills.TradeskillNames) do
-                    if prof == engSkill then
-                        Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", string.format("found %s", prof))
-
-                        if characterTradeskillsInfo.Profession1 == '-' then
-                            characterTradeskillsInfo.Profession1 = engSkill
-                            Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", string.format("setting Profession1 as %s", engSkill))
-                            characterTradeskillsInfo.Profession1Level = level
-
-                        else
-                            if characterTradeskillsInfo.Profession2 == '-' then
-                                characterTradeskillsInfo.Profession2 = engSkill
-                                Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", string.format("setting Profession2 as %s", engSkill))
-                                characterTradeskillsInfo.Profession2Level = level
-                            end
-                        end
-
-                        -- if characterTradeskillsInfo.Profession1 == characterTradeskillsInfo.Profession2 then
-                        --     characterTradeskillsInfo.Profession2 = engSkill
-                        --     characterTradeskillsInfo.Profession2Level = level
-                        --     Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", string.format("updated setting for Profession2 > set as %s", engSkill))
-                        -- end
-                    end
-                end
-            end
-        end
-    end
     local _, _, offset, numSlots = GetSpellTabInfo(1)
     for j = offset+1, offset+numSlots do
         -- get spell id
@@ -891,9 +1221,12 @@ function Character:ScanForTradeskillInfo()
                 if characterTradeskillsInfo.Profession1 == "-" then
                     characterTradeskillsInfo.Profession1 = engSpellName;
                     Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", string.format("updated prof1 to %s via spellbook scan", engSpellName))
-                elseif characterTradeskillsInfo.Profession2 == "-" then
-                    characterTradeskillsInfo.Profession2 = engSpellName;
-                    Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", string.format("updated prof2 to %s via spellbook scan", engSpellName))
+
+                else
+                    if characterTradeskillsInfo.Profession2 == "-" and characterTradeskillsInfo.Profession1 ~= engSpellName then
+                        characterTradeskillsInfo.Profession2 = engSpellName;
+                        Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", string.format("updated prof2 to %s via spellbook scan", engSpellName))
+                    end
                 end
             end
         end
@@ -935,7 +1268,8 @@ end
 
 ---scan the players currently opened tradeskill recipes and trigger the changed event
 function Character:ScanTradeskillRecipes()
-    local localeProf = GetTradeSkillLine() -- this returns local name
+    --local localeProf = GetTradeSkillLine() -- this returns local name
+    local localeProf = TradeSkillFrameTitleText:GetText() -- this works better when players switch betrween professions without closing the window
     if localeProf == "UNKNOWN" then
         return; -- exit as the window isnt open
     end
@@ -995,12 +1329,14 @@ function Character:ScanTradeskillRecipes()
             
             local myProf1 = Database:GetCharacterInfo(UnitGUID("player"), "Profession1")
             if myProf1 == englishProf then
-                Database:UpdatePlayerCharacterTable("Profession1Level", currentRank)
+                --Database:UpdatePlayerCharacterTable("Profession1Level", currentRank)
+                Database:UpdatePlayerCharacterTradeskillsInfo(nil, currentRank)
 
             else
                 local myProf2 = Database:GetCharacterInfo(UnitGUID("player"), "Profession2")
                 if myProf2 == englishProf then
-                    Database:UpdatePlayerCharacterTable("Profession2Level", currentRank)
+                    --Database:UpdatePlayerCharacterTable("Profession2Level", currentRank)
+                    Database:UpdatePlayerCharacterTradeskillsInfo(nil, nil, nil, nil, currentRank)
                 end
             end
 
@@ -1014,7 +1350,8 @@ end
 
 ---scan the players enchanting recipes and trigger the changed event
 function Character:ScanEnchantingRecipes()
-    local currentCraftingWindow = GetCraftSkillLine(1)
+    --local currentCraftingWindow = GetCraftSkillLine(1)
+    local currentCraftingWindow = CraftFrameTitletext:GetText() -- this works better when players switch betrween professions without closing the window
     if currentCraftingWindow == nil then
         return; -- exit as no craft open
     end
@@ -1327,11 +1664,13 @@ function Character:Init()
     self.listener:RegisterEvent("CHARACTER_POINTS_CHANGED")
     self.listener:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
     self.listener:RegisterEvent("CHAT_MSG_SKILL")
+    self.listener:RegisterEvent("PLAYER_LEVEL_UP")
 
     --lets grab some data as we've loaded, these calls will updste the db which will trigger an outward comms
     self:GetInventory()
     self:GetPaperDollStats()
     self:ScanPlayerTalents()
+    self:ScanForTradeskillInfo()
 
     self.listener:SetScript("OnEvent", function(_, event, ...)
         Guildbook.DEBUG("event", "Character:OnEvent", string.format("event: %s", event))
@@ -1344,15 +1683,17 @@ function Character:Init()
 
         elseif event == "SKILL_LINES_CHANGED" then
 
+            self:ScanForTradeskillInfo()
+
             ---during the scan we'll expand some headers which will cause the event to fire again, so lets ignore this if a scan has just happened
             ---i could add the boolean check to the end of the func maybe? would make things more accurate and remove a C_Timer call ?
-            if self.TradeskillInfoScanActive == false then
-                self.TradeskillInfoScanActive = true;
-                self:ScanForTradeskillInfo()
-                C_Timer.After(1.0, function()
-                    self.TradeskillInfoScanActive = false;
-                end)
-            end
+            -- if self.TradeskillInfoScanActive == false then
+            --     self.TradeskillInfoScanActive = true;
+            --     self:ScanForTradeskillInfo()
+            --     C_Timer.After(1.0, function()
+            --         self.TradeskillInfoScanActive = false;
+            --     end)
+            -- end
 
         elseif event == "PLAYER_EQUIPMENT_CHANGED" then
             self:GetInventory()
@@ -1371,7 +1712,38 @@ function Character:Init()
             local message = ...
             self:OnChatMessageSystem(message)
 
+        elseif event == "PLAYER_LEVEL_UP" then
+            local newLevel = ...
+            self:TriggerEvent("OnPlayerLevelUp", self, {
+                newsType = "playerLevelUp",
+                text = string.format(L["NF_PLAYER_LEVEL_UP"], UnitName("player"), newLevel)
+            })
+
+
         end
+    end)
+
+
+
+    hooksecurefunc(C_LFGList, "CreateListing", function(activities)
+
+        for i = 1, 3 do
+            local fullName, shortName, categoryID, groupID, itemLevel, filters, minLevel, maxPlayers = C_LFGList.GetActivityInfo(activities[i])
+
+            if fullName then
+
+                local activityCategoryName = categoryID and C_LFGList.GetCategoryInfo(categoryID) or "-";
+
+                self:TriggerEvent("OnLFGListingCreated", self, {
+                    activityName = activityCategoryName,
+                    activityLocation = fullName,
+                })
+            end
+        end
+    end)
+    
+    hooksecurefunc(C_LFGList, "RemoveListing", function(info)
+        
     end)
 end
 
@@ -1392,52 +1764,37 @@ Guildbook.Character = Character;
     this class makes use of the chat filters to grab messages sent
     and then using the triggers the ui can get updates
 ]]
-local Chats = CreateFromMixins(CallbackRegistryMixin)
-Chats:GenerateCallbackEvents({
-    "OnGuildMessage",
-    "OnPartyMessage",
-    "OnRaidMessage",
-    "OnWhisperMessage",
+-- local Chats = CreateFromMixins(CallbackRegistryMixin)
+-- Chats:GenerateCallbackEvents({
+--     "OnGuildMessage",
+--     "OnPartyMessage",
+--     "OnRaidMessage",
+--     "OnWhisperMessage",
+-- })
+-- Chats.channels = {
+--     guild = {},
+--     whispers = {},
+--     party = {},
+--     raid = {},
+-- }
+
+
+
+
+
+
+
+
+
+
+
+
+
+local Comms = CreateFromMixins(CallbackRegistryMixin)
+Comms:GenerateCallbackEvents({
+    "OnNewsFeedReceived",
 })
-Chats.channels = {
-    guild = {},
-    whispers = {},
-    party = {},
-    raid = {},
-}
-
-function Chats:ChatFilter_Guild(self, event, message, playerName, languageName, channelName, playerName2, specialFlags, zoneChannelID, channelIndex, channelBaseName, unused, lineID, guid)
-    local character = Database:FetchCharacterTableByGUID(guid)
-
-
-end
-
-
-function Chats:Init()
-
-    CallbackRegistryMixin.OnLoad(self)
-
-    ChatFrame_AddMessageEventFilter("CHAT_MSG_GUILD", self.ChatFilter_Guild)
-end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-local Comms = {}
+--local Comms = {}
 ---this value can be adjusted but its purpose is to allow all bulk comms to be received before we process the data - there is a settings slider for this which needs to be hooked up maybe or just set as a default value
 Comms.DELAY = 2.0;
 Comms.PREFIX = "GUILDBOOK";
@@ -1478,12 +1835,8 @@ Comms.playerCharacterUpdate = {};
 
 function Comms.CharacterSpecAndMainChatFilter(self, event, msg, author, ...)
 
-    --local lineID = select(9, ...)
-    --print(lineID)
     local guid = select(10, ...)
     local character = Database:FetchCharacterTableByGUID(guid)
-
-    --author = Ambiguate(author, "none")
 
     if character then
         local atlas = nil;
@@ -1501,26 +1854,6 @@ function Comms.CharacterSpecAndMainChatFilter(self, event, msg, author, ...)
             if mainChar and (guid ~= character.MainCharacter) then
                 main = Guildbook.Colours[mainChar.Class]:WrapTextInColorCode(mainChar.Name)
             end
-        end
-
-        --local playerLink = GbFormatLink("player", ) -- GetPlayerLink(author, Ambiguate(author, "none"), lineID)
-        --local playerLink = GbFormatLink(atlas, "player", author, author, lineID or 0, 0, "");
-
-        --local sender = nil;
-        --local newMessage = nil;
-
-        if atlas ~= nil and main == nil then
-            --sender = string.format("%s %s", atlas, author)
-            --newMessage = string.format("%s %s", atlas, msg)            
-
-        elseif atlas == nil and main ~= nil then
-            --sender = string.format("%s [%s]", author, main)
-            --newMessage = string.format("[%s] %s", main, msg)
-
-        elseif atlas ~= nil and main ~= nil then
-            --sender = string.format("%s %s [%s]", atlas, author, main)
-            --newMessage = string.format("%s [%s] %s", atlas, main, msg)
-
         end
 
         if main ~= nil then
@@ -1550,6 +1883,8 @@ end
 
 function Comms:Init()
 
+    CallbackRegistryMixin.OnLoad(self)
+
     AceComm:Embed(self)
     self:RegisterComm(self.PREFIX)
 
@@ -1572,6 +1907,14 @@ function Comms:Init()
     ---this is a slightly special case as some of the table data is under privacy rules - this is basically spec and primary profs
     Database:RegisterCallback("OnPlayerCharacterTableChanged", self.SendPlayerCharacterUpdates, self)
 
+
+    self:RegisterCallback("OnNewsFeedReceived", GuildbookUI.home.OnNewsFeedReceived, GuildbookUI.home)
+
+    Character:RegisterCallback("OnLFGListingCreated", self.SendLFGListingCreated, self)
+    Character:RegisterCallback("OnPlayerLevelUp", self.SendNewsUpdate, self)
+
+    --Roster:RegisterCallback("On")
+
     ---lets not be rude
     self:SayHello()
 end
@@ -1582,11 +1925,11 @@ end
 ---@param channel string the addon channel to use for the comm
 ---@param targetGUID string the targets GUID, this is used to make comms work on conneted realms - only required for WHISPER comms
 ---@param priority string the prio to use
-function Comms:Transmit(data, channel, targetGUID, priority)
+function Comms:Transmit(data, channel, targetGUID, priority, uiMessage)
 
     if targetGUID == UnitGUID("player") then
         Guildbook.DEBUG('commsMixin', 'Comms:Transmit', "cancel transmit as target is player", data)
-        return;
+        --return;
     end
 
     local inInstance, instanceType = IsInInstance()
@@ -1640,6 +1983,10 @@ function Comms:Transmit(data, channel, targetGUID, priority)
                         if encoded and channel and priority then
                             Guildbook.DEBUG('commsMixin', 'SendCommMessage_TargetOnline', string.format("type: %s, channel: %s target: %s, prio: %s", data.type or 'nil', channel, (target or 'nil'), priority), data)
                             self:SendCommMessage(Comms.PREFIX, encoded, channel, target, priority)
+
+                            if uiMessage and type(uiMessage) == "string" then
+                                GuildbookUI.statusText:SetText(uiMessage)
+                            end
                         end
                     else
                         Guildbook.DEBUG('error', 'SendCommMessage_TargetOffline', string.format("type: %s, channel: %s target: %s, prio: %s", data.type or 'nil', channel, (target or 'nil'), priority))
@@ -1657,6 +2004,10 @@ function Comms:Transmit(data, channel, targetGUID, priority)
         if encoded and channel and priority then
             Guildbook.DEBUG('commsMixin', 'SendCommMessage_NoTarget', string.format("type: %s, channel: %s target: %s, prio: %s", data.type or 'nil', channel, 'nil', priority))
             self:SendCommMessage(Comms.PREFIX, encoded, channel, nil, priority)
+
+            if uiMessage and type(uiMessage) == "string" then
+                GuildbookUI.statusText:SetText(uiMessage)
+            end
         end
     end
 end
@@ -1752,10 +2103,20 @@ function Comms:CheckPrivacyRuleForTargetGUID(targetGUID, rule)
         ranks[GuildControlGetRankName(i)] = i;
     end
     local privacyRank = GUILDBOOK_GLOBAL.config.privacy[rule];
-    local senderRank = GuildControlGetRankName(C_GuildInfo.GetGuildRankOrder(targetGUID))
+    local targetRank = GuildControlGetRankName(C_GuildInfo.GetGuildRankOrder(targetGUID))
+    local character = Database:FetchCharacterTableByGUID(targetGUID)
+    local targetName = character.Name or "unknown name or character"
     ---lower ranks are actually higher in the guild
-    if ranks[senderRank] and ranks[privacyRank] and (ranks[senderRank] <= ranks[privacyRank]) then
-        return true;
+    if ranks[targetRank] and ranks[privacyRank] then
+        Guildbook.DEBUG("commsMixin", "CheckPrivacyRuleForTargetGUID", "got rank values", {
+            targetRank = ranks[targetRank],
+            privayRank = ranks[privacyRank],
+            targetCharacter = targetName,
+        })
+        if ranks[targetRank] <= ranks[privacyRank] then
+            Guildbook.DEBUG("commsMixin", "CheckPrivacyRuleForTargetGUID", string.format("privacy rule %s is ok to share with %s", rule, targetName))
+            return true;
+        end
     end
     return false;
 end
@@ -1783,6 +2144,7 @@ function Comms:OnPrivacyNotice(data, sender)
 end
 
 
+
 function Comms:SayHello()
 
     local greeting = {
@@ -1795,10 +2157,24 @@ function Comms:SayHello()
     self:Transmit(greeting, "GUILD", nil, "NORMAL")
 end
 
+
 ---send a request for the target characters profile, talents and inventory
 ---@param targetGUID any
 function Comms:RequestCharacterInfo(targetGUID)
 
+    local request = {
+        type = "REQUEST_CHARACTER_INFO",
+        payload = {
+            inventory = true,
+            talents = true,
+            profile = true,
+        }
+    }
+
+    local targetCharacterName = Roster.guidToCharacterNameRealm[targetGUID] or "unknown character"
+
+    Guildbook.DEBUG("commsMixin", "Comms:RequestCharacterInfo", string.format("requesting character info from %s", targetCharacterName), request.payload)
+    self:Transmit(request, "WHISPER", targetGUID, "NORMAL", string.format("requesting character info from %s", targetCharacterName))
 end
 
 
@@ -1858,7 +2234,7 @@ function Comms:SendCharacterInventoryInfo(targetGUID)
         },
     }
 
-    Guildbook.DEBUG("commsMixin", "Comms:SendCharacterTalentsInfo", "-", inventoryInfo)
+    Guildbook.DEBUG("commsMixin", "Comms:endCharacterInventoryInfo", "-", inventoryInfo)
     self:Transmit(inventoryInfo, "WHISPER", targetGUID, "BULK")
 end
 
@@ -2007,6 +2383,36 @@ function Comms:SendPlayerCharacterUpdates(databaseMixin, characterSavedVar)
 end
 
 
+-- im keeping this activity/news seperate as i might incorporate the notification bar above the chat window...?
+function Comms:SendLFGListingCreated(_, info)
+
+    local listing = {
+        type = "LFG_LISTING_CREATED",
+        payload = {
+            activityCategoryName = info.activityName,
+            activityLocation = info.activityLocation,
+        }
+    }
+
+    self:Transmit(listing, "GUILD", nil, "NORMAL")
+
+end
+
+
+---comment
+---@param _ table this will be the callback owner table, ignore it
+---@param info table this will be sent as the payload it will need a `newsType` and `text` fields currently - just needs to match what the template contains/requires
+function Comms:SendNewsUpdate(_, info)
+
+    local news = {
+        type = "NEWS_FEED_UPDATE",
+        payload = info,
+    }
+
+    self:Transmit(news, "GUILD", nil, "NORMAL")
+end
+
+
 ---tell whoever just came online what your spec and main is etc, this can use the same message type as the general update as the on receieve just loops the main table keys
 ---@param targetGUID any
 function Comms:SayHelloBack(targetGUID)
@@ -2052,7 +2458,7 @@ end
 
 
 
-function Comms:OnCharacterOnline(data)
+function Comms:OnCharacterOnline(data, sender)
 
     Guildbook.DEBUG("commsMixin", "Comms:OnCharacterOnline", "someone came online", data)
 
@@ -2205,6 +2611,40 @@ function Comms:OnCharacterUpdate(data)
 end
 
 
+
+function Comms:OnLFGListingCreated(data, sender)
+
+    if type(data) == "table" then
+        self:TriggerEvent("OnNewsFeedReceived", self, {
+            newsType = "lfg",
+            text = string.format("%s queued for %s [%s]", sender, data.payload.activityLocation, data.payload.activityCategoryName),
+        })
+    end
+
+end
+
+
+
+function Comms:OnNewsFeedUpdate(data, sender)
+
+    if type(data) == "table" then
+        self:TriggerEvent("OnNewsFeedReceived", self, data.payload)
+    end
+
+end
+
+
+
+function Comms:OnCharacterInfoRequested(data, sender)
+
+
+    if data.payload.inventory == true then
+        self:SendCharacterInventoryInfo(data.senderGUID)
+    end
+
+end
+
+
 ---pointers to the message handler functions, this table allows message functions to be added/removed enabled/disabled etc
 Comms.MessageHandlers = {
     ["PRIVACY_NOTICE"] = Comms.OnPrivacyNotice,
@@ -2216,10 +2656,13 @@ Comms.MessageHandlers = {
     ["CHARACTER_TRADESKILLS_RECIPES_UPDATE"] = Comms.OnCharacterTradeskillsRecipesUpdate,
     ["PLAYER_CHARACTER_UPDATE"] = Comms.OnCharacterUpdate,
     ["GUILDBOOK_UPDATE"] = Comms.OnUpdateMessage,
+    ["LFG_LISTING_CREATED"] = Comms.OnLFGListingCreated,
+    ["NEWS_FEED_UPDATE"] = Comms.OnNewsFeedUpdate,
+    ["REQUEST_CHARACTER_INFO"] = Comms.OnCharacterInfoRequested,
 }
 
 
-
+Guildbook.Comms = Comms;
 
 
 
@@ -2356,6 +2799,10 @@ function Guildbook:Init()
     end
     if not GUILDBOOK_GLOBAL.myLockouts then
         GUILDBOOK_GLOBAL.myLockouts = {}
+    end
+
+    if not GUILDBOOK_GLOBAL.NewsFeed then
+        GUILDBOOK_GLOBAL.NewsFeed = {}
     end
 
     if not GUILDBOOK_GLOBAL['CommsDelay'] then
@@ -2565,7 +3012,22 @@ end
 
 
 
-function Guildbook:PLAYER_ENTERING_WORLD()
+function Guildbook:PLAYER_ENTERING_WORLD(...)
+
+    local isInitialLogin, isReloadUI = ...
+
+    if type(GUILDBOOK_GLOBAL.NewsFeed) == "table" then
+
+        GuildbookUI.home.newsFeed.DataProvider:InsertTable(GUILDBOOK_GLOBAL.NewsFeed)
+
+        -- if this is the initail login then say hello
+        -- if isInitialLogin == true then
+        --     GuildbookUI.home:OnNewsFeedReceived(_, {
+        --         newsType = "login",
+        --         text = string.format("%s has come online", UnitName("player"))
+        --     })
+        -- end
+    end
 
     if self.addonLoaded == true then
         local lockouts = Character:GetInstanceInfo()
@@ -2875,7 +3337,7 @@ function Guildbook:Load()
     Database:Init()
     Character:Init()
     Comms:Init()
-
+    Roster:Init()
 
 end
 
@@ -4567,6 +5029,11 @@ function Guildbook:SendGuildCalendarEvent(event)
         payload = event,
     }
     self:Transmit(calendarEvent, 'GUILD', nil, 'NORMAL')
+
+    GuildbookUI.home:OnNewsFeedReceived(_, {
+        newsType = "calendarEventCreated",
+        text = string.format("Calendar event %s created by %s", event.title, UnitName("player"))
+    })
     --Guildbook.DEBUG('comms_out', 'SendGuildCalendarEvent', string.format('Sending calendar event to guild, event title: %s', event.title))
 end
 
@@ -4592,6 +5059,12 @@ function Guildbook:OnGuildCalendarEventCreated(data, distribution, sender)
         end
         if exists == false then
             table.insert(GUILDBOOK_GLOBAL['Calendar'][guildName], data.payload)
+
+            -- when i redesign the calendar into a mixin callback fun bag i can (in theory) use th same callback/triggers but for now just need to add the news
+            GuildbookMixin:OnNewsFeedReceived(_, {
+                newsType = "calendarEventCreated",
+                text = string.format("Calendar event %s created by %s", data.payload.title, sender)
+            })
             Guildbook.DEBUG('calendarMixin', 'OnGuildCalendarEventCreated', string.format('Received guild calendar event, title: %s', data.payload.title))
         end
     end
@@ -4924,27 +5397,24 @@ function Guildbook:CHAT_MSG_GUILD(...)
         return
     end
     local guid = select(12, ...)
-    if not Guildbook.PlayerMixin then
-        Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
-    else
-        Guildbook.PlayerMixin:SetGUID(guid)
+
+    local character = Database:FetchCharacterTableByGUID(guid)
+    if not character then
+        return;
     end
-    if Guildbook.PlayerMixin:IsValid() then
-        local _, class, _ = C_PlayerInfo.GetClass(self.PlayerMixin)
-        if class then
-            if not Guildbook.GuildChatLog then
-                Guildbook.GuildChatLog = {}
-            end
-            GuildbookUI.chat:AddGuildChatMessage({
-                formattedMessage = string.format("%s [%s%s|r]: %s", date("%T"), Guildbook.Data.Class[class].FontColour, sender, msg),
-                sender = sender,
-                target = "guild",
-                message = msg,
-                chatID = guid,
-                senderGUID = guid,
-            })
-        end
-    end
+    GuildbookUI.chat:AddGuildChatMessage({
+        formattedMessage = string.format("%s [%s%s|r]: %s", date("%T"), Guildbook.Data.Class[character.Class].FontColour, sender, msg),
+        sender = sender,
+        target = "guild",
+        message = msg,
+        chatID = guid,
+        senderGUID = guid,
+    })
+
+    GuildbookUI.home:OnNewsFeedReceived(_, {
+        newsType = "guildChat",
+        text = string.format("%s [%s%s|r]: %s", date("%T"), Guildbook.Data.Class[character.Class].FontColour, sender, msg),
+    })
 end
 
 function Guildbook:CHAT_MSG_WHISPER(...)
@@ -4973,25 +5443,6 @@ function Guildbook:CHAT_MSG_WHISPER(...)
     end
 end
 
-function Guildbook:CHAT_MSG_SYSTEM(...)
-    local msg = ...
-    local joinedGuild = ERR_GUILD_JOIN_S:gsub("%%s", ".*")
-    if msg:find(joinedGuild) then
-        local name, _ = strsplit(" ", msg)
-        if Ambiguate(name, "none") ~= Ambiguate(UnitName("player"), "none") then
-            return;
-        end
-        Guildbook.DEBUG("event", "CHAT_MSG_SYSTEM", "player joined a guild")
-        C_Timer.After(3.0, function()
-            GuildRoster() -- this will trigger a roster scan but we set addonLoaded as false at top of file to skip the auto roster scan so this is first scan
-            C_Timer.After(1.5, function()
-                self:ScanGuildRoster(function()
-                    Guildbook:Load() -- once the roster has been scanned continue to load, its a bit meh but it means we get a full roster scan before loading
-                end)
-            end)
-        end)
-    end
-end
 
 function Guildbook:GUILD_ROSTER_UPDATE(...)
     if self.addonLoaded == false then
@@ -5183,7 +5634,6 @@ Guildbook.EventFrame:RegisterEvent('BANKFRAME_CLOSED')
 Guildbook.EventFrame:RegisterEvent('BAG_UPDATE_DELAYED')
 Guildbook.EventFrame:RegisterEvent('CHAT_MSG_GUILD')
 Guildbook.EventFrame:RegisterEvent('CHAT_MSG_WHISPER')
-Guildbook.EventFrame:RegisterEvent('CHAT_MSG_SYSTEM')
 Guildbook.EventFrame:RegisterEvent('UPDATE_MOUSEOVER_UNIT')
 Guildbook.EventFrame:SetScript('OnEvent', function(self, event, ...)
     if Guildbook[event] then

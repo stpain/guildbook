@@ -6,6 +6,7 @@ local L = gb.Locales;
 local Database = gb.Database;
 local Comms = gb.Comms;
 local Character = gb.Character;
+local Roster = gb.Roster;
 
 local LCI = LibStub:GetLibrary("LibCraftInfo-1.0")
 local LibGraph = LibStub("LibGraph-2.0");
@@ -94,14 +95,27 @@ local function loadGuildMemberTradeskills(guid, prof)
     end
     GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Flush()
     GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Flush()
-    if next(gb.tradeskillRecipesKeys) == nil then
-        GuildbookUI.statusText:SetText("tradeskill recipes not processed yet, key mapping not ready")
-        return
+
+    if prof == "Enchanting" then
+        if not gb.tradeskillEnchantRecipesKeys then
+            return;
+        end
+        if next(gb.tradeskillEnchantRecipesKeys) == nil then
+            GuildbookUI.statusText:SetText("tradeskill enchant recipes not processed yet, key mapping not ready")
+            return
+        end
+
+    else
+        if not gb.tradeskillRecipesKeys then
+            return;
+        end
+        if next(gb.tradeskillRecipesKeys) == nil then
+            GuildbookUI.statusText:SetText("tradeskill recipes not processed yet, key mapping not ready")
+            return
+        end
+        
     end
-    if next(gb.tradeskillEnchantRecipesKeys) == nil then
-        GuildbookUI.statusText:SetText("tradeskill enchant recipes not processed yet, key mapping not ready")
-        return
-    end
+
     local character = Database:FetchCharacterTableByGUID(guid)
     if not character then
         return
@@ -599,9 +613,19 @@ end
 
 
 
---------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- roster
---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--[[
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    @mixin roster
+
+
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+]]
 GuildbookRosterListviewItemMixin = {}
 GuildbookRosterListviewItemMixin.tooltipIcon = CreateFrame("FRAME", "GuildbookRosterListviewItemTooltipIcon")
 GuildbookRosterListviewItemMixin.tooltipIcon:SetSize(24, 24)
@@ -629,7 +653,9 @@ function GuildbookRosterListviewItemMixin:OnEnter()
     --self.tooltipBackground:SetAtlas(string.format("UI-Character-Info-%s-BG", character.Class:sub(1,1):upper()..character.Class:sub(2)))
 
     local rPerc, gPerc, bPerc, argbHex = GetClassColor(character.Class:upper())
-    GameTooltip_SetTitle(GameTooltip, character.Name.."\n\n|cffffffff"..L['level'].." "..character.Level, CreateColor(rPerc, gPerc, bPerc), nil)
+    if type(character.Name) == "string" and type(character.Level) == "number" then
+        GameTooltip_SetTitle(GameTooltip, character.Name.."\n\n|cffffffff"..L['level'].." "..character.Level, CreateColor(rPerc, gPerc, bPerc), nil)
+    end
     if self.tooltipIcon then
         if character.profile and character.profile.avatar then
             self.tooltipIcon.icon:SetTexture(character.profile.avatar)
@@ -910,6 +936,10 @@ end
 
 
 
+--[[
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    @mixin main addon ui
 
 
 
@@ -917,14 +947,12 @@ end
 
 
 
-
-
-
-
---------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- main
---------------------------------------------------------------------------------------------------------------------------------------------------------------------
-GuildbookMixin = {}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+]]
+GuildbookMixin = CreateFromMixins(CallbackRegistryMixin)
+GuildbookMixin:GenerateCallbackEvents({
+    "test",
+})
 GuildbookMixin.selectedProfession = nil;
 GuildbookMixin.charactersWithProfession = {}
 GuildbookMixin.playerContainerItems = {}
@@ -971,20 +999,6 @@ function GuildbookMixin:OnShow()
             })
         end
     end
-
-    self.home.motd:SetText(GetGuildRosterMOTD())
-
-    self.home.onlineList.DataProvider:Flush()
-    local i = 1;
-    local t = {}
-    for guid, info in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME]) do
-        if i < 21 then
-            table.insert(t, { characterName = info.Name })
-            i = i + 1;
-        end
-    end
-    self.home.onlineList.DataProvider:InsertTable(t)
-
 end
 
 function GuildbookMixin:OnLoad()
@@ -1026,8 +1040,8 @@ function GuildbookMixin:OnLoad()
     end
 
     self.ribbon.profiles.func = function()
-        self.profiles:ShowSummary(true)
-        navigateTo(self.profiles)
+        self.memberTreeview:LoadSummary()
+        navigateTo(self.memberTreeview)
     end
     self.ribbon.tradeskills.func = function()
         navigateTo(self.tradeskills)
@@ -1051,7 +1065,7 @@ function GuildbookMixin:OnLoad()
 
         gb.GuildFrame.GuildCalendarFrame.EventFrame:ClearAllPoints()
         gb.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('TOPLEFT', self.calendar, 'TOPRIGHT', 4, 50)
-        gb.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('BOTTOMRIGHT', self.calendar, 'BOTTOMRIGHT', 254, 0)
+        gb.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('BOTTOMRIGHT', self.calendar, 'BOTTOMRIGHT', 264, 0)
     end
     self.ribbon.guildbank.func = function()
         navigateTo(self.guildbank)
@@ -1090,7 +1104,6 @@ end
 
 
 
-
 --[[
     thoughts
 
@@ -1116,12 +1129,14 @@ function GuildbookMixin:OnCharacterTableChanged(_, guid, characterTable)
             --DevTools_Dump({guid, self.profiles.characterGUID, self.profiles.editOpen})
             if guid ~= UnitGUID("player") then
                 --print("guid is not player")
+                self.profiles.character = characterTable;
                 self.profiles:LoadCharacter(guid)
                 self.statusText:SetText(string.format("character table changed, updating view for %s", characterTable.Name))
             end
 
             if self.profiles.editOpen == false then
                 --print("edit is false")
+                self.profiles.character = characterTable;
                 self.profiles:LoadCharacter(guid)
                 self.statusText:SetText(string.format("character table changed, updating view for %s", characterTable.Name))
             end
@@ -1137,6 +1152,148 @@ end
 function GuildbookMixin:OnChatMessage(_, channel, sender, senderGUID, message)
 
 end
+
+
+
+
+-- this needs to move into the home mixin
+-- function GuildbookMixin:OnNewsFeedReceived(_, news)
+--     if type(news) == "table" then
+--         self.home.newsFeed.DataProvider:Insert(news)
+
+--         if not GUILDBOOK_GLOBAL.NewsFeed then
+--             GUILDBOOK_GLOBAL.NewsFeed = {}
+--         end
+--         table.insert(GUILDBOOK_GLOBAL.NewsFeed, news)
+
+--         -- player_logout wasnt working well so i will settle for using table.remove here, as the table is kept small
+--         -- it shouldn't be a major issue and is ideal to keep the most recent items and discard the earlier items
+--         if #GUILDBOOK_GLOBAL.NewsFeed > 20 then
+--             table.remove(GUILDBOOK_GLOBAL.NewsFeed, 1)
+--         end
+--     end
+-- end
+
+
+
+
+
+
+
+
+
+
+
+
+GuildbookHomeMixin = CreateFromMixins(CallbackRegistryMixin)
+GuildbookHomeMixin:GenerateCallbackEvents({
+    "test"
+})
+
+
+function GuildbookHomeMixin:OnLoad()
+    CallbackRegistryMixin.OnLoad(self)
+
+
+end
+
+
+function GuildbookHomeMixin:OnShow()
+    
+    self.motd:SetText(GetGuildRosterMOTD())
+
+    self:UpdateMemberList()
+
+end
+
+
+---update the member list, if no arg given then use the checkbox value
+---@param showOffline boolean include offline members
+function GuildbookHomeMixin:UpdateMemberList(showOffline)
+
+    if gb.addonLoad == false then
+        return;
+    end
+
+    if type(GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME]) ~= "table" then
+        return
+    end
+
+    if showOffline == nil then
+        showOffline = self.showOfflineMembers:GetChecked()
+    end
+
+    self.memberList.DataProvider:Flush()
+    local t = {}
+    for guid, info in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME]) do
+
+        --show everyone including offline
+        if showOffline == true then
+            table.insert(t, { 
+                characterGUID = guid,
+                characterTable = info,
+            })
+        else
+
+            --otherwise only include those showing as online
+            if gb.Roster.onlineStatus[guid].isOnline == true then
+                table.insert(t, { 
+                    characterGUID = guid,
+                    characterTable = info,
+                })
+            end
+        end
+    end
+    table.sort(t, function(a,b) 
+        return a.characterTable.Name < b.characterTable.Name;
+    end)
+    self.memberList.DataProvider:InsertTable(t)
+end
+
+
+
+function GuildbookHomeMixin:ShowOfflineMembers_OnClick()
+
+    self:UpdateMemberList(self.showOfflineMembers:GetChecked())
+end
+
+
+function GuildbookHomeMixin:OnNewsFeedReceived(_, news)
+    if type(news) == "table" then
+        self.newsFeed.DataProvider:Insert(news)
+
+        if not GUILDBOOK_GLOBAL.NewsFeed then
+            GUILDBOOK_GLOBAL.NewsFeed = {}
+        end
+        table.insert(GUILDBOOK_GLOBAL.NewsFeed, news)
+
+        -- player_logout wasnt working well so i will settle for using table.remove here, as the table is kept small
+        -- it shouldn't be a major issue and is ideal to keep the most recent items and discard the earlier items
+        if #GUILDBOOK_GLOBAL.NewsFeed > 20 then
+            table.remove(GUILDBOOK_GLOBAL.NewsFeed, 1)
+        end
+    end
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2075,7 +2232,6 @@ function GuildbookRosterMixin:RowOpenProfile_OnMouseDown(row)
 end
 
 function GuildbookRosterMixin:RowOpenProfile_OnMouseUp(row)
-    self:GetParent().profiles:ShowSummary(false)
     navigateTo(self:GetParent().profiles)
 end
 
@@ -2542,6 +2698,159 @@ end
 
 
 
+GuildbookMemberTreeviewMixin = {}
+GuildbookMemberTreeviewMixin.summaryRows = {}
+
+function GuildbookMemberTreeviewMixin:OnLoad()
+
+    local rowHeight = 114
+    for i = 1, 4 do
+        local f = CreateFrame("FRAME", "GuildbookProfilesSummaryRow"..i, self, "GuildbookProfilesRowTemplate")
+        f:SetHeight(rowHeight)
+        f:SetPoint("TOPLEFT", 0, (i-1) * -rowHeight)
+        f:SetPoint("TOPRIGHT", 0, (i-1) * -rowHeight)
+
+        for _, avatar in ipairs(f.avatars) do
+            avatar.playAnim = true
+            avatar.showTooltip = false
+        end
+
+        self.summaryRows[i] = f
+    end
+end
+
+
+function GuildbookMemberTreeviewMixin:LoadSummary()
+    if gb.addonLoaded == false then
+        return
+    end
+    if not GUILD_NAME then
+        return
+    end
+
+    if gb.player.faction then
+        local faction = gb.player.faction:sub(1,1):upper()..gb.player.faction:sub(2)
+        self.background:SetAtlas(string.format("_GarrMissionLocation-Town%s-Back", faction))
+    else
+        self.background:SetAtlas("_GarrMissionLocation-Stormheim-Mid")
+    end
+    self.members = {}
+    local totalMembers, onlineMembers, _ = GetNumGuildMembers()
+    for i = 1, totalMembers do
+        --local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, guid = GetGuildRosterInfo(i)
+        local name, rankName, rankIndex, level, class, zone, publicNote, officerNote, isOnline, _, _, _, _, _, _, _, guid = GetGuildRosterInfo(i)
+        table.insert(self.members, {
+            rank = rankIndex,
+            guid = guid,
+            name = name,
+        })
+    end
+    table.sort(self.members, function(a,b)
+        if a.rank == b.rank then
+            return a.name < b.name
+        else
+            return a.rank < b.rank
+        end
+    end)
+
+    local rowIndex = 1
+    local i = 1;
+    for k, character in ipairs(self.members) do
+        if k > 1 then
+            if character.rank ~= self.members[k-1].rank then -- if this characters rankIndex doesnt match the previous then we need to start a new row and add the header
+                rowIndex = rowIndex + 1;
+                character.rowIndex = rowIndex
+                character.isNewRank = true
+                i = 1; -- reset the row avatar count
+            else
+                -- this character has the same rankIndex so we add to the row and increment the avatar count
+                if i > 7 then -- this is a check for when to start a new row, using >7 here but could swap the increment of i in the else block, basically we end up with i=1 twice
+                    rowIndex = rowIndex + 1;
+                    character.rowIndex = rowIndex
+                    i = 1; -- reset the row avatar count
+                else
+                    character.rowIndex = rowIndex
+                    i = i + 1;
+                end
+            end
+        else
+            character.rowIndex = 1;
+            character.hasRankHeader = true
+        end
+    end
+    self.scrollBar:SetMinMaxValues(1, (rowIndex > 4) and rowIndex-3 or 1)
+    self.scrollBar:SetValue(1)
+    self:RefreshProfileSummary()
+end
+
+
+function GuildbookMemberTreeviewMixin:RefreshProfileSummary()
+    if gb.addonLoaded == false then
+        return
+    end
+    if not GUILD_NAME then
+        return
+    end
+    if not self.members then
+        return
+    end
+    local scrollPos = math.floor(self.scrollBar:GetValue()) -1
+    local rowRankHandled = false;
+    for r = 1, 4 do
+        local row = self.summaryRows[r]
+        row.header:SetText(" ")
+        row.header:Hide()
+        row.headerBackground:Hide()
+    end
+    for r = 1, 4 do
+        rowRankHandled = false;
+        local row = self.summaryRows[r]
+        for _, avatar in ipairs(row.avatars) do
+            avatar:ClearAllPoints()
+            avatar:Hide()
+        end
+        local x = 1;
+        for k, char in ipairs(self.members) do
+            if char.rowIndex == r+scrollPos then
+                local character = gb:GetCharacterFromCache(char.guid)
+                if rowRankHandled == false then
+                    if char.isNewRank == true then
+                        rowRankHandled = true
+                        row.header:SetText(character.RankName)
+                        row.header:Show()
+                        row.headerBackground:Show()
+                    end
+                end
+                if k == 1 then
+                    row.header:SetText(character.RankName)
+                    row.header:Show()
+                    row.headerBackground:Show()
+                end
+                if row.avatars[x] then
+                    row.avatars[x]:SetCharacter(char.guid)
+                    row.avatars[x]:Show()
+                    if x == 1 then
+                        row.avatars[x]:SetPoint("CENTER", 0, 0)
+                    else
+                        row.avatars[1]:SetPoint("CENTER", ((x-1)*-50), 0)
+                        row.avatars[x]:SetPoint("LEFT", row.avatars[x-1], "RIGHT", 0, 0)
+                    end
+                    x = x + 1;
+                end
+            end
+        end
+    end
+end
+
+
+function GuildbookMemberTreeviewMixin:SummaryScrollBar_OnValueChanged()
+    self:RefreshProfileSummary()
+end
+
+
+
+
+
 
 
 
@@ -2621,7 +2930,6 @@ function GuildbookProfilesMixin:OnLoad()
 
     self:CreateTalentUI()
     self:CreateStatsUI()
-    self:CreateSummaryUI()
 
     self.defaultModel = CreateFrame('PlayerModel', "GuildbookProfilesdefaultModel", self.sidePane, BackdropTemplateMixin and "BackdropTemplate")
     self.defaultModel:SetPoint('TOP', 0, 0)
@@ -2631,10 +2939,10 @@ function GuildbookProfilesMixin:OnLoad()
     self.defaultModel:SetKeepModelOnHide(true)
 
     -- set the delay on animations
-    for k, slot in ipairs(gb.Data.InventorySlotNames) do
-        local x = ((k-#gb.Data.InventorySlotNames) *-1) * 0.025
-        self.contentPane.scrollChild.inventory[slot.Name].anim.fadeIn:SetStartDelay((x^x)) -- - 0.6)
-    end
+    -- for k, slot in ipairs(gb.Data.InventorySlotNames) do
+    --     local x = ((k-#gb.Data.InventorySlotNames) *-1) * 0.025
+    --     self.contentPane.scrollChild.inventory[slot.Name].anim.fadeIn:SetStartDelay((x^x))
+    -- end
 
     for _, fs in ipairs(self.contentPane.scrollChild.profile.localStrings) do
         fs:SetText(L[fs.locale])
@@ -2680,181 +2988,9 @@ function GuildbookProfilesMixin:OnLoad()
 
 end
 
-local profileSummaryAvatarPositions = {
-    [1] = {0},
-    [2] = {-55, 55},
-    [3] = {-110, 0, 110,},
-    [4] = {-110, -55, 0, 55, 110},
-    [5] = {},
-    [6] = {},
-    [7] = {},
-    [8] = {},
-}
-
-function GuildbookProfilesMixin:SummaryScrollBar_OnValueChanged()
-    self:RefreshProfileSummary()
-end
-
-function GuildbookProfilesMixin:CreateSummaryUI()
-    local rowHeight = 114
-    for i = 1, 4 do
-        local f = CreateFrame("FRAME", "GuildbookProfilesSummaryRow"..i, self.summaryPane, "GuildbookProfilesRowTemplate")
-        f:SetHeight(rowHeight)
-        f:SetPoint("TOPLEFT", 0, (i-1) * -rowHeight)
-        f:SetPoint("TOPRIGHT", 0, (i-1) * -rowHeight)
-
-        for _, avatar in ipairs(f.avatars) do
-            avatar.playAnim = true
-            avatar.showTooltip = false
-        end
-
-        self.summaryRows[i] = f
-    end
-end
-
-function GuildbookProfilesMixin:ShowSummary(show)
-    if show == true then
-        self.sidePane:Hide()
-        self.contentPane:Hide()
-        self.background:SetTexture(nil)
-        self.summaryPane:Show()
-
-        self:LoadSummary()
-    else
-        self.sidePane:Show()
-        self.contentPane:Show()
-        self.summaryPane:Hide()
-    end
-end
-
-function GuildbookProfilesMixin:RefreshProfileSummary()
-    if gb.addonLoaded == false then
-        return
-    end
-    if not GUILD_NAME then
-        return
-    end
-    if not self.members then
-        return
-    end
-    local scrollPos = math.floor(self.summaryPane.scrollBar:GetValue()) -1
-    local rowRankHandled = false;
-    for r = 1, 4 do
-        local row = self.summaryRows[r]
-        row.header:SetText(" ")
-        row.header:Hide()
-        row.headerBackground:Hide()
-    end
-    for r = 1, 4 do
-        rowRankHandled = false;
-        local row = self.summaryRows[r]
-        for _, avatar in ipairs(row.avatars) do
-            avatar:ClearAllPoints()
-            avatar:Hide()
-        end
-        local x = 1;
-        for k, char in ipairs(self.members) do
-            if char.rowIndex == r+scrollPos then
-                local character = gb:GetCharacterFromCache(char.guid)
-                if rowRankHandled == false then
-                    if char.isNewRank == true then
-                        rowRankHandled = true
-                        row.header:SetText(character.RankName)
-                        row.header:Show()
-                        row.headerBackground:Show()
-                    end
-                end
-                if k == 1 then
-                    row.header:SetText(character.RankName)
-                    row.header:Show()
-                    row.headerBackground:Show()
-                end
-                if row.avatars[x] then
-                    row.avatars[x]:SetCharacter(char.guid)
-                    row.avatars[x]:Show()
-                    if x == 1 then
-                        row.avatars[x]:SetPoint("CENTER", 0, 0)
-                    else
-                        row.avatars[1]:SetPoint("CENTER", ((x-1)*-50), 0)
-                        row.avatars[x]:SetPoint("LEFT", row.avatars[x-1], "RIGHT", 0, 0)
-                    end
-                    x = x + 1;
-                end
-            end
-        end
-    end
-end
-
-function GuildbookProfilesMixin:LoadSummary()
-    if gb.addonLoaded == false then
-        return
-    end
-    if not GUILD_NAME then
-        return
-    end
-    -- local rankCounts = {}
-    -- local ranks = {}
-
-    -- for i = 1, GuildControlGetNumRanks() do
-    --     local rank = GuildControlGetRankName(i)
-    --     ranks[i] = rank;
-    -- end
 
 
-    if gb.player.faction then
-        local faction = gb.player.faction:sub(1,1):upper()..gb.player.faction:sub(2)
-        self.summaryPane.background:SetAtlas(string.format("_GarrMissionLocation-Town%s-Back", faction))
-    else
-        self.summaryPane.background:SetAtlas("_GarrMissionLocation-Stormheim-Mid")
-    end
-    self.members = {}
-    local totalMembers, onlineMembers, _ = GetNumGuildMembers()
-    for i = 1, totalMembers do
-        --local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, guid = GetGuildRosterInfo(i)
-        local name, rankName, rankIndex, level, class, zone, publicNote, officerNote, isOnline, _, _, _, _, _, _, _, guid = GetGuildRosterInfo(i)
-        table.insert(self.members, {
-            rank = rankIndex,
-            guid = guid,
-            name = name,
-        })
-    end
-    table.sort(self.members, function(a,b)
-        if a.rank == b.rank then
-            return a.name < b.name
-        else
-            return a.rank < b.rank
-        end
-    end)
 
-    local rowIndex = 1
-    local i = 1;
-    for k, character in ipairs(self.members) do
-        if k > 1 then
-            if character.rank ~= self.members[k-1].rank then -- if this characters rankIndex doesnt match the previous then we need to start a new row and add the header
-                rowIndex = rowIndex + 1;
-                character.rowIndex = rowIndex
-                character.isNewRank = true
-                i = 1; -- reset the row avatar count
-            else
-                -- this character has the same rankIndex so we add to the row and increment the avatar count
-                if i > 7 then -- this is a check for when to start a new row, using >7 here but could swap the increment of i in the else block, basically we end up with i=1 twice
-                    rowIndex = rowIndex + 1;
-                    character.rowIndex = rowIndex
-                    i = 1; -- reset the row avatar count
-                else
-                    character.rowIndex = rowIndex
-                    i = i + 1;
-                end
-            end
-        else
-            character.rowIndex = 1;
-            character.hasRankHeader = true
-        end
-    end
-    self.summaryPane.scrollBar:SetMinMaxValues(1, (rowIndex > 4) and rowIndex-3 or 1)
-    self.summaryPane.scrollBar:SetValue(1)
-    self:RefreshProfileSummary()
-end
 
 
 function GuildbookProfilesMixin:OnHide()
@@ -2882,7 +3018,7 @@ function GuildbookProfilesMixin:HideInventoryIcons()
         self.contentPane.scrollChild.inventory[slot.Name].Icon:SetAtlas("transmog-icon-remove")
         self.contentPane.scrollChild.inventory[slot.Name].Link:SetText("")
         self.contentPane.scrollChild.inventory[slot.Name].link = nil;
-        self.contentPane.scrollChild.inventory[slot.Name]:SetAlpha(0)
+        --self.contentPane.scrollChild.inventory[slot.Name]:SetAlpha(0)
     end
 end
 
@@ -2964,7 +3100,6 @@ function GuildbookProfilesMixin:LoadCharacter(player)
     if not GUILD_NAME then
         return;
     end
-    self:ShowSummary(false) -- hide the profile summary frame and show side/content
     navigateTo(self)
 
     --if we are loading the players character we want to setup the edit options etc
@@ -2984,7 +3119,7 @@ function GuildbookProfilesMixin:LoadCharacter(player)
                     self.contentPane.scrollChild.profile.mainSpec:SetText(L[spec])
                     self.contentPane.scrollChild.profile.mainSpecDropDown.MenuText:SetText(L[spec])
 
-                    gb:DB_SendCharacterData(UnitGUID("player"), "MainSpec", spec, "GUILD", nil, "NORMAL")
+                    --gb:DB_SendCharacterData(UnitGUID("player"), "MainSpec", spec, "GUILD", nil, "NORMAL")
                 end
             })
             table.insert(offSpec, {
@@ -2995,7 +3130,7 @@ function GuildbookProfilesMixin:LoadCharacter(player)
                     self.contentPane.scrollChild.profile.offSpec:SetText(L[spec])
                     self.contentPane.scrollChild.profile.offSpecDropDown.MenuText:SetText(L[spec])
 
-                    gb:DB_SendCharacterData(UnitGUID("player"), "OffSpec", spec, "GUILD", nil, "NORMAL")
+                    --gb:DB_SendCharacterData(UnitGUID("player"), "OffSpec", spec, "GUILD", nil, "NORMAL")
                 end
             })
         end
@@ -3582,7 +3717,7 @@ function GuildbookProfilesMixin:LoadInventory()
         for slot, link in pairs(self.character.Inventory.Current) do
             if link ~= false then
                 local _, _, _, _, icon, _, _ = GetItemInfoInstant(link)
-                self.contentPane.scrollChild.inventory[slot]:SetAlpha(0)
+                --self.contentPane.scrollChild.inventory[slot]:SetAlpha(0)
                 self.contentPane.scrollChild.inventory[slot].Icon:SetTexture(icon)
                 self.contentPane.scrollChild.inventory[slot].Link:SetText(link)
                 self.contentPane.scrollChild.inventory[slot].link = link;
@@ -3591,7 +3726,7 @@ function GuildbookProfilesMixin:LoadInventory()
                 self.contentPane.scrollChild.inventory[slot].Link:SetText("")
                 self.contentPane.scrollChild.inventory[slot].link = nil;
             end
-            self.contentPane.scrollChild.inventory[slot].anim:Play()
+            --self.contentPane.scrollChild.inventory[slot].anim:Play()
         end
         self:LoadCharacterModelItems()
     end

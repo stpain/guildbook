@@ -40,6 +40,9 @@ local debugTypeToClassColour = {
 GuildbookDebuggerListviewItemTemplateMixin = {}
 function GuildbookDebuggerListviewItemTemplateMixin:Init(elementData)
     local rgb = debugTypeToClassColour[elementData.debugType]:GetRGBA()
+    if type(rgb) ~= "table" then
+        return
+    end
     self.background:SetColorTexture(rgb[1], rgb[2], rgb[3], 0.2)
     self.timestamp:SetText(elementData.timestamp)
     self.blockName:SetText(string.format("[%s]", elementData.blockName))
@@ -56,7 +59,7 @@ function GuildbookDebuggerListviewItemTemplateMixin:Init(elementData)
                         if type(b) == "table" then
                             for c, d in pairs(b) do
                                 if d then
-                                    --GameTooltip:AddDoubleLine(">> "..c, d)
+                                    GameTooltip:AddDoubleLine(">> "..c, d)
                                 end                            end
                             for c, d in ipairs(b) do
                                 if d then
