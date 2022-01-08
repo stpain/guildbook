@@ -1,8 +1,17 @@
-added my characters to roster filter, find in class dropdown
+TODO:
 
-4.96522
-added ability to modify events while logged in on an alt
-started working on the stats ui, still work in progress
-started looking at default roster tooltips
-added shaman warden spec
-added dk frost tank spec for wrath
+chats - update the chats tab and mixin
+
+roster - change the old roster tab into maybe a db viewer type thing, all character details held in the saved var type thing, helps with debug as well
+
+stats - update to callbacks and finalise the layout
+
+guild bank - add in game bank data (tbc onwards)
+
+calendar - 1 day way off in the future (maybe) convert this beast into an xml/templated/mixin/callback setup (maybe) 
+
+tradeskills - well this is going to be the big 1, completely rework this, maybe to use a itemLink instead of itemID ???? merge into a single mixin, remove local functions etc
+
+avatars - condense the amount further, somehow?
+
+guild selection - setup the guild selection option

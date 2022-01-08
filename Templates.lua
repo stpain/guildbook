@@ -699,7 +699,8 @@ function GuildbookNewsFeedItemTemplateMixin:SetDataBinding(binding, height)
         self.icon:SetSize(height-2, height-1)
 
     elseif binding.newsType == "playerJoinedGuild" then
-        self.icon:SetAtlas("greencross")
+        --self.icon:SetAtlas("glueannouncementpopup-icon-info")
+        self.icon:SetAtlas("communities-icon-addchannelplus")
         self.icon:SetSize(height-2, height-1)
 
     elseif binding.newsType == "guildChat" then
@@ -823,7 +824,7 @@ function GuildbookHomeMembersListviewItemTemplateMixin:OnEnter()
 
     local colour = CreateColor(0.1, 0.58, 0.92, 1)
     local function formatTradeskill(prof, spec)
-        if spec then
+        if spec and GetSpellInfo(spec) then
             return string.format("%s [%s]", prof, gb.Colours.Blue:WrapTextInColorCode((GetSpellInfo(spec))));
         elseif prof then
             return prof;
@@ -1014,6 +1015,10 @@ function GuildbookHomeMembersListviewItemTemplateMixin:UpdateStatus(guid, status
         return;
     end
 
+    if self.character.Class == "" then
+        return;
+    end
+
     if status.isOnline == false then
         self.name:SetText(gb.Colours.Grey:WrapTextInColorCode(self.character.Name))
     else
@@ -1038,6 +1043,10 @@ function GuildbookHomeMembersListviewItemTemplateMixin:UpdateCharacter(guid, cha
     end
 
     self.character = character;
+
+    if self.character.Class and self.character.Class == "" then
+        return;
+    end
 
     local status = gb.Roster.onlineStatus[self.characterGUID]
 
@@ -1065,6 +1074,15 @@ function GuildbookHomeMembersListviewItemTemplateMixin:UpdateCharacter(guid, cha
             self.prof1.icon:SetAtlas(string.format("Mobile-%s", self.character.Profession1))
         end
 
+        if type(self.character.Profession1Spec) == "number" and self.character.Profession1Spec > 0 then
+            local profSpec = GetSpellInfo(self.character.Profession1Spec)
+            if profSpec then
+                self.prof1.tooltipText = gb:GetLocaleProf(self.character.Profession1).." |cffffffff"..profSpec.."\n\n"..gb.Colours.BlizzBlue:WrapTextInColorCode(L["ROSTER_VIEW_RECIPES"])
+            end
+        else
+            self.prof1.tooltipText = gb:GetLocaleProf(self.character.Profession1).."\n\n"..gb.Colours.BlizzBlue:WrapTextInColorCode(L["ROSTER_VIEW_RECIPES"])
+        end
+
         self.prof1:SetSize(self.height-2, self.height-2)
         self.prof1:EnableMouse(true)
         self.prof1:Show()
@@ -1079,6 +1097,15 @@ function GuildbookHomeMembersListviewItemTemplateMixin:UpdateCharacter(guid, cha
             self.prof2.icon:SetAtlas("Mobile-Enginnering")
         else
             self.prof2.icon:SetAtlas(string.format("Mobile-%s", self.character.Profession2))
+        end
+
+        if type(self.character.Profession2Spec) == "number" and self.character.Profession2Spec > 0 then
+            local profSpec = GetSpellInfo(self.character.Profession2Spec)
+            if profSpec then
+                self.prof2.tooltipText = gb:GetLocaleProf(self.character.Profession2).." |cffffffff"..profSpec.."\n\n"..gb.Colours.BlizzBlue:WrapTextInColorCode(L["ROSTER_VIEW_RECIPES"])
+            end
+        else
+            self.prof2.tooltipText = gb:GetLocaleProf(self.character.Profession2).."\n\n"..gb.Colours.BlizzBlue:WrapTextInColorCode(L["ROSTER_VIEW_RECIPES"])
         end
 
         self.prof2:SetSize(self.height-2, self.height-2)

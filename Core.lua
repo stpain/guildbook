@@ -95,10 +95,15 @@ end
 
 
 --[[
-    Database class
+/////////////////////////////////////////////////////////////////
 
-    the database class provides functions to update the account wide saved variables and the per character saved variables
+    @class Database
+
+    the database class provides functions to update the account wide 
+    saved variables and the per character saved variables
     whenever a value is changed a callback is triggered
+
+/////////////////////////////////////////////////////////////////
 ]]
 local Database = CreateFromMixins(CallbackRegistryMixin)
 Database:GenerateCallbackEvents({
@@ -524,7 +529,12 @@ Class.Specializations = {
 
 
 --[[
-    Tradeskills Class
+/////////////////////////////////////////////////////////////////
+
+    @class Tradeskills
+
+
+/////////////////////////////////////////////////////////////////
 ]]
 local Tradeskills = {}
 Tradeskills.CurrentLocale = GetLocale()
@@ -853,9 +863,12 @@ Guildbook.Tradeskills = Tradeskills;
 
 
 --[[
-    Roster class
+/////////////////////////////////////////////////////////////////
+
+    @class Roster
 
 
+/////////////////////////////////////////////////////////////////
 ]]
 local Roster = CreateFromMixins(CallbackRegistryMixin)
 Roster:GenerateCallbackEvents({
@@ -999,10 +1012,15 @@ Guildbook.Roster = Roster;
 
 
 
+
 --[[
-    Character class
+/////////////////////////////////////////////////////////////////
+
+    @class Character
 
     the Character class listens for changes to the players character and sends this data to the Database class
+
+/////////////////////////////////////////////////////////////////
 ]]
 local Character = CreateFromMixins(CallbackRegistryMixin)
 Character:GenerateCallbackEvents({
@@ -1189,11 +1207,11 @@ function Character:ScanForTradeskillInfo()
         Profession2 = "-",
         Profession1Level = nil,
         Profession2Level = nil,
-        Profession1Spec = nil,
-        Profession2Spec = nil,
-        FishingLevel = 0,
-        CookingLevel = 0,
-        FirstAidLevel = 0,
+        Profession1Spec = -1, -- doing this will cause and changes to show as no spec, GetSpellInfo(-1) returns a nil/empty result and the UI checks for a spell name returned
+        Profession2Spec = -1,
+        FishingLevel = nil,
+        CookingLevel = nil,
+        FirstAidLevel = nil,
     }
 
     local _, _, offset, numSlots = GetSpellTabInfo(1)
@@ -1239,8 +1257,10 @@ function Character:ScanForTradeskillInfo()
             if characterTradeskillsInfo.Profession1 == engProf then
                 characterTradeskillsInfo.Profession1Spec = tonumber(spellID)
 
-            elseif characterTradeskillsInfo.Profession2 == engProf then
-                characterTradeskillsInfo.Profession2Spec = tonumber(spellID)
+            else
+                if characterTradeskillsInfo.Profession2 == engProf and characterTradeskillsInfo.Profession1 ~= engProf then
+                    characterTradeskillsInfo.Profession2Spec = tonumber(spellID)
+                end
             end
         end
     end
@@ -1340,6 +1360,17 @@ function Character:ScanTradeskillRecipes()
                 end
             end
 
+            if englishProf == "Cooking" then
+                Database:UpdatePlayerCharacterTradeskillsInfo(nil, nil, nil, nil, nil, nil, nil, currentRank, nil)
+
+            elseif englishProf == "Fishing" then -- not sure this is possible in classic/tbc etc
+                Database:UpdatePlayerCharacterTradeskillsInfo(nil, nil, nil, nil, nil, nil, currentRank, nil, nil)
+
+            elseif englishProf == "First Aid" then
+                Database:UpdatePlayerCharacterTradeskillsInfo(nil, nil, nil, nil, nil, nil, nil, nil, currentRank)
+
+            end
+
         end
     end
 
@@ -1409,6 +1440,17 @@ function Character:ScanEnchantingRecipes()
                 if myProf2 == englishProf then
                     Database:UpdatePlayerCharacterTable("Profession2Level", currentRank)
                 end
+            end
+
+            if englishProf == "Cooking" then
+                Database:UpdatePlayerCharacterTradeskillsInfo(nil, nil, nil, nil, nil, nil, nil, currentRank, nil)
+
+            elseif englishProf == "Fishing" then -- not sure this is possible in classic/tbc etc
+                Database:UpdatePlayerCharacterTradeskillsInfo(nil, nil, nil, nil, nil, nil, currentRank, nil, nil)
+
+            elseif englishProf == "First Aid" then
+                Database:UpdatePlayerCharacterTradeskillsInfo(nil, nil, nil, nil, nil, nil, nil, nil, currentRank)
+
             end
 
         end
@@ -1682,18 +1724,7 @@ function Character:Init()
             self:ScanEnchantingRecipes()
 
         elseif event == "SKILL_LINES_CHANGED" then
-
             self:ScanForTradeskillInfo()
-
-            ---during the scan we'll expand some headers which will cause the event to fire again, so lets ignore this if a scan has just happened
-            ---i could add the boolean check to the end of the func maybe? would make things more accurate and remove a C_Timer call ?
-            -- if self.TradeskillInfoScanActive == false then
-            --     self.TradeskillInfoScanActive = true;
-            --     self:ScanForTradeskillInfo()
-            --     C_Timer.After(1.0, function()
-            --         self.TradeskillInfoScanActive = false;
-            --     end)
-            -- end
 
         elseif event == "PLAYER_EQUIPMENT_CHANGED" then
             self:GetInventory()
@@ -1789,7 +1820,13 @@ Guildbook.Character = Character;
 
 
 
+--[[
+/////////////////////////////////////////////////////////////////
 
+    @class Comms
+
+/////////////////////////////////////////////////////////////////
+]]
 local Comms = CreateFromMixins(CallbackRegistryMixin)
 Comms:GenerateCallbackEvents({
     "OnNewsFeedReceived",
@@ -3304,7 +3341,7 @@ function Guildbook:Load()
         GUILDBOOK_GLOBAL.lastVersionUpdate = {}
     end
 
-    local updates  = "Added first aid as a tradeskill (as requested by some people, or someone!)"
+    local updates  = "A bug has escaped into Azeroth! So i felt it appropriate to push a fix |cffFFF569HOWEVER|r the next planned release isnt quite ready and so this contains some unfinished content."
 
     if not GUILDBOOK_GLOBAL.lastVersionUpdate[self.version] then
         StaticPopup_Show('GuildbookUpdates', self.version, updates)
@@ -3812,7 +3849,72 @@ end
 
 
 
+function Guildbook:ScanGuildBank()
 
+
+    local copper = GetGuildBankMoney();
+
+    if not GUILDBOOK_GLOBAL["GuildBank"] then
+        GUILDBOOK_GLOBAL["GuildBank"] = {}
+    end
+    GUILDBOOK_GLOBAL["GuildBank"]["GuildBank"] = {
+        Commit = GetServerTime(),
+        Data = {},
+        Money = copper,
+    }
+
+    for tab = 1, GetNumGuildBankTabs() do
+
+        local name, icon, isViewable, canDeposit, numWithdrawals, remainingWithdrawals, filtered = GetGuildBankTabInfo(tab)
+
+        if type(name) == "string" and isViewable == true then
+
+            if not GUILDBOOK_GLOBAL["GuildBank"]["GuildBank"].Data[tab] then
+                GUILDBOOK_GLOBAL["GuildBank"]["GuildBank"].Data[tab] = {};
+            end
+
+            for slot = 1, MAX_GUILDBANK_SLOTS_PER_TAB do --should be 98 from that constant
+
+                local link = GetGuildBankItemInfo(tab,slot)
+                local texture, count, locked, isFiltered, quality = GetGuildBankItemInfo(tab,slot)
+
+                if type(link) == "string" and type(count) == "number" then
+
+                    local id, _, _, _, _, classID, subClassID = GetItemInfoInstant(link)
+                    if classID == 2 or classID == 4 then
+                        if not GUILDBOOK_GLOBAL["GuildBank"]["GuildBank"].Data[tab][link] then
+                            GUILDBOOK_GLOBAL["GuildBank"]["GuildBank"].Data[tab][link] = count
+                        else
+                            GUILDBOOK_GLOBAL["GuildBank"]["GuildBank"].Data[tab][link] = GUILDBOOK_GLOBAL["GuildBank"]["GuildBank"].Data[tab][link] + count
+                        end
+                    else
+                        if not GUILDBOOK_GLOBAL["GuildBank"]["GuildBank"].Data[tab][id] then
+                            GUILDBOOK_GLOBAL["GuildBank"]["GuildBank"].Data[tab][id] = count
+                        else
+                            GUILDBOOK_GLOBAL["GuildBank"]["GuildBank"].Data[tab][id] = GUILDBOOK_GLOBAL["GuildBank"]["GuildBank"].Data[tab][id] + count
+                        end
+                    end
+
+                end
+
+
+            end
+
+        end
+
+    end
+
+    local bankUpdate = {
+        type = 'GUILD_BANK_DATA_RESPONSE',
+        payload = {
+            Data = {}, --we need to keep this info hidden due to bank viewing settings etc
+            Commit = GUILDBOOK_GLOBAL["GuildBank"]["GuildBank"].Commit,
+            Money = 0,
+            Bank = "GuildBank",
+        }
+    }
+    self:Transmit(bankUpdate, 'WHISPER', UnitGUID("player"), 'BULK')
+end
 
 
 
@@ -4970,17 +5072,29 @@ function Guildbook:OnGuildBankDataReceived(data, distribution, sender)
                 }
             }
         else
-            GUILDBOOK_GLOBAL["GuildBank"][data.payload.Bank] = {
-                Commit = data.payload.Commit,
-                Data = data.payload.Data,
-                Money = data.payload.Money,
-            }
+            if data.payload.Bank == "GuildBank" then
+
+                --if its the guild bank we dont want to overwrite tabs not sent
+                if type(data.payload.Data) == "table" then
+                    for tabID, tabItems in ipairs(data.payload.Data) do
+
+                        -- if the tab exists update it
+                        if GUILDBOOK_GLOBAL["GuildBank"][data.payload.Bank][tabID] then
+                            GUILDBOOK_GLOBAL["GuildBank"][data.payload.Bank][tabID] = tabItems;
+                        end
+                    end
+                end
+
+            else
+                GUILDBOOK_GLOBAL["GuildBank"][data.payload.Bank] = {
+                    Commit = data.payload.Commit,
+                    Data = data.payload.Data,
+                    Money = data.payload.Money,
+                }
+            end
         end
     end
-    -- self.GuildFrame.GuildBankFrame:ProcessBankData(data.payload.Data, data.payload.Money)
-    -- self.GuildFrame.GuildBankFrame:RefreshSlots()
 
-    -- how do we know the timing of all this????
 end
 
 
@@ -5458,6 +5572,10 @@ function Guildbook:BAG_UPDATE_DELAYED()
 end
 
 
+
+
+
+
 -- added to automate the guild bank scan
 function Guildbook:BANKFRAME_OPENED()
     for i = 1, GetNumGuildMembers() do
@@ -5486,6 +5604,40 @@ function Guildbook:BANKFRAME_CLOSED()
         bankScanned = false;
     end
 end
+
+
+
+
+
+-- added to automate the guild bank scan
+function Guildbook:GUILDBANKFRAME_OPENED()
+    for i = 1, GetNumGuildMembers() do
+        local _, _, _, _, _, _, publicNote, _, _, _, _, _, _, _, _, _, GUID = GetGuildRosterInfo(i)
+        if publicNote:lower():find('guildbank') and GUID == UnitGUID('player') then
+            --print("scan guild bank on open")
+        end
+    end
+end
+
+-- added this to the closed event to be extra accurate
+local bankScanned = false;
+function Guildbook:GUILDBANKFRAME_CLOSED()
+    if bankScanned == false then
+        Guildbook.DEBUG("event", "BANKFRAME_CLOSED", "scanning items")
+        for i = 1, GetNumGuildMembers() do
+            local _, _, _, _, _, _, publicNote, _, _, _, _, _, _, _, _, _, GUID = GetGuildRosterInfo(i)
+            if publicNote:lower():find('guildbank') and GUID == UnitGUID('player') then
+                --print("scan guild bank on close")
+            end
+        end
+        bankScanned = true;
+    else
+        bankScanned = false;
+    end
+end
+
+
+
 
 
 
@@ -5631,6 +5783,12 @@ Guildbook.EventFrame:RegisterEvent('ADDON_LOADED')
 Guildbook.EventFrame:RegisterEvent('PLAYER_ENTERING_WORLD')
 Guildbook.EventFrame:RegisterEvent('BANKFRAME_OPENED')
 Guildbook.EventFrame:RegisterEvent('BANKFRAME_CLOSED')
+
+if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then
+    Guildbook.EventFrame:RegisterEvent('GUILDBANKFRAME_OPENED')
+    Guildbook.EventFrame:RegisterEvent('GUILDBANKFRAME_CLOSED')
+end
+
 Guildbook.EventFrame:RegisterEvent('BAG_UPDATE_DELAYED')
 Guildbook.EventFrame:RegisterEvent('CHAT_MSG_GUILD')
 Guildbook.EventFrame:RegisterEvent('CHAT_MSG_WHISPER')

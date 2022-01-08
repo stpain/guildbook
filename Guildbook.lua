@@ -679,7 +679,7 @@ function GuildbookRosterListviewItemMixin:OnEnter()
 
     local colour = CreateColor(0.1, 0.58, 0.92, 1)
     local function formatTradeskill(prof, spec)
-        if spec then
+        if spec and GetSpellInfo(spec) then
             return string.format("%s [%s]", prof, gb.Colours.Blue:WrapTextInColorCode((GetSpellInfo(spec))));
         elseif prof then
             return prof;
@@ -818,7 +818,9 @@ function GuildbookRosterListviewItemMixin:SetCharacter(member)
             if self.character.Profession1Spec then
                 --local profSpec = GetSpellDescription(self.character.Profession1Spec)
                 local profSpec = GetSpellInfo(self.character.Profession1Spec)
-                self.Prof1.tooltipText = gb:GetLocaleProf(prof1).." |cffffffff"..profSpec.."\n\n"..gb.Colours.BlizzBlue:WrapTextInColorCode(L["ROSTER_VIEW_RECIPES"])
+                if profSpec then
+                    self.Prof1.tooltipText = gb:GetLocaleProf(prof1).." |cffffffff"..profSpec.."\n\n"..gb.Colours.BlizzBlue:WrapTextInColorCode(L["ROSTER_VIEW_RECIPES"])
+                end
             else
                 self.Prof1.tooltipText = gb:GetLocaleProf(prof1).."\n\n"..gb.Colours.BlizzBlue:WrapTextInColorCode(L["ROSTER_VIEW_RECIPES"])
             end
@@ -841,7 +843,9 @@ function GuildbookRosterListviewItemMixin:SetCharacter(member)
             if self.character.Profession2Spec then
                 --local profSpec = GetSpellDescription(self.character.Profession2Spec)
                 local profSpec = GetSpellInfo(self.character.Profession2Spec)
-                self.Prof2.tooltipText = gb:GetLocaleProf(prof2).." |cffffffff"..profSpec.."\n\n"..gb.Colours.BlizzBlue:WrapTextInColorCode(L["ROSTER_VIEW_RECIPES"])
+                if profSpec then
+                    self.Prof2.tooltipText = gb:GetLocaleProf(prof2).." |cffffffff"..profSpec.."\n\n"..gb.Colours.BlizzBlue:WrapTextInColorCode(L["ROSTER_VIEW_RECIPES"])
+                end
             else
                 self.Prof2.tooltipText = gb:GetLocaleProf(prof2).."\n\n"..gb.Colours.BlizzBlue:WrapTextInColorCode(L["ROSTER_VIEW_RECIPES"])
             end
@@ -1208,8 +1212,7 @@ end
 
 
 ---update the member list, if no arg given then use the checkbox value
----@param showOffline boolean include offline members
-function GuildbookHomeMixin:UpdateMemberList(showOffline)
+function GuildbookHomeMixin:UpdateMemberList()
 
     if gb.addonLoad == false then
         return;
@@ -1219,9 +1222,7 @@ function GuildbookHomeMixin:UpdateMemberList(showOffline)
         return
     end
 
-    if showOffline == nil then
-        showOffline = self.showOfflineMembers:GetChecked()
-    end
+    local showOffline = self.showOfflineMembers:GetChecked()
 
     self.memberList.DataProvider:Flush()
     local t = {}
@@ -1254,7 +1255,7 @@ end
 
 function GuildbookHomeMixin:ShowOfflineMembers_OnClick()
 
-    self:UpdateMemberList(self.showOfflineMembers:GetChecked())
+    self:UpdateMemberList()
 end
 
 
@@ -4617,6 +4618,10 @@ function GuildbookGuildBankMixin:RequestBankItemInfo()
             local character = Database:FetchCharacterTableByGUID(guid)
             if character then
                 bankCharacter = gb.Colours[character.Class]:WrapTextInColorCode(character.Name)
+
+            elseif guid == "GuildBank" then
+                bankCharacter = "Guild Bank (IG)"
+
             end
             i = i + 1;
             table.insert(self.items, {
@@ -4631,38 +4636,64 @@ function GuildbookGuildBankMixin:RequestBankItemInfo()
                 Bank = bankCharacter,
                 BankGUID = guid,
             })
-            for id, count in pairs(info.Data) do -- id could be a link or an itemID
-                local itemID = nil;
-                local linkID = nil;
-                if type(id) == "number" then
-                    itemID = id;
-                elseif type(id) == "string" then
-                    itemID = GetItemInfoInstant(id)
-                    linkID = id; --if we have a link we want to use it for suffix/enchant info etc
-                end
 
-                i = i + 1; --?
+            if guid == "GuildBank" then
 
-                -- add itemTypes to drop down menu
-                local itemID, itemType, itemSubType, itemEquipLoc, icon, itemClassID, itemSubClassID = GetItemInfoInstant(itemID)
-                if not itemTypes[itemType] then
-                    table.insert(self.buttonDropdownMenus.Type, {
-                        text = itemType,
-                        func = function()
-                            self.filter = itemType
-                            self.sort = "Type";
-                            self:SortListview()
-                        end,
-                    })
-                    itemTypes[itemType] = true
+                for tabID, tabItems in ipairs(info.Data) do
+
                 end
 
 
-                --local _, link = GetItemInfo(itemID)
-                if linkID == nil then
-                    local item = Item:CreateFromItemID(itemID)
-                    item:ContinueOnItemLoad(function()
-                        local link = item:GetItemLink()
+            else
+                for id, count in pairs(info.Data) do -- id could be a link or an itemID
+                    local itemID = nil;
+                    local linkID = nil;
+                    if type(id) == "number" then
+                        itemID = id;
+                    elseif type(id) == "string" then
+                        itemID = GetItemInfoInstant(id)
+                        linkID = id; --if we have a link we want to use it for suffix/enchant info etc
+                    end
+    
+                    i = i + 1; --?
+    
+                    -- add itemTypes to drop down menu
+                    local itemID, itemType, itemSubType, itemEquipLoc, icon, itemClassID, itemSubClassID = GetItemInfoInstant(itemID)
+                    if not itemTypes[itemType] then
+                        table.insert(self.buttonDropdownMenus.Type, {
+                            text = itemType,
+                            func = function()
+                                self.filter = itemType
+                                self.sort = "Type";
+                                self:SortListview()
+                            end,
+                        })
+                        itemTypes[itemType] = true
+                    end
+    
+    
+                    --local _, link = GetItemInfo(itemID)
+                    if linkID == nil then
+                        local item = Item:CreateFromItemID(itemID)
+                        item:ContinueOnItemLoad(function()
+                            local link = item:GetItemLink()
+                            table.insert(self.items, {
+                                ItemID = itemID,
+                                Count = count,
+                                Type = itemType,
+                                SubType = itemSubType,
+                                Class = itemClassID,
+                                SubClass = itemSubClassID,
+                                Icon = icon,
+                                Link = link,
+                                Bank = bankCharacter,
+                                BankGUID = guid,
+                            })
+                            if i == itemCount then
+                                self:LoadBankItems(itemCount)
+                            end
+                        end)
+                    else
                         table.insert(self.items, {
                             ItemID = itemID,
                             Count = count,
@@ -4671,32 +4702,17 @@ function GuildbookGuildBankMixin:RequestBankItemInfo()
                             Class = itemClassID,
                             SubClass = itemSubClassID,
                             Icon = icon,
-                            Link = link,
+                            Link = linkID,
                             Bank = bankCharacter,
                             BankGUID = guid,
                         })
                         if i == itemCount then
                             self:LoadBankItems(itemCount)
                         end
-                    end)
-                else
-                    table.insert(self.items, {
-                        ItemID = itemID,
-                        Count = count,
-                        Type = itemType,
-                        SubType = itemSubType,
-                        Class = itemClassID,
-                        SubClass = itemSubClassID,
-                        Icon = icon,
-                        Link = linkID,
-                        Bank = bankCharacter,
-                        BankGUID = guid,
-                    })
-                    if i == itemCount then
-                        self:LoadBankItems(itemCount)
                     end
                 end
             end
+
         end
     end
 end
