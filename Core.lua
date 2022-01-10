@@ -2479,6 +2479,7 @@ function Comms:TellGuildMemberItsTimeToUpdate(targetGUID)
     self:Transmit(update, "WHISPER", targetGUID, "NORMAL")
 end
 
+Comms.versionsChecked = {}
 
 function Comms:OnUpdateMessage(data)
     if type(data.payload.version) == "number" then
