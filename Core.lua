@@ -1382,7 +1382,7 @@ end
 ---scan the players enchanting recipes and trigger the changed event
 function Character:ScanEnchantingRecipes()
     --local currentCraftingWindow = GetCraftSkillLine(1)
-    local currentCraftingWindow = CraftFrameTitletext:GetText() -- this works better when players switch betrween professions without closing the window
+    local currentCraftingWindow = CraftFrameTitleText:GetText() -- this works better when players switch betrween professions without closing the window
     if currentCraftingWindow == nil then
         return; -- exit as no craft open
     end
