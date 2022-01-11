@@ -1382,7 +1382,7 @@ end
 ---scan the players enchanting recipes and trigger the changed event
 function Character:ScanEnchantingRecipes()
     --local currentCraftingWindow = GetCraftSkillLine(1)
-    local currentCraftingWindow = CraftFrameTitletext:GetText() -- this works better when players switch betrween professions without closing the window
+    local currentCraftingWindow = CraftFrameTitleText:GetText() -- this works better when players switch betrween professions without closing the window
     if currentCraftingWindow == nil then
         return; -- exit as no craft open
     end
@@ -1836,7 +1836,7 @@ Comms:GenerateCallbackEvents({
 Comms.DELAY = 2.0;
 Comms.PREFIX = "GUILDBOOK";
 Comms.version = nil;
-
+Comms.versionsChecked = {};
 Comms.privacyRules = {
     shareInventoryMinRank = "Inventory",
     shareTalentsMinRank = "Talents",
@@ -3341,7 +3341,7 @@ function Guildbook:Load()
         GUILDBOOK_GLOBAL.lastVersionUpdate = {}
     end
 
-    local updates  = "A bug has escaped into Azeroth! So i felt it appropriate to push a fix |cffFFF569HOWEVER|r the next planned release isnt quite ready and so this contains some unfinished content."
+    local updates = "Quick fix for enchanters where a spelling error (well capital letter error) was causing a bug, sorry about that."
 
     if not GUILDBOOK_GLOBAL.lastVersionUpdate[self.version] then
         StaticPopup_Show('GuildbookUpdates', self.version, updates)

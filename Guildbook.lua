@@ -2036,6 +2036,9 @@ function GuildbookRosterMixin:LoadCharacters()
     wipe(self.roster)
     local i = 1;
     for guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME]) do
+        if not character.Class then
+            return
+        end
         local _class = string.sub(character.Class, 1, 1):upper()..string.sub(character.Class, 2)
         if self.rosterFilterKey then
             if character[self.rosterFilterKey] and character[self.rosterFilterKey] == self.rosterFilterValue then
