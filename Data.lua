@@ -269,7 +269,10 @@ Guildbook.Data.Class = {
     },
 }
 
-Guildbook.Data.Talents = {
+Guildbook.Data.Talents = {}
+
+
+Guildbook.Data.TalentTabsToBackground = {
     DEATHKNIGHT = {
         [1] = "DeathKnightBlood", 
         [2] = "DeathKnightFrost", 

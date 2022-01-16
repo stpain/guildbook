@@ -2,11 +2,14 @@ TODO:
 
 chats - update the chats tab and mixin
 
+
 roster - change the old roster tab into maybe a db viewer type thing, all character details held in the saved var type thing, helps with debug as well
+->almost completed
 
 stats - update to callbacks and finalise the layout
 
 guild bank - add in game bank data (tbc onwards)
+-> i think this idea is a no
 
 calendar - 1 day way off in the future (maybe) convert this beast into an xml/templated/mixin/callback setup (maybe) 
 
@@ -15,3 +18,15 @@ tradeskills - well this is going to be the big 1, completely rework this, maybe 
 avatars - condense the amount further, somehow?
 
 guild selection - setup the guild selection option
+-> merged this into the newer guild viewer which replaces the old roster view
+
+
+
+[2022-01-16]
+moved template mixin lua code out of the Guildbook.lua file and into the template.lua file to correspond with the template xml file
+moved the calendar sync functions into the calendar OnShow call to reduce load up lag and chat spam
+changed the Tradeskills:LoadGuildMemberTradeskills function to longer accept a guid, instead now uses a profession name and a character table
+updated/corrected some template names and their mixin names, something long overdue
+added profession buttons to the guild viewer rows template
+added a default icon texture to the GuildbookSmallHighlightButtonMixin
+added new function the GuildbookSmallHighlightButtonMixin, can now set a tradeskill atlas directly

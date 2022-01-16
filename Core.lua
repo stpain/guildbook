@@ -752,10 +752,9 @@ end
 
 
 ---load the characters tradeskills, currently this is triggered by the new home tab member listview
----@param guid string the characters guid
 ---@param prof string the profession to load recipes for or `allRecipes` for all of the characters recipes
----@param lcharacter table optional character table to use
-function Tradeskills:LoadGuildMemberTradeskills(guid, prof, character)
+---@param lcharacter table optional character table to use, overrides the guid arg
+function Tradeskills:LoadGuildMemberTradeskills(prof, character)
 
     --hide the selected texture and flush the listviews
     for _, button in ipairs(GuildbookTradeskillProfessionListview.profButtons) do
@@ -784,9 +783,6 @@ function Tradeskills:LoadGuildMemberTradeskills(guid, prof, character)
         
     end
 
-    if character == nil then
-        character = Database:FetchCharacterTableByGUID(guid)
-    end
     if type(character) ~= "table" then
         return
     end
@@ -847,7 +843,9 @@ function Tradeskills:LoadGuildMemberTradeskills(guid, prof, character)
             end
         end)
         GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:InsertTable(recipes)
-        GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:InsertTable({guid}) -- why?
+
+        -- the items in theis list need to be changed to take a character name
+        --GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:InsertTable({guid}) -- why?
     end
     GuildbookUI:OpenTo("tradeskills")
 end
@@ -1232,7 +1230,6 @@ function Character:ScanPlayerTalents()
                 Rank = rank,
                 MxRnk = maxRank,
                 Icon = iconTexture,
-                Name = name,
                 Index = talentIndex,
                 Link = GetTalentLink(tabIndex, talentIndex),
             });
@@ -3308,9 +3305,9 @@ function Guildbook:Load()
             end,
         },
         {
-            text = L["ROSTER"],
+            text = L["GUILD_VIEWER"],
             func = function()
-                GuildbookUI:OpenTo("roster")
+                GuildbookUI:OpenTo("guildViewer")
             end,
         },
         {
@@ -3373,27 +3370,6 @@ function Guildbook:Load()
         Guildbook.DEBUG("func", "Load", [[requesting tradeskill recipe\item data]])
     end)
 
-    ---request calendar data, using a 4s stagger to allow all comms to send, we wait 22s for the general player data to sync etc
-    C_Timer.After(22, function()
-        Guildbook:SendGuildCalendarEvents()
-        Guildbook.DEBUG("func", "Load", "send calendar events")
-    end)
-    C_Timer.After(24, function()
-        Guildbook:SendGuildCalendarDeletedEvents()
-        Guildbook.DEBUG("func", "Load", "send deleted calendar events")
-    end)
-    C_Timer.After(28, function()
-        Guildbook:RequestGuildCalendarEvents()
-        Guildbook.DEBUG("func", "Load", "requested calendar events")
-    end)
-    C_Timer.After(32, function()
-        Guildbook:RequestGuildCalendarDeletedEvents()
-        Guildbook.DEBUG("func", "Load", "requested deleted calendar events")
-    end)
-    C_Timer.After(40, function()
-        Guildbook:RemoveOldEventsFromSavedVarFile()
-    end)
-
     if not GUILDBOOK_GLOBAL.lastVersionUpdate then
         GUILDBOOK_GLOBAL.lastVersionUpdate = {}
     end
@@ -3432,6 +3408,45 @@ function Guildbook:Load()
     Character:Init()
     Comms:Init()
     Roster:Init()
+
+
+
+
+
+    -- GUILDBOOK_CHARACTER.TalentsData = {}
+
+    -- local classTalentsDone = {}
+
+    -- for guid, info in pairs(GUILDBOOK_GLOBAL.GuildRosterCache["The Asylum"]) do
+
+    --     if info.Talents and info.Talents.primary and type(info.Talents.primary) == "table" and next(info.Talents.primary) ~= nil then
+            
+    --         local t = {}
+
+    --         for k, talent in ipairs(info.Talents.primary) do
+
+    --             table.insert(t, {
+    --                 Tab = talent.Tab,
+    --                 Col = talent.Col,
+    --                 Row = talent.Row,
+    --                 Icon = talent.Icon,
+    --                 MxRnk = talent.MxRnk,
+    --                 Link = talent.Link,
+    --             })
+
+    --         end
+
+    --         if info.Class and info.Class ~= "-" then
+
+    --             if not classTalentsDone[info.Class] then
+
+    --                 GUILDBOOK_CHARACTER.TalentsData[info.Class] = t;
+
+    --                 classTalentsDone[info.Class] = true;
+    --             end
+    --         end
+    --     end
+    -- end
 
 end
 

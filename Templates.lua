@@ -26,29 +26,29 @@ local L = gb.Locales
 
 
 --- basic button mixin
-GuildbookButtonMixin = {}
+GuildbookSmallHighlightButtonMixin = {}
 
-function GuildbookButtonMixin:OnLoad()
+function GuildbookSmallHighlightButtonMixin:OnLoad()
     --self.anchor = AnchorUtil.CreateAnchor(self:GetPoint());
 
     self.point, self.relativeTo, self.relativePoint, self.xOfs, self.yOfs = self:GetPoint()
 end
 
-function GuildbookButtonMixin:OnShow()
+function GuildbookSmallHighlightButtonMixin:OnShow()
     --self.anchor:SetPoint(self);
     if self.point and self.relativeTo and self.relativePoint and self.xOfs and self.yOfs then
         self:SetPoint(self.point, self.relativeTo, self.relativePoint, self.xOfs, self.yOfs)
     end
 end
 
-function GuildbookButtonMixin:OnMouseDown()
+function GuildbookSmallHighlightButtonMixin:OnMouseDown()
     if self.disabled then
         return;
     end
     self:AdjustPointsOffset(-1,-1)
 end
 
-function GuildbookButtonMixin:OnMouseUp()
+function GuildbookSmallHighlightButtonMixin:OnMouseUp()
     if self.disabled then
         return;
     end
@@ -58,7 +58,7 @@ function GuildbookButtonMixin:OnMouseUp()
     end
 end
 
-function GuildbookButtonMixin:OnEnter()
+function GuildbookSmallHighlightButtonMixin:OnEnter()
 
     if self.tooltipText and L[self.tooltipText] then
         GameTooltip:SetOwner(self, 'ANCHOR_TOP')
@@ -87,8 +87,25 @@ function GuildbookButtonMixin:OnEnter()
     GameTooltip:Show()
 end
 
-function GuildbookButtonMixin:OnLeave()
+function GuildbookSmallHighlightButtonMixin:OnLeave()
     GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+end
+
+
+function GuildbookSmallHighlightButtonMixin:SetTradeskillAtlas(tradeskill)
+
+    if type(tradeskill) == "string" and gb.Tradeskills.TradeskillNames[tradeskill] then
+        if tradeskill == "Engineering" then
+            self.icon:SetAtlas("Mobile-Enginnering")
+        else
+            self.icon:SetAtlas(string.format("Mobile-%s", tradeskill))
+        end
+    end
+end
+
+
+function GuildbookSmallHighlightButtonMixin:ClearAtlas()
+    self.icon:SetAtlas(nil)
 end
 
 
@@ -551,6 +568,251 @@ end
 
 
 
+--[[
+
+    this is the character listview for the tradeskill ui
+
+    its purpose is to show which characters have a certain tradeskill
+    it can then be filtered by tradeskill recipes by clicking the recipe
+
+    selecting a character will show that characters recipes for the currently selected tradeskill
+
+]]--
+GuildbookTradeskillCharacterListviewItemMixin = {}
+
+---add the circluar mask to the portrait, this was doen in lua however can be moved into the xml template
+function GuildbookTradeskillCharacterListviewItemMixin:OnLoad()
+    self.mask = self:CreateMaskTexture()
+    self.mask:SetSize(31,31)
+    self.mask:SetPoint("LEFT", 10, 0)
+    self.mask:SetTexture("Interface/CHARACTERFRAME/TempPortraitAlphaMask", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+    self.Icon:AddMaskTexture(self.mask)
+end
+
+function GuildbookTradeskillCharacterListviewItemMixin:OnMouseDown()
+    self:AdjustPointsOffset(-1,-1)
+end
+
+---call the items .func in the OnMouseUp event
+function GuildbookTradeskillCharacterListviewItemMixin:OnMouseUp()
+    self:AdjustPointsOffset(1,1)
+    if self.func then
+        C_Timer.After(0, self.func)
+    end
+end
+
+---sets the character info, this displays character avatar, name and location - formats grey for offline characters
+---@param guid string the characters guid
+function GuildbookTradeskillCharacterListviewItemMixin:SetCharacter(guid)
+    -- this will become the new system using a guid
+    if guid:find("Player") then
+        local character = gb:GetCharacterFromCache(guid)
+        if not character then
+            return;
+        end
+        local race;
+        if character.Race:lower() == "scourge" then
+            race = "undead";
+        else
+            race = character.Race:lower()
+        end
+        self.Icon:SetAtlas(string.format("raceicon-%s-%s", race, character.Gender:lower()))
+        self.Name:SetText(character.Name)
+        if gb.onlineZoneInfo[guid].online == true then
+            self.Name:SetTextColor(1,1,1,1)
+            self.Zone:SetTextColor(1,1,1,1)
+            self.Zone:SetText("["..gb.onlineZoneInfo[guid].zone.."]")
+        else
+            self.Name:SetTextColor(0.5,0.5,0.5,0.7)
+            self.Zone:SetText("[offline]")
+            self.Zone:SetTextColor(0.5,0.5,0.5,0.7)
+        end
+        self.func = function()
+            loadGuildMemberTradeskills(guid, GuildbookMixin.selectedProfession and GuildbookMixin.selectedProfession or "allRecipes")
+        end
+    end
+end
+
+
+
+
+
+
+
+
+
+GuildbookAvatarMixin = {}
+
+function GuildbookAvatarMixin:OnLoad()
+
+end
+
+function GuildbookAvatarMixin:OnMouseDown()
+    if self.func then
+        self.func()
+    end
+end
+
+
+
+
+
+
+
+
+
+
+
+
+GuildbookRecipeListviewItemMixin = {}
+
+-- item has the following fields
+-- itemID
+-- reagents
+-- rarity
+-- link
+-- icon
+-- enchant
+-- expansion
+-- name
+-- profession
+-- equipLocation
+function GuildbookRecipeListviewItemMixin:Init(item)
+    self.item = item;
+    for _, reagent in pairs(self.reagentIcons) do
+        reagent:SetFrameStrata("TOOLTIP")
+        reagent.icon:SetTexture(nil)
+        reagent.greenBorder:Hide()
+        reagent.orangeBorder:Hide()
+        reagent.purpleBorder:Hide()
+        reagent.count:SetText("")
+        reagent.link = nil
+    end
+    local reagentNum = 1
+    for reagentID, count in pairs(item.reagents) do
+        if self.reagentIcons[reagentNum] then
+            if GuildbookUI.playerContainerItems[reagentID] then
+                if GuildbookUI.playerContainerItems[reagentID] >= count then
+                    self.reagentIcons[reagentNum].greenBorder:Show()
+                elseif GuildbookUI.playerContainerItems[reagentID] < count then
+                    self.reagentIcons[reagentNum].purpleBorder:Show()
+                end
+            else
+                self.reagentIcons[reagentNum].orangeBorder:Show()
+            end
+            self.reagentIcons[reagentNum]:SetItem(reagentID)
+            self.reagentIcons[reagentNum].count:SetText(count)
+            reagentNum = reagentNum + 1;
+        end
+    end
+    self.Text:SetText(item.link)
+end
+
+function GuildbookRecipeListviewItemMixin:OnLoad()
+
+end
+
+function GuildbookRecipeListviewItemMixin:OnEnter()
+    if self.item.link then
+        GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
+        if self.item.enchant then
+            GameTooltip:SetSpellByID(self.item.itemID)
+        else
+            GameTooltip:SetHyperlink(self.item.link)
+        end
+        -- GameTooltip:AddLine(" ")
+        -- GameTooltip:AddLine(gb.Colours.Blue:WrapTextInColorCode(L["REMOVE_RECIPE_FROM_PROF"]))
+
+        GameTooltip:AddLine(" ")
+        GameTooltip:AddLine(gb.Colours.BlizzBlue:WrapTextInColorCode(L["TRADESKILLS_REAGENTS"]))
+        if self.item.reagents then
+            for reagentID, count in pairs(self.item.reagents) do
+                local name, _, _, _, _, _, _, _, _, icon = GetItemInfo(reagentID)
+                if not name then
+                    local item = Item:CreateFromItemID(reagentID)
+                    item:ContinueOnItemLoad(function()
+                        local name = item:GetItemName()
+                        GameTooltip:AddDoubleLine(name, count, 1,1,1, 1,1,1)
+                    end)
+                else
+                    GameTooltip:AddDoubleLine(name, count, 1,1,1, 1,1,1)
+                end
+            end
+        end
+
+        -- this adds the item table to the tooltip for debugging reasons
+        if GUILDBOOK_GLOBAL.Debug then
+            GameTooltip:AddLine(" ")
+            GameTooltip:AddLine("Guildbook debug:")
+            for k, v in pairs(self.item) do
+                if k ~= "reagents" and k ~= "charactersWithRecipe" then
+                    GameTooltip:AddDoubleLine(k,v)
+                elseif k == "enchant" then
+                    GameTooltip:AddDoubleLine(k, v == true and "true" or "false")
+                end
+            end
+        end
+
+        GameTooltip:Show()
+        -- fade the character listview to make the tooltip easier to view/read
+        GuildbookUI.tradeskills.tradeskillItemsCharacterListview:SetAlpha(0.3)
+    else
+        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+    end
+end
+
+function GuildbookRecipeListviewItemMixin:OnLeave()
+    GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+    GuildbookUI.tradeskills.tradeskillItemsCharacterListview:SetAlpha(1)
+end
+
+function GuildbookRecipeListviewItemMixin:OnMouseDown(button)
+
+    --local index = self:GetOrderIndex();
+
+    -- this is an option for users to remove an item from a tradeskill if its somehow been mixed up
+    -- its not the best option to use however
+    -- if button == "RightButton" then
+    --     local characters = getAllPlayersWithTradeskill(self.item.profession)
+    --     StaticPopup_Show('GuildbookDeleteRecipeFromCharacters', string.format(L["REMOVE_RECIPE_FROM_PROF_SS"], self.item.link, self.item.profession), nil, {
+    --         itemLink = self.item.link,
+    --         characters = characters,
+    --         prof = self.item.profession,
+    --         listviewIndex = index,
+    --         listview = GuildbookUI.tradeskills.tradeskillItemsListview,
+    --     })
+    --     return;
+    -- end
+
+    -- enable the ctrl click to view item
+    if IsControlKeyDown() then
+        DressUpItemLink(self.item.link)
+
+    -- enable the shift click to link item
+    elseif IsShiftKeyDown() then
+        HandleModifiedItemClick(self.item.link)
+
+    -- load the characters who can craft the item
+    else
+        loadCharactersWithRecipe(self.item)
+    end
+
+end
+
+function GuildbookRecipeListviewItemMixin:OnMouseUp()
+
+end
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -962,64 +1224,6 @@ function GuildbookHomeMembersListviewItemTemplateMixin:SetDataBinding(binding, h
 
     self:UpdateCharacter(self.characterGUID, self.character)
 
-    --[[
-    local status = gb.Roster.onlineStatus[self.characterGUID]
-    if status and status.isOnline == false then
-        self.name:SetText(gb.Colours.Grey:WrapTextInColorCode(self.character.Name))
-    else
-        self.name:SetText(gb.Colours[self.character.Class]:WrapTextInColorCode(self.character.Name))
-    end
-
-    if type(self.character.MainSpec) == "string" and self.character.MainSpec ~= "-" then
-        local specAtlas = gb:GetClassSpecAtlasName(self.character.Class, self.character.MainSpec)
-
-        if status and status.isOnline == false then
-            self.name:SetText(gb.Colours.Grey:WrapTextInColorCode(self.character.Name).." "..CreateAtlasMarkup(specAtlas, 12,12))
-        else
-            self.name:SetText(gb.Colours[self.character.Class]:WrapTextInColorCode(self.character.Name).." "..CreateAtlasMarkup(specAtlas, 12,12))
-        end
-
-    else        
-        if status and status.isOnline == false then
-            self.name:SetText(gb.Colours.Grey:WrapTextInColorCode(self.character.Name))
-        else
-            self.name:SetText(gb.Colours[self.character.Class]:WrapTextInColorCode(self.character.Name))
-        end
-    end
-
-    if type(self.character.Profession1) == "string" and self.character.Profession1 ~= "-" then
-        if self.character.Profession1 == "Engineering" then
-            self.prof1.icon:SetAtlas("Mobile-Enginnering")
-        else
-            self.prof1.icon:SetAtlas(string.format("Mobile-%s", self.character.Profession1))
-        end
-
-        self.prof1:SetSize(height-2, height-2)
-        self.prof1:EnableMouse(true)
-        self.prof1:Show()
-
-        self.prof1.func = function()
-            self:TriggerEvent("OnTradeskillClicked", self.characterGUID, self.character.Profession1)
-        end
-    end
-
-    if type(self.character.Profession2) == "string" and self.character.Profession2 ~= "-" then
-        if self.character.Profession2 == "Engineering" then
-            self.prof2.icon:SetAtlas("Mobile-Enginnering")
-        else
-            self.prof2.icon:SetAtlas(string.format("Mobile-%s", self.character.Profession2))
-        end
-
-        self.prof2:SetSize(height-2, height-2)
-        self.prof2:EnableMouse(true)
-        self.prof2:Show()
-
-        self.prof2.func = function()
-            self:TriggerEvent("OnTradeskillClicked", self.characterGUID, self.character.Profession2)
-        end
-    end
-]]
-
 end
 
 
@@ -1092,17 +1296,7 @@ function GuildbookHomeMembersListviewItemTemplateMixin:UpdateCharacter(guid, cha
     end
 
     if type(self.character.Profession1) == "string" and self.character.Profession1 ~= "-" then
-        if self.character.Profession1 == "Engineering" then
-            self.prof1.icon:SetAtlas("Mobile-Enginnering")
-        else
-            self.prof1.icon:SetAtlas(string.format("Mobile-%s", self.character.Profession1))
-        end
-
-        -- self.prof1.tooltipStatusBar = {
-        --     min = 0,
-        --     max = 375,
-        --     val = self.character.Profession1Level
-        -- }
+        self.prof1:SetTradeskillAtlas(self.character.Profession1)
 
         if type(self.character.Profession1Spec) == "number" and self.character.Profession1Spec > 0 then
             local profSpec = GetSpellInfo(self.character.Profession1Spec)
@@ -1118,16 +1312,12 @@ function GuildbookHomeMembersListviewItemTemplateMixin:UpdateCharacter(guid, cha
         self.prof1:Show()
 
         self.prof1.func = function()
-            self:TriggerEvent("OnTradeskillClicked", self.characterGUID, self.character.Profession1)
+            self:TriggerEvent("OnTradeskillClicked", self.character.Profession1, self.character)
         end
     end
 
     if type(self.character.Profession2) == "string" and self.character.Profession2 ~= "-" then
-        if self.character.Profession2 == "Engineering" then
-            self.prof2.icon:SetAtlas("Mobile-Enginnering")
-        else
-            self.prof2.icon:SetAtlas(string.format("Mobile-%s", self.character.Profession2))
-        end
+        self.prof2:SetTradeskillAtlas(self.character.Profession2)
 
         if type(self.character.Profession2Spec) == "number" and self.character.Profession2Spec > 0 then
             local profSpec = GetSpellInfo(self.character.Profession2Spec)
@@ -1143,7 +1333,7 @@ function GuildbookHomeMembersListviewItemTemplateMixin:UpdateCharacter(guid, cha
         self.prof2:Show()
 
         self.prof2.func = function()
-            self:TriggerEvent("OnTradeskillClicked", self.characterGUID, self.character.Profession2)
+            self:TriggerEvent("OnTradeskillClicked", self.character.Profession2, self.character)
         end
     end
 
@@ -1177,12 +1367,14 @@ end
 
 GuildbookGuildViewerCharacterListviewItemTemplateMixin = CreateFromMixins(CallbackRegistryMixin);
 GuildbookGuildViewerCharacterListviewItemTemplateMixin:GenerateCallbackEvents({
-    "test",
+    "OnTradeskillClicked",
 });
 
 function GuildbookGuildViewerCharacterListviewItemTemplateMixin:OnLoad()
 
     CallbackRegistryMixin.OnLoad(self);
+
+    self:RegisterCallback("OnTradeskillClicked", gb.Tradeskills.LoadGuildMemberTradeskills, gb.Tradeskills)
 
     self.mask = self:CreateMaskTexture()
     --self.mask:SetSize(31,31)
@@ -1226,11 +1418,46 @@ function GuildbookGuildViewerCharacterListviewItemTemplateMixin:SetDataBinding(b
         self.MainCharacter:SetText(mainCharacter)
     end
 
+
+    if type(binding.Profession1) == "string" then
+        self.prof1:SetTradeskillAtlas(binding.Profession1)
+    end
+    if type(binding.Profession1Spec) == "number" and binding.Profession1Spec > 0 then
+        local profSpec = GetSpellInfo(binding.Profession1Spec)
+        if profSpec then
+            self.prof1.tooltipText = gb:GetLocaleProf(binding.Profession1).." |cffffffff"..profSpec.."\n\n"..gb.Colours.BlizzBlue:WrapTextInColorCode(L["ROSTER_VIEW_RECIPES"])
+        end
+    else
+        self.prof1.tooltipText = gb:GetLocaleProf(binding.Profession1).."\n\n"..gb.Colours.BlizzBlue:WrapTextInColorCode(L["ROSTER_VIEW_RECIPES"])
+    end
+
+    self.prof1.func = function()
+        self:TriggerEvent("OnTradeskillClicked", binding.Profession1, binding)
+    end
+
+
+    if type(binding.Profession2) == "string" then
+        self.prof2:SetTradeskillAtlas(binding.Profession2)
+    end
+    if type(binding.Profession2Spec) == "number" and binding.Profession2Spec > 0 then
+        local profSpec = GetSpellInfo(binding.Profession2Spec)
+        if profSpec then
+            self.prof2.tooltipText = gb:GetLocaleProf(binding.Profession2).." |cffffffff"..profSpec.."\n\n"..gb.Colours.BlizzBlue:WrapTextInColorCode(L["ROSTER_VIEW_RECIPES"])
+        end
+    else
+        self.prof2.tooltipText = gb:GetLocaleProf(binding.Profession2).."\n\n"..gb.Colours.BlizzBlue:WrapTextInColorCode(L["ROSTER_VIEW_RECIPES"])
+    end
+
+    self.prof2.func = function()
+        self:TriggerEvent("OnTradeskillClicked", binding.Profession2, binding)
+    end
 end
 
 
 function GuildbookGuildViewerCharacterListviewItemTemplateMixin:ResetDataBinding()
 
+    self.prof1:ClearAtlas()
+    self.prof2:ClearAtlas()
 end
 
 

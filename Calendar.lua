@@ -25,6 +25,7 @@ the copyright holders.
 local addonName, Guildbook = ...
 local L = Guildbook.Locales
 
+local CALENDAR_SYNC = false;
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- calendar
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1425,7 +1426,38 @@ function Guildbook:SetupGuildCalendarFrame()
     end
 
 
+
     self.GuildFrame.GuildCalendarFrame:SetScript('OnShow', function(self)
+
+        --- decided to move these comms into here, its possibel a lot of players/guilds might not use the calendar and its not required to spam the chat
+        if CALENDAR_SYNC == false then
+
+            Guildbook:SendGuildCalendarEvents()
+            Guildbook.DEBUG("func", "Load", "send calendar events")
+
+            C_Timer.After(4, function()
+                Guildbook:SendGuildCalendarDeletedEvents()
+                Guildbook.DEBUG("func", "Load", "send deleted calendar events")
+            end)
+
+            C_Timer.After(8, function()
+                Guildbook:RequestGuildCalendarEvents()
+                Guildbook.DEBUG("func", "Load", "requested calendar events")
+            end)
+
+            C_Timer.After(12, function()
+                Guildbook:RequestGuildCalendarDeletedEvents()
+                Guildbook.DEBUG("func", "Load", "requested deleted calendar events")
+            end)
+
+            C_Timer.After(16, function()
+                Guildbook:RemoveOldEventsFromSavedVarFile()
+            end)
+
+            CALENDAR_SYNC = true;
+        end
+
+
         self:MonthChanged()
         --FriendsFrame:SetHeight(FRIENDS_FRAME_HEIGHT + 90)
 

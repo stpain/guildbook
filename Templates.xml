@@ -65,6 +65,7 @@
         </Frames>
     </Frame>
 
+
     <Frame name="GuildbookProfileSummaryRowAvatarTemplate" mixin="GuildbookProfileSummaryRowAvatarTemplateMixin" virtual="true" enableMouse="true" useParentLevel="true">
         <Animations>
             <AnimationGroup parentKey="anim" looping="REPEAT">
@@ -127,6 +128,7 @@
         </Scripts>
     </Frame>
 
+
     <Frame name="GuildbookListviewItem" mixin="GuildbookListviewItemMixin" virtual="true" enableMouse="true">
         <Layers>
 			<Layer level="BACKGROUND">
@@ -162,11 +164,15 @@
         </Scripts>
     </Frame>
 
-    <Frame name="GuildbookSmallHighlightButton" mixin="GuildbookButtonMixin" virtual="true" enableMouse="true">
+
+    <Frame name="GuildbookSmallHighlightButton" mixin="GuildbookSmallHighlightButtonMixin" virtual="true" enableMouse="true">
         <Size x="25" y="25"/>
         <Layers>
             <Layer level="HIGHLIGHT">
                 <Texture atlas="transmog-frame-pink" setAllPoints="true"/>
+            </Layer>
+            <Layer level="ARTWORK">
+                <Texture parentKey="icon" setAllPoints="true"/>
             </Layer>
         </Layers>
         <Scripts>
@@ -179,233 +185,6 @@
         </Scripts>
 	</Frame>
 
-    <Frame name="GuildbookRosterListviewItem" mixin="GuildbookRosterListviewItemMixin" virtual="true" enableMouse="true">
-        <Animations>
-            <AnimationGroup parentKey="anim" setToFinalAlpha="true">
-                <Alpha parentKey="fadeIn" duration="0.25" fromAlpha="0" toAlpha="1"/>
-            </AnimationGroup>
-        </Animations>
-        <Layers>
-			<Layer level="BACKGROUND">
-				<Texture parentKey="Background" atlas="Talent-Background" useAtlasSize="false" setAllPoints="true"/>
-			</Layer>
-			<Layer level="HIGHLIGHT">
-				<!-- <Texture parentKey="Highlight" atlas="GarrMission_ListGlow-Highlight" useAtlasSize="false" setAllPoints="true"/> -->
-				<Texture parentKey="Highlight" atlas="search-highlight-large" useAtlasSize="false" setAllPoints="true"/>
-			</Layer>
-            <Layer level="OVERLAY">
-				<Texture parentKey="ClassIcon">
-					<Size x="24" y="24"/>				
-					<Anchors>
-						<Anchor point="LEFT" x="3" y="0"/>
-					</Anchors>
-				</Texture>
-				<FontString parentArray="fontstrings" parentKey="Name" inherits="GameFontNormal" justifyH="LEFT">
-                    <Size x="108" y="22"/>
-					<Anchors>
-						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.ClassIcon" x="7" y="0"/>
-					</Anchors>
-					<Color r="1" g="1" b="1"/>
-				</FontString>
-				<FontString parentArray="fontstrings" parentKey="Level" inherits="GameFontNormal" justifyH="CENTER">
-                    <Size x="30" y="22"/>
-					<Anchors>
-						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Name" x="5" y="0"/>
-					</Anchors>
-					<Color r="1" g="1" b="1"/>
-				</FontString>
-				<Texture parentKey="MainSpecIcon">
-                    <Size x="25" y="25"/>
-					<Anchors>
-						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Level" x="5" y="0"/> -->
-					</Anchors>
-				</Texture>
-				<FontString parentArray="fontstrings" parentKey="MainSpec" inherits="GameFontNormal" justifyH="LEFT">
-                    <Size x="100" y="22"/>
-					<Anchors>
-						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.MainSpecIcon" x="5" y="0"/>
-					</Anchors>
-					<Color r="1" g="1" b="1"/>
-				</FontString>
-
-				<!-- <Texture parentKey="Prof1">
-                    <Size x="25" y="25"/>
-					<Anchors>
-						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.MainSpec" x="5" y="0"/>
-					</Anchors>
-				</Texture> -->
-				<!-- <Texture parentKey="Prof2">
-                    <Size x="25" y="25"/>
-					<Anchors>
-						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Prof1" x="5" y="0"/>
-					</Anchors>
-				</Texture> -->
-
-				<FontString parentArray="fontstrings" parentKey="Location" inherits="GameFontNormal" justifyH="LEFT">
-                    <Size x="110" y="22"/>
-					<Anchors>
-						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.MainSpec" x="70" y="0"/>
-					</Anchors>
-					<Color r="1" g="1" b="1"/>
-				</FontString>
-				<FontString parentArray="fontstrings" parentKey="Rank" inherits="GameFontNormal" justifyH="LEFT">
-                    <Size x="110" y="22"/>
-					<Anchors>
-						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Location" x="5" y="0"/>
-					</Anchors>
-					<Color r="1" g="1" b="1"/>
-				</FontString>
-				<FontString parentArray="fontstrings" parentKey="PublicNote" inherits="GameFontNormal" justifyH="LEFT">
-                    <Size x="110" y="22"/>
-					<Anchors>
-						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Rank" x="5" y="0"/>
-					</Anchors>
-					<Color r="1" g="1" b="1"/>
-				</FontString>
-            </Layer>
-        </Layers>
-        <Frames>
-            <Frame parentKey="Prof1" inherits="GuildbookSmallHighlightButton" enableMouse="true">
-                <Size x="25" y="25"/>
-                <Anchors>
-                    <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.MainSpec" x="5" y="0"/>
-                </Anchors>
-                <Layers>
-                    <Layer level="BACKGROUND">
-                        <Texture parentKey="icon">
-                            <Size x="25" y="25"/>
-                            <Anchors>
-                                <Anchor point="CENTER"/>
-                            </Anchors>
-                        </Texture>
-                    </Layer>
-                </Layers>
-                <Scripts>   
-                    <OnMouseDown>
-                        GuildbookButtonMixin.OnMouseDown(self)
-                    </OnMouseDown>
-                </Scripts>
-            </Frame>
-            <Frame parentKey="Prof2" inherits="GuildbookSmallHighlightButton" enableMouse="true">
-                <Size x="25" y="25"/>
-                <Anchors>
-                    <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Prof1" x="5" y="0"/>
-                </Anchors>
-                <Layers>
-                    <Layer level="BACKGROUND">
-                        <Texture parentKey="icon">
-                            <Size x="25" y="25"/>
-                            <Anchors>
-                                <Anchor point="CENTER"/>
-                            </Anchors>
-                        </Texture>
-                    </Layer>
-                </Layers>
-                <Scripts>   
-                    <OnMouseDown>
-                        GuildbookButtonMixin.OnMouseDown(self)
-                    </OnMouseDown>
-                </Scripts>
-            </Frame>
-
-            <Frame parentKey="inviteToGroup" inherits="GuildbookSmallHighlightButton" enableMouse="true">
-                <Size x="25" y="25"/>
-                <Anchors>
-                    <Anchor point="RIGHT" x="0" y="0"/>
-                </Anchors>
-                <Layers>
-                    <Layer level="BACKGROUND">
-                        <Texture atlas="communities-icon-addchannelplus">
-                            <Size x="25" y="25"/>
-                            <Anchors>
-                                <Anchor point="CENTER"/>
-                            </Anchors>
-                        </Texture>
-                    </Layer>
-                </Layers>
-                <KeyValues>
-                    <KeyValue key="tooltipText" value="INVITE_TO_GROUP" type="string"/>
-                </KeyValues>
-                <Scripts>   
-                    <OnMouseDown>
-                        GuildbookButtonMixin.OnMouseDown(self)
-                        self:GetParent():GetParent():GetParent():RowInviteToGroup_OnMouseDown(self:GetParent())
-                    </OnMouseDown>
-                </Scripts>
-            </Frame>
-            <Frame parentKey="openChat" inherits="GuildbookSmallHighlightButton" enableMouse="true">
-                <Size x="25" y="25"/>
-                <Anchors>
-                    <Anchor point="RIGHT" relativeKey="$parent.inviteToGroup" relativePoint="LEFT" x="-4" y="0"/>
-                </Anchors>
-                <Layers>
-                    <Layer level="BACKGROUND">
-                        <Texture file="interface/helpframe/reportlagicon-chat" setAllPoints="true">
-                            <Anchors>
-                                <Anchor point="TOPLEFT" x="-8" y="8"/>
-                                <Anchor point="BOTTOMRIGHT" x="8" y="-8"/>
-                            </Anchors>
-                        </Texture>
-                    </Layer>
-                </Layers>
-                <KeyValues>
-                    <KeyValue key="tooltipText" value="OPEN_CHAT" type="string"/>
-                </KeyValues>
-                <Scripts>   
-                    <OnMouseDown>
-                        GuildbookButtonMixin.OnMouseDown(self)
-                        self:GetParent():GetParent():GetParent():RowOpenToChat_OnMouseDown(self:GetParent())
-                    </OnMouseDown>
-                </Scripts>
-            </Frame>
-            <Frame parentKey="openProfile" inherits="GuildbookSmallHighlightButton" enableMouse="true">
-                <Size x="25" y="25"/>
-                <Anchors>
-                    <Anchor point="RIGHT" relativeKey="$parent.openChat" relativePoint="LEFT" x="-4" y="0"/>
-                </Anchors>
-                <Layers>
-                    <Layer level="BACKGROUND">
-                        <Texture parentKey="background" atlas="GarrMission_MissionIcon-Recruit" setAllPoints="true">
-                            <Anchors>
-                                <Anchor point="TOPLEFT" x="-2" y="2"/>
-                                <Anchor point="BOTTOMRIGHT" x="2" y="-2"/>
-                            </Anchors>
-                        </Texture>
-                        <MaskTexture parentKey="mask" file="Interface/CHARACTERFRAME/TempPortraitAlphaMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
-                            <Anchors>
-                                <Anchor point="TOPLEFT" x="1" y="-1"/>
-                                <Anchor point="BOTTOMRIGHT" x="-1" y="1"/>
-                            </Anchors>
-                            <MaskedTextures>
-                                <MaskedTexture childKey="background"/>
-                            </MaskedTextures>
-                        </MaskTexture>
-                    </Layer>
-                </Layers>
-                <KeyValues>
-                    <KeyValue key="tooltipText" value="OPEN_PROFILE" type="string"/>
-                </KeyValues>
-                <Scripts>   
-                    <OnMouseDown>
-                        GuildbookButtonMixin.OnMouseDown(self)
-                        self:GetParent():GetParent():GetParent():RowOpenProfile_OnMouseDown(self:GetParent())
-                    </OnMouseDown>
-                    <OnMouseUp>
-                        GuildbookButtonMixin.OnMouseUp(self)
-                        self:GetParent():GetParent():GetParent():RowOpenProfile_OnMouseUp(self:GetParent())
-                    </OnMouseUp>
-                </Scripts>
-            </Frame>
-        </Frames>
-
-        <Scripts>
-            <OnLoad method="OnLoad"/>
-            <OnMouseDown method="OnMouseDown"/>
-            <OnMouseUp method="OnMouseUp"/>
-            <OnEnter method="OnEnter"/>
-            <OnLeave method="OnLeave"/>
-        </Scripts>
-    </Frame>
 
     <Frame name="GuildbookAvatarFrame" mixin="GuildbookAvatarMixin" enableMouse="true" virtual="true">
         <Layers>
@@ -426,6 +205,7 @@
             <OnMouseDown method="OnMouseDown"/>
         </Scripts>
     </Frame>
+
 
     <Frame name="GuildbookCharacterListviewItem" mixin="GuildbookCharacterListviewItemMixin" virtual="true" enableMouse="true">
         <Size y="45"/>
@@ -465,6 +245,7 @@
         </Scripts>
     </Frame>
 
+
     <Frame name="GuildbookTradeskillCharacterListviewItem" mixin="GuildbookTradeskillCharacterListviewItemMixin" virtual="true" enableMouse="true">
         <Size y="45"/>
         <Layers>
@@ -502,6 +283,7 @@
             <OnMouseUp method="OnMouseUp"/>
         </Scripts>
     </Frame>
+
 
     <Frame name="GuildbookItemIconFrame" mixin="GuildbookItemIconFrameMixin"  virtual="true">
         <Layers>
@@ -553,6 +335,7 @@
         </Scripts>
     </Frame>
     
+
     <Frame name="GuildbookRecipeListviewItem" mixin="GuildbookRecipeListviewItemMixin" virtual="true" enableMouse="true">
         <Size y="24"/>
         <Animations>
@@ -562,10 +345,6 @@
         </Animations>
         <Layers>
 			<Layer level="BACKGROUND">
-				<!-- <Texture parentKey="Background" atlas="friendslist-categorybutton" useAtlasSize="false" setAllPoints="true"/> -->
-				<!-- <Texture parentKey="Background" atlas="Garr_MissionList-CostBG" useAtlasSize="false" setAllPoints="true"/> -->
-				<!-- <Texture parentKey="Background" atlas="GarrMission_FollowerListButton" useAtlasSize="false" setAllPoints="true"/> -->
-				<!-- <Texture parentKey="Background" atlas="_search-rowbg" useAtlasSize="false" setAllPoints="true"/> -->
 				<Texture parentKey="Background" atlas="Talent-Background" useAtlasSize="false" setAllPoints="true"/>
 			</Layer>
 			<Layer level="HIGHLIGHT">
@@ -643,6 +422,7 @@
         </Scripts>
     </Frame>
     
+
     <Frame name="GuildbookChatBubble" virtual="true" hyperlinksEnabled="true" enableMouse="true">
         <Layers>
             <Layer level="BACKGROUND">
@@ -680,6 +460,7 @@
         </Scripts>
     </Frame>
     
+
     <Frame name="GuildbookItemIconLinkFrame" virtual="true">
         <Size x="230" y="30"/>
         <Layers>
@@ -722,6 +503,7 @@
             </OnLeave>
         </Scripts>
     </Frame>
+
 
 	<StatusBar name="GuildbookCastBar" drawLayer="BORDER" virtual="true" minValue="0" maxValue="1" defaultValue="0" orientation="HORIZONTAL">
 		<Layers>
@@ -807,6 +589,7 @@
 		<BarColor r="1.0" g="0.7" b="0.0"/>
 	</StatusBar>
 
+
     <Frame name="GuildbookStatsGroup" virtual="true">
         <Layers>
             <Layer level="BACKGROUND">
@@ -828,6 +611,7 @@
             </Layer>
         </Layers>
     </Frame>
+
 
     <Frame name="GuildbookGuildBankListviewItem"  virtual="true" enableMouse="true">
         <Animations>
@@ -908,6 +692,7 @@
         </Scripts>
     </Frame>
 
+
     <Frame name="GuildbookTradeSkillItemsListviewTemplate" mixin="GuildbookTradeSkillItemsListviewMixin" virtual="true">
         <Frames>
             <Frame parentKey="ScrollBox" inherits="WowScrollBoxList"/>
@@ -923,6 +708,7 @@
         </Scripts>
     </Frame>
 
+
     <Frame name="GuildbookCalendarAttendingListviewTemplate" mixin="GuildbookCalendarAttendingListviewMixin" virtual="true">
         <Frames>
             <Frame parentKey="ScrollBox" inherits="WowScrollBoxList"/>
@@ -937,6 +723,7 @@
             <OnLoad method="OnLoad"/>
         </Scripts>
     </Frame>
+
 
     <Frame name="GuildbookCalendarAttendingListviewItemTemplate" virtual="true">
         <Size y="14"/>
@@ -956,6 +743,7 @@
         </Layers>
     </Frame>
 
+
     <Frame name="GuildbookTradeSkillItemsCharacterListviewTemplate" mixin="GuildbookTradeSkillItemsCharacterListviewMixin" virtual="true">
         <Frames>
             <Frame parentKey="ScrollBox" inherits="WowScrollBoxList"/>
@@ -971,273 +759,6 @@
         </Scripts>
     </Frame>
 
-
-    <Frame name="GuildbookMySacksListviewItem" mixin="GuildbookMySacksListviewItemMixin" virtual="true" enableMouse="true">
-        <Animations>
-            <AnimationGroup parentKey="anim" setToFinalAlpha="true">
-                <Alpha parentKey="fadeIn" duration="0.33" fromAlpha="0" toAlpha="1"/>
-            </AnimationGroup>
-        </Animations>
-        <Layers>
-            <Layer level="BACKGROUND">
-				<Texture parentKey="Background" atlas="Talent-Background" useAtlasSize="false" setAllPoints="true"/>
-			</Layer>
-			<Layer level="HIGHLIGHT">
-				<Texture parentKey="Highlight" atlas="search-highlight-large" useAtlasSize="false" setAllPoints="true"/>
-			</Layer>
-            <Layer level="ARTWORK">
-                <Texture parentKey="Icon">
-                    <TexCoords left="0.08" right="0.92" top="0.08" bottom="0.92"/>
-                    <Size x="26" y="26"/>
-                    <Anchors>
-                        <Anchor point="LEFT" x="0" y="0"/>
-                    </Anchors>
-                </Texture>
-                <FontString parentArray="fontstrings" parentKey="Link" inherits="GameFontNormal" justifyH="LEFT">
-                    <Size x="280" y="26"/>
-                    <Anchors>
-                        <Anchor point="LEFT" relativeKey="$parent.Icon" relativePoint="RIGHT" x="5" y="0"/>
-                    </Anchors>
-                </FontString>
-                <FontString parentArray="fontstrings" parentKey="Count" inherits="GameFontNormal"  justifyH="LEFT">
-                    <Size x="40" y="26"/>
-                    <Anchors>
-                        <Anchor point="LEFT" relativeKey="$parent.Link" relativePoint="RIGHT" x="5" y="0"/>
-                    </Anchors>
-                </FontString>
-                <FontString parentArray="fontstrings" parentKey="Type" inherits="GameFontNormal" justifyH="LEFT">
-                    <Size x="100" y="26"/>
-                    <Anchors>
-                        <Anchor point="LEFT" relativeKey="$parent.Count" relativePoint="RIGHT" x="5" y="0"/>
-                    </Anchors>
-                </FontString>
-                <FontString parentArray="fontstrings" parentKey="SubType" inherits="GameFontNormal"  justifyH="LEFT">
-                    <Size x="100" y="26"/>
-                    <Anchors>
-                        <Anchor point="LEFT" relativeKey="$parent.Type" relativePoint="RIGHT" x="5" y="0"/>
-                    </Anchors>
-                </FontString>
-            </Layer>
-        </Layers>
-        <Frames>
-            <Frame parentKey="tooltip" inherits="GuildbookSmallHighlightButton">
-                <Size x="26" y="26"/>
-                <Anchors>
-                    <Anchor point="RIGHT" x="-5" y="0"/>
-                </Anchors>
-                <Layers>
-                    <Layer level="BACKGROUND">
-                        <Texture atlas="questrepeatableturnin" setAllPoints="true"/>
-                    </Layer>
-                </Layers>
-            </Frame>
-            <Frame parentKey="character1" parentArray="characterIcons" inherits="GuildbookSmallHighlightButton" hidden="true">
-                <Size x="26" y="26"/>
-                <Anchors>
-                    <Anchor point="RIGHT" relativeKey="$parent.tooltip" relativePoint="LEFT" x="-1" y="0"/>
-                </Anchors>
-                <Layers>
-                    <Layer level="BACKGROUND">
-                        <Texture parentKey="background" setAllPoints="true"/>
-                        <MaskTexture parentKey="mask" file="Interface/CHARACTERFRAME/TempPortraitAlphaMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
-                            <Anchors>
-                                <Anchor point="TOPLEFT" x="2" y="-2"/>
-                                <Anchor point="BOTTOMRIGHT" x="-2" y="2"/>
-                            </Anchors>
-                            <MaskedTextures>
-                                <MaskedTexture childKey="background"/>
-                            </MaskedTextures>
-                        </MaskTexture>
-                    </Layer>
-                </Layers>
-            </Frame>
-            <Frame parentKey="character2" parentArray="characterIcons" inherits="GuildbookSmallHighlightButton" hidden="true">
-                <Size x="26" y="26"/>
-                <Anchors>
-                    <Anchor point="RIGHT" relativeKey="$parent.character1" relativePoint="LEFT" x="-1" y="0"/>
-                </Anchors>
-                <Layers>
-                    <Layer level="BACKGROUND">
-                        <Texture parentKey="background" setAllPoints="true"/>
-                        <MaskTexture parentKey="mask" file="Interface/CHARACTERFRAME/TempPortraitAlphaMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
-                            <Anchors>
-                                <Anchor point="TOPLEFT" x="2" y="-2"/>
-                                <Anchor point="BOTTOMRIGHT" x="-2" y="2"/>
-                            </Anchors>
-                            <MaskedTextures>
-                                <MaskedTexture childKey="background"/>
-                            </MaskedTextures>
-                        </MaskTexture>
-                    </Layer>
-                </Layers>
-            </Frame>
-            <Frame parentKey="character3" parentArray="characterIcons" inherits="GuildbookSmallHighlightButton" hidden="true">
-                <Size x="26" y="26"/>
-                <Anchors>
-                    <Anchor point="RIGHT" relativeKey="$parent.character2" relativePoint="LEFT" x="-1" y="0"/>
-                </Anchors>
-                <Layers>
-                    <Layer level="BACKGROUND">
-                        <Texture parentKey="background" setAllPoints="true"/>
-                        <MaskTexture parentKey="mask" file="Interface/CHARACTERFRAME/TempPortraitAlphaMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
-                            <Anchors>
-                                <Anchor point="TOPLEFT" x="2" y="-2"/>
-                                <Anchor point="BOTTOMRIGHT" x="-2" y="2"/>
-                            </Anchors>
-                            <MaskedTextures>
-                                <MaskedTexture childKey="background"/>
-                            </MaskedTextures>
-                        </MaskTexture>
-                    </Layer>
-                </Layers>
-            </Frame>
-            <Frame parentKey="character4" parentArray="characterIcons" inherits="GuildbookSmallHighlightButton" hidden="true">
-                <Size x="26" y="26"/>
-                <Anchors>
-                    <Anchor point="RIGHT" relativeKey="$parent.character2" relativePoint="LEFT" x="-1" y="0"/>
-                </Anchors>
-                <Layers>
-                    <Layer level="BACKGROUND">
-                        <Texture parentKey="background" setAllPoints="true"/>
-                        <MaskTexture parentKey="mask" file="Interface/CHARACTERFRAME/TempPortraitAlphaMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
-                            <Anchors>
-                                <Anchor point="TOPLEFT" x="2" y="-2"/>
-                                <Anchor point="BOTTOMRIGHT" x="-2" y="2"/>
-                            </Anchors>
-                            <MaskedTextures>
-                                <MaskedTexture childKey="background"/>
-                            </MaskedTextures>
-                        </MaskTexture>
-                    </Layer>
-                </Layers>
-            </Frame>
-            <Frame parentKey="character5" parentArray="characterIcons" inherits="GuildbookSmallHighlightButton" hidden="true">
-                <Size x="26" y="26"/>
-                <Anchors>
-                    <Anchor point="RIGHT" relativeKey="$parent.character2" relativePoint="LEFT" x="-1" y="0"/>
-                </Anchors>
-                <Layers>
-                    <Layer level="BACKGROUND">
-                        <Texture parentKey="background" setAllPoints="true"/>
-                        <MaskTexture parentKey="mask" file="Interface/CHARACTERFRAME/TempPortraitAlphaMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
-                            <Anchors>
-                                <Anchor point="TOPLEFT" x="2" y="-2"/>
-                                <Anchor point="BOTTOMRIGHT" x="-2" y="2"/>
-                            </Anchors>
-                            <MaskedTextures>
-                                <MaskedTexture childKey="background"/>
-                            </MaskedTextures>
-                        </MaskTexture>
-                    </Layer>
-                </Layers>
-            </Frame>
-            <Frame parentKey="character6" parentArray="characterIcons" inherits="GuildbookSmallHighlightButton" hidden="true">
-                <Size x="26" y="26"/>
-                <Anchors>
-                    <Anchor point="RIGHT" relativeKey="$parent.character2" relativePoint="LEFT" x="-1" y="0"/>
-                </Anchors>
-                <Layers>
-                    <Layer level="BACKGROUND">
-                        <Texture parentKey="background" setAllPoints="true"/>
-                        <MaskTexture parentKey="mask" file="Interface/CHARACTERFRAME/TempPortraitAlphaMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
-                            <Anchors>
-                                <Anchor point="TOPLEFT" x="2" y="-2"/>
-                                <Anchor point="BOTTOMRIGHT" x="-2" y="2"/>
-                            </Anchors>
-                            <MaskedTextures>
-                                <MaskedTexture childKey="background"/>
-                            </MaskedTextures>
-                        </MaskTexture>
-                    </Layer>
-                </Layers>
-            </Frame>
-            <Frame parentKey="character7" parentArray="characterIcons" inherits="GuildbookSmallHighlightButton" hidden="true">
-                <Size x="26" y="26"/>
-                <Anchors>
-                    <Anchor point="RIGHT" relativeKey="$parent.character2" relativePoint="LEFT" x="-1" y="0"/>
-                </Anchors>
-                <Layers>
-                    <Layer level="BACKGROUND">
-                        <Texture parentKey="background" setAllPoints="true"/>
-                        <MaskTexture parentKey="mask" file="Interface/CHARACTERFRAME/TempPortraitAlphaMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
-                            <Anchors>
-                                <Anchor point="TOPLEFT" x="2" y="-2"/>
-                                <Anchor point="BOTTOMRIGHT" x="-2" y="2"/>
-                            </Anchors>
-                            <MaskedTextures>
-                                <MaskedTexture childKey="background"/>
-                            </MaskedTextures>
-                        </MaskTexture>
-                    </Layer>
-                </Layers>
-            </Frame>
-            <Frame parentKey="character8" parentArray="characterIcons" inherits="GuildbookSmallHighlightButton" hidden="true">
-                <Size x="26" y="26"/>
-                <Anchors>
-                    <Anchor point="RIGHT" relativeKey="$parent.character2" relativePoint="LEFT" x="-1" y="0"/>
-                </Anchors>
-                <Layers>
-                    <Layer level="BACKGROUND">
-                        <Texture parentKey="background" setAllPoints="true"/>
-                        <MaskTexture parentKey="mask" file="Interface/CHARACTERFRAME/TempPortraitAlphaMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
-                            <Anchors>
-                                <Anchor point="TOPLEFT" x="2" y="-2"/>
-                                <Anchor point="BOTTOMRIGHT" x="-2" y="2"/>
-                            </Anchors>
-                            <MaskedTextures>
-                                <MaskedTexture childKey="background"/>
-                            </MaskedTextures>
-                        </MaskTexture>
-                    </Layer>
-                </Layers>
-            </Frame>
-            <Frame parentKey="character9" parentArray="characterIcons" inherits="GuildbookSmallHighlightButton" hidden="true">
-                <Size x="26" y="26"/>
-                <Anchors>
-                    <Anchor point="RIGHT" relativeKey="$parent.character2" relativePoint="LEFT" x="-1" y="0"/>
-                </Anchors>
-                <Layers>
-                    <Layer level="BACKGROUND">
-                        <Texture parentKey="background" setAllPoints="true"/>
-                        <MaskTexture parentKey="mask" file="Interface/CHARACTERFRAME/TempPortraitAlphaMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
-                            <Anchors>
-                                <Anchor point="TOPLEFT" x="2" y="-2"/>
-                                <Anchor point="BOTTOMRIGHT" x="-2" y="2"/>
-                            </Anchors>
-                            <MaskedTextures>
-                                <MaskedTexture childKey="background"/>
-                            </MaskedTextures>
-                        </MaskTexture>
-                    </Layer>
-                </Layers>
-            </Frame>
-            <Frame parentKey="character10" parentArray="characterIcons" inherits="GuildbookSmallHighlightButton" hidden="true">
-                <Size x="26" y="26"/>
-                <Anchors>
-                    <Anchor point="RIGHT" relativeKey="$parent.character2" relativePoint="LEFT" x="-1" y="0"/>
-                </Anchors>
-                <Layers>
-                    <Layer level="BACKGROUND">
-                        <Texture parentKey="background" setAllPoints="true"/>
-                        <MaskTexture parentKey="mask" file="Interface/CHARACTERFRAME/TempPortraitAlphaMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
-                            <Anchors>
-                                <Anchor point="TOPLEFT" x="2" y="-2"/>
-                                <Anchor point="BOTTOMRIGHT" x="-2" y="2"/>
-                            </Anchors>
-                            <MaskedTextures>
-                                <MaskedTexture childKey="background"/>
-                            </MaskedTextures>
-                        </MaskTexture>
-                    </Layer>
-                </Layers>
-            </Frame>
-        </Frames>
-        <Scripts>
-            <!-- <OnShow method="OnShow"/> -->
-            <OnEnter method="OnEnter"/>
-            <OnLeave method="OnLeave"/>
-        </Scripts>
-    </Frame>
 
 <!-- AdventureMapLabel-Large  BossBanner-BgBanner-Bottom challenges-timerbg -->
 
@@ -1328,26 +849,12 @@
                 </FontString>
             </Layer>
         </Layers>
-        <Frames>
-            <!-- <Frame parentKey="goto" inherits="GuildbookSmallHighlightButton">
-                <Size x="40" y="40"/>
-                <Anchors>
-                    <Anchor point="RIGHT" x="-5" y="0"/>
-                </Anchors>
-                <Layers>
-                    <Layer level="BACKGROUND">
-                        <Texture atlas="questrepeatableturnin" setAllPoints="true"/>
-                    </Layer>
-                </Layers>
-            </Frame> -->
-        </Frames>
         <Scripts>
             <OnEnter method="OnEnter"/>
             <OnLeave method="OnLeave"/>
             <OnMouseDown method="OnMouseDown"/>
         </Scripts>
     </Frame>
-
 
 
 	<Frame name="GuildbookDropdownFlyout" mixin="GuildbookDropdownFlyoutMixin" virtual="true" hidden="true">
@@ -1377,6 +884,7 @@
 			<OnLoad method="OnLoad"/>
 		</Scripts>
 	</Frame>
+
 
 	<Frame name="GuildbookDropdown" mixin="GuildbookDropdownMixin" virtual="true" enableMouse="true">
 		<Size x="115" y="28"/>
@@ -1532,7 +1040,6 @@
     </Frame>
 
 
-
     <Frame name="GuildbookHomeMembersListviewItemTemplate" mixin="GuildbookHomeMembersListviewItemTemplateMixin" virtual="true" enableMouse="true">
         <Layers>
             <Layer level="BACKGROUND">
@@ -1576,21 +1083,21 @@
                 <Anchors>
                     <Anchor point="RIGHT" x="-2" y="0"/>
                 </Anchors>
-                <Layers>
+                <!-- <Layers>
                     <Layer level="ARTWORK">
                         <Texture parentKey="icon" useAtlasSize="false" setAllPoints="true"/>
                     </Layer>
-                </Layers>
+                </Layers> -->
             </Frame>
             <Frame parentKey="prof2" inherits="GuildbookSmallHighlightButton" enableMouse="false">
                 <Anchors>
                     <Anchor point="RIGHT" relativeKey="$parent.prof1" relativePoint="LEFT" x="-2" y="0"/>
                 </Anchors>
-                <Layers>
+                <!-- <Layers>
                     <Layer level="ARTWORK">
                         <Texture parentKey="icon" useAtlasSize="false" setAllPoints="true"/>
                     </Layer>
-                </Layers>
+                </Layers> -->
             </Frame>
         </Frames>
         <Scripts>
@@ -1641,10 +1148,11 @@
         </Scripts>
     </Frame>
 
+
     <Frame name="GuildbookGuildViewerCharacterListviewItemTemplate" mixin="GuildbookGuildViewerCharacterListviewItemTemplateMixin" virtual="true" enableMouse="true">
         <Layers>
 			<Layer level="BACKGROUND">
-				<Texture parentKey="Background" atlas="_search-rowbg" useAtlasSize="false" setAllPoints="true"/>
+				<Texture parentKey="Background" atlas="Talent-Background" useAtlasSize="false" setAllPoints="true"/>
 			</Layer>
 			<Layer level="HIGHLIGHT">
 				<Texture parentKey="Highlight" atlas="search-highlight-large" useAtlasSize="false" setAllPoints="true"/>
@@ -1687,7 +1195,7 @@
 				</FontString>
 
 				<FontString parentKey="Profession1" inherits="GameFontNormal" justifyH="LEFT">
-                    <Size x="100" y="20"/>
+                    <Size x="85" y="20"/>
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.OffSpec" x="0" y="0"/>
 					</Anchors>
@@ -1695,9 +1203,9 @@
 				</FontString>
 
 				<FontString parentKey="Profession2" inherits="GameFontNormal" justifyH="LEFT">
-                    <Size x="100" y="20"/>
+                    <Size x="85" y="20"/>
 					<Anchors>
-						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Profession1" x="0" y="0"/>
+						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Profession1" x="25" y="0"/>
 					</Anchors>
 					<Color r="1" g="1" b="1"/>
 				</FontString>
@@ -1705,13 +1213,48 @@
 				<FontString parentKey="MainCharacter" inherits="GameFontNormal" justifyH="LEFT">
                     <Size x="100" y="20"/>
 					<Anchors>
-						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Profession2" x="0" y="0"/>
+						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Profession2" x="25" y="0"/>
+					</Anchors>
+					<Color r="1" g="1" b="1"/>
+				</FontString>
+
+				<FontString parentKey="PublicNote" inherits="GameFontNormal" justifyH="LEFT">
+                    <Size x="100" y="20"/>
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.MainCharacter" x="0" y="0"/>
 					</Anchors>
 					<Color r="1" g="1" b="1"/>
 				</FontString>
 
             </Layer>
         </Layers>
+
+        <Frames>
+            <Frame parentKey="prof1" inherits="GuildbookSmallHighlightButton" enableMouse="false">
+                <Size x="20" y="20"/>
+                <Anchors>
+                    <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Profession1" x="0" y="0"/>
+                </Anchors>
+                <!-- <Layers>
+                    <Layer level="ARTWORK">
+                        <Texture parentKey="icon" useAtlasSize="false" setAllPoints="true"/>
+                    </Layer>
+                </Layers> -->
+            </Frame>
+            <Frame parentKey="prof2" inherits="GuildbookSmallHighlightButton" enableMouse="false">
+                <Size x="20" y="20"/>
+                <Anchors>
+                   <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Profession2" x="0" y="0"/>
+                </Anchors>
+                <!-- <Layers>
+                    <Layer level="ARTWORK">
+                        <Texture parentKey="icon" useAtlasSize="false" setAllPoints="true"/>
+                    </Layer>
+                </Layers> -->
+            </Frame>
+        </Frames>
+
+
         <Scripts>
             <OnLoad method="OnLoad"/>
             <OnMouseDown method="OnMouseDown"/>

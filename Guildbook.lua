@@ -255,72 +255,6 @@ end
 
 
 
---[[
-
-    this is the character listview for the tradeskill ui
-
-    its purpose is to show which characters have a certain tradeskill
-    it can then be filtered by tradeskill recipes by clicking the recipe
-
-    selecting a character will show that characters recipes for the currently selected tradeskill
-
-]]--
-GuildbookTradeskillCharacterListviewItemMixin = {}
-
----add the circluar mask to the portrait, this was doen in lua however can be moved into the xml template
-function GuildbookTradeskillCharacterListviewItemMixin:OnLoad()
-    self.mask = self:CreateMaskTexture()
-    self.mask:SetSize(31,31)
-    self.mask:SetPoint("LEFT", 10, 0)
-    self.mask:SetTexture("Interface/CHARACTERFRAME/TempPortraitAlphaMask", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
-    self.Icon:AddMaskTexture(self.mask)
-end
-
-function GuildbookTradeskillCharacterListviewItemMixin:OnMouseDown()
-    self:AdjustPointsOffset(-1,-1)
-end
-
----call the items .func in the OnMouseUp event
-function GuildbookTradeskillCharacterListviewItemMixin:OnMouseUp()
-    self:AdjustPointsOffset(1,1)
-    if self.func then
-        C_Timer.After(0, self.func)
-    end
-end
-
----sets the character info, this displays character avatar, name and location - formats grey for offline characters
----@param guid string the characters guid
-function GuildbookTradeskillCharacterListviewItemMixin:SetCharacter(guid)
-    -- this will become the new system using a guid
-    if guid:find("Player") then
-        local character = gb:GetCharacterFromCache(guid)
-        if not character then
-            return;
-        end
-        local race;
-        if character.Race:lower() == "scourge" then
-            race = "undead";
-        else
-            race = character.Race:lower()
-        end
-        self.Icon:SetAtlas(string.format("raceicon-%s-%s", race, character.Gender:lower()))
-        self.Name:SetText(character.Name)
-        if gb.onlineZoneInfo[guid].online == true then
-            self.Name:SetTextColor(1,1,1,1)
-            self.Zone:SetTextColor(1,1,1,1)
-            self.Zone:SetText("["..gb.onlineZoneInfo[guid].zone.."]")
-        else
-            self.Name:SetTextColor(0.5,0.5,0.5,0.7)
-            self.Zone:SetText("[offline]")
-            self.Zone:SetTextColor(0.5,0.5,0.5,0.7)
-        end
-        self.func = function()
-            loadGuildMemberTradeskills(guid, GuildbookMixin.selectedProfession and GuildbookMixin.selectedProfession or "allRecipes")
-        end
-    end
-end
-
-
 
 
 
@@ -400,275 +334,6 @@ function GuildbookCharacterListviewItemMixin:SetCharacter(guid)
         self.guid = guid;
     end
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
---------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- tradeskill recipe listview
---------------------------------------------------------------------------------------------------------------------------------------------------------------------
-GuildbookRecipeListviewItemMixin = {}
-
--- item has the following fields
--- itemID
--- reagents
--- rarity
--- link
--- icon
--- enchant
--- expansion
--- name
--- profession
--- equipLocation
-function GuildbookRecipeListviewItemMixin:Init(item)
-    self.item = item;
-    for _, reagent in pairs(self.reagentIcons) do
-        reagent:SetFrameStrata("TOOLTIP")
-        reagent.icon:SetTexture(nil)
-        reagent.greenBorder:Hide()
-        reagent.orangeBorder:Hide()
-        reagent.purpleBorder:Hide()
-        reagent.count:SetText("")
-        reagent.link = nil
-    end
-    local reagentNum = 1
-    for reagentID, count in pairs(item.reagents) do
-        if self.reagentIcons[reagentNum] then
-            if GuildbookUI.playerContainerItems[reagentID] then
-                if GuildbookUI.playerContainerItems[reagentID] >= count then
-                    self.reagentIcons[reagentNum].greenBorder:Show()
-                elseif GuildbookUI.playerContainerItems[reagentID] < count then
-                    self.reagentIcons[reagentNum].purpleBorder:Show()
-                end
-            else
-                self.reagentIcons[reagentNum].orangeBorder:Show()
-            end
-            self.reagentIcons[reagentNum]:SetItem(reagentID)
-            self.reagentIcons[reagentNum].count:SetText(count)
-            reagentNum = reagentNum + 1;
-        end
-    end
-    self.Text:SetText(item.link)
-end
-
-function GuildbookRecipeListviewItemMixin:OnLoad()
-
-end
-
-function GuildbookRecipeListviewItemMixin:OnEnter()
-    if self.item.link then
-        GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
-        if self.item.enchant then
-            GameTooltip:SetSpellByID(self.item.itemID)
-        else
-            GameTooltip:SetHyperlink(self.item.link)
-        end
-        -- GameTooltip:AddLine(" ")
-        -- GameTooltip:AddLine(gb.Colours.Blue:WrapTextInColorCode(L["REMOVE_RECIPE_FROM_PROF"]))
-
-        GameTooltip:AddLine(" ")
-        GameTooltip:AddLine(gb.Colours.BlizzBlue:WrapTextInColorCode(L["TRADESKILLS_REAGENTS"]))
-        if self.item.reagents then
-            for reagentID, count in pairs(self.item.reagents) do
-                local name, _, _, _, _, _, _, _, _, icon = GetItemInfo(reagentID)
-                if not name then
-                    local item = Item:CreateFromItemID(reagentID)
-                    item:ContinueOnItemLoad(function()
-                        local name = item:GetItemName()
-                        GameTooltip:AddDoubleLine(name, count, 1,1,1, 1,1,1)
-                    end)
-                else
-                    GameTooltip:AddDoubleLine(name, count, 1,1,1, 1,1,1)
-                end
-            end
-        end
-
-        -- this adds the item table to the tooltip for debugging reasons
-        if GUILDBOOK_GLOBAL.Debug then
-            GameTooltip:AddLine(" ")
-            GameTooltip:AddLine("Guildbook debug:")
-            for k, v in pairs(self.item) do
-                if k ~= "reagents" and k ~= "charactersWithRecipe" then
-                    GameTooltip:AddDoubleLine(k,v)
-                elseif k == "enchant" then
-                    GameTooltip:AddDoubleLine(k, v == true and "true" or "false")
-                end
-            end
-        end
-
-        GameTooltip:Show()
-        -- fade the character listview to make the tooltip easier to view/read
-        GuildbookUI.tradeskills.tradeskillItemsCharacterListview:SetAlpha(0.3)
-    else
-        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-    end
-end
-
-function GuildbookRecipeListviewItemMixin:OnLeave()
-    GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-    GuildbookUI.tradeskills.tradeskillItemsCharacterListview:SetAlpha(1)
-end
-
-function GuildbookRecipeListviewItemMixin:OnMouseDown(button)
-
-    --local index = self:GetOrderIndex();
-
-    -- this is an option for users to remove an item from a tradeskill if its somehow been mixed up
-    -- its not the best option to use however
-    -- if button == "RightButton" then
-    --     local characters = getAllPlayersWithTradeskill(self.item.profession)
-    --     StaticPopup_Show('GuildbookDeleteRecipeFromCharacters', string.format(L["REMOVE_RECIPE_FROM_PROF_SS"], self.item.link, self.item.profession), nil, {
-    --         itemLink = self.item.link,
-    --         characters = characters,
-    --         prof = self.item.profession,
-    --         listviewIndex = index,
-    --         listview = GuildbookUI.tradeskills.tradeskillItemsListview,
-    --     })
-    --     return;
-    -- end
-
-    -- enable the ctrl click to view item
-    if IsControlKeyDown() then
-        DressUpItemLink(self.item.link)
-
-    -- enable the shift click to link item
-    elseif IsShiftKeyDown() then
-        HandleModifiedItemClick(self.item.link)
-
-    -- load the characters who can craft the item
-    else
-        loadCharactersWithRecipe(self.item)
-    end
-
-end
-
-function GuildbookRecipeListviewItemMixin:OnMouseUp()
-
-end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
---[[
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    @mixin roster
-
-
-
-
-
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-]]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-GuildbookAvatarMixin = {}
-
-function GuildbookAvatarMixin:OnLoad()
-
-end
-
-function GuildbookAvatarMixin:OnMouseDown()
-    if self.func then
-        self.func()
-    end
-end
-
-
-
-
-
-
-
-
 
 
 
@@ -1435,6 +1100,16 @@ end
 
 
 
+
+
+
+
+
+
+
+
+
+
 --[[
 
     this is the listview (although not really as it doesnt scroll) that has the profession buttons (Alchemy, Blacksmith, etc)
@@ -1922,6 +1597,26 @@ end
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 GuildbookChatsListviewMixin = {}
 
 function GuildbookChatsListviewMixin:LoadChat()
@@ -2102,6 +1797,19 @@ function GuildbookChatContentMixin:ChatContentScrollBar_OnValueChanged()
         end
     end
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2669,7 +2377,7 @@ function GuildbookProfilesMixin:Edit_OnMouseDown(self)
         --Database:UpdatePlayerCharacterTable("profile", GUILDBOOK_CHARACTER.profile)
     end
 
-    GuildbookButtonMixin.OnMouseDown(self)
+    GuildbookSmallHighlightButtonMixin.OnMouseDown(self)
 
 end
 
@@ -2971,8 +2679,8 @@ end
 function GuildbookProfilesMixin:CreateTalentUI()
     -- create talent grid
     self.contentPane.scrollChild.talents.talentTree = {}
-    local colPoints = { 19.0, 78.0, 137.0, 196.0 }
-    local rowPoints = { 19.0, 78.0, 137.0, 196.0, 255.0, 314.0, 373.0, 432.0, 491.0, 550.0, 609.0 } --257
+    local colPos = { 19.0, 78.0, 137.0, 196.0 }
+    local rowPos = { 19.0, 78.0, 137.0, 196.0, 255.0, 314.0, 373.0, 432.0, 491.0, 550.0, 609.0 } --257
     for spec = 1, 3 do
         self.contentPane.scrollChild.talents.talentTree[spec] = {}
         for row = 1, self.NUM_TALENT_ROWS do
@@ -2980,7 +2688,7 @@ function GuildbookProfilesMixin:CreateTalentUI()
             for col = 1, 4 do
                 local f = CreateFrame('BUTTON', tostring('GuildbookProfilesTalents'..spec..row..col), self.contentPane.scrollChild.talents, BackdropTemplateMixin and "BackdropTemplate")
                 f:SetSize(28, 28)
-                f:SetPoint('TOPLEFT', 3+((colPoints[col] * 0.83) + ((spec - 1) * 217)), ((rowPoints[row] * 0.83) * -1) - 34)
+                f:SetPoint('TOPLEFT', 3+((colPos[col] * 0.83) + ((spec - 1) * 217)), ((rowPos[row] * 0.83) * -1) - 34)
 
                 -- background texture inc border
                 f.border = f:CreateTexture('$parentBorder', 'BORDER')
@@ -3004,12 +2712,6 @@ function GuildbookProfilesMixin:CreateTalentUI()
                         GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
                         GameTooltip:SetHyperlink(self.link)
                         --GameTooltip:SetTalent(spec, 3)
-                        GameTooltip:Show()
-                    elseif self.name then
-                        GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
-                        --GameTooltip:SetSpellByID(self.spellID)
-                        GameTooltip:AddLine(self.name)
-                        GameTooltip:AddLine(string.format("|cffffffff%s / %s|r", self.rank, self.maxRank))
                         GameTooltip:Show()
                     else
                         GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
@@ -3060,7 +2762,6 @@ function GuildbookProfilesMixin:LoadTalents(spec)
                     self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col]:Show()
                     self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].Icon:SetTexture(info.Icon)
                     --self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].talentIndex = info.TalentIndex
-                    self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].name = info.Name
                     self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].rank = info.Rank
                     self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].maxRank = info.MxRnk
                     self.contentPane.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].link = info.Link
@@ -3089,38 +2790,16 @@ function GuildbookProfilesMixin:LoadTalents(spec)
 
                 end
             end
-            self.contentPane.scrollChild.talents.tree1:SetTexture(gb.Data.TalentBackgrounds[gb.Data.Talents[self.character.Class:upper()][1]])
+            self.contentPane.scrollChild.talents.tree1:SetTexture(gb.Data.TalentBackgrounds[gb.Data.TalentTabsToBackground[self.character.Class:upper()][1]])
             --self.contentPane.scrollChild.talents.tree1:SetTexture(string.format("Interface/TalentFrame/%s%s-TopLeft", "Paladin", "Holy"))
             self.contentPane.scrollChild.talents.tree1:SetAlpha(0.6)
-            self.contentPane.scrollChild.talents.tree2:SetTexture(gb.Data.TalentBackgrounds[gb.Data.Talents[self.character.Class:upper()][2]])
+            self.contentPane.scrollChild.talents.tree2:SetTexture(gb.Data.TalentBackgrounds[gb.Data.TalentTabsToBackground[self.character.Class:upper()][2]])
             self.contentPane.scrollChild.talents.tree2:SetAlpha(0.6)
-            self.contentPane.scrollChild.talents.tree3:SetTexture(gb.Data.TalentBackgrounds[gb.Data.Talents[self.character.Class:upper()][3]])
+            self.contentPane.scrollChild.talents.tree3:SetTexture(gb.Data.TalentBackgrounds[gb.Data.TalentTabsToBackground[self.character.Class:upper()][3]])
             self.contentPane.scrollChild.talents.tree3:SetAlpha(0.6)
 
         end
 
-        -- local classId;
-        -- for i = 1, GetNumClasses() do
-        --     local className, classFile, classID = GetClassInfo(i)
-        --     if className and (classFile:lower() == self.character.Class:lower()) then
-        --         classId = classID;
-        --     end
-        -- end
-
-        -- for spec = 1, 3 do
-        --     for row = 1, self.NUM_TALENT_ROWS do
-        --         for col = 1, 4 do
-        --             local talent = self.contentPane.scrollChild.talents.talentTree[spec][row][col]
-        --             if talent.TalentIndex then
-        --                 talent:SetScript("OnEnter", function(self, classId)
-        --                     GameTooltip:SetOwner(talent, 'ANCHOR_RIGHT')
-        --                     GameTooltip:SetTalent(spec, talent.TalentIndex, true, classId)
-        --                     GameTooltip:Show()
-        --                 end)
-        --             end
-        --         end
-        --     end
-        -- end
     end
 end
 
@@ -3497,45 +3176,8 @@ function GuildbookStatsMixin:OnLoad()
             t:SetTextColor(1,1,1)
             f.specInfoText[spec] = t
 
-            -- local st = f:CreateTexture(nil, "ARTWORK")
-            -- st:SetColorTexture(r*classColourOffsets[k], g*classColourOffsets[k], b*classColourOffsets[k])
-            -- st:SetPoint("LEFT")
-            -- st:SetHeight(16)
-
-            -- f.statsusBars[spec] = st
-
-            -- local sb =  CreateFrame("StatusBar", nil, f)
-            -- sb:SetFrameLevel(100-(k*10))
-            -- sb:SendMessage_OnMouseDown
-            -- sb:SetStatusBarAtlas("nameplates-bar-background-white")
-            -- sb:GetStatusBarTexture():SetHorizTile(false)
-            -- sb:SetMinMaxValues(0, 1)
-            -- sb:SetValue(0.2 * k)
-            -- sb:SetPoint('TOPLEFT', 30, 0)
-            -- sb:SetPoint('BOTTOMRIGHT', 0, 0)
-            -- sb:SetStatusBarColor(r*classColourOffsets[k], g*classColourOffsets[k], b*classColourOffsets[k])
-
-            -- sb:SetScript("OnEnter", function(self)
-            --     GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
-            --     GameTooltip:AddLine(spec.." "..self:GetValue()*100)
-            --     GameTooltip:Show()
-            -- end)
-            -- sb:SetScript("OnLeave", function()
-            --     GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-            -- end)
-            -- f.statsusBars[spec] = sb;
-
         end
-        -- f:SetScript("OnEnter", function(self)
-        --     GameTooltip:SetOwner(self, 'ANCHOR_TOP')
-        --     for k, s in ipairs(f.specCounts) do
-        --         GameTooltip:AddLine(s.spec.." "..s.count)
-        --     end
-        --     GameTooltip:Show()
-        -- end)
-        -- f:SetScript("OnLeave", function()
-        --     GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-        -- end)
+
         table.insert(self.charts.class, f)
     end
     table.sort(self.charts.class, function(a,b)
