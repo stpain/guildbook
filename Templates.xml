@@ -1640,4 +1640,81 @@
             </OnHyperlinkLeave>
         </Scripts>
     </Frame>
+
+    <Frame name="GuildbookGuildViewerCharacterListviewItemTemplate" mixin="GuildbookGuildViewerCharacterListviewItemTemplateMixin" virtual="true" enableMouse="true">
+        <Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="Background" atlas="_search-rowbg" useAtlasSize="false" setAllPoints="true"/>
+			</Layer>
+			<Layer level="HIGHLIGHT">
+				<Texture parentKey="Highlight" atlas="search-highlight-large" useAtlasSize="false" setAllPoints="true"/>
+			</Layer>
+            <Layer level="OVERLAY">
+				<Texture parentKey="icon">
+					<!-- <TexCoords left="0.0" right="0.46875" top="0.0" bottom="0.96875" /> -->
+					<Anchors>
+						<Anchor point="LEFT" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+
+				<FontString parentKey="Name" inherits="GameFontNormal" justifyH="LEFT">
+                    <Size x="100" y="20"/>
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.icon" x="0" y="0"/>
+					</Anchors>
+					<Color r="1" g="1" b="1"/>
+				</FontString>
+				<FontString parentKey="Class" inherits="GameFontNormal" justifyH="LEFT">
+                    <Size x="100" y="20"/>
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Name" x="0" y="0"/>
+					</Anchors>
+					<Color r="1" g="1" b="1"/>
+				</FontString>
+				<FontString parentKey="MainSpec" inherits="GameFontNormal" justifyH="LEFT">
+                    <Size x="100" y="20"/>
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Class" x="0" y="0"/>
+					</Anchors>
+					<Color r="1" g="1" b="1"/>
+				</FontString>
+				<FontString parentKey="OffSpec" inherits="GameFontNormal" justifyH="LEFT">
+                    <Size x="100" y="20"/>
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.MainSpec" x="0" y="0"/>
+					</Anchors>
+					<Color r="1" g="1" b="1"/>
+				</FontString>
+
+				<FontString parentKey="Profession1" inherits="GameFontNormal" justifyH="LEFT">
+                    <Size x="100" y="20"/>
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.OffSpec" x="0" y="0"/>
+					</Anchors>
+					<Color r="1" g="1" b="1"/>
+				</FontString>
+
+				<FontString parentKey="Profession2" inherits="GameFontNormal" justifyH="LEFT">
+                    <Size x="100" y="20"/>
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Profession1" x="0" y="0"/>
+					</Anchors>
+					<Color r="1" g="1" b="1"/>
+				</FontString>
+
+				<FontString parentKey="MainCharacter" inherits="GameFontNormal" justifyH="LEFT">
+                    <Size x="100" y="20"/>
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Profession2" x="0" y="0"/>
+					</Anchors>
+					<Color r="1" g="1" b="1"/>
+				</FontString>
+
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnMouseDown method="OnMouseDown"/>
+        </Scripts>
+    </Frame>    
 </UI>

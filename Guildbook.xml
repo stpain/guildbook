@@ -203,7 +203,7 @@
                             <KeyValue key="tooltipText" value="CHAT" type="string"/>
                         </KeyValues>
                     </Frame>
-                    <Frame parentKey="roster" inherits="GuildbookSmallHighlightButton" hidden="false">
+                    <Frame parentKey="guildViewer" inherits="GuildbookSmallHighlightButton" hidden="false">
                         <Anchors>
                             <Anchor point="LEFT" x="180" y="0"/>
                         </Anchors>
@@ -213,7 +213,7 @@
                             </Layer>
                         </Layers>
                         <KeyValues>
-                            <KeyValue key="tooltipText" value="ROSTER" type="string"/>
+                            <KeyValue key="tooltipText" value="GUILD_VIEWER" type="string"/>
                         </KeyValues>
                     </Frame>
                     <Frame parentKey="calendar" inherits="GuildbookSmallHighlightButton" hidden="false">
@@ -385,13 +385,6 @@
                             <KeyValue key="tooltipText" value="SEARCH" type="string"/>
                         </KeyValues>
                     </Frame>
-
-                    <Frame parentKey="guildSelectionDropDown" inherits="GuildbookDropdown">
-                        <Size x="150" y="28"/>
-                        <Anchors>
-                            <Anchor relativeKey="$parent.helpAbout" relativePoint="LEFT" point="RIGHT" x="-20" y="2"/>
-                        </Anchors>
-                    </Frame>
                 </Frames>
             </Frame>
 
@@ -418,11 +411,21 @@
                             <Anchor point="BOTTOMLEFT" x="0" y="0"/>
                         </Texture>
                     </Layer>
+                    <Layer level="BACKGROUND" textureSubLevel="2">
+                        <Texture parentKey="border" atlas="_Garr_XPBar_Mid" useAtlasSize="false" horizTile="true" alpha="1">
+                            <!-- <TexCoords left="0.0" right="0.65" top="0.0" bottom="1.0"/> -->
+                            <Size y="36"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="2" y="-50"/>
+                                <Anchor point="TOPRIGHT" x="-4" y="-50"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
 
                     <Layer level="OVERLAY" textureSubLevel="6">
                         <FontString parentKey="motd" inherits="GameFontNormalLarge" justifyH="CENTER" justifyV="MIDDLE">
                             <Color r="0.24" g="0.88" b="0.25"/>
-                            <Size y="80"/>
+                            <Size y="60"/>
                             <Anchors>
                                 <Anchor point="TOPLEFT" x="0" y="0"/>
                                 <Anchor point="TOPRIGHT" x="0" y="0"/>
@@ -437,7 +440,7 @@
                     <Frame parentKey="memberList" inherits="GuildbookListviewTemplate">
                         <Size x="260"/>
                         <Anchors>
-                            <Anchor point="TOPLEFT" relativeKey="$parent.motd" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+                            <Anchor point="TOPLEFT" relativeKey="$parent.motd" relativePoint="BOTTOMLEFT" x="0" y="-20"/>
                             <Anchor point="BOTTOMLEFT" x="0" y="4"/>
                         </Anchors>
                         <Layers>
@@ -446,7 +449,7 @@
                                     <Color r="1" g="1" b="1"/>
                                     <Size y="20"/>
                                     <Anchors>
-                                        <Anchor relativePoint="TOP" point="BOTTOM" x="0" y="20"/>
+                                        <Anchor relativePoint="TOP" point="BOTTOM" x="0" y="2"/>
                                     </Anchors>
                                 </FontString>
                             </Layer>
@@ -476,7 +479,7 @@
                             </Layer>
                         </Layers>                
                         <Anchors>
-                            <Anchor point="BOTTOMLEFT" relativeKey="$parent.memberList" relativePoint="TOPLEFT" x="16" y="1"/>
+                            <Anchor point="BOTTOMLEFT" relativeKey="$parent.memberList" relativePoint="TOPLEFT" x="8" y="21"/>
                         </Anchors>
                         <Scripts>
                             <OnClick>
@@ -501,7 +504,7 @@
                                     <Color r="1" g="1" b="1"/>
                                     <Size y="20"/>
                                     <Anchors>
-                                        <Anchor relativePoint="TOP" point="BOTTOM" x="0" y="1"/>
+                                        <Anchor relativePoint="TOP" point="BOTTOM" x="0" y="2"/>
                                     </Anchors>
                                 </FontString>
                             </Layer>
@@ -1617,7 +1620,7 @@
                 </Scripts>
             </Frame>
 
-            <Frame parentKey="roster" mixin="GuildbookRosterMixin" parentArray="frames" hidden="true">
+            <Frame parentKey="guildViewer" parentArray="frames" hidden="true">
                 <Anchors>
                     <Anchor point="TOPLEFT" relativeKey="$parent.ribbon" relativePoint="BOTTOMLEFT" x="0" y="0"/>
                     <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
@@ -1628,151 +1631,62 @@
                             <!-- <Color r="0" g="0" b="0"/> -->
                         </Texture>
                     </Layer>
+
+                    <Layer level="OVERLAY">
+                        <FontString parentKey="header" inherits="GameFontNormal">
+                            <Color r="1" g="1" b="1"/>
+                            <Size y="30"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="2" y="-2"/>
+                                <Anchor point="TOPRIGHT" x="-180" y="-2"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
                 </Layers>
+
                 <Frames>
-                    <!-- <Frame parentKey="refresh" inherits="GuildbookSmallHighlightButton" enableMouse="true">
-                        <Size x="35" y="35"/>
+
+                    <Frame parentKey="guildSelectionDropDown" inherits="GuildbookDropdown">
+                        <Size x="150" y="28"/>
                         <Anchors>
-                            <Anchor point="TOPRIGHT" x="-10" y="-10"/>
+                            <Anchor point="LEFT" relativeKey="$parent.header" relativePoint="RIGHT" x="15" y="0"/>
+                        </Anchors>
+                    </Frame>
+
+                    <Frame parentKey="membersList" inherits="GuildbookListviewTemplate">
+                        <!-- <Size x="260"/> -->
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeKey="$parent.header" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+                            <Anchor point="BOTTOMRIGHT" x="-6" y="8"/>
                         </Anchors>
                         <Layers>
-                            <Layer level="BACKGROUND">
-                                <Texture atlas="characterundelete-RestoreButton">
-                                    <Size x="35" y="35"/>
+                            <Layer level="OVERLAY">
+                                <FontString parentKey="header" inherits="GameFontNormal" justifyH="CENTER" justifyV="MIDDLE">
+                                    <Color r="1" g="1" b="1"/>
+                                    <Size y="20"/>
                                     <Anchors>
-                                        <Anchor point="CENTER"/>
+                                        <Anchor relativePoint="TOP" point="BOTTOM" x="0" y="2"/>
                                     </Anchors>
-                                </Texture>
+                                </FontString>
                             </Layer>
                         </Layers>
                         <KeyValues>
-                            <KeyValue key="tooltipText" value="REFRESH_ROSTER"/>
+                            <KeyValue key="frameType" value="FRAME" type="string"/>
+                            <KeyValue key="itemTemplate" value="GuildbookGuildViewerCharacterListviewItemTemplate" type="string"/>
+                            <KeyValue key="elementHeight" value="30" type="number"/>
+                            <KeyValue key="isSelectable" value="true" type="boolean"/>
+                            <KeyValue key="scrollToEnd" value="false" type="boolean"/>
                         </KeyValues>
-                        <Scripts>   
-                            <OnMouseDown>
-                                self:GetParent():ParseGuildRoster()
-                            </OnMouseDown>
-                        </Scripts>
-                    </Frame> -->
-                    <Button parentKey="sortClass" parentArray="sortButtons" inherits="UIPanelButtonTemplate">
-                        <Size x="50" y="24"/>
-                        <Anchors>
-                            <Anchor point="BOTTOMLEFT" x="4" y="428"/>
-                        </Anchors>
-                        <KeyValues>
-                            <KeyValue key="sort" value="class" type="string"/>
-                        </KeyValues>
-                        <Frames>
-                            <Frame parentKey="flyout" inherits="GuildbookDropdownFlyout">
-                                <Size x="100" y="24"/>
-                                <Anchors>
-                                    <Anchor point="BOTTOM" x="0" y="0"/>
-                                </Anchors>
-                            </Frame>
-                        </Frames>
-                    </Button>
-                    <Button parentKey="sortName" parentArray="sortButtons" inherits="UIPanelButtonTemplate">
-                        <Size x="100" y="24"/>
-                        <Anchors>
-                            <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.sortClass" x="-1" y="0"/>
-                        </Anchors>
-                        <KeyValues>
-                            <KeyValue key="sort" value="name" type="string"/>
-                        </KeyValues>
-                    </Button>
-                    <Button parentKey="sortLevel" parentArray="sortButtons" inherits="UIPanelButtonTemplate">
-                        <Size x="40" y="24"/>
-                        <Anchors>
-                            <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.sortName" x="-1" y="0"/>
-                        </Anchors>
-                        <KeyValues>
-                            <KeyValue key="sort" value="level" type="string"/>
-                        </KeyValues>
-                    </Button>
-                    <Button parentKey="sortMainSpec" parentArray="sortButtons" inherits="UIPanelButtonTemplate">
-                        <Size x="130" y="24"/>
-                        <Anchors>
-                            <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.sortLevel" x="-1" y="0"/>
-                        </Anchors>
-                        <KeyValues>
-                            <KeyValue key="sort" value="mainSpec" type="string"/>
-                        </KeyValues>
-                    </Button>
-                    <Button parentKey="sortProf" parentArray="sortButtons" inherits="UIPanelButtonTemplate">
-                        <Size x="70" y="24"/>
-                        <Anchors>
-                            <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.sortMainSpec" x="-1" y="0"/>
-                        </Anchors>
-                        <KeyValues>
-                            <KeyValue key="sort" value="prof1" type="string"/>
-                        </KeyValues>
-                    </Button>
-                    <Button parentKey="sortLocation" parentArray="sortButtons" inherits="UIPanelButtonTemplate">
-                        <Size x="115" y="24"/>
-                        <Anchors>
-                            <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.sortProf" x="-1" y="0"/>
-                        </Anchors>
-                        <KeyValues>
-                            <KeyValue key="sort" value="location" type="string"/>
-                        </KeyValues>
-                    </Button>
-                    <Button parentKey="sortRankName" parentArray="sortButtons" inherits="UIPanelButtonTemplate">
-                        <Size x="115" y="24"/>
-                        <Anchors>
-                            <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.sortLocation" x="-1" y="0"/>
-                        </Anchors>
-                        <KeyValues>
-                            <KeyValue key="sort" value="rankName" type="string"/>
-                        </KeyValues>
-                        <Frames>
-                            <Frame parentKey="flyout" inherits="GuildbookDropdownFlyout">
-                                <Size x="100" y="24"/>
-                                <Anchors>
-                                    <Anchor point="BOTTOM" x="0" y="0"/>
-                                </Anchors>
-                            </Frame>
-                        </Frames>
-                    </Button>
-                    <Button parentKey="sortPublicNote" parentArray="sortButtons" inherits="UIPanelButtonTemplate">
-                        <Size x="115" y="24"/>
-                        <Anchors>
-                            <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.sortRankName" x="-1" y="0"/>
-                        </Anchors>
-                        <KeyValues>
-                            <KeyValue key="sort" value="publicNote" type="string"/>
-                        </KeyValues>
-                    </Button>
-                    <Frame parentKey="memberListview">
-                        <Size x="890" y="424"/>
-                        <Anchors>
-                            <Anchor point="BOTTOMLEFT" x="5" y="5"/>
-                        </Anchors>
-                        <Frames>
-                            <Slider parentKey="scrollBar" inherits="UIPanelScrollBarTemplate" orientation="VERTICAL">
-                                <Anchors>
-                                    <Anchor point="TOPRIGHT" x="16" y="-16"/>
-                                    <Anchor point="BOTTOMRIGHT" x="16" y="16"/>
-                                </Anchors>
-                                <Scripts>
-                                    <OnValueChanged>
-                                        self:GetParent():GetParent():RosterListviewScrollBar_OnValueChanged()
-                                    </OnValueChanged>
-                                </Scripts>
-                            </Slider>
-                        </Frames>
-                        <Scripts>
-                            <OnMouseWheel>
-                                self:GetParent():OnMouseWheel(delta)
-                            </OnMouseWheel>
-                        </Scripts>
                     </Frame>
-                </Frames>
 
-                <Scripts>
-                    <OnLoad method="OnLoad"/>
-                    <OnShow method="OnShow"/>
-                    <OnHide method="OnHide"/>
-                </Scripts>
+                    <Frame parentKey="tradeskillItemsListview" inherits="GuildbookTradeSkillItemsListviewTemplate" frameLevel="100">
+                        <Size x="490" y="410"/>
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT" x="185" y="5"/>
+                        </Anchors>
+                    </Frame>
+
+                </Frames>
             </Frame>
 
             <Frame parentKey="calendar" parentArray="frames" hidden="true">

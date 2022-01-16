@@ -221,7 +221,7 @@ L["GUILDBANK_CURRENCY"]				= "Currency"
 L["HOME"]							= "Home"
 L["PROFILES"]                       = "Profiles"
 L["CHAT"]                           = "Chat"
-L["ROSTER"]                         = "Roster"
+L["GUILD_VIEWER"]                   = "Guild Viewer"
 L["CALENDAR"]                       = "Calendar"
 L["SEARCH"]                         = "Search"
 L["MY_PROFILE"]                     = "My profile"
@@ -240,10 +240,17 @@ L["BANK"]                           = "Bank"
 L["STATS"]                          = "Statistics"
 
 --news feed stuff
+L["GUILD_ACTIVTY_HEADER"]			= "Activity Feed"
+L["GUILD_MEMBERS_HEADER"]			= "Members (|cffFFD100hold shift for more info|r)"
+L["GUILD_MEMBERS_OFFLINE"]			= "Show offline"
 L["NF_PLAYER_LEVEL_UP_SS"]			= "%s just hit level %s!"
 L["NF_PLAYER_LOGIN_S"]				= "%s came online"
 L["NF_PLAYER_LOGOUT_S"]				= "%s logged out"
 --L["NF_LFG_CREATED_S"]				= "%s"
+
+
+--guildViewer
+L["GUILD_VIEWER_HEADER"]			= "You can view characters from other guilds you are a member of here. Select which guild to see a list of its members, select a character to view information."
 
 L["RESET_AVATAR"]					= "Reset avatar"
 

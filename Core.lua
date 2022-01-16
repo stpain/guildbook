@@ -754,7 +754,8 @@ end
 ---load the characters tradeskills, currently this is triggered by the new home tab member listview
 ---@param guid string the characters guid
 ---@param prof string the profession to load recipes for or `allRecipes` for all of the characters recipes
-function Tradeskills:LoadGuildMemberTradeskills(guid, prof)
+---@param lcharacter table optional character table to use
+function Tradeskills:LoadGuildMemberTradeskills(guid, prof, character)
 
     --hide the selected texture and flush the listviews
     for _, button in ipairs(GuildbookTradeskillProfessionListview.profButtons) do
@@ -768,7 +769,7 @@ function Tradeskills:LoadGuildMemberTradeskills(guid, prof)
             return;
         end
         if next(Guildbook.tradeskillEnchantRecipesKeys) == nil then
-            GuildbookUI.statusText:SetText("tradeskill enchant recipes not processed yet, key mapping not ready")
+            GuildbookUI:SetInfoText("tradeskill enchant recipes not processed yet, key mapping not ready")
             return
         end
 
@@ -777,15 +778,16 @@ function Tradeskills:LoadGuildMemberTradeskills(guid, prof)
             return;
         end
         if next(Guildbook.tradeskillRecipesKeys) == nil then
-            GuildbookUI.statusText:SetText("tradeskill recipes not processed yet, key mapping not ready")
+            GuildbookUI:SetInfoText("tradeskill recipes not processed yet, key mapping not ready")
             return
         end
         
     end
 
-
-    local character = Database:FetchCharacterTableByGUID(guid)
-    if not character then
+    if character == nil then
+        character = Database:FetchCharacterTableByGUID(guid)
+    end
+    if type(character) ~= "table" then
         return
     end
     if prof == "Enginnering" then prof = "Engineering" end -- fix it back due to blizz spelling error
@@ -829,7 +831,7 @@ function Tradeskills:LoadGuildMemberTradeskills(guid, prof)
         end
     end
     if recipes and next(recipes) ~= nil then
-        GuildbookUI.statusText:SetText(string.format("found %s recipes for %s [%s]", #recipes, prof, character.Name))
+        GuildbookUI:SetInfoText(string.format("found %s recipes for %s [%s]", #recipes, prof, character.Name))
         table.sort(recipes, function(a,b)
             if type(a.expansion) ~= "number" and type(b.expansion) ~= "number" then
                 return a.rarity  > b.rarity;
@@ -845,7 +847,7 @@ function Tradeskills:LoadGuildMemberTradeskills(guid, prof)
             end
         end)
         GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:InsertTable(recipes)
-        GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:InsertTable({guid})
+        GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:InsertTable({guid}) -- why?
     end
     GuildbookUI:OpenTo("tradeskills")
 end
@@ -889,23 +891,67 @@ function Roster:ScanMembers()
     for i = 1, totalMembers do
         --local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, guid = GetGuildRosterInfo(i)
         local nameRealm, rankName, _, level, localeClass, zone, publicNote, officerNote, isOnline, _, _, achievementPoints, _, _, _, _, guid = GetGuildRosterInfo(i)
-        local _, class, _, race, gender, name, realm = GetPlayerInfoByGUID(guid)
-        gender = (gender == 3) and "FEMALE" or "MALE"
-        
-        self.onlineStatus[guid] = {
-            isOnline = isOnline,
-            zone = zone,
-        }
-        self.guidToCharacterNameRealm[guid] = nameRealm;
 
-        self.characterNameRealmToGUID[nameRealm] = guid;
+        if guid and guid:find("Player-") then
+            local _, class, _, race, gender, name, realm = GetPlayerInfoByGUID(guid)
+            gender = (gender == 3) and "FEMALE" or "MALE"
+            
+            self.onlineStatus[guid] = {
+                isOnline = isOnline,
+                zone = zone,
+            }
+            self.guidToCharacterNameRealm[guid] = nameRealm;
 
-        if Database:CharacterExists(guid) == false then
-            Database:AddNewCharacter(guid, nameRealm, level, class, race, gender, publicNote, rankName)
+            self.characterNameRealmToGUID[nameRealm] = guid;
+
+            if Database:CharacterExists(guid) == false then
+                Database:AddNewCharacter(guid, nameRealm, level, class, race, gender, publicNote, rankName)
+            end
+
         end
 
     end
 end
+
+
+
+---find the current characters main character and return either the table or just name
+---@param guid string the current characters guid
+---@param colourize boolean apply the class colour 
+---@param returnTable boolean return the main characters data table [otherwise just name]
+---@return boolean|table any if successful then returns either the main characters table or just name otherwise returns false
+function Roster:FindMainCharacterFromGUID(guid, colourize, returnTable)
+
+    local currentCharacter = Database:FetchCharacterTableByGUID(guid)
+
+    if type(currentCharacter) == "table" then
+
+        if type(currentCharacter.MainCharacter) == "string" and currentCharacter.MainCharacter:find("Player-") then
+
+            local mainCharacter = Database:FetchCharacterTableByGUID(currentCharacter.MainCharacter);
+
+            if type(mainCharacter) == "table" then
+
+                if returnTable == true then
+                    return mainCharacter;
+
+                else
+
+                    if colourize == true and type(mainCharacter.Class) == "string" then
+                        return Guildbook.Colours[mainCharacter.Class]:WrapTextInColorCode(mainCharacter.Name or "Unknown");
+                    else
+                        return mainCharacter.Name or "Unknown";
+                    end
+                    
+                end
+
+            end
+        end
+    end
+
+    return false;
+end
+
 
 
 
@@ -1747,7 +1793,7 @@ function Character:Init()
             local newLevel = ...
             self:TriggerEvent("OnPlayerLevelUp", self, {
                 newsType = "playerLevelUp",
-                text = string.format(L["NF_PLAYER_LEVEL_UP"], UnitName("player"), newLevel)
+                text = string.format(L["NF_PLAYER_LEVEL_UP_SS"], UnitName("player"), newLevel)
             })
 
 
@@ -1972,14 +2018,14 @@ function Comms:Transmit(data, channel, targetGUID, priority, uiMessage)
     local inInstance, instanceType = IsInInstance()
     if instanceType ~= "none" then
         if GUILDBOOK_GLOBAL.config and (GUILDBOOK_GLOBAL.config.blockCommsDuringInstance == true) then
-            GuildbookUI.statusText:SetText("blocked data comms while in an instance")
+            GuildbookUI:SetInfoText("blocked data comms while in an instance")
             return;
         end
     end
     local inLockdown = InCombatLockdown()
     if inLockdown then
         if GUILDBOOK_GLOBAL.config and (GUILDBOOK_GLOBAL.config.blockCommsDuringCombat == true) then
-            GuildbookUI.statusText:SetText("blocked data comms while in combat")
+            GuildbookUI:SetInfoText("blocked data comms while in combat")
             return;
         end
     end
@@ -2022,7 +2068,7 @@ function Comms:Transmit(data, channel, targetGUID, priority, uiMessage)
                             self:SendCommMessage(Comms.PREFIX, encoded, channel, target, priority)
 
                             if uiMessage and type(uiMessage) == "string" then
-                                GuildbookUI.statusText:SetText(uiMessage)
+                                GuildbookUI:SetInfoText(uiMessage)
                             end
                         end
                     else
@@ -2043,7 +2089,7 @@ function Comms:Transmit(data, channel, targetGUID, priority, uiMessage)
             self:SendCommMessage(Comms.PREFIX, encoded, channel, nil, priority)
 
             if uiMessage and type(uiMessage) == "string" then
-                GuildbookUI.statusText:SetText(uiMessage)
+                GuildbookUI:SetInfoText(uiMessage)
             end
         end
     end
@@ -2056,14 +2102,14 @@ function Comms:OnCommReceived(prefix, message, distribution, sender)
     local inInstance, instanceType = IsInInstance()
     if instanceType ~= "none" then
         if GUILDBOOK_GLOBAL.config and (GUILDBOOK_GLOBAL.config.blockCommsDuringInstance == true) then
-            GuildbookUI.statusText:SetText("blocked data comms while in an instance")
+            GuildbookUI:SetInfoText("blocked data comms while in an instance")
             return;
         end
     end
     local inLockdown = InCombatLockdown()
     if inLockdown then
         if GUILDBOOK_GLOBAL.config and (GUILDBOOK_GLOBAL.config.blockCommsDuringCombat == true) then
-            GuildbookUI.statusText:SetText("blocked data comms while in combat")
+            GuildbookUI:SetInfoText("blocked data comms while in combat")
             return;
         end
     end
@@ -2102,6 +2148,7 @@ function Comms:ProcessIncomingData(data, sender)
         if self.MessageHandlers[data.type] then
 
             Guildbook.DEBUG('commsMixin', "Comms:ProcessIncomingData", string.format("MessageHandler %s does exist", data.type), data)
+            GuildbookUI:SetInfoText(string.format("incoming data from %s [%s]", sender, data.type))
             self.MessageHandlers[data.type](self, data, sender)
 
         else
@@ -2177,7 +2224,7 @@ end
 
 function Comms:OnPrivacyNotice(data, sender)
     Guildbook.DEBUG("commsMixin", "Comms:OnPrivacyNotice", "-", data)
-    GuildbookUI.statusText:SetText(string.format("%s does not share %s", sender, self.privacyRules[data.payload]))
+    GuildbookUI:SetInfoText(string.format("%s does not share %s", sender, self.privacyRules[data.payload]))
 end
 
 
@@ -2494,7 +2541,7 @@ end
 
 
 
-
+---thre stagger delays here should be monitored and adjusted if any reports show them to close or, maybe even reduced if all is good
 function Comms:OnCharacterOnline(data, sender)
 
     Guildbook.DEBUG("commsMixin", "Comms:OnCharacterOnline", "someone came online", data)
@@ -2509,35 +2556,33 @@ function Comms:OnCharacterOnline(data, sender)
             end
 
         elseif self.version > data.payload.version then
-            C_Timer.After(1.0, function()
-                self:TellGuildMemberItsTimeToUpdate(data.senderGUID)
-            end)
+            self:TellGuildMemberItsTimeToUpdate(data.senderGUID)
         end
     end
 
-    local randomDelay = math.random(2,5)
+    --local randomDelay = math.random(2,5)
 
-    C_Timer.After(randomDelay, function()
+    C_Timer.After(0.5, function()
         self:SayHelloBack(data.senderGUID)
     end)
 
     ---update the player who just logged in, these calls will perform a privacy check before sending data
     ---using the stagger system i implemented in the original comms system, it just helps to reduce overloading the chat channels
     
-    C_Timer.After(randomDelay + 1.0, function()
+    C_Timer.After(2.0, function()
         self:SendCharacterTalentsInfo(data.senderGUID);
     end)
 
-    C_Timer.After(randomDelay + 3.0, function()
+    C_Timer.After(3.5, function()
         self:SendCharacterInventoryInfo(data.senderGUID);
     end)
 
-    C_Timer.After(randomDelay + 5.0, function()
+    C_Timer.After(5.0, function()
         self:SendCharacterProfileInfo(data.senderGUID);
     end)
 
     --lets also whisper them our current tradeskills info, this doesnt need a privacy check
-    C_Timer.After(randomDelay + 7.0, function()
+    C_Timer.After(6.5, function()
         self:SendTradeskillInfoToTargetGUID(data.senderGUID);
     end)
 
@@ -2546,12 +2591,12 @@ function Comms:OnCharacterOnline(data, sender)
 
     -- should we also whisper our recipes? will need to loop for both profs - LEAVE THE GAP BETWEEN PROFS AS 3s
     if myProf1 and Tradeskills.TradeskillNames[myProf1] then
-        C_Timer.After(randomDelay + 9.0, function()
+        C_Timer.After(8.0, function()
             self:SendTradeskillsRecipesToTargetGUID(myProf1, data.senderGUID);
         end)
     end
     if myProf2 and Tradeskills.TradeskillNames[myProf2] then
-        C_Timer.After(randomDelay + 14.0, function()
+        C_Timer.After(11.0, function()
             self:SendTradeskillsRecipesToTargetGUID(myProf2, data.senderGUID);
         end)
     end
@@ -2677,6 +2722,18 @@ function Comms:OnCharacterInfoRequested(data, sender)
 
     if data.payload.inventory == true then
         self:SendCharacterInventoryInfo(data.senderGUID)
+    end
+
+    if data.payload.talents == true then
+        C_Timer.After(1.0, function()
+            self:SendCharacterTalentsInfo(data.senderGUID)
+        end)
+    end
+
+    if data.payload.profile == true then
+        C_Timer.After(2.0, function()
+            self:SendCharacterProfileInfo(data.senderGUID)
+        end)
     end
 
 end
@@ -4435,10 +4492,10 @@ function Guildbook:ScanGuildRoster(callback)
         local i = 1;
         local start = date('*t')
         local started = time()
-        GuildbookUI.statusText:SetText(string.format("starting roster scan at %s:%s:%s", start.hour, start.min, start.sec))
+        GuildbookUI:SetInfoText(string.format("starting roster scan at %s:%s:%s", start.hour, start.min, start.sec))
         self.scanRosterTicker = C_Timer.NewTicker(0.0001, function()
             local percent = (i/totalMembers) * 100
-            GuildbookUI.statusText:SetText(string.format("roster scan %s%%",string.format("%.1f", percent)))
+            GuildbookUI:SetInfoText(string.format("roster scan %s%%",string.format("%.1f", percent)))
             GuildbookUI.statusBar:SetValue(i/totalMembers)
             if not currentGUIDs[i] then
                 return;
@@ -4504,10 +4561,10 @@ function Guildbook:ScanGuildRoster(callback)
                 if removedCount > 0 then
                     
                 end
-                GuildbookUI.statusText:SetText(string.format("finished roster scan, took %s, %s new characters, removed %s characters from db", SecondsToTime(finished), (#newGUIDs or 0), removedCount))
+                GuildbookUI:SetInfoText(string.format("finished roster scan, took %s, %s new characters, removed %s characters from db", SecondsToTime(finished), (#newGUIDs or 0), removedCount))
                 C_Timer.After(0.05, function()
                     if GuildbookUI then
-                        GuildbookUI.roster:ParseGuildRoster()
+                        --GuildbookUI.roster:ParseGuildRoster()
                     end
                 end)
 
@@ -4639,14 +4696,14 @@ function Guildbook:Transmit(data, channel, targetGUID, priority)
     local inInstance, instanceType = IsInInstance()
     if instanceType ~= "none" then
         if GUILDBOOK_GLOBAL.config and (GUILDBOOK_GLOBAL.config.blockCommsDuringInstance == true) then
-            GuildbookUI.statusText:SetText("blocked data comms while in an instance")
+            GuildbookUI:SetInfoText("blocked data comms while in an instance")
             return;
         end
     end
     local inLockdown = InCombatLockdown()
     if inLockdown then
         if GUILDBOOK_GLOBAL.config and (GUILDBOOK_GLOBAL.config.blockCommsDuringCombat == true) then
-            GuildbookUI.statusText:SetText("blocked data comms while in combat")
+            GuildbookUI:SetInfoText("blocked data comms while in combat")
             return;
         end
     end
@@ -4943,7 +5000,7 @@ function Guildbook:OnTradeSkillsReceived(response, distribution, sender)
             Guildbook.DEBUG("func", "OnTradeSkillsReceived", string.format("created or reset table for %s", prof))
 
             --character[response.payload.profession] = response.payload.recipes
-            GuildbookUI.statusText:SetText(string.format("%s data for [|cffffffff%s|r] sent by %s", prof, character.Name, sender))
+            GuildbookUI:SetInfoText(string.format("%s data for [|cffffffff%s|r] sent by %s", prof, character.Name, sender))
             Guildbook.DEBUG('func', 'OnTradeSkillsReceived', 'updating db, set: '..character.Name..' prof: '..response.payload.profession)
             C_Timer.After(1, function()
                 self:RequestTradeskillData()
@@ -5513,7 +5570,10 @@ function Guildbook:CHAT_MSG_GUILD(...)
     local guid = select(12, ...)
 
     local character = Database:FetchCharacterTableByGUID(guid)
-    if not character then
+    if type(character) ~= "table" then
+        return;
+    end
+    if type(character.Class) ~= "string" then
         return;
     end
     GuildbookUI.chat:AddGuildChatMessage({
@@ -5648,14 +5708,14 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
     local inInstance, instanceType = IsInInstance()
     if instanceType ~= "none" then
         if GUILDBOOK_GLOBAL.config and (GUILDBOOK_GLOBAL.config.blockCommsDuringInstance == true) then
-            GuildbookUI.statusText:SetText("blocked data comms while in an instance")
+            GuildbookUI:SetInfoText("blocked data comms while in an instance")
             return;
         end
     end
     local inLockdown = InCombatLockdown()
     if inLockdown then
         if GUILDBOOK_GLOBAL.config and (GUILDBOOK_GLOBAL.config.blockCommsDuringCombat == true) then
-            GuildbookUI.statusText:SetText("blocked data comms while in combat")
+            GuildbookUI:SetInfoText("blocked data comms while in combat")
             return;
         end
     end

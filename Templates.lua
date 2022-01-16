@@ -59,26 +59,42 @@ function GuildbookButtonMixin:OnMouseUp()
 end
 
 function GuildbookButtonMixin:OnEnter()
+
     if self.tooltipText and L[self.tooltipText] then
         GameTooltip:SetOwner(self, 'ANCHOR_TOP')
         GameTooltip:AddLine("|cffffffff"..L[self.tooltipText])
-        GameTooltip:Show()
+        --GameTooltip:Show()
+
     elseif self.tooltipText and not L[self.tooltipText] then
         GameTooltip:SetOwner(self, 'ANCHOR_TOP')
         GameTooltip:AddLine(self.tooltipText)
-        GameTooltip:Show()
+        --GameTooltip:Show()
+
     elseif self.link then
         GameTooltip:SetOwner(self, 'ANCHOR_TOP')
         GameTooltip:SetHyperlink(self.link)
-        GameTooltip:Show()
+        --GameTooltip:Show()
     else
         GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
     end
+
+    -- if type(self.tooltipStatusBar) == "table" then
+    --     if type(self.tooltipStatusBar.min) == "number" and type(self.tooltipStatusBar.max) =="number" and type(self.tooltipStatusBar.val) == "number" then
+    --         GameTooltip_ShowStatusBar(GameTooltip, self.tooltipStatusBar.min, self.tooltipStatusBar.max, self.tooltipStatusBar.val)
+    --     end
+    -- end
+
+    GameTooltip:Show()
 end
 
 function GuildbookButtonMixin:OnLeave()
     GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
 end
+
+
+
+
+
 
 
 --- basic button with an icon and text area
@@ -785,6 +801,8 @@ end
 
 function GuildbookHomeMembersListviewItemTemplateMixin:OnEnter()
 
+    --InviteToGroup
+
     --maybe only show the info with shift? maybe add a setting ?
     if IsShiftKeyDown() == false then
         return;
@@ -941,7 +959,6 @@ function GuildbookHomeMembersListviewItemTemplateMixin:SetDataBinding(binding, h
     self.character = binding.characterTable;
 
     self.portrait:SetSize(height+2, height+2)
-    self.portrait:SetAtlas(string.format("groupfinder-icon-class-%s", self.character.Class:lower()))
 
     self:UpdateCharacter(self.characterGUID, self.character)
 
@@ -1048,6 +1065,13 @@ function GuildbookHomeMembersListviewItemTemplateMixin:UpdateCharacter(guid, cha
         return;
     end
 
+    if type(self.character.Class) == "string" then
+        self.portrait:SetAtlas(string.format("groupfinder-icon-class-%s", self.character.Class:lower()))
+
+    else
+        self.portrait:SetAtlas("questartifactturnin")
+    end
+
     local status = gb.Roster.onlineStatus[self.characterGUID]
 
     if type(self.character.MainSpec) == "string" and self.character.MainSpec ~= "-" then
@@ -1073,6 +1097,12 @@ function GuildbookHomeMembersListviewItemTemplateMixin:UpdateCharacter(guid, cha
         else
             self.prof1.icon:SetAtlas(string.format("Mobile-%s", self.character.Profession1))
         end
+
+        -- self.prof1.tooltipStatusBar = {
+        --     min = 0,
+        --     max = 375,
+        --     val = self.character.Profession1Level
+        -- }
 
         if type(self.character.Profession1Spec) == "number" and self.character.Profession1Spec > 0 then
             local profSpec = GetSpellInfo(self.character.Profession1Spec)
@@ -1136,4 +1166,74 @@ function GuildbookHomeMembersListviewItemTemplateMixin:ResetDataBinding()
     self.prof2.icon:SetAtlas(nil)
     self.prof2.func = nil
     self.prof2:EnableMouse(false)
+end
+
+
+
+
+
+
+
+
+GuildbookGuildViewerCharacterListviewItemTemplateMixin = CreateFromMixins(CallbackRegistryMixin);
+GuildbookGuildViewerCharacterListviewItemTemplateMixin:GenerateCallbackEvents({
+    "test",
+});
+
+function GuildbookGuildViewerCharacterListviewItemTemplateMixin:OnLoad()
+
+    CallbackRegistryMixin.OnLoad(self);
+
+    self.mask = self:CreateMaskTexture()
+    --self.mask:SetSize(31,31)
+    self.mask:SetPoint("LEFT", 2, 0)
+    self.mask:SetTexture("Interface/CHARACTERFRAME/TempPortraitAlphaMask", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+    self.icon:AddMaskTexture(self.mask)
+end
+
+function GuildbookGuildViewerCharacterListviewItemTemplateMixin:SetDataBinding(binding, height)
+    if type(binding) ~= "table" then
+        return;
+    end
+    if type(height) ~= "number" then
+        return;
+    end
+
+    self.height = height;
+    self:SetHeight(height)
+
+    self.mask:SetSize(height*0.8, height*0.8)
+    self.icon:SetSize(height, height)
+
+    local colour = gb.Colours.Grey;
+    if type(binding.Class) == "string" and binding.Class ~= "" then
+        colour = gb.Colours[binding.Class];
+    end
+
+    if type(binding.Gender) == "string" and type(binding.Race) == "string" then
+        self.icon:SetAtlas(string.format("raceicon-%s-%s", binding.Race, binding.Gender))
+    end
+
+    for k, v in pairs(binding) do
+        if self[k] and type(v) == "string" then
+            self[k]:SetText(colour:WrapTextInColorCode(v))
+        end
+    end
+
+    --overwrite the main character as it'll just show a guid
+    local mainCharacter = gb.Roster:FindMainCharacterFromGUID(binding.MainCharacter, true, false)
+    if type(mainCharacter) == "string" then
+        self.MainCharacter:SetText(mainCharacter)
+    end
+
+end
+
+
+function GuildbookGuildViewerCharacterListviewItemTemplateMixin:ResetDataBinding()
+
+end
+
+
+function GuildbookGuildViewerCharacterListviewItemTemplateMixin:OnMouseDown()
+
 end
