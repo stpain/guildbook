@@ -948,9 +948,9 @@ Guildbook.Data.ProfessionDescriptions = {
     Mining = '',
 }
 
-
-Guildbook.DarkmoonFaireSchedule = {}
-Guildbook.DarkmoonFaireSchedule[2021] = {
+if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
+	Guildbook.DarkmoonFaireSchedule = {}
+	Guildbook.DarkmoonFaireSchedule[2021] = {
     [1] = {
         start = 4,
         ends = 10,
@@ -1013,7 +1013,135 @@ Guildbook.DarkmoonFaireSchedule[2021] = {
     },
 }
     -- this is a guess at the 2022 schedule
-Guildbook.DarkmoonFaireSchedule[2022] = {
+	Guildbook.DarkmoonFaireSchedule[2022] = {
+    [1] = {
+        start = 10,
+        ends = 16,
+        location = "Mulgore",
+    },
+    [2] = {
+        start = 7,
+        ends = 13,
+        location = "Elwynn",
+    },
+    [3] = {
+        start = 7,
+        ends = 13,
+        location = "Mulgore",
+    },
+    [4] = {
+        start = 4,
+        ends = 10,
+        location = "Elwynn",
+    },
+    [5] = {
+        start = 9,
+        ends = 15,
+        location = "Mulgore",
+    },
+    [6] = {
+        start = 6,
+        ends = 12,
+        location = "Elwynn",
+    },
+    [7] = {
+        start = 4,
+        ends = 10,
+        location = "Mulgore",
+    },
+    [8] = {
+        start = 8,
+        ends = 14,
+        location = "Elwynn",
+    },
+    [9] = {
+        start = 5,
+        ends = 11,
+        location = "Mulgore",
+    },
+    [10] = {
+        start = 10,
+        ends = 16,
+        location = "Elwynn",
+    },
+    [11] = {
+        start = 7,
+        ends = 13,
+        location = "Mulgore",
+    },
+    [12] = {
+        start = 5,
+        ends = 11,
+        location = "Elwynn",
+    },
+}
+
+elseif WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC then
+	Guildbook.DarkmoonFaireSchedule = {}
+	Guildbook.DarkmoonFaireSchedule[2021] = {
+    [1] = {
+        start = 4,
+        ends = 10,
+        location = "Elwynn",
+    },
+    [2] = {
+        start = 8,
+        ends = 14,
+        location = "Mulgore",
+    },
+    [3] = {
+        start = 8,
+        ends = 14,
+        location = "Elwynn",
+    },
+    [4] = {
+        start = 5,
+        ends = 11,
+        location = "Mulgore",
+    },
+    [5] = {
+        start = 10,
+        ends = 16,
+        location = "Elwynn",
+    },
+    [6] = {
+        start = 7,
+        ends = 13,
+        location = "Mulgore",
+    },
+    [7] = {
+        start = 5,
+        ends = 11,
+        location = "Elwynn",
+    },
+    [8] = {
+        start = 9,
+        ends = 15,
+        location = "Terokkar",
+    },
+    [9] = {
+        start = 6,
+        ends = 12,
+        location = "Elwynn",
+    },
+    [10] = {
+        start = 4,
+        ends = 10,
+        location = "Mulgore",
+    },
+    [11] = {
+        start = 8,
+        ends = 14,
+        location = "Terokkar",
+    },
+    [12] = {
+        start = 6,
+        ends = 12,
+        location = "Elwynn",
+    },
+}
+    -- this is a guess at the 2022 schedule
+	Guildbook.DarkmoonFaireSchedule[2022] = {
     [1] = {
         start = 10,
         ends = 16,
@@ -1075,9 +1203,10 @@ Guildbook.DarkmoonFaireSchedule[2022] = {
         location = "Elwynn",
     },
 }
+end
 
-
-Guildbook.CalendarWorldEvents = {
+if WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC then
+	Guildbook.CalendarWorldEvents = {
 	[L["DARKMOON_FAIRE"]] = {
 		['Elwynn'] = {
 			['Start'] = 235448,
@@ -1201,6 +1330,116 @@ Guildbook.CalendarWorldEvents = {
 		}
 	},
 }
+elseif WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
+	Guildbook.CalendarWorldEvents = {
+	[L["DARKMOON_FAIRE"]] = {
+		['Elwynn'] = {
+			['Start'] = 235448,
+			['OnGoing'] = 235447,
+			['End'] = 235446,
+		},
+		['Mulgore'] = {
+			['Start'] = 235451,
+			['OnGoing'] = 235450,
+			['End'] = 235449,
+		},
+		['Terokkar'] = {
+			['Start'] = 235455,
+			['OnGoing'] = 235454,
+			['End'] = 235453,
+		},
+	},
+	[L["LOVE IS IN THE AIR"]] = {
+		['Start'] = { 
+			day = 7, 
+			month = 2,
+		},
+		['End'] = { 
+			day = 20, 
+			month = 2,
+		},
+		['Texture'] = {
+			['Start'] = 235468,
+			['OnGoing'] = 235467,
+			['End'] = 235466,
+		}
+	},
+	[L["CHILDRENS_WEEK"]] = {
+		['Start'] = { 
+			day = 1, 
+			month = 5,
+		},
+		['End'] = { 
+			day = 7, 
+			month = 5,
+		},
+		['Texture'] = {
+			['Start'] = 235445,
+			['OnGoing'] = 235444,
+			['End'] = 235443,
+		}
+	},
+	[L["MIDSUMMER_FIRE_FESTIVAL"]] = {
+		['Start'] = { 
+			day = 20, 
+			month = 7,
+		},
+		['End'] = { 
+			day = 3, 
+			month = 8,
+		},
+		['Texture'] = {
+			['Start'] = 235474,
+			['OnGoing'] = 235473,
+			['End'] = 235472,
+		}
+	},
+	[L["HARVEST_FESTIVAL"]] = {
+		['Start'] = { 
+			day = 27, 
+			month = 9,
+		},
+		['End'] = { 
+			day = 4, 
+			month = 10,
+		},
+		['Texture'] = {
+			['Start'] = 235465,
+			['OnGoing'] = 235464,
+			['End'] = 235463,
+		}
+	},
+	[L["HALLOWS_END"]] = {
+		['Start'] = { 
+			day = 18, 
+			month = 10,
+		},
+		['End'] = { 
+			day = 2, 
+			month = 11,
+		},
+		['Texture'] = {
+			['Start'] = 235462,
+			['OnGoing'] = 235461,
+			['End'] = 235460,
+		}
+	},
+	[L["FEAST_OF_WINTER_VEIL"]] = {
+		['Start'] = { 
+			day = 15, 
+			month = 12,
+		},
+		['End'] = { 
+			day = 2, 
+			month = 1,
+		},
+		['Texture'] = {
+			['Start'] = 235485,
+			['OnGoing'] = 235484,
+			['End'] = 235482,
+		}
+	},
+} end
 
 Guildbook.Data.Factions = {
     ['Alliance'] = {
