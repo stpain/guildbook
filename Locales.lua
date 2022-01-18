@@ -1198,7 +1198,7 @@ L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s %s %s 
 
 
 	-- xml strings
-	L["PROFILE_TITLE"]                  = "Profile"
+	L["PROFILE_TITLE"]                  = "Profil"
 	L["REAL_NAME"]                      = "Nom"
 	L["REAL_DOB"]                       = "Anniversaire"
 	L["REAL_BIO"]                       = "Biographie"
@@ -1208,7 +1208,7 @@ L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s %s %s 
 	L["MAIN_SPEC"]                      = "Spé Principale"
 	L["OFF_SPEC"]                       = "Spé Secondaire"
 	L["PRIVACY"]                        = "Confidentialité"
-	L["PRIVACY_ABOUT"]                  = "Choisir à partir de quel Rang vous souhaitez partager vos données.\nProfile contient Nom, Anniversaire et Avatar. \nInventaire contient l'équipement de votre personnage (|cffFFD100PAS|r vos sacs/banques). \nLes Talents sont...vos Talents."
+	L["PRIVACY_ABOUT"]                  = "Choisir à partir de quel Rang vous souhaitez partager vos données.\nProfil contient Nom, Anniversaire et Avatar. \nInventaire contient l'équipement de votre personnage (|cffFFD100PAS|r vos sacs/banques). \nLes Talents sont...vos Talents."
 	L["INVENTORY"]                      = "Inventaire"
 	L["TALENTS"]                        = "Talents"
 
@@ -1267,18 +1267,18 @@ L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s %s %s 
 	L["GUILDBANK_CURRENCY"]				= "Monnaie"
 
 	L["HOME"]							= "Accueil"
-	L["PROFILES"]                       = "Profiles"
+	L["PROFILES"]                       = "Profils"
 	L["CHAT"]                           = "Chat"
 	L["GUILD_VIEWER"]                   = "Registres de guildes"
 	L["CALENDAR"]                       = "Calendrier"
 	L["SEARCH"]                         = "Rechercher"
-	L["MY_PROFILE"]                     = "Mon profile"
-	L["OPEN_PROFILE"]                   = "Ouvrir profile"
+	L["MY_PROFILE"]                     = "Mon profil"
+	L["OPEN_PROFILE"]                   = "Ouvrir profil"
 	L["OPEN_CHAT"]                      = "Ouvrir chat"
 	L["INVITE_TO_GROUP"]                = "Inviter dans un groupe"
 	L["SEND_TRADE_ENQUIRY"]             = "Envoyer un message à propos de l'objet"
 	L["REFRESH_ROSTER"]                 = "Rafraîchir registre"
-	L["EDIT"]                           = "Modifier profile"
+	L["EDIT"]                           = "Modifier profil"
 	L["GUILD_BANK"]                     = "Banque de Guilde"
 	L["ALTS"]                           = "Personnages secondaires"
 	L["USE_MAIN_PROFILE"]               = "Utiliser profil du Personnage Principal"
