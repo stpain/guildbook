@@ -794,7 +794,11 @@ function GuildbookRecipeListviewItemMixin:OnMouseDown(button)
 
     -- load the characters who can craft the item
     else
-        loadCharactersWithRecipe(self.item)
+        GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Flush()
+
+        local characters = gb.Tradeskills:FindCharactersWithRecipe(self.item)
+        GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:InsertTable(characters or {})
+
     end
 
 end
@@ -1408,6 +1412,9 @@ function GuildbookGuildViewerCharacterListviewItemTemplateMixin:SetDataBinding(b
 
     for k, v in pairs(binding) do
         if self[k] and type(v) == "string" then
+            self[k]:SetText(colour:WrapTextInColorCode(v))
+
+        elseif k == "Level" then
             self[k]:SetText(colour:WrapTextInColorCode(v))
         end
     end

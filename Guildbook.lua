@@ -600,27 +600,6 @@ end
 
 
 
--- this needs to move into the home mixin
--- function GuildbookMixin:OnNewsFeedReceived(_, news)
---     if type(news) == "table" then
---         self.home.newsFeed.DataProvider:Insert(news)
-
---         if not GUILDBOOK_GLOBAL.NewsFeed then
---             GUILDBOOK_GLOBAL.NewsFeed = {}
---         end
---         table.insert(GUILDBOOK_GLOBAL.NewsFeed, news)
-
---         -- player_logout wasnt working well so i will settle for using table.remove here, as the table is kept small
---         -- it shouldn't be a major issue and is ideal to keep the most recent items and discard the earlier items
---         if #GUILDBOOK_GLOBAL.NewsFeed > 20 then
---             table.remove(GUILDBOOK_GLOBAL.NewsFeed, 1)
---         end
---     end
--- end
-
-
-
-
 
 
 
@@ -706,18 +685,25 @@ end
 
 
 function GuildbookHomeMixin:OnNewsFeedReceived(_, news)
+
+    if type(GUILD_NAME) ~= "string" then
+        return;
+    end
     if type(news) == "table" then
         self.newsFeed.DataProvider:Insert(news)
 
-        if not GUILDBOOK_GLOBAL.NewsFeed then
-            GUILDBOOK_GLOBAL.NewsFeed = {}
+        if not GUILDBOOK_GLOBAL.ActivityFeed then
+            GUILDBOOK_GLOBAL.ActivityFeed = {}
         end
-        table.insert(GUILDBOOK_GLOBAL.NewsFeed, news)
+        if not GUILDBOOK_GLOBAL.ActivityFeed[GUILD_NAME] then
+            GUILDBOOK_GLOBAL.ActivityFeed[GUILD_NAME] = {}
+        end
+        table.insert(GUILDBOOK_GLOBAL.ActivityFeed[GUILD_NAME], news)
 
         -- player_logout wasnt working well so i will settle for using table.remove here, as the table is kept small
         -- it shouldn't be a major issue and is ideal to keep the most recent items and discard the earlier items
-        if #GUILDBOOK_GLOBAL.NewsFeed > 20 then
-            table.remove(GUILDBOOK_GLOBAL.NewsFeed, 1)
+        if #GUILDBOOK_GLOBAL.ActivityFeed[GUILD_NAME] > 30 then
+            table.remove(GUILDBOOK_GLOBAL.ActivityFeed[GUILD_NAME], 1)
         end
     end
 end
@@ -2150,7 +2136,6 @@ function GuildbookProfilesMixin:OnShow()
     if gb.addonLoaded == false then
         return;
     end
-    --GUILD_NAME = gb:GetGuildName()
     if not GUILD_NAME then
         return
     end

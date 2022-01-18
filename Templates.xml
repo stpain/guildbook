@@ -1179,15 +1179,22 @@
 					</Anchors>
 					<Color r="1" g="1" b="1"/>
 				</FontString>
-				<FontString parentKey="MainSpec" inherits="GameFontNormal" justifyH="LEFT">
-                    <Size x="100" y="20"/>
+				<FontString parentKey="Level" inherits="GameFontNormal" justifyH="LEFT">
+                    <Size x="30" y="20"/>
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Class" x="0" y="0"/>
 					</Anchors>
 					<Color r="1" g="1" b="1"/>
 				</FontString>
+				<FontString parentKey="MainSpec" inherits="GameFontNormal" justifyH="LEFT">
+                    <Size x="90" y="20"/>
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Level" x="0" y="0"/>
+					</Anchors>
+					<Color r="1" g="1" b="1"/>
+				</FontString>
 				<FontString parentKey="OffSpec" inherits="GameFontNormal" justifyH="LEFT">
-                    <Size x="100" y="20"/>
+                    <Size x="90" y="20"/>
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.MainSpec" x="0" y="0"/>
 					</Anchors>
@@ -1195,7 +1202,7 @@
 				</FontString>
 
 				<FontString parentKey="Profession1" inherits="GameFontNormal" justifyH="LEFT">
-                    <Size x="85" y="20"/>
+                    <Size x="80" y="20"/>
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.OffSpec" x="0" y="0"/>
 					</Anchors>
@@ -1203,7 +1210,7 @@
 				</FontString>
 
 				<FontString parentKey="Profession2" inherits="GameFontNormal" justifyH="LEFT">
-                    <Size x="85" y="20"/>
+                    <Size x="80" y="20"/>
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Profession1" x="25" y="0"/>
 					</Anchors>

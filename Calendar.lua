@@ -394,10 +394,17 @@ function Guildbook:SetupGuildCalendarFrame()
                 end
 
                 if self.lockouts then
+                    table.sort(self.lockouts, function(a,b)
+                        if a.characterName == b.characterName then
+                            return a.Name < b.Name
+                        else
+                            return a.characterName < b.characterName;
+                        end
+                    end)
                     GameTooltip:AddLine("")
                     GameTooltip:AddLine(L["CALENDAR_TOOLTIP_LOCKOUTS"])
                     for _, lockout in ipairs(self.lockouts) do
-                        GameTooltip:AddDoubleLine(string.format("|cffffffff%s %s [%s/%s]", lockout.time, lockout.Name, lockout.Progress, lockout.Encounters), Guildbook.Colours[lockout.characterClass]:WrapTextInColorCode(lockout.characterName))
+                        GameTooltip:AddDoubleLine(string.format("|cffffffff %s [%s/%s]", lockout.Name, lockout.Progress, lockout.Encounters), Guildbook.Colours[lockout.characterClass]:WrapTextInColorCode(lockout.characterName))
                     end
                 end
 

@@ -537,6 +537,15 @@
                     <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
                 </Anchors>
                 <Layers>
+                    <Layer level="BACKGROUND" textureSubLevel="2">
+                        <Texture parentKey="headerBackground" atlas="_Garr_InfoBoxMission-Top" useAtlasSize="false" alpha="0.8" horizTile="true">
+                            <Size y="80"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="0" y="0"/>
+                                <Anchor point="TOPRIGHT" x="-4" y="0"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
                     <Layer level="BACKGROUND">
                         <Texture parentKey="background" atlas="_GarrMissionLocation-TownAlliance-Back" alpha="0.35">
                         <TexCoords left="0.15" right="0.85" top="0.0" bottom="1.0"/>
@@ -1373,9 +1382,21 @@
                     <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
                 </Anchors>
                 <Layers>
+                    <Layer level="BACKGROUND" textureSubLevel="2">
+                        <Texture parentKey="headerBackground" atlas="_Garr_InfoBoxMission-Top" useAtlasSize="false" alpha="0.8" horizTile="true">
+                            <Size y="80"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="0" y="0"/>
+                                <Anchor point="TOPRIGHT" x="-4" y="0"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
                     <Layer level="BACKGROUND" textureSubLevel="1">
-                        <Texture parentKey="background" atlas="Artifacts-Paladin-BG" setAllPoints="true" alpha="0.5">
+                        <Texture parentKey="background" atlas="Artifacts-Druid-BG" useAtlasSize="true" setAllPoints="true" alpha="0.5">
                             <!-- <Color r="0" g="0" b="0"/> -->
+                            <!-- <Anchors>
+                                <Anchor point="CENTER"  x="0" y="0"/>
+                            </Anchors> -->
                         </Texture>
                     </Layer>
                     <Layer level="OVERLAY" textureSubLevel="1">
@@ -1533,6 +1554,15 @@
                     <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
                 </Anchors>
                 <Layers>
+                    <Layer level="BACKGROUND" textureSubLevel="2">
+                        <Texture parentKey="headerBackground" atlas="_Garr_InfoBoxMission-Top" useAtlasSize="false" alpha="0.8" horizTile="true">
+                            <Size y="80"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="0" y="0"/>
+                                <Anchor point="TOPRIGHT" x="-4" y="0"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
                     <Layer level="BACKGROUND" textureSubLevel="1">
                         <Texture parentKey="background" atlas="Artifacts-Druid-BG" setAllPoints="true" alpha="0.5">
                             <!-- <Color r="0" g="0" b="0"/> -->
@@ -1626,8 +1656,17 @@
                     <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
                 </Anchors>
                 <Layers>
+                    <Layer level="BACKGROUND" textureSubLevel="2">
+                        <Texture parentKey="headerBackground" atlas="_Garr_InfoBoxMission-Top" useAtlasSize="false" alpha="0.8" horizTile="true">
+                            <Size y="80"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="0" y="0"/>
+                                <Anchor point="TOPRIGHT" x="-4" y="0"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
                     <Layer level="BACKGROUND" textureSubLevel="1">
-                        <Texture parentKey="background" atlas="Artifacts-PriestShadow-BG" setAllPoints="true" alpha="0.5">
+                        <Texture parentKey="background" atlas="Artifacts-Druid-BG" setAllPoints="true" alpha="0.5">
                             <!-- <Color r="0" g="0" b="0"/> -->
                         </Texture>
                     </Layer>
@@ -1704,8 +1743,17 @@
                     <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
                 </Anchors>
                 <Layers>
+                    <Layer level="BACKGROUND" textureSubLevel="2">
+                        <Texture parentKey="headerBackground" atlas="_Garr_InfoBoxMission-Top" useAtlasSize="false" alpha="0.8" horizTile="true">
+                            <Size y="80"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="0" y="0"/>
+                                <Anchor point="TOPRIGHT" x="-4" y="0"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
                     <Layer level="BACKGROUND" textureSubLevel="1">
-                        <Texture parentKey="background" atlas="collections-background-tile" tile="true" setAllPoints="true" alpha="0.5">
+                        <Texture parentKey="background" atlas="Artifacts-Druid-BG" setAllPoints="true" alpha="0.5">
                             <!-- <Color r="0" g="0" b="0"/> -->
                         </Texture>
                     </Layer>
@@ -1824,8 +1872,17 @@
                     <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
                 </Anchors>
                 <Layers>
+                    <Layer level="BACKGROUND" textureSubLevel="2">
+                        <Texture parentKey="headerBackground" atlas="_Garr_InfoBoxMission-Top" useAtlasSize="false" alpha="0.8" horizTile="true">
+                            <Size y="80"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="0" y="0"/>
+                                <Anchor point="TOPRIGHT" x="-4" y="0"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
                     <Layer level="BACKGROUND" textureSubLevel="1">
-                        <Texture parentKey="background" atlas="ClassHall_InfoBoxMission-BackgroundTile" tile="true" setAllPoints="true" alpha="0.5">
+                        <Texture parentKey="background" atlas="Artifacts-Druid-BG" setAllPoints="true" alpha="0.5">
                             <!-- <Color r="0" g="0" b="0"/> -->
                         </Texture>
                     </Layer>
@@ -1885,8 +1942,17 @@
                     <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
                 </Anchors>
                 <Layers>
+                    <Layer level="BACKGROUND" textureSubLevel="2">
+                        <Texture parentKey="headerBackground" atlas="_Garr_InfoBoxMission-Top" useAtlasSize="false" alpha="0.8" horizTile="true">
+                            <Size y="80"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="0" y="0"/>
+                                <Anchor point="TOPRIGHT" x="-4" y="0"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
                     <Layer level="BACKGROUND" textureSubLevel="1">
-                        <Texture parentKey="background" atlas="Artifacts-Druid-BG" tile="true" setAllPoints="true" alpha="0.35">
+                        <Texture parentKey="background" atlas="Artifacts-Druid-BG" setAllPoints="true" alpha="0.5">
                             <!-- <Color r="0" g="0" b="0"/> -->
                         </Texture>
                     </Layer>

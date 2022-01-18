@@ -33,6 +33,12 @@ local LCI = LibStub:GetLibrary("LibCraftInfo-1.0")
 
 
 
+local Tradeskills = CreateFromMixins(CallbackRegistryMixin);
+local Roster = CreateFromMixins(CallbackRegistryMixin);
+local Database = CreateFromMixins(CallbackRegistryMixin);
+local Character = CreateFromMixins(CallbackRegistryMixin);
+local Comms = CreateFromMixins(CallbackRegistryMixin);
+
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 --variables
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -105,7 +111,7 @@ end
 
 /////////////////////////////////////////////////////////////////
 ]]
-local Database = CreateFromMixins(CallbackRegistryMixin)
+--local Database = CreateFromMixins(CallbackRegistryMixin)
 Database:GenerateCallbackEvents({
     "OnCharacterTableChanged", -- only this clients UI needs to listen to this
     --"OnCharacterTradeskillRecipesChanged", -- and this
@@ -536,7 +542,10 @@ Class.Specializations = {
 
 /////////////////////////////////////////////////////////////////
 ]]
-local Tradeskills = {}
+--local Tradeskills = {}
+Tradeskills:GenerateCallbackEvents({
+    "OnRecipeItemDataReceived", --hmm?
+});
 Tradeskills.CurrentLocale = GetLocale()
 Tradeskills.TradeskillNames = {
     ["Alchemy"] = 171,
@@ -751,6 +760,36 @@ function Tradeskills:RequestRecipeInfo()
 end
 
 
+
+function Tradeskills:FindCharactersWithRecipe(recipe)
+    local charactersWithRecipe = {}
+    local sorting = {}
+    if recipe.enchant == true then
+        for k, guid in ipairs(Guildbook.charactersWithEnchantRecipe[recipe.itemID]) do
+            table.insert(sorting, {
+                guid = guid,
+                online = Roster.onlineStatus[guid].online and 1 or 0,
+            })
+        end
+    else
+        for k, guid in ipairs(Guildbook.charactersWithRecipe[recipe.itemID]) do
+            table.insert(sorting, {
+                guid = guid,
+                online = Guildbook.onlineZoneInfo[guid].online and 1 or 0,
+            })
+        end
+    end
+    table.sort(sorting, function(a,b)
+        return a.online > b.online
+    end)
+    for k, character in ipairs(sorting) do
+        table.insert(charactersWithRecipe, character.guid)
+    end
+
+    return charactersWithRecipe;
+end
+
+
 ---load the characters tradeskills, currently this is triggered by the new home tab member listview
 ---@param prof string the profession to load recipes for or `allRecipes` for all of the characters recipes
 ---@param lcharacter table optional character table to use, overrides the guid arg
@@ -851,6 +890,13 @@ function Tradeskills:LoadGuildMemberTradeskills(prof, character)
 end
 
 
+
+function Tradeskills:Init()
+    
+    CallbackRegistryMixin.OnLoad(self)
+
+end
+
 Guildbook.Tradeskills = Tradeskills;
 
 
@@ -870,14 +916,14 @@ Guildbook.Tradeskills = Tradeskills;
 
 /////////////////////////////////////////////////////////////////
 ]]
-local Roster = CreateFromMixins(CallbackRegistryMixin)
+--local Roster = CreateFromMixins(CallbackRegistryMixin)
 Roster:GenerateCallbackEvents({
     "OnMemberStatusChanged",
     "OnMemberJoin",
     "OnMemberLeave",
     "OnGuildSelectionChanged",
 })
-Roster.currentplayerRealm = nil;
+Roster.currentPlayerRealm = nil;
 Roster.currentGuild = nil;
 Roster.onlineStatus = {};
 Roster.guidToCharacterNameRealm = {}; --?
@@ -966,7 +1012,7 @@ function Roster:OnChatMessageSystem(...)
             text = string.format("%s has gone offline", characterName)
         })
 
-        local guid = self.characterNameRealmToGUID[characterName] or self.characterNameRealmToGUID[characterName.."-"..self.currentplayerRealm]
+        local guid = self.characterNameRealmToGUID[characterName] or self.characterNameRealmToGUID[characterName.."-"..self.currentPlayerRealm]
         if guid then
             self.onlineStatus[guid].isOnline = false;
             self:TriggerEvent("OnMemberStatusChanged", guid, self.onlineStatus[guid])
@@ -986,7 +1032,7 @@ function Roster:OnChatMessageSystem(...)
             text = string.format("%s has come online", characterName)
         })
 
-        local guid = self.characterNameRealmToGUID[characterName] or self.characterNameRealmToGUID[characterName.."-"..self.currentplayerRealm]
+        local guid = self.characterNameRealmToGUID[characterName] or self.characterNameRealmToGUID[characterName.."-"..self.currentPlayerRealm]
         if guid then
             self.onlineStatus[guid].isOnline = true;
             self:TriggerEvent("OnMemberStatusChanged", guid, self.onlineStatus[guid])
@@ -1004,17 +1050,7 @@ function Roster:OnChatMessageSystem(...)
             text = string.format("%s has joined the guild", name)
         })
 
-        if Ambiguate(name, "none") ~= Ambiguate(UnitName("player"), "none") then
-            return;
-        end
-        C_Timer.After(3.0, function()
-            GuildRoster() -- this will trigger a roster scan but we set addonLoaded as false at top of file to skip the auto roster scan so this is first scan
-            C_Timer.After(1.5, function()
-                self:ScanGuildRoster(function()
-                    Guildbook:Load() -- once the roster has been scanned continue to load, its a bit meh but it means we get a full roster scan before loading
-                end)
-            end)
-        end)
+        GuildRoster();
     end
 end
 
@@ -1026,7 +1062,7 @@ function Roster:Init()
 
     self:RegisterCallback("OnMemberStatusChanged", GuildbookUI.home.UpdateMemberList, GuildbookUI.home)
 
-    self.currentplayerRealm = GetNormalizedRealmName()
+    self.currentPlayerRealm = GetNormalizedRealmName()
 
     self.listener = CreateFrame("FRAME")
     self.listener:RegisterEvent("GUILD_ROSTER_UPDATE")
@@ -1034,7 +1070,9 @@ function Roster:Init()
     self.listener:SetScript("OnEvent", function(_, event, ...)
     
         if event == "GUILD_ROSTER_UPDATE" then
-            self:ScanMembers()
+            C_Timer.After(1.0, function()
+                self:ScanMembers()
+            end)
 
         elseif event == "CHAT_MSG_SYSTEM" then
             self:OnChatMessageSystem(...)
@@ -1066,7 +1104,7 @@ Guildbook.Roster = Roster;
 
 /////////////////////////////////////////////////////////////////
 ]]
-local Character = CreateFromMixins(CallbackRegistryMixin)
+--local Character = CreateFromMixins(CallbackRegistryMixin)
 Character:GenerateCallbackEvents({
     "OnLFGListingCreated",
     "OnPlayerLevelUp",
@@ -1761,10 +1799,15 @@ function Character:Init()
         Guildbook.DEBUG("event", "Character:OnEvent", string.format("event: %s", event))
 
         if event == "TRADE_SKILL_UPDATE" then
-            self:ScanTradeskillRecipes()
+            --delay this (0 would maybe work) to make sure we get the correct text, i think it needs a frame update to happen for the fontstring text to be updated ?
+            C_Timer.After(0.1, function()
+                self:ScanTradeskillRecipes()
+            end)
 
         elseif event == "CRAFT_UPDATE" then
-            self:ScanEnchantingRecipes()
+            C_Timer.After(0.1, function()
+                self:ScanEnchantingRecipes()
+            end)
 
         elseif event == "SKILL_LINES_CHANGED" then
             self:ScanForTradeskillInfo()
@@ -1870,7 +1913,7 @@ Guildbook.Character = Character;
 
 /////////////////////////////////////////////////////////////////
 ]]
-local Comms = CreateFromMixins(CallbackRegistryMixin)
+--local Comms = CreateFromMixins(CallbackRegistryMixin)
 Comms:GenerateCallbackEvents({
     "OnNewsFeedReceived",
 })
@@ -2006,6 +2049,11 @@ end
 ---@param targetGUID string the targets GUID, this is used to make comms work on conneted realms - only required for WHISPER comms
 ---@param priority string the prio to use
 function Comms:Transmit(data, channel, targetGUID, priority, uiMessage)
+
+    if Roster.onlineStatus[targetGUID] ~= true then
+        Guildbook.DEBUG('commsMixin', 'Comms:Transmit', "cancel transmit as target is offline", data)
+        return;
+    end
 
     if targetGUID == UnitGUID("player") then
         Guildbook.DEBUG('commsMixin', 'Comms:Transmit', "cancel transmit as target is player", data)
@@ -2892,8 +2940,12 @@ function Guildbook:Init()
         GUILDBOOK_GLOBAL.myLockouts = {}
     end
 
-    if not GUILDBOOK_GLOBAL.NewsFeed then
-        GUILDBOOK_GLOBAL.NewsFeed = {}
+    if GUILDBOOK_GLOBAL.NewsFeed then
+        GUILDBOOK_GLOBAL.NewsFeed = nil;
+    end
+
+    if not GUILDBOOK_GLOBAL.ActivityFeed then
+        GUILDBOOK_GLOBAL.ActivityFeed = {}
     end
 
     if not GUILDBOOK_GLOBAL['CommsDelay'] then
@@ -3107,19 +3159,6 @@ function Guildbook:PLAYER_ENTERING_WORLD(...)
 
     local isInitialLogin, isReloadUI = ...
 
-    if type(GUILDBOOK_GLOBAL.NewsFeed) == "table" then
-
-        GuildbookUI.home.newsFeed.DataProvider:InsertTable(GUILDBOOK_GLOBAL.NewsFeed)
-
-        -- if this is the initail login then say hello
-        -- if isInitialLogin == true then
-        --     GuildbookUI.home:OnNewsFeedReceived(_, {
-        --         newsType = "login",
-        --         text = string.format("%s has come online", UnitName("player"))
-        --     })
-        -- end
-    end
-
     if self.addonLoaded == true then
         local lockouts = Character:GetInstanceInfo()
         GUILDBOOK_GLOBAL.myLockouts[UnitGUID("player")] = lockouts;
@@ -3163,6 +3202,19 @@ function Guildbook:PLAYER_ENTERING_WORLD(...)
         self:ScanGuildRoster(function()
             Guildbook:Load() -- once the roster has been scanned continue to load, its a bit meh but it means we get a full roster scan before loading
         end)
+
+        if type(GUILDBOOK_GLOBAL.ActivityFeed) == "table" and type(GUILDBOOK_GLOBAL.ActivityFeed[guildName]) == "table" then
+
+            GuildbookUI.home.newsFeed.DataProvider:InsertTable(GUILDBOOK_GLOBAL.ActivityFeed[guildName])
+    
+            --if this is the initail login then say hello
+            if isInitialLogin == true then
+                GuildbookUI.home:OnNewsFeedReceived(_, {
+                    newsType = "login",
+                    text = string.format("%s has come online", UnitName("player"))
+                })
+            end
+        end
     end)
     self.EventFrame:UnregisterEvent("PLAYER_ENTERING_WORLD")
 end
@@ -3408,7 +3460,7 @@ function Guildbook:Load()
     Character:Init()
     Comms:Init()
     Roster:Init()
-
+    Tradeskills:Init()
 
 
 

@@ -249,8 +249,30 @@ L["NF_PLAYER_LOGOUT_S"]				= "%s logged out"
 --L["NF_LFG_CREATED_S"]				= "%s"
 
 
+
+--privacy and options
+
+L["PRIVACY_SHARE_LFG"]				= "Share when you use the group finder"
+L["PRIVACY_SHARE_LEVEL_UP"]			= "Send news that you leveled up"
+--L[""]
+
+L["OPT_SHOW_MINIMAP_BUTTON"]		= "Toggle the minimap button"
+L["OPT_SHOW_MINIMAP_CALENDAR"]		= "Toggle the minimap calendar button"
+L["OPT_MOD_BLIZZ_ROSTER"]			= "Modify the default Blizzard guild roster UI"
+L["OPT_COMBAT_COMMS_LOCK"]			= "Block data comms during combat"
+L["OPT_INSTANCE_COMMS_LOCK"]		= "Block data comms during an instance (raids/dungeons)"
+
+L["OPT_TT_CHAR_SHOW_INFO"]			= "Show character info"
+L["OPT_TT_CHAR_MAIN_SPEC"]			= "Main Spec"
+L["OPT_TT_CHAR_TRADESKILLS"]		= "Tradeskills"
+L["OPT_TT_CHAR_MAIN_CHAR"]			= "Main character"
+
+L["OPT_TT_TRADESKILLS_SHOW"]		= "Show tradeskills (professions)"
+L["OPT_TT_TRADESKILLS_RECIPES"]		= "Show recipes"
+L["OPT_TT_TRADESKILLS_PERSONAL"]	= "Only show recipes for your characters tradeskills"
+
 --guildViewer
-L["GUILD_VIEWER_HEADER"]			= "You can view characters from other guilds you are a member of here. Select which guild to see a list of its members, select a character to view information."
+L["GUILD_VIEWER_HEADER"]			= "You can view characters from other guilds you are a member of here, the information is the raw data from the addons saved variables file. Select which guild to see a list of its members, select a character to view information."
 
 L["RESET_AVATAR"]					= "Reset avatar"
 
