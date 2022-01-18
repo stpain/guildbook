@@ -432,7 +432,7 @@ function GuildbookMixin:OnLoad()
     self.backgroundModel = CreateFrame('PlayerModel', "GuildbookBackgroundModel", self, BackdropTemplateMixin and "BackdropTemplate")
     self.backgroundModel:SetPoint('TOPLEFT', 0, -55)
     self.backgroundModel:SetPoint('BOTTOMRIGHT', 0, 0)
-    self.backgroundModel:SetModel("creature/illidan/illidan.m2")
+    if WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC then self.backgroundModel:SetModel("creature/illidan/illidan.m2") end --fixes a potential lua error for classic era/som
     self.backgroundModel:SetPosition(0,0,-0.2)
     self.backgroundModel:SetKeepModelOnHide(true)
     self.backgroundModel:Hide()
