@@ -251,7 +251,7 @@ L["NF_PLAYER_LOGOUT_S"]				= "%s logged out"
 
 
 --privacy and options
-
+L["PRIVACY_CONFIG_ERROR"]			= "your privacy settings have been changed due to an error, please check your settings."
 L["PRIVACY_SHARE_LFG"]				= "Share when you use the group finder"
 L["PRIVACY_SHARE_LEVEL_UP"]			= "Send news that you leveled up"
 --L[""]

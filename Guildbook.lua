@@ -820,23 +820,6 @@ function GuildbookAvatarPickerMixin:OnLoad()
             f.Background:SetTexture(self.avatars[i].fileID)
             f.avatar = self.avatars[i]
 
-            -- f:SetScript("OnEnter", function()
-            --     local atlas = f.Background:GetAtlas()
-            --     local tex = f.Background:GetTexture()
-            --     local texPath = f.Background:GetTextureFilePath()
-
-            --     DevTools_Dump({atlas})
-
-            --     GameTooltip:SetOwner(f, 10, 10)
-            --     GameTooltip:AddLine(tex)
-            --     GameTooltip:AddLine(texPath)
-            --     GameTooltip:Show()
-            -- end)
-
-            -- f:SetScript("OnLeave", function()
-            --     GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-            -- end)
-
             f.func = function()
                 if not GUILDBOOK_CHARACTER then
                     GUILDBOOK_CHARACTER = {}

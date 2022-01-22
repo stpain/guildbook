@@ -46,17 +46,12 @@ local Comms = CreateFromMixins(CallbackRegistryMixin);
 local locale = GetLocale()
 local L = Guildbook.Locales
 
-Guildbook.lastProfTransmit = GetTime()
-Guildbook.FONT_COLOUR = '|cff0070DE'
-Guildbook.ContextMenu_Separator = "|TInterface/COMMON/UI-TooltipDivider:8:150|t"
-Guildbook.ContextMenu_Separator_Wide = "|TInterface/COMMON/UI-TooltipDivider:8:250|t"
+local TOOLTIP_DIVIDER_WIDE = "|TInterface/COMMON/UI-TooltipDivider:8:250|t"
 Guildbook.PlayerMixin = nil
 
 Guildbook.COMMS_DELAY = 0.0
 Guildbook.COMM_LOCK_COOLDOWN = 20.0
 Guildbook.GUILD_NAME = nil;
-
-Guildbook.currentGuildSelected = nil;
 
 Guildbook.Colours = {
     Blue = CreateColor(0.1, 0.58, 0.92, 1),
@@ -111,7 +106,6 @@ end
 
 /////////////////////////////////////////////////////////////////
 ]]
---local Database = CreateFromMixins(CallbackRegistryMixin)
 Database:GenerateCallbackEvents({
     "OnCharacterTableChanged", -- only this clients UI needs to listen to this
     --"OnCharacterTradeskillRecipesChanged", -- and this
@@ -752,6 +746,7 @@ function Tradeskills:GetEnglishNameFromTradeskillName(tradeskillName)
         local tradeskill = self:GetEnglishNameFromID(tradeskillID)
         return tostring(tradeskill);
     end
+    return false;
 end
 
 
@@ -954,6 +949,31 @@ function Roster:ScanMembers()
 
         end
 
+    end
+end
+
+
+
+---get the current ranks for the guild and loop the config table to make sure any old ranks are corrected
+function Roster:CheckPrivacyRankSettings()
+    local ranks = {}
+    for i = 1, GuildControlGetNumRanks() do
+        ranks[GuildControlGetRankName(i)] = i;
+    end
+    local lowestRank = GuildControlGetRankName(GuildControlGetNumRanks())
+    if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.config and GUILDBOOK_GLOBAL.config.privacy then
+        for rule, rank in pairs(GUILDBOOK_GLOBAL.config.privacy) do
+            if not ranks[rank] then
+                if rank == "none" then
+                    
+                else
+                    -- set the rank to lowest, this is to cover times where a rank is deleted
+                    GUILDBOOK_GLOBAL.config.privacy[rule] = lowestRank
+                    Guildbook.PrintMessage(L["PRIVACY_CONFIG_ERROR"])
+                    Guildbook.DEBUG("func", "CheckPrivacyRankSettings", string.format("changed rank: %s to lowest rank (%s) for rule: %s", rank, lowestRank, rule))
+                end
+            end
+        end
     end
 end
 
@@ -1315,7 +1335,7 @@ function Character:ScanForTradeskillInfo()
 
         ---if the skill headers for professions wernt expanding when scanned then we have no data returned, 
         ---so we can get the prof names via the spellbook tab, prof level will default back to 1 but recipes will work as the prof name acts as a key
-        if engSpellName then
+        if engSpellName ~= false then
             if engSpellName ~= "Cooking" and engSpellName ~= "Fishing" and engSpellName ~= "First Aid" then
                 if characterTradeskillsInfo.Profession1 == "-" then
                     characterTradeskillsInfo.Profession1 = engSpellName;
@@ -1367,21 +1387,50 @@ function Character:ScanForTradeskillInfo()
 end
 
 
----scan the players currently opened tradeskill recipes and trigger the changed event
+---scan the players currently opened tradeskill recipes
 function Character:ScanTradeskillRecipes()
-    --local localeProf = GetTradeSkillLine() -- this returns local name
-    local localeProf = TradeSkillFrameTitleText:GetText() -- this works better when players switch betrween professions without closing the window
-    if localeProf == "UNKNOWN" then
-        return; -- exit as the window isnt open
+    local englishProf = nil;
+
+    local localeProf, currentLevel, maxLevel = GetTradeSkillLine();
+
+    --if no prof name/level were returned lets try to get it from the ui 
+    if type(localeProf) ~= "string" then
+
+        --we need this fontstring to exist before trying
+        if TradeskillFrameTitleText then
+            localeProf = TradeSkillFrameTitleText:GetText()
+        end
+        
+        --now try to get the current/max levels
+        local rankText = TradeSkillRankFrameSkillRank and TradeSkillRankFrameSkillRank:GetText() or nil;
+        if rankText and rankText:find("/") then
+            local currentLevel, maxLevel = strsplit("/", rankText)
+            if type(currentLevel) == "string" then
+                currentLevel = tonumber(currentLevel)
+            end
+            if type(maxLevel) == "string" then
+                maxLevel = tonumber(maxLevel)
+            end
+            Guildbook.DEBUG("func", "Character:ScanTradeskillRecipes", string.format("found prof level [%s] from UI text", currentLevel))
+        end
     end
 
-    local englishProf = Tradeskills:GetEnglishNameFromTradeskillName(localeProf)
-    if not englishProf then
-        Guildbook.DEBUG("func", "Character:ScanTradeskillRecipes", "englishProf not known")
-        return; -- english prof name acts as a key so we must have it to continue
+    --check everything is all good
+    if type(localeProf) == "string" and type(currentLevel) == "number" and type(maxLevel) == "number" then
+
+        englishProf = Tradeskills:GetEnglishNameFromTradeskillName(localeProf)
+        if englishProf == false then
+            Guildbook.DEBUG("func", "Character:ScanTradeskillRecipes", "englishProf not known")
+            return;
+        end
     end
 
-    Guildbook.DEBUG("func", "Character:ScanTradeskillRecipes", string.format("scanning for tradeskill recipes [%s]", englishProf))
+    if englishProf == nil then
+        Guildbook.DEBUG("func", "Character:ScanTradeskillRecipes", string.format("unable to find englishProf or curent level for [%s]", localeProf))
+        return;
+    end
+
+    Guildbook.DEBUG("func", "Character:ScanTradeskillRecipes", string.format("found [%s] with current level [%s] scanning for recipes", englishProf, currentLevel))
 
     local tradeskillRecipes = {}
     local numTradeskills = GetNumTradeSkills()
@@ -1418,41 +1467,26 @@ function Character:ScanTradeskillRecipes()
         end
     end
 
-    ---we can grab the text from the tradeskill frame and turn it into a number for the players skill level
-    local rankText = TradeSkillRankFrameSkillRank and TradeSkillRankFrameSkillRank:GetText() or nil;
-    if rankText and rankText:find("/") then
-        local currentRank, maxRank = strsplit("/", rankText)
-        if type(currentRank) == "string" then
-            currentRank = tonumber(currentRank)
+    local myProf1 = Database:GetCharacterInfo(UnitGUID("player"), "Profession1")
+    if myProf1 == englishProf then
+        Database:UpdatePlayerCharacterTradeskillsInfo(nil, currentLevel)
+
+    else
+        local myProf2 = Database:GetCharacterInfo(UnitGUID("player"), "Profession2")
+        if myProf2 == englishProf then
+            Database:UpdatePlayerCharacterTradeskillsInfo(nil, nil, nil, nil, currentLevel)
         end
-        if type(currentRank) == "number" then
-            Guildbook.DEBUG("func", "Character:ScanTradeskillRecipes", string.format("found prof level [%s] from UI text, looking for match [%s] in char db", currentRank, englishProf))
-            
-            local myProf1 = Database:GetCharacterInfo(UnitGUID("player"), "Profession1")
-            if myProf1 == englishProf then
-                --Database:UpdatePlayerCharacterTable("Profession1Level", currentRank)
-                Database:UpdatePlayerCharacterTradeskillsInfo(nil, currentRank)
+    end
 
-            else
-                local myProf2 = Database:GetCharacterInfo(UnitGUID("player"), "Profession2")
-                if myProf2 == englishProf then
-                    --Database:UpdatePlayerCharacterTable("Profession2Level", currentRank)
-                    Database:UpdatePlayerCharacterTradeskillsInfo(nil, nil, nil, nil, currentRank)
-                end
-            end
+    if englishProf == "Cooking" then
+        Database:UpdatePlayerCharacterTradeskillsInfo(nil, nil, nil, nil, nil, nil, nil, currentLevel, nil)
 
-            if englishProf == "Cooking" then
-                Database:UpdatePlayerCharacterTradeskillsInfo(nil, nil, nil, nil, nil, nil, nil, currentRank, nil)
+    elseif englishProf == "Fishing" then -- not sure this is possible in classic/tbc etc
+        Database:UpdatePlayerCharacterTradeskillsInfo(nil, nil, nil, nil, nil, nil, currentLevel, nil, nil)
 
-            elseif englishProf == "Fishing" then -- not sure this is possible in classic/tbc etc
-                Database:UpdatePlayerCharacterTradeskillsInfo(nil, nil, nil, nil, nil, nil, currentRank, nil, nil)
+    elseif englishProf == "First Aid" then
+        Database:UpdatePlayerCharacterTradeskillsInfo(nil, nil, nil, nil, nil, nil, nil, nil, currentLevel)
 
-            elseif englishProf == "First Aid" then
-                Database:UpdatePlayerCharacterTradeskillsInfo(nil, nil, nil, nil, nil, nil, nil, nil, currentRank)
-
-            end
-
-        end
     end
 
     Database:UpdatePlayerCharacterTradeskillRecipes(englishProf, tradeskillRecipes)
@@ -1462,14 +1496,23 @@ end
 
 ---scan the players enchanting recipes and trigger the changed event
 function Character:ScanEnchantingRecipes()
-    --local currentCraftingWindow = GetCraftSkillLine(1)
-    local currentCraftingWindow = CraftFrameTitleText:GetText() -- this works better when players switch betrween professions without closing the window
-    if currentCraftingWindow == nil then
+
+    local currentCraftingWindow;
+    if CraftFrameTitleText then
+        currentCraftingWindow = CraftFrameTitleText:GetText()
+    else
+        currentCraftingWindow = GetCraftSkillLine(1)
+    end
+
+    if currentCraftingWindow == "UNKNOWN" then
         return; -- exit as no craft open
+    end
+    if currentCraftingWindow == nil then
+        return;
     end
 
     local englishProf = Tradeskills:GetEnglishNameFromTradeskillName(currentCraftingWindow)
-    if not englishProf then
+    if englishProf ~= false then
         return; -- english prof name acts as a key so we must have it to continue
     end
 
@@ -1745,7 +1788,7 @@ function Character:OnChatMessageSystem(message)
     local skill, value = message:match(self.SkillUpPattern)
     if skill and value then
         local englishProf = Tradeskills:GetEnglishNameFromTradeskillName(skill)
-        if englishProf then
+        if englishProf ~= false then
             local dbKey;
 
             --just need to grab the correct key for the character table
@@ -1944,18 +1987,8 @@ Comms.sendPlayerCharacterUpdates_IsQueued = false;
 Comms.sendPlayerCharacterUpdatesQueueTimer = 3.0;
 Comms.playerCharacterUpdate = {};
 
--- local function GbFormatLink(atlas, linkType, linkDisplayText, ...)
--- 	local linkFormatTable = { ("|H%s"):format(linkType), ... };
--- 	local returnLink = table.concat(linkFormatTable, ":");
--- 	if linkDisplayText then
--- 		return atlas .. returnLink .. ("|h%s|h"):format(linkDisplayText);
--- 	else
--- 		return atlas .. returnLink .. "|h";
--- 	end
--- end
 
-
-
+--this was to add alt and spec info the guild chat channel, however using just a filter only really allows the message to eb modified not the sender part - will leave in for now though
 function Comms.CharacterSpecAndMainChatFilter(self, event, msg, author, ...)
 
     local guid = select(10, ...)
@@ -1992,6 +2025,10 @@ function Comms.CharacterSpecAndMainChatFilter(self, event, msg, author, ...)
 end
 
 
+
+---this listens to the database class for config changes
+---@param db table the Database class
+---@param config table the currrent config values
 function Comms:OnGuildbookConfigChanged(db, config)
 
     if config.showMainCharacterGuildChat == false then
@@ -2048,9 +2085,10 @@ end
 ---@param channel string the addon channel to use for the comm
 ---@param targetGUID string the targets GUID, this is used to make comms work on conneted realms - only required for WHISPER comms
 ---@param priority string the prio to use
+---@param uiMessage string a message to display in the addon UI top right status text area
 function Comms:Transmit(data, channel, targetGUID, priority, uiMessage)
 
-    if Roster.onlineStatus[targetGUID] ~= true then
+    if type(targetGUID) == "string" and Roster.onlineStatus[targetGUID] ~= true then
         Guildbook.DEBUG('commsMixin', 'Comms:Transmit', "cancel transmit as target is offline", data)
         return;
     end
@@ -2087,39 +2125,22 @@ function Comms:Transmit(data, channel, targetGUID, priority, uiMessage)
     -- clean up the target name when using a whisper
     if channel == 'WHISPER' then
 
-        --find character first before looping roster
-        --local character = Guildbook:GetCharacterFromCache(targetGUID)
         local _, _, _, _, _, name, realm = GetPlayerInfoByGUID(targetGUID)
 
-        --Guildbook.DEBUG('commsMixin', 'SendCommMessage', string.format("found character table for targetGUID"), {name = name, realm = realm})
-
-        if name and realm then -- type(character) == "table" and character.FullName then
-            
+        if name and realm then            
             --local target = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and string.format("%s-%s", name, realm) or name;
             local target = realm ~= "" and string.format("%s-%s", name, realm) or name;
 
-            local totalMembers, _, _ = GetNumGuildMembers()
-            for i = 1, totalMembers do
-                local name, rankName, _, _, _, _, _, _, isOnline, _, _, _, _, _, _, _, guid = GetGuildRosterInfo(i)
+            local serialized = LibSerialize:Serialize(data);
+            local compressed = LibDeflate:CompressDeflate(serialized);
+            local encoded    = LibDeflate:EncodeForWoWAddonChannel(compressed);
+        
+            if encoded and channel and priority then
+                Guildbook.DEBUG('commsMixin', 'SendCommMessage_TargetOnline', string.format("type: %s, channel: %s target: %s, prio: %s", data.type or 'nil', channel, (target or 'nil'), priority), data)
+                self:SendCommMessage(Comms.PREFIX, encoded, channel, target, priority)
 
-                if guid == targetGUID then
-                    if isOnline == true then
-                        local serialized = LibSerialize:Serialize(data);
-                        local compressed = LibDeflate:CompressDeflate(serialized);
-                        local encoded    = LibDeflate:EncodeForWoWAddonChannel(compressed);
-                    
-                        if encoded and channel and priority then
-                            Guildbook.DEBUG('commsMixin', 'SendCommMessage_TargetOnline', string.format("type: %s, channel: %s target: %s, prio: %s", data.type or 'nil', channel, (target or 'nil'), priority), data)
-                            self:SendCommMessage(Comms.PREFIX, encoded, channel, target, priority)
-
-                            if uiMessage and type(uiMessage) == "string" then
-                                GuildbookUI:SetInfoText(uiMessage)
-                            end
-                        end
-                    else
-                        Guildbook.DEBUG('error', 'SendCommMessage_TargetOffline', string.format("type: %s, channel: %s target: %s, prio: %s", data.type or 'nil', channel, (target or 'nil'), priority))
-                    end
-                    return; --no need to keep checking the roster at this point
+                if uiMessage and type(uiMessage) == "string" then
+                    GuildbookUI:SetInfoText(uiMessage)
                 end
             end
         end
@@ -2226,7 +2247,7 @@ function Comms:CheckPrivacyRuleForTargetGUID(targetGUID, rule)
     if GUILDBOOK_GLOBAL.config.privacy[rule] == "none" then
         return false;
     end
-    Guildbook:CheckPrivacyRankSettings() -- double check all ranks are good
+    Roster:CheckPrivacyRankSettings() -- double check all ranks are good
     local ranks = {}
     for i = 1, GuildControlGetNumRanks() do
         ranks[GuildControlGetRankName(i)] = i;
@@ -2577,7 +2598,7 @@ function Comms:OnUpdateMessage(data)
         if self.version < data.payload.version then
             if not self.versionsChecked[data.payload.version] then
                 local msgID = math.random(4)
-                print(string.format('[%sGuildbook|r] %s', Guildbook.FONT_COLOUR, L["NEW_VERSION_"..msgID]))
+                Guildbook:PrintMessage(L["NEW_VERSION_"..msgID])
                 self.versionsChecked[data.payload.version] = true;
             end
         end
@@ -2596,7 +2617,7 @@ function Comms:OnCharacterOnline(data, sender)
         if self.version < data.payload.version then
             if not self.versionsChecked[data.payload.version] then
                 local msgID = math.random(4)
-                print(string.format('[%sGuildbook|r] %s', Guildbook.FONT_COLOUR, L["NEW_VERSION_"..msgID]))
+                Guildbook:PrintMessage(L["NEW_VERSION_"..msgID])
                 self.versionsChecked[data.payload.version] = true;
             end
 
@@ -3052,7 +3073,7 @@ function Guildbook:Init()
                                 if id == itemID then
                                     if headerAdded == false then
                                         --self:AddLine(" ")
-                                        self:AddLine(Guildbook.ContextMenu_Separator_Wide)
+                                        self:AddLine(TOOLTIP_DIVIDER_WIDE)
                                         self:AddLine(L["TOOLTIP_ITEM_RECIPE_HEADER"])
                                         headerAdded = true;
                                     end
@@ -3079,7 +3100,7 @@ function Guildbook:Init()
                         end
                     end
                     if headerAdded == true then
-                        self:AddLine(Guildbook.ContextMenu_Separator_Wide)
+                        self:AddLine(TOOLTIP_DIVIDER_WIDE)
                         --self:AddLine(" ")
                     end
                 end
@@ -3231,7 +3252,7 @@ function Guildbook:Load()
     Guildbook.DEBUG("func", "Load", "loading addon")
 
     -- this will make sure rank changes are handled, just set any privacy rule to the lowest rank if its wrong
-    self:CheckPrivacyRankSettings()
+    Roster:CheckPrivacyRankSettings()
 
 
     local ldb = LibStub("LibDataBroker-1.1")
@@ -3578,22 +3599,6 @@ end
 
 --- return the players guild name if they belong to one
 function Guildbook:GetGuildName()
-    -- if self.currentGuildSelected == nil then
-    --     if IsInGuild() and GetGuildInfo("player") then
-    --         local guildName, _, _, _ = GetGuildInfo('player')
-    --         return guildName
-    --     end
-    -- else
-    --     if type(self.currentGuildSelected) == "string" then
-    --         return self.currentGuildSelected;
-    --     else
-    --         if IsInGuild() and GetGuildInfo("player") then
-    --             local guildName, _, _, _ = GetGuildInfo('player')
-    --             return guildName
-    --         end
-    --     end
-    -- end
-
     if IsInGuild() and GetGuildInfo("player") then
         local guildName, _, _, _ = GetGuildInfo('player')
         return guildName
@@ -3611,7 +3616,7 @@ function Guildbook:PrintMessage(msg)
         return;
     end
     if GUILDBOOK_GLOBAL.config.showInfoMessages == true then
-        print(string.format('[%sGuildbook|r] %s', Guildbook.FONT_COLOUR, msg))
+        print(string.format("[%s|r] %s", self.Colours.BlizzBlue:WrapTextInColorCode("Guildbook"), msg))
     end
 end
 
@@ -3838,26 +3843,26 @@ function Guildbook:ImportGuildTradeskillRecipes(text)
 end
 
 
-function Guildbook:CheckPrivacyRankSettings()
-    local ranks = {}
-    for i = 1, GuildControlGetNumRanks() do
-        ranks[GuildControlGetRankName(i)] = i;
-    end
-    local lowestRank = GuildControlGetRankName(GuildControlGetNumRanks())
-    if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.config and GUILDBOOK_GLOBAL.config.privacy then
-        for rule, rank in pairs(GUILDBOOK_GLOBAL.config.privacy) do
-            if not ranks[rank] then
-                if rank == "none" then
+-- function Guildbook:CheckPrivacyRankSettings()
+--     local ranks = {}
+--     for i = 1, GuildControlGetNumRanks() do
+--         ranks[GuildControlGetRankName(i)] = i;
+--     end
+--     local lowestRank = GuildControlGetRankName(GuildControlGetNumRanks())
+--     if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.config and GUILDBOOK_GLOBAL.config.privacy then
+--         for rule, rank in pairs(GUILDBOOK_GLOBAL.config.privacy) do
+--             if not ranks[rank] then
+--                 if rank == "none" then
                     
-                else
-                    -- set the rank to lowest, this is to cover times where a rank is deleted
-                    GUILDBOOK_GLOBAL.config.privacy[rule] = lowestRank
-                    Guildbook.DEBUG("func", "CheckPrivacyRankSettings", string.format("changed rank: %s to lowest rank (%s)", rank, lowestRank))
-                end
-            end
-        end
-    end
-end
+--                 else
+--                     -- set the rank to lowest, this is to cover times where a rank is deleted
+--                     GUILDBOOK_GLOBAL.config.privacy[rule] = lowestRank
+--                     Guildbook.DEBUG("func", "CheckPrivacyRankSettings", string.format("changed rank: %s to lowest rank (%s)", rank, lowestRank))
+--                 end
+--             end
+--         end
+--     end
+-- end
 
 
 
@@ -3972,73 +3977,6 @@ end
 
 
 
-
-function Guildbook:ScanGuildBank()
-
-
-    local copper = GetGuildBankMoney();
-
-    if not GUILDBOOK_GLOBAL["GuildBank"] then
-        GUILDBOOK_GLOBAL["GuildBank"] = {}
-    end
-    GUILDBOOK_GLOBAL["GuildBank"]["GuildBank"] = {
-        Commit = GetServerTime(),
-        Data = {},
-        Money = copper,
-    }
-
-    for tab = 1, GetNumGuildBankTabs() do
-
-        local name, icon, isViewable, canDeposit, numWithdrawals, remainingWithdrawals, filtered = GetGuildBankTabInfo(tab)
-
-        if type(name) == "string" and isViewable == true then
-
-            if not GUILDBOOK_GLOBAL["GuildBank"]["GuildBank"].Data[tab] then
-                GUILDBOOK_GLOBAL["GuildBank"]["GuildBank"].Data[tab] = {};
-            end
-
-            for slot = 1, MAX_GUILDBANK_SLOTS_PER_TAB do --should be 98 from that constant
-
-                local link = GetGuildBankItemInfo(tab,slot)
-                local texture, count, locked, isFiltered, quality = GetGuildBankItemInfo(tab,slot)
-
-                if type(link) == "string" and type(count) == "number" then
-
-                    local id, _, _, _, _, classID, subClassID = GetItemInfoInstant(link)
-                    if classID == 2 or classID == 4 then
-                        if not GUILDBOOK_GLOBAL["GuildBank"]["GuildBank"].Data[tab][link] then
-                            GUILDBOOK_GLOBAL["GuildBank"]["GuildBank"].Data[tab][link] = count
-                        else
-                            GUILDBOOK_GLOBAL["GuildBank"]["GuildBank"].Data[tab][link] = GUILDBOOK_GLOBAL["GuildBank"]["GuildBank"].Data[tab][link] + count
-                        end
-                    else
-                        if not GUILDBOOK_GLOBAL["GuildBank"]["GuildBank"].Data[tab][id] then
-                            GUILDBOOK_GLOBAL["GuildBank"]["GuildBank"].Data[tab][id] = count
-                        else
-                            GUILDBOOK_GLOBAL["GuildBank"]["GuildBank"].Data[tab][id] = GUILDBOOK_GLOBAL["GuildBank"]["GuildBank"].Data[tab][id] + count
-                        end
-                    end
-
-                end
-
-
-            end
-
-        end
-
-    end
-
-    local bankUpdate = {
-        type = 'GUILD_BANK_DATA_RESPONSE',
-        payload = {
-            Data = {}, --we need to keep this info hidden due to bank viewing settings etc
-            Commit = GUILDBOOK_GLOBAL["GuildBank"]["GuildBank"].Commit,
-            Money = 0,
-            Bank = "GuildBank",
-        }
-    }
-    self:Transmit(bankUpdate, 'WHISPER', UnitGUID("player"), 'BULK')
-end
 
 
 
