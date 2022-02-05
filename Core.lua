@@ -95,10 +95,10 @@ end
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 --slash commands
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
-SLASH_GUILDBOOK1 = '/guildbook'
-SLASH_GUILDBOOK2 = '/gbk'
-SLASH_GUILDBOOK3 = '/gb'
-SlashCmdList['GUILDBOOK'] = function(msg)
+_G.SLASH_GUILDBOOK1 = '/guildbook'
+_G.SLASH_GUILDBOOK2 = '/gbk'
+_G.SLASH_GUILDBOOK3 = '/gb'
+_G.SlashCmdList['GUILDBOOK'] = function(msg)
     --print("["..msg.."]")
     if msg == 'open' then
         GuildbookUI:Show()
