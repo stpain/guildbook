@@ -3164,7 +3164,11 @@ function Guildbook:Init()
                     local main = Guildbook:GetCharacterFromCache(character.MainCharacter)
                     if main then
                         C_Timer.After(0.1, function()
-                            self:AppendText(" ["..Guildbook.Colours[main.Class]:WrapTextInColorCode(main.Name).."]")
+                            -- Make sure the tooltip unit hasn't changed
+                            local _, currentUnit = self:GetUnit()
+                            if currentUnit and (UnitGUID(currentUnit) == guid) then
+                                self:AppendText(" ["..Guildbook.Colours[main.Class]:WrapTextInColorCode(main.Name).."]")
+                            end
                         end)
                     end
                 end
