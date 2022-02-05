@@ -1053,7 +1053,7 @@ function Roster:OnChatMessageSystem(...)
     if msg:find(loggedOut) then
         local characterName, _ = strsplit(" ", msg)
 
-        GuildbookUI.home:OnNewsFeedReceived(_, {
+        GuildbookUI.home:OnNewsFeedReceived(nil, {
             newsType = "logout",
             text = string.format("%s has gone offline", characterName)
         })
@@ -1073,7 +1073,7 @@ function Roster:OnChatMessageSystem(...)
         local s, e = name:find("%["), name:find("%]")
         local characterName = name:sub(s+1, e-1)
 
-        GuildbookUI.home:OnNewsFeedReceived(_, {
+        GuildbookUI.home:OnNewsFeedReceived(nil, {
             newsType = "login",
             text = string.format("%s has come online", characterName)
         })
@@ -1091,7 +1091,7 @@ function Roster:OnChatMessageSystem(...)
         local name, _ = strsplit(" ", msg)
         Guildbook.DEBUG("event", "CHAT_MSG_SYSTEM", string.format("%s joined a guild", name))
 
-        GuildbookUI.home:OnNewsFeedReceived(_, {
+        GuildbookUI.home:OnNewsFeedReceived(nil, {
             newsType = "playerJoinedGuild",
             text = string.format("%s has joined the guild", name)
         })
@@ -1423,7 +1423,7 @@ function Character:ScanTradeskillRecipes()
     if type(localeProf) ~= "string" then
 
         --we need this fontstring to exist before trying
-        if TradeskillFrameTitleText then
+        if TradeSkillFrameTitleText then
             localeProf = TradeSkillFrameTitleText:GetText()
         end
         
@@ -3256,7 +3256,7 @@ function Guildbook:PLAYER_ENTERING_WORLD(...)
     
             --if this is the initail login then say hello
             if isInitialLogin == true then
-                GuildbookUI.home:OnNewsFeedReceived(_, {
+                GuildbookUI.home:OnNewsFeedReceived(nil, {
                     newsType = "login",
                     text = string.format("%s has come online", UnitName("player"))
                 })
@@ -3688,6 +3688,7 @@ function Guildbook:GetCalendarEvents(start, duration)
     local events = {}
     local today = date('*t')
     local finish = (time(today) + (60*60*24*duration))
+    local guildName = Guildbook:GetGuildName()
     if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['Calendar'] and GUILDBOOK_GLOBAL['Calendar'][guildName] then
         for k, event in pairs(GUILDBOOK_GLOBAL['Calendar'][guildName]) do
             --local eventTimeStamp = time(event.date)
@@ -5232,7 +5233,7 @@ function Guildbook:SendGuildCalendarEvent(event)
     }
     self:Transmit(calendarEvent, 'GUILD', nil, 'NORMAL')
 
-    GuildbookUI.home:OnNewsFeedReceived(_, {
+    GuildbookUI.home:OnNewsFeedReceived(nil, {
         newsType = "calendarEventCreated",
         text = string.format("Calendar event %s created by %s", event.title, UnitName("player"))
     })
@@ -5263,7 +5264,7 @@ function Guildbook:OnGuildCalendarEventCreated(data, distribution, sender)
             table.insert(GUILDBOOK_GLOBAL['Calendar'][guildName], data.payload)
 
             -- when i redesign the calendar into a mixin callback fun bag i can (in theory) use th same callback/triggers but for now just need to add the news
-            GuildbookMixin:OnNewsFeedReceived(_, {
+            GuildbookMixin:OnNewsFeedReceived(nil, {
                 newsType = "calendarEventCreated",
                 text = string.format("Calendar event %s created by %s", data.payload.title, sender)
             })
@@ -5616,7 +5617,7 @@ function Guildbook:CHAT_MSG_GUILD(...)
         senderGUID = guid,
     })
 
-    GuildbookUI.home:OnNewsFeedReceived(_, {
+    GuildbookUI.home:OnNewsFeedReceived(nil, {
         newsType = "guildChat",
         text = string.format("%s [%s%s|r]: %s", date("%T"), Guildbook.Data.Class[character.Class].FontColour, sender, msg),
     })
