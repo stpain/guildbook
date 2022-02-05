@@ -20,6 +20,32 @@ the copyright holders.
 
 ]==]--
 
+-- GLOBALS: GUILDBOOK_GLOBAL, GUILDBOOK_CHARACTER, GUILDBOOK_TSDB, GuildbookUI, GuildbookMixin
+
+local _G, string, tostring, strsplit, tonumber, next, pairs, ipairs, table, date, time, type, select, print, math, wipe, hooksecurefunc =
+      _G, string, tostring, strsplit, tonumber, next, pairs, ipairs, table, date, time, type, select, print, math, wipe, hooksecurefunc
+local C_Timer, C_PlayerInfo, C_CreatureInfo, C_LFGList, C_GuildInfo, PlayerLocation, Spell, Item =
+      C_Timer, C_PlayerInfo, C_CreatureInfo, C_LFGList, C_GuildInfo, PlayerLocation, Spell, Item
+local UnitGUID, UnitName, GetTime, GetServerTime, GetPlayerInfoByGUID, Ambiguate, GetNumGuildMembers, GetGuildRosterInfo, IsInInstance, InCombatLockdown, GetTalentInfo, GetTalentLink =
+      UnitGUID, UnitName, GetTime, GetServerTime, GetPlayerInfoByGUID, Ambiguate, GetNumGuildMembers, GetGuildRosterInfo, IsInInstance, InCombatLockdown, GetTalentInfo, GetTalentLink
+local GetNumTalentTabs, GetTalentTabInfo, SecondsToTime, GetSpellInfo, GetSpellLink, GetContainerNumSlots, GetContainerItemInfo, GetItemInfoInstant, GetNormalizedRealmName, GetMoney, GuildRoster =
+      GetNumTalentTabs, GetTalentTabInfo, SecondsToTime, GetSpellInfo, GetSpellLink, GetContainerNumSlots, GetContainerItemInfo, GetItemInfoInstant, GetNormalizedRealmName, GetMoney, GuildRoster
+local ChatFrame_AddMessageEventFilter, ChatFrame_RemoveMessageEventFilter, CallbackRegistryMixin, GetRangedCritChance, GetCritChance, GetHaste, GetManaRegen, GetSpellCritChance, GetSpellBonusDamage = 
+      ChatFrame_AddMessageEventFilter, ChatFrame_RemoveMessageEventFilter, CallbackRegistryMixin, GetRangedCritChance, GetCritChance, GetHaste, GetManaRegen, GetSpellCritChance, GetSpellBonusDamage
+local GetSpellHitModifier, GetCombatRatingBonus, GetHitModifier, GetExpertise, GetDodgeChance, GetParryChance, GetShieldBlock, GetBlockChance, UnitArmor, UnitDefense, GetNumSkillLines, GetSkillLineInfo = 
+      GetSpellHitModifier, GetCombatRatingBonus, GetHitModifier, GetExpertise, GetDodgeChance, GetParryChance, GetShieldBlock, GetBlockChance, UnitArmor, UnitDefense, GetNumSkillLines, GetSkillLineInfo
+local LibStub, GameTooltip, CreateFrame, GetGuildInfo, IsInGuild, UIParent, GetItemInfo, GetNumTalents, GuildControlGetNumRanks, GuildControlGetRankName, CreateAtlasMarkup =
+      LibStub, GameTooltip, CreateFrame, GetGuildInfo, IsInGuild, UIParent, GetItemInfo, GetNumTalents, GuildControlGetNumRanks, GuildControlGetRankName, CreateAtlasMarkup
+local GetAddOnMetadata, GetSpellBonusHealing, UnitDamage, UnitAttackSpeed, UnitRangedDamage, UnitAttackPower, UnitStat, StaticPopup_Show, InterfaceOptionsFrame, InterfaceOptionsFrame_OpenToCategory =
+      GetAddOnMetadata, GetSpellBonusHealing, UnitDamage, UnitAttackSpeed, UnitRangedDamage, UnitAttackPower, UnitStat, StaticPopup_Show, InterfaceOptionsFrame, InterfaceOptionsFrame_OpenToCategory
+local CraftFrameTitleText, GetCraftSkillLine, GetNumCrafts, GetCraftInfo, GetCraftNumReagents, GetCraftReagentInfo, GetCraftReagentItemLink, CraftRankFrameSkillRank, GetNumSavedInstances =
+      CraftFrameTitleText, GetCraftSkillLine, GetNumCrafts, GetCraftInfo, GetCraftNumReagents, GetCraftReagentInfo, GetCraftReagentItemLink, CraftRankFrameSkillRank, GetNumSavedInstances
+local GetSavedInstanceInfo, GetInventoryItemLink, GetInventorySlotInfo, GetSpellTabInfo, GetSpellBookItemInfo, GetTradeSkillLine, TradeSkillFrameTitleText, TradeSkillRankFrameSkillRank, GetNumTradeSkills =
+      GetSavedInstanceInfo, GetInventoryItemLink, GetInventorySlotInfo, GetSpellTabInfo, GetSpellBookItemInfo, GetTradeSkillLine, TradeSkillFrameTitleText, TradeSkillRankFrameSkillRank, GetNumTradeSkills
+local GetTradeSkillInfo, GetTradeSkillItemLink, GetTradeSkillNumReagents, GetTradeSkillReagentInfo, GetTradeSkillReagentItemLink, ToggleFriendsFrame, GameTooltip_SetDefaultAnchor =
+      GetTradeSkillInfo, GetTradeSkillItemLink, GetTradeSkillNumReagents, GetTradeSkillReagentInfo, GetTradeSkillReagentItemLink, ToggleFriendsFrame, GameTooltip_SetDefaultAnchor
+local ERR_FRIEND_OFFLINE_S, ERR_FRIEND_ONLINE_SS, ERR_GUILD_JOIN_S, BOOKTYPE_SPELL, WOW_PROJECT_ID, WOW_PROJECT_CLASSIC, WOW_PROJECT_BURNING_CRUSADE_CLASSIC, CR_HIT_SPELL, CR_HIT_MELEE, CR_HIT_RANGED =
+      ERR_FRIEND_OFFLINE_S, ERR_FRIEND_ONLINE_SS, ERR_GUILD_JOIN_S, BOOKTYPE_SPELL, WOW_PROJECT_ID, WOW_PROJECT_CLASSIC, WOW_PROJECT_BURNING_CRUSADE_CLASSIC, CR_HIT_SPELL, CR_HIT_MELEE, CR_HIT_RANGED
 
 local addonName, Guildbook = ...
 
