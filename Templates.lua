@@ -1084,7 +1084,7 @@ function GuildbookHomeMembersListviewItemTemplateMixin:OnEnter()
     --self.tooltipBackground:SetAtlas(string.format("UI-Character-Info-%s-BG", self.character.Class:sub(1,1):upper()..self.character.Class:sub(2)))
 
     local rPerc, gPerc, bPerc, argbHex = GetClassColor(self.character.Class:upper())
-    GameTooltip_SetTitle(GameTooltip, self.character.Name.."\n\n|cffffffff"..L['level'].." "..self.character.Level, CreateColor(rPerc, gPerc, bPerc), nil)
+    GameTooltip_SetTitle(GameTooltip, self.character.Name.."\n\n|cffffffff"..L['level'].." "..(self.character.Level or "?"), CreateColor(rPerc, gPerc, bPerc), nil)
     if self.tooltipIcon then
         if self.character.profile and self.character.profile.avatar then
             self.tooltipIcon.icon:SetTexture(self.character.profile.avatar)
@@ -1176,7 +1176,8 @@ function GuildbookHomeMembersListviewItemTemplateMixin:OnEnter()
         local db = Attune_DB.toons[self.character.Name.."-"..GetRealmName()]
 
         for _, instance in ipairs(Attune_Data.attunes) do
-            if db.attuned[instance.ID] and (instance.FACTION == "Both" or instance.FACTION == self.character.Faction) then
+            --if db.attuned[instance.ID] and (instance.FACTION == "Both" or instance.FACTION == self.character.Faction) then
+            if db.attuned[instance.ID] and (instance.FACTION == "Both" or instance.FACTION == gb.player.faction) then
                 local formatPercent = db.attuned[instance.ID] < 100 and "|cffff0000"..db.attuned[instance.ID].."%" or "|cff00ff00"..db.attuned[instance.ID].."%"
                 GameTooltip:AddDoubleLine("|cffffffff"..instance.NAME, formatPercent)
             end

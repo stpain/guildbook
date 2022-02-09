@@ -35,6 +35,7 @@ local debugTypeToClassColour = {
     ["commsMixin"] = CreateColor(Guildbook.Data.Class.SHAMAN.RGB),
     ["databaseMixin"] = CreateColor(Guildbook.Data.Class.WARLOCK.RGB),
     ["characterMixin"] = CreateColor(Guildbook.Data.Class.DRUID.RGB),
+    ["rosterMixin"] = CreateColor(Guildbook.Data.Class.MAGE.RGB),
     ["calendarMixin"] = CreateColor({0, 255, 152}), --monk
 }
 GuildbookDebuggerListviewItemTemplateMixin = {}
@@ -135,19 +136,33 @@ Guildbook.DebugColours = {
 -- table to hold debug messages
 Guildbook.DebugLog = {}
 
+Guildbook.DebugEventSelected = nil;
+
 ---add new debug message
 ---@param id string the type of debug, this also sets the colour used (func, comms_in, error, comms_out)
 ---@param func string the function name
 ---@param msg string the debug message to display
 function Guildbook.DEBUG(id, func, msg, data)
     local ts = date("%T")
-    Guildbook.DebuggerWindow.listview.DataProvider:Insert({
-        debugType = id,
-        blockName = func,
-        timestamp = ts,
-        message = msg,
-        tooltipTable = data,
-    })
+    if Guildbook.DebugEventSelected == nil then
+        Guildbook.DebuggerWindow.listview.DataProvider:Insert({
+            debugType = id,
+            blockName = func,
+            timestamp = ts,
+            message = msg,
+            tooltipTable = data,
+        })
+    else
+        if Guildbook.DebugEventSelected == id then
+            Guildbook.DebuggerWindow.listview.DataProvider:Insert({
+                debugType = id,
+                blockName = func,
+                timestamp = ts,
+                message = msg,
+                tooltipTable = data,
+            })
+        end
+    end
 end
 
 
@@ -177,6 +192,41 @@ Guildbook.DebuggerWindow.header = Guildbook.DebuggerWindow:CreateFontString(nil,
 Guildbook.DebuggerWindow.header:SetPoint('TOP', 0, -9)
 Guildbook.DebuggerWindow.header:SetText('Guildbook Debug')
 
+Guildbook.DebuggerWindow.EventSelectionDropdown = CreateFrame("FRAME", "GuildbookDebugEventSelectionDropdown", Guildbook.DebuggerWindow, "GuildbookDropdown")
+Guildbook.DebuggerWindow.EventSelectionDropdown:SetPoint("TOPLEFT", 16, -30)
+Guildbook.DebuggerWindow.EventSelectionDropdown.menu = {
+    {
+        text = "Comms",
+        func = function()
+            Guildbook.DebugEventSelected = "commsMixin";
+        end,
+    },
+    {
+        text = "Database",
+        func = function()
+            Guildbook.DebugEventSelected = "databaseMixin";
+        end,
+    },
+    {
+        text = "Roster",
+        func = function()
+            Guildbook.DebugEventSelected = "rosterMixin";
+        end,
+    },
+    {
+        text = "Character",
+        func = function()
+            Guildbook.DebugEventSelected = "characterMixin";
+        end,
+    },
+    {
+        text = "All events",
+        func = function()
+            Guildbook.DebugEventSelected = nil;
+        end,
+    },
+}
+
 Guildbook.DebuggerWindow.listview = CreateFrame("FRAME", nil, Guildbook.DebuggerWindow, "GuildbookDebuggerListviewTemplate")
 Guildbook.DebuggerWindow.listview:SetPoint("BOTTOMLEFT", 10, 10)
-Guildbook.DebuggerWindow.listview:SetPoint("TOPRIGHT", -10, -40)
+Guildbook.DebuggerWindow.listview:SetPoint("TOPRIGHT", -10, -60)

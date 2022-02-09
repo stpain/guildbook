@@ -631,7 +631,8 @@ end
 
 function GuildbookHomeMixin:OnShow()
     
-    self:UpdateMemberList()
+    Roster:ScanMembers()
+    --self:UpdateMemberList()
 
 end
 
@@ -640,6 +641,7 @@ end
 function GuildbookHomeMixin:UpdateMemberList()
 
     if gb.addonLoad == false then
+        Guildbook.DEBUG("func", "GuildbookHomeMixin:UpdateMemberList", "addon loaded is false")
         return;
     end
 
@@ -659,6 +661,7 @@ function GuildbookHomeMixin:UpdateMemberList()
                 characterGUID = guid,
                 characterTable = info,
             })
+            
         else
 
             --otherwise only include those showing as online
@@ -2460,13 +2463,19 @@ end
 --creature/flameleviathan/flameleviathan.m2
 
 function GuildbookProfilesMixin:AddCharacterModelFrame(target, race, gender)
+
+    gb.DEBUG("func", "AddCharacterModelFrame", string.format("adding model for %s", race))
+
     local shown = self:GetParent():IsVisible()
     self:GetParent():SetAlpha(0)
     self:GetParent():Show()
-    if not self.characterModels[race] then
-        self.characterModels[race] = {}
+    if not self.characterModels[race:upper()] then
+        self.characterModels[race:upper()] = {}
     end
-    if not self.characterModels[race][gender] then
+    if not self.characterModels[race:upper()][gender:upper()] then
+
+        gb.DEBUG("func", "AddCharacterModelFrame", string.format("creating the model frame model for %s", race))
+
         local f = CreateFrame('DressUpModel', "GuildbookProfilesCharacterModel"..race..gender, self.sidePane, BackdropTemplateMixin and "BackdropTemplate")
         f:SetFrameLevel(6)
         f:SetPoint('TOP', 0, 0)
@@ -2503,7 +2512,6 @@ function GuildbookProfilesMixin:AddCharacterModelFrame(target, race, gender)
         f:EnableMouse(true)
 
         f:SetScript('OnShow', function(self)
-            --print("SHOWING MODEL", race, gender)
             self.anim:Play()
             gb.DEBUG('func', 'CharacterModel_OnShow', 'showing model '..race..' '..gender)
             C_Timer.After(0.1, function()
@@ -2554,7 +2562,7 @@ function GuildbookProfilesMixin:AddCharacterModelFrame(target, race, gender)
 
         f:Hide()
 
-        self.characterModels[race][gender] = f
+        self.characterModels[race:upper()][gender:upper()] = f
     else
         --gb.DEBUG('func', 'CreateCharacterModel', race..' '..gender..' exists')
         if not self.sidePane:IsVisible() then
@@ -2569,7 +2577,7 @@ end
 
 
 function GuildbookProfilesMixin:LoadCharacterModelItems()
-    if self.character then
+    if type(self.character) == "table" then
         if self.characterModels[self.character.Race:upper()] and self.characterModels[self.character.Race:upper()][self.character.Gender:upper()] then
             self.characterModels[self.character.Race:upper()][self.character.Gender:upper()]:Undress()
             C_Timer.After(0.0, function()
