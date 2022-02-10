@@ -1245,7 +1245,7 @@ function GuildbookTradeskillProfessionListview:OnLoad()
                 table.insert(sorting, {
                     guid = guid,
                     name = gb:GetCharacterFromCache(guid).Name,
-                    online = gb.onlineZoneInfo[guid].online and 1 or 0,
+                    online = Roster.onlineStatus[guid].isOnline and 1 or 0,
                 })
             end
             table.sort(sorting, function(a,b)
@@ -2209,22 +2209,18 @@ function GuildbookProfilesMixin:LoadCharacter(player)
                 text = L[spec],
                 func = function()
                     self.character.MainSpec = spec
-                    GUILDBOOK_CHARACTER.MainSpec = spec
+                    Database:UpdatePlayerCharacterTable("MainSpec", spec)
                     self.contentPane.scrollChild.profile.mainSpec:SetText(L[spec])
                     self.contentPane.scrollChild.profile.mainSpecDropDown.MenuText:SetText(L[spec])
-
-                    --gb:DB_SendCharacterData(UnitGUID("player"), "MainSpec", spec, "GUILD", nil, "NORMAL")
                 end
             })
             table.insert(offSpec, {
                 text = L[spec],
                 func = function()
                     self.character.OffSpec = spec
-                    GUILDBOOK_CHARACTER.OffSpec = spec
+                    Database:UpdatePlayerCharacterTable("OffSpec", spec)
                     self.contentPane.scrollChild.profile.offSpec:SetText(L[spec])
                     self.contentPane.scrollChild.profile.offSpecDropDown.MenuText:SetText(L[spec])
-
-                    --gb:DB_SendCharacterData(UnitGUID("player"), "OffSpec", spec, "GUILD", nil, "NORMAL")
                 end
             })
         end
@@ -2427,21 +2423,39 @@ function GuildbookProfilesMixin:LoadProfile()
         avatar:Hide()
     end
 
-    if self.character.Alts and #self.character.Alts > 0 then
-        local i = 1;
-        for _, guid in ipairs(self.character.Alts) do
-            local guidsName = Database:GetCharacterInfo(guid, "Name");
-            --print("alt name = ", guidsName, "profile name = ", self.character.Name)
-            local avatar = self.contentPane.scrollChild.profile.altCharactersContainer.avatars[i]
-            if avatar then
-                if guidsName ~= self.character.Name then
+
+    if self.character.MainCharacter and self.character.MainCharacter:find("Player-") then
+        
+        local mainCharacter = Database:FetchCharacterTableByGUID(self.character.MainCharacter)
+
+        if type(mainCharacter.Alts) == "table" then
+            
+            for k, guid in ipairs(mainCharacter.Alts) do
+                local avatar = self.contentPane.scrollChild.profile.altCharactersContainer.avatars[k]
+                if avatar then
                     avatar:SetCharacter(guid)
                     avatar:Show()
-                    i = i + 1;
                 end
             end
         end
     end
+
+
+    -- if self.character.Alts and #self.character.Alts > 0 then
+    --     local i = 1;
+    --     for _, guid in ipairs(self.character.Alts) do
+    --         local guidsName = Database:GetCharacterInfo(guid, "Name");
+    --         --print("alt name = ", guidsName, "profile name = ", self.character.Name)
+    --         local avatar = self.contentPane.scrollChild.profile.altCharactersContainer.avatars[i]
+    --         if avatar then
+    --             if guidsName ~= self.character.Name then
+    --                 avatar:SetCharacter(guid)
+    --                 avatar:Show()
+    --                 i = i + 1;
+    --             end
+    --         end
+    --     end
+    -- end
 
 end
 

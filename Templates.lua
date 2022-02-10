@@ -618,17 +618,18 @@ function GuildbookTradeskillCharacterListviewItemMixin:SetCharacter(guid)
         end
         self.Icon:SetAtlas(string.format("raceicon-%s-%s", race, character.Gender:lower()))
         self.Name:SetText(character.Name)
-        if gb.onlineZoneInfo[guid].online == true then
+        if gb.Roster.onlineStatus[guid].isOnline == true then
             self.Name:SetTextColor(1,1,1,1)
             self.Zone:SetTextColor(1,1,1,1)
-            self.Zone:SetText("["..gb.onlineZoneInfo[guid].zone.."]")
+            self.Zone:SetText("["..gb.Roster.onlineStatus[guid].zone.."]")
         else
             self.Name:SetTextColor(0.5,0.5,0.5,0.7)
             self.Zone:SetText("[offline]")
             self.Zone:SetTextColor(0.5,0.5,0.5,0.7)
         end
         self.func = function()
-            loadGuildMemberTradeskills(guid, GuildbookMixin.selectedProfession and GuildbookMixin.selectedProfession or "allRecipes")
+            gb.Tradeskills:LoadGuildMemberTradeskills("allRecipes", character)
+            --loadGuildMemberTradeskills(guid, GuildbookMixin.selectedProfession and GuildbookMixin.selectedProfession or "allRecipes")
         end
     end
 end

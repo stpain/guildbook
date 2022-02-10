@@ -813,7 +813,7 @@ function Tradeskills:FindCharactersWithRecipe(recipe)
         for k, guid in ipairs(Guildbook.charactersWithRecipe[recipe.itemID]) do
             table.insert(sorting, {
                 guid = guid,
-                online = Guildbook.onlineZoneInfo[guid].isOnline and 1 or 0,
+                online = Roster.onlineStatus[guid].isOnline and 1 or 0,
             })
         end
     end
@@ -2245,7 +2245,7 @@ end
 ---@param uiMessage string a message to display in the addon UI top right status text area
 function Comms:Transmit(data, channel, targetGUID, priority, uiMessage)
 
-    if type(targetGUID) == "string" and Roster.onlineStatus[targetGUID].isOnline ~= true then
+    if type(targetGUID) == "string" and Roster.onlineStatus[targetGUID] and Roster.onlineStatus[targetGUID].isOnline ~= true then
         Guildbook.DEBUG('commsMixin', 'Comms:Transmit', "cancel transmit as target is offline", data)
         return;
     end
@@ -2412,6 +2412,9 @@ function Comms:CheckPrivacyRuleForTargetGUID(targetGUID, rule)
     local privacyRank = GUILDBOOK_GLOBAL.config.privacy[rule];
     local targetRank = GuildControlGetRankName(C_GuildInfo.GetGuildRankOrder(targetGUID))
     local character = Database:FetchCharacterTableByGUID(targetGUID)
+    if type(character) ~= "table" then
+        return false;
+    end
     local targetName = character.Name or "unknown name or character"
     ---lower ranks are actually higher in the guild
     if ranks[targetRank] and ranks[privacyRank] then
@@ -3612,6 +3615,11 @@ function Guildbook:Load()
     if GUILDBOOK_TSDB and GUILDBOOK_TSDB.enchantItems then
         for _, recipe in pairs(GUILDBOOK_TSDB.enchantItems) do
             recipe.charactersWithRecipe = nil
+            if recipe.expsanion then
+                local exp = recipe.expsanion;
+                recipe.expansion = exp;
+                recipe.expsanion = nil;
+            end
         end
     end
     if GUILDBOOK_TSDB and GUILDBOOK_TSDB.recipeItems then
@@ -4332,7 +4340,7 @@ function Guildbook:RequestTradeskillData()
                             rarity = 1,
                             link = link,
                             icon = icon,
-                            expsanion = expansion,
+                            expansion = expansion,
                             enchant = true,
                             name = name,
                             profession = prof,
@@ -4382,7 +4390,7 @@ function Guildbook:RequestTradeskillData()
                         rarity = 1,
                         link = link,
                         icon = icon,
-                        expsanion = expansion,
+                        expansion = expansion,
                         enchant = true,
                         name = name,
                         profession = prof,
@@ -5507,6 +5515,15 @@ function Guildbook:UPDATE_MOUSEOVER_UNIT()
     if Guildbook.LoadTime and Guildbook.LoadTime + 8.0 > GetTime() then
         return
     end
+
+    if not self.player.faction then
+        local lr, er = UnitRace("player")
+        self.player = {
+            faction = UnitFactionGroup("player"),
+            race = er:upper(),
+        }
+    end
+
     local guid = UnitGUID('mouseover')
     if guid and guid:find('Player-') then
 
