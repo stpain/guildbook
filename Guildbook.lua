@@ -214,14 +214,14 @@ local function loadCharactersWithRecipe(recipe)
         for k, guid in ipairs(gb.charactersWithEnchantRecipe[recipe.itemID]) do
             table.insert(sorting, {
                 guid = guid,
-                online = gb.onlineZoneInfo[guid].online and 1 or 0,
+                online = Roster.onlineStatus[guid].isOnline and 1 or 0,
             })
         end
     else
         for k, guid in ipairs(gb.charactersWithRecipe[recipe.itemID]) do
             table.insert(sorting, {
                 guid = guid,
-                online = gb.onlineZoneInfo[guid].online and 1 or 0,
+                online = Roster.onlineStatus[guid].isOnline and 1 or 0,
             })
         end
     end
@@ -485,7 +485,7 @@ function GuildbookMixin:OnLoad()
 
         gb.GuildFrame.GuildCalendarFrame.EventFrame:ClearAllPoints()
         gb.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('TOPLEFT', self.calendar, 'TOPRIGHT', 4, 50)
-        gb.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('BOTTOMRIGHT', self.calendar, 'BOTTOMRIGHT', 264, 0)
+        gb.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('BOTTOMRIGHT', self.calendar, 'BOTTOMRIGHT', 274, 0)
     end
     self.ribbon.guildbank.func = function()
         navigateTo(self.guildbank)

@@ -170,7 +170,7 @@ end
 Guildbook.DebuggerWindow = CreateFrame('FRAME', 'GuildbookDebugFrame', UIParent, "UIPanelDialogTemplate")
 Guildbook.DebuggerWindow:SetPoint('CENTER', 0, 0)
 Guildbook.DebuggerWindow:SetFrameStrata('DIALOG')
-Guildbook.DebuggerWindow:SetSize(800, 560)
+Guildbook.DebuggerWindow:SetSize(1000, 500)
 Guildbook.DebuggerWindow:SetMovable(true)
 Guildbook.DebuggerWindow:EnableMouse(true)
 Guildbook.DebuggerWindow:RegisterForDrag("LeftButton")
@@ -205,6 +205,12 @@ Guildbook.DebuggerWindow.EventSelectionDropdown.menu = {
         text = "Database",
         func = function()
             Guildbook.DebugEventSelected = "databaseMixin";
+        end,
+    },
+    {
+        text = "Calendar",
+        func = function()
+            Guildbook.DebugEventSelected = "calendarMixin";
         end,
     },
     {

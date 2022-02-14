@@ -427,8 +427,8 @@
                             <Color r="0.24" g="0.88" b="0.25"/>
                             <Size y="60"/>
                             <Anchors>
-                                <Anchor point="TOPLEFT" x="0" y="0"/>
-                                <Anchor point="TOPRIGHT" x="0" y="0"/>
+                                <Anchor point="TOPLEFT" x="90" y="0"/>
+                                <Anchor point="TOPRIGHT" x="-90" y="0"/>
                             </Anchors>
                         </FontString>
 
@@ -440,7 +440,7 @@
                     <Frame parentKey="memberList" inherits="GuildbookListviewTemplate">
                         <Size x="260"/>
                         <Anchors>
-                            <Anchor point="TOPLEFT" relativeKey="$parent.motd" relativePoint="BOTTOMLEFT" x="0" y="-20"/>
+                            <Anchor point="TOPLEFT" relativeKey="$parent.motd" relativePoint="BOTTOMLEFT" x="-90" y="-20"/>
                             <Anchor point="BOTTOMLEFT" x="0" y="4"/>
                         </Anchors>
                         <Layers>

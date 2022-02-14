@@ -729,14 +729,15 @@
         <Size y="14"/>
         <Layers>
             <Layer level="OVERLAY">
-                <FontString parentKey="name" inherits="GameFontNormalSmall">
+                <FontString parentKey="name" inherits="GameFontNormalSmall" justifyH="LEFT">
+                    <Size x="120"/>
                     <Anchors>
                         <Anchor point="LEFT" x="0" y="0"/>
                     </Anchors>
                 </FontString>
                 <FontString parentKey="status" inherits="GameFontNormalSmall">
                     <Anchors>
-                        <Anchor point="LEFT" x="100" y="0"/>
+                        <Anchor point="LEFT" x="130" y="0"/>
                     </Anchors>
                 </FontString>
             </Layer>

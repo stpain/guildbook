@@ -69,6 +69,7 @@ function Guildbook:SetupGuildCalendarFrame()
         [0] = L["DECLINE"],
         [1] = L["ATTENDING"],
         [2] = L["TENTATIVE"],
+        [3] = L["LATE"],
     }
 
     local daysInMonth = {
@@ -693,8 +694,6 @@ function Guildbook:SetupGuildCalendarFrame()
     end
 
     self.GuildFrame.GuildCalendarFrame.EventFrame = CreateFrame('FRAME', 'GuildbookGuildFrameGuildCalendarFrameEventFrame', self.GuildFrame.GuildCalendarFrame, BackdropTemplateMixin and "BackdropTemplate") --, "UIPanelDialogTemplate")
-    -- self.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('TOPLEFT', GuildFrame, 'TOPRIGHT', 4, 0)
-    -- self.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('BOTTOMRIGHT', GuildFrame, 'BOTTOMRIGHT', 254, 0)
     self.GuildFrame.GuildCalendarFrame.EventFrame:SetBackdrop({
         edgeFile = "interface/dialogframe/ui-dialogbox-border",
         edgeSize = 32,
@@ -755,7 +754,7 @@ function Guildbook:SetupGuildCalendarFrame()
 
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox = CreateFrame('EDITBOX', 'GuildbookGuildFrameGuildCalendarFrameEventFrameEventTitleEditbox', self.GuildFrame.GuildCalendarFrame.EventFrame, "InputBoxTemplate")
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetPoint('TOPLEFT', 25, -65)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetSize(210, 22)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetSize(220, 22)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:ClearFocus()
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetAutoFocus(false)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventTitleEditbox:SetMaxLetters(50)
@@ -776,8 +775,8 @@ function Guildbook:SetupGuildCalendarFrame()
     end)
 
     local hour = CreateFrame("FRAME", "GuildbookGuildFrameGuildCalendarFrameEventFrameHourDropdown", self.GuildFrame.GuildCalendarFrame.EventFrame, "UIDropDownMenuTemplate")
-    hour:SetPoint("LEFT", _G['GuildbookGuildFrameGuildCalendarFrameEventFrameEventTypeDropdown'], "RIGHT", -15, 0)
-    UIDropDownMenu_SetWidth(hour, 40)
+    hour:SetPoint("LEFT", _G['GuildbookGuildFrameGuildCalendarFrameEventFrameEventTypeDropdown'], "RIGHT", -20, 0)
+    UIDropDownMenu_SetWidth(hour, 45)
     UIDropDownMenu_SetText(hour, "00")
     local hours = {}
     for i = 1, 12 do
@@ -795,12 +794,12 @@ function Guildbook:SetupGuildCalendarFrame()
     end)
 
     local startHeader = self.GuildFrame.GuildCalendarFrame.EventFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    startHeader:SetPoint("LEFT", etdt, "LEFT", 105, 0)
+    startHeader:SetPoint("LEFT", etdt, "LEFT", 100, 0)
     startHeader:SetText(L["TIME"])
 
     local minute = CreateFrame("FRAME", "GuildbookGuildFrameGuildCalendarFrameEventFrameMinuteDropdown", self.GuildFrame.GuildCalendarFrame.EventFrame, "UIDropDownMenuTemplate")
     minute:SetPoint("LEFT", _G['GuildbookGuildFrameGuildCalendarFrameEventFrameHourDropdown'], "RIGHT", -30, 0)
-    UIDropDownMenu_SetWidth(minute, 40)
+    UIDropDownMenu_SetWidth(minute, 45)
     UIDropDownMenu_SetText(minute, "00")
     local minutes = {
         {
@@ -838,7 +837,7 @@ function Guildbook:SetupGuildCalendarFrame()
  
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent = CreateFrame('FRAME', 'GuildbookGuildFrameGuildCalendarFrameEventFrameEventDescriptionEditboxParent', self.GuildFrame.GuildCalendarFrame.EventFrame, BackdropTemplateMixin and "BackdropTemplate")
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent:SetPoint('TOPLEFT', 20, -170)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent:SetSize(216, 80)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent:SetSize(230, 80)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent:SetBackdrop({
         edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
         edgeSize = 16,
@@ -846,7 +845,7 @@ function Guildbook:SetupGuildCalendarFrame()
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox = CreateFrame('EDITBOX', 'GuildbookGuildFrameGuildCalendarFrameEventFrameEventDescriptionEditbox', self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent, BackdropTemplateMixin and "BackdropTemplate") --, "InputBoxTemplate")
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox:SetPoint('TOP', Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent, 'TOP', 0, -8)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox:SetPoint('BOTTOM', Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent, 'BOTTOM', 0, 8)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox:SetWidth(196)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox:SetWidth(220)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox:SetFontObject(ChatFontNormal)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox:ClearFocus()
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditbox:SetAutoFocus(false)
@@ -871,47 +870,21 @@ function Guildbook:SetupGuildCalendarFrame()
 
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent = CreateFrame('FRAME', 'GuildbookGuildFrameGuildCalendarFrameEventFrameEventAttendeesListviewParent', self.GuildFrame.GuildCalendarFrame.EventFrame, BackdropTemplateMixin and "BackdropTemplate")
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent:SetPoint('BOTTOMLEFT', 20, 45)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent:SetSize(216, 180)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent:SetSize(230, 180)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent:EnableMouse(true)
     self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent:SetBackdrop({
         edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
         edgeSize = 16,
     })
-    -- self.GuildFrame.GuildCalendarFrame.EventFrame.AttendingListview = {}
-    -- for i = 1, 15 do
-    --     local f = CreateFrame('FRAME', tostring('GuildbookGuildFrameGuildCalendarFrameEventFrameAttendListviewRow'..i), self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent)
-    --     f:SetPoint('TOPLEFT', 0, ((i - 1) * -16) - 6)
-    --     f:SetPoint('TOPRIGHT', -25, ((i - 1) * -16) - 6)
-    --     f:SetHeight(11)
-    --     f.character = f:CreateFontString('$parentCharacter', 'OVERLAY', 'GameFontNormalSmall')
-    --     f.character:SetPoint('LEFT', 10, 0)
-    --     f.character:SetText('')
-    --     f.status = f:CreateFontString('$parentStatus', 'OVERLAY', 'GameFontNormalSmall')
-    --     f.status:SetPoint('LEFT', 100, 0)
-    --     f.status:SetText('Confirmed')
-    --     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendingListview[i] = f
-    -- end
-    -- self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar = CreateFrame('SLIDER', 'GuildbookGuildFrameGuildCalendarFrameEventFrameEventAttendeesListviewScrollBar', self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent, "UIPanelScrollBarTemplate")
-    -- --self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar = CreateFrame('SLIDER', 'GuildbookGuildFrameGuildCalendarFrameEventFrameEventAttendeesListviewScrollBar', self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent, "OptionsSliderTemplate")
-    -- self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetOrientation('VERTICAL')
-    -- self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetPoint('TOPRIGHT', Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent, 'TOPRIGHT', -8, -22)
-    -- self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetPoint('BOTTOMRIGHT', Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewParent, 'BOTTOMRIGHT', -8, 22)
-    -- self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:EnableMouse(true)
-    -- self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetValueStep(1)
-    -- self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetValue(1)
-    -- self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetMinMaxValues(1,4)
-    -- self.GuildFrame.GuildCalendarFrame.EventFrame.EventAttendeesListviewScrollBar:SetScript('OnValueChanged', function(self)
-    --     Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:UpdateAttending()
-    -- end)
 
     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendingListview = CreateFrame("FRAME", nil, self.GuildFrame.GuildCalendarFrame.EventFrame, "GuildbookCalendarAttendingListviewTemplate")
     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendingListview:SetPoint("BOTTOMLEFT", 20, 50)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendingListview:SetSize(200, 170)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendingListview:SetSize(220, 170)
 
 
     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Confirm = CreateFrame('BUTTON', 'GuildbookGuildFrameGuildCalendarFrameEventFrameAttendEventButtonConfirm', self.GuildFrame.GuildCalendarFrame.EventFrame, "UIPanelButtonTemplate")
-    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Confirm:SetPoint('TOPLEFT', self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent, 'BOTTOMLEFT', 1, 0)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Confirm:SetSize(70, 22)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Confirm:SetPoint('TOPLEFT', self.GuildFrame.GuildCalendarFrame.EventFrame.EventDescriptionEditboxParent, 'BOTTOMLEFT', 0, 0)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Confirm:SetSize(60, 22)
     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Confirm:SetNormalFontObject(GameFontNormalSmall)
     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Confirm:SetHighlightFontObject(GameFontNormalSmall)
     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Confirm:SetDisabledFontObject(GameFontNormalSmall)
@@ -923,9 +896,11 @@ function Guildbook:SetupGuildCalendarFrame()
             Guildbook:SendGuildCalendarEventAttend(event, 1)
         end
     end)
+
+
     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Tentative = CreateFrame('BUTTON', 'GuildbookGuildFrameGuildCalendarFrameEventFrameAttendEventButtonTentative', self.GuildFrame.GuildCalendarFrame.EventFrame, "UIPanelButtonTemplate")
     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Tentative:SetPoint('LEFT', self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Confirm, 'RIGHT', 0, 0)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Tentative:SetSize(70, 22)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Tentative:SetSize(60, 22)
     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Tentative:SetNormalFontObject(GameFontNormalSmall)
     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Tentative:SetHighlightFontObject(GameFontNormalSmall)
     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Tentative:SetDisabledFontObject(GameFontNormalSmall)
@@ -937,9 +912,26 @@ function Guildbook:SetupGuildCalendarFrame()
             Guildbook:SendGuildCalendarEventAttend(event, 2)
         end
     end)
+
+    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Late = CreateFrame('BUTTON', 'GuildbookGuildFrameGuildCalendarFrameEventFrameAttendEventButtonTentative', self.GuildFrame.GuildCalendarFrame.EventFrame, "UIPanelButtonTemplate")
+    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Late:SetPoint('LEFT', self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Tentative, 'RIGHT', 0, 0)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Late:SetSize(50, 22)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Late:SetNormalFontObject(GameFontNormalSmall)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Late:SetHighlightFontObject(GameFontNormalSmall)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Late:SetDisabledFontObject(GameFontNormalSmall)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Late:SetText(L["LATE"])
+    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Late:SetScript('OnClick', function(self)
+        local event = self:GetParent().event
+        local guildName = Guildbook:GetGuildName()
+        if guildName and event then
+            Guildbook:SendGuildCalendarEventAttend(event, 3)
+        end
+    end)
+
+
     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Decline = CreateFrame('BUTTON', 'GuildbookGuildFrameGuildCalendarFrameEventFrameAttendEventButtonUnable', self.GuildFrame.GuildCalendarFrame.EventFrame, "UIPanelButtonTemplate")
-    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Decline:SetPoint('LEFT', self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Tentative, 'RIGHT', 0, 0)
-    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Decline:SetSize(70, 22)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Decline:SetPoint('LEFT', self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Late, 'RIGHT', 0, 0)
+    self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Decline:SetSize(60, 22)
     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Decline:SetNormalFontObject(GameFontNormalSmall)
     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Decline:SetHighlightFontObject(GameFontNormalSmall)
     self.GuildFrame.GuildCalendarFrame.EventFrame.AttendEventButton_Decline:SetDisabledFontObject(GameFontNormalSmall)
@@ -994,7 +986,8 @@ function Guildbook:SetupGuildCalendarFrame()
 
         f:SetScript("OnEnter", function(f)
             GameTooltip:SetOwner(f, 'ANCHOR_RIGHT', -10, -30)
-            GameTooltip:AddLine(classes[i]:sub(1,1)..classes[i]:sub(2):lower(), 1,1,1,1)
+            GameTooltip:AddDoubleLine(classes[i]:sub(1,1)..classes[i]:sub(2):lower(), f.text:GetText(), 1,1,1,1,1,1)
+
             GameTooltip:Show()
         end)
 
@@ -1013,12 +1006,6 @@ function Guildbook:SetupGuildCalendarFrame()
     end
 
     function self.GuildFrame.GuildCalendarFrame.EventFrame:ResetAttending()
-        -- for k, v in ipairs(self.AttendingListview) do
-        --     v.character:SetText('')
-        --     v.status:SetText('')
-        -- end
-        -- self.EventAttendeesListviewScrollBar:SetValue(2)
-        -- self.EventAttendeesListviewScrollBar:SetValue(1)
         self.AttendingListview.DataProvider:Flush()
     end
 
@@ -1030,25 +1017,12 @@ function Guildbook:SetupGuildCalendarFrame()
             tab.text:SetText("0")
             tab.icon:SetVertexColor(0.3,0.3,0.3)
         end
-        -- for i = 1, 10 do
-        --     if classes[i] then
-        --         local classTab = self.ClassTabs[classes[i]]
-        --         classTab.text:SetText("0")
-        --         classTab.icon:SetVertexColor(0.3,0.3,0.3)
-        --     end
-        -- end
         if self.event and next(self.event.attend) then
             local totalAttending = 0;
             for guid, info in pairs(self.event.attend) do
-                -- if guid == UnitGUID("player") then
-                --     if info.Status == 1 then
-                --         attending = true
-                --     elseif info.Status == 2 then
-                --         attending = true
-                --     end
-                -- end
+
                 -- dont update if the player is declining
-                if info.Status ~= 0 then
+                if info.Status == 1 or info.Status == 3 then
                     totalAttending = totalAttending + 1; --update this even if no character table available?
                     local character = Guildbook.Database:FetchCharacterTableByGUID(guid)
                     if character then
@@ -1059,20 +1033,6 @@ function Guildbook:SetupGuildCalendarFrame()
                                 self.ClassTabs[character.Class].icon:SetVertexColor(1,1,1)
                             end
                         end
-                        -- if not Guildbook.PlayerMixin then
-                        --     Guildbook.PlayerMixin = PlayerLocation:CreateFromGUID(guid)
-                        -- else
-                        --     Guildbook.PlayerMixin:SetGUID(guid)
-                        -- end
-                        -- if Guildbook.PlayerMixin:IsValid() then
-                        --     local _, class, _ = C_PlayerInfo.GetClass(Guildbook.PlayerMixin)
-                        --     --local name = C_PlayerInfo.GetName(Guildbook.PlayerMixin)
-                        --     if class then
-                        --         local count = tonumber(self.ClassTabs[class].text:GetText())
-                        --         self.ClassTabs[class].text:SetText(count + 1)
-                        --         self.ClassTabs[class].icon:SetVertexColor(1,1,1)
-                        --     end
-                        -- end
                     end
                 end
             end
@@ -1109,58 +1069,68 @@ function Guildbook:SetupGuildCalendarFrame()
         -- because im a genius and i made the attending status keys in a dodgy order (tbf though tentative got added later)
         -- so to correct the order, first grab the attendees where status equals 0 or 2 and then sort them
         -- then add the attendees where status equals 1 to the table so we get them sorted 0,2,1
+
+        -- [0] = L["DECLINE"],
+        -- [1] = L["ATTENDING"],
+        -- [2] = L["TENTATIVE"],
+        -- [3] = L["LATE"],
+
+        --new order should be 1,3,2,0
+
         self.AttendingListview.DataProvider:Flush()
         if self.event and next(self.event.attend) then            
             local i = 0
             self.AttendEventButton_Confirm:Enable()
             self.AttendEventButton_Tentative:Enable()
+            self.AttendEventButton_Late:Enable()
             self.AttendEventButton_Decline:Enable()
             local attendees = {}
-            for guid, info in pairs(self.event.attend) do
-                local character = Guildbook:GetCharacterFromCache(guid)
-                if not character then
-                    return;
-                end
-                if info.Status ~= 1 then
-                    table.insert(attendees, {
-                        guid = guid,
-                        status = info.Status,
-                        class = character.Class,
-                        name = character.Name,
-                    })
-                end
-            end
-            table.sort(attendees, function(a,b)
-                if a.status == b.status then
-                    return a.class < b.class
-                else
-                    return a.status
-                end
-            end)
 
-            --for this we could make a temp table to first sort by class/name, this would allow the list to be viewed/sorted by attending status and then class/name ?
-            for guid, info in pairs(self.event.attend) do
-                local character = Guildbook:GetCharacterFromCache(guid)
-                if not character then
-                    return;
+            local attendingOrder = {
+                [1] = 1,
+                [2] = 3,
+                [3] = 2,
+                [4] = 0,
+            }
+
+            for _, attendingID in ipairs(attendingOrder) do
+                local t = {}
+                --print("checking", attendingID)
+                for guid, info in pairs(self.event.attend) do
+                    local character = Guildbook:GetCharacterFromCache(guid)
+                    if not character then
+                        return;
+                    end
+                    --print(info.Status, attendingID, character.Name)
+                    if info.Status == attendingID then
+                        table.insert(t, {
+                            guid = guid,
+                            status = info.Status,
+                            class = character.Class,
+                            name = character.Name,
+                        })
+                    end
                 end
-                if info.Status == 1 then
-                    table.insert(attendees, {
-                        guid = guid,
-                        status = info.Status,
-                        class = character.Class,
-                        name = character.Name,
-                    })
+                table.sort(t, function(a, b)
+                    return a.class < b.class;
+                end)
+
+                for _, character in ipairs(t) do
+                    table.insert(attendees, character)
                 end
+                wipe(t)
             end
+
             if attendees and next(attendees) ~= nil then
-                for i = #attendees, 1, -1 do
+                for i = 1, #attendees do
                     local attendee = attendees[i]
                     if attendee.guid == UnitGUID("player") then
                         if attendee.status == 1 then
                             self.AttendEventButton_Confirm:Disable()
                         elseif attendee.status == 2 then
                             self.AttendEventButton_Tentative:Disable()
+                        elseif attendee.status == 3 then
+                            self.AttendEventButton_Late:Disable()
                         else
                             self.AttendEventButton_Decline:Disable()
                         end
@@ -1170,9 +1140,11 @@ function Guildbook:SetupGuildCalendarFrame()
                         if attendee.status == 0 then
                             statusText = Guildbook.Colours.LightRed:WrapTextInColorCode(status[attendee.status])
                         elseif attendee.status == 1 then
-                            statusText = Guildbook.Colours.Yellow:WrapTextInColorCode(status[attendee.status])
+                            statusText = Guildbook.Colours.Green:WrapTextInColorCode(status[attendee.status])
                         elseif attendee.status == 2 then
                             statusText = Guildbook.Colours.Blue:WrapTextInColorCode(status[attendee.status])
+                        elseif attendee.status == 3 then
+                            statusText = Guildbook.Colours.Yellow:WrapTextInColorCode(status[attendee.status])
                         end
                         self.AttendingListview.DataProvider:Insert({
                             name = Guildbook.Colours[attendee.class]:WrapTextInColorCode(attendee.name),

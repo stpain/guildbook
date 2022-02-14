@@ -48,7 +48,7 @@ Guildbook.PLAYER_FACTION = nil;
 
 local TOOLTIP_DIVIDER_WIDE = "|TInterface/COMMON/UI-TooltipDivider:8:250|t"
 Guildbook.PlayerMixin = nil
-
+Guildbook.player = {}
 Guildbook.COMMS_DELAY = 0.0
 Guildbook.COMM_LOCK_COOLDOWN = 20.0
 Guildbook.GUILD_NAME = nil;
@@ -57,6 +57,7 @@ Guildbook.Colours = {
     Blue = CreateColor(0.1, 0.58, 0.92, 1),
     Orange = CreateColor(0.79, 0.6, 0.15, 1),
     Yellow = CreateColor(1.0, 0.82, 0, 1),
+    Green = CreateColor(84/255,174/255,45/255),
     LightRed = CreateColor(216/255,69/255,75/255),
     BlizzBlue = CreateColor(0,191/255,243/255),
     Grey = CreateColor(0.5,0.5,0.5),
@@ -969,6 +970,7 @@ Roster.guidToCharacterNameRealm = {}; --?
 Roster.characterNameRealmToGUID = {}; --?
 Roster.scanMembersTicker = nil;
 Roster.scanMembersTickerActive = false;
+Roster.chatSystemOnlineInfo = {}
 
 function Roster:ScanMembers()
 
@@ -985,11 +987,21 @@ function Roster:ScanMembers()
         
         self.scanMembersTicker = C_Timer.NewTicker(0.001, function() -- i assume 0.001 allows for up to 999 members per second ? should be quick enough, not sure its required but it gives the api time ?
 
+
+            
             if i > totalMembers then
                 return;
             end
         
             local nameRealm, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, guid = GetGuildRosterInfo(i)
+
+            if not guid then
+                return;
+            end
+
+            if not guid:find("Player-") then
+                return;
+            end
 
             local _, _, _, race, gender, _, realm = GetPlayerInfoByGUID(guid)
             gender = (gender == 3) and "FEMALE" or "MALE"
@@ -998,6 +1010,7 @@ function Roster:ScanMembers()
                 isOnline = isOnline,
                 zone = zone,
             }
+            
             self.guidToCharacterNameRealm[guid] = nameRealm;
 
             self.characterNameRealmToGUID[nameRealm] = guid;
@@ -1016,6 +1029,10 @@ function Roster:ScanMembers()
                 self:ScanForAlts()
 
                 self:RemoveMembers()
+
+                for guid, online in pairs(self.chatSystemOnlineInfo) do
+                    self.onlineStatus[guid].isOnline = online;
+                end
 
                 self:TriggerEvent("OnGuildRosterScan")
 
@@ -1168,7 +1185,13 @@ function Roster:OnChatMessageSystem(...)
 
         local guid = self.characterNameRealmToGUID[characterName] or self.characterNameRealmToGUID[characterName.."-"..self.currentPlayerRealm]
         if guid then
+            if not self.onlineStatus[guid] then
+                self.onlineStatus[guid] = {}
+            end
             self.onlineStatus[guid].isOnline = false;
+
+            self.chatSystemOnlineInfo[guid] = false;
+
             self:TriggerEvent("OnMemberStatusChanged", guid, self.onlineStatus[guid])
         end
 
@@ -1188,7 +1211,13 @@ function Roster:OnChatMessageSystem(...)
 
         local guid = self.characterNameRealmToGUID[characterName] or self.characterNameRealmToGUID[characterName.."-"..self.currentPlayerRealm]
         if guid then
+            if not self.onlineStatus[guid] then
+                self.onlineStatus[guid] = {}
+            end
             self.onlineStatus[guid].isOnline = true;
+
+            self.chatSystemOnlineInfo[guid] = true;
+
             self:TriggerEvent("OnMemberStatusChanged", guid, self.onlineStatus[guid])
         end
     end
@@ -3459,7 +3488,7 @@ function Guildbook:Load()
         
                 Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:ClearAllPoints()
                 Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('TOPLEFT', GuildbookUI.calendar, 'TOPRIGHT', 4, 50)
-                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('BOTTOMRIGHT', GuildbookUI.calendar, 'BOTTOMRIGHT', 264, 0)
+                Guildbook.GuildFrame.GuildCalendarFrame.EventFrame:SetPoint('BOTTOMRIGHT', GuildbookUI.calendar, 'BOTTOMRIGHT', 274, 0)
             end
         end,
         OnTooltipShow = function(tooltip)
@@ -3469,7 +3498,7 @@ function Guildbook:Load()
             tooltip:AddLine(string.format("%s %s %s", now.day, Guildbook.Data.Months[now.month], now.year), 1,1,1,1)
             tooltip:AddLine(L["MINIMAP_CALENDAR_RIGHTCLICK"], 0.1, 0.58, 0.92, 1)
             -- get events for next 7 days
-            local upcomingEvents = Guildbook:GetCalendarEvents(time(now), 7)
+            local upcomingEvents = Guildbook:GetCalendarEvents(date('*t'), 7)
             --DevTools_Dump({upcomingEvents})
             if upcomingEvents and next(upcomingEvents) then
                 tooltip:AddLine(' ')
@@ -3768,16 +3797,17 @@ function Guildbook:GetCalendarEvents(start, duration)
         return
     end
     local events = {}
-    local today = date('*t')
-    local finish = (time(today) + (60*60*24*duration))
-    if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['Calendar'] and GUILDBOOK_GLOBAL['Calendar'][guildName] then
-        for k, event in pairs(GUILDBOOK_GLOBAL['Calendar'][guildName]) do
-            --local eventTimeStamp = time(event.date)
-                if time(event.date) >= start and time(event.date) <= finish then
-                    table.insert(events, event)
-                    Guildbook.DEBUG('func', 'Guildbook:GetCalendarEvents', 'found: '..event.title)
-                end
-            --end
+
+    local year, month, day = start.year, start.month, start.day;
+    local finish = date("*t", time(start) + (60*60*24*duration))
+
+    if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['Calendar'] and GUILDBOOK_GLOBAL['Calendar'][self.GUILD_NAME] then
+        for k, event in pairs(GUILDBOOK_GLOBAL['Calendar'][self.GUILD_NAME]) do
+
+            if ( event.date.year >= start.year and event.date.month >= start.month and event.date.day >= start.day ) and ( event.date.year <= finish.year and event.date.month <= finish.month and event.date.day <= finish.day ) then
+                table.insert(events, event)
+                Guildbook.DEBUG('func', 'Guildbook:GetCalendarEvents', 'found: '..event.title)
+            end
         end
     end
     return events
