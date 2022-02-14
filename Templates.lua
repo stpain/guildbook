@@ -1052,6 +1052,10 @@ function GuildbookHomeMembersListviewItemTemplateMixin:OnMouseDown()
 
     self:TriggerEvent("OnMouseDown", self);
 
+    -- print(self.characterGUID)
+    -- local character = gb.Database:FetchCharacterTableByGUID(self.characterGUID)
+    -- print(character.Name)
+
     gb.Comms:RequestCharacterInfo(self.characterGUID)
 
     if self.characterGUID and self.character then

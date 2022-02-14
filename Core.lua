@@ -2311,11 +2311,25 @@ function Comms:Transmit(data, channel, targetGUID, priority, uiMessage)
     -- clean up the target name when using a whisper
     if channel == 'WHISPER' then
 
-        local _, _, _, _, _, name, realm = GetPlayerInfoByGUID(targetGUID)
+        local target = Ambiguate(Roster.guidToCharacterNameRealm[targetGUID], "none")
+        if type(target) ~= "string" then
+            Guildbook.DEBUG('commsMixin', 'SendCommMessage_TargetOnline', "cancel transmit, target not of type string, will try using GetPlayerInfoByGUID")
+        
+            local _, _, _, _, _, name, realm = GetPlayerInfoByGUID(targetGUID)
 
-        if name and realm then            
-            --local target = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and string.format("%s-%s", name, realm) or name;
-            local target = realm ~= "" and string.format("%s-%s", name, realm) or name;
+            if realm == "" then
+                target = string.format("%s-%s", name, GetNormalizedRealmName());
+            else
+                target = string.format("%s-%s", name, realm);
+            end
+
+            if type(target) ~= "string" then
+                Guildbook.DEBUG('commsMixin', 'SendCommMessage_TargetOnline', "cancel transmit, target not of type string")
+                return
+            end
+        end
+
+        if type(target) == "string" then            
 
             local serialized = LibSerialize:Serialize(data);
             local compressed = LibDeflate:CompressDeflate(serialized);
@@ -2970,6 +2984,11 @@ function Comms:OnNewsFeedUpdate(data, sender)
 
 end
 
+
+
+function Comms:OnCharacterProfileUpdate()
+
+end
 
 
 function Comms:OnCharacterInfoRequested(data, sender)
@@ -4596,9 +4615,6 @@ function Guildbook:ScanGuildRoster(callback)
             local guid = currentGUIDs[i].GUID
             local info = GUILDBOOK_GLOBAL.GuildRosterCache[guild][guid]
 
-            --Guildbook.DEBUG("func", "ScanGuildRoster", string.format("roster loop ticker %s", info.Name or ""))
-
-
             if info then
                 local _, class, _, race, sex, name, realm = GetPlayerInfoByGUID(guid)
 
@@ -4730,41 +4746,7 @@ function Guildbook:Transmit(data, channel, targetGUID, priority)
     data["senderGUID"] = UnitGUID("player")
 
     -- clean up the target name when using a whisper
-    if channel == 'WHISPER' then
-
-        --find character first before looping roster
-        local character = self:GetCharacterFromCache(targetGUID)
-        local _, _, _, _, _, name, realm = GetPlayerInfoByGUID(targetGUID)
-
-        if name and realm then
-            local target = realm ~= "" and string.format("%s-%s", name, realm) or name;
-
-            local totalMembers, _, _ = GetNumGuildMembers()
-            for i = 1, totalMembers do
-                local name, rankName, _, _, _, _, _, _, isOnline, _, _, _, _, _, _, _, guid = GetGuildRosterInfo(i)
-
-                -- i think we can move the privacy check in here using the rankName value to work out if we share with the target
-                -- we can then also have a central place to send a privacy error message to the target
-
-                if guid == targetGUID then
-                    if isOnline == true then
-                        local serialized = LibSerialize:Serialize(data);
-                        local compressed = LibDeflate:CompressDeflate(serialized);
-                        local encoded    = LibDeflate:EncodeForWoWAddonChannel(compressed);
-                    
-                        if addonName and encoded and channel and priority then
-                            Guildbook.DEBUG('comms_out', 'SendCommMessage_TargetOnline', string.format("type: %s, channel: %s target: %s, prio: %s", data.type or 'nil', channel, (target or 'nil'), priority), data)
-                            self:SendCommMessage(addonName, encoded, channel, target, priority)
-                        end
-                    else
-                        Guildbook.DEBUG('error', 'SendCommMessage_TargetOffline', string.format("type: %s, channel: %s target: %s, prio: %s", data.type or 'nil', channel, (target or 'nil'), priority))
-                    end
-                    return; --no need to keep checking the roster at this point
-                end
-            end
-        end
-
-    elseif channel == "GUILD" then
+    if channel == "GUILD" then
         local serialized = LibSerialize:Serialize(data);
         local compressed = LibDeflate:CompressDeflate(serialized);
         local encoded    = LibDeflate:EncodeForWoWAddonChannel(compressed);
@@ -4941,97 +4923,7 @@ end
 
 
 
-
-
-
-
-
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- tradeskills comms
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-function Guildbook:SendTradeSkillsRequest(target, profession)
-    local request = {
-        type = "TRADESKILLS_REQUEST",
-        payload = profession,
-    }
-    self:Transmit(request, "WHISPER", target, "NORMAL")
-end
-
-function Guildbook:OnTradeSkillsRequested(request, distribution, sender)
-    if distribution ~= "WHISPER" then
-        return
-    end
-    if GUILDBOOK_CHARACTER and GUILDBOOK_CHARACTER[request.payload] then
-        local response = {
-            type    = "TRADESKILLS_RESPONSE",
-            payload = {
-                profession = request.payload,
-                recipes = GUILDBOOK_CHARACTER[request.payload],
-            }
-        }
-        self:Transmit(response, 'GUILD', nil, "BULK")
-    end
-end
-
-function Guildbook:SendTradeskillData(guid, recipes, prof, channel, target)
-    local response = {
-        type    = "TRADESKILLS_RESPONSE",
-        payload = {
-            guid = guid,
-            profession = prof,
-            recipes = recipes,
-        }
-    }
-    self:Transmit(response, channel, target, "BULK")
-end
-
-
-
-function Guildbook:OnTradeSkillsReceived(response, distribution, sender)
-    --Guildbook.DEBUG('comms_in', 'OnTradeSkillsReceived', string.format("prof data from %s", sender))
-    if response.payload.profession and type(response.payload.recipes) == 'table' then
-        C_Timer.After(Guildbook.COMMS_DELAY, function()
-            local character;
-            if response.payload.guid then
-                character = self:GetCharacterFromCache(response.payload.guid)
-            else
-                character = self:GetCharacterFromCache(response.senderGUID)
-            end
-            if not character then
-                return
-            end
-            local prof = response.payload.profession
-            if not prof then
-                return
-            end
-            if type(prof) ~= "string" then
-                return
-            end
-            Guildbook.DEBUG("func", "OnTradeSkillsReceived", string.format("received %s data from %s", prof, sender))
-
-            --set the recipes, changed this to just set what is received to reflect the current recpes
-            character[prof] = response.payload.recipes
-            Guildbook.DEBUG("func", "OnTradeSkillsReceived", string.format("created or reset table for %s", prof))
-
-            --character[response.payload.profession] = response.payload.recipes
-            GuildbookUI:SetInfoText(string.format("%s data for [|cffffffff%s|r] sent by %s", prof, character.Name, sender))
-            Guildbook.DEBUG('func', 'OnTradeSkillsReceived', 'updating db, set: '..character.Name..' prof: '..response.payload.profession)
-            C_Timer.After(1, function()
-                self:RequestTradeskillData()
-            end)
-        end)
-    end
-end
-
-
-
-
-
-
-
-
-
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- guild bank comms
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Guildbook.BankCharacters = {}
@@ -5524,6 +5416,25 @@ function Guildbook:RemoveOldEventsFromSavedVarFile()
         end
     end
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
