@@ -970,7 +970,6 @@ Roster.guidToCharacterNameRealm = {}; --?
 Roster.characterNameRealmToGUID = {}; --?
 Roster.scanMembersTicker = nil;
 Roster.scanMembersTickerActive = false;
-Roster.chatSystemOnlineInfo = {}
 
 function Roster:ScanMembers()
 
@@ -986,8 +985,6 @@ function Roster:ScanMembers()
         local i = 1;
         
         self.scanMembersTicker = C_Timer.NewTicker(0.001, function() -- i assume 0.001 allows for up to 999 members per second ? should be quick enough, not sure its required but it gives the api time ?
-
-
             
             if i > totalMembers then
                 return;
@@ -1007,7 +1004,7 @@ function Roster:ScanMembers()
             gender = (gender == 3) and "FEMALE" or "MALE"
 
             self.onlineStatus[guid] = {
-                isOnline = isOnline,
+                --isOnline = isOnline,
                 zone = zone,
             }
             
@@ -1029,10 +1026,6 @@ function Roster:ScanMembers()
                 self:ScanForAlts()
 
                 self:RemoveMembers()
-
-                for guid, online in pairs(self.chatSystemOnlineInfo) do
-                    self.onlineStatus[guid].isOnline = online;
-                end
 
                 self:TriggerEvent("OnGuildRosterScan")
 
@@ -1190,8 +1183,6 @@ function Roster:OnChatMessageSystem(...)
             end
             self.onlineStatus[guid].isOnline = false;
 
-            self.chatSystemOnlineInfo[guid] = false;
-
             self:TriggerEvent("OnMemberStatusChanged", guid, self.onlineStatus[guid])
         end
 
@@ -1215,8 +1206,6 @@ function Roster:OnChatMessageSystem(...)
                 self.onlineStatus[guid] = {}
             end
             self.onlineStatus[guid].isOnline = true;
-
-            self.chatSystemOnlineInfo[guid] = true;
 
             self:TriggerEvent("OnMemberStatusChanged", guid, self.onlineStatus[guid])
         end
@@ -2274,10 +2263,10 @@ end
 ---@param uiMessage string a message to display in the addon UI top right status text area
 function Comms:Transmit(data, channel, targetGUID, priority, uiMessage)
 
-    if type(targetGUID) == "string" and Roster.onlineStatus[targetGUID] and Roster.onlineStatus[targetGUID].isOnline ~= true then
-        Guildbook.DEBUG('commsMixin', 'Comms:Transmit', "cancel transmit as target is offline", data)
-        return;
-    end
+    -- if type(targetGUID) == "string" and Roster.onlineStatus[targetGUID] and Roster.onlineStatus[targetGUID].isOnline ~= true then
+    --     Guildbook.DEBUG('commsMixin', 'Comms:Transmit', "cancel transmit as target is offline", data)
+    --     return;
+    -- end
 
     if targetGUID == UnitGUID("player") then
         Guildbook.DEBUG('commsMixin', 'Comms:Transmit', "cancel transmit as target is player", data)
@@ -2311,7 +2300,11 @@ function Comms:Transmit(data, channel, targetGUID, priority, uiMessage)
     -- clean up the target name when using a whisper
     if channel == 'WHISPER' then
 
-        local target = Ambiguate(Roster.guidToCharacterNameRealm[targetGUID], "none")
+        local target = false;
+        if Roster.guidToCharacterNameRealm[targetGUID] then
+            target = Ambiguate(Roster.guidToCharacterNameRealm[targetGUID], "none")
+        end
+
         if type(target) ~= "string" then
             Guildbook.DEBUG('commsMixin', 'SendCommMessage_TargetOnline', "cancel transmit, target not of type string, will try using GetPlayerInfoByGUID")
         
@@ -2336,11 +2329,20 @@ function Comms:Transmit(data, channel, targetGUID, priority, uiMessage)
             local encoded    = LibDeflate:EncodeForWoWAddonChannel(compressed);
         
             if encoded and channel and priority then
-                Guildbook.DEBUG('commsMixin', 'SendCommMessage_TargetOnline', string.format("type: %s, channel: %s target: %s, prio: %s", data.type or 'nil', channel, (target or 'nil'), priority), data)
-                self:SendCommMessage(Comms.PREFIX, encoded, channel, target, priority)
 
-                if uiMessage and type(uiMessage) == "string" then
-                    GuildbookUI:SetInfoText(uiMessage)
+                -- i dont like this approach but if i get reports of spam messages this might have to exist as the solution, on a positive it frees up the ui to show online list better
+                local totalMembers = GetNumGuildMembers()
+                for i = 1, totalMembers do
+                    local _, _, _, _, _, _, _, _, isOnline, _, _, _, _, _, _, _, guid = GetGuildRosterInfo(i)
+                    if guid == targetGUID and isOnline == true then
+                        Guildbook.DEBUG('commsMixin', 'SendCommMessage_TargetOnline', string.format("type: %s, channel: %s target: %s, prio: %s", data.type or 'nil', channel, (target or 'nil'), priority), data)
+                        self:SendCommMessage(Comms.PREFIX, encoded, channel, target, priority)
+        
+                        if uiMessage and type(uiMessage) == "string" then
+                            GuildbookUI:SetInfoText(uiMessage)
+                        end
+                        return;
+                    end
                 end
             end
         end
