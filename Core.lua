@@ -3624,7 +3624,7 @@ function Guildbook:Load()
         GUILDBOOK_GLOBAL.lastVersionUpdate = {}
     end
 
-    local updates = "Quick fix for enchanters where a spelling error (well capital letter error) was causing a bug, sorry about that."
+    local updates = "I always forget to update this message! \n\nAnyways fixed some bugs and added 'Late' as a calendar event option."
 
     if not GUILDBOOK_GLOBAL.lastVersionUpdate[self.version] then
         StaticPopup_Show('GuildbookUpdates', self.version, updates)
