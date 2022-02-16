@@ -221,17 +221,37 @@ function Guildbook:ModBlizzUI()
         button:HookScript("OnEnter", function(self)
             local _, rankName, _, level, _, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, _, _, _, GUID = GetGuildRosterInfo(tonumber(button.guildIndex))
             local character = Guildbook:GetCharacterFromCache(GUID)
-            if character then
+            if type(character) == "table" then
                 local name = string.format("%s%s", Guildbook.Data.Class[class].FontColour, character.Name)
                 if character.MainCharacter then
                     local main = Guildbook:GetCharacterFromCache(character.MainCharacter)
-                    if main then
+                    if type(main) == "table" then
                         name = string.format("%s [%s]", name, Guildbook.Colours[main.Class]:WrapTextInColorCode(main.Name))
                     end
                 end
                 GameTooltip:SetOwner(self, 'ANCHOR_CURSOR', 0, 5)
                 GameTooltip:AddLine(name, 1,1,1,1)
+                GameTooltip:AddLine(" ")
+                GameTooltip:AddDoubleLine(character.Profession1, character.Profession1Level, 1,1,1,1,1,1)
+                GameTooltip:AddDoubleLine(character.Profession2, character.Profession2Level, 1,1,1,1,1,1)
+                GameTooltip:AddLine(" ")
+                GameTooltip:AddLine(Guildbook.Colours.BlizzBlue:WrapTextInColorCode("Click a profession to view in Guildbook"))
                 GameTooltip:Show()
+            end
+        end)
+
+        button:HookScript("OnMouseDown", function(self)
+            local _, rankName, _, level, _, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, _, _, _, GUID = GetGuildRosterInfo(tonumber(button.guildIndex))
+            local character = Guildbook:GetCharacterFromCache(GUID)
+            if type(character) == "table" then
+                if button.GuildbookColumnProfession1:IsMouseOver() and character.Profession1 ~= "-" then
+                    GuildbookUI:OpenTo("tradeskills")
+                    Guildbook.Tradeskills:LoadGuildMemberTradeskills(character.Profession1, character)
+                end
+                if button.GuildbookColumnProfession2:IsMouseOver() and character.Profession2 ~= "-" then
+                    GuildbookUI:OpenTo("tradeskills")
+                    Guildbook.Tradeskills:LoadGuildMemberTradeskills(character.Profession2, character)
+                end
             end
         end)
     end

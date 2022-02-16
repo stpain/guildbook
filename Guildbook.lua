@@ -562,7 +562,7 @@ end
 ---use this to update the ui
 function GuildbookMixin:OnCharacterTableChanged(_, guid, characterTable)
 
-    --DevTools_Dump({characterTable})
+    --DevTools_Dump({characterTable.profile})
 
     ---if the profile view is open and we have a matching guid then refresh the view, dont reload for the players character as they might be editing etc
     if self.profiles.contentPane:IsVisible() then
@@ -582,7 +582,7 @@ function GuildbookMixin:OnCharacterTableChanged(_, guid, characterTable)
                 --print("edit is false")
                 self.profiles.character = characterTable;
                 self.profiles:LoadCharacter(guid)
-                self.statusText:SetText(string.format("character table changed, updating view for %s", characterTable.Name))
+                self.statusText:SetText(string.format("player character table changed, updating view for %s", characterTable.Name))
             end
         end
     end
@@ -665,7 +665,7 @@ function GuildbookHomeMixin:UpdateMemberList()
         else
 
             --otherwise only include those showing as online
-            if gb.Roster.onlineStatus[guid].isOnline == true then
+            if Roster.onlineStatus[guid] and Roster.onlineStatus[guid].isOnline == true then
                 table.insert(t, { 
                     characterGUID = guid,
                     characterTable = info,
@@ -833,7 +833,8 @@ function GuildbookAvatarPickerMixin:OnLoad()
                 GUILDBOOK_CHARACTER.profile.avatar = f.avatar.fileID
                 GuildbookUI.profiles.contentPane.scrollChild.profile.avatar.avatar:SetTexture(f.avatar.fileID)
                 GuildbookUI.ribbon.myProfile.background:SetTexture(f.avatar.fileID)
-                gb:SetCharacterInfo(UnitGUID("player"), "profile", GUILDBOOK_CHARACTER.profile)
+                --gb:SetCharacterInfo(UnitGUID("player"), "profile", GUILDBOOK_CHARACTER.profile)
+                Database:UpdatePlayerCharacterTable("profile", GUILDBOOK_CHARACTER.profile)
             end
 
             self.gridview[i] = f;
@@ -849,10 +850,12 @@ function GuildbookAvatarPickerMixin:OnLoad()
         if not GUILDBOOK_CHARACTER.profile then
             GUILDBOOK_CHARACTER.profile = {}
         end
-        GUILDBOOK_CHARACTER.profile.avatar = nil
+        local _, class = UnitClass("player")
+        GUILDBOOK_CHARACTER.profile.avatar = gb.Data.Class[class].IconID;
         SetPortraitTexture(GuildbookUI.profiles.contentPane.scrollChild.profile.avatar.avatar, "player")
         SetPortraitTexture(GuildbookUI.ribbon.myProfile.background, "player")
-        gb:SetCharacterInfo(UnitGUID("player"), "profile", GUILDBOOK_CHARACTER.profile)
+        --gb:SetCharacterInfo(UnitGUID("player"), "profile", GUILDBOOK_CHARACTER.profile)
+        Database:UpdatePlayerCharacterTable("profile", GUILDBOOK_CHARACTER.profile)
     end)
 
     self.scrollBar:SetMinMaxValues(1, #self.avatars-17)
@@ -1908,29 +1911,31 @@ function GuildbookMemberTreeviewMixin:RefreshProfileSummary()
         for k, char in ipairs(self.members) do
             if char.rowIndex == r+scrollPos then
                 local character = gb:GetCharacterFromCache(char.guid)
-                if rowRankHandled == false then
-                    if char.isNewRank == true then
-                        rowRankHandled = true
+                if type(character) == "table" then
+                    if rowRankHandled == false then
+                        if char.isNewRank == true then
+                            rowRankHandled = true
+                            row.header:SetText(character.RankName)
+                            row.header:Show()
+                            row.headerBackground:Show()
+                        end
+                    end
+                    if k == 1 then
                         row.header:SetText(character.RankName)
                         row.header:Show()
                         row.headerBackground:Show()
                     end
-                end
-                if k == 1 then
-                    row.header:SetText(character.RankName)
-                    row.header:Show()
-                    row.headerBackground:Show()
-                end
-                if row.avatars[x] then
-                    row.avatars[x]:SetCharacter(char.guid)
-                    row.avatars[x]:Show()
-                    if x == 1 then
-                        row.avatars[x]:SetPoint("CENTER", 0, 0)
-                    else
-                        row.avatars[1]:SetPoint("CENTER", ((x-1)*-50), 0)
-                        row.avatars[x]:SetPoint("LEFT", row.avatars[x-1], "RIGHT", 0, 0)
+                    if row.avatars[x] then
+                        row.avatars[x]:SetCharacter(char.guid)
+                        row.avatars[x]:Show()
+                        if x == 1 then
+                            row.avatars[x]:SetPoint("CENTER", 0, 0)
+                        else
+                            row.avatars[1]:SetPoint("CENTER", ((x-1)*-50), 0)
+                            row.avatars[x]:SetPoint("LEFT", row.avatars[x-1], "RIGHT", 0, 0)
+                        end
+                        x = x + 1;
                     end
-                    x = x + 1;
                 end
             end
         end
@@ -2396,8 +2401,8 @@ function GuildbookProfilesMixin:LoadProfile()
     if self.character.profile then
         for k, v in pairs(self.character.profile) do
             if k == "avatar" then
-                self.contentPane.scrollChild.profile[k].avatar:SetTexture(v)
-                self.contentPane.scrollChild.profile[k]:Show()
+                self.contentPane.scrollChild.profile.avatar.avatar:SetTexture(v)
+                self.contentPane.scrollChild.profile.avatar.avatar:Show()
             else
                 if self.contentPane.scrollChild.profile[k] then
                     self.contentPane.scrollChild.profile[k]:SetText(v)

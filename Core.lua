@@ -124,6 +124,20 @@ Database.onPlayerCharacterTradeskillsInfoChanged_IsTriggered = false;
 Database.onPlayerCharacterTradeskillRecipesChanged_IsTriggered = false;
 --Database.onCharacterTradeskillRecipesChanged_IsTriggered = false;
 
+function Database:SetupGuildRosterCache()
+
+    if type(self.currentGuildName) == "string" then
+
+        if type(GUILDBOOK_GLOBAL.GuildRosterCache) == "table" then
+
+            if not GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName] then
+                GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName] = {}
+                Guildbook.DEBUG("databaseMixin", "SetupGuildRosterCache", string.format("set up cache for %s", self.currentGuildName))
+            end
+
+        end
+    end
+end
 
 
 function Database:UpdateGuildbookConfig(setting, newValue)
@@ -242,6 +256,7 @@ function Database:AddNewCharacter(guid, nameRealm, level, class, race, gender, p
         }
 
         GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName][guid] = character;
+        Guildbook.DEBUG("databaseMixin", "AddNewCharacter", string.format(">>> added %s", nameRealm))
     end
 
 end
@@ -336,9 +351,9 @@ function Database:GetCharacterInfo(guid, key)
         return GUILDBOOK_GLOBAL['GuildRosterCache'][self.currentGuildName][guid][key];
 
     else
-        local characterName = GUILDBOOK_GLOBAL['GuildRosterCache'][self.currentGuildName][guid].Name or "no name or character table"
-        Guildbook.DEBUG("databaseMixin", "Database:GetCharacterInfo", string.format("unable to find %s for %s", key, characterName))
-        return GUILDBOOK_GLOBAL['GuildRosterCache'][self.currentGuildName][guid][key];
+        --local characterName = GUILDBOOK_GLOBAL['GuildRosterCache'][self.currentGuildName][guid].Name or "no name or character table"
+        Guildbook.DEBUG("databaseMixin", "Database:GetCharacterInfo", string.format("unable to find %s", key))
+        return false;
     end
     return false;
 end
@@ -513,6 +528,8 @@ function Database:Init()
     if IsInGuild() and GetGuildInfo("player") then
         local guildName, _, _, _ = GetGuildInfo('player')
         self.currentGuildName = guildName;
+
+        self:SetupGuildRosterCache()
     end
 
     -- self.listener = CreateFrame("FRAME")
@@ -1004,7 +1021,7 @@ function Roster:ScanMembers()
             gender = (gender == 3) and "FEMALE" or "MALE"
 
             self.onlineStatus[guid] = {
-                --isOnline = isOnline,
+                isOnline = isOnline,
                 zone = zone,
             }
             
@@ -1051,11 +1068,19 @@ function Roster:RemoveMembers()
         return;
     end
 
-    for guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName]) do
+    if self.currentGuildName == nil then
+        return;
+    end
 
-        if not self.guidToCharacterNameRealm[guid] then
+    if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName] then
 
-            Database:DeleteCharacterFromCache(guid, character)
+        for guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName]) do
+
+            if not self.guidToCharacterNameRealm[guid] then
+
+                Database:DeleteCharacterFromCache(guid, character)
+
+            end
 
         end
 
@@ -1070,28 +1095,36 @@ function Roster:ScanForAlts()
         return;
     end
 
+    if self.currentGuildName == nil then
+        return;
+    end
+
     --temp local table t = { [mainCharacterGUID] = { altCharacterGUID1, altCharacterGUID2, ... } }
     local t = {}
 
     --loop the roster cache and find any characters where a main character is set
-    for guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName]) do
-        if character.MainCharacter ~= "-" then
+    if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName] then
 
-            --add the main character to the temp table
-            if not t[character.MainCharacter] then
-                t[character.MainCharacter] = {}
+        for guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName]) do
+            if character.MainCharacter:find("Player-") then
+
+                --add the main character to the temp table
+                if not t[character.MainCharacter] then
+                    t[character.MainCharacter] = {}
+                end
+
+                --add the current character guid to the main character table
+                table.insert(t[character.MainCharacter], guid)
+
             end
+        end
 
-            --add the current character guid to the main character table
-            table.insert(t[character.MainCharacter], guid)
+        --loop the temp table and update any main characters with alt guid info
+        for mainCharacter, alts in pairs(t) do
+
+            Database:UpdateCharacterTable(mainCharacter, "Alts", alts)
 
         end
-    end
-
-    --loop the temp table and update any main characters with alt guid info
-    for mainCharacter, alts in pairs(t) do
-
-        Database:UpdateCharacterTable(mainCharacter, "Alts", alts)
 
     end
 
@@ -2300,52 +2333,83 @@ function Comms:Transmit(data, channel, targetGUID, priority, uiMessage)
     -- clean up the target name when using a whisper
     if channel == 'WHISPER' then
 
-        local target = false;
-        if Roster.guidToCharacterNameRealm[targetGUID] then
-            target = Ambiguate(Roster.guidToCharacterNameRealm[targetGUID], "none")
-        end
+        -- i dont like this approach but if i get reports of spam messages this might have to exist as the solution, on a positive it frees up the ui to show online list better
+        local totalMembers = GetNumGuildMembers()
+        for i = 1, totalMembers do
+            local nameRealm, _, _, _, _, _, _, _, isOnline, _, _, _, _, _, _, _, guid = GetGuildRosterInfo(i)
+            if guid == targetGUID and isOnline == true then
+                Guildbook.DEBUG('commsMixin', 'SendCommMessage_TargetOnline', string.format("type: %s, channel: %s target: %s, prio: %s", data.type or 'nil', channel, (target or 'nil'), priority), data)
+                
+                local target = Ambiguate(nameRealm, "none")
 
-        if type(target) ~= "string" then
-            Guildbook.DEBUG('commsMixin', 'SendCommMessage_TargetOnline', "cancel transmit, target not of type string, will try using GetPlayerInfoByGUID")
-        
-            local _, _, _, _, _, name, realm = GetPlayerInfoByGUID(targetGUID)
-
-            if realm == "" then
-                target = string.format("%s-%s", name, GetNormalizedRealmName());
-            else
-                target = string.format("%s-%s", name, realm);
-            end
-
-            if type(target) ~= "string" then
-                Guildbook.DEBUG('commsMixin', 'SendCommMessage_TargetOnline', "cancel transmit, target not of type string")
-                return
-            end
-        end
-
-        if type(target) == "string" then            
-
-            local serialized = LibSerialize:Serialize(data);
-            local compressed = LibDeflate:CompressDeflate(serialized);
-            local encoded    = LibDeflate:EncodeForWoWAddonChannel(compressed);
-        
-            if encoded and channel and priority then
-
-                -- i dont like this approach but if i get reports of spam messages this might have to exist as the solution, on a positive it frees up the ui to show online list better
-                local totalMembers = GetNumGuildMembers()
-                for i = 1, totalMembers do
-                    local _, _, _, _, _, _, _, _, isOnline, _, _, _, _, _, _, _, guid = GetGuildRosterInfo(i)
-                    if guid == targetGUID and isOnline == true then
-                        Guildbook.DEBUG('commsMixin', 'SendCommMessage_TargetOnline', string.format("type: %s, channel: %s target: %s, prio: %s", data.type or 'nil', channel, (target or 'nil'), priority), data)
-                        self:SendCommMessage(Comms.PREFIX, encoded, channel, target, priority)
-        
-                        if uiMessage and type(uiMessage) == "string" then
-                            GuildbookUI:SetInfoText(uiMessage)
-                        end
-                        return;
+                local serialized = LibSerialize:Serialize(data);
+                local compressed = LibDeflate:CompressDeflate(serialized);
+                local encoded    = LibDeflate:EncodeForWoWAddonChannel(compressed);
+            
+                if encoded and channel and priority and target then
+                
+                    self:SendCommMessage(Comms.PREFIX, encoded, channel, target, priority)
+    
+                    if uiMessage and type(uiMessage) == "string" then
+                        GuildbookUI:SetInfoText(uiMessage)
                     end
+
+                    return; -- stop looping the roster
+
                 end
             end
         end
+        
+
+        -- local target = false;
+        -- if Roster.guidToCharacterNameRealm[targetGUID] then
+        --     target = Ambiguate(Roster.guidToCharacterNameRealm[targetGUID], "none")
+        -- end
+
+        -- if type(target) ~= "string" then
+        --     Guildbook.DEBUG('commsMixin', 'SendCommMessage_TargetOnline', "cancel transmit, target not of type string, will try using GetPlayerInfoByGUID")
+        
+        --     local _, _, _, _, _, name, realm = GetPlayerInfoByGUID(targetGUID)
+
+        --     if realm == "" then
+        --         target = string.format("%s-%s", name, GetNormalizedRealmName());
+        --     else
+        --         target = string.format("%s-%s", name, realm);
+        --     end
+
+        --     if type(target) ~= "string" then
+        --         Guildbook.DEBUG('commsMixin', 'SendCommMessage_TargetOnline', "cancel transmit, target not of type string")
+        --         return
+        --     end
+        -- end
+
+        -- if type(target) == "string" then            
+
+        --     local serialized = LibSerialize:Serialize(data);
+        --     local compressed = LibDeflate:CompressDeflate(serialized);
+        --     local encoded    = LibDeflate:EncodeForWoWAddonChannel(compressed);
+        
+        --     if encoded and channel and priority then
+
+        --         -- i dont like this approach but if i get reports of spam messages this might have to exist as the solution, on a positive it frees up the ui to show online list better
+        --         local totalMembers = GetNumGuildMembers()
+        --         for i = 1, totalMembers do
+        --             local nameRealm, _, _, _, _, _, _, _, isOnline, _, _, _, _, _, _, _, guid = GetGuildRosterInfo(i)
+        --             if guid == targetGUID and isOnline == true then
+        --                 Guildbook.DEBUG('commsMixin', 'SendCommMessage_TargetOnline', string.format("type: %s, channel: %s target: %s, prio: %s", data.type or 'nil', channel, (target or 'nil'), priority), data)
+                        
+        --                 local target = Ambiguate(nameRealm, "none")
+                        
+        --                 self:SendCommMessage(Comms.PREFIX, encoded, channel, target, priority)
+        
+        --                 if uiMessage and type(uiMessage) == "string" then
+        --                     GuildbookUI:SetInfoText(uiMessage)
+        --                 end
+        --                 return;
+        --             end
+        --         end
+        --     end
+        -- end
 
     elseif channel == "GUILD" then
         local serialized = LibSerialize:Serialize(data);
@@ -2563,9 +2627,23 @@ function Comms:SendCharacterProfileInfo(targetGUID)
         return;
     end
 
+    local profile = GUILDBOOK_CHARACTER.profile;
+    if type(profile) ~= "table" then
+        
+        local _, class = UnitClass("player")
+        local avatar = Guildbook.Data.Class[class].IconID;
+
+        profile = {
+            avatar = avatar,
+            realDob = "",
+            realName = "",
+            realBio = "",
+        }
+    end
+
     local profileInfo = {
         type = "CHARACTER_PROFILE_UPDATE",
-        payload = GUILDBOOK_CHARACTER.profile,
+        payload = profile,
     }
 
     Guildbook.DEBUG("commsMixin", "Comms:SendCharacterProfileInfo", "-", profileInfo)
@@ -2591,6 +2669,22 @@ function Comms:SendCharacterInventoryInfo(targetGUID)
 
     Guildbook.DEBUG("commsMixin", "Comms:endCharacterInventoryInfo", "-", inventoryInfo)
     self:Transmit(inventoryInfo, "WHISPER", targetGUID, "BULK")
+end
+
+
+---send player paper doll stats, no check required for this, could be added i guess ?
+---@param targetGUID string the targets guid
+function Comms:SendCharacterPaperDollStatsInfo(targetGUID)
+
+    local paperDollStatsInfo = {
+        type = "CHARACTER_PAPERDOLLSTATS_UPDATE",
+        payload = {
+            paperDollStats = GUILDBOOK_CHARACTER.PaperDollStats,
+        },
+    }
+
+    Guildbook.DEBUG("commsMixin", "Comms:endCharacterInventoryInfo", "-", paperDollStatsInfo)
+    self:Transmit(paperDollStatsInfo, "WHISPER", targetGUID, "BULK")
 end
 
 
@@ -2653,7 +2747,9 @@ function Comms:SendTradeskillInfoToTargetGUID(targetGUID)
 
     self:Transmit(tradeskillsInfoUpdate, "WHISPER", targetGUID, "NORMAL")
     local character = Database:FetchCharacterTableByGUID(targetGUID)
-    Guildbook.DEBUG("commsMixin", "Comms:SendTradeskillInfoToTargetGUID", character.Name or "unknown character", tradeskillsInfoUpdate)
+    if type(character) == "table" then
+        Guildbook.DEBUG("commsMixin", "Comms:SendTradeskillInfoToTargetGUID", character.Name or "unknown character", tradeskillsInfoUpdate)
+    end
 end
 
 
@@ -2857,19 +2953,22 @@ function Comms:OnCharacterOnline(data, sender)
         self:SendTradeskillInfoToTargetGUID(data.senderGUID);
     end)
 
-    local myProf1 = Database:GetCharacterInfo(UnitGUID("player"), "Profession1")
-    local myProf2 = Database:GetCharacterInfo(UnitGUID("player"), "Profession2")
+    local guid = UnitGUID("player")
+    if guid:find("Player-") then
+        local myProf1 = Database:GetCharacterInfo(UnitGUID("player"), "Profession1")
+        local myProf2 = Database:GetCharacterInfo(UnitGUID("player"), "Profession2")
 
-    -- should we also whisper our recipes? will need to loop for both profs - LEAVE THE GAP BETWEEN PROFS AS 3s
-    if myProf1 and Tradeskills.TradeskillNames[myProf1] then
-        C_Timer.After(8.0, function()
-            self:SendTradeskillsRecipesToTargetGUID(myProf1, data.senderGUID);
-        end)
-    end
-    if myProf2 and Tradeskills.TradeskillNames[myProf2] then
-        C_Timer.After(11.0, function()
-            self:SendTradeskillsRecipesToTargetGUID(myProf2, data.senderGUID);
-        end)
+        -- should we also whisper our recipes? will need to loop for both profs - LEAVE THE GAP BETWEEN PROFS AS 3s
+        if myProf1 and Tradeskills.TradeskillNames[myProf1] then
+            C_Timer.After(8.0, function()
+                self:SendTradeskillsRecipesToTargetGUID(myProf1, data.senderGUID);
+            end)
+        end
+        if myProf2 and Tradeskills.TradeskillNames[myProf2] then
+            C_Timer.After(11.0, function()
+                self:SendTradeskillsRecipesToTargetGUID(myProf2, data.senderGUID);
+            end)
+        end
     end
 
 end
@@ -2926,6 +3025,21 @@ end
 
 
 
+function Comms:OnCharacterPaperDollStatsUpdate(data)
+
+    if type(data) ~= "table" then
+        Guildbook.DEBUG('commsMixin', "Comms:OnCharacterPaperDollStatsUpdate", "data is not a table", data)
+        return;
+    end
+
+    if data.senderGUID then
+        Database:UpdateCharacterTable(data.senderGUID, "PaperDollStats", data.payload.talents)
+    end
+
+end
+
+
+
 function Comms:OnCharacterInventoryUpdate(data)
 
     if type(data) ~= "table" then
@@ -2942,6 +3056,7 @@ end
 
 
 function Comms:OnCharacterUpdate(data)
+    --print("OnCharacterUpdate")
 
     if type(data) ~= "table" then
         Guildbook.DEBUG('commsMixin', "Comms:OnCharacterUpdate", "data is not a table", data)
@@ -2949,7 +3064,9 @@ function Comms:OnCharacterUpdate(data)
     end
 
     if data.senderGUID and type(data.payload) == "table" then
+        --print("got a table to loop")
         for k, v in pairs(data.payload) do
+            Guildbook.DEBUG('commsMixin', "Comms:OnCharacterUpdate", string.format("updating %s", k), data.payload)
             if type(k) == "string" then
                 Database:UpdateCharacterTable(data.senderGUID, k, v)
             else
@@ -2988,7 +3105,23 @@ end
 
 
 
-function Comms:OnCharacterProfileUpdate()
+function Comms:OnCharacterProfileUpdate(data, sender)
+
+    --DevTools_Dump({data})
+
+    if type(data) ~= "table" then
+        Guildbook.DEBUG('commsMixin', "Comms:OnCharacterInventoryUpdate", "data is not a table", data)
+        return;
+    end
+
+    if type(data.payload) ~= "table" then
+        Guildbook.DEBUG('commsMixin', "Comms:OnCharacterInventoryUpdate", "data.payload is not a table", data)
+        return;
+    end
+
+    if data.senderGUID and data.payload.avatar then -- check if an avatar field exists
+        Database:UpdateCharacterTable(data.senderGUID, "profile", data.payload) -- yes this uses a lower case key
+    end
 
 end
 
@@ -3012,6 +3145,12 @@ function Comms:OnCharacterInfoRequested(data, sender)
         end)
     end
 
+    if data.payload.profile == true then
+        C_Timer.After(3.0, function()
+            self:SendCharacterPaperDollStatsInfo(data.senderGUID)
+        end)
+    end
+
 end
 
 
@@ -3021,6 +3160,7 @@ Comms.MessageHandlers = {
     ["CHARACTER_ONLINE"] = Comms.OnCharacterOnline,
     ["CHARACTER_TALENTS_UPDATE"] = Comms.OnCharacterTalentsUpdate,
     ["CHARACTER_PROFILE_UPDATE"] = Comms.OnCharacterProfileUpdate,
+    ["CHARACTER_PAPERDOLLSTATS_UPDATE"] = Comms.OnCharacterPaperDollStatsUpdate,
     ["CHARACTER_INVENTORY_UPDATE"] = Comms.OnCharacterInventoryUpdate,
     ["CHARACTER_TRADESKILLS_INFO_UPDATE"] = Comms.OnCharacterTradeskillsInfoUpdate,
     ["CHARACTER_TRADESKILLS_RECIPES_UPDATE"] = Comms.OnCharacterTradeskillsRecipesUpdate,
@@ -3645,7 +3785,7 @@ function Guildbook:Load()
         GUILDBOOK_GLOBAL.lastVersionUpdate = {}
     end
 
-    local updates = "I always forget to update this message! \n\nAnyways fixed some bugs and added 'Late' as a calendar event option."
+    local updates = "Bug fixes for recent updates, a lot of code was written when the addon had been running and therefore I missed some (a lot of) bugs during the addon load process which cause major issues, I've also added extra checks around certain functions and var type checking.\n\nProfiles!\nFinally should now be working after migrating to a new code structure which has taken far to long to finish (sorry about that).\n\nFeatures!\n* added a sync button to the calendar\n* view recipes from the default Blizzard roster"
 
     if not GUILDBOOK_GLOBAL.lastVersionUpdate[self.version] then
         StaticPopup_Show('GuildbookUpdates', self.version, updates)
@@ -4611,7 +4751,7 @@ function Guildbook:ScanGuildRoster(callback)
             GuildbookUI:SetInfoText(string.format("roster scan %s%%",string.format("%.1f", percent)))
             GuildbookUI.statusBar:SetValue(i/totalMembers)
             if not currentGUIDs[i] then
-                print("no guid")
+                --print("no guid")
                 return;
             end
             local guid = currentGUIDs[i].GUID
@@ -5259,15 +5399,17 @@ function Guildbook:OnGuildCalendarEventsReceived(data, distribution, sender)
                     -- loop the db events for attending guid
                     for guid, info in pairs(dbEvent.attend) do
                         local character = Database:FetchCharacterTableByGUID(guid)
-                        -- is there a matching guid 
-                        if recievedEvent.attend and recievedEvent.attend[guid] then
-                            if tonumber(info.Updated) < tonumber(recievedEvent.attend[guid].Updated) then
-                                info.Status = recievedEvent.attend[guid].Status
-                                info.Updated = recievedEvent.attend[guid].Updated
-                                Guildbook.DEBUG('calendarMixin', 'OnGuildCalendarEventsReceived', string.format("updated %s attend status for %s", character.Name or "no name", dbEvent.title))
+                        if type(character) == "table" then
+                            -- is there a matching guid 
+                            if recievedEvent.attend and recievedEvent.attend[guid] then
+                                if tonumber(info.Updated) < tonumber(recievedEvent.attend[guid].Updated) then
+                                    info.Status = recievedEvent.attend[guid].Status
+                                    info.Updated = recievedEvent.attend[guid].Updated
+                                    Guildbook.DEBUG('calendarMixin', 'OnGuildCalendarEventsReceived', string.format("updated %s attend status for %s", character.Name or "no name", dbEvent.title))
+                                end
+                            else
+                                Guildbook.DEBUG('calendarMixin', 'OnGuildCalendarEventsReceived', string.format("%s wasn't in the sent event attending data", character.Name or "no name"))
                             end
-                        else
-                            Guildbook.DEBUG('calendarMixin', 'OnGuildCalendarEventsReceived', string.format("%s wasn't in the sent event attending data", character.Name or "no name"))
                         end
                     end
                     -- loop the recieved event attending table and add any missing players
@@ -5693,10 +5835,10 @@ function Guildbook:ON_COMMS_RECEIVED(prefix, message, distribution, sender)
 
     -- tradeskills
     if data.type == "TRADESKILLS_REQUEST" then
-        self:OnTradeSkillsRequested(data, distribution, sender)
+        --self:OnTradeSkillsRequested(data, distribution, sender)
 
     elseif data.type == "TRADESKILLS_RESPONSE" then
-        self:OnTradeSkillsReceived(data, distribution, sender);
+        --self:OnTradeSkillsReceived(data, distribution, sender);
 
 
     -- privacy

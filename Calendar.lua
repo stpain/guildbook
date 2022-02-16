@@ -204,6 +204,37 @@ function Guildbook:SetupGuildCalendarFrame()
         return monthStart.wday
     end
 
+    self.GuildFrame.GuildCalendarFrame.syncButton = CreateFrame("BUTTON", nil, self.GuildFrame.GuildCalendarFrame, "UIPanelButtonTemplate")
+    self.GuildFrame.GuildCalendarFrame.syncButton:SetPoint("TOPLEFT", 6, 22)
+    self.GuildFrame.GuildCalendarFrame.syncButton:SetText("Sync")
+    self.GuildFrame.GuildCalendarFrame.syncButton:SetSize(80, 22)
+    self.GuildFrame.GuildCalendarFrame.syncButton:SetScript("OnClick", function()
+    
+        self.GuildFrame.GuildCalendarFrame.syncButton:Disable()
+        C_Timer.After(60, function()
+            self.GuildFrame.GuildCalendarFrame.syncButton:Enable()
+        end)
+
+        Guildbook:SendGuildCalendarEvents()
+
+        C_Timer.After(4, function()
+            Guildbook:SendGuildCalendarDeletedEvents()
+        end)
+
+        C_Timer.After(8, function()
+            Guildbook:RequestGuildCalendarEvents()
+        end)
+
+        C_Timer.After(12, function()
+            Guildbook:RequestGuildCalendarDeletedEvents()
+        end)
+
+        C_Timer.After(16, function()
+            Guildbook:RemoveOldEventsFromSavedVarFile()
+        end)
+
+    end)
+
     self.GuildFrame.GuildCalendarFrame.Header = self.GuildFrame.GuildCalendarFrame:CreateFontString('GuildbookGuildInfoFrameGuildCalendarFrameHeader', 'OVERLAY', 'GameFontNormal')
     self.GuildFrame.GuildCalendarFrame.Header:SetPoint('BOTTOM', Guildbook.GuildFrame.GuildCalendarFrame, 'TOP', 0, 4)
     self.GuildFrame.GuildCalendarFrame.Header:SetText(L["GUILD_CALENDAR"])
