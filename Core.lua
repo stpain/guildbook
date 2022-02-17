@@ -1106,7 +1106,7 @@ function Roster:ScanForAlts()
     if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName] then
 
         for guid, character in pairs(GUILDBOOK_GLOBAL.GuildRosterCache[self.currentGuildName]) do
-            if character.MainCharacter:find("Player-") then
+            if character.MainCharacter and character.MainCharacter:find("Player-") then
 
                 --add the main character to the temp table
                 if not t[character.MainCharacter] then
