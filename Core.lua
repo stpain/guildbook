@@ -656,7 +656,7 @@ Tradeskills.TradeskillIDsToLocaleName = {
 		[773] = "Inscription",
 		[129] = "First Aid"
 	},
-	deDE = {
+		deDE = {
 		[164] = "Schmiedekunst",
 		[165] = "Lederverarbeitung",
 		[171] = "Alchimie",
@@ -670,6 +670,7 @@ Tradeskills.TradeskillIDsToLocaleName = {
 		[393] = "Kürschnerei",
 		[755] = "Juwelenschleifen",
 		[773] = "Inschriftenkunde",
+		[129] = "Erste Hilfe",
 	},
 	frFR = {
 		[164] = "Forge",
@@ -685,6 +686,7 @@ Tradeskills.TradeskillIDsToLocaleName = {
 		[393] = "Dépeçage",
 		[755] = "Joaillerie",
 		[773] = "Calligraphie",
+		[129] = "Secourisme",
 	},
 	esMX = {
 		[164] = "Herrería",
@@ -700,6 +702,7 @@ Tradeskills.TradeskillIDsToLocaleName = {
 		[393] = "Desuello",
 		[755] = "Joyería",
 		[773] = "Inscripción",
+		[129] = "Primeros auxilios",
 	},
 	-- discovered this locale exists also maybe esAL ?
 	esES = {
@@ -716,6 +719,7 @@ Tradeskills.TradeskillIDsToLocaleName = {
         [393] = "Desuello",
         [755] = "Joyería",
         [773] = "Inscripción",
+		[129] = "Primeros auxilios",
     },
 	ptBR = {
 		[164] = "Ferraria",
@@ -731,6 +735,7 @@ Tradeskills.TradeskillIDsToLocaleName = {
 		[393] = "Esfolamento",
 		[755] = "Joalheria",
 		[773] = "Escrivania",
+		[129] = "Primeiros Socorros",
 	},
 	ruRU = {
 		[164] = "Кузнечное дело",
@@ -746,6 +751,7 @@ Tradeskills.TradeskillIDsToLocaleName = {
 		[393] = "Снятие шкур",
 		[755] = "Ювелирное дело",
 		[773] = "Начертание",
+		[129] = "Первая помощь",
 	},
 	zhCN = {
 		[164] = "锻造",
@@ -761,6 +767,7 @@ Tradeskills.TradeskillIDsToLocaleName = {
 		[393] = "剥皮",
 		[755] = "珠宝加工",
 		[773] = "铭文",
+		[129] = "急救",
 	},
 	zhTW = {
 		[164] = "鍛造",
@@ -776,6 +783,7 @@ Tradeskills.TradeskillIDsToLocaleName = {
 		[393] = "剝皮",
 		[755] = "珠寶設計",
 		[773] = "銘文學",
+		[129] = "急救", --Couldn't find proper one so I used the CN one, pls send message on discord if innacurate -Belrand
 	},
 	koKR = {
 		[164] = "대장기술",
@@ -791,6 +799,7 @@ Tradeskills.TradeskillIDsToLocaleName = {
 		[393] = "무두질",
 		[755] = "보석세공",
 		[773] = "주문각인",
+		[129] = "응급치료",
 	},
 }
 Tradeskills.TradeskillLocaleNameToID = tInvert(Tradeskills.TradeskillIDsToLocaleName[Tradeskills.CurrentLocale])
