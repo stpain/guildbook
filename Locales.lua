@@ -32,7 +32,7 @@ the copyright holders.
 
 -- add this to proper helpAbout section when finished 
 --Written by Kylanda@Pyrewood Village, translations
---French, Belrand@Auberdine
+--French, Belrand@Auberdine / Belrand#1998
 
 local addonName, Guildbook = ...
 
@@ -40,9 +40,7 @@ local addonName, Guildbook = ...
 local L = {}
 
 L["UPDATE_NEWS"] = [[
-There has been some major changes to how guildbook sends data, this should
-make for a better experience however there may be some compatability issues
-with older versions.
+"Bug fixes for recent updates, a lot of code was written when the addon had been running and therefore I missed some (a lot of) bugs during the addon load process which cause major issues, I've also added extra checks around certain functions and var type checking.\n\nProfiles!\nFinally should now be working after migrating to a new code structure which has taken far to long to finish (sorry about that).\n\nFeatures!\n* added a sync button to the calendar\n* view recipes from the default Blizzard roster"
 ]]
 L["DIALOG_SHOW_UPDATES"]			= "Display again"
 L["DIALOG_DONT_SHOW_UPDATES"]		= "Confirm & hide"
@@ -53,10 +51,11 @@ L['Version'] = 'Version'
 L['Author'] = 'Author: |cffffffffstpain (|r|cffF58CBACopperbolts|r |cffffffffand|r |cff0070DEKylanda|r|cffffffff)|r'
 
 -- this is the start of the option ui updates, will go through the option panel and rewrite it with locales for stuff
+--[[ Added to Options.xml and moved it with the other options further down for the time being -Belrand
 L["TOOLTIP_SHOW_TRADESKILLS"]		= "Display a list of tradeskills that use the current item. (Data is taken from Guildbook database)"
 L["TOOLTIP_SHOW_RECIPES"]			= "Include recipes that use the current item under each tradeskill."
 L["TOOLTIP_SHOW_RECIPES"]			= "Only show recipes for your characters tradeskills."
-
+--]]
 L["OPTIONS"]						= "Options & Settings"
 L["MINIMAP_CALENDAR_RIGHTCLICK"]	= "Right click for menu"
 L["MINIMAP_CALENDAR_EVENTS"]		= "Events"
@@ -84,10 +83,19 @@ You can use /guildbook, /gbk or /gb.
 /guildbook [interface] - this will open to a specific area (roster, tradeskills, chat, profiles, calendar, stats, guildbank, search, privacy)
 
 ]]
-local rosterIcon = CreateAtlasMarkup("poi-workorders", 16, 16)
-local rosterHelp = [[
-Roster:
-You can sort the roster by clicking the column headers. You can also filter the roster by class or rank, to do this right click the headers. There is the option under class to filter the roster to just your own characters too!
+local homeIcon = CreateAtlasMarkup("poi-town", 16, 16)
+local homeHelp = 
+[[
+Home: 
+A brand new display for your guild's roster featuring an Activity Feed showing who has come online/offline as well as level up and showcasing team up request from guild member using the LFG tool.
+
+]]
+local profileIcon = CreateAtlasMarkup("GarrMission_MissionIcon-Recruit", 16, 16)
+local profileHelp = 
+[[
+Profile:
+Edit as you wish, add your personal information or not.
+You can select your spec(s) and edit your main character. If you use multiple accounts you can add another character which you can then select as a main. (Alts are set by selecting a main character from the alts profile).
 
 ]]
 local tradeskillIcon = CreateAtlasMarkup("Mobile-Blacksmithing", 16, 16)
@@ -103,12 +111,10 @@ You can also push data by opening a tradeskill (cooldown enabled to prevent spam
 You can also use the import/export feature, click the icon above the profession list and follow the instructions.
 
 ]]
-local profileIcon = CreateAtlasMarkup("GarrMission_MissionIcon-Recruit", 16, 16)
-local profileHelp = 
-[[
-Profile:
-Edit as you wish, add your personal information or not.
-You can select your spec(s) and edit your main character. If you use multiple accounts you can add another character which you can then select as a main. (Alts are set by selecting a main character from the alts profile).
+local rosterIcon = CreateAtlasMarkup("poi-workorders", 16, 16)
+local rosterHelp = [[
+Guild Viewer:
+You can view characters from other guilds you are a member of here, the information is the raw data from the addons saved variables file. Select which guild to see a list of its members, select a character to view information.
 
 ]]
 local searchIcon = CreateAtlasMarkup("shop-games-magnifyingglass", 16, 16)
@@ -120,9 +126,11 @@ Use this feature to browse your guild database- Find a recipe, pattern, characte
 ]]
 local bankIcon = CreateAtlasMarkup("ShipMissionIcon-Treasure-Map", 16, 16)
 local bankHelp = [[
+Guild bank:
 Coming soon
+
 ]]
-L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s %s %s", slashCommandsIcon, slashCommandsHelp, rosterIcon, rosterHelp, tradeskillIcon, tradeskillHelp, profileIcon, profileHelp, searchIcon, searchHelp, bankIcon, bankHelp)
+L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s %s %s %s %s", slashCommandsIcon, slashCommandsHelp, homeIcon, homeHelp, profileIcon, profileHelp, tradeskillIcon, tradeskillHelp, rosterIcon, rosterHelp, searchIcon, searchHelp, bankIcon, bankHelp)
 
 
 
@@ -251,7 +259,7 @@ L["NF_PLAYER_LOGOUT_S"]				= "%s logged out"
 
 
 --privacy and options
-L["PRIVACY_CONFIG_ERROR"]			= "your privacy settings have been changed due to an error, please check your settings."
+
 L["PRIVACY_SHARE_LFG"]				= "Share when you use the group finder"
 L["PRIVACY_SHARE_LEVEL_UP"]			= "Send news that you leveled up"
 --L[""]
@@ -270,6 +278,42 @@ L["OPT_TT_CHAR_MAIN_CHAR"]			= "Main character"
 L["OPT_TT_TRADESKILLS_SHOW"]		= "Show tradeskills (professions)"
 L["OPT_TT_TRADESKILLS_RECIPES"]		= "Show recipes"
 L["OPT_TT_TRADESKILLS_PERSONAL"]	= "Only show recipes for your characters tradeskills"
+
+--options dialogs boxes
+--Dialogs.lua
+L["OPT_RELOAD_UI"]                  = "Reload UI"
+L["OPT_SETTINGS_CHANGED"]           = "Settings have changed and a UI reload is required!"
+L["OPT_DELETE_GUILD_DATA"]          = 'Delete all data for %s'
+L["OPT_RESET_CHAR_DATA" ]           = 'Reset data for '..select(1, UnitName("player"))..' to default values?'
+L["OPT_RESET_CACHE_CHAR_DATA"]      = 'Reset data for %s?' --couldn't be tested -Belrand
+L["OPT_RESET_GLOBAL_SETTINGS"]      = 'Reset global settings to default values? \n\nThis will delete all data about all guilds you are a member of.'
+--Options.xml these are loaded at the end of the file with other xml variables
+L["OPT_SH_MINIMAP_BUTTON"]          = 'Show / Hide Minimap Button'
+L["OPT_SH_MINICAL_BUTTON"]          = 'Show / Hide Minimap calendar button'
+L["OPT_BLIZZROSTER"]                = 'Show the wide view for the default Blizzard guild roster.'
+--L["OPT_INFO_MESSAGE"]
+L["OPT_BLOCK_DATA_COMBAT"]          = 'Guildbook will block all incoming and outgoing data comms while you are in combat lockdown. Guild members wont be able to make requests that target you.'
+L["OPT_BLOCK_DATA_INSTANCE"]        = 'Guildbook will block all incoming and outgoing data comms while you are in an instance. Guild members wont be able to make requests that target you.'
+
+L["OPT_TT_DIALOG_SCI"]              = 'Show additional guild member info in tooltip'
+L["OPT_TT_DIALOG_SCMS"]             = 'Show characters main spec'
+L["OPT_TT_DIALOG_SCP"]              = 'Show characters professions'
+L["OPT_TT_DIALOG_SMC"]              = 'Show main character'
+--
+L["OPT_TT_DIALOG_DPL"]              = "Display a list of tradeskills that use the current item. (Data is taken from Guildbook database)"
+L["OPT_TT_DIALOG_DLR"]              = "Include recipes that use the current item under each tradeskill."
+L["OPT_TT_DIALOG_DLRCO"]            = "Only show recipes for your characters tradeskills."
+
+L["OPT_CHAT_SMCO"]                  = 'Show the characters main character name (if an alt) in the guild chat messages. Can only show data where the player has set this value'
+L["OPT_CHAT_SMS"]                   = 'Show the characters main spec in the guild chat messages. Can only show data where the player has set this value.'
+
+
+--Buttons
+L["YES"]                            = 'Yes'
+L["CANCEL"]                         = 'Cancel'
+L["RESET"]                          = 'Reset'
+L["DELETE"]                         = "Delete"
+
 
 --guildViewer
 L["GUILD_VIEWER_HEADER"]			= "You can view characters from other guilds you are a member of here, the information is the raw data from the addons saved variables file. Select which guild to see a list of its members, select a character to view information."
@@ -1025,28 +1069,45 @@ if locale == "deDE" then
 
 
 --[[
-    french
+    french | In order to avoid missing new things, I sorted the whole locale back to match the original one - Belrand
 ]]
 elseif locale == 'frFR' then
 	L["UPDATE_NEWS"] = [[
-Avec la nouvelle mise à jour de WoW Classic, "La Saison de la Maîtrise", j'ai voulu que Guildbook 
-fonctionne pour l'ensemble des versions de WoW Classic.
+"Fix de bugs pour les màj récentes, j'ai aussi rajouté des vérifications supplémentaires autour de certaines fonctions.
 
-Résultat, la Banque de Guilde de Guildbook a été restaurée afin qu'une unique version de l'addon 
-fonctionne sur les deux versions du jeu.
+Les Profiles!
+Ils devraient enfin marcher! J'ai migré le tout vers une nouvelle structure du code qui a mis bien trop de temps (désolé pour ça).
+
+Nouveautés!
+*Ajout d'un bouton de synchronisation au calendrier 
+*Ouvrir les recettes de guilde depuis la fenêtre de guilde Blizzard"
+-Stpain
+
+"Beaucoup de changements ont eu lieu et pour mieux organiser la traduction, j'ai du tout restructurer.
+Si vous rencontrez des erreurs, merci de me le signaler sur Discord"
+-Belrand#1998
 ]]
 	L["DIALOG_SHOW_UPDATES"]			= "Afficher à nouveau"
-	L["DIALOG_DONT_SHOW_UPDATES"]		= "Ok, ne plus montrer"
+    L["DIALOG_DONT_SHOW_UPDATES"]		= "Ok, ne plus montrer"
 
-    L['OptionsAbout'] = 'Guildbook options et informations. Traduction française par Belrand@Auberdine'
-	L['Version'] = 'Version'
-	L['Author'] = 'Auteur: |cffffffffstpain (|r|cffF58CBACopperbolts|r |cffffffffand|r |cff0070DEKylanda|r|cffffffff) |r'
-	
-	L["OPTIONS"]						= "Options & Paramètres"
-	L["MINIMAP_CALENDAR_RIGHTCLICK"]	= "Clique droit pour menu"
-	L["MINIMAP_CALENDAR_EVENTS"]		= "Evénements"
-		
-	L["NEW_VERSION_1"] = "Une nouvelle version est disponible, probablement pour réparer certaines choses...ou en casser d'autres!"
+   --options page
+    L['OptionsAbout'] = 'Guildbook options et informations. Traduction française par Belrand#1998 (Discord)'
+    L['Version'] = 'Version'
+    L['Author'] = 'Auteur: |cffffffffstpain (|r|cffF58CBACopperbolts|r |cffffffffand|r |cff0070DEKylanda|r|cffffffff)|r'
+
+    -- this is the start of the option ui updates, will go through the option panel and rewrite it with locales for stuff
+    --[[ Added to Options.xml and moved it with the other options further down for the time being -Belrand
+    L["TOOLTIP_SHOW_TRADESKILLS"]		= "Affiche une liste de professions utilisant un objet survolé (Les données sont prises de la base de donnée de Guildbook)"
+    L["TOOLTIP_SHOW_RECIPES"]			= "Affiche les recettes utilisant l'objet sous chaque profession"
+    L["TOOLTIP_SHOW_RECIPES"]			= "N'affiche les recettes que pour les professions de vos personnages"
+    --]]
+    L["OPTIONS"]						= "Options & Paramètres"
+    L["MINIMAP_CALENDAR_RIGHTCLICK"]	= "Clique droit pour menu"
+    L["MINIMAP_CALENDAR_EVENTS"]		= "Evénements"
+
+    L["DIALOG_CHARACTER_FIRST_LOAD"]	= "Bienvenue sur Guildbook, cliquer ci-dessous pour scanner vos professions"
+
+    L["NEW_VERSION_1"] = "Une nouvelle version est disponible, probablement pour réparer certaines choses...ou en casser d'autres!"
 	L["NEW_VERSION_2"] = "Il y a une nouvelle version de Guildbook, disponible en téléchargement chez tous les bons distributeurs d'Addons!"
 	L["NEW_VERSION_3"] = "Haha, si vous pensiez que la dernière MàJ ne changeait pas grand chose, vous devriez télécharger la nouvelle, elle fera probablement la même chose...ou moins!"
 	L["NEW_VERSION_4"] = "La Horde est rouge, l'Alliance est bleue, télécharge la nouvelle mise à jour sale paresseux!"
@@ -1055,13 +1116,81 @@ fonctionne sur les deux versions du jeu.
 	L["GUILDBOOK_LOADER_HEADER"]        = "Bienvenue sur Guildbook"
 	L["TOOLTIP_ITEM_RECIPE_HEADER"]     = "Utilisé pour:"
 
-	--mod blizz guild roster
+    L["HELP_ABOUT"]						= "Aide & Infos"
+
+-- this is just a quick thing, will make the how section more fleshed out
+-- this is a nasty way to do this, its horrible and i need to make the help & about much better
+local slashCommandsIcon = CreateTextureMarkup(136377, 64, 64, 16, 16, 0, 1, 0, 1, 0, 0)
+local slashCommandsHelp = [[
+Slash commands:
+Commandes slashs:
+/guildbook open : Cela va ouvrir Guildbook
+/gb ou /gbk peut être employer à la place de /guildbook
+
+]]
+local homeIcon = CreateAtlasMarkup("poi-town", 16, 16)
+local homeHelp = 
+[[
+Acceuil:
+Un nouvel affichage pour le registre de votre guilde avec un Fil d'Actualité montrant qui se (dé)connecte ou gagne un niveau ainsi que les demandes de groupes de vos guildeux via l'outil de Recherche de groupe. 
+
+]]
+local profileIcon = CreateAtlasMarkup("GarrMission_MissionIcon-Recruit", 16, 16)
+local profileHelp = 
+[[
+Profile:
+Vous pouvez sélection votre(vos) spé(s) et sélectionn un personnage principal. Si vous utilisez plusieurs comptes, vous pouvez ajouter un autre personnage que vous pouvez ajouter comme personnage principal. (Les autres personnages seront automatiquement ajouté en sélectionnant le personnage principal.
+
+]]
+local tradeskillIcon = CreateAtlasMarkup("Mobile-Blacksmithing", 16, 16)
+local tradeskillHelp = 
+[[
+Métiers (Professions):
+Guild va traiter les recettes/ID d'objets quand il chargera, ce procédé peut prendre quelques minutes. Une fois complété, vous pouvez voir les recettes disponibles par métier et/ou par slot d'équipement (tête, mains, pieds, etc).
+
+Guildbook va partager vos recettes connues avec les autres membre de votre guilde.
+Ouvrez votre profession pour déclencher le scan des recettes. Cela va les sauvegarder à votre personnage et compte dans la base de données de la guilde et les envoyer aux membres en ligne. Une fois ce processus terminé, les données futures seront envoyé aux membres en ligne quand vous vous connecterez.
+
+Vous pouvez manuellement envoyer des données en ouvrant un métier (léger temps de recharge pour éviter le spam).
+Vous pouvez aussi utiliser l'outil d'import/export, cliquez sur l'icône au dessus des professions et suivez les instructions.
+
+]]
+local rosterIcon = CreateAtlasMarkup("poi-workorders", 16, 16)
+local rosterHelp = [[
+Registres de Guildes:
+Vous pouvez voir les personnages des autres guildes dont vous êtes membres ici, l'information est prise "tel quel" des donnés de votre addons depuis le fichier "SavedVariable".
+Vous pouvez sélectionner la guilde que vous voulez pour voir ses membres et cliquez sur eux pour voir leurs infos.
+
+]]
+local searchIcon = CreateAtlasMarkup("shop-games-magnifyingglass", 16, 16)
+local searchHelp = 
+[[
+Recherche:
+Utiliser cette fonction pour explorer la base de données de votre Guilde - Trouver une recette, schéma, nom de personnage.
+
+]]
+local bankIcon = CreateAtlasMarkup("ShipMissionIcon-Treasure-Map", 16, 16)
+local bankHelp = [[
+Banque de guilde:
+Coming soon
+
+]]
+L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s %s %s %s %s", slashCommandsIcon, slashCommandsHelp, homeIcon, homeHelp, profileIcon, profileHelp, tradeskillIcon, tradeskillHelp, rosterIcon, rosterHelp, searchIcon, searchHelp, bankIcon, bankHelp)
+
+
+
+    L["CALENDAR_TOOLTIP_LOCKOUTS"] 		= "Verrouillage"
+
+
+
+    --mod blizz guild roster, these are key/values in the ModBlizz file that add extra columns
 	L['Online']                         = 'En Ligne'
 	L['MainSpec']                       = 'Spé Principale'
 	L['Rank']                           = 'Rang'
 	L['Note']                           = 'Note'
 	L['Profession1']                    = 'Métier 1'
 	L['Profession2']                    = 'Métier 2'
+    L["Fishing"]						= "Pêche"
 
 
 	-- roster listview and tooltip, these are also sort keys hence the lowercase usage
@@ -1077,7 +1206,7 @@ fonctionne sur les deux versions du jeu.
 
 
 	-- xml strings
-	L["PROFILE_TITLE"]                  = "Profile"
+	L["PROFILE_TITLE"]                  = "Profil"
 	L["REAL_NAME"]                      = "Nom"
 	L["REAL_DOB"]                       = "Anniversaire"
 	L["REAL_BIO"]                       = "Biographie"
@@ -1087,33 +1216,20 @@ fonctionne sur les deux versions du jeu.
 	L["MAIN_SPEC"]                      = "Spé Principale"
 	L["OFF_SPEC"]                       = "Spé Secondaire"
 	L["PRIVACY"]                        = "Confidentialité"
-	L["PRIVACY_ABOUT"]                  = "Choisir à partir de quel Rang vous souhaitez partager vos données."
+	L["PRIVACY_ABOUT"]                  = "Choisir à partir de quel Rang vous souhaitez partager vos données.\nProfil contient Nom, Anniversaire et Avatar. \nInventaire contient l'équipement de votre personnage (|cffFFD100PAS|r vos sacs/banques). \nLes Talents sont...vos Talents."
 	L["INVENTORY"]                      = "Inventaire"
 	L["TALENTS"]                        = "Talents"
-	
+
 	L["ROSTER_MY_CHARACTERS"]			= "Mes personnages"
 	L["ROSTER_ALL_CLASSES"]				= "Toutes"
 	L["ROSTER_ALL_RANKS"]				= "Tous"
-	
-	--guildbank
-	L["PHASE2GB"]						= "Avec l'arrivée des banques de guilde sur TBCC, j'ai décidé d'enlever le système de banque de Guildbook. Néanmoins, je travaille sur quelque chose afin de le remplacer!"
-	L['GUILDBANK']						= "Banque de Guilde"
-	L["GUILDBANK_HEADER_ITEM"]			= "Objets"
-	L["GUILDBANK_HEADER_COUNT"]			= "Nombre"
-	L["GUILDBANK_SORT_TYPE"]			= "Catégorie"
-	L["GUILDBANK_HEADER_SUBTYPE"]		= "Sous-catégorie"
-	L["GUILDBANK_SORT_BANK"]			= "Source"
-	L["GUILDBANK_REFRESH"]				= "Actualiser"
-	L["GUILDBANK_ALL_BANKS"]			= "Toutes les banques"
-	L["GUILDBANK_ALL_TYPES"]			= "Toutes les catégories"
-	L["GUILDBANK_REQUEST_COMMITS"]		= "requête d'un commit de "
-	L["GUILDBANK_REQUEST_INFO"]			= "requête de données de "
-	L["GUILDBANK_FUNDS"]				= "Or disponible"
-	L["GUILDBANK_CURRENCY"]				= "Monnaie"
 
-	--tradeskills
+	L["ROSTER_VIEW_RECIPES"]			= "Cliquez pour voir les recettes"
+
+    --tradeskills
 	L["TRADESKILLS"]		    		= "Métiers"
 	L["TRADESKILLS_RECIPES"]	   		= "Recettes"
+    L["TRADESKILLS_REAGENTS"]			= "Compsants"
 	L["TRADESKILLS_CHARACTERS"]	    	= "Personnages"
 	L["TRADESKILL_GUILD_RECIPES"]	    = "Recettes en Guilde"
 	L["TRADESKILLS_SHARE_RECIPES"]	    = "Partager les recettes du personnage"
@@ -1140,18 +1256,37 @@ fonctionne sur les deux versions du jeu.
 	L["MISC"]							= "Autres"
 	L["CONSUMABLES"]					= "Consommables"
 
-	L["PROFILES"]                       = "Profiles"
+
+
+	--guildbank
+	L["PHASE2GB"]						= "Avec l'arrivée des banques de guilde sur TBCC, j'ai décidé d'enlever le système de banque de Guildbook. Néanmoins, je travaille sur quelque chose afin de le remplacer!"
+	L['GUILDBANK']						= "Banque de Guilde"
+	L["GUILDBANK_HEADER_ITEM"]			= "Objets"
+	L["GUILDBANK_HEADER_COUNT"]			= "Nombre"
+	L["GUILDBANK_SORT_TYPE"]			= "Catégorie"
+	L["GUILDBANK_HEADER_SUBTYPE"]		= "Sous-catégorie"
+	L["GUILDBANK_SORT_BANK"]			= "Source"
+	L["GUILDBANK_REFRESH"]				= "Actualiser"
+	L["GUILDBANK_ALL_BANKS"]			= "Toutes les banques"
+	L["GUILDBANK_ALL_TYPES"]			= "Toutes les catégories"
+	L["GUILDBANK_REQUEST_COMMITS"]		= "requête d'un commit de "
+	L["GUILDBANK_REQUEST_INFO"]			= "requête de données de "
+	L["GUILDBANK_FUNDS"]				= "Or disponible"
+	L["GUILDBANK_CURRENCY"]				= "Monnaie"
+
+	L["HOME"]							= "Accueil"
+	L["PROFILES"]                       = "Profils"
 	L["CHAT"]                           = "Chat"
-	L["ROSTER"]                         = "Registre"
+	L["GUILD_VIEWER"]                   = "Registres de guildes"
 	L["CALENDAR"]                       = "Calendrier"
 	L["SEARCH"]                         = "Rechercher"
-	L["MY_PROFILE"]                     = "Mon profile"
-	L["OPEN_PROFILE"]                   = "Ouvrir profile"
+	L["MY_PROFILE"]                     = "Mon profil"
+	L["OPEN_PROFILE"]                   = "Ouvrir profil"
 	L["OPEN_CHAT"]                      = "Ouvrir chat"
 	L["INVITE_TO_GROUP"]                = "Inviter dans un groupe"
 	L["SEND_TRADE_ENQUIRY"]             = "Envoyer un message à propos de l'objet"
 	L["REFRESH_ROSTER"]                 = "Rafraîchir registre"
-	L["EDIT"]                           = "Modifier profile"
+	L["EDIT"]                           = "Modifier profil"
 	L["GUILD_BANK"]                     = "Banque de Guilde"
 	L["ALTS"]                           = "Personnages secondaires"
 	L["USE_MAIN_PROFILE"]               = "Utiliser profil du Personnage Principal"
@@ -1160,18 +1295,132 @@ fonctionne sur les deux versions du jeu.
 	L["BANK"]                           = "Banque"
 	L["STATS"]                          = "Statistiques"
 
+    --news feed stuff
+    L["GUILD_ACTIVTY_HEADER"]			= "Fil d'Actualité"
+    L["GUILD_MEMBERS_HEADER"]			= "Membres (|cffFFD100maj enfoncé pour plus d'info|r)"
+    L["GUILD_MEMBERS_OFFLINE"]			= "Voir les membres déconnectés"
+	L["NF_PLAYER_LEVEL_UP_SS"]			= "%s a atteint le niveau %s!"
+	L["NF_PLAYER_LOGIN_S"]				= "%s s'est connecté"
+	L["NF_PLAYER_LOGOUT_S"]				= "%s s'est déconnecté"
+	--L["NF_LFG_CREATED_S"]				= "%s"
+
+
+
+   --privacy and options
+
+    L["PRIVACY_SHARE_LFG"]				= "Partager votre usage de l'outil RDG"
+    L["PRIVACY_SHARE_LEVEL_UP"]			= "Partager vos prises de niveau"
+   --L[""]
+
+    L["OPT_SHOW_MINIMAP_BUTTON"]		= "Afficher le bouton de la minicarte"
+    L["OPT_SHOW_MINIMAP_CALENDAR"]		= "Afficher le bouton calendrier de la minicarte"
+    L["OPT_MOD_BLIZZ_ROSTER"]			= "Modifier l'onglet de Guilde de Blizzard"
+    L["OPT_COMBAT_COMMS_LOCK"]			= "Bloquer le traffic de données pendant les combats"
+    L["OPT_INSTANCE_COMMS_LOCK"]		= "Bloquer le traffic de données dans les instances"
+
+    L["OPT_TT_CHAR_SHOW_INFO"]			= "Montrer info des personnages"
+    L["OPT_TT_CHAR_MAIN_SPEC"]			= "Spé Principale"
+    L["OPT_TT_CHAR_TRADESKILLS"]		= "Métiers"
+    L["OPT_TT_CHAR_MAIN_CHAR"]			= "Personnage Principal"
+
+    L["OPT_TT_TRADESKILLS_SHOW"]		= "Montrer les métiers"
+    L["OPT_TT_TRADESKILLS_RECIPES"]		= "Montrer les recettes"
+	L["OPT_TT_TRADESKILLS_PERSONAL"]	= "Ne montrer les recetters que pour vos métiers"
+
+   --options dialogs boxes
+   --Dialogs.lua
+    L["OPT_RELOAD_UI"]                  = "Rercharger Interface"
+    L["OPT_SETTINGS_CHANGED"]           = "Certains Paramètres ont été changés et un rechargement de l'interface est nécessaire"
+    L["OPT_DELETE_GUILD_DATA"]          = 'Supprimer les données de %s?'
+    L["OPT_RESET_CHAR_DATA" ]           = 'Réinitialiser les données de '..select(1, UnitName("player"))..' aux valeurs par défaut?'
+    L["OPT_RESET_CACHE_CHAR_DATA"]      = 'Réinitialiser les données de %s?' --couldn't be tested -Belrand
+    L["OPT_RESET_GLOBAL_SETTINGS"]      = 'Réinitialiser les données globales de l\'addon? \n\nCela va supprimer les données concernant les guildes dont vous êtes membres.'
+    --Options.xml these are loaded at the end of the file with other xml variables
+    L["OPT_SH_MINIMAP_BUTTON"]          = 'Activer/Désactiver bouton de la minicarte'
+    L["OPT_SH_MINICAL_BUTTON"]          = 'Activer/Désactiver bouton calendrier de la minicarte'
+    L["OPT_BLIZZROSTER"]                = 'Modifier l\'onglet de guilde Blizzard'
+    --L["OPT_INFO_MESSAGE"]
+    L["OPT_BLOCK_DATA_COMBAT"]          = "Guildbook va bloquer l'échange de données tant que vous êtes en combat"
+    L["OPT_BLOCK_DATA_INSTANCE"]        = "Guildbook va bloquer l'échange de données tant que vous êtes dans une instance"
+
+    L["OPT_TT_DIALOG_SCI"]              = "Montrer plus d'info sur le membre de guilde dans le tooltip"
+    L["OPT_TT_DIALOG_SCMS"]             = "Montrer la spé principale du personnage dans le tooltip"
+    L["OPT_TT_DIALOG_SCP"]              = "Montrer les métiers du personnages dans le tooltip"
+    L["OPT_TT_DIALOG_SMC"]              = "Monter le personnage principale dans le tooltip"
+    --
+    L["OPT_TT_DIALOG_DPL"]              = "Affiche une liste de métiers utilisant l'objet comme régent (basé sur vos données Guildbook)"
+    L["OPT_TT_DIALOG_DLR"]              = "Inclure les recettes utilisant l'objet comme régent sous chaque métier"
+    L["OPT_TT_DIALOG_DLRCO"]            = "Ne montrer que les recettes de VOS personnages"
+
+    L["OPT_CHAT_SMCO"]                  = "Montrer le personnage principal d'un reroll dans le chat de guilde (selon de la préférence du dit joueur)"
+    L["OPT_CHAT_SMS"]                   = "Montrer la spécialisation du personnage dans le chat de guilde (selon de la préférence du dit joueur)"
+
+
+    --Buttons
+	L["YES"] = 'Oui'
+	L["CANCEL"] = 'Annuler'
+	L["RESET"] = 'Reset'
+	L["DELETE"] = "Supprimer"
+
+
+--guildViewer
+    L["GUILD_VIEWER_HEADER"]			= "Vous pouvez voir les personnages des autres guildes dont vous êtes membres ici, l'information est prise \"tel quel\" des donnés de votre addons. Sélectionnez la guilde que vous voulez pour voir ses membres et cliquez sur eux pour voir leurs infos."
+
+    L["RESET_AVATAR"]					= "Défaut"
+
 	L["PRIVACY_HEADER"]                 = "Paramètres de confidentialité"
 	L["NONE"] 			    			= "Aucun"
 	L["SHARING_NOBODY"]		    		= "Partager avec personne"
 	L["SHARING_WITH"]		    		= "Partager avec"
-	
+
 	L["MAIN_CHARACTER_ADD_ALT"]			= "Ajouter personage.\n|cffFFFF00Utilisez ceci pour ajouter un personnage venant d'un compte autre compte. Vous serez ensuite capable de le sélectionner comme personnage principal."
 	L["MAIN_CHARACTER_REMOVE_ALT"]		= "Enlever personnage"
 	L["DIALOG_MAIN_CHAR_ADD"]			= "Tapez le nom du personnage, il doit être membre de la guilde."
 	L["DIALOG_MAIN_CHAR_REMOVE"]		= "SVP, entrez le nom du personnage."
 	L["DIALOG_MAIN_CHAR_ADD_FOUND"]		= "Personnage trouvé: %s Niveau %s %s"
 
+	--attributes
+	L["STRENGTH"]                   = "Force"
+	L["AGILITY"]                    = "Agilité"
+	L["STAMINA"]                    = "Endurance"
+	L["INTELLECT"]                  = "Intelligence"
+	L["SPIRIT"]                     = "Esprit"
+	--defence
+	L["ARMOR"]                      = "Armure"
+	L["DEFENSE"]                    = "Défense"
+	L["DODGE"]                      = "Esquive"
+	L["PARRY"]                      = "Parade"
+	L["BLOCK"]                      = "Blocage"
+	--melee
+	L["EXPERTISE"]                  = "Expertise"
+	L["HIT_CHANCE"]                 = "Chance de toucher"
+	L["MELEE_CRIT"]                 = "Chance de crit"
+	L["MH_DMG"]                     = "Dégâts main droite"
+	L["OH_DMG"]                     = "Dégâts main gauche"
+	L["MH_DPS"]                     = "DPS main droite"
+	L["OH_DPS"]                     = "DPS main gauche"
+	--ranged
+	L["RANGED_HIT"]                 = "Chance de toucher"
+	L["RANGED_CRIT"]                = "Chance de crit"
+	L["RANGED_DMG"]                 = "Dégâts"
+	L["RANGED_DPS"]                 = "DPS"
+	--spells
+	L["SPELL_HASTE"]                = "Hâte"
+	L["MANA_REGEN"]                 = "Régen mana"
+	L["MANA_REGEN_CASTING"] 		= "Régen mana(incantation)"
+	L["SPELL_HIT"]                  = "Chance de toucher"
+	L["HEALING_BONUS"]              = "Pouvoir de guérison"
+	L["SPELL_DMG_HOLY"]             = "Sacré"
+	L["SPELL_DMG_FROST"]			= "Givre"
+	L["SPELL_DMG_SHADOW"]			= "Ombre"
+	L["SPELL_DMG_ARCANE"]			= "Arcane"
+	L["SPELL_DMG_FIRE"]             = "Feu"
+	L["SPELL_DMG_NATURE"]			= "Nature"
+
+
+
 	-- class and spec
+	-- class is upper case
 	L['DEATHKNIGHT']                    = 'Chevalier de la mort'
 	L['DRUID']                          = 'Druide'
 	L['HUNTER']                         = 'Chasseur'
@@ -1188,12 +1437,11 @@ fonctionne sur les deux versions du jeu.
 	L['Frost']                          = 'Givre'
 	L['Blood']                          = 'Sang'
 	L['Unholy']                         = 'Impie'
-	L["Frost (Tank)"]					= "Frost (Tank)"
 	--druid/shaman
 	L['Restoration']                    = 'Restauration'
 	L['Enhancement']                    = 'Amélioration'
 	L['Elemental']                      = 'Elémentaire'
-	L["Warden"]			    = "Protecteur"
+	L["Warden"]			    = "Gardien"
 	L['Cat']                            = 'Chat'
 	L['Bear']                           = 'Ours'
 	L['Guardian']                       = 'Gardien'
@@ -1206,6 +1454,7 @@ fonctionne sur les deux versions du jeu.
 	--hunter
 	L['Marksmanship']                   = 'Précision'
 	L['Beast Master']                   = 'Maîtrise des Bêtes'
+	L['BeastMaster']                   	= 'Maîtrise des Bêtes' -- the smart detect spec system could return this value
 	L['Survival']                       = 'Survie'
 	--warlock
 	L['Destruction']                    = 'Destruction'
@@ -1219,44 +1468,10 @@ fonctionne sur les deux versions du jeu.
 	L['Holy']                           = 'Sacré'
 	L['Discipline']                     = 'Discipline'
 	L['Shadow']                         = 'Ombre'
-		
-	--attributes
-	L["STRENGTH"]				= "Force"
-	L["AGILITY"]				= "Agilité"
-	L["STAMINA"]				= "Endurance"
-	L["INTELLECT"]				= "Intelligence"
-	L["SPIRIT"]				= "Esprit"
-	--defence
-	L["ARMOR"]				= "Armure"
-	L["DEFENSE"]				= "Défense"
-	L["DODGE"]				= "Esquive"
-	L["PARRY"]				= "Parade"
-	L["BLOCK"]				= "Blocage"
-	--melee
-	L["EXPERTISE"]				= "Expertise"
-	L["HIT_CHANCE"]				= "Chance de toucher"
-	L["MELEE_CRIT"]				= "Chance de crit"
-	L["MH_DMG"]				= "Dégâts main droite"
-	L["OH_DMG"]				= "Dégâts main gauche"
-	L["MH_DPS"]				= "DPS main droite"
-	L["OH_DPS"]				= "DPS main gauche"
-	--ranged
-	L["RANGED_HIT"]				= "Chance de toucher"
-	L["RANGED_CRIT"]			= "Chance de crit"
-	L["RANGED_DMG"]				= "Dégâts"
-	L["RANGED_DPS"]				= "DPS"
-	--spells
-	L["SPELL_HASTE"]			= "Hâte"
-	L["MANA_REGEN"]				= "Régen mana"
-	L["MANA_REGEN_CASTING"] 		= "Régen mana(incantation)"
-	L["SPELL_HIT"]				= "Chance de toucher"
-	L["HEALING_BONUS"]			= "Pouvoir de guérison"
-	L["SPELL_DMG_HOLY"]			= "Sacré"
-	L["SPELL_DMG_FROST"]			= "Givre"
-	L["SPELL_DMG_SHADOW"]			= "Ombre"
-	L["SPELL_DMG_ARCANE"]			= "Arcane"
-	L["SPELL_DMG_FIRE"]			= "Feu"
-	L["SPELL_DMG_NATURE"]			= "Nature"
+
+    --odds
+    L["Warden"]							= "Gardien"
+    L["Frost (Tank)"]					= "Givre (Tank)"
 
 	--date time
 	L['JANUARY']                        = 'Janvier'
@@ -1279,11 +1494,6 @@ fonctionne sur les deux versions du jeu.
 	L["FRIDAY"]                         = "Vendredi"
 	L["SATURDAY"]                       = "Samedi"
 	L["SUNDAY"]                         = "Dimanche"
-		
-	L["YEARS"]                          = "années"
-	L["MONTHS"]                         = "mois"
-	L["DAYS"]                           = "jours"
-	L['< an hour']			    = 'moins d\'1h'
 
 
 	-- old stuff but might use again
@@ -1302,73 +1512,9 @@ fonctionne sur les deux versions du jeu.
 	L['ClassRoleSummary']               = 'Classes & Rôles'
 	L['RoleChart']                      = 'Rôles (Membres en ligne)'
 	L['ClassChart']                     = 'Classes (Tous les Membres)'
-	
-	--legacy stuff
-	L["SELECT_BANK_CHARACTER"]          = "Sélectionner la Banque"
-	L["DUNGEON"]                        = "Donjon"
-	L["RAID"]                           = "Raid"
-	L['PVP']			    = 'JcJ'
-	L["MEETING"]                        = "Réunion"
-	L["OTHER"]                          = "Autre"
-	L["GUILD_CALENDAR"]                 = "Calendrier de Guild"
-	L["INSTANCE_LOCKS"]                 = "Instances verrouilées"
-	L["CREATE_EVENT"]                   = "Créer événement"
-	L["DELETE_EVENT"]                   = "Suppr. événement"
-	L["EVENT"]                          = "Evénement"
-	L["EVENT_TYPE"]                     = "Type d'événement"
-	L["TITLE"]                          = "Titre"
-	L["DESCRIPTION"]                    = "Description"
-	L["UPDATE"]                         = "Mise à jour"
-	L["ATTENDING"]                      = "Présent"
-	L["TENTATIVE"]                      = "Tentative"
-	L["DECLINE"]                        = "Décliner"
-	L["RESET_AVATAR"]		    		= "Défaut"
-	
-	--keybinds
-	L["GENERAL"]			    = "Général"
-	L["OPEN"]			    = "Ouvrir"
-	L["MINIMAP_TOOLTIP_LEFTCLICK"]			    = '|cffffffffClique Gauche|r Ouvrir Guildbook'
-	L["MINIMAP_TOOLTIP_LEFTCLICK_SHIFT"]		    = "MAJ + "..'|cffffffffClique Gauche|r Open Chat'
-	L["MINIMAP_TOOLTIP_RIGHTCLICK"]			    = '|cffffffffClique Droit|r Options'
-	L["MINIMAP_TOOLTIP_MIDDLECLICK"]	= "|cffffffffClique molette|r Ouvrir l'onglet de guilde Blizzard"
-	
-	--raids name
-	L["MC"]				    = "Coeur du Magma"
-	L["BWL"]			    = "Repaire de l'Aile noire"
-	L["AQ20"]                           = "AQ20"
-	L["AQ40"]			    = "AQ40"
-	L["Naxxramas"]			    = "Naxxramas"
-	L["ZG"]				    = "Zul'Gurub"
-	L["Onyxia"]			    = "Onyxia"
-	L["Magtheridon"]		    = "Repaire de Magtheridon"
-	L["SSC"]			    = "Caverne du sanctuaire du Serpent" --this is way too long wtf
-	L["TK"]				    = "Donjon de la tempête"
-	L["Gruul"]			    = "Repaire de Gruul"
-	L["Hyjal"]			    = "Sommet d'Hyjal"
-	L["SWP"]			    = "Plateau du Puits de soleil"
-	L["BT"]				    = "Temple noir"
-	L["Karazhan"]			    = "Karazhan"
-	
-	--availability (Data.lua)
-	L['Not Available'] 		    = 'Indisponible'
-	L['Morning'] 			    = 'Matin'
-	L['Afternoon'] 			    = 'Après-midi'
-	L['Evening'] 			    = 'Soir'
-	
-	--world events
-	L["DARKMOON_FAIRE"]		    = "Foire de Sombrelune"
-	L["DMF display"]		    = '|cffffffffFoire de Sombrelune - '
-	L["LOVE IS IN THE AIR"]		    = "De l'amour dans l'air"
-	L["CHILDRENS_WEEK"]		    = "Semaine des enfants"				
-	L["MIDSUMMER_FIRE_FESTIVAL"]	    = "Fête du Feu du solstice d'été"
-	L["HARVEST_FESTIVAL"]		    = "Fête des moissons"
-	L["HALLOWS_END"]		    = "Sanssaint "
-	L["FEAST_OF_WINTER_VEIL"]	    = "Voile d'hiver"
-	L["BREWFEST"]				= "Fête des Brasseurs"
 
-
-
-	L['calendarHelpText'] = [[
+-- calendar help icon
+L['calendarHelpText'] = [[
 Calendrier
 
 |cffffffffGuildbook fournit un calendrier en jeu pour les guildes afin de
@@ -1388,9 +1534,8 @@ les systèmes chat par l'addon, les événements peuvent être créés pour n'im
 quelle date et se synchroniseront dans les 4 semaines suivant la date actuelle|r.
 ]]
 
-
 --guildbank help icon
-	L["GUILDBANKHELPTEXT"]	= [[
+L["GUILDBANKHELPTEXT"]	= [[
 Guild Bank
 
 |cffffffffGuildbook fournit une banque de guilde en jeu 
@@ -1412,58 +1557,74 @@ synchronisation de leur inventaire après chaque changement dedans.
 De multiples personnages banques sont supportés.|r
 ]]
 
-L["HELP_ABOUT"]						= "Aide & Infos"
 
--- this is just a quick thing, will make the how section more fleshed out
--- this is a nasty way to do this, its horrible and i need to make the help & about much better
-local slashCommandsIcon = CreateTextureMarkup(136377, 64, 64, 16, 16, 0, 1, 0, 1, 0, 0)
-local slashCommandsHelp = [[
-Commandes slashs:
-/guildbook open : Cela va ouvrir Guildbook
-/guildbook [interface] : Cela va ouvrir un onglet spécifique de Guildbook(profiles:Profiles, tradeskills:Métiers, chat:Chat, roster:Registre, calendar:Calendrier, stats:Stats, guildbank:Banque de Guilde, search:Recherche, privacy:Confidentialité)
-Exemple: "/guildbook search" va ouvrir l'onglet de recherche.
-/gb peut être employer à la place de /guildbook
+	--legacy stuff
+	L["SELECT_BANK_CHARACTER"]          = "Sélectionner la Banque"
+	L["DUNGEON"]                        = "Donjon"
+	L["RAID"]                           = "Raid"
+	L['PVP']                            = 'JcJ'
+	L["MEETING"]                        = "Réunion"
+	L["OTHER"]                          = "Autre"
+	L["GUILD_CALENDAR"]                 = "Calendrier de Guild"
+	L["INSTANCE_LOCKS"]                 = "Instances verrouilées"
+	L["CREATE_EVENT"]                   = "Créer événement"
+	L["DELETE_EVENT"]                   = "Suppr. événement"
+	L["EVENT"]                          = "Evénement"
+	L["EVENT_TYPE"]                     = "Type d'événement"
+	L["TITLE"]                          = "Titre"
+	L["DESCRIPTION"]                    = "Description"
+	L["UPDATE"]                         = "Mise à jour"
+	L["ATTENDING"]                      = "Présent"
+	L["LATE"]                           = "Retard"
+	L["TENTATIVE"]                      = "Tentative"
+	L["DECLINE"]                        = "Décliner"
 
-]]
-local rosterIcon = CreateAtlasMarkup("poi-workorders", 16, 16)
-local rosterHelp = [[
-Registre:
-Vous pouvez trier le registre en cliquant sur les titres des colonnes. Vous pouvez aussi le filtrer par classe ou rang, pour ce faire faites un clique droit sur le titre? Il y a une option dans "classe" pour filtrer vos personnages aussi!
+	L["TIME"]							= "Time"
+	L["YEARS"]                          = "années"
+	L["MONTHS"]                         = "mois"
+	L["DAYS"]                           = "jours"
+	L["HOURS"]                          = "heures"
+	L['< an hour']			    		= 'moins d\'1h'
 
-]]
-local tradeskillIcon = CreateAtlasMarkup("Mobile-Blacksmithing", 16, 16)
-local tradeskillHelp = 
-[[
-Métiers
-Guildbook va partager les recettes de votre métier avec les autres membres de la guilde.
-Ouvrer votre fenêtre de métier pour lancer le scan des recettes. Attender patiemment que tout se scan (~100 recettes par seconde). Cela sauvegardera à la base de donnée du Personnage (et Compte) pour la Guilde en l'enverra aux autres membres en ligne.
-Une fois ce procédé complété, les données futures seront envoyés aux autres membres en ligne lors de vos connexions. Vous pouvez aussi envoyer les données manuellement en ouvrant la fenêtre d'un métier (temps d'attente activé pour éviter le spam).
-Si vous avez besoin de partager les recettes d'un membre hors ligne, sélectionner leur profession via le registre, une fois chargée cliquer sur le bouton en haut a droite de la liste des recettes, à gauche de "Personnages" (temps d'attente activé pour éviter le spam).
+	L["GENERAL"]                        = "Général"
+	L["MINIMAP_TOOLTIP_LEFTCLICK"]      = '|cffffffffClique Gauche|r Ouvrir Guildbook'
+	L["MINIMAP_TOOLTIP_LEFTCLICK_SHIFT"]= "MAJ + "..'|cffffffffClique Gauche|r Ouvrir Chat'
+	L["MINIMAP_TOOLTIP_RIGHTCLICK"]	    = '|cffffffffClique Droit|r Options'
+	L["MINIMAP_TOOLTIP_MIDDLECLICK"]	= "|cffffffffClique molette|r Ouvrir l'onglet de guilde Blizzard"
 
-]]
-local profileIcon = CreateAtlasMarkup("GarrMission_MissionIcon-Recruit", 16, 16)
-local profileHelp = 
-[[
-Profile:
-Vous pouvez sélection votre(vos) spé(s) et sélectionn un personnage principal. Si vous utilisez plusieurs comptes, vous pouvez ajouter un autre personnage que vous pouvez ajouter comme personnage principal. (Les autres personnages seront automatiquement ajouté en sélectionnant le personnage principal
-You can select your spec(s) and edit your main character. If you use multiple accounts you can add another character which you can then select as a main. (Alts are set by selecting a main character from the alts profile).
+	--raids name
+	L["MC"]				    = "Coeur du Magma"
+	L["BWL"]			    = "Repaire de l'Aile noire"
+	L["AQ20"]               = "AQ20"
+	L["AQ40"]			    = "AQ40"
+	L["Naxxramas"]		    = "Naxxramas"
+	L["ZG"]				    = "Zul'Gurub"
+	L["Onyxia"]			    = "Onyxia"
+	L["Magtheridon"]		= "Repaire de Magtheridon"
+	L["SSC"]			    = "Caverne du sanctuaire du Serpent" --this is way too long wtf
+	L["TK"]				    = "Donjon de la tempête"
+	L["Gruul"]			    = "Repaire de Gruul"
+	L["Hyjal"]			    = "Sommet d'Hyjal"
+	L["SWP"]			    = "Plateau du Puits de soleil"
+	L["BT"]				    = "Temple noir"
+	L["Karazhan"]			= "Karazhan"
 
-]]
-local searchIcon = CreateAtlasMarkup("shop-games-magnifyingglass", 16, 16)
-local searchHelp = 
-[[
-Recherche:
-Utiliser cette fonction pour explorer la base de données de votre Guilde - Trouver une recette, schéma, nom de personnage.
+	--availability (Data.lua)
+	L['Not Available'] 		    = 'Indisponible'
+	L['Morning'] 			    = 'Matin'
+	L['Afternoon'] 			    = 'Après-midi'
+	L['Evening'] 			    = 'Soir'
 
-]]
-local bankIcon = CreateAtlasMarkup("ShipMissionIcon-Treasure-Map", 16, 16)
-local bankHelp = [[
-Banque de guilde:
-
-Bientôt
-]]
-L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s %s %s", slashCommandsIcon, slashCommandsHelp, rosterIcon, rosterHelp, tradeskillIcon, tradeskillHelp, profileIcon, profileHelp, searchIcon, searchHelp, bankIcon, bankHelp)	
-
+	--world events
+	L["DARKMOON_FAIRE"]					= "Foire de Sombrelune"
+	L["DMF display"]					= '|cffffffffFoire de Sombrelune - ' --this is needed for the calendar
+	L["LOVE IS IN THE AIR"]				= "De l'amour dans l'air"
+	L["CHILDRENS_WEEK"]					= "Semaine des enfants"			
+	L["MIDSUMMER_FIRE_FESTIVAL"]		= "Fête du Feu du solstice d'été"
+	L["HARVEST_FESTIVAL"]				= "Fête des moissons"
+	L["HALLOWS_END"]					= "Sanssaint "
+	L["FEAST_OF_WINTER_VEIL"]			= "Voile d'hiver"
+	L["BREWFEST"]						= "Fête des Brasseurs"
 
 
 
@@ -2728,3 +2889,20 @@ BINDING_HEADER_GENERAL 	= L["GENERAL"]
 BINDING_NAME_Open 	= L["OPEN"]
 BINDING_NAME_Chat 	= L["CHAT"]
 BINDING_NAME_Calendar 	= L["CALENDAR"]
+
+--Options.xml dialog boxes
+OPT_SH_MINIMAP_BUTTON = L["OPT_SH_MINIMAP_BUTTON"]
+OPT_SH_MINICAL_BUTTON = L["OPT_SH_MINICAL_BUTTON"]
+OPT_BLIZZROSTER = L["OPT_BLIZZROSTER"]
+OPT_INFO_MESSAGE = L["OPT_INFO_MESSAGE"] --Unused
+OPT_BLOCK_DATA_COMBAT = L["OPT_BLOCK_DATA_COMBAT"]
+OPT_BLOCK_DATA_INSTANCE = L["OPT_BLOCK_DATA_INSTANCE"]
+OPT_TT_DIALOG_SCI = L["OPT_TT_DIALOG_SCI"]
+OPT_TT_DIALOG_SCMS = L["OPT_TT_DIALOG_SCMS"]
+OPT_TT_DIALOG_SCP = L["OPT_TT_DIALOG_SCP"]
+OPT_TT_DIALOG_SMC = L["OPT_TT_DIALOG_SMC"]
+OPT_TT_DIALOG_DPL = L["OPT_TT_DIALOG_DPL"]
+OPT_TT_DIALOG_DLR = L["OPT_TT_DIALOG_DLR"]
+OPT_TT_DIALOG_DLRCO = L["OPT_TT_DIALOG_DLRCO"]
+OPT_CHAT_SMCO = L["OPT_CHAT_SMCO"]
+OPT_CHAT_SMS = L["OPT_CHAT_SMS"]

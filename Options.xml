@@ -142,7 +142,7 @@ the copyright holders.
                 </Anchors>
                 <Scripts>
                     <OnLoad>
-                        self.tooltip = 'Show / Hide Minimap Button'
+                        self.tooltip = OPT_SH_MINIMAP_BUTTON
                     </OnLoad>                
                     <OnClick>
                         GuildbookOptionsShowMinimapButton_OnClick(self)
@@ -171,7 +171,7 @@ the copyright holders.
                 </Anchors>
                 <Scripts>
                     <OnLoad>
-                        self.tooltip = 'Show / Hide Minimap calendar button'
+                        self.tooltip = OPT_SH_MINICAL_BUTTON
                     </OnLoad>                
                     <OnClick>
                         GuildbookOptionsShowMinimapCalendarButton_OnClick(self)
@@ -200,7 +200,7 @@ the copyright holders.
                 </Anchors>
                 <Scripts>
                     <OnLoad>
-                        self.tooltip = 'Show the wide view for the default Blizzard guild roster.'
+                        self.tooltip = OPT_BLIZZROSTER
                     </OnLoad>
                     <OnClick>
                         GuildbookOptionsModifyDefaultGuildRoster_OnClick(self)
@@ -229,7 +229,7 @@ the copyright holders.
                 </Anchors>
                 <Scripts>
                     <OnLoad>
-                        <!-- self.tooltip = 'Use the Blizzard default font.' -->
+                        <!-- self.tooltip = OPT_INFO_MESSAGE -->
                     </OnLoad>
                     <OnClick>
                         GuildbookOptionsShowInfoMessages_OnClick(self)
@@ -259,7 +259,7 @@ the copyright holders.
                 </Anchors>
                 <Scripts>
                     <OnLoad>
-                        self.tooltip = 'Guildbook will block all incoming and outgoing data comms while you are in combat lockdown. Guild members wont be able to make requests that target you.'
+                        self.tooltip = OPT_BLOCK_DATA_COMBAT
                     </OnLoad>
                     <OnClick>
                         GuildbookOptionsBlockCommsDuringCombat_OnClick(self)
@@ -288,7 +288,7 @@ the copyright holders.
                 </Anchors>
                 <Scripts>
                     <OnLoad>
-                        self.tooltip = 'Guildbook will block all incoming and outgoing data comms while you are in an instance. Guild members wont be able to make requests that target you.'
+                        self.tooltip = OPT_BLOCK_DATA_INSTANCE
                     </OnLoad>
                     <OnClick>
                         GuildbookOptionsBlockCommsDuringInstance_OnClick(self)
@@ -318,7 +318,7 @@ the copyright holders.
                 </Anchors>
                 <Scripts>
                     <OnLoad>
-                        self.tooltip = 'Show additional guild member info in tooltip'
+                        self.tooltip = OPT_TT_DIALOG_SCI
                     </OnLoad>
                     <OnClick>
                         GuildbookOptionsTooltipInfo_OnClick(self)
@@ -347,7 +347,7 @@ the copyright holders.
                 </Anchors>
                 <Scripts>
                     <OnLoad>
-                        self.tooltip = 'Show characters main spec'
+                        self.tooltip = OPT_TT_DIALOG_SCMS
                     </OnLoad>
                     <OnClick>
                         GuildbookOptionsTooltipInfoMainSpec_OnClick(self)
@@ -376,7 +376,7 @@ the copyright holders.
                 </Anchors>
                 <Scripts>
                     <OnLoad>
-                        self.tooltip = 'Show characters professions'
+                        self.tooltip = OPT_TT_DIALOG_SCP
                     </OnLoad>
                     <OnClick>
                         GuildbookOptionsTooltipInfoProfessions_OnClick(self)
@@ -405,7 +405,7 @@ the copyright holders.
                 </Anchors>
                 <Scripts>
                     <OnLoad>
-                        self.tooltip = 'Show main character'
+                        self.tooltip = OPT_TT_DIALOG_SMC
                     </OnLoad>
                     <OnClick>
                         GuildbookOptionsTooltipInfoMainCharacter_OnClick(self)
@@ -435,7 +435,7 @@ the copyright holders.
                 </Anchors>
                 <Scripts>
                     <OnLoad>
-                        self.tooltip = 'Display a list of professions that use the current item. This uses data from Guildbook members professions.'
+                        self.tooltip = OPT_TT_DIALOG_DPL
                     </OnLoad>
                     <OnClick>
                         GuildbookOptionsTooltipTradeskill_OnClick(self)
@@ -464,7 +464,7 @@ the copyright holders.
                 </Anchors>
                 <Scripts>
                     <OnLoad>
-                        self.tooltip = 'Display a list of recipes that use the current item.'
+                        self.tooltip = OPT_TT_DIALOG_DLR
                     </OnLoad>
                     <OnClick>
                         GuildbookOptionsTooltipTradeskillRecipes_OnClick(self)
@@ -493,7 +493,7 @@ the copyright holders.
                 </Anchors>
                 <Scripts>
                     <OnLoad>
-                        self.tooltip = 'Display a list of recipes for your characters tradeskills that use the current item.'
+                        self.tooltip = OPT_TT_DIALOG_DLRCO
                     </OnLoad>
                     <OnClick>
                         GuildbookOptionsTooltipTradeskillRecipesForCharacter_OnClick(self)
@@ -525,7 +525,7 @@ the copyright holders.
                 </Anchors>
                 <Scripts>
                     <OnLoad>
-                        self.tooltip = 'Show the characters main character name (if an alt) in the guild chat messages. Can only show data where the player has set this value'
+                        self.tooltip = OPT_CHAT_SMCO
                     </OnLoad>
                     <OnClick>
                         GuildbookOptionsShowMainCharacterGuildChat_OnClick(self)
@@ -555,7 +555,7 @@ the copyright holders.
                 </Anchors>
                 <Scripts>
                     <OnLoad>
-                        self.tooltip = 'Show the characters main spec in the guild chat messages. Can only show data where the player has set this value.'
+                        self.tooltip = OPT_CHAT_SMS
                     </OnLoad>
                     <OnClick>
                         GuildbookOptionsShowSpecGuildChat_OnClick(self)
