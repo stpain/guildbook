@@ -706,19 +706,19 @@ Tradeskills.TradeskillIDsToLocaleName = {
 	},
 	-- discovered this locale exists also maybe esAL ?
 	esES = {
-        [164] = "Herrería",
-        [165] = "Peletería",
-        [171] = "Alquimia",
-        [182] = "Herboristería",
-        [185] = "Cocina",
-        [186] = "Minería",
-        [197] = "Sastrería",
-        [202] = "Ingeniería",
-        [333] = "Encantamiento",
-        [356] = "Pesca",
-        [393] = "Desuello",
-        [755] = "Joyería",
-        [773] = "Inscripción",
+                [164] = "Herrería",
+                [165] = "Peletería",
+                [171] = "Alquimia",
+                [182] = "Herboristería",
+                [185] = "Cocina",
+                [186] = "Minería",
+                [197] = "Sastrería",
+                [202] = "Ingeniería",
+                [333] = "Encantamiento",
+                [356] = "Pesca",
+                [393] = "Desuello",
+                [755] = "Joyería",
+                [773] = "Inscripción",
 		[129] = "Primeros auxilios",
     },
 	ptBR = {
@@ -783,7 +783,7 @@ Tradeskills.TradeskillIDsToLocaleName = {
 		[393] = "剝皮",
 		[755] = "珠寶設計",
 		[773] = "銘文學",
-		[129] = "急救", --Couldn't find proper one so I used the CN one, pls send message on discord if innacurate -Belrand
+		[129] = "急救", --Worked on PTR -Belrand
 	},
 	koKR = {
 		[164] = "대장기술",
