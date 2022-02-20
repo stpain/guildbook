@@ -656,7 +656,7 @@ Tradeskills.TradeskillIDsToLocaleName = {
 		[773] = "Inscription",
 		[129] = "First Aid"
 	},
-		deDE = {
+	deDE = {
 		[164] = "Schmiedekunst",
 		[165] = "Lederverarbeitung",
 		[171] = "Alchimie",
