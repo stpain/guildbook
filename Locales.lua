@@ -40,14 +40,14 @@ local addonName, Guildbook = ...
 local L = {}
 
 L["UPDATE_NEWS"] = [[
-"Bug fixes for recent updates, a lot of code was written when the addon had been running and therefore I missed some (a lot of) bugs during the addon load process which cause major issues, I've also added extra checks around certain functions and var type checking.
+Bug fixes for recent updates, a lot of code was written when the addon had been running and therefore I missed some (a lot of) bugs during the addon load process which cause major issues, I've also added extra checks around certain functions and var type checking.
 
 Profiles!
 Finally should now be working after migrating to a new code structure which has taken far to long to finish (sorry about that).
 
 Features!
 * added a sync button to the calendar
-* view recipes from the default Blizzard roster"
+* view recipes from the default Blizzard roster
 ]]
 L["DIALOG_SHOW_UPDATES"]			= "Display again"
 L["DIALOG_DONT_SHOW_UPDATES"]		= "Confirm & hide"
