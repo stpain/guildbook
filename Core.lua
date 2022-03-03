@@ -3794,7 +3794,7 @@ function Guildbook:Load()
         GUILDBOOK_GLOBAL.lastVersionUpdate = {}
     end
 
-    local updates = "Bug fixes for recent updates, a lot of code was written when the addon had been running and therefore I missed some (a lot of) bugs during the addon load process which cause major issues, I've also added extra checks around certain functions and var type checking.\n\nProfiles!\nFinally should now be working after migrating to a new code structure which has taken far to long to finish (sorry about that).\n\nFeatures!\n* added a sync button to the calendar\n* view recipes from the default Blizzard roster"
+    local updates = L["UPDATE_NEWS"]
 
     if not GUILDBOOK_GLOBAL.lastVersionUpdate[self.version] then
         StaticPopup_Show('GuildbookUpdates', self.version, updates)
