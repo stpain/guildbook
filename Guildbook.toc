@@ -1,6 +1,6 @@
 ## Interface: 20503
 ## Author: Copperbolts
-## Version: 4.992
+## Version: 4.9921
 ## Title: Guildbook
 ## Notes: Guild addon for guild stuff!
 ## Notes-frFR : Un addon pour les trucs de guilde !
