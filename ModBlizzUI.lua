@@ -240,6 +240,8 @@ function Guildbook:ModBlizzUI()
             end
         end)
 
+
+        --btw this technique could be used for other bits maybe?
         button:HookScript("OnMouseDown", function(self)
             local _, rankName, _, level, _, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, _, _, _, GUID = GetGuildRosterInfo(tonumber(button.guildIndex))
             local character = Guildbook:GetCharacterFromCache(GUID)

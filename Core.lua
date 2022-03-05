@@ -3098,6 +3098,10 @@ function Comms:OnLFGListingCreated(data, sender)
             newsType = "lfg",
             text = string.format(L["NF_LFG_CREATED_S"], sender, data.payload.activityLocation, data.payload.activityCategoryName),
         })
+
+        --we could add the chat window ui widget for DF/GF notifications here
+        --when the data comes in just show the widget and update the text shown etc
+        --have a timer to fade it out
     end
 
 end
