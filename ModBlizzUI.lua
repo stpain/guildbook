@@ -235,7 +235,7 @@ function Guildbook:ModBlizzUI()
                 GameTooltip:AddDoubleLine(character.Profession1, character.Profession1Level, 1,1,1,1,1,1)
                 GameTooltip:AddDoubleLine(character.Profession2, character.Profession2Level, 1,1,1,1,1,1)
                 GameTooltip:AddLine(" ")
-                GameTooltip:AddLine(Guildbook.Colours.BlizzBlue:WrapTextInColorCode("Click a profession to view in Guildbook"))
+                GameTooltip:AddLine(Guildbook.Colours.BlizzBlue:WrapTextInColorCode(L["BLIZZ_GUILD_CLICK_TS"]))
                 GameTooltip:Show()
             end
         end)
