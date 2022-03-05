@@ -1,4 +1,5 @@
 # This file is shown to unsupported (non classic) client
+# Addon should still work but will probably not work as intended
 ## Interface: 00000
 ## Author: Copperbolts
 ## Version: 4.9921
