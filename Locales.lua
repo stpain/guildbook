@@ -254,6 +254,9 @@ L["BAGS"]                           = "Bags"
 L["BANK"]                           = "Bank"
 L["STATS"]                          = "Statistics"
 
+--ModBlizzUI
+L["BLIZZ_GUILD_CLICK_TS"]           = "Click a profession to view in Guildbook"
+
 --news feed stuff
 L["GUILD_ACTIVTY_HEADER"]			= "Activity Feed"
 L["GUILD_MEMBERS_HEADER"]			= "Members (|cffFFD100hold shift for more info|r)"
@@ -261,7 +264,9 @@ L["GUILD_MEMBERS_OFFLINE"]			= "Show offline"
 L["NF_PLAYER_LEVEL_UP_SS"]			= "%s just hit level %s!"
 L["NF_PLAYER_LOGIN_S"]				= "%s came online"
 L["NF_PLAYER_LOGOUT_S"]				= "%s logged out"
---L["NF_LFG_CREATED_S"]				= "%s"
+L["NF_LFG_CREATED_S"]				= "%s queued for %s [%s]"
+L["NF_CAL_EVENT_CREATE"]            = "Calendar event %s created by %s"
+L["NF_MEMBER_JOIN"]                 = "%s has joined the guild"
 
 
 
@@ -1301,15 +1306,20 @@ L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s %s %s 
 	L["BAGS"]                           = "Sacs"
 	L["BANK"]                           = "Banque"
 	L["STATS"]                          = "Statistiques"
+	
+	--ModBlizzUI
+    L["BLIZZ_GUILD_CLICK_TS"]           = "Cliquer un métier pour le voir dans Guildbook"
 
     --news feed stuff
     L["GUILD_ACTIVTY_HEADER"]			= "Fil d'Actualité"
-    L["GUILD_MEMBERS_HEADER"]			= "Membres (|cffFFD100maj enfoncé pour plus d'info|r)"
+    L["GUILD_MEMBERS_HEADER"]			= "Membres (|cffFFD100MAJ pour plus d'info|r)"
     L["GUILD_MEMBERS_OFFLINE"]			= "Voir les membres déconnectés"
 	L["NF_PLAYER_LEVEL_UP_SS"]			= "%s a atteint le niveau %s!"
 	L["NF_PLAYER_LOGIN_S"]				= "%s s'est connecté"
 	L["NF_PLAYER_LOGOUT_S"]				= "%s s'est déconnecté"
-	--L["NF_LFG_CREATED_S"]				= "%s"
+	L["NF_LFG_CREATED_S"]				= "%s est en queue pour %s [%s]"
+	L["NF_CAL_EVENT_CREATE"]            = "Evénement %s créé par %s dans le calendrier"
+	L["NF_MEMBER_JOIN"]                 = "%s a rejoint la guilde!"
 
 
 

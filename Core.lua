@@ -1215,7 +1215,7 @@ function Roster:OnChatMessageSystem(...)
 
         GuildbookUI.home:OnNewsFeedReceived(nil, {
             newsType = "logout",
-            text = string.format("%s has gone offline", characterName)
+            text = string.format(L["NF_PLAYER_LOGOUT_S"], characterName)
         })
 
         local guid = self.characterNameRealmToGUID[characterName] or self.characterNameRealmToGUID[characterName.."-"..self.currentPlayerRealm]
@@ -1239,7 +1239,7 @@ function Roster:OnChatMessageSystem(...)
 
         GuildbookUI.home:OnNewsFeedReceived(nil, {
             newsType = "login",
-            text = string.format("%s has come online", characterName)
+            text = string.format(L["NF_PLAYER_LOGIN_S"], characterName)
         })
 
         local guid = self.characterNameRealmToGUID[characterName] or self.characterNameRealmToGUID[characterName.."-"..self.currentPlayerRealm]
@@ -1261,7 +1261,7 @@ function Roster:OnChatMessageSystem(...)
 
         GuildbookUI.home:OnNewsFeedReceived(nil, {
             newsType = "playerJoinedGuild",
-            text = string.format("%s has joined the guild", name)
+            text = string.format(L["NF_MEMBER_JOIN"], name)
         })
     end
 end
@@ -3096,7 +3096,7 @@ function Comms:OnLFGListingCreated(data, sender)
     if type(data) == "table" then
         self:TriggerEvent("OnNewsFeedReceived", self, {
             newsType = "lfg",
-            text = string.format("%s queued for %s [%s]", sender, data.payload.activityLocation, data.payload.activityCategoryName),
+            text = string.format(L["NF_LFG_CREATED_S"], sender, data.payload.activityLocation, data.payload.activityCategoryName),
         })
     end
 
@@ -5260,7 +5260,7 @@ function Guildbook:SendGuildCalendarEvent(event)
 
     GuildbookUI.home:OnNewsFeedReceived(nil, {
         newsType = "calendarEventCreated",
-        text = string.format("Calendar event %s created by %s", event.title, UnitName("player"))
+        text = string.format(L["NF_CAL_EVENT_CREATE"], event.title, UnitName("player"))
     })
     --Guildbook.DEBUG('comms_out', 'SendGuildCalendarEvent', string.format('Sending calendar event to guild, event title: %s', event.title))
 end
