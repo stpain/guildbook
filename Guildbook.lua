@@ -3624,7 +3624,8 @@ function GuildbookGuildBankMixin:RequestBankData()
                     commitsText = commitsText..L["GUILDBANK_REQUEST_COMMITS"]..bank.name.."\n"
                     self.listview.commits:SetText(commitsText)
 
-                    C_Timer.After(1.25, function()
+                    --increased this delay here as maybe the comms were takign to long - THIS CAN BE FIXED BETTER BY USING A CALL BACK SETUP WHICH MEANS RECODING THE GUILD BANK INTO A NEW CLASS TYPE TABLE
+                    C_Timer.After(2.0, function()
                         if gb.BankCharacters[bank.guid].Source then
                             gb:RequestGuildBankItems(gb.BankCharacters[bank.guid].Source, bank.guid)
                             dataText = dataText..L["GUILDBANK_REQUEST_INFO"]..gb.BankCharacters[bank.guid].Source.." ["..bank.name.."]\n"

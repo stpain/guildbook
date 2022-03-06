@@ -37,6 +37,7 @@ local debugTypeToClassColour = {
     ["characterMixin"] = CreateColor(Guildbook.Data.Class.DRUID.RGB),
     ["rosterMixin"] = CreateColor(Guildbook.Data.Class.MAGE.RGB),
     ["calendarMixin"] = CreateColor({0, 255, 152}), --monk
+    ["guildBankMixin"] = CreateColor({209,140,3}), --monk
 }
 GuildbookDebuggerListviewItemTemplateMixin = {}
 function GuildbookDebuggerListviewItemTemplateMixin:Init(elementData)
@@ -223,6 +224,12 @@ Guildbook.DebuggerWindow.EventSelectionDropdown.menu = {
         text = "Character",
         func = function()
             Guildbook.DebugEventSelected = "characterMixin";
+        end,
+    },
+    {
+        text = "Guild bank",
+        func = function()
+            Guildbook.DebugEventSelected = "guildBankMixin";
         end,
     },
     {

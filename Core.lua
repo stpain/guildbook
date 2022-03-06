@@ -3541,7 +3541,7 @@ end
 
 
 
-
+local guildExistsTicker;
 function Guildbook:PLAYER_ENTERING_WORLD(...)
 
     local isInitialLogin, isReloadUI = ...
@@ -3559,6 +3559,8 @@ function Guildbook:PLAYER_ENTERING_WORLD(...)
     end
 
     GuildRoster() -- this will trigger a roster scan but we set addonLoaded as false at top of file to skip the auto roster scan so this is first scan
+
+    --this is used by the character model mouseover stuff, kinda from the old days but not got round to fixing yet :(
     C_Timer.After(5.0, function()
 
         local lr, er = UnitRace("player")
@@ -3566,27 +3568,37 @@ function Guildbook:PLAYER_ENTERING_WORLD(...)
             faction = UnitFactionGroup("player"),
             race = er:upper(),
         }
-
-        Guildbook.DEBUG("event", "PLAYER_ENTERING_WORLD", "checking guild name exists")
-        local guildName = self:GetGuildName()
-        if not guildName then
-            Guildbook.DEBUG("event", "PEW", "not in a guild or no guild name")
-            return -- if not in a guild just exit for now, all saved vars have been created and the player race/faction stored for the session
-        end
-
-        Database:Init()
-        Character:Init()
-        Comms:Init()
-        Roster:Init()
-        Tradeskills:Init()
-
-        self:Load()
-
-        if type(GUILDBOOK_GLOBAL.ActivityFeed) == "table" and type(GUILDBOOK_GLOBAL.ActivityFeed[guildName]) == "table" then
-            GuildbookUI.home.newsFeed.DataProvider:InsertTable(GUILDBOOK_GLOBAL.ActivityFeed[guildName])
-        end
-
     end)
+
+    Guildbook.DEBUG("event", "PLAYER_ENTERING_WORLD", "checking guild name exists")
+
+
+    -- ok i kinda wrote this blind so need to see if it works
+
+    --every 10s see if a guild name exists and if so load and cancel the ticker
+    guildExistsTicker = C_Timer.NewTicker(10, function()
+    
+        local guildName = self:GetGuildName()
+        if type(guildName) == "string" then
+
+            Database:Init()
+            Character:Init()
+            Comms:Init()
+            Roster:Init()
+            Tradeskills:Init()
+    
+            Guildbook:Load()
+    
+            if type(GUILDBOOK_GLOBAL.ActivityFeed) == "table" and type(GUILDBOOK_GLOBAL.ActivityFeed[guildName]) == "table" then
+                GuildbookUI.home.newsFeed.DataProvider:InsertTable(GUILDBOOK_GLOBAL.ActivityFeed[guildName])
+            end
+
+            guildExistsTicker:Cancel()
+        end
+        
+    end, 30) --30 iters should cover 5mins which should be enough for players to get an inv to guild for alts etc, no point in havign thsi go off for several hours
+
+
     self.EventFrame:UnregisterEvent("PLAYER_ENTERING_WORLD")
 end
 
@@ -5095,7 +5107,7 @@ function Guildbook:RequestGuildBankCommits(charactersGUID)
             bankCharactersGUID = charactersGUID,
             bankCharactersName = character.Name,
         }
-        Guildbook.DEBUG("func", "RequestGuildBankCommits", string.format("request guild bank commits for %s", character.Name))
+        Guildbook.DEBUG("guildBankMixin", "RequestGuildBankCommits", string.format("request guild bank commits for %s", character.Name))
         self:Transmit(request, 'GUILD', nil, 'NORMAL')
     end
 end
@@ -5112,7 +5124,7 @@ function Guildbook:OnGuildBankCommitRequested(data, distribution, sender)
                     CharacterGUID = data.bankCharactersGUID
                 }
             }
-            Guildbook.DEBUG('comms_out', 'OnGuildBankCommitRequested', string.format("%s has requested guild bank commits for %s", sender, data.bankCharactersName))
+            Guildbook.DEBUG('guildBankMixin', 'OnGuildBankCommitRequested', string.format("%s has requested guild bank commits for %s", sender, data.bankCharactersName))
             self:Transmit(response, 'WHISPER', data.senderGUID, 'NORMAL')
         end
     end
@@ -5123,7 +5135,7 @@ local lastCommitResponse = -1000;
 function Guildbook:OnGuildBankCommitReceived(data, distribution, sender)
     if distribution == 'WHISPER' then
         lastCommitResponse = GetTime()
-        Guildbook.DEBUG("func", "OnGuildBankCommitReceived", string.format("sender: %s commit time: %s", sender, data.payload.Commit))
+        Guildbook.DEBUG("guildBankMixin", "OnGuildBankCommitReceived", string.format("sender: %s commit time: %s", sender, data.payload.Commit))
 
         --data.payload.CharacterGUID is the actual bank character
         --data.senderGUID is the player with the latest commit for the bank character
@@ -5132,14 +5144,14 @@ function Guildbook:OnGuildBankCommitReceived(data, distribution, sender)
         if not self.BankCharacters[data.payload.CharacterGUID].Commit then
             self.BankCharacters[data.payload.CharacterGUID].Commit = data.payload.Commit;
             self.BankCharacters[data.payload.CharacterGUID].Source = data.senderGUID;
-            Guildbook.DEBUG("func", "OnGuildBankCommitReceived", string.format("%s has latest commit time", sender))
+            Guildbook.DEBUG("guildBankMixin", "OnGuildBankCommitReceived", string.format("%s has latest commit time", sender))
 
         ---if we do have data we want to check if this commit is newer and if so then save it
         else
             if tonumber(data.payload.Commit) > tonumber(self.BankCharacters[data.payload.CharacterGUID].Commit) then
                 self.BankCharacters[data.payload.CharacterGUID].Commit = data.payload.Commit;
                 self.BankCharacters[data.payload.CharacterGUID].Source = data.senderGUID;
-                Guildbook.DEBUG("func", "OnGuildBankCommitReceived", string.format("%s has latest commit time", sender))
+                Guildbook.DEBUG("guildBankMixin", "OnGuildBankCommitReceived", string.format("%s has latest commit time", sender))
             end
         end
     end
@@ -5155,7 +5167,7 @@ function Guildbook:RequestGuildBankItems(source, bank)
         type = 'GUILD_BANK_DATA_REQUEST',
         payload = bank,
     }
-    Guildbook.DEBUG('comms_out', 'RequestGuildBankItems', string.format("requesting guild bank items from %s", source))
+    Guildbook.DEBUG('guildBankMixin', 'RequestGuildBankItems', string.format("requesting guild bank items from %s", source))
     self:Transmit(request, 'WHISPER', source, 'NORMAL')
 end
 
@@ -5174,7 +5186,7 @@ function Guildbook:OnGuildBankDataRequested(data, distribution, sender)
             }
         }
         self:Transmit(response, 'WHISPER', data.senderGUID, 'BULK')
-        Guildbook.DEBUG('comms_out', 'OnGuildBankDataRequested', string.format('%s has requested bank data, sending data for bank character %s', sender, data.payload))
+        Guildbook.DEBUG('guildBankMixin', 'OnGuildBankDataRequested', string.format('%s has requested bank data, sending data for bank character %s', sender, data.payload))
     end
 end
 
