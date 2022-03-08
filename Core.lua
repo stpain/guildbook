@@ -1155,7 +1155,7 @@ function Roster:CheckPrivacyRankSettings()
                 else
                     -- set the rank to lowest, this is to cover times where a rank is deleted
                     GUILDBOOK_GLOBAL.config.privacy[rule] = lowestRank
-                    Guildbook.PrintMessage(L["PRIVACY_CONFIG_ERROR"])
+                    Guildbook:PrintMessage(L["PRIVACY_CONFIG_ERROR_SS"]:format(rule , lowestRank))
                     Guildbook.DEBUG("func", "CheckPrivacyRankSettings", string.format("changed rank: %s to lowest rank (%s) for rule: %s", rank, lowestRank, rule))
                 end
             end
@@ -3577,9 +3577,13 @@ function Guildbook:PLAYER_ENTERING_WORLD(...)
 
     --every 10s see if a guild name exists and if so load and cancel the ticker
     guildExistsTicker = C_Timer.NewTicker(10, function()
+
+        --print("trying to find guild name")
     
         local guildName = self:GetGuildName()
         if type(guildName) == "string" then
+
+            --print(guildName)
 
             Database:Init()
             Character:Init()

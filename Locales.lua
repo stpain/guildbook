@@ -271,7 +271,7 @@ L["NF_MEMBER_JOIN"]                 = "%s has joined the guild"
 
 
 --privacy and options
-
+L["PRIVACY_CONFIG_ERROR_SS"]		= "set %s to %s"
 L["PRIVACY_SHARE_LFG"]				= "Share when you use the group finder"
 L["PRIVACY_SHARE_LEVEL_UP"]			= "Send news that you leveled up"
 --L[""]
