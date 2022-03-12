@@ -3668,10 +3668,13 @@ function GuildbookGuildBankMixin:RequestBankItemInfo()
         for guid, info in pairs(GUILDBOOK_GLOBAL.GuildBank) do
             local bankCharacter = "Unknown";
             local character = Database:FetchCharacterTableByGUID(guid)
-            if character == false or character == nil then
-                local _, _, _, _, _, name, realm = GetPlayerInfoByGUID(guid)
-                if name and realm then
-                    bankCharacter = realm ~= "" and string.format("%s-%s", name, realm) or name;
+            
+            if type(character) ~= "table" then
+                if guid:find("Player-") then
+                    local _, _, _, _, _, name, realm = GetPlayerInfoByGUID(guid)
+                    if name and realm then
+                        bankCharacter = realm ~= "" and string.format("%s-%s", name, realm) or name;
+                    end
                 end
 
             elseif type(character) == "table" then

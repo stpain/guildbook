@@ -519,6 +519,8 @@ end
 
 function Database:Init()
 
+    Guildbook.DEBUG("databaseMixin", "Database:Init", "initialising the database class")
+
     CallbackRegistryMixin.OnLoad(self)
 
     ---setup the UI callback
@@ -957,6 +959,8 @@ end
 
 
 function Tradeskills:Init()
+
+    Guildbook.DEBUG("func", "Tradeskills:Init", "initialising the tradeskills class")
     
     CallbackRegistryMixin.OnLoad(self)
 
@@ -1143,23 +1147,28 @@ end
 ---get the current ranks for the guild and loop the config table to make sure any old ranks are corrected
 function Roster:CheckPrivacyRankSettings()
     local ranks = {}
-    for i = 1, GuildControlGetNumRanks() do
+    local numRanks = GuildControlGetNumRanks()
+    for i = 1, numRanks do
         ranks[GuildControlGetRankName(i)] = i;
     end
-    local lowestRank = GuildControlGetRankName(GuildControlGetNumRanks())
-    if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.config and GUILDBOOK_GLOBAL.config.privacy then
-        for rule, rank in pairs(GUILDBOOK_GLOBAL.config.privacy) do
-            if not ranks[rank] then
-                if rank == "none" then
-                    
-                else
-                    -- set the rank to lowest, this is to cover times where a rank is deleted
-                    GUILDBOOK_GLOBAL.config.privacy[rule] = lowestRank
-                    Guildbook:PrintMessage(L["PRIVACY_CONFIG_ERROR_SS"]:format(rule , lowestRank))
-                    Guildbook.DEBUG("func", "CheckPrivacyRankSettings", string.format("changed rank: %s to lowest rank (%s) for rule: %s", rank, lowestRank, rule))
+    local lowestRank = GuildControlGetRankName(numRanks)
+    if type(lowestRank) == "string" and #lowestRank > 0 then
+        if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.config and GUILDBOOK_GLOBAL.config.privacy then
+            for rule, rank in pairs(GUILDBOOK_GLOBAL.config.privacy) do
+                if not ranks[rank] then
+                    if rank == "none" then
+                        
+                    else
+                        -- set the rank to lowest, this is to cover times where a rank is deleted
+                        GUILDBOOK_GLOBAL.config.privacy[rule] = lowestRank
+                        Guildbook:PrintMessage(L["PRIVACY_CONFIG_ERROR_SS"]:format(rule , lowestRank))
+                        Guildbook.DEBUG("rosterMixin", "CheckPrivacyRankSettings", string.format("changed rank: %s to lowest rank (%s) for rule: %s", rank, lowestRank, rule))
+                    end
                 end
             end
         end
+    else
+        Guildbook.DEBUG("rosterMixin", "CheckPrivacyRankSettings", string.format("unable to check ranks, found %s ranks but lowest not recognised", numRanks))
     end
 end
 
@@ -1269,6 +1278,8 @@ end
 
 
 function Roster:Init()
+
+    Guildbook.DEBUG("rosterMixin", "Roster:Init", "initialising the roster class")
 
     CallbackRegistryMixin.OnLoad(self)
 
@@ -2260,6 +2271,8 @@ end
 
 function Comms:Init()
 
+    Guildbook.DEBUG("commsMixin", "Comms:Init", "initialising the comms class")
+
     CallbackRegistryMixin.OnLoad(self)
 
     AceComm:Embed(self)
@@ -3243,7 +3256,10 @@ Guildbook.Comms = Comms;
 --init, this will setup the saved variables first
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 function Guildbook:Init()
+    Guildbook.DEBUG('func', 'init', 'running init func')
+
     -- get this open first if debug is on
+    Guildbook.DEBUG('func', 'init', 'checking for debug setting')
     if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.Debug == true then
         Guildbook.DebuggerWindow:Show()
         Guildbook.DEBUG('func', 'init', 'debug active')
@@ -3254,7 +3270,9 @@ function Guildbook:Init()
         GuildbookOptionsDebugCB:SetChecked(GUILDBOOK_GLOBAL.Debug and GUILDBOOK_GLOBAL.Debug or false)
     end
     
+
     --register comms
+    Guildbook.DEBUG('func', 'init', 'registering comms (old prefix)')
     AceComm:Embed(self)
     self:RegisterComm('Guildbook', 'ON_COMMS_RECEIVED')
 
@@ -3265,6 +3283,7 @@ function Guildbook:Init()
     Guildbook.DEBUG('func', 'init', string.format("Load time: %s > current version; %s", date("%T"), self.version))
 
     -- this makes the bank/calendar legacy features work
+    Guildbook.DEBUG('func', 'init', 'setting up old guild frames for legacy features')
     if not self.GuildFrame then
         self.GuildFrame = {
             --"GuildBankFrame", -- thsi was converted into the new ui
@@ -3275,36 +3294,47 @@ function Guildbook:Init()
     self:SetupGuildCalendarFrame()
 
     --create stored variable tables
+    Guildbook.DEBUG('func', 'init', 'checking for GUILDBOOK_GLOBAL table')
     if GUILDBOOK_GLOBAL == nil or GUILDBOOK_GLOBAL == {} then
         GUILDBOOK_GLOBAL = self.Data.DefaultGlobalSettings
         Guildbook.DEBUG('func', 'init', 'created global saved variable table')
     else
         Guildbook.DEBUG('func', 'init', 'global variables exists')
     end
+
+    Guildbook.DEBUG('func', 'init', 'checking for GUILDBOOK_CHARACTER table')
     if GUILDBOOK_CHARACTER == nil or GUILDBOOK_CHARACTER == {} then
         GUILDBOOK_CHARACTER = self.Data.DefaultCharacterSettings
         Guildbook.DEBUG('func', 'init', 'created character saved variable table')
     else
         Guildbook.DEBUG('func', 'init', 'character variables exists')
     end
+
+    Guildbook.DEBUG('func', 'init', 'checking for guild roster cache parent table')
     if not GUILDBOOK_GLOBAL.GuildRosterCache then
         GUILDBOOK_GLOBAL.GuildRosterCache = {}
         Guildbook.DEBUG('func', 'init', 'created guild roster cache')
     else
         Guildbook.DEBUG('func', 'init', 'guild roster cache exists')
     end
+
+    Guildbook.DEBUG('func', 'init', 'checking calendar table exists')
     if not GUILDBOOK_GLOBAL.Calendar then
         GUILDBOOK_GLOBAL.Calendar = {}
         Guildbook.DEBUG('func', 'init', 'created global calendar table')
     else
         Guildbook.DEBUG('func', 'init', 'global calendar table exists')
     end
+
+    Guildbook.DEBUG('func', 'init', 'checking calendar deleted table exists')
     if not GUILDBOOK_GLOBAL.CalendarDeleted then
         GUILDBOOK_GLOBAL.CalendarDeleted = {}
         Guildbook.DEBUG('func', 'init', 'created global calendar deleted events table')
     else
         Guildbook.DEBUG('func', 'init', 'global calendar deleted events table exists')
     end
+
+    Guildbook.DEBUG('func', 'init', 'checking calendar last transmit table')
     if not GUILDBOOK_GLOBAL.LastCalendarTransmit then
         GUILDBOOK_GLOBAL.LastCalendarTransmit = GetServerTime()
     end
@@ -3312,30 +3342,38 @@ function Guildbook:Init()
         GUILDBOOK_GLOBAL.LastCalendarDeletedTransmit = GetServerTime()
     end
 
+    Guildbook.DEBUG('func', 'init', 'checking my characters table')
     if not GUILDBOOK_GLOBAL.myCharacters then
         GUILDBOOK_GLOBAL.myCharacters = {}
     end
     if not GUILDBOOK_GLOBAL.myCharacters[UnitGUID("player")] then
         GUILDBOOK_GLOBAL.myCharacters[UnitGUID("player")] = false;
     end
+
+    Guildbook.DEBUG('func', 'init', 'checking my lockouts table')
     if not GUILDBOOK_GLOBAL.myLockouts then
         GUILDBOOK_GLOBAL.myLockouts = {}
     end
 
+    Guildbook.DEBUG('func', 'init', 'removing old news feed if exists')
     if GUILDBOOK_GLOBAL.NewsFeed then
         GUILDBOOK_GLOBAL.NewsFeed = nil;
     end
 
+    Guildbook.DEBUG('func', 'init', 'checking activity feed table')
     if not GUILDBOOK_GLOBAL.ActivityFeed then
         GUILDBOOK_GLOBAL.ActivityFeed = {}
     end
 
+    Guildbook.DEBUG('func', 'init', 'checking comms delay setting')
     if not GUILDBOOK_GLOBAL['CommsDelay'] then
         GUILDBOOK_GLOBAL['CommsDelay'] = 1.0
     end
     Guildbook.CommsDelaySlider:SetValue(GUILDBOOK_GLOBAL['CommsDelay'])
     self.COMMS_DELAY = GUILDBOOK_GLOBAL['CommsDelay']
 
+
+    Guildbook.DEBUG('func', 'init', 'checking config settings')
     if not GUILDBOOK_GLOBAL.config then
         local lowestRank = GuildControlGetRankName(GuildControlGetNumRanks())
         GUILDBOOK_GLOBAL.config = {
@@ -5618,12 +5656,6 @@ end
 -- events
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-function Guildbook:ADDON_LOADED(...)
-    if tostring(...):lower() == addonName:lower() then
-        self:Init()
-    end
-end
-
 function Guildbook:UPDATE_MOUSEOVER_UNIT()
     -- delay any model loading while players addons sort themselves out
     if Guildbook.LoadTime and Guildbook.LoadTime + 8.0 > GetTime() then
@@ -5740,10 +5772,6 @@ function Guildbook:CHAT_MSG_WHISPER(...)
     -- end
 end
 
-
-function Guildbook:GUILD_ROSTER_UPDATE(...)
-
-end
 
 function Guildbook:BAG_UPDATE_DELAYED()
     self:ScanPlayerBags()
@@ -5953,16 +5981,12 @@ elseif data.type == 'GUILD_BANK_DATA_RESPONSE' then
     end
 end
 
-function Guildbook:GUILD_INVITE_REQUEST(...)
-    local _, guildName = ...
-end
+
 
 --set up event listener
 
 --TODO: these will slowly be removed and stuff moved into 'classes' so to speak, leaving a lot of code in for now as somethign will likely go wrong
 Guildbook.EventFrame = CreateFrame('FRAME', 'GuildbookEventFrame', UIParent)
-Guildbook.EventFrame:RegisterEvent('GUILD_ROSTER_UPDATE')
-Guildbook.EventFrame:RegisterEvent('GUILD_INVITE_REQUEST')
 Guildbook.EventFrame:RegisterEvent('ADDON_LOADED')
 Guildbook.EventFrame:RegisterEvent('PLAYER_ENTERING_WORLD')
 Guildbook.EventFrame:RegisterEvent('BANKFRAME_OPENED')
@@ -5978,7 +6002,19 @@ Guildbook.EventFrame:RegisterEvent('CHAT_MSG_GUILD')
 Guildbook.EventFrame:RegisterEvent('CHAT_MSG_WHISPER')
 Guildbook.EventFrame:RegisterEvent('UPDATE_MOUSEOVER_UNIT')
 Guildbook.EventFrame:SetScript('OnEvent', function(self, event, ...)
-    if Guildbook[event] then
-        Guildbook[event](Guildbook, ...)
+
+    if event == "ADDON_LOADED" then
+        if ... == addonName then
+            Guildbook:PrintMessage("initialising Guildbook!")
+            Guildbook:Init()
+        end
+
+    else
+
+
+        if Guildbook[event] then
+            Guildbook[event](Guildbook, ...)
+        end
+
     end
 end)
