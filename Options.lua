@@ -232,7 +232,7 @@ function GuildbookOptions_OnLoad(self)
     GuildbookOptionsVersion:SetText(L['Version']..' '..version)
     GuildbookOptionsAuthor:SetText(L['Author'])
 
-    GuildbookOptionsDiscordLink:SetText("https://discord.gg/5PfPAWHPhY")
+    GuildbookOptionsDiscordLink:SetText("https://discord.gg/G8WFZAuez9")
     GuildbookOptionsDiscordLink:SetCursorPosition(0)
 
     local deleteGuildDropdown = CreateFrame('FRAME', 'GuildbookDeleteGuildDropDown', GuildbookOptions, "UIDropDownMenuTemplate")
