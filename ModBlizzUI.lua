@@ -324,7 +324,7 @@ function Guildbook:ModBlizzUI()
             button.GuildbookColumnProfession2:SetText('-')
 
             local character = Guildbook:GetCharacterFromCache(GUID)
-            if character then
+            if type(character) == "table" then
                 button.GuildbookColumnMainSpec:SetText(L[character.MainSpec])
                 button.GuildbookColumnProfession1:SetText(Guildbook:GetLocaleProf(character.Profession1))
                 button.GuildbookColumnProfession2:SetText(Guildbook:GetLocaleProf(character.Profession2))
