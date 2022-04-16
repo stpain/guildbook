@@ -106,6 +106,7 @@ function Guildbook:SetupGuildCalendarFrame()
         { name = L["BT"], textureKey = "blacktemple", },
         { name = L["SWP"], textureKey = "sunwellplateau", },
         { name = L["Karazhan"], textureKey = "karazhan", },
+        { name = L["ZA"], textureKey = "zulaman", },
     }
 
     local raidsMenu = {}

@@ -569,6 +569,7 @@ L["Hyjal"]							= "Hyjal Summit"
 L["SWP"]							= "Sunwell Plateau"
 L["BT"]								= "Black Temple"
 L["Karazhan"]						= "Karazhan"
+L["ZA"]                             = "Zul'Aman"
 
 --availability (Data.lua)
 L['Not Available'] 					= 'Not Available'
@@ -1039,6 +1040,7 @@ if locale == "deDE" then
 	L["SWP"]							= "Sonnenbrunnenplateau"
 	L["BT"]								= "Schwarzer Tempel"
 	L["Karazhan"]						= "Karazhan"
+	L["ZA"]                             = "Zul'Aman"
 
 	--availability (Data.lua)
 	L['Not Available'] 					= 'Nicht verfügbar'
@@ -1625,6 +1627,7 @@ De multiples personnages banques sont supportés.|r
 	L["SWP"]			    = "Plateau du Puits de soleil"
 	L["BT"]				    = "Temple noir"
 	L["Karazhan"]			= "Karazhan"
+	L["ZA"]                 = "Zul'Aman"
 
 	--availability (Data.lua)
 	L['Not Available'] 		    = 'Indisponible'
@@ -2066,6 +2069,7 @@ elseif locale == "ruRU" then
 	L["SWP"]                            = "Плато Солнечного колодца"
 	L["BT"]                             = "Черный храм"
 	L["Karazhan"]                       = "Каражан"
+	L["ZA"]                             = "Зул'Аман"
 	
 	--availability (Data.lua)
 	L['Not Available']                  = 'Недоступен'
@@ -2294,7 +2298,7 @@ elseif locale == "zhCN" then
 
 
 
-elseif locale == "ruRU" then
+elseif locale == "ruRU" then --2 ruRU locales? -Belrand
 
 	--options page
 	L['OptionsAbout'] = 'Guildbook options and about. Thanks to Belrand@Auberdine for the French translations'
@@ -2716,6 +2720,7 @@ elseif locale == "ruRU" then
 	L["SWP"]							= "Sunwell Plateau"
 	L["BT"]								= "Black Temple"
 	L["Karazhan"]						= "Karazhan"
+    L["ZA"]                             = "Zul'Aman"
 
 	--availability (Data.lua)
 	L['Not Available'] 					= 'Not Available'
@@ -2740,8 +2745,8 @@ end
 Guildbook.Locales = L
 
 
+--[[ NO LONGER BEING USED AS THEY HAVE BEEN MOVED TO CORE.LUA MAYBE DELETE? -Belrand
 -- these were taken from the game however some seem to be incorrect so any fixes please post on the curse page for others to see (and me)
-
 -- first aid has a proper value but i dont know it so adding as -1
 Guildbook.ProfessionNames = {
 	enUS = {
@@ -2896,7 +2901,7 @@ Guildbook.ProfessionNames = {
 		[755] = "보석세공",
 		[773] = "주문각인",
 	},
-}
+}]]
 
 
 -- key binding header
