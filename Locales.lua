@@ -2745,7 +2745,7 @@ end
 Guildbook.Locales = L
 
 
---[[ NO LONGER BEING USED AS THEY HAVE BEEN MOVED TO CORE.LUA MAYBE DELETE? -Belrand
+
 -- these were taken from the game however some seem to be incorrect so any fixes please post on the curse page for others to see (and me)
 -- first aid has a proper value but i dont know it so adding as -1
 Guildbook.ProfessionNames = {
@@ -2901,7 +2901,7 @@ Guildbook.ProfessionNames = {
 		[755] = "보석세공",
 		[773] = "주문각인",
 	},
-}]]
+}
 
 
 -- key binding header
