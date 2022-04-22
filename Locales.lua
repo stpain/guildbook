@@ -2746,8 +2746,7 @@ Guildbook.Locales = L
 
 
 
--- these were taken from the game however some seem to be incorrect so any fixes please post on the curse page for others to see (and me)
--- first aid has a proper value but i dont know it so adding as -1
+-- these were taken from the game however some seem to be incorrect so any fixes please post on the github page for others to see (and me)
 Guildbook.ProfessionNames = {
 	enUS = {
 		[164] = "Blacksmithing",
