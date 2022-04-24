@@ -680,6 +680,13 @@
                                         <Anchor point="TOP" relativePoint="BOTTOM" relativeKey="$parent.cooking" x="0" y="-5"/>
                                     </Anchors>
                                 </FontString>
+                                <FontString parentKey="firstAid" inherits="GameFontNormal" text="-">
+                                    <Color r="1" g="1" b="1"/>
+                                    <Size x="200" y="20"/>
+                                    <Anchors>
+                                        <Anchor point="TOP" relativePoint="BOTTOM" relativeKey="$parent.fishing" x="0" y="-5"/>
+                                    </Anchors>
+                                </FontString>
                             </Layer>
                         </Layers>
 
