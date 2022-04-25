@@ -1112,9 +1112,21 @@ local professions = {
 if WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC then
     -- table.insert(professions,{
     --     id = 773,
-    --     name = "Inscription",
+    --     Name = "Inscription",
     --     Atlas = "Mobile-Inscription",
     -- })
+    table.insert(professions,{
+        id = 755,
+        Name = "Jewelcrafting",
+        Atlas = "Mobile-Jewelcrafting",
+    })
+
+elseif WOW_PROJECT_ID == WOW_PROJECT_WRATH_OF_THE_LICH_KING_CLASSIC then --following the current nomenclature
+    table.insert(professions,{
+        id = 773,
+        Name = "Inscription",
+        Atlas = "Mobile-Inscription",
+    })
     table.insert(professions,{
         id = 755,
         Name = "Jewelcrafting",
@@ -1188,8 +1200,16 @@ function GuildbookTradeskillProfessionListview:OnLoad()
     table.sort(professions, function(a,b) return a.Name < b.Name end)
     for i, prof in ipairs(professions) do
         local f = CreateFrame("FRAME", "GuildbookUiProfessionListview"..i, self, "GuildbookListviewItem")
-        f:SetSize(175, 40)
-        f:SetPoint("TOP", 0, ((i-1)*-40.5)-2)
+        if WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC then 
+			f:SetSize(175, 40.3)
+			f:SetPoint("TOP", 0, ((i-1)*-40.8)-2)
+		elseif WOW_PROJECT_ID == WOW_PROJECT_WRATH_OF_THE_LICH_KING_CLASSIC then --following the current nomenclature
+			f:SetSize(175, 36.7)
+			f:SetPoint("TOP", 0, ((i-1)*-37.2)-2)
+		elseif WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
+			f:SetSize(175, 45)
+			f:SetPoint("TOP", 0, ((i-1)*-45.5)-2)
+		end
         f:SetItem(prof)
         f.tradeskill = prof.Name
 
@@ -3105,17 +3125,18 @@ GuildbookStatsMixin.charts = {
 
 function GuildbookStatsMixin:OnLoad()
 
-    local height = 24;
+    local height = 25;
     local segColOffset = 0.66
     local classColourOffsets = {0.5, 0.8, 1.1, 1.4}
     --local classColourOffsets = {1.4, 1.1, 0.8, 0.5}
     self.classSegments = {}
 
     self.classChartsHeader = self:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-    self.classChartsHeader:SetPoint("BOTTOM", 0, 270)
-    self.classChartsHeader:SetText("Class summary, this uses data from members where a main spec is set")
+    self.classChartsHeader:SetPoint("BOTTOM", 0, 380)
+    self.classChartsHeader:SetText(L["CLASS_SUMMARY"])
+	self.classChartsHeader:SetTextScale(1.6)
 
-    self.classPie = LibGraph:CreateGraphPieChart("GuildbookUIStatsClassPie", self, 'BOTTOMRIGHT', 'BOTTOMRIGHT', -55, 35, 235,235)
+    self.classPie = LibGraph:CreateGraphPieChart("GuildbookUIStatsClassPie", self, 'BOTTOMRIGHT', 'BOTTOMRIGHT', -15, 35, 260,260)
     for class, info in pairs(gb.Data.Class) do
         local r, g, b = info.RGB[1], info.RGB[2], info.RGB[3]
         self.classPie:AddPie(10, {r*segColOffset, g*segColOffset, b*segColOffset})
@@ -3133,7 +3154,7 @@ function GuildbookStatsMixin:OnLoad()
                             bar.background:SetColorTexture(r,g,b,0.1)
                         end
                     end
-                    GameTooltip:SetOwner(self.classPie, 'ANCHOR_BOTTOM', 0, 0)
+                    GameTooltip:SetOwner(self.classPie, 'ANCHOR_RIGHT', -135, 0)
                     GameTooltip:AddDoubleLine(class, count, 1,1,1)
                     GameTooltip:Show()
                 end
@@ -3144,7 +3165,7 @@ function GuildbookStatsMixin:OnLoad()
         self.classPie:SetSelectionFunc(classPie_SelectionFunc)
 
         local f = CreateFrame("FRAME", "GuildbookStatsClassBar"..class, self)
-        f:SetSize(530,height)
+        f:SetSize(610,height)
         f.icon = f:CreateTexture(nil, "ARTWORK")
         f.icon:SetSize(height, height)
         f.icon:SetPoint("LEFT")
@@ -3172,7 +3193,7 @@ function GuildbookStatsMixin:OnLoad()
             -- f.specPie:AddPie((100 / #info.Specializations), {r*segColOffset, g*segColOffset, b*segColOffset})
 
             local t = f:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-            t:SetPoint("LEFT", height + 2 + ((k-1)*125), 0)
+            t:SetPoint("LEFT", height + 2 + ((k-1)*155), 0)
             t:SetTextColor(1,1,1)
             f.specInfoText[spec] = t
 
@@ -3181,10 +3202,10 @@ function GuildbookStatsMixin:OnLoad()
         table.insert(self.charts.class, f)
     end
     table.sort(self.charts.class, function(a,b)
-        return a.className > b.className
+        return L[a.className] > L[b.className]
     end)
     for i, bar in ipairs(self.charts.class) do
-        bar:SetPoint("BOTTOMLEFT", 24, (height*i) -6)
+        bar:SetPoint("BOTTOMLEFT", 15, (height*i) -6)
     end
     self.classPie:SetScript("OnLeave", function()
         for _, bar in ipairs(self.charts.class) do
@@ -3237,7 +3258,7 @@ function GuildbookStatsMixin:OnShow()
         local segColOffset = 0.75;
         self.classPie:AddPie(classPercent, {r*segColOffset, g*segColOffset, b*segColOffset})
         self.classSegments[k] = {
-            class = f.className,
+            class = L[f.className],
             count = f.classCount,
         }
         --if f.specCountTotal > 0 then
@@ -3256,9 +3277,9 @@ function GuildbookStatsMixin:OnShow()
                 local spec = gb:GetClassSpecAtlasName(f.className, s.spec)
                 local icon = CreateAtlasMarkup(spec, 16,16)
 
-                specString = specString..icon.." "..s.spec..": "..s.count.."  "
+                specString = specString..icon.." "..s.spec..": "..s.count.."   "
 
-                f.specInfoText[s.spec]:SetText(icon.." "..s.spec..": "..s.count)
+                f.specInfoText[s.spec]:SetText(icon.." "..L[s.spec]..": "..s.count.."   ")
             end
             --f.text:SetText(specString)
         --end

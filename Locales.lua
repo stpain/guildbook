@@ -51,6 +51,7 @@ Features!
 ]]
 L["DIALOG_SHOW_UPDATES"]			= "Display again"
 L["DIALOG_DONT_SHOW_UPDATES"]		= "Confirm & hide"
+L["ADDON_LOADED"]                   = "initialising Guildbook!"
 
 --options page
 L['OptionsAbout'] = 'Guildbook options and about. Thanks to Belrand@Auberdine for the French translations'
@@ -383,7 +384,7 @@ L["SPELL_DMG_FIRE"] 				= "Fire"
 L["SPELL_DMG_NATURE"] 				= "Nature"
 
 
-
+L["CLASS_SUMMARY"]                  = "Class summary, this uses data from members where a main spec is set"
 -- class and spec
 -- class is upper case
 L['DEATHKNIGHT']                    = 'Deathknight'
@@ -1103,6 +1104,7 @@ Si vous rencontrez des erreurs, merci de me le signaler sur Discord"
 ]]
 	L["DIALOG_SHOW_UPDATES"]			= "Afficher à nouveau"
     L["DIALOG_DONT_SHOW_UPDATES"]		= "Ok, ne plus montrer"
+	L["ADDON_LOADED"]                   = "initialisation de Guildbook!"
 
    --options page
     L['OptionsAbout'] = 'Guildbook options et informations. Traduction française par Belrand#1998 (Discord)'
@@ -1437,7 +1439,8 @@ L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s %s %s 
 	L["SPELL_DMG_NATURE"]			= "Nature"
 
 
-
+	L["CLASS_SUMMARY"]                  = [[Données des classes.
+Ceci utilise les données des membres dont la spé principale est définie]]
 	-- class and spec
 	-- class is upper case
 	L['DEATHKNIGHT']                    = 'Chevalier de la mort'

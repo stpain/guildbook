@@ -6005,7 +6005,7 @@ Guildbook.EventFrame:SetScript('OnEvent', function(self, event, ...)
 
     if event == "ADDON_LOADED" then
         if ... == addonName then
-            Guildbook:PrintMessage("initialising Guildbook!")
+            Guildbook:PrintMessage(L["ADDON_LOADED"])
             Guildbook:Init()
         end
 
