@@ -2318,9 +2318,9 @@ function GuildbookProfilesMixin:LoadCharacter(player)
         end
         if self.character.FirstAidLevel then
             self.sidePane.firstAid:SetText(string.format("%s [%s]", gb.ProfessionNames[GetLocale()][129], self.character.FirstAidLevel))
-         else
-             self.sidePane.firstAid:SetText("-")
-         end
+        else
+            self.sidePane.firstAid:SetText("-")
+        end
     else
         self.defaultModel:Show()
     end    
