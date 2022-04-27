@@ -40,14 +40,11 @@ local addonName, Guildbook = ...
 local L = {}
 
 L["UPDATE_NEWS"] = [[
-Bug fixes for recent updates, a lot of code was written when the addon had been running and therefore I missed some (a lot of) bugs during the addon load process which cause major issues, I've also added extra checks around certain functions and var type checking.
-
-Profiles!
-Finally should now be working after migrating to a new code structure which has taken far to long to finish (sorry about that).
-
-Features!
-* added a sync button to the calendar
-* view recipes from the default Blizzard roster
+What's New?
+-More Bug Fixes
+-More Translation support
+-Fishing level in Profile now works properly
+-First Aid skill added in Profile
 ]]
 L["DIALOG_SHOW_UPDATES"]			= "Display again"
 L["DIALOG_DONT_SHOW_UPDATES"]		= "Confirm & hide"
@@ -1088,19 +1085,11 @@ if locale == "deDE" then
 ]]
 elseif locale == 'frFR' then
 	L["UPDATE_NEWS"] = [[
-"Fix de bugs pour les màj récentes, j'ai aussi rajouté des vérifications supplémentaires autour de certaines fonctions.
-
-Les Profiles!
-Ils devraient enfin marcher! J'ai migré le tout vers une nouvelle structure du code qui a mis bien trop de temps (désolé pour ça).
-
-Nouveautés!
-*Ajout d'un bouton de synchronisation au calendrier 
-*Ouvrir les recettes de guilde depuis la fenêtre de guilde Blizzard"
--Stpain
-
-"Beaucoup de changements ont eu lieu et pour mieux organiser la traduction, j'ai du tout restructurer.
-Si vous rencontrez des erreurs, merci de me le signaler sur Discord"
--Belrand#1998
+Quoi de neuf?
+-Moins de bug!
+-Plus de Traductions!
+-La compétence de Pêche fonctionne correctement sur les Profils
+-Le Secourisme a été ajouté aux Profils
 ]]
 	L["DIALOG_SHOW_UPDATES"]			= "Afficher à nouveau"
     L["DIALOG_DONT_SHOW_UPDATES"]		= "Ok, ne plus montrer"
