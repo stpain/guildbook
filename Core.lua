@@ -1526,6 +1526,20 @@ function Character:ScanForTradeskillInfo()
         FirstAidLevel = nil,
     }
 
+
+    --for most things carry on using the spellbook as its more reliable (just doesnt return tradeskill level) 
+    --however for some things maybe the skill lines approach will be better
+
+    --this will use the skill lines method to grab fishing level, it could be expanded to other trades if required ?
+    for i = 1, GetNumSkillLines() do
+        local name, _, _, rank = GetSkillLineInfo(i);
+        if Tradeskills:GetEnglishNameFromTradeskillName(name) == "Fishing" then
+            --DevTools_Dump({GetSkillLineInfo(i)})
+            characterTradeskillsInfo.FishingLevel = rank;
+        end
+    end
+
+
     local _, _, offset, numSlots = GetSpellTabInfo(1)
     for j = offset+1, offset+numSlots do
         -- get spell id
@@ -3903,7 +3917,9 @@ end
 function Guildbook:GetLocaleProf(prof)
     for id, name in pairs(Guildbook.ProfessionNames["enUS"]) do
         if name == prof then
-            return Guildbook.ProfessionNames[locale][id]
+            if Guildbook.ProfessionNames[GetLocale()][id] then
+                return Guildbook.ProfessionNames[GetLocale()][id]
+            end
         end
     end
     return prof;

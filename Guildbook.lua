@@ -2297,12 +2297,12 @@ function GuildbookProfilesMixin:LoadCharacter(player)
             self.sidePane.spec:SetText("-")
         end
         if self.character.Profession1 then
-            self.sidePane.prof1:SetText(string.format("%s [%s]", self.character.Profession1, self.character.Profession1Level))
+            self.sidePane.prof1:SetText(string.format("%s [%s]", gb:GetLocaleProf(self.character.Profession1), self.character.Profession1Level))
         else
             self.sidePane.prof1:SetText("-")
         end
         if self.character.Profession2 then
-            self.sidePane.prof2:SetText(string.format("%s [%s]", self.character.Profession2, self.character.Profession2Level))
+            self.sidePane.prof2:SetText(string.format("%s [%s]", gb:GetLocaleProf(self.character.Profession2), self.character.Profession2Level))
         else
             self.sidePane.prof2:SetText("-")
         end
