@@ -2292,7 +2292,7 @@ function GuildbookProfilesMixin:LoadCharacter(player)
         end
         self.sidePane.name:SetText(string.format("%s  Lvl %s", self.character.Name, self.character.Level))
         if self.character.MainSpec then
-            self.sidePane.spec:SetText(string.format("%s %s", self.character.MainSpec, self.character.Class:sub(1,1):upper()..self.character.Class:sub(2):lower()))
+            self.sidePane.spec:SetText(string.format("%s %s", L[self.character.MainSpec], L[self.character.Class]:sub(1,1):upper()..L[self.character.Class]:sub(2):lower()))
         else
             self.sidePane.spec:SetText("-")
         end
@@ -2340,8 +2340,8 @@ function GuildbookProfilesMixin:Edit_OnMouseDown(self)
     self:GetParent().realDob:SetText(GUILDBOOK_CHARACTER.profile.realDob or "")
     self:GetParent().realBio:SetText(GUILDBOOK_CHARACTER.profile.realBio or "")
 
-    self:GetParent().mainSpecDropDown.MenuText:SetText(GUILDBOOK_CHARACTER.MainSpec or "")
-    self:GetParent().offSpecDropDown.MenuText:SetText(GUILDBOOK_CHARACTER.OffSpec or "")
+    self:GetParent().mainSpecDropDown.MenuText:SetText(L[GUILDBOOK_CHARACTER.MainSpec] or "")
+    self:GetParent().offSpecDropDown.MenuText:SetText(L[GUILDBOOK_CHARACTER.OffSpec] or "")
 
     if GUILDBOOK_CHARACTER.MainCharacter and GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][GUILDBOOK_CHARACTER.MainCharacter] then
         self:GetParent().mainCharacterDropDown.MenuText:SetText(GUILDBOOK_GLOBAL.GuildRosterCache[GUILD_NAME][GUILDBOOK_CHARACTER.MainCharacter].Name)
@@ -2947,7 +2947,7 @@ function GuildbookSearchMixin:Search(term)
                 title = character.Name,
                 icon = string.format("raceicon-%s-%s", character.Race:lower(), character.Gender:lower()),
                 iconType = "atlas",
-                info = string.format("%s %s", character.MainSpec or "", character.Class:sub(1,1):upper()..character.Class:sub(2):lower()),
+                info = string.format("%s %s", L[character.MainSpec] or "", L[character.Class]:sub(1,1):upper()..L[character.Class]:sub(2):lower()),
                 func = function()
                     GuildbookUI.profiles.character = character;
                     --navigateTo(GuildbookUI.profiles)

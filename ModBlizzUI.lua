@@ -260,7 +260,7 @@ function Guildbook:ModBlizzUI()
     
     hooksecurefunc("GuildStatus_Update", function()
         local numTotal, numOnline, numOnlineAndMobile = GetNumGuildMembers()
-        for i = 1, 13 do
+        for i = 1, numTotal do --using numTotal should prevent a very minor bug if you have less than 13 members
             local button = _G['GuildFrameButton'..i]
             local idx = tonumber(button.guildIndex)
             button:Show()

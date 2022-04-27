@@ -3540,15 +3540,15 @@ function Guildbook:Init()
                 if character.MainSpec then
                     local icon = Guildbook:GetClassSpecAtlasName(character.Class, character.MainSpec)
                     local iconString = CreateAtlasMarkup(icon, 24,24)
-                    self:AddLine(iconString.. "  |cffffffff"..character.MainSpec)
+                    self:AddLine(iconString.. "  |cffffffff"..L[character.MainSpec])
                 end
             end
             if GUILDBOOK_GLOBAL.config.showTooltipProfessions == true then
                 if character.Profession1 ~= '-' and Guildbook.Data.Profession[character.Profession1] then
-                    self:AddDoubleLine(character.Profession1, character.Profession1Level, 1,1,1,1,1,1,1,1)
+                    self:AddDoubleLine(Guildbook:GetLocaleProf(character.Profession1), character.Profession1Level, 1,1,1,1,1,1,1,1)
                 end
                 if character.Profession2 ~= '-' and Guildbook.Data.Profession[character.Profession2] then
-                    self:AddDoubleLine(character.Profession2, character.Profession2Level, 1,1,1,1,1,1,1,1)
+                    self:AddDoubleLine(Guildbook:GetLocaleProf(character.Profession2), character.Profession2Level, 1,1,1,1,1,1,1,1)
                 end
             end
             --self:AddTexture(Guildbook.Data.Class[character.Class].Icon,{width = 36, height = 36})
