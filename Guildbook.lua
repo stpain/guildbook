@@ -2292,8 +2292,8 @@ function GuildbookProfilesMixin:LoadCharacter(player)
         end
         self.sidePane.name:SetText(string.format("%s  Lvl %s", self.character.Name, self.character.Level))
         if self.character.MainSpec then
-            if GetLocale() == 'frFR' or 'esES' or 'esMX' or 'ptBR' then
-				self.sidePane.spec:SetText(string.format("%s %s", L[self.character.Class]:sub(1,1):upper()..L[self.character.Class]:sub(2):lower(), L[self.character.MainSpec]))
+            if (GetLocale() == "frFR") or (GetLocale() == "esES") or (GetLocale() == "esMX") or (GetLocale() == "ptBR") then
+                self.sidePane.spec:SetText(string.format("%s %s", L[self.character.Class]:sub(1,1):upper()..L[self.character.Class]:sub(2):lower(), L[self.character.MainSpec]))
 			else
 				self.sidePane.spec:SetText(string.format("%s %s", L[self.character.MainSpec], L[self.character.Class]:sub(1,1):upper()..L[self.character.Class]:sub(2):lower()))
 			end
