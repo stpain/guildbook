@@ -1,7 +1,7 @@
 # This file is shown to unsupported (non classic) client
 # Addon should still work but will probably not work as intended
 ## Interface: 00000
-## Author: Copperbolts
+## Author: Copperbolts (Theboringdad)
 ## Version: 4.99212
 ## Title: Guildbook |cFFFF0000ERROR|r
 ## Notes: Unsupported client!

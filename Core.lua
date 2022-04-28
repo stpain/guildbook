@@ -806,6 +806,24 @@ Tradeskills.TradeskillIDsToLocaleName = {
 }
 Tradeskills.TradeskillLocaleNameToID = tInvert(Tradeskills.TradeskillIDsToLocaleName[Tradeskills.CurrentLocale])
 
+function Tradeskills:IsTradeskill(tradeskillName, tradeskillID)
+    if type(tradeskillName) == "string" then
+        for id, name in pairs(self.TradeskillIDsToLocaleName[GetLocale()]) do
+            if name == tradeskillName then
+                return true;
+            end
+        end
+    else
+        if type(tradeskillID) == "number" then
+            for id, name in pairs(self.TradeskillIDsToLocaleName[GetLocale()]) do
+                if id == tradeskillID then
+                    return true;
+                end
+            end
+        end
+    end
+end
+
 function Tradeskills:GetEnglishNameFromID(tradeskillID)
     if self.TradeskillIDsToLocaleName.enUS[tradeskillID] then
         return self.TradeskillIDsToLocaleName.enUS[tradeskillID];
@@ -1526,16 +1544,11 @@ function Character:ScanForTradeskillInfo()
         FirstAidLevel = nil,
     }
 
-
-    --for most things carry on using the spellbook as its more reliable (just doesnt return tradeskill level) 
-    --however for some things maybe the skill lines approach will be better
-
-    --this will use the skill lines method to grab fishing level, it could be expanded to other trades if required ?
+    local tradeskillsToLevel = {}
     for i = 1, GetNumSkillLines() do
         local name, _, _, rank = GetSkillLineInfo(i);
-        if Tradeskills:GetEnglishNameFromTradeskillName(name) == "Fishing" then
-            --DevTools_Dump({GetSkillLineInfo(i)})
-            characterTradeskillsInfo.FishingLevel = rank;
+        if Tradeskills:IsTradeskill(name) and type(rank) == "number" then
+            tradeskillsToLevel[name] = rank;
         end
     end
 
@@ -1564,12 +1577,22 @@ function Character:ScanForTradeskillInfo()
             if engSpellName ~= "Cooking" and engSpellName ~= "Fishing" and engSpellName ~= "First Aid" then
                 if characterTradeskillsInfo.Profession1 == "-" then
                     characterTradeskillsInfo.Profession1 = engSpellName;
-                    Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", string.format("updated prof1 to %s via spellbook scan", engSpellName))
+                    if type(tradeskillsToLevel[engSpellName]) == "number" then
+                        characterTradeskillsInfo.Profession1Level = tradeskillsToLevel[engSpellName];
+                        Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", string.format("set prof1 as %s [%s] via spellbook scan", engSpellName, tradeskillsToLevel[engSpellName]))
+                    else
+                        Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", string.format("set prof1 as %s [unknown level] via spellbook scan", engSpellName))
+                    end
 
                 else
                     if characterTradeskillsInfo.Profession2 == "-" and characterTradeskillsInfo.Profession1 ~= engSpellName then
                         characterTradeskillsInfo.Profession2 = engSpellName;
-                        Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", string.format("updated prof2 to %s via spellbook scan", engSpellName))
+                        if type(tradeskillsToLevel[engSpellName]) == "number" then
+                            characterTradeskillsInfo.Profession2Level = tradeskillsToLevel[engSpellName];
+                            Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", string.format("set prof2 as %s [%s] via spellbook scan", engSpellName, tradeskillsToLevel[engSpellName]))
+                        else
+                            Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", string.format("set prof2 as %s [unknown level] via spellbook scan", engSpellName))
+                        end
                     end
                 end
             end

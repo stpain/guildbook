@@ -1,5 +1,5 @@
 ## Interface: 20504
-## Author: Copperbolts
+## Author: Copperbolts (Theboringdad)
 ## Version: 4.99212
 ## Title: Guildbook
 ## Notes: Guild addon for guild stuff!

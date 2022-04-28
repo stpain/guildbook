@@ -41,10 +41,12 @@ local L = {}
 
 L["UPDATE_NEWS"] = [[
 What's New?
--More Bug Fixes
--More Translation support
--Fishing level in Profile now works properly
--First Aid skill added in Profile
+-More Bug Fixes (we love a good bug fixing!)
+
+-Added additional checks around the default guild roster mods
+
+-Added a scan to the profession scan to attempt to find a valid prof level, this should cover all professions.
+
 ]]
 L["DIALOG_SHOW_UPDATES"]			= "Display again"
 L["DIALOG_DONT_SHOW_UPDATES"]		= "Confirm & hide"
