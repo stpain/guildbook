@@ -1088,10 +1088,13 @@ if locale == "deDE" then
 elseif locale == 'frFR' then
 	L["UPDATE_NEWS"] = [[
 Quoi de neuf?
--Moins de bug!
--Plus de Traductions!
--La compétence de Pêche fonctionne correctement sur les Profils
--Le Secourisme a été ajouté aux Profils
+
+-Encore moins de bugs (Il faut toujours moins de bug!)
+
+-Plus de sécurité autour de la fenêtre de guilde modifiée
+
+-Rajout d'un scan pour récupérer le niveau correcte des métiers, cela devrait couvrir tous les métiers. 
+
 ]]
 	L["DIALOG_SHOW_UPDATES"]			= "Afficher à nouveau"
     L["DIALOG_DONT_SHOW_UPDATES"]		= "Ok, ne plus montrer"
