@@ -519,6 +519,7 @@ function GuildbookProfileSummaryRowAvatarTemplateMixin:SetCharacter(guid)
     if not self.character then
         return
     end
+    self.guid = guid;
     if self.character.profile and self.character.profile.avatar then
         self.avatar:SetTexture(self.character.profile.avatar)
     else
@@ -547,11 +548,27 @@ function GuildbookProfileSummaryRowAvatarTemplateMixin:OnLeave()
     self.anim:Stop()
 end
 
-function GuildbookProfileSummaryRowAvatarTemplateMixin:OnMouseUp()
-    if self.character then
-        GuildbookUI.profiles.character = self.character
-        if GuildbookUI.profiles.character then
-            GuildbookUI.profiles:LoadCharacter()
+function GuildbookProfileSummaryRowAvatarTemplateMixin:OnMouseDown(button)
+
+    if button == "LeftButton" then
+
+        if self.character then
+            GuildbookUI.profiles.character = self.character
+            if GuildbookUI.profiles.character then
+                GuildbookUI.profiles:LoadCharacter()
+            end
+        end
+
+    elseif button == "RightButton" then
+        
+        if self.guid and self.character then
+            if IsShiftKeyDown() then
+                GUILDBOOK_GLOBAL.myCharacters[self.guid] = true;
+                gb:PrintMessage(string.format("added %s to your characters!", self.character.Name))
+            elseif IsAltKeyDown() then
+                GUILDBOOK_GLOBAL.myCharacters[self.guid] = nil;
+                gb:PrintMessage(string.format("removed %s from your characters!", self.character.Name))
+            end
         end
     end
 end

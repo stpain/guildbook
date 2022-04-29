@@ -337,7 +337,7 @@ L["NONE"]                           = "None"
 L["SHARING_NOBODY"]		    		= "Sharing with nobody"
 L["SHARING_WITH"]		    		= "Sharing with"
 
-L["MAIN_CHARACTER_ADD_ALT"]			= "Add character.\n|cffFFFF00Use this to add a character from a different account. You will then be able to select it as main character."
+L["MAIN_CHARACTER_ADD_ALT"]			= "|cffFFFF00If you use multiple WoW accounts your characters might not all show up here.\nTo add a character NOT listed Shift+Right click the character in the 'Profiles' tab.\nTo remove a character Alt+Right click."
 L["MAIN_CHARACTER_REMOVE_ALT"]		= "Remove character"
 L["DIALOG_MAIN_CHAR_ADD"]			= "Type the name of your character, must be a guild member."
 L["DIALOG_MAIN_CHAR_REMOVE"]		= "Please enter the characters name."

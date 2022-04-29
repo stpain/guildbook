@@ -892,6 +892,16 @@
                                                         <KeyValue key="locale" value="ALT_CHARACTERS" type="string"/>
                                                     </KeyValues>
                                                 </FontString>
+                                                <FontString parentKey="addCharactersLabel" inherits="GameFontNormalSmall" justifyH="LEFT">
+                                                    <Color r="1" g="1" b="1"/>
+                                                    <Size x="400" y="70"/>
+                                                    <Anchors>
+                                                        <Anchor relativeKey="$parent.mainCharacterLabel" relativePoint="TOPRIGHT" point="TOPLEFT" x="150" y="0"/>
+                                                    </Anchors>
+                                                    <KeyValues>
+                                                        <KeyValue key="locale" value="MAIN_CHARACTER_ADD_ALT" type="string"/>
+                                                    </KeyValues>
+                                                </FontString>
                                             </Layer>
                                         </Layers>
                                         <Frames>
@@ -1005,57 +1015,6 @@
                                                 <Anchors>
                                                     <Anchor relativeKey="$parent.mainCharacterLabel" relativePoint="RIGHT" point="LEFT" x="20" y="0"/>
                                                 </Anchors>
-                                            </Frame>
-
-                                            <Frame parentArray="displayEdit" inherits="GuildbookSmallHighlightButton" hidden="true">
-                                                <Size x="24" y="24"/>
-                                                <Anchors>
-                                                    <Anchor relativeKey="$parent.mainCharacterDropDown" relativePoint="RIGHT" point="LEFT" x="20" y="0"/>
-                                                </Anchors>
-                                                <Layers>
-                                                    <Layer level="BACKGROUND">
-                                                        <Texture atlas="communities-icon-addchannelplus" setAllPoints="true">
-                                                            <Anchors>
-                                                                <Anchor point="TOPLEFT" x="-2" y="2"/>
-                                                                <Anchor point="BOTTOMRIGHT" x="2" y="-2"/>
-                                                            </Anchors>
-                                                        </Texture>
-                                                    </Layer>
-                                                </Layers>
-                                                <KeyValues>
-                                                    <KeyValue key="tooltipText" value="MAIN_CHARACTER_ADD_ALT" type="string"/>
-                                                </KeyValues>
-                                                <Scripts>
-                                                    <OnMouseDown>
-                                                        GuildbookSmallHighlightButtonMixin.OnMouseDown(self)
-                                                        StaticPopup_Show('MainCharacterAddAltCharacter')
-                                                    </OnMouseDown>
-                                                </Scripts>
-                                            </Frame>
-                                            <Frame parentArray="displayEdit" inherits="GuildbookSmallHighlightButton" hidden="true">
-                                                <Size x="24" y="24"/>
-                                                <Anchors>
-                                                    <Anchor relativeKey="$parent.mainCharacterDropDown" relativePoint="RIGHT" point="LEFT" x="50" y="0"/>
-                                                </Anchors>
-                                                <Layers>
-                                                    <Layer level="BACKGROUND">
-                                                        <Texture atlas="communities-icon-redx" setAllPoints="true">
-                                                            <Anchors>
-                                                                <Anchor point="TOPLEFT" x="0" y="0"/>
-                                                                <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
-                                                            </Anchors>
-                                                        </Texture>
-                                                    </Layer>
-                                                </Layers>
-                                                <KeyValues>
-                                                    <KeyValue key="tooltipText" value="MAIN_CHARACTER_REMOVE_ALT" type="string"/>
-                                                </KeyValues>
-                                                <Scripts>
-                                                    <OnMouseDown>
-                                                        GuildbookSmallHighlightButtonMixin.OnMouseDown(self)
-                                                        StaticPopup_Show('MainCharacterRemoveAltCharacter')
-                                                    </OnMouseDown>
-                                                </Scripts>
                                             </Frame>
 
                                             <Frame parentKey="altCharactersContainer">

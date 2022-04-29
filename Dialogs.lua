@@ -24,7 +24,7 @@ local addonName, Guildbook = ...
 
 local L = Guildbook.Locales
 local PRINT = Guildbook.PRINT
-
+local Roster = Guildbook.Roster;
 
 StaticPopupDialogs['Error'] = {
     text = '|cffC41F3BError|r: %s',
@@ -183,7 +183,7 @@ StaticPopupDialogs['MainCharacterAddAltCharacter'] = {
     end,
     EditBoxOnTextChanged = function(self)
         if self:GetText() ~= '' then
-            local guid = Guildbook:GetGuildMemberGUID(self:GetText())
+            local guid = Roster:GetGuildMemberGUID(self:GetText())
             local dialogText = _G[self:GetParent():GetName().."Text"]
             if guid then
                 local character = Guildbook:GetCharacterFromCache(guid)
@@ -198,7 +198,7 @@ StaticPopupDialogs['MainCharacterAddAltCharacter'] = {
 
     -- will look at having this just set the alt/main stuff when my brain is working, for now it just adds the guid to the alt characters table where it can then be set
     OnAccept = function(self)
-        local guid = Guildbook:GetGuildMemberGUID(self.editBox:GetText())
+        local guid = Roster:GetGuildMemberGUID(self.editBox:GetText())
         if guid then
             if not GUILDBOOK_GLOBAL.myCharacters[guid] then
                 GUILDBOOK_GLOBAL.myCharacters[guid] = true
@@ -223,7 +223,7 @@ StaticPopupDialogs['MainCharacterRemoveAltCharacter'] = {
     end,
     EditBoxOnTextChanged = function(self)
         if self:GetText() ~= '' then
-            local guid = Guildbook:GetGuildMemberGUID(self:GetText())
+            local guid = Roster:GetGuildMemberGUID(self:GetText())
             local dialogText = _G[self:GetParent():GetName().."Text"]
             if guid then
                 local character = Guildbook:GetCharacterFromCache(guid)
@@ -236,7 +236,7 @@ StaticPopupDialogs['MainCharacterRemoveAltCharacter'] = {
         end
     end,
     OnAccept = function(self)
-        local guid = Guildbook:GetGuildMemberGUID(self.editBox:GetText())
+        local guid = Roster:GetGuildMemberGUID(self.editBox:GetText())
         if guid then
             GUILDBOOK_GLOBAL.myCharacters[guid] = nil
         end

@@ -1231,6 +1231,21 @@ end
 
 
 
+function Roster:GetGuildMemberGUID(characterName)
+
+    local totalMembers, onlineMember, _ = GetNumGuildMembers()
+
+    for i = 1, totalMembers do
+        
+        local nameRealm, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, guid = GetGuildRosterInfo(i)
+
+        if nameRealm == characterName then
+            return guid
+        end
+    end
+end
+
+
 
 function Roster:OnChatMessageSystem(...)
     local msg = ...
@@ -1523,6 +1538,14 @@ function Character:ScanPlayerTalents()
         end
     end
 
+    if GUILDBOOK_CHARACTER.smartGuessMainSpec == true then
+        table.sort(tabs, function(a, b)
+            return a.points > b.points;
+        end)
+
+        Database:UpdatePlayerCharacterTable("MainSpec", tabs[1].spec)
+    end
+
     ---some players may choose not to share this info with everyone in their guild so all we need to do is update the database
     Database:UpdatePlayerCharacterTable("primary", tabs, "TalentTabs")
     Database:UpdatePlayerCharacterTable("primary", talents, "Talents")
@@ -1549,9 +1572,23 @@ function Character:ScanForTradeskillInfo()
         local name, _, _, rank = GetSkillLineInfo(i);
         if Tradeskills:IsTradeskill(name) and type(rank) == "number" then
             tradeskillsToLevel[name] = rank;
+            Guildbook.DEBUG("characterMixin", "Character:ScanForTradeskillInfo", string.format("found %s [%s]", name, rank))
         end
     end
 
+    for tradeskillName, rank in pairs(tradeskillsToLevel) do
+        if type(rank) == "number" then
+            if Tradeskills:GetEnglishNameFromTradeskillName(tradeskillName) == "Fishing" then
+                characterTradeskillsInfo.FishingLevel = rank;
+            end
+            if Tradeskills:GetEnglishNameFromTradeskillName(tradeskillName) == "Cooking" then
+                characterTradeskillsInfo.CookingLevel = rank;
+            end
+            if Tradeskills:GetEnglishNameFromTradeskillName(tradeskillName) == "First Aid" then
+                characterTradeskillsInfo.FirstAidLevel = rank;
+            end
+        end
+    end
 
     local _, _, offset, numSlots = GetSpellTabInfo(1)
     for j = offset+1, offset+numSlots do
@@ -3402,6 +3439,13 @@ function Guildbook:Init()
         GUILDBOOK_GLOBAL.ActivityFeed = {}
     end
 
+    --going to just hard reset this, should only have 50 news entries which is small
+    --will abuse the listbox and have this work in reverse so latest is at top
+    if not GUILDBOOK_GLOBAL.reversedActivityFeed then
+        GUILDBOOK_GLOBAL.ActivityFeed = {}
+        GUILDBOOK_GLOBAL.reversedActivityFeed = true;
+    end
+
     Guildbook.DEBUG('func', 'init', 'checking comms delay setting')
     if not GUILDBOOK_GLOBAL['CommsDelay'] then
         GUILDBOOK_GLOBAL['CommsDelay'] = 1.0
@@ -3567,17 +3611,36 @@ function Guildbook:Init()
         local _, unit = self:GetUnit()
         local guid = unit and UnitGUID(unit) or nil
         if guid and guid:find('Player') then
-            local character = Guildbook:GetCharacterFromCache(guid)
+            local character = Database:FetchCharacterTableByGUID(guid)
             if not character then
                 return;
             end
             self:AddLine(" ")
-            self:AddLine('Guildbook:', 0.00, 0.44, 0.87, 1)
+            --self:AddLine('Guildbook:', 0.00, 0.44, 0.87, 1)
             if GUILDBOOK_GLOBAL.config.showTooltipMainSpec == true then
-                if character.MainSpec then
-                    local icon = Guildbook:GetClassSpecAtlasName(character.Class, character.MainSpec)
-                    local iconString = CreateAtlasMarkup(icon, 24,24)
-                    self:AddLine(iconString.. "  |cffffffff"..L[character.MainSpec])
+                if character.Class and character.MainSpec then
+                    local displayClass = Guildbook.CapitalizeString(character.Class);
+                    local class = Guildbook.Colours[character.Class]:WrapTextInColorCode(displayClass);
+                    local spec;
+                    if L[character.MainSpec] then
+                        spec = Guildbook.Colours[character.Class]:WrapTextInColorCode(L[character.MainSpec]);
+                    else
+                        spec = Guildbook.Colours[character.Class]:WrapTextInColorCode(character.MainSpec);
+                    end
+                    local atlas = Guildbook:GetClassSpecAtlasName(character.Class, character.MainSpec)
+                    if atlas then
+                        if L[character.MainSpec] then
+                            self:AddLine(string.format("%s %s %s", CreateAtlasMarkup(atlas, 20,20), spec, class))
+                        else
+                            self:AddLine(string.format("%s %s %s", CreateAtlasMarkup(atlas, 20,20), spec, class))
+                        end
+                    else
+                        if L[character.MainSpec] then
+                            self:AddLine(string.format("%s %s", spec, class))
+                        else
+                            self:AddLine(string.format("%s %s", spec, class))
+                        end
+                    end
                 end
             end
             if GUILDBOOK_GLOBAL.config.showTooltipProfessions == true then
@@ -3599,7 +3662,7 @@ function Guildbook:Init()
                 if character.MainCharacter then
                     local main = Guildbook:GetCharacterFromCache(character.MainCharacter)
                     if main then
-                        C_Timer.After(0.1, function()
+                        C_Timer.After(0.5, function()
 
                             -- check the unit is the same
                             local _, currentUnit = self:GetUnit()
@@ -3987,6 +4050,7 @@ end
 
 function Guildbook.CapitalizeString(s)
     if type(s) == "string" then
+        s = s:lower()
         return string.gsub(s, '^%a', string.upper)
     end
 end

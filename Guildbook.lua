@@ -566,23 +566,22 @@ function GuildbookMixin:OnCharacterTableChanged(_, guid, characterTable)
 
     ---if the profile view is open and we have a matching guid then refresh the view, dont reload for the players character as they might be editing etc
     if self.profiles.contentPane:IsVisible() then
-        --print("profile open")
         if self.profiles.characterGUID and (self.profiles.characterGUID == guid) then
-            --print("characterGUID matches guid")
 
-            --DevTools_Dump({guid, self.profiles.characterGUID, self.profiles.editOpen})
+            --update isnt for the player
             if guid ~= UnitGUID("player") then
-                --print("guid is not player")
                 self.profiles.character = characterTable;
                 self.profiles:LoadCharacter(guid)
                 self.statusText:SetText(string.format("character table changed, updating view for %s", characterTable.Name))
-            end
+                return;
 
-            if self.profiles.editOpen == false then
-                --print("edit is false")
-                self.profiles.character = characterTable;
-                self.profiles:LoadCharacter(guid)
-                self.statusText:SetText(string.format("player character table changed, updating view for %s", characterTable.Name))
+                --update is for the current player character
+            else
+                if self.profiles.editOpen == false then
+                    self.profiles.character = characterTable;
+                    self.profiles:LoadCharacter(guid)
+                    self.statusText:SetText(string.format("player character table changed, updating view for %s", characterTable.Name))
+                end
             end
         end
     end
@@ -693,7 +692,6 @@ function GuildbookHomeMixin:OnNewsFeedReceived(_, news)
         return;
     end
     if type(news) == "table" then
-        self.newsFeed.DataProvider:Insert(news)
 
         if not GUILDBOOK_GLOBAL.ActivityFeed then
             GUILDBOOK_GLOBAL.ActivityFeed = {}
@@ -701,13 +699,16 @@ function GuildbookHomeMixin:OnNewsFeedReceived(_, news)
         if not GUILDBOOK_GLOBAL.ActivityFeed[GUILD_NAME] then
             GUILDBOOK_GLOBAL.ActivityFeed[GUILD_NAME] = {}
         end
-        table.insert(GUILDBOOK_GLOBAL.ActivityFeed[GUILD_NAME], news)
+        table.insert(GUILDBOOK_GLOBAL.ActivityFeed[GUILD_NAME], 1, news)
 
         -- player_logout wasnt working well so i will settle for using table.remove here, as the table is kept small
         -- it shouldn't be a major issue and is ideal to keep the most recent items and discard the earlier items
-        if #GUILDBOOK_GLOBAL.ActivityFeed[GUILD_NAME] > 30 then
-            table.remove(GUILDBOOK_GLOBAL.ActivityFeed[GUILD_NAME], 1)
+        if #GUILDBOOK_GLOBAL.ActivityFeed[GUILD_NAME] > 50 then
+            table.remove(GUILDBOOK_GLOBAL.ActivityFeed[GUILD_NAME], #GUILDBOOK_GLOBAL.ActivityFeed[GUILD_NAME])
         end
+
+        self.newsFeed.DataProvider:Flush()
+        self.newsFeed.DataProvider:InsertTable(GUILDBOOK_GLOBAL.ActivityFeed[GUILD_NAME])
     end
 end
 
@@ -2131,6 +2132,7 @@ function GuildbookProfilesMixin:OnHide()
             fs:SetShown(true)
         end
     end
+    self.contentPane.scrollChild.profile.addCharactersLabel:SetText("")
 end
 
 function GuildbookProfilesMixin:HideInventoryIcons()
@@ -2291,12 +2293,25 @@ function GuildbookProfilesMixin:LoadCharacter(player)
             self.sidePane.background:SetAtlas("transmog-background-race-"..(self.character.Race:lower()))
         end
         self.sidePane.name:SetText(string.format("%s  Lvl %s", self.character.Name, self.character.Level))
-        if self.character.MainSpec then
-            if (GetLocale() == "frFR") or (GetLocale() == "esES") or (GetLocale() == "esMX") or (GetLocale() == "ptBR") then
-                self.sidePane.spec:SetText(string.format("%s %s", L[self.character.Class]:sub(1,1):upper()..L[self.character.Class]:sub(2):lower(), L[self.character.MainSpec]))
-			else
-				self.sidePane.spec:SetText(string.format("%s %s", L[self.character.MainSpec], L[self.character.Class]:sub(1,1):upper()..L[self.character.Class]:sub(2):lower()))
-			end
+        if self.character.Class and self.character.MainSpec then
+            local class, spec;
+            if L[self.character.Class] then
+                class = gb.CapitalizeString(L[self.character.Class]);
+            else
+                class = gb.CapitalizeString(self.character.Class);
+            end
+            if L[self.character.MainSpec] then
+                spec = L[self.character.MainSpec];
+            else
+                spec = self.character.MainSpec;
+            end
+            if type(class) == "string" and type(spec) == "string" then
+                if (GetLocale() == "frFR") or (GetLocale() == "esES") or (GetLocale() == "esMX") or (GetLocale() == "ptBR") then
+                    self.sidePane.spec:SetText(string.format("%s %s", class, spec))
+                else
+                    self.sidePane.spec:SetText(string.format("%s %s", spec, class))
+                end
+            end
         else
             self.sidePane.spec:SetText("-")
         end
@@ -2365,6 +2380,7 @@ function GuildbookProfilesMixin:Edit_OnMouseDown(self)
         for _, fs in ipairs(self:GetParent().displayStrings) do
             fs:Hide()
         end
+        self:GetParent().addCharactersLabel:SetText(L["MAIN_CHARACTER_ADD_ALT"])
     else
         GuildbookUI.profiles.avatarPicker:Hide()
         for _, f in ipairs(self:GetParent().displayEdit) do
@@ -2373,6 +2389,7 @@ function GuildbookProfilesMixin:Edit_OnMouseDown(self)
         for _, fs in ipairs(self:GetParent().displayStrings) do
             fs:Show()
         end
+        self:GetParent().addCharactersLabel:SetText("")
 
         --assume the player has finished editign for now so update the db
         --Database:UpdatePlayerCharacterTable("profile", GUILDBOOK_CHARACTER.profile)
@@ -3262,7 +3279,7 @@ function GuildbookStatsMixin:OnShow()
         local segColOffset = 0.75;
         self.classPie:AddPie(classPercent, {r*segColOffset, g*segColOffset, b*segColOffset})
         self.classSegments[k] = {
-            class = L[f.className],
+            class = f.className,
             count = f.classCount,
         }
         --if f.specCountTotal > 0 then
