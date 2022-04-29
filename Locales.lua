@@ -1388,7 +1388,7 @@ L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s %s %s 
 	L["SHARING_NOBODY"]		    		= "Partager avec personne"
 	L["SHARING_WITH"]		    		= "Partager avec"
 
-	L["MAIN_CHARACTER_ADD_ALT"]			= "Ajouter personage.\n|cffFFFF00Utilisez ceci pour ajouter un personnage venant d'un compte autre compte. Vous serez ensuite capable de le sélectionner comme personnage principal."
+	L["MAIN_CHARACTER_ADD_ALT"]			= "|cffFFFF00Si vous utilisez plusieurs comptes WoW, tous vos personnages n'apparaîtront pas ici.\nPour ajouter un personnage qui n'est PAS listé, faites Maj+Clique droit sur un personnage dans l'onglet 'Profils'.\nPour enlever un personnage, faites Alt+Clique droit."
 	L["MAIN_CHARACTER_REMOVE_ALT"]		= "Enlever personnage"
 	L["DIALOG_MAIN_CHAR_ADD"]			= "Tapez le nom du personnage, il doit être membre de la guilde."
 	L["DIALOG_MAIN_CHAR_REMOVE"]		= "SVP, entrez le nom du personnage."
