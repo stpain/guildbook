@@ -87,7 +87,7 @@ local slashCommandsHelp = [[
 Slash commands:
 You can use /guildbook, /gbk or /gb.
 /guildbook open - this will open Guildbook
-/guildbook [interface] - this will open to a specific area (roster, tradeskills, chat, profiles, calendar, stats, guildbank, search, privacy)
+/guildbook [interface] - this will open to a specific area (home, profiles, tradeskills, chat, guildViewer, calendar, guildbank, stats, search, privacy)
 
 ]]
 local homeIcon = CreateAtlasMarkup("poi-town", 16, 16)
@@ -134,7 +134,9 @@ Use this feature to browse your guild database- Find a recipe, pattern, characte
 local bankIcon = CreateAtlasMarkup("ShipMissionIcon-Treasure-Map", 16, 16)
 local bankHelp = [[
 Guild bank:
-Coming soon
+Legacy Guild Bank system
+Add "Guildbank" in the note of the character that is used as a bank
+Said character needs to open his in game bank to send data
 
 ]]
 L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s %s %s %s %s", slashCommandsIcon, slashCommandsHelp, homeIcon, homeHelp, profileIcon, profileHelp, tradeskillIcon, tradeskillHelp, rosterIcon, rosterHelp, searchIcon, searchHelp, bankIcon, bankHelp)
@@ -1132,9 +1134,10 @@ Quoi de neuf?
 -- this is a nasty way to do this, its horrible and i need to make the help & about much better
 local slashCommandsIcon = CreateTextureMarkup(136377, 64, 64, 16, 16, 0, 1, 0, 1, 0, 0)
 local slashCommandsHelp = [[
-Slash commands:
 Commandes slashs:
 /guildbook open : Cela va ouvrir Guildbook
+/guildbook [interface] : Celva va ouvrir un onglet particulier (home, profiles, tradeskills, chat, guildViewer, calendar, guildbank, stats, search, privacy)
+Exemple: "/guilbook home" va ouvrir l'accueil
 /gb ou /gbk peut être employer à la place de /guildbook
 
 ]]
@@ -1182,7 +1185,9 @@ Utiliser cette fonction pour explorer la base de données de votre Guilde - Trou
 local bankIcon = CreateAtlasMarkup("ShipMissionIcon-Treasure-Map", 16, 16)
 local bankHelp = [[
 Banque de guilde:
-Coming soon
+Système de banque de guilde "Legacy"
+Ajouter "Guildbank" dans la note du personnage utilisé comme banque
+Le personnage n'a plus qu'à ouvrir sa banque en jeu pour envoyer ses données
 
 ]]
 L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s %s %s %s %s", slashCommandsIcon, slashCommandsHelp, homeIcon, homeHelp, profileIcon, profileHelp, tradeskillIcon, tradeskillHelp, rosterIcon, rosterHelp, searchIcon, searchHelp, bankIcon, bankHelp)
