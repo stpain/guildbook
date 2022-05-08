@@ -535,6 +535,7 @@ L["CREATE_EVENT"]                   = "Create event"
 L["DELETE_EVENT"]                   = "Delete event"
 L["EVENT"]                          = "Event"
 L["EVENT_TYPE"]                     = "Event type"
+L['EVENT_NO_TITLE']                 = '|cffffffffYou have not set a title!|r'
 L["TITLE"]                          = "Title"
 L["DESCRIPTION"]                    = "Description"
 L["UPDATE"]                         = "Update"
@@ -1592,6 +1593,7 @@ De multiples personnages banques sont supportés.|r
 	L["DELETE_EVENT"]                   = "Suppr. événement"
 	L["EVENT"]                          = "Evénement"
 	L["EVENT_TYPE"]                     = "Evénement"
+	L['EVENT_NO_TITLE']                 = '|cffffffffVous avez oublié de mettre un titre!|r'
 	L["TITLE"]                          = "Titre"
 	L["DESCRIPTION"]                    = "Description"
 	L["UPDATE"]                         = "Mise à jour"

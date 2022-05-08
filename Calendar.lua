@@ -1370,7 +1370,7 @@ function Guildbook:SetupGuildCalendarFrame()
                 self:GetParent():MonthChanged()
             end
         else
-            print('|cffffffffYou have not set a title!|r')
+            print(L['EVENT_NO_TITLE'])
         end
     end
 
