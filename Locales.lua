@@ -1591,7 +1591,7 @@ De multiples personnages banques sont supportés.|r
 	L["CREATE_EVENT"]                   = "Créer événement"
 	L["DELETE_EVENT"]                   = "Suppr. événement"
 	L["EVENT"]                          = "Evénement"
-	L["EVENT_TYPE"]                     = "Type d'événement"
+	L["EVENT_TYPE"]                     = "Evénement"
 	L["TITLE"]                          = "Titre"
 	L["DESCRIPTION"]                    = "Description"
 	L["UPDATE"]                         = "Mise à jour"
@@ -1600,7 +1600,7 @@ De multiples personnages banques sont supportés.|r
 	L["TENTATIVE"]                      = "Tentative"
 	L["DECLINE"]                        = "Décliner"
 
-	L["TIME"]							= " | Temps"
+	L["TIME"]							= "Temps"
 	L["YEARS"]                          = "années"
 	L["MONTHS"]                         = "mois"
 	L["DAYS"]                           = "jours"
