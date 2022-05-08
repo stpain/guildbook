@@ -1600,7 +1600,7 @@ De multiples personnages banques sont supportés.|r
 	L["TENTATIVE"]                      = "Tentative"
 	L["DECLINE"]                        = "Décliner"
 
-	L["TIME"]							= "Time"
+	L["TIME"]							= " | Temps"
 	L["YEARS"]                          = "années"
 	L["MONTHS"]                         = "mois"
 	L["DAYS"]                           = "jours"
