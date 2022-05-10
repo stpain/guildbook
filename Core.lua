@@ -3619,7 +3619,12 @@ function Guildbook:Init()
             --self:AddLine('Guildbook:', 0.00, 0.44, 0.87, 1)
             if GUILDBOOK_GLOBAL.config.showTooltipMainSpec == true then
                 if character.Class and character.MainSpec then
-                    local displayClass = Guildbook.CapitalizeString(character.Class);
+                    local displayClass;
+						if L[character.Class] then 
+							displayClass = Guildbook.CapitalizeString(L[character.Class]);
+						else
+							displayClass = Guildbook.CapitalizeString(character.Class);
+						end
                     local class = Guildbook.Colours[character.Class]:WrapTextInColorCode(displayClass);
                     local spec;
                     if L[character.MainSpec] then
@@ -3630,13 +3635,21 @@ function Guildbook:Init()
                     local atlas = Guildbook:GetClassSpecAtlasName(character.Class, character.MainSpec)
                     if atlas then
                         if L[character.MainSpec] then
-                            self:AddLine(string.format("%s %s %s", CreateAtlasMarkup(atlas, 20,20), spec, class))
+                            if (GetLocale() == "frFR") or (GetLocale() == "esES") or (GetLocale() == "esMX") or (GetLocale() == "ptBR") then
+								self:AddLine(string.format("%s %s %s", CreateAtlasMarkup(atlas, 20,20), class, spec))
+							else
+								self:AddLine(string.format("%s %s %s", CreateAtlasMarkup(atlas, 20,20), spec, class))
+							end
                         else
                             self:AddLine(string.format("%s %s %s", CreateAtlasMarkup(atlas, 20,20), spec, class))
                         end
                     else
                         if L[character.MainSpec] then
-                            self:AddLine(string.format("%s %s", spec, class))
+                            if (GetLocale() == "frFR") or (GetLocale() == "esES") or (GetLocale() == "esMX") or (GetLocale() == "ptBR") then
+								self:AddLine(string.format("%s %s", class, spec))
+							else
+								self:AddLine(string.format("%s %s", spec, class))
+							end
                         else
                             self:AddLine(string.format("%s %s", spec, class))
                         end
@@ -3770,13 +3783,23 @@ function Guildbook:Load()
             elseif button == 'MiddleButton' then
                 ToggleFriendsFrame(3)
             elseif button == "LeftButton" then
-                if GuildbookUI then
-                    if GuildbookUI:IsVisible() then
-                        GuildbookUI:Hide()
-                    else
-                        GuildbookUI:Show()
-                    end
-                end
+                if IsShiftKeyDown() then
+					if GuildbookUI then
+						if GuildbookUI:IsVisible() then
+							GuildbookUI:Hide()
+						else
+							GuildbookUI:OpenTo("chat")
+						end
+					end
+				else
+					if GuildbookUI then
+						if GuildbookUI:IsVisible() then
+							GuildbookUI:Hide()
+						else
+							GuildbookUI:Show()
+						end
+					end
+				end
             end
         end,
         OnTooltipShow = function(tooltip)

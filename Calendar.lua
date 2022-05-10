@@ -811,8 +811,8 @@ function Guildbook:SetupGuildCalendarFrame()
     UIDropDownMenu_SetWidth(hour, 45)
     UIDropDownMenu_SetText(hour, "00")
     local hours = {}
-    for i = 1, 12 do
-        local hourFormatted = string.format("%.2d", i)
+    for i = 1, 23 do
+        local hourFormatted = string.format("%.2d", i-1)
         hours[i] = {
             text = hourFormatted,
             func = function()

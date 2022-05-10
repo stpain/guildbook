@@ -3176,7 +3176,11 @@ function GuildbookStatsMixin:OnLoad()
                         end
                     end
                     GameTooltip:SetOwner(self.classPie, 'ANCHOR_RIGHT', -135, 0)
-                    GameTooltip:AddDoubleLine(class, count, 1,1,1)
+                    if L[class] then
+						GameTooltip:AddDoubleLine(L[class], count, 1,1,1)
+					else
+						GameTooltip:AddDoubleLine(class, count, 1,1,1)
+					end
                     GameTooltip:Show()
                 end
             else
