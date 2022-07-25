@@ -70,7 +70,7 @@ L["MINIMAP_CALENDAR_EVENTS"]		= "Events"
 L["DIALOG_CHARACTER_FIRST_LOAD"]	= "Welcome to Guildbook, click below to scan your characters professions."
 
 L["NEW_VERSION_1"] = "new version available, probably fixes a few things, might break something else though!"
-L["NEW_VERSION_2"] = "there is a totally new awesome version of guildbook, available to downlaod from all good addon providers!"
+L["NEW_VERSION_2"] = "there is a totally new awesome version of guildbook, available to download from all good addon providers!"
 L["NEW_VERSION_3"] = "lol, if you thought the last update did not a lot, you should get the new one, probably does about the same.....or less!"
 L["NEW_VERSION_4"] = "hordies are red, alliance are blue, guildbook updates just for you!"
 
@@ -535,7 +535,7 @@ L["CREATE_EVENT"]                   = "Create event"
 L["DELETE_EVENT"]                   = "Delete event"
 L["EVENT"]                          = "Event"
 L["EVENT_TYPE"]                     = "Event type"
-L["EVENT_NO_TITLE"]                 = "You have not set a title!'
+L["EVENT_NO_TITLE"]                 = "You have not set a title!"
 L["EVENT_CREATED"]                  = "Event created!"
 L["TITLE"]                          = "Title"
 L["DESCRIPTION"]                    = "Description"
