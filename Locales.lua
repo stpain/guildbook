@@ -53,7 +53,7 @@ L["DIALOG_DONT_SHOW_UPDATES"]		= "Confirm & hide"
 L["ADDON_LOADED"]                   = "initialising Guildbook!"
 
 --options page
-L['OptionsAbout'] = 'Guildbook options and about. Thanks to Belrand@Auberdine for the French translations'
+L['OptionsAbout'] = 'Guildbook options and about.'
 L['Version'] = 'Version'
 L['Author'] = 'Author: |cffffffffstpain (|r|cffF58CBACopperbolts|r |cffffffffand|r |cff0070DEKylanda|r|cffffffff)|r'
 
@@ -622,16 +622,27 @@ local locale = GetLocale()
 ]]
 if locale == "deDE" then
 
+	L["UPDATE_NEWS"] = [[
+	Was gibt es Neues?
+- Mehr Fehlerbehebungen (wir lieben Fehlerbehebungen!)
+
+- Zusätzliche Tests fuer die Standard-Gildenübersicht hinzugefügt
+
+- Einen weiteren Berufsscan hinzugefügt um legitime Berufe leichter zu finden
+]]
+	L["DIALOG_SHOW_UPDATES"] = "Wieder anzeigen"
+	L["DIALOG_DONT_SHOW_UPDATES"] = "Bestätigen & ausblenden"
+	L["ADDON_LOADED"] = "Guildbook wird initialisiert!"
 
 	--options page
-	L['OptionsAbout'] = 'Guildbook options and about. Thanks to Belrand@Auberdine for the French translations.'
+	L['OptionsAbout'] = L["OptionsAbout"] = "Guildbook-Optionen und Informationen."
 	L['Version'] = 'Version'
 	L['Author'] = 'Autor: |cffffffffstpain (|r|cffF58CBACopperbolts|r |cffffffffand|r |cff0070DEKylanda|r|cffffffff)|r'
 
 	-- this is the start of the option ui updates, will go through the option panel and rewrite it with locales for stuff
-	L["TOOLTIP_SHOW_TRADESKILLS"]		= "Zeigt eine Liste der Berufe an, die den aktuellen Gegenstand verwenden. (Die Daten stammen aus der Guildbook-Datenbank)"
-	L["TOOLTIP_SHOW_RECIPES"]			= "Fügen Sie Rezepte, die den aktuellen Gegenstand verwenden, unter jeder Fertigkeit ein."
-	L["TOOLTIP_SHOW_RECIPES"]			= "Zeige nur Rezepte für die Berufe deiner Charaktere an."
+	--L["TOOLTIP_SHOW_TRADESKILLS"]		= "Zeigt eine Liste der Berufe an, die den aktuellen Gegenstand verwenden. (Die Daten stammen aus der Guildbook-Datenbank)"
+	--L["TOOLTIP_SHOW_RECIPES"]			= "Fügen Sie Rezepte, die den aktuellen Gegenstand verwenden, unter jeder Fertigkeit ein."
+	--L["TOOLTIP_SHOW_RECIPES"]			= "Zeige nur Rezepte für die Berufe deiner Charaktere an."
 
 	L["OPTIONS"]						= "Optionen & Einstellungen"
 	L["MINIMAP_CALENDAR_RIGHTCLICK"]	= "Rechtsklick für Menü"
@@ -710,7 +721,7 @@ if locale == "deDE" then
 	L['Note']                           = 'Notiz'
 	L['Profession1']                    = 'Beruf 1'
 	L['Profession2']                    = 'Beruf 2'
-
+	L["Fishing"]						= "Angeln"
 
 	-- roster listview and tooltip, these are also sort keys and should be lower case
 	L["name"]                           = "Name"
@@ -787,6 +798,7 @@ if locale == "deDE" then
 	L["GUILDBANK_FUNDS"]				= "Gold verfügbar"
 	L["GUILDBANK_CURRENCY"]				= "Währung"
 
+	L["HOME"] 							= "Hauptmenü"
 	L["PROFILES"]                       = "Profile"
 	L["CHAT"]                           = "Chat"
 	L["ROSTER"]                         = "Gilde"
@@ -806,6 +818,64 @@ if locale == "deDE" then
 	L["BAGS"]                           = "Taschen"
 	L["BANK"]                           = "Bank"
 	L["STATS"]                          = "Statistiken"
+
+	L["BLIZZ_GUILD_CLICK_TS"] 			= "Einen Beruf auswählen um ihn in Guildbook anzusehen"
+
+	L["GUILD_ACTIVTY_HEADER"] = "Aktivitäten-Übersicht"
+	L["GUILD_MEMBERS_HEADER"] = "Mitglieder (|cffFFD100Shift drücken für mehr Informationen|r)"
+	L["GUILD_MEMBERS_OFFLINE"] = "Offline-Spieler anzeigen"
+	L["NF_PLAYER_LEVEL_UP_SS"] = "%s hat Level %s erreicht!"
+	L["NF_PLAYER_LOGIN_S"] = "%s ist jetzt online"
+	L["NF_PLAYER_LOGOUT_S"] = "%s ist jetzt offline"
+	L["NF_LFG_CREATED_S"] = "%s ist der Warteschlange für %s beigetreten [%s]"
+	L["NF_CAL_EVENT_CREATE"] = "Kalender-Ereignis %s wurde von %s erstellt."
+	L["NF_MEMBER_JOIN"] = "%s ist der Gilde beigetreten!"
+
+	L["PRIVACY_CONFIG_ERROR_SS"] = "Setze %s zu %s"
+	L["PRIVACY_SHARE_LFG"] = "Informationen teilen wenn man die \"Suche nach Gruppe\"-Funktion benutzt"
+	L["PRIVACY_SHARE_LEVEL_UP"] = "Informationen teilen wenn man ein neues Level erreicht hat"
+
+
+	L["OPT_BLIZZROSTER"] = "Die weite Ansicht für die Blizzard Standard-Gildenübersicht anzeigen."
+	L["OPT_BLOCK_DATA_COMBAT"] = "Guildbook wird alle eingehende und ausgehende Datenkommunikation blockieren während Sie im Kampf sind. Gildenmitglieder werden keine Anfragen an Sie schicken können."
+	L["OPT_BLOCK_DATA_INSTANCE"] = "Guildbook wird alle eingehende und ausgehende Datenkommunikation blockieren während Sie in einer Instanz sind. Gildenmitglieder werden keine Anfragen an Sie schicken können."
+	L["OPT_CHAT_SMCO"] = "Den Namen des Hauptcharakters in Gildenchat-Nachrichten anzeigen, wenn der Spieler auf einem Alt-Charakter ist. Kann nur gezeigt werden wenn der Spieler die betreffenden Informationen eingestellt hat."
+	L["OPT_CHAT_SMS"] = "Zeigt die Hauptspezialisierung eines Charakters in der Gildenchat-Nachricht an. Kann nur Daten anzeigen wenn der betreffende Spieler diese eingegeben hat."
+	L["OPT_COMBAT_COMMS_LOCK"] = "Datenkommunikation während des Kampfes unterbinden."
+	L["OPT_DELETE_GUILD_DATA"] = "Alle Daten für %s löschen"
+	L["OPT_INSTANCE_COMMS_LOCK"] = "Datenkommunikation während einer Instanz (Dungeons/Schlachtzüge) unterbinden."
+	L["OPT_MOD_BLIZZ_ROSTER"] = "Die Standard Blizzard Gildenübersicht modifizieren"
+	L["OPT_RELOAD_UI"] = "UI neu laden"
+	L["OPT_RESET_CACHE_CHAR_DATA"] = "Daten zurücksetzen für %s?"
+	L["OPT_RESET_GLOBAL_SETTINGS"] = "Globale Einstellungen auf Standardwerte zurücksetzen? Dies wird die Daten von allen Gilden löschen, in denen Sie ein Mitglied sind."
+	L["OPT_SETTINGS_CHANGED"] = "Einstellungen wurden geändert und es ist notwendig das UI neu zu laden."
+	L["OPT_SH_MINICAL_BUTTON"] = "Kalender-Symbol an der Minikarte anzeigen/verstecken"
+	L["OPT_SH_MINIMAP_BUTTON"] = "Symbol an der Minikarte anzeigen/verstecken"
+	L["OPT_SHOW_MINIMAP_BUTTON"] = "Symbol an der Minikarte anzeigen"
+	L["OPT_SHOW_MINIMAP_CALENDAR"] = "Kalender-Symbol an der Minikarte anzeigen"
+	L["OPT_TT_CHAR_MAIN_CHAR"] = "Hauptcharakter"
+	L["OPT_TT_CHAR_MAIN_SPEC"] = "Hauptspezialisierung"
+	L["OPT_TT_CHAR_SHOW_INFO"] = "Charakter-Informationen anzeigen"
+	L["OPT_TT_CHAR_TRADESKILLS"] = "Berufe"
+	L["OPT_TT_DIALOG_DLR"] = "Rezepte für jeden Beruf auflisten die den aktuellen Gegenstand benötigen."
+	L["OPT_TT_DIALOG_DLRCO"] = "Nur Rezepte für Berufe deines Charakters anzeigen"
+	L["OPT_TT_DIALOG_DPL"] = "Eine Liste aller Berufe anzeigen die den aktuellen Gegenstand benutzen (Daten kommen aus der Guildbook-Datenbank)"
+	L["OPT_TT_DIALOG_SCI"] = "Zusätzliche Informationen für Gildenmitglieder anzeigen"
+	L["OPT_TT_DIALOG_SCMS"] = "Hauptspezialisierung des Charakters anzeigen"
+	L["OPT_TT_DIALOG_SCP"] = "Berufe des Charakters anzeigen"
+	L["OPT_TT_DIALOG_SMC"] = "Hauptcharakter anzeigen"
+	L["OPT_TT_TRADESKILLS_PERSONAL"] = "Nur Rezepte für Berufe deines Charakters anzeigen"
+	L["OPT_TT_TRADESKILLS_RECIPES"] = "Rezepte anzeigen"
+	L["OPT_TT_TRADESKILLS_SHOW"] = "Berufe anzeigen"
+
+	L["YES"] = "Ja"
+	L["CANCEL"] = "Abbrechen"
+	L["RESET"] = "Zurücksetzen"
+	L["DELETE"] = "Löschen"
+
+
+	L["GUILD_VIEWER_HEADER"] = "Ihr könnt Charaktere von anderen Gilden, in denen Ihr ein Mitglied seid, hier sehen. Die Informationen sind unbearbeitet und stammen aus der Saved Variables Addon-Datei. Wählt die Gilde aus um eine Liste ihrer Mitglieder zu sehen und wählt ein Mitglied aus um dessen Informationen zu sehen."
+
 
 	L["RESET_AVATAR"]					= "Avatar zurücksetzen"
 
@@ -860,6 +930,7 @@ if locale == "deDE" then
 	L["SPELL_DMG_NATURE"] 				= "Natur"
 
 
+	L["CLASS_SUMMARY"] = "Klassenzusammenfassung (benutzt Daten von Mitgliedern die eine Hauptspezialisierung gesetzt haben)"
 
 	-- class and spec
 	-- class is upper case
@@ -1017,6 +1088,7 @@ if locale == "deDE" then
 	L["TENTATIVE"]                      = "Abwesend"
 	L["DECLINE"]                        = "Abbrechen"
 
+	L["TIME"] 							= "Zeit"
 	L["YEARS"]                          = "Jahre"
 	L["MONTHS"]                         = "Monate"
 	L["DAYS"]                           = "Tage"
