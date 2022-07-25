@@ -535,7 +535,7 @@ L["CREATE_EVENT"]                   = "Create event"
 L["DELETE_EVENT"]                   = "Delete event"
 L["EVENT"]                          = "Event"
 L["EVENT_TYPE"]                     = "Event type"
-L["EVENT_NO_TITLE"]                 = "You have not set a title!'
+L["EVENT_NO_TITLE"]                 = "You have not set a title!"
 L["EVENT_CREATED"]                  = "Event created!"
 L["TITLE"]                          = "Title"
 L["DESCRIPTION"]                    = "Description"
@@ -635,7 +635,7 @@ if locale == "deDE" then
 	L["ADDON_LOADED"] = "Guildbook wird initialisiert!"
 
 	--options page
-	L['OptionsAbout'] = L["OptionsAbout"] = "Guildbook-Optionen und Informationen."
+	L['OptionsAbout'] = "Guildbook-Optionen und Informationen."
 	L['Version'] = 'Version'
 	L['Author'] = 'Autor: |cffffffffstpain (|r|cffF58CBACopperbolts|r |cffffffffand|r |cff0070DEKylanda|r|cffffffff)|r'
 
@@ -712,7 +712,7 @@ if locale == "deDE" then
 	]]
 	L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s %s %s", slashCommandsIcon, slashCommandsHelp, rosterIcon, rosterHelp, tradeskillIcon, tradeskillHelp, profileIcon, profileHelp, searchIcon, searchHelp, bankIcon, bankHelp)
 
-
+	L["CALENDAR_TOOLTIP_LOCKOUTS"] 		= "Instanzsperren"
 
 	--mod blizz guild roster, these are key/values in the ModBlizz file that add extra columns
 	L['Online']                         = 'Online'
@@ -801,17 +801,17 @@ if locale == "deDE" then
 	L["HOME"] 							= "Hauptmenü"
 	L["PROFILES"]                       = "Profile"
 	L["CHAT"]                           = "Chat"
-	L["ROSTER"]                         = "Gilde"
+	L["GUILD_VIEWER"]                   = "Gilden-Ansicht"
 	L["CALENDAR"]                       = "Kalender"
 	L["SEARCH"]                         = "Suche"
 	L["MY_PROFILE"]                     = "Mein Profile"
 	L["OPEN_PROFILE"]                   = "Profil öffnen"
 	L["OPEN_CHAT"]                      = "Chat öffnen"
-	L["INVITE_TO_GROUP"]                = "Zur Gruppe einladen"
+	L["INVITE_TO_GROUP"]                = "In Gruppe einladen"
 	L["SEND_TRADE_ENQUIRY"]             = "Nachricht über Gegenstand schicken"
 	L["REFRESH_ROSTER"]                 = "Gilde aktualisieren"
 	L["EDIT"]                           = "Profil bearbeiten"
-	L["GUILD_BANK"]                     = "Nutzloser Tooltip!"
+	L["GUILD_BANK"]                     = "Gildenbank"
 	L["ALTS"]                           = "Alt-Charakter"
 	L["USE_MAIN_PROFILE"]               = "Profil des Hauptcharakters verwenden"
 	L["MY_SACKS"]                       = "Meine Behälter"
@@ -930,12 +930,12 @@ if locale == "deDE" then
 	L["SPELL_DMG_NATURE"] 				= "Natur"
 
 
-	L["CLASS_SUMMARY"] = "Klassenzusammenfassung (benutzt Daten von Mitgliedern die eine Hauptspezialisierung gesetzt haben)"
+	L["CLASS_SUMMARY"] = "Klassenzusammenfassung \n(benutzt Daten von Mitgliedern die eine Hauptspezialisierung gesetzt haben)"
 
 	-- class and spec
 	-- class is upper case
 	L['DEATHKNIGHT']                    = 'Todesritter'
-	L['DRUID']                          = 'Druid'
+	L['DRUID']                          = 'Druide'
 	L['HUNTER']                         = 'Jäger'
 	L['MAGE']                           = 'Magier'
 	L['PALADIN']                        = 'Paladin'
