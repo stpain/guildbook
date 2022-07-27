@@ -3987,10 +3987,26 @@ GuildbookHelpAboutMixin = {}
 
 function GuildbookHelpAboutMixin:OnLoad()
     local w = self:GetWidth()
+    --remade the old Help&About into a less nasty mess -Belrand
+    local slashCommandsIcon = CreateTextureMarkup(136377, 64, 64, 16, 16, 0, 1, 0, 1, 0, 0)
+	local slashCommandsHelp = L["HELP_ABOUT_SLASH"]
+	local homeIcon = CreateAtlasMarkup("poi-town", 16, 16)
+	local homeHelp = L["HELP_ABOUT_HOME"]
+	local profileIcon = CreateAtlasMarkup("GarrMission_MissionIcon-Recruit", 16, 16)
+	local profileHelp = L["HELP_ABOUT_PROFILE"]
+	local tradeskillIcon = CreateAtlasMarkup("Mobile-Blacksmithing", 16, 16)
+	local tradeskillHelp = L["HELP_ABOUT_TRADESKILL"]
+	local rosterIcon = CreateAtlasMarkup("poi-workorders", 16, 16)
+	local rosterHelp = L["HELP_ABOUT_ROSTER"]
+	local searchIcon = CreateAtlasMarkup("shop-games-magnifyingglass", 16, 16)
+	local searchHelp = L["HELP_ABOUT_SEARCH"]
+	local bankIcon = CreateAtlasMarkup("ShipMissionIcon-Treasure-Map", 16, 16)
+	local bankHelp = L["HELP_ABOUT_BANK"]
+
     self.scrollFrame.scrollChild:SetSize(w-70, 800)
     self.scrollFrame.scrollChild.credits:SetSize(w-70, 800)
 
-    self.scrollFrame.scrollChild.credits:SetText(L["HELP_ABOUT_CREDITS"])
+    self.scrollFrame.scrollChild.credits:SetText(string.format("%s %s %s %s %s %s %s %s %s %s %s %s %s %s", slashCommandsIcon, slashCommandsHelp, homeIcon, homeHelp, profileIcon, profileHelp, tradeskillIcon, tradeskillHelp, rosterIcon, rosterHelp, searchIcon, searchHelp, bankIcon, bankHelp))
 end
 
 function GuildbookHelpAboutMixin:OnShow()

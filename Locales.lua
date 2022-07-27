@@ -26,28 +26,29 @@ the copyright holders.
 
 --[[
     this file will need to be translated with the help of the community
-
-    if anyone modifies this could they please drop me a message on curse or git so i can include any translations
+	to help with this, you can check curseforge, github or the discord
 ]]
 
--- add this to proper helpAbout section when finished 
 --Written by Kylanda@Pyrewood Village, translations
 --French, Belrand@Auberdine / Belrand#1998
+--German, Ashnagarr#7229
 
 local addonName, Guildbook = ...
 
 -- locales table
 local L = {}
 
-L["UPDATE_NEWS"] = [[
-What's New?
--More Bug Fixes (we love a good bug fixing!)
-
--Added additional checks around the default guild roster mods
-
--Added a scan to the profession scan to attempt to find a valid prof level, this should cover all professions.
-
-]]
+L["UPDATE_NEWS"] = [=[
+|cFFFF0000IMPORTANT!|r
+This is the last big update before |cff45b6feWrath of the Lich King|r
+	
+The addon is being reworked for a better compatibility with the next classic expansion.
+This expansion brings new features such as dual spec and glyphs and the current version of the addon isn't compatible with these changes from Blizzard.
+	
+The current version will remain available via curse as is and if/when Blizzard make any announcements for new Classic SoM or TBC SoM servers, either the new version can be backported to work with those servers or the older version will receive maintenance.
+	
+Check the Discord server for more informations.
+]=]
 L["DIALOG_SHOW_UPDATES"]			= "Display again"
 L["DIALOG_DONT_SHOW_UPDATES"]		= "Confirm & hide"
 L["ADDON_LOADED"]                   = "initialising Guildbook!"
@@ -82,32 +83,26 @@ L["HELP_ABOUT"]						= "Help & about"
 
 -- this is just a quick thing, will make the how section more fleshed out
 -- this is a nasty way to do this, its horrible and i need to make the help & about much better
-local slashCommandsIcon = CreateTextureMarkup(136377, 64, 64, 16, 16, 0, 1, 0, 1, 0, 0)
-local slashCommandsHelp = [[
+L["HELP_ABOUT_SLASH"] = [[
 Slash commands:
 You can use /guildbook, /gbk or /gb.
 /guildbook open - this will open Guildbook
 /guildbook [interface] - this will open to a specific area (home, profiles, tradeskills, chat, guildViewer, calendar, guildbank, stats, search, privacy)
 
 ]]
-local homeIcon = CreateAtlasMarkup("poi-town", 16, 16)
-local homeHelp = 
+L["HELP_ABOUT_HOME"] = 
 [[
 Home: 
 A brand new display for your guild's roster featuring an Activity Feed showing who has come online/offline as well as level up and showcasing team up request from guild member using the LFG tool.
 
 ]]
-local profileIcon = CreateAtlasMarkup("GarrMission_MissionIcon-Recruit", 16, 16)
-local profileHelp = 
-[[
+L["HELP_ABOUT_PROFILE"] = [[
 Profile:
 Edit as you wish, add your personal information or not.
 You can select your spec(s) and edit your main character. If you use multiple accounts you can add another character which you can then select as a main. (Alts are set by selecting a main character from the alts profile).
 
 ]]
-local tradeskillIcon = CreateAtlasMarkup("Mobile-Blacksmithing", 16, 16)
-local tradeskillHelp = 
-[[
+L["HELP_ABOUT_TRADESKILL"] = [[
 Tradeskills (Professions):
 Guildbook will process recipe/item IDs when it loads, this process can take a few minutes. Once complete you can view available crafts by profession and/or by equipment slot (head, hands, feet etc).
 
@@ -118,28 +113,24 @@ You can also push data by opening a tradeskill (cooldown enabled to prevent spam
 You can also use the import/export feature, click the icon above the profession list and follow the instructions.
 
 ]]
-local rosterIcon = CreateAtlasMarkup("poi-workorders", 16, 16)
-local rosterHelp = [[
+
+L["HELP_ABOUT_ROSTER"] = [[
 Guild Viewer:
 You can view characters from other guilds you are a member of here, the information is the raw data from the addons saved variables file. Select which guild to see a list of its members, select a character to view information.
 
 ]]
-local searchIcon = CreateAtlasMarkup("shop-games-magnifyingglass", 16, 16)
-local searchHelp = 
-[[
+L["HELP_ABOUT_SEARCH"] = [[
 Search:
 Use this feature to browse your guild database- Find a recipe, pattern, character name.
 
 ]]
-local bankIcon = CreateAtlasMarkup("ShipMissionIcon-Treasure-Map", 16, 16)
-local bankHelp = [[
+L["HELP_ABOUT_BANK"] = [[
 Guild bank:
 Legacy Guild Bank system
 Add "Guildbank" in the note of the character that is used as a bank
 Said character needs to open his in game bank to send data
 
 ]]
-L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s %s %s %s %s", slashCommandsIcon, slashCommandsHelp, homeIcon, homeHelp, profileIcon, profileHelp, tradeskillIcon, tradeskillHelp, rosterIcon, rosterHelp, searchIcon, searchHelp, bankIcon, bankHelp)
 
 
 
@@ -298,7 +289,8 @@ L["OPT_TT_TRADESKILLS_PERSONAL"]	= "Only show recipes for your characters trades
 L["OPT_RELOAD_UI"]                  = "Reload UI"
 L["OPT_SETTINGS_CHANGED"]           = "Settings have changed and a UI reload is required!"
 L["OPT_DELETE_GUILD_DATA"]          = 'Delete all data for %s'
-L["OPT_RESET_CHAR_DATA" ]           = 'Reset data for '..select(1, UnitName("player"))..' to default values?'
+L["OPT_RESET_CHAR_DATA1" ]          = 'Reset data for '
+L["OPT_RESET_CHAR_DATA2" ]			=' to default values?'
 L["OPT_RESET_CACHE_CHAR_DATA"]      = 'Reset data for %s?' --couldn't be tested -Belrand
 L["OPT_RESET_GLOBAL_SETTINGS"]      = 'Reset global settings to default values? \n\nThis will delete all data about all guilds you are a member of.'
 --Options.xml these are loaded at the end of the file with other xml variables
@@ -617,25 +609,26 @@ local locale = GetLocale()
 
 
 
---[[
-    german  - thanks to Nezzquikk from discord for these translations
-]]
+--[[   german  - thanks to Nezzquikk#2473 and Ashnagarr#7229 from discord for these translations]]
 if locale == "deDE" then
 
-	L["UPDATE_NEWS"] = [[
-	Was gibt es Neues?
-- Mehr Fehlerbehebungen (wir lieben Fehlerbehebungen!)
-
-- Zusätzliche Tests fuer die Standard-Gildenübersicht hinzugefügt
-
-- Einen weiteren Berufsscan hinzugefügt um legitime Berufe leichter zu finden
-]]
+	--[[ L["UPDATE_NEWS"] = [=[
+	|cFFFF0000IMPORTANT!|r
+	This is the last big update before |cff45b6feWrath of the Lich King|r
+		
+	The addon is being reworked for a better compatibility with the next classic expansion.
+	This expansion brings new features such as dual spec and glyphs and the current version of the addon isn't compatible with these changes from Blizzard.
+		
+	The current version will remain available via curse as is and if/when Blizzard make any announcements for new Classic SoM or TBC SoM servers, either the new version can be backported to work with those servers or the older version will receive maintenance.
+		
+	Check the Discord server for more informations.
+	]=] ]]
 	L["DIALOG_SHOW_UPDATES"] = "Wieder anzeigen"
 	L["DIALOG_DONT_SHOW_UPDATES"] = "Bestätigen & ausblenden"
 	L["ADDON_LOADED"] = "Guildbook wird initialisiert!"
 
 	--options page
-	L['OptionsAbout'] = "Guildbook-Optionen und Informationen."
+	L['OptionsAbout'] = "Guildbook-Optionen und Informationen. Danke an Ashnagarr für die Übersetzung."
 	L['Version'] = 'Version'
 	L['Author'] = 'Autor: |cffffffffstpain (|r|cffF58CBACopperbolts|r |cffffffffand|r |cff0070DEKylanda|r|cffffffff)|r'
 
@@ -655,63 +648,63 @@ if locale == "deDE" then
 	L["NEW_VERSION_3"] = "lol, wenn du dachtest, dass das letzte Update nicht viel gebracht hat, solltest du dir das neue holen, das macht wahrscheinlich ungefähr das gleiche.....oder weniger!"
 	L["NEW_VERSION_4"] = "Hordies sind rot, Allianzen sind blau, Guildbook-Updates sind super schlau!"
 
-	L["GUILDBOOK_DATA_SHARE_HEADER"]	= "Gildenbuchdaten freigeben \n\nSie können Ihre Berufe teilen, indem Sie auf exportieren klicken, um einen Zeichenkette zu erzeugen. Kopieren Sie diesen dann und fügen Sie ihn z. B. in Discord ein. \nUm Daten von Berufen zu importieren, füge eine Zeichenkette in das Feld unten ein und klicke auf importieren."
+	L["GUILDBOOK_DATA_SHARE_HEADER"]	= [=[Guildbook-Daten teilen
+
+	Sie können Ihre Berufsinformationen teilen, indem Sie auf "exportieren" klicken, um eine  Zeichenkette zu erzeugen. Kopieren Sie diese dann und fügen Sie sie z.B. in Discord ein. 
+	Um Daten von Berufen zu importieren, fügen Sie eine Zeichenkette in das Feld unten ein und klicken Sie auf "importieren".]=]
 	L["GUILDBOOK_LOADER_HEADER"]        = "Willkommen bei Guildbook"
 	L["TOOLTIP_ITEM_RECIPE_HEADER"]     = "Wird für Folgendes verwendet"
 
 	L["HELP_ABOUT"]						= "Hilfe & Infos"
 
-	-- this is just a quick thing, will make the how section more fleshed out
-	-- this is a nasty way to do this, its horrible and i need to make the help & about much better
-	local slashCommandsIcon = CreateTextureMarkup(136377, 64, 64, 16, 16, 0, 1, 0, 1, 0, 0)
-	local slashCommandsHelp = [[
-	Slash commands:
-	Sie können /guildbook, /gbk oder /gb verwenden.
-	/guildbook open - dies öffnet das Guildbook
-	/guildbook [Ansicht] - öffnet einen bestimmten Bereich (Gilde, Berufe, Chat, Profile, Kalender, Statistiken, Gildenbank, Suche, Datenschutz)
+	-- Help&About has been remade
+	--[[ L["HELP_ABOUT_BANK"] = [=[
+Guild bank:
+Legacy Guild Bank system
+Add "Guildbank" in the note of the character that is used as a bank
+Said character needs to open his in game bank to send data
 
-	]]
-	local rosterIcon = CreateAtlasMarkup("poi-workorders", 16, 16)
-	local rosterHelp = [[
-	Gildenfenster:
-	Sie können das Gildenfenster sortieren, indem Sie auf die Spaltenüberschriften klicken. Du kannst das Gildenfenster auch nach Klasse oder Rang filtern, indem du mit der rechten Maustaste auf die Überschriften klickst. Unter "Klasse" gibt es die Möglichkeit, das Gildenfenster nur nach deinen eigenen Charakteren zu filtern!
+]=]--]] 
+--[[ L["HELP_ABOUT_HOME"] = [=[
+Home: 
+A brand new display for your guild's roster featuring an Activity Feed showing who has come online/offline as well as level up and showcasing team up request from guild member using the LFG tool.
 
-	]]
-	local tradeskillIcon = CreateAtlasMarkup("Mobile-Blacksmithing", 16, 16)
-	local tradeskillHelp = 
-	[[
-	Berufe:
-	Guildbook verarbeitet die Rezept-/Gegenstände-IDs, wenn es geladen wird; dieser Vorgang kann einige Minuten dauern. Sobald dies abgeschlossen ist, können Sie die verfügbaren Gegenstände nach Beruf und/oder nach Ausrüstungsplatz (Kopf, Hände, Füße usw.) anzeigen.
+]=]--]] 
 
-	Mit Guildbook könnt ihr eure Rezepte mit anderen Gildenmitgliedern teilen. 
-	Öffnen Sie das Fenster eines Berufs, um den Scan der Rezepte auszulösen. Dies wird in Ihrer Charakter- und Account-Datenbank für die Gilde gespeichert und an die Online-Gildenmitglieder gesendet. Sobald dieser Vorgang abgeschlossen ist, werden zukünftige Daten an alle Online-Gildenmitglieder gesendet, wenn ihr euch einloggt. 
+--[[ L["HELP_ABOUT_PROFILE"] = [=[
+Profile:
+Edit as you wish, add your personal information or not.
+You can select your spec(s) and edit your main character. If you use multiple accounts you can add another character which you can then select as a main. (Alts are set by selecting a main character from the alts profile).
 
-	Ihr könnt auch Daten verschicken, indem ihr das Fenster eines Berufs öffnet (Abklingzeit aktiviert, um Spam zu verhindern).
-	Ihr könnt auch die Import/Export-Funktion nutzen, indem ihr auf das Symbol über der Berufsliste klickt und den Anweisungen folgt.
+]=]--]] 
+--[[ L["HELP_ABOUT_ROSTER"] = [=[
+Guild Viewer:
+You can view characters from other guilds you are a member of here, the information is the raw data from the addons saved variables file. Select which guild to see a list of its members, select a character to view information.
 
+]=]--]] 
+--[[ L["HELP_ABOUT_SEARCH"] = [=[
+Search:
+Use this feature to browse your guild database- Find a recipe, pattern, character name.
 
-	]]
-	local profileIcon = CreateAtlasMarkup("GarrMission_MissionIcon-Recruit", 16, 16)
-	local profileHelp = 
-	[[
-	Profil:
-	Bearbeiten Sie ihr Profil nach Belieben, fügen Sie Ihre persönlichen Informationen optional hinzu.
-	Sie können Ihre Spezialisierungen auswählen und Ihre Hauptfigur bearbeiten. Wenn Sie mehrere Konten verwenden, können Sie einen weiteren Charakter hinzufügen, den Sie dann als Hauptcharakter auswählen können. (Alts werden durch Auswahl eines Hauptcharakters aus dem Alt-Profil festgelegt).
+]=]--]] 
+--[[ L["HELP_ABOUT_SLASH"] = [=[
+Slash commands:
+You can use /guildbook, /gbk or /gb.
+/guildbook open - this will open Guildbook
+/guildbook [interface] - this will open to a specific area (home, profiles, tradeskills, chat, guildViewer, calendar, guildbank, stats, search, privacy)
 
-	]]
-	local searchIcon = CreateAtlasMarkup("shop-games-magnifyingglass", 16, 16)
-	local searchHelp = 
-	[[
-	Suchen:
-	Verwenden Sie diese Funktion, um Ihre Gilden-Datenbank zu durchsuchen: Suchen Sie ein Rezept, ein Rezeptmuster oder einen Charakternamen.
+]=]--]] 
+--[[ L["HELP_ABOUT_TRADESKILL"] = [=[
+Tradeskills (Professions):
+Guildbook will process recipe/item IDs when it loads, this process can take a few minutes. Once complete you can view available crafts by profession and/or by equipment slot (head, hands, feet etc).
 
-	]]
-	local bankIcon = CreateAtlasMarkup("ShipMissionIcon-Treasure-Map", 16, 16)
-	local bankHelp = [[
-	Demnächst verfügbar
-	]]
-	L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s %s %s", slashCommandsIcon, slashCommandsHelp, rosterIcon, rosterHelp, tradeskillIcon, tradeskillHelp, profileIcon, profileHelp, searchIcon, searchHelp, bankIcon, bankHelp)
+Guildbook will share your tradeskill recipes with other guild members. 
+Open your tradeskill to trigger the scan of the recipes. This will save to your character and account database for the guild and sends to online guild members. Once this process is complete, future data will be sent to all online guild members when you log in. 
 
+You can also push data by opening a tradeskill (cooldown enabled to prevent spam).
+You can also use the import/export feature, click the icon above the profession list and follow the instructions.
+
+]=]--]] 
 	L["CALENDAR_TOOLTIP_LOCKOUTS"] 		= "Instanzsperren"
 
 	--mod blizz guild roster, these are key/values in the ModBlizz file that add extra columns
@@ -732,7 +725,7 @@ if locale == "deDE" then
 	L["rankName"]                       = "Rang"
 	L["publicNote"]                     = "Öffentl. Notiz"
 	L["class"]                          = "Klasse"
-	L["attunements"]                    = "Errungschaften"
+	L["attunements"]                    = "Zugänge"
 
 
 	-- xml strings
@@ -842,17 +835,25 @@ if locale == "deDE" then
 	L["OPT_CHAT_SMCO"] = "Den Namen des Hauptcharakters in Gildenchat-Nachrichten anzeigen, wenn der Spieler auf einem Alt-Charakter ist. Kann nur gezeigt werden wenn der Spieler die betreffenden Informationen eingestellt hat."
 	L["OPT_CHAT_SMS"] = "Zeigt die Hauptspezialisierung eines Charakters in der Gildenchat-Nachricht an. Kann nur Daten anzeigen wenn der betreffende Spieler diese eingegeben hat."
 	L["OPT_COMBAT_COMMS_LOCK"] = "Datenkommunikation während des Kampfes unterbinden."
-	L["OPT_DELETE_GUILD_DATA"] = "Alle Daten für %s löschen"
+
 	L["OPT_INSTANCE_COMMS_LOCK"] = "Datenkommunikation während einer Instanz (Dungeons/Schlachtzüge) unterbinden."
 	L["OPT_MOD_BLIZZ_ROSTER"] = "Die Standard Blizzard Gildenübersicht modifizieren"
-	L["OPT_RELOAD_UI"] = "UI neu laden"
-	L["OPT_RESET_CACHE_CHAR_DATA"] = "Daten zurücksetzen für %s?"
-	L["OPT_RESET_GLOBAL_SETTINGS"] = "Globale Einstellungen auf Standardwerte zurücksetzen? Dies wird die Daten von allen Gilden löschen, in denen Sie ein Mitglied sind."
-	L["OPT_SETTINGS_CHANGED"] = "Einstellungen wurden geändert und es ist notwendig das UI neu zu laden."
+	
 	L["OPT_SH_MINICAL_BUTTON"] = "Kalender-Symbol an der Minikarte anzeigen/verstecken"
 	L["OPT_SH_MINIMAP_BUTTON"] = "Symbol an der Minikarte anzeigen/verstecken"
 	L["OPT_SHOW_MINIMAP_BUTTON"] = "Symbol an der Minikarte anzeigen"
 	L["OPT_SHOW_MINIMAP_CALENDAR"] = "Kalender-Symbol an der Minikarte anzeigen"
+
+	--Dialogs.lua boxes
+	L["OPT_RELOAD_UI"] = "UI neu laden"
+	L["OPT_DELETE_GUILD_DATA"] = "Alle Daten für %s löschen"
+	L["OPT_RESET_CHAR_DATA1" ]          = 'Daten für '
+	L["OPT_RESET_CHAR_DATA2" ]			=' auf Standardwerte zurücksetzen?'
+	L["OPT_RESET_CACHE_CHAR_DATA"] = "Daten zurücksetzen für %s?"
+	L["OPT_RESET_GLOBAL_SETTINGS"] = "Globale Einstellungen auf Standardwerte zurücksetzen? Dies wird die Daten von allen Gilden löschen, in denen Sie ein Mitglied sind."
+	L["OPT_SETTINGS_CHANGED"] = "Einstellungen wurden geändert und es ist notwendig das UI neu zu laden."
+	--tooltips
+
 	L["OPT_TT_CHAR_MAIN_CHAR"] = "Hauptcharakter"
 	L["OPT_TT_CHAR_MAIN_SPEC"] = "Hauptspezialisierung"
 	L["OPT_TT_CHAR_SHOW_INFO"] = "Charakter-Informationen anzeigen"
@@ -1013,7 +1014,7 @@ if locale == "deDE" then
 	L['GuildBank']                      = 'Gildenbank'
 	L['Events']                         = 'Ereignisse'
 	L['WorldEvents']                    = 'Weltereignisse'
-	L['Attunements']                    = 'Errungenschaften'
+	L['Attunements']                    = 'Zugänge'
 	L["Guild"]                          = "Gilde"
 
 
@@ -1096,8 +1097,8 @@ if locale == "deDE" then
 	L['< an hour']			    		= '< eine Stunde'
 
 	L["GENERAL"]			    		= "Allgemein"
-	L["MINIMAP_TOOLTIP_LEFTCLICK"]		= '|cffffffffLinksklick|r öffne Guildbook'
-	L["MINIMAP_TOOLTIP_LEFTCLICK_SHIFT"]= "Shift + "..'|cffffffffLinksklick|r öffne Chat'
+	L["MINIMAP_TOOLTIP_LEFTCLICK"]		= "|cffffffffLinksklick|r Öffne Guildbook"
+	L["MINIMAP_TOOLTIP_LEFTCLICK_SHIFT"]= "Shift + |cffffffffLinksklick|r Öffne Chat"
 	L["MINIMAP_TOOLTIP_RIGHTCLICK"]		= '|cffffffffRechtsklick|r Optionen'
 	L["MINIMAP_TOOLTIP_MIDDLECLICK"]	= "|cffffffffMittlere Muastaste|r Öffne Blizzard Gildenfenster"
 
@@ -1158,20 +1159,19 @@ if locale == "deDE" then
 
 
 
---[[
-    french | In order to avoid missing new things, I sorted the whole locale back to match the original one - Belrand
-]]
+--[[ french | In order to avoid missing new things, I sorted the whole locale back to match the original one - Belrand]]
 elseif locale == 'frFR' then
-	L["UPDATE_NEWS"] = [[
-Quoi de neuf?
-
--Encore moins de bugs (Il faut toujours moins de bug!)
-
--Plus de sécurité autour de la fenêtre de guilde modifiée
-
--Rajout d'un scan pour récupérer le niveau correcte des métiers, cela devrait couvrir tous les métiers. 
-
-]]
+	L["UPDATE_NEWS"] = [=[
+	|cFFFF0000IMPORTANT!|r
+	C' est la dernière mise à jour avant |cff45b6feWrath of the Lich King|r
+		
+	L'addon est en train d'être retravaillé pour une meilleur compatibilité avec la prochaine extension.
+	Cette extension amène de nouvelle fonctionnalités comme la double spé et les glyphes qui ne sont pas compatibles avec la version actuelle de l'addon.
+		
+	Cette version restera sur Curseforge en tant que telle et si/quand Blizzard fera un annoncement concernant une nouvelle saison de Classic ou TBC, soit la nouvelle version sera retroporté pour fonctionner avec ces serveurs ou cette version-ci recevra une maintenance.
+		
+	Vous trouverez plus d'info sur le serveur Discord de Guildbook.
+]=]
 	L["DIALOG_SHOW_UPDATES"]			= "Afficher à nouveau"
     L["DIALOG_DONT_SHOW_UPDATES"]		= "Ok, ne plus montrer"
 	L["ADDON_LOADED"]                   = "initialisation de Guildbook!"
@@ -1206,8 +1206,7 @@ Quoi de neuf?
 
 -- this is just a quick thing, will make the how section more fleshed out
 -- this is a nasty way to do this, its horrible and i need to make the help & about much better
-local slashCommandsIcon = CreateTextureMarkup(136377, 64, 64, 16, 16, 0, 1, 0, 1, 0, 0)
-local slashCommandsHelp = [[
+L["HELP_ABOUT_SLASH"] = [[
 Commandes slashs:
 /guildbook open : Cela va ouvrir Guildbook
 /guildbook [interface] : Celva va ouvrir un onglet particulier (home, profiles, tradeskills, chat, guildViewer, calendar, guildbank, stats, search, privacy)
@@ -1215,25 +1214,20 @@ Exemple: "/guilbook home" va ouvrir l'accueil
 /gb ou /gbk peut être employer à la place de /guildbook
 
 ]]
-local homeIcon = CreateAtlasMarkup("poi-town", 16, 16)
-local homeHelp = 
+L["HELP_ABOUT_HOME"] = 
 [[
 Acceuil:
 Un nouvel affichage pour le registre de votre guilde avec un Fil d'Actualité montrant qui se (dé)connecte ou gagne un niveau ainsi que les demandes de groupes de vos guildeux via l'outil de Recherche de groupe. 
 
 ]]
-local profileIcon = CreateAtlasMarkup("GarrMission_MissionIcon-Recruit", 16, 16)
-local profileHelp = 
-[[
+L["HELP_ABOUT_PROFILE"] = [[
 Profile:
 Vous pouvez sélection votre(vos) spé(s) et sélectionn un personnage principal. Si vous utilisez plusieurs comptes, vous pouvez ajouter un autre personnage que vous pouvez ajouter comme personnage principal. (Les autres personnages seront automatiquement ajouté en sélectionnant le personnage principal.
 
 ]]
-local tradeskillIcon = CreateAtlasMarkup("Mobile-Blacksmithing", 16, 16)
-local tradeskillHelp = 
-[[
+L["HELP_ABOUT_TRADESKILL"] = [[
 Métiers (Professions):
-Guild va traiter les recettes/ID d'objets quand il chargera, ce procédé peut prendre quelques minutes. Une fois complété, vous pouvez voir les recettes disponibles par métier et/ou par slot d'équipement (tête, mains, pieds, etc).
+Guildbook va traiter les recettes/ID d'objets quand il chargera, ce procédé peut prendre quelques minutes. Une fois complété, vous pouvez voir les recettes disponibles par métier et/ou par slot d'équipement (tête, mains, pieds, etc).
 
 Guildbook va partager vos recettes connues avec les autres membre de votre guilde.
 Ouvrez votre profession pour déclencher le scan des recettes. Cela va les sauvegarder à votre personnage et compte dans la base de données de la guilde et les envoyer aux membres en ligne. Une fois ce processus terminé, les données futures seront envoyé aux membres en ligne quand vous vous connecterez.
@@ -1242,29 +1236,26 @@ Vous pouvez manuellement envoyer des données en ouvrant un métier (léger temp
 Vous pouvez aussi utiliser l'outil d'import/export, cliquez sur l'icône au dessus des professions et suivez les instructions.
 
 ]]
-local rosterIcon = CreateAtlasMarkup("poi-workorders", 16, 16)
-local rosterHelp = [[
-Registres de Guildes:
+
+L["HELP_ABOUT_ROSTER"] = [[
+Registre de Guildes:
 Vous pouvez voir les personnages des autres guildes dont vous êtes membres ici, l'information est prise "tel quel" des donnés de votre addons depuis le fichier "SavedVariable".
 Vous pouvez sélectionner la guilde que vous voulez pour voir ses membres et cliquez sur eux pour voir leurs infos.
 
 ]]
-local searchIcon = CreateAtlasMarkup("shop-games-magnifyingglass", 16, 16)
-local searchHelp = 
-[[
+L["HELP_ABOUT_SEARCH"] = [[
 Recherche:
 Utiliser cette fonction pour explorer la base de données de votre Guilde - Trouver une recette, schéma, nom de personnage.
 
 ]]
-local bankIcon = CreateAtlasMarkup("ShipMissionIcon-Treasure-Map", 16, 16)
-local bankHelp = [[
+L["HELP_ABOUT_BANK"] = [[
 Banque de guilde:
 Système de banque de guilde "Legacy"
 Ajouter "Guildbank" dans la note du personnage utilisé comme banque
 Le personnage n'a plus qu'à ouvrir sa banque en jeu pour envoyer ses données
 
+
 ]]
-L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s %s %s %s %s", slashCommandsIcon, slashCommandsHelp, homeIcon, homeHelp, profileIcon, profileHelp, tradeskillIcon, tradeskillHelp, rosterIcon, rosterHelp, searchIcon, searchHelp, bankIcon, bankHelp)
 
 
 
@@ -1426,7 +1417,8 @@ L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s %s %s 
     L["OPT_RELOAD_UI"]                  = "Rercharger Interface"
     L["OPT_SETTINGS_CHANGED"]           = "Certains Paramètres ont été changés et un rechargement de l'interface est nécessaire"
     L["OPT_DELETE_GUILD_DATA"]          = 'Supprimer les données de %s?'
-    L["OPT_RESET_CHAR_DATA" ]           = 'Réinitialiser les données de '..select(1, UnitName("player"))..' aux valeurs par défaut?'
+	L["OPT_RESET_CHAR_DATA1" ]          = 'Réinitialiser les données de '
+	L["OPT_RESET_CHAR_DATA2" ]			= ' aux valeurs par défaut?'
     L["OPT_RESET_CACHE_CHAR_DATA"]      = 'Réinitialiser les données de %s?' --couldn't be tested -Belrand
     L["OPT_RESET_GLOBAL_SETTINGS"]      = 'Réinitialiser les données globales de l\'addon? \n\nCela va supprimer les données concernant les guildes dont vous êtes membres.'
     --Options.xml these are loaded at the end of the file with other xml variables
@@ -1738,7 +1730,7 @@ De multiples personnages banques sont supportés.|r
 
 
 
---thanks to Эхо from discord for these translations
+--[[ russian -thanks to Эхо from discord for these translations]]
 
 elseif locale == "ruRU" then
 
@@ -1764,53 +1756,59 @@ elseif locale == "ruRU" then
 	
 	L["HELP_ABOUT"]                     = "Помощь & Об аддоне"
 	
-	-- this is just a quick thing, will make the how section more fleshed out
-	-- this is a nasty way to do this, its horrible and i need to make the help & about much better
-	local slashCommandsIcon = CreateTextureMarkup(136377, 64, 64, 16, 16, 0, 1, 0, 1, 0, 0)
-	local slashCommandsHelp = [[
-	Команды:
-	Вы можете использовать /guildbook, /gbk или /gb.
-	/guildbook open - открыть Guildbook
-	/guildbook [interface] - открыть определенный раздел (список гильдии, профессии, чат, профили, календарь, статистика, банк гильдии, поиск, приватность)
-	
-	]]
-	local rosterIcon = CreateAtlasMarkup("poi-workorders", 16, 16)
-	local rosterHelp = [[
-	Список гильдии:
-	Вы можете отсортировать список гильдии, кликнув по названию колонки. Например, нажав на заголовок "Класс" или "Звание" вы отфильтруете всех участников в опреденном порядке.
-	
-	]]
-	local tradeskillIcon = CreateAtlasMarkup("Mobile-Blacksmithing", 16, 16)
-	local tradeskillHelp = 
-	[[
-	Профессии:
-	Guildbook будет сканировать рецепты игроков при загрузке и этот процесс может занять несколько минут. После завершения вы сможете посмотреть доступные рецепты по профессиям или слотам экипировки (голова, кисти рук, ступни и т.д.).
-	
-	Guildbook отправляет список ваших рецептов другим членам гильдии. Откройте окно профессии, чтобы запустить сканирование рецептов. Полученные данные будут сохранены в вашем профиле и отправлены членам гильдии, находящимся в сети. 
-	Данные будут отправляться каждый раз, когда вы входите в игру и открываете окно профессии. Обновление можно запустить вручную: нажмите кнопку "Импорт/экспорт" над списком профессий и следуйте инструкциям. 
-	
-	]]
-	local profileIcon = CreateAtlasMarkup("GarrMission_MissionIcon-Recruit", 16, 16)
-	local profileHelp = 
-	[[
-	Профиль:
-	Редактируйте по своему желанию. Добавлять персональную информацию о себе или нет - решать только вам.
-	Вы можете выбрать свою основную специализацию и указать основного персонажа. Если вы используете несколько учетных записей, вы можете добавить еще одного персонажа, которого затем можно будет выбрать в качестве основного. (Альты устанавливаются выбором главного героя из профиля альтов).
-	
-	]]
-	local searchIcon = CreateAtlasMarkup("shop-games-magnifyingglass", 16, 16)
-	local searchHelp = 
-	[[
-	Поиск:
-	Используйте этот инструмент для поиска внутри своей гильдии. Ищите название рецепта, имя персонажа и многое другое.
-	
-	]]
-	local bankIcon = CreateAtlasMarkup("ShipMissionIcon-Treasure-Map", 16, 16)
-	local bankHelp = [[
-	Coming soon
-	]]
-	L["HELP_ABOUT_CREDITS"]             = string.format("%s %s %s %s %s %s %s %s %s %s %s %s", slashCommandsIcon, slashCommandsHelp, rosterIcon, rosterHelp, tradeskillIcon, tradeskillHelp, profileIcon, profileHelp, searchIcon, searchHelp, bankIcon, bankHelp)
-	
+	-- this section has been remade
+	--[[ L["HELP_ABOUT_BANK"] = [=[
+Guild bank:
+Legacy Guild Bank system
+Add "Guildbank" in the note of the character that is used as a bank
+Said character needs to open his in game bank to send data
+
+]=]--]] 
+--[[Translation missing --]]
+--[[ L["HELP_ABOUT_HOME"] = [=[
+Home: 
+A brand new display for your guild's roster featuring an Activity Feed showing who has come online/offline as well as level up and showcasing team up request from guild member using the LFG tool.
+
+]=]--]] 
+--[[Translation missing --]]
+--[[ L["HELP_ABOUT_PROFILE"] = [=[
+Profile:
+Edit as you wish, add your personal information or not.
+You can select your spec(s) and edit your main character. If you use multiple accounts you can add another character which you can then select as a main. (Alts are set by selecting a main character from the alts profile).
+
+]=]--]] 
+--[[Translation missing --]]
+--[[ L["HELP_ABOUT_ROSTER"] = [=[
+Guild Viewer:
+You can view characters from other guilds you are a member of here, the information is the raw data from the addons saved variables file. Select which guild to see a list of its members, select a character to view information.
+
+]=]--]] 
+--[[Translation missing --]]
+--[[ L["HELP_ABOUT_SEARCH"] = [=[
+Search:
+Use this feature to browse your guild database- Find a recipe, pattern, character name.
+
+]=]--]] 
+--[[Translation missing --]]
+--[[ L["HELP_ABOUT_SLASH"] = [=[
+Slash commands:
+You can use /guildbook, /gbk or /gb.
+/guildbook open - this will open Guildbook
+/guildbook [interface] - this will open to a specific area (home, profiles, tradeskills, chat, guildViewer, calendar, guildbank, stats, search, privacy)
+
+]=]--]] 
+--[[Translation missing --]]
+--[[ L["HELP_ABOUT_TRADESKILL"] = [=[
+Tradeskills (Professions):
+Guildbook will process recipe/item IDs when it loads, this process can take a few minutes. Once complete you can view available crafts by profession and/or by equipment slot (head, hands, feet etc).
+
+Guildbook will share your tradeskill recipes with other guild members. 
+Open your tradeskill to trigger the scan of the recipes. This will save to your character and account database for the guild and sends to online guild members. Once this process is complete, future data will be sent to all online guild members when you log in. 
+
+You can also push data by opening a tradeskill (cooldown enabled to prevent spam).
+You can also use the import/export feature, click the icon above the profession list and follow the instructions.
+
+]=]--]] 
 	
 	
 	--mod blizz guild roster, these are key/values in the ModBlizz file that add extra columns
@@ -2178,9 +2176,7 @@ elseif locale == "ruRU" then
 
 
 
---[[ 
-	chinese
-]]
+--[[ 	chinese]]
 
 elseif locale == "zhCN" then
 	L['OptionsAbout'] = 'Guildbook 选项。 感谢 祈福@獅心洛薩 的中文翻译'
@@ -2375,8 +2371,8 @@ elseif locale == "zhCN" then
 
 
 
-
-elseif locale == "ruRU" then --2 ruRU locales? -Belrand
+--2 ruRU locales? -Belrand
+--[[elseif locale == "ruRU" then
 
 	--options page
 	L['OptionsAbout'] = 'Guildbook options and about. Thanks to Belrand@Auberdine for the French translations'
@@ -2408,22 +2404,20 @@ elseif locale == "ruRU" then --2 ruRU locales? -Belrand
 	-- this is just a quick thing, will make the how section more fleshed out
 	-- this is a nasty way to do this, its horrible and i need to make the help & about much better
 	local slashCommandsIcon = CreateTextureMarkup(136377, 64, 64, 16, 16, 0, 1, 0, 1, 0, 0)
-	local slashCommandsHelp = [[
+	local slashCommandsHelp = [=[
 	Slash commands:
 	You can use /guildbook, /gbk or /gb.
 	/guildbook open - this will open Guildbook
-	/guildbook [interface] - this will open to a specific area (roster, tradeskills, chat, profiles, calendar, stats, guildbank, search, privacy)
-
-	]]
+	/guildbook [interface] - this will open to a specific area (roster, tradeskills, chat, profiles, calendar, stats, guildbank, search, privacy)]=]
 	local rosterIcon = CreateAtlasMarkup("poi-workorders", 16, 16)
-	local rosterHelp = [[
+	local rosterHelp = [=[
 	Roster:
 	You can sort the roster by clicking the column headers. You can also filter the roster by class or rank, to do this right click the headers. There is the option under class to filter the roster to just your own characters too!
 
-	]]
+	]=]
 	local tradeskillIcon = CreateAtlasMarkup("Mobile-Blacksmithing", 16, 16)
 	local tradeskillHelp = 
-	[[
+	[=[
 	Tradeskills (Professions):
 	Guildbook will process recipe/item IDs when it loads, this process can take a few minutes. Once complete you can view available crafts by profession and/or by equipment slot (head, hands, feet etc).
 
@@ -2433,26 +2427,26 @@ elseif locale == "ruRU" then --2 ruRU locales? -Belrand
 	You can also push data by opening a tradeskill (cooldown enabled to prevent spam).
 	You can also use the import/export feature, click the icon above the profession list and follow the instructions.
 
-	]]
+	]=]
 	local profileIcon = CreateAtlasMarkup("GarrMission_MissionIcon-Recruit", 16, 16)
 	local profileHelp = 
-	[[
+	[=[
 	Profile:
 	Edit as you wish, add your personal information or not.
 	You can select your spec(s) and edit your main character. If you use multiple accounts you can add another character which you can then select as a main. (Alts are set by selecting a main character from the alts profile).
 
-	]]
+	]=]
 	local searchIcon = CreateAtlasMarkup("shop-games-magnifyingglass", 16, 16)
 	local searchHelp = 
-	[[
+	[=[
 	Search:
 	Use this feature to browse your guild database- Find a recipe, pattern, character name.
 
-	]]
+	]=]
 	local bankIcon = CreateAtlasMarkup("ShipMissionIcon-Treasure-Map", 16, 16)
 	local bankHelp = [[
 	Coming soon
-	]]
+	]=]
 	L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s %s %s", slashCommandsIcon, slashCommandsHelp, rosterIcon, rosterHelp, tradeskillIcon, tradeskillHelp, profileIcon, profileHelp, searchIcon, searchHelp, bankIcon, bankHelp)
 
 
@@ -2710,7 +2704,7 @@ elseif locale == "ruRU" then --2 ruRU locales? -Belrand
 	L['ClassChart']                     = 'Classes (All Members)'
 
 	-- calendar help icon
-	L['calendarHelpText'] = [[
+	L['calendarHelpText'] = [=[
 	Calendar
 
 	|cffffffffGuildbook provides an in-game calendar for guilds to 
@@ -2727,10 +2721,10 @@ elseif locale == "ruRU" then --2 ruRU locales? -Belrand
 	Data sent is limited to 4 weeks to reduce demand on the addon chat 
 	systems, events can be created for any date and will sync once they 
 	fall within 4 weeks of the current date|r.
-	]]
+	]=]
 
 	--guildbank help icon
-	L["GUILDBANKHELPTEXT"]	= [[
+	L["GUILDBANKHELPTEXT"]	= [=[
 	Guild Bank
 
 	|cffffffffGuildbook provides an in-game guild bank for guild 
@@ -2748,7 +2742,7 @@ elseif locale == "ruRU" then --2 ruRU locales? -Belrand
 	should sync their inventory after every change within it.
 
 	Multiple bank characters are supported.|r
-	]]
+	]=]
 
 
 	--legacy stuff
@@ -2816,7 +2810,7 @@ elseif locale == "ruRU" then --2 ruRU locales? -Belrand
 	L["HALLOWS_END"]					= "Hallows End"
 	L["FEAST_OF_WINTER_VEIL"]			= "Feast of Winter Veil"
 	L["BREWFEST"]						= "Brewfest"
-
+]]
 end
 
 
@@ -2845,7 +2839,7 @@ Guildbook.ProfessionNames = {
 	deDE = {
 		[164] = "Schmiedekunst",
 		[165] = "Lederverarbeitung",
-		[171] = "Alchimie",
+		[171] = "Alchemie",
 		[182] = "Kräuterkunde",
 		[185] = "Kochkunst",
 		[186] = "Bergbau",

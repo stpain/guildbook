@@ -72,7 +72,7 @@ StaticPopupDialogs['GuildbookDeleteGuild'] = {
 }
 
 StaticPopupDialogs['GuildbookResetCharacter'] = {
-    text = L["OPT_RESET_CHAR_DATA"],
+    text = L["OPT_RESET_CHAR_DATA1"]..select(1, UnitName("player"))..L["OPT_RESET_CHAR_DATA2"],
     button1 = L["RESET"],
     button2 = L["CANCEL"],
     OnAccept = function(self)
