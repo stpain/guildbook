@@ -721,7 +721,7 @@ Ihr könnt zudem die Import/Export-Funktion benutzen - klickt einfach auf den Bu
 
 	-- roster listview and tooltip, these are also sort keys and should be lower case
 	L["name"]                           = "Name"
-	L["level"]                          = "Level"
+	L["level"]                          = "Stufe"
 	L["mainSpec"]                       = "Haupt-Spez"
 	L["prof1"]                          = "Berufe"
 	L["location"]                       = "Ort"
@@ -822,7 +822,7 @@ Ihr könnt zudem die Import/Export-Funktion benutzen - klickt einfach auf den Bu
 	L["GUILD_ACTIVTY_HEADER"] = "Aktivitäten-Übersicht"
 	L["GUILD_MEMBERS_HEADER"] = "Mitglieder (|cffFFD100Shift drücken für mehr Informationen|r)"
 	L["GUILD_MEMBERS_OFFLINE"] = "Offline-Spieler anzeigen"
-	L["NF_PLAYER_LEVEL_UP_SS"] = "%s hat Level %s erreicht!"
+	L["NF_PLAYER_LEVEL_UP_SS"] = "%s hat Stufe %s erreicht!"
 	L["NF_PLAYER_LOGIN_S"] = "%s ist jetzt online"
 	L["NF_PLAYER_LOGOUT_S"] = "%s ist jetzt offline"
 	L["NF_LFG_CREATED_S"] = "%s ist der Warteschlange für %s beigetreten [%s]"
@@ -831,7 +831,7 @@ Ihr könnt zudem die Import/Export-Funktion benutzen - klickt einfach auf den Bu
 
 	L["PRIVACY_CONFIG_ERROR_SS"] = "Setze %s zu %s"
 	L["PRIVACY_SHARE_LFG"] = "Informationen teilen wenn man die \"Suche nach Gruppe\"-Funktion benutzt"
-	L["PRIVACY_SHARE_LEVEL_UP"] = "Informationen teilen wenn man ein neues Level erreicht hat"
+	L["PRIVACY_SHARE_LEVEL_UP"] = "Informationen teilen wenn man ein neues Stufe erreicht hat"
 
 
 	L["OPT_BLIZZROSTER"] = "Die weite Ansicht für die Blizzard Standard-Gildenübersicht anzeigen."
@@ -894,7 +894,7 @@ Ihr könnt zudem die Import/Export-Funktion benutzen - klickt einfach auf den Bu
 	L["MAIN_CHARACTER_REMOVE_ALT"]		= "Charakter entfernen"
 	L["DIALOG_MAIN_CHAR_ADD"]			= "Gib den Namen deines Charakters ein, er muss ein Gildenmitglied sein."
 	L["DIALOG_MAIN_CHAR_REMOVE"]		= "Bitte geben Sie den Namen des Charakters ein."
-	L["DIALOG_MAIN_CHAR_ADD_FOUND"]		= "Charakter gefunden: %s Level: %s %s"
+	L["DIALOG_MAIN_CHAR_ADD_FOUND"]		= "Charakter gefunden: %s Stufe: %s %s"
 
 	--attributes
 	L["STRENGTH"]						= "Stärke"
