@@ -90,7 +90,7 @@ SlashCmdList['GUILDBOOK'] = function(msg)
 	elseif msg == L["HOME"] or msg == L["HOME"]:lower() then
 		GuildbookUI:OpenTo("home")
 		
-	elseif msg == L["TADESKILLS"] or msg == L["TRADESKILLS"]:lower() or msg == 'ts' then
+	elseif msg == L["TRADESKILLS"] or msg == L["TRADESKILLS"]:lower() or msg == 'ts' then
 		GuildbookUI:OpenTo("tradeskills")
 		
 	elseif msg == L["CHAT"] or msg == L["CHAT"]:lower() then
