@@ -811,7 +811,7 @@ function Guildbook:SetupGuildCalendarFrame()
     UIDropDownMenu_SetWidth(hour, 45)
     UIDropDownMenu_SetText(hour, "00")
     local hours = {}
-    for i = 1, 23 do
+    for i = 1, 24 do
         local hourFormatted = string.format("%.2d", i-1)
         hours[i] = {
             text = hourFormatted,
@@ -1018,7 +1018,11 @@ function Guildbook:SetupGuildCalendarFrame()
 
         f:SetScript("OnEnter", function(f)
             GameTooltip:SetOwner(f, 'ANCHOR_RIGHT', -10, -30)
-            GameTooltip:AddDoubleLine(classes[i]:sub(1,1)..classes[i]:sub(2):lower(), f.text:GetText(), 1,1,1,1,1,1)
+            if L[classes[i]] then
+				GameTooltip:AddDoubleLine(L[classes[i]]:sub(1,1)..L[classes[i]]:sub(2):lower(), f.text:GetText(), 1,1,1,1,1,1)
+			else
+				GameTooltip:AddDoubleLine(classes[i]:sub(1,1)..classes[i]:sub(2):lower(), f.text:GetText(), 1,1,1,1,1,1)
+			end
 
             GameTooltip:Show()
         end)

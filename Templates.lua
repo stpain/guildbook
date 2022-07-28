@@ -522,8 +522,10 @@ function GuildbookProfileSummaryRowAvatarTemplateMixin:SetCharacter(guid)
     self.guid = guid;
     if self.character.profile and self.character.profile.avatar then
         self.avatar:SetTexture(self.character.profile.avatar)
-    else
+    elseif self.character.Race and self.character.Gender then
         self.avatar:SetAtlas(string.format("raceicon-%s-%s", self.character.Race, self.character.Gender))
+	else
+		self.avatar:SetAtlas("GarrMission_MissionIcon-Recruit")
     end
     self.name:SetText(gb.Data.Class[self.character.Class:upper()].FontColour..self.character.Name)
     local rgb = gb.Data.Class[self.character.Class].RGB

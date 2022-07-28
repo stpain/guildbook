@@ -50,6 +50,7 @@ function GuildbookDataShareMixin:OnLoad()
     self.dataString.CharCount:SetPoint("TOPRIGHT", self.dataString, "BOTTOMRIGHT", 0, -25)
 
     self.header:SetText(L["GUILDBOOK_DATA_SHARE_HEADER"])
+    self.header:SetTextScale(0.9)
 
     self.import:SetText(L["IMPORT"])
 
@@ -946,7 +947,7 @@ function GuildbookTradeskillsMixin:OnLoad()
         fs:SetText(L[fs.locale])
     end
 
-    local offset = 215
+    local offset = 225
     for k, slot in ipairs(invSlots) do
 
         local b = CreateFrame("FRAME", nil, self.ribbon, "GuildbookSmallHighlightButton")
@@ -3155,7 +3156,7 @@ function GuildbookStatsMixin:OnLoad()
     self.classChartsHeader = self:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     self.classChartsHeader:SetPoint("BOTTOM", 0, 380)
     self.classChartsHeader:SetText(L["CLASS_SUMMARY"])
-	self.classChartsHeader:SetTextScale(1.6)
+	self.classChartsHeader:SetTextScale(1.5)
 
     self.classPie = LibGraph:CreateGraphPieChart("GuildbookUIStatsClassPie", self, 'BOTTOMRIGHT', 'BOTTOMRIGHT', -15, 35, 260,260)
     for class, info in pairs(gb.Data.Class) do

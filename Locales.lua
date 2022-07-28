@@ -536,6 +536,7 @@ L["ATTENDING"]                      = "Attend"
 L["LATE"]                      		= "Late"
 L["TENTATIVE"]                      = "Tentative"
 L["DECLINE"]                        = "Decline"
+L["Total"]							= "Total"
 
 L["TIME"]							= "Time"
 L["YEARS"]                          = "years"
@@ -650,8 +651,9 @@ Für mehr Informationen besucht den Discord-Server für Guildbook.
 
 	L["GUILDBOOK_DATA_SHARE_HEADER"]	= [=[Guildbook-Daten teilen
 
-	Sie können Ihre Berufsinformationen teilen, indem Sie auf "exportieren" klicken, um eine  Zeichenkette zu erzeugen. Kopieren Sie diese dann und fügen Sie sie z.B. in Discord ein. 
-	Um Daten von Berufen zu importieren, fügen Sie eine Zeichenkette in das Feld unten ein und klicken Sie auf "importieren".]=]
+Sie können Ihre Berufsinformationen teilen, indem Sie auf "exportieren" klicken, um eine  Zeichenkette zu erzeugen. Kopieren Sie diese dann und fügen Sie sie z.B. in Discord ein. 
+Um Daten von Berufen zu importieren, fügen Sie eine Zeichenkette in das Feld unten ein und klicken Sie auf "importieren".
+]=]
 	L["GUILDBOOK_LOADER_HEADER"]        = "Willkommen bei Guildbook"
 	L["TOOLTIP_ITEM_RECIPE_HEADER"]     = "Wird für Folgendes verwendet"
 
@@ -737,8 +739,8 @@ Ihr könnt zudem die Import/Export-Funktion benutzen - klickt einfach auf den Bu
 	L["AVATAR"]                         = "Avatar"
 	L["MAIN_CHARACTER"]                 = "Hauptcharakter"
 	L["ALT_CHARACTERS"]                 = "Alt-Charakter"
-	L["MAIN_SPEC"]                      = "Main spec"
-	L["OFF_SPEC"]                       = "Off spec"
+	L["MAIN_SPEC"]                      = "Hauptspezialisierung"
+	L["OFF_SPEC"]                       = "Alternativ-Spezialisierung"
 	L["PRIVACY"]                        = "Datenschutz"
 	L["PRIVACY_ABOUT"]                  = "Legen Sie den niedrigsten Rang fest, für den Sie Daten freigeben möchten. Zu den Profildaten gehören Name, Geburtstag, Lebenslauf und Avatar. Inventardaten sind die Ausrüstung, die dein Charakter besitzt (Welche |cffFFD100NICHT|r in deinen Taschen/Bank liegt). Talentspezialisierung ist, nun ja, deine Talentspezialisierungen!"
 	L["INVENTORY"]                      = "Inventar"
@@ -747,6 +749,8 @@ Ihr könnt zudem die Import/Export-Funktion benutzen - klickt einfach auf den Bu
 	L["ROSTER_MY_CHARACTERS"]			= "Mein Charakter"
 	L["ROSTER_ALL_CLASSES"]				= "Alle"
 	L["ROSTER_ALL_RANKS"]				= "Alle"
+
+	L["ROSTER_VIEW_RECIPES"] 			= "Klicken um Rezepte anzusehen"
 
 	L["TRADESKILLS"]					= "Berufe"
 	L["TRADESKILLS_RECIPES"]			= "Rezepte"
@@ -1083,12 +1087,16 @@ Ihr könnt zudem die Import/Export-Funktion benutzen - klickt einfach auf den Bu
 	L["DELETE_EVENT"]                   = "Ereignis löschen"
 	L["EVENT"]                          = "Ereignis"
 	L["EVENT_TYPE"]                     = "Ereignistyp"
+	L["EVENT_NO_TITLE"] 				= "Du hast keinen Titel gesetzt!"
+	L["EVENT_CREATED"] 					= "Ereignis erstellt!"
 	L["TITLE"]                          = "Titel"
 	L["DESCRIPTION"]                    = "Beschreibung"
 	L["UPDATE"]                         = "Aktualisierung"
 	L["ATTENDING"]                      = "Antretend"
+	L["LATE"] 							= "Verspätet"
 	L["TENTATIVE"]                      = "Abwesend"
 	L["DECLINE"]                        = "Abbrechen"
+
 
 	L["TIME"] 							= "Zeit"
 	L["YEARS"]                          = "Jahre"
@@ -1668,6 +1676,7 @@ De multiples personnages banques sont supportés.|r
 	L["LATE"]                           = "Retard"
 	L["TENTATIVE"]                      = "Tentative"
 	L["DECLINE"]                        = "Décliner"
+	L["Total"]							= "Total"
 
 	L["TIME"]							= "Temps"
 	L["YEARS"]                          = "années"
