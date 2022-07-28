@@ -613,15 +613,15 @@ local locale = GetLocale()
 if locale == "deDE" then
 
 	L["UPDATE_NEWS"] = [=[
-		|cFFFF0000WICHTIG!|r 
-		Dies ist das letzte groẞe Update vor |cff45b6feWrath of the Lich King Classic|r.
+	|cFFFF0000WICHTIG!|r 
+	Dies ist das letzte groẞe Update vor |cff45b6feWrath of the Lich King Classic|r.
 
-		Das Addon wird völlig überarbeitet um besser mit der nächsten Classic-Erweiterung zu funktionieren. 
-		Diese Erweiterung bringt neue Funktionen wie die duale Talentspezialisierung und Glyphen - Dinge die Guildbook aktuell nicht verarbeiten kann.
+	Das Addon wird völlig überarbeitet um besser mit der nächsten Classic-Erweiterung zu funktionieren. 
+	Diese Erweiterung bringt neue Funktionen wie die duale Talentspezialisierung und Glyphen - Dinge die Guildbook aktuell nicht verarbeiten kann.
 
-		Die jetzige Version von Guildbook wird weiterhin auf Curse verfügbar sein und falls es je eine neue Classic oder TBC SoM geben wird, wird die neue Guildbook-Version aktualisiert um damit zu funktionieren oder die jetzige Version wird entsprechend bearbeitet.
+	Die jetzige Version von Guildbook wird weiterhin auf Curse verfügbar sein und falls es je eine neue Classic oder TBC SoM geben wird, wird die neue Guildbook-Version aktualisiert um damit zu funktionieren oder die jetzige Version wird entsprechend bearbeitet.
 
-		Für mehr Informationen besucht den Discord-Server für Guildbook.
+	Für mehr Informationen besucht den Discord-Server für Guildbook.
 	]=]
 	L["DIALOG_SHOW_UPDATES"] = "Wieder anzeigen"
 	L["DIALOG_DONT_SHOW_UPDATES"] = "Bestätigen & ausblenden"
@@ -1222,7 +1222,7 @@ Un nouvel affichage pour le registre de votre guilde avec un Fil d'Actualité mo
 
 ]]
 L["HELP_ABOUT_PROFILE"] = [[
-Profile:
+Profil:
 Vous pouvez sélection votre(vos) spé(s) et sélectionn un personnage principal. Si vous utilisez plusieurs comptes, vous pouvez ajouter un autre personnage que vous pouvez ajouter comme personnage principal. (Les autres personnages seront automatiquement ajouté en sélectionnant le personnage principal.
 
 ]]
