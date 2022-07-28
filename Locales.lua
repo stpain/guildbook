@@ -712,7 +712,7 @@ Ihr könnt zudem die Import/Export-Funktion benutzen - klickt einfach auf den Bu
 
 	--mod blizz guild roster, these are key/values in the ModBlizz file that add extra columns
 	L['Online']                         = 'Online'
-	L['MainSpec']                       = 'Main Spec'
+	L['MainSpec']                       = "Haupt-Spez"
 	L['Rank']                           = 'Rank'
 	L['Note']                           = 'Notiz'
 	L['Profession1']                    = 'Beruf 1'
@@ -722,7 +722,7 @@ Ihr könnt zudem die Import/Export-Funktion benutzen - klickt einfach auf den Bu
 	-- roster listview and tooltip, these are also sort keys and should be lower case
 	L["name"]                           = "Name"
 	L["level"]                          = "Level"
-	L["mainSpec"]                       = "Main Spec"
+	L["mainSpec"]                       = "Haupt-Spez"
 	L["prof1"]                          = "Berufe"
 	L["location"]                       = "Ort"
 	L["rankName"]                       = "Rang"
@@ -734,13 +734,13 @@ Ihr könnt zudem die Import/Export-Funktion benutzen - klickt einfach auf den Bu
 	-- xml strings
 	L["PROFILE_TITLE"]                  = "Profil"
 	L["REAL_NAME"]                      = "Name"
-	L["REAL_DOB"]                       = "Geburtsdatum"
-	L["REAL_BIO"]                       = "Bio"
+	L["REAL_DOB"]                       = "Geburtstag"
+	L["REAL_BIO"]                       = "Lebenslauf"
 	L["AVATAR"]                         = "Avatar"
-	L["MAIN_CHARACTER"]                 = "Hauptcharakter"
+	L["MAIN_CHARACTER"]                 = "Hauptcharakt"
 	L["ALT_CHARACTERS"]                 = "Alt-Charakter"
-	L["MAIN_SPEC"]                      = "Hauptspezialisierung"
-	L["OFF_SPEC"]                       = "Alternativ-Spezialisierung"
+	L["MAIN_SPEC"]                      = "Haupt-Spez"
+	L["OFF_SPEC"]                       = "Alt-Spez"
 	L["PRIVACY"]                        = "Datenschutz"
 	L["PRIVACY_ABOUT"]                  = "Legen Sie den niedrigsten Rang fest, für den Sie Daten freigeben möchten. Zu den Profildaten gehören Name, Geburtstag, Lebenslauf und Avatar. Inventardaten sind die Ausrüstung, die dein Charakter besitzt (Welche |cffFFD100NICHT|r in deinen Taschen/Bank liegt). Talentspezialisierung ist, nun ja, deine Talentspezialisierungen!"
 	L["INVENTORY"]                      = "Inventar"
@@ -758,8 +758,8 @@ Ihr könnt zudem die Import/Export-Funktion benutzen - klickt einfach auf den Bu
 	L["TRADESKILL_GUILD_RECIPES"]		= "Gildenrezepte"
 	L["TRADESKILLS_SHARE_RECIPES"]		= "Teilen Sie die Rezepte dieses Charakters"
 	L["TRADESKILLS_EXPORT_RECIPES"]		= "Importieren oder exportieren von Berufsinhalten"
-	L["IMPORT"]							= "importieren"
-	L["EXPORT"]							= "exportieren"
+	L["IMPORT"]							= "Importieren"
+	L["EXPORT"]							= "Exportieren"
 	L["CAN_CRAFT"]                      = "[Guildbook] bist du in der Lage %s herzustellen?"
 	L["REMOVE_RECIPE_FROM_PROF_SS"]		= "Entferne %s von %s ?"
 	L["REMOVE_RECIPE_FROM_PROF"]		= "Klicken Sie mit der rechten Maustaste, um sie aus diesem Beruf zu entfernen."
@@ -897,7 +897,7 @@ Ihr könnt zudem die Import/Export-Funktion benutzen - klickt einfach auf den Bu
 	L["DIALOG_MAIN_CHAR_ADD_FOUND"]		= "Charakter gefunden: %s Level: %s %s"
 
 	--attributes
-	L["STRENGTH"]						= "Strength"
+	L["STRENGTH"]						= "Stärke"
 	L["AGILITY"]						= "Beweglichkeit"
 	L["STAMINA"]						= "Ausdauer"
 	L["INTELLECT"]						= "Intelligenz"
@@ -910,23 +910,23 @@ Ihr könnt zudem die Import/Export-Funktion benutzen - klickt einfach auf den Bu
 	L["BLOCK"]							= "Blocken"
 	--melee
 	L["EXPERTISE"]						= "Fachwissen"
-	L["HIT_CHANCE"]						= "Hit"
-	L["MELEE_CRIT"]						= "Crit"
-	L["MH_DMG"]							= "Main hand Schaden"
-	L["OH_DMG"] 						= "Off hand Schaden"
-	L["MH_DPS"] 						= "Main hand Schaden"
-	L["OH_DPS"] 						= "Off hand Schaden"
+	L["HIT_CHANCE"]						= "Trefferchance"
+	L["MELEE_CRIT"]						= "Kritische Trefferchance"
+	L["MH_DMG"]							= "Waffenhand-Schaden"
+	L["OH_DMG"] 						= "Schildhand-Schaden"
+	L["MH_DPS"] 						= "WH Schaden pro Sekunde"
+	L["OH_DPS"] 						= "SH Schaden pro Sekunde"
 	--ranged
-	L["RANGED_HIT"] 					= "Hit"
-	L["RANGED_CRIT"] 					= "Crit"
+	L["RANGED_HIT"] 					= "Trefferchance"
+	L["RANGED_CRIT"] 					= "Kritische Trefferchance"
 	L["RANGED_DMG"] 					= "Schaden"
-	L["RANGED_DPS"] 					= "Dps"
+	L["RANGED_DPS"] 					= "Schaden pro Sekunde"
 	--spells
 	L["SPELL_HASTE"] 					= "Tempowertung"
 	L["MANA_REGEN"] 					= "Mana-Regenerierung"
-	L["MANA_REGEN_CASTING"] 			= "Mana-Regenerierung (während dem casten)"
-	L["SPELL_HIT"] 						= "Hit"
-	L["SPELL_CRIT"] 					= "Crit"
+	L["MANA_REGEN_CASTING"] 			= "MR(während dem casten)"
+	L["SPELL_HIT"] 						= "Trefferchance"
+	L["SPELL_CRIT"] 					= "Kritische Trefferchance"
 	L["HEALING_BONUS"] 					= "Heilbonus"
 	L["SPELL_DMG_HOLY"] 				= "Heilig"
 	L["SPELL_DMG_FROST"] 				= "Frost"
