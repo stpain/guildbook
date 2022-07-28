@@ -502,6 +502,7 @@ function GuildbookMixin:OnLoad()
     end
 
     self.guildViewer.header:SetText(L["GUILD_VIEWER_HEADER"])
+    self.guildViewer.header:SetTextScale(0.85)
 
     self.profiles.contentPane.scrollChild:SetSize(650, 480)
 
@@ -618,6 +619,7 @@ function GuildbookHomeMixin:OnLoad()
     CallbackRegistryMixin.OnLoad(self)
 
     self.memberList.header:SetText(L["GUILD_MEMBERS_HEADER"])
+    self.memberList.header:SetPoint("LEFT", 5, 0)
     self.newsFeed.header:SetText(L["GUILD_ACTIVTY_HEADER"])
     self.showOfflineMembers.label:SetText(L["GUILD_MEMBERS_OFFLINE"])
 
