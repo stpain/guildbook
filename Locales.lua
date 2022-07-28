@@ -613,16 +613,16 @@ local locale = GetLocale()
 if locale == "deDE" then
 
 	L["UPDATE_NEWS"] = [=[
-	|cFFFF0000WICHTIG!|r 
-	Dies ist das letzte groẞe Update vor |cff45b6feWrath of the Lich King Classic|r.
+|cFFFF0000WICHTIG!|r 
+Dies ist das letzte groẞe Update vor |cff45b6feWrath of the Lich King Classic|r.
 
-	Das Addon wird völlig überarbeitet um besser mit der nächsten Classic-Erweiterung zu funktionieren. 
-	Diese Erweiterung bringt neue Funktionen wie die duale Talentspezialisierung und Glyphen - Dinge die Guildbook aktuell nicht verarbeiten kann.
+Das Addon wird völlig überarbeitet um besser mit der nächsten Classic-Erweiterung zu funktionieren. 
+Diese Erweiterung bringt neue Funktionen wie die duale Talentspezialisierung und Glyphen - Dinge die Guildbook aktuell nicht verarbeiten kann.
 
-	Die jetzige Version von Guildbook wird weiterhin auf Curse verfügbar sein und falls es je eine neue Classic oder TBC SoM geben wird, wird die neue Guildbook-Version aktualisiert um damit zu funktionieren oder die jetzige Version wird entsprechend bearbeitet.
+Die jetzige Version von Guildbook wird weiterhin auf Curse verfügbar sein und falls es je eine neue Classic oder TBC SoM geben wird, wird die neue Guildbook-Version aktualisiert um damit zu funktionieren oder die jetzige Version wird entsprechend bearbeitet.
 
-	Für mehr Informationen besucht den Discord-Server für Guildbook.
-	]=]
+Für mehr Informationen besucht den Discord-Server für Guildbook.
+]=]
 	L["DIALOG_SHOW_UPDATES"] = "Wieder anzeigen"
 	L["DIALOG_DONT_SHOW_UPDATES"] = "Bestätigen & ausblenden"
 	L["ADDON_LOADED"] = "Guildbook wird initialisiert!"
@@ -1163,15 +1163,15 @@ Ihr könnt zudem die Import/Export-Funktion benutzen - klickt einfach auf den Bu
 --[[ french | In order to avoid missing new things, I sorted the whole locale back to match the original one - Belrand]]
 elseif locale == 'frFR' then
 	L["UPDATE_NEWS"] = [=[
-	|cFFFF0000IMPORTANT!|r
-	C' est la dernière mise à jour avant |cff45b6feWrath of the Lich King Classic|r
-		
-	L'addon est en train d'être retravaillé pour une meilleur compatibilité avec la prochaine extension.
-	Cette extension amène de nouvelle fonctionnalités comme la double spé et les glyphes qui ne sont pas compatibles avec la version actuelle de l'addon.
-		
-	Cette version restera sur Curseforge en tant que telle et si/quand Blizzard fera un annoncement concernant une nouvelle saison de Classic ou TBC, soit la nouvelle version sera retroporté pour fonctionner avec ces serveurs ou cette version-ci recevra une maintenance.
-		
-	Vous trouverez plus d'info sur le serveur Discord de Guildbook.
+|cFFFF0000IMPORTANT!|r
+C'est la dernière mise à jour avant |cff45b6feWrath of the Lich King Classic|r
+
+L'addon est en train d'être retravaillé pour une meilleur compatibilité avec la prochaine extension.
+Cette extension amène de nouvelle fonctionnalités comme la double spé et les glyphes qui ne sont pas compatibles avec la version actuelle de l'addon.
+
+Cette version restera sur Curseforge en tant que telle et si/quand Blizzard fera un annoncement concernant une nouvelle saison de Classic ou TBC soit la nouvelle version sera retroportée pour fonctionner avec ces serveurs, soit cette version-ci recevra une maintenance.
+
+Vous trouverez plus d'info sur le serveur Discord de Guildbook.
 ]=]
 	L["DIALOG_SHOW_UPDATES"]			= "Afficher à nouveau"
     L["DIALOG_DONT_SHOW_UPDATES"]		= "Ok, ne plus montrer"
@@ -2445,7 +2445,7 @@ elseif locale == "zhCN" then
 
 	]=]
 	local bankIcon = CreateAtlasMarkup("ShipMissionIcon-Treasure-Map", 16, 16)
-	local bankHelp = [[
+	local bankHelp = [=[
 	Coming soon
 	]=]
 	L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s %s %s", slashCommandsIcon, slashCommandsHelp, rosterIcon, rosterHelp, tradeskillIcon, tradeskillHelp, profileIcon, profileHelp, searchIcon, searchHelp, bankIcon, bankHelp)
