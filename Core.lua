@@ -80,6 +80,31 @@ SlashCmdList['GUILDBOOK'] = function(msg)
 
     elseif GuildbookUI[msg] then
         GuildbookUI:OpenTo(msg)
+
+    elseif msg == L["SEARCH"] or msg == L["SEARCH"]:lower() then
+		GuildbookUI:OpenTo("search")
+		
+	elseif msg == L["CALENDAR"] or msg == L["CALENDAR"]:lower() then
+		GuildbookUI:OpenTo("calendar")
+		
+	elseif msg == L["HOME"] or msg == L["HOME"]:lower() then
+		GuildbookUI:OpenTo("home")
+		
+	elseif msg == L["TADESKILLS"] or msg == L["TRADESKILLS"]:lower() or msg == 'ts' then
+		GuildbookUI:OpenTo("tradeskills")
+		
+	elseif msg == L["CHAT"] or msg == L["CHAT"]:lower() then
+		GuildbookUI:OpenTo("chat")
+		
+	elseif msg == 'bank' then
+		GuildbookUI:OpenTo("guildbank")
+		
+	elseif msg == 'options' then
+	    InterfaceOptionsFrame_OpenToCategory(addonName)
+       -- InterfaceOptionsFrame_OpenToCategory(addonName)
+	   
+	elseif msg == 'debug' then
+		Guildbook.DebuggerWindow:Show()
     
     elseif msg == "version" and Guildbook.version then
         Guildbook:PrintMessage(Guildbook.version)

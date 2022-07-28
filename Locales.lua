@@ -40,7 +40,7 @@ local L = {}
 
 L["UPDATE_NEWS"] = [=[
 |cFFFF0000IMPORTANT!|r
-This is the last big update before |cff45b6feWrath of the Lich King|r
+This is the last big update before |cff45b6feWrath of the Lich King Classic|r
 	
 The addon is being reworked for a better compatibility with the next classic expansion.
 This expansion brings new features such as dual spec and glyphs and the current version of the addon isn't compatible with these changes from Blizzard.
@@ -612,17 +612,17 @@ local locale = GetLocale()
 --[[   german  - thanks to Nezzquikk#2473 and Ashnagarr#7229 from discord for these translations]]
 if locale == "deDE" then
 
-	--[[ L["UPDATE_NEWS"] = [=[
-	|cFFFF0000IMPORTANT!|r
-	This is the last big update before |cff45b6feWrath of the Lich King|r
-		
-	The addon is being reworked for a better compatibility with the next classic expansion.
-	This expansion brings new features such as dual spec and glyphs and the current version of the addon isn't compatible with these changes from Blizzard.
-		
-	The current version will remain available via curse as is and if/when Blizzard make any announcements for new Classic SoM or TBC SoM servers, either the new version can be backported to work with those servers or the older version will receive maintenance.
-		
-	Check the Discord server for more informations.
-	]=] ]]
+	L["UPDATE_NEWS"] = [=[
+		|cFFFF0000WICHTIG!|r 
+		Dies ist das letzte groẞe Update vor |cff45b6feWrath of the Lich King Classic|r.
+
+		Das Addon wird völlig überarbeitet um besser mit der nächsten Classic-Erweiterung zu funktionieren. 
+		Diese Erweiterung bringt neue Funktionen wie die duale Talentspezialisierung und Glyphen - Dinge die Guildbook aktuell nicht verarbeiten kann.
+
+		Die jetzige Version von Guildbook wird weiterhin auf Curse verfügbar sein und falls es je eine neue Classic oder TBC SoM geben wird, wird die neue Guildbook-Version aktualisiert um damit zu funktionieren oder die jetzige Version wird entsprechend bearbeitet.
+
+		Für mehr Informationen besucht den Discord-Server für Guildbook.
+	]=]
 	L["DIALOG_SHOW_UPDATES"] = "Wieder anzeigen"
 	L["DIALOG_DONT_SHOW_UPDATES"] = "Bestätigen & ausblenden"
 	L["ADDON_LOADED"] = "Guildbook wird initialisiert!"
@@ -658,53 +658,54 @@ if locale == "deDE" then
 	L["HELP_ABOUT"]						= "Hilfe & Infos"
 
 	-- Help&About has been remade
-	--[[ L["HELP_ABOUT_BANK"] = [=[
-Guild bank:
-Legacy Guild Bank system
-Add "Guildbank" in the note of the character that is used as a bank
-Said character needs to open his in game bank to send data
+	L["HELP_ABOUT_BANK"] = [=[
+Gildenbank:
+Legacy-Gildenbank-System
+Füge "Guildbank" in die Notiz des Charakters der als Bank benutzt wird.
+Besagter Charakter muss seine Bank öffnen um die Informationen zu senden.
 
-]=]--]] 
---[[ L["HELP_ABOUT_HOME"] = [=[
-Home: 
-A brand new display for your guild's roster featuring an Activity Feed showing who has come online/offline as well as level up and showcasing team up request from guild member using the LFG tool.
+]=]
+ 	L["HELP_ABOUT_HOME"] = [=[
+Hauptmenü: 
+Ein brandneuer Tab für eure Gilde, der eine Aktivätenanzeige beinhaltet darüber wer online/offline geht, als auch wer ein Level aufsteigt oder via LFG-Tool nach Hilfe sucht.
 
-]=]--]] 
+]=]
 
---[[ L["HELP_ABOUT_PROFILE"] = [=[
-Profile:
-Edit as you wish, add your personal information or not.
-You can select your spec(s) and edit your main character. If you use multiple accounts you can add another character which you can then select as a main. (Alts are set by selecting a main character from the alts profile).
+	L["HELP_ABOUT_PROFILE"] = [=[
+Profil: 
+Hier könnt ihr hineinschreiben was ihr wollt. Ihr könnt eure Spezialisierung auswählen und welcher Charakter euer Hauptcharakter ist. 
+Wenn ihr mehrere Accounts besitzt könnt ihr hier auch Charaktere von diesen Accounts hinzufügen. 
+(Alt-Charaktere werden gesetzt in dem ihr einen Hauptcharakter vom Profil des Alt-Charakters aus auswählt)
 
-]=]--]] 
---[[ L["HELP_ABOUT_ROSTER"] = [=[
-Guild Viewer:
-You can view characters from other guilds you are a member of here, the information is the raw data from the addons saved variables file. Select which guild to see a list of its members, select a character to view information.
+]=]
+	L["HELP_ABOUT_ROSTER"] = [=[
+Gilden-Ansicht: 
+Hier könnt ihr Charaktere von anderen Gilden sehen in denen ihr ein Mitglied seid. 
+Die Informationen hier sind die ungefilterten Daten aus der "Saved Variables" Datei. 
+Wählt aus von welcher Gilde ihr eine Liste der Mitglieder sehen wollt und wählt dann einen Charakter aus um dessen Informationen zu sehen.
 
-]=]--]] 
---[[ L["HELP_ABOUT_SEARCH"] = [=[
-Search:
-Use this feature to browse your guild database- Find a recipe, pattern, character name.
+]=]
+	L["HELP_ABOUT_SEARCH"] = [=[
+Suche: 
+Mit dieser Funktion könnt ihr eure Gildendatenbank zu durchsuchen - Findet ein Rezept oder einen Charaktername.
 
-]=]--]] 
---[[ L["HELP_ABOUT_SLASH"] = [=[
-Slash commands:
-You can use /guildbook, /gbk or /gb.
-/guildbook open - this will open Guildbook
-/guildbook [interface] - this will open to a specific area (home, profiles, tradeskills, chat, guildViewer, calendar, guildbank, stats, search, privacy)
+]=]
+	L["HELP_ABOUT_SLASH"] = [=[
+Chat-Befehle: 
+Ihr könnt /guildbook, /gbk oder /gb benutzen um Guildbook zu öffnen. Wenn ihr /guildbook [interface] benutzt könnt ihr direkt einen bestimmten Bereich öffnen (home, profiles, tradeskills, chat, GuildViewer, calendar, guildbank, stats, search, privacy).
 
-]=]--]] 
---[[ L["HELP_ABOUT_TRADESKILL"] = [=[
-Tradeskills (Professions):
-Guildbook will process recipe/item IDs when it loads, this process can take a few minutes. Once complete you can view available crafts by profession and/or by equipment slot (head, hands, feet etc).
+]=]
+	L["HELP_ABOUT_TRADESKILL"] = [=[
+Berufe: 
+Guildbook geht durch alle Rezepte und Item IDs wenn es lädt - dieser Prozess kann ein paar Minuten dauern. 
+Wenn der Prozess vollständig ist könnt Ihr alle verfügbaren Rezepte entweder nach Beruf oder Ausrüstungs-Slot (Helm, Handschuhe, Stiefel etc.) ansehen. 
+Guildbook teilt eure Berufs-Rezepte mit anderen Gildenmitgliedern. 
+Öffnet Euren Beruf um die Rezepte automatisch scannen zu lassen. 
+Dies wird für euren Charakter gespeichert und für die Accountdatenbank für die Gilde und dann an andere Gildenmitglieder die online sind gesendet. 
+Wenn dieser Prozess abgeschlossen ist, erhalten andere Gildenmitglieder die Informationen wenn sie online kommen. Ihr könnt Daten auch direkt senden in dem Ihr Euren Beruf öffnet (limitiert um Spam zu verhindern). 
+Ihr könnt zudem die Import/Export-Funktion benutzen - klickt einfach auf den Button über der Berufsliste und folgt den Anweisungen dort.
 
-Guildbook will share your tradeskill recipes with other guild members. 
-Open your tradeskill to trigger the scan of the recipes. This will save to your character and account database for the guild and sends to online guild members. Once this process is complete, future data will be sent to all online guild members when you log in. 
-
-You can also push data by opening a tradeskill (cooldown enabled to prevent spam).
-You can also use the import/export feature, click the icon above the profession list and follow the instructions.
-
-]=]--]] 
+]=]
 	L["CALENDAR_TOOLTIP_LOCKOUTS"] 		= "Instanzsperren"
 
 	--mod blizz guild roster, these are key/values in the ModBlizz file that add extra columns
@@ -1163,7 +1164,7 @@ You can also use the import/export feature, click the icon above the profession 
 elseif locale == 'frFR' then
 	L["UPDATE_NEWS"] = [=[
 	|cFFFF0000IMPORTANT!|r
-	C' est la dernière mise à jour avant |cff45b6feWrath of the Lich King|r
+	C' est la dernière mise à jour avant |cff45b6feWrath of the Lich King Classic|r
 		
 	L'addon est en train d'être retravaillé pour une meilleur compatibilité avec la prochaine extension.
 	Cette extension amène de nouvelle fonctionnalités comme la double spé et les glyphes qui ne sont pas compatibles avec la version actuelle de l'addon.
@@ -1209,7 +1210,7 @@ elseif locale == 'frFR' then
 L["HELP_ABOUT_SLASH"] = [[
 Commandes slashs:
 /guildbook open : Cela va ouvrir Guildbook
-/guildbook [interface] : Celva va ouvrir un onglet particulier (home, profiles, tradeskills, chat, guildViewer, calendar, guildbank, stats, search, privacy)
+/guildbook [interface] : Celva va ouvrir un onglet particulier (home, profils, tradeskills, chat, guildViewer, calendar, guildbank, stats, search, privacy)
 Exemple: "/guilbook home" va ouvrir l'accueil
 /gb ou /gbk peut être employer à la place de /guildbook
 
