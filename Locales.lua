@@ -41,12 +41,12 @@ local L = {}
 L["UPDATE_NEWS"] = [=[
 |cFFFF0000IMPORTANT!|r
 This is the last big update before |cff45b6feWrath of the Lich King Classic|r
-	
+
 The addon is being reworked for a better compatibility with the next classic expansion.
 This expansion brings new features such as dual spec and glyphs and the current version of the addon isn't compatible with these changes from Blizzard.
-	
+
 The current version will remain available via curse as is and if/when Blizzard make any announcements for new Classic SoM or TBC SoM servers, either the new version can be backported to work with those servers or the older version will receive maintenance.
-	
+
 Check the Discord server for more informations.
 ]=]
 L["DIALOG_SHOW_UPDATES"]			= "Display again"
