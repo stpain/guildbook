@@ -1364,13 +1364,15 @@ function Guildbook:SetupGuildCalendarFrame()
                 self.EventDescriptionEditbox:SetText('')
                 self.eventType = 0
                 UIDropDownMenu_SetText(Guildbook.GuildFrame.GuildCalendarFrame.EventFrame.EventTypeDropdown, 'Event')
-                print('|cffffffffEvent created!|r')
+                --print('|cffffffffEvent created!|r')
+                Guildbook:PrintMessage(L["EVENT_CREATED"])
                 Guildbook:SendGuildCalendarEvent(event)
                 --SendChatMessage(string.format("|cff0070DEGuildbook|r: Event created, check out %s in the calendar!", title), 'GUILD')
                 self:GetParent():MonthChanged()
             end
         else
-            print('|cffffffffYou have not set a title!|r')
+            --print(L['EVENT_NO_TITLE'])
+            Guildbook:PrintMessage(L["EVENT_NO_TITLE"])
         end
     end
 

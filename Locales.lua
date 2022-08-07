@@ -172,7 +172,7 @@ L["MINIMAP_CALENDAR_EVENTS"]		= "Events"
 L["DIALOG_CHARACTER_FIRST_LOAD"]	= "Welcome to Guildbook, click below to scan your characters professions."
 
 L["NEW_VERSION_1"] = "new version available, probably fixes a few things, might break something else though!"
-L["NEW_VERSION_2"] = "there is a totally new awesome version of guildbook, available to downlaod from all good addon providers!"
+L["NEW_VERSION_2"] = "there is a totally new awesome version of guildbook, available to download from all good addon providers!"
 L["NEW_VERSION_3"] = "lol, if you thought the last update did not a lot, you should get the new one, probably does about the same.....or less!"
 L["NEW_VERSION_4"] = "hordies are red, alliance are blue, guildbook updates just for you!"
 
@@ -189,7 +189,7 @@ local slashCommandsHelp = [[
 Slash commands:
 You can use /guildbook, /gbk or /gb.
 /guildbook open - this will open Guildbook
-/guildbook [interface] - this will open to a specific area (roster, tradeskills, chat, profiles, calendar, stats, guildbank, search, privacy)
+/guildbook [interface] - this will open to a specific area (home, profiles, tradeskills, chat, guildViewer, calendar, guildbank, stats, search, privacy)
 
 ]]
 local homeIcon = CreateAtlasMarkup("poi-town", 16, 16)
@@ -236,7 +236,9 @@ Use this feature to browse your guild database- Find a recipe, pattern, characte
 local bankIcon = CreateAtlasMarkup("ShipMissionIcon-Treasure-Map", 16, 16)
 local bankHelp = [[
 Guild bank:
-Coming soon
+Legacy Guild Bank system
+Add "Guildbank" in the note of the character that is used as a bank
+Said character needs to open his in game bank to send data
 
 ]]
 L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s %s %s %s %s", slashCommandsIcon, slashCommandsHelp, homeIcon, homeHelp, profileIcon, profileHelp, tradeskillIcon, tradeskillHelp, rosterIcon, rosterHelp, searchIcon, searchHelp, bankIcon, bankHelp)
@@ -635,6 +637,8 @@ L["CREATE_EVENT"]                   = "Create event"
 L["DELETE_EVENT"]                   = "Delete event"
 L["EVENT"]                          = "Event"
 L["EVENT_TYPE"]                     = "Event type"
+L["EVENT_NO_TITLE"]                 = "You have not set a title!"
+L["EVENT_CREATED"]                  = "Event created!"
 L["TITLE"]                          = "Title"
 L["DESCRIPTION"]                    = "Description"
 L["UPDATE"]                         = "Update"
@@ -1234,9 +1238,10 @@ Quoi de neuf?
 -- this is a nasty way to do this, its horrible and i need to make the help & about much better
 local slashCommandsIcon = CreateTextureMarkup(136377, 64, 64, 16, 16, 0, 1, 0, 1, 0, 0)
 local slashCommandsHelp = [[
-Slash commands:
 Commandes slashs:
 /guildbook open : Cela va ouvrir Guildbook
+/guildbook [interface] : Celva va ouvrir un onglet particulier (home, profiles, tradeskills, chat, guildViewer, calendar, guildbank, stats, search, privacy)
+Exemple: "/guilbook home" va ouvrir l'accueil
 /gb ou /gbk peut être employer à la place de /guildbook
 
 ]]
@@ -1284,7 +1289,9 @@ Utiliser cette fonction pour explorer la base de données de votre Guilde - Trou
 local bankIcon = CreateAtlasMarkup("ShipMissionIcon-Treasure-Map", 16, 16)
 local bankHelp = [[
 Banque de guilde:
-Coming soon
+Système de banque de guilde "Legacy"
+Ajouter "Guildbank" dans la note du personnage utilisé comme banque
+Le personnage n'a plus qu'à ouvrir sa banque en jeu pour envoyer ses données
 
 ]]
 L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s %s %s %s %s", slashCommandsIcon, slashCommandsHelp, homeIcon, homeHelp, profileIcon, profileHelp, tradeskillIcon, tradeskillHelp, rosterIcon, rosterHelp, searchIcon, searchHelp, bankIcon, bankHelp)
@@ -1490,7 +1497,7 @@ L["HELP_ABOUT_CREDITS"]				= string.format("%s %s %s %s %s %s %s %s %s %s %s %s 
 	L["SHARING_NOBODY"]		    		= "Partager avec personne"
 	L["SHARING_WITH"]		    		= "Partager avec"
 
-	L["MAIN_CHARACTER_ADD_ALT"]			= "Ajouter personage.\n|cffFFFF00Utilisez ceci pour ajouter un personnage venant d'un compte autre compte. Vous serez ensuite capable de le sélectionner comme personnage principal."
+	L["MAIN_CHARACTER_ADD_ALT"]			= "|cffFFFF00Si vous utilisez plusieurs comptes WoW, tous vos personnages n'apparaîtront pas ici.\nPour ajouter un personnage qui n'est PAS listé, faites Maj+Clique droit sur un personnage dans l'onglet 'Profils'.\nPour enlever un personnage, faites Alt+Clique droit."
 	L["MAIN_CHARACTER_REMOVE_ALT"]		= "Enlever personnage"
 	L["DIALOG_MAIN_CHAR_ADD"]			= "Tapez le nom du personnage, il doit être membre de la guilde."
 	L["DIALOG_MAIN_CHAR_REMOVE"]		= "SVP, entrez le nom du personnage."
@@ -1688,7 +1695,9 @@ De multiples personnages banques sont supportés.|r
 	L["CREATE_EVENT"]                   = "Créer événement"
 	L["DELETE_EVENT"]                   = "Suppr. événement"
 	L["EVENT"]                          = "Evénement"
-	L["EVENT_TYPE"]                     = "Type d'événement"
+	L["EVENT_TYPE"]                     = "Evénement"
+	L["EVENT_NO_TITLE"]                 = "Vous avez oublié de mettre un titre!"
+	L["EVENT_CREATED"]                  = "Evénement créé!"
 	L["TITLE"]                          = "Titre"
 	L["DESCRIPTION"]                    = "Description"
 	L["UPDATE"]                         = "Mise à jour"
@@ -1697,7 +1706,7 @@ De multiples personnages banques sont supportés.|r
 	L["TENTATIVE"]                      = "Tentative"
 	L["DECLINE"]                        = "Décliner"
 
-	L["TIME"]							= "Time"
+	L["TIME"]							= "Temps"
 	L["YEARS"]                          = "années"
 	L["MONTHS"]                         = "mois"
 	L["DAYS"]                           = "jours"
