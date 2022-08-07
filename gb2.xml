@@ -1,0 +1,1611 @@
+<UI>
+    <Frame name="GuildbookInterface" mixin="GuildbookMixin" parent="UIParent" frameStrata="HIGH" enableMouse="true" movable="true" hidden="false">
+        <Size x="940" y="510"/>
+        <Anchors>
+            <Anchor point="CENTER" x="0" y="0"/>
+        </Anchors>
+
+        <Layers>
+            <Layer level="BACKGROUND" textureSubLevel="-4">
+                <Texture parentKey="border">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="-2" y="2"/>
+                        <Anchor point="BOTTOMRIGHT" x="2" y="-2"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="BACKGROUND" textureSubLevel="-3">
+                <Texture parentKey="background" setAllPoints="true" atlas="ClassHall_StoneFrame-BackgroundTile" horizTile="true" vertTile="true"/>
+            </Layer>
+            <Layer level="BACKGROUND" textureSubLevel="-2">
+                <Texture parentKey="topBarBackground">
+                    <Size y="24"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="0" y="0"/>
+                        <Anchor point="TOPRIGHT" x="0" y="0"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <FontString parentKey="statusText" inherits="GameFontNormalSmall" justifyH="RIGHT">
+                    <Color r="1" g="1" b="1"/>
+                    <Size x="300" y="10"/>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT" x="-42" y="-6"/>
+                    </Anchors>
+                </FontString>
+
+                <FontString parentKey="title" inherits="GameFontNormal" text="Guildbook">
+                    <Color r="1" g="1" b="1"/>
+                    <Size x="200" y="10"/>
+                    <Anchors>
+                        <Anchor point="TOP" x="0" y="-6"/>
+                    </Anchors>
+                </FontString>
+
+            </Layer>
+        </Layers>
+
+        <Frames>
+
+            <Button parentKey="close" inherits="UIPanelCloseButton">
+                <Size x="20" y="20"/>
+                <Anchors>
+                    <Anchor point="TOPRIGHT" x="-2" y="-2"/>
+                </Anchors>
+                <NormalTexture atlas="communities-icon-redx"/>
+            </Button>
+
+            <Button parentKey="helpIcon">
+                <Size x="20" y="20"/>
+                <Anchors>
+                    <Anchor point="TOPRIGHT" x="-22" y="-2"/>
+                </Anchors>
+                <NormalTexture atlas="glueannouncementpopup-icon-info"/>
+            </Button>
+
+            <Button parentKey="openMenu">
+                <Size x="24" y="24"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="0" y="0"/>
+                </Anchors>
+                <NormalTexture atlas="auctionhouse-ui-dropdown-arrow-up"/>
+                <PushedTexture atlas="auctionhouse-ui-dropdown-arrow-down"/>
+                <!-- <HighlightTexture atlas="Garr_BuildingTimerGlow"/> -->
+            </Button>
+
+            <Button parentKey="guildName" hidden="true">
+                <Size x="130" y="20"/>
+                <Anchors>
+                    <Anchor point="LEFT" relativeKey="$parent.openMenu" relativePoint="RIGHT" x="5" y="0"/>
+                </Anchors>
+                <NormalTexture atlas="clickcastlist-buttonbackground"/>
+                <PushedTexture/>
+                <HighlightTexture atlas="clickcastlist-buttonhighlight"/>
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <FontString parentKey="label" inherits="GameFontNormalSmall" setAllPoints="true" text="Tradeskills">
+                            <Color r="1" g="1" b="1"/>
+                        </FontString>
+                    </Layer>
+                </Layers>
+            </Button>
+
+            <Button parentKey="guildTradeskills" hidden="true">
+                <Size x="90" y="20"/>
+                <Anchors>
+                    <Anchor point="LEFT" relativeKey="$parent.guildName" relativePoint="RIGHT" x="5" y="0"/>
+                </Anchors>
+                <NormalTexture atlas="clickcastlist-buttonbackground"/>
+                <PushedTexture/>
+                <HighlightTexture atlas="clickcastlist-buttonhighlight"/>
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <FontString parentKey="label" inherits="GameFontNormalSmall" setAllPoints="true" text="Tradeskills">
+                            <Color r="1" g="1" b="1"/>
+                        </FontString>
+                    </Layer>
+                </Layers>
+            </Button>
+
+            <Frame parentKey="welcomeMessage">
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="2" y="-26"/>
+                    <Anchor point="BOTTOMRIGHT" x="-2" y="2"/>
+                </Anchors>
+
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <FontString parentKey="text" setAllPoints="true" inherits="GameFontNormal"/>
+                    </Layer>
+                </Layers>
+            </Frame>
+
+            <Frame parentKey="menu" hidden="true" enableMouse="true">
+                <Size x="200"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="0" y="-24"/>
+                    <Anchor point="BOTTOMLEFT" x="0" y="0"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND" textureSubLevel="0">
+                        <Texture parentKey="background" setAllPoints="true"/>
+                    </Layer>
+                    <Layer level="OVERLAY">
+                        <FontString parentKey="header" inherits="GameFontNormalLarge" text="Guilds">
+                            <Color r="1" g="1" b="1"/>
+                            <Anchors>
+                                <Anchor point="TOP" x="0" y="0"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+
+                <Frames>
+                    <Frame parentKey="guilds" inherits="GuildbookListviewTemplate">
+                        <Size y="120"/>
+                        <Anchors>
+                            <Anchor point="TOPLEFT" x="0" y="-20"/>
+                            <Anchor point="TOPRIGHT" x="0" y="-20"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND" textureSubLevel="0">
+                                <Texture parentKey="background" setAllPoints="true">
+                                    <Color r="0" g="0" b="0" a="0.15"/>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                        <KeyValues>
+                            <KeyValue key="frameType" value="FRAME" type="string"/>
+                            <KeyValue key="itemTemplate" value="GuildbookGuildMenuButtonTemplate" type="string"/>
+                            <KeyValue key="elementHeight" value="24" type="number"/>
+                            <KeyValue key="isSelectable" value="true" type="boolean"/>
+                            <KeyValue key="scrollToEnd" value="false" type="boolean"/>
+                        </KeyValues>
+                    </Frame>
+
+                    <Button parentKey="openSettings">
+                        <Size y="30"/>
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT" x="0" y="0"/>
+                            <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                        </Anchors>
+                        <NormalTexture atlas="clickcastlist-buttonbackground"/>
+                        <PushedTexture/>
+                        <HighlightTexture atlas="clickcastlist-buttonhighlight"/>
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <FontString parentKey="label" inherits="GameFontNormal" setAllPoints="true" text="Settings">
+                                    <Color r="1" g="1" b="1"/>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                    </Button>
+                    
+                    <Button parentKey="openProfile">
+                        <Size y="30"/>
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT" relativeKey="$parent.openSettings" relativePoint="TOPLEFT" x="0" y="0"/>
+                            <Anchor point="BOTTOMRIGHT" relativeKey="$parent.openSettings" relativePoint="TOPRIGHT" x="0" y="0"/>
+                        </Anchors>
+                        <NormalTexture atlas="clickcastlist-buttonbackground"/>
+                        <PushedTexture/>
+                        <HighlightTexture atlas="clickcastlist-buttonhighlight"/>
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <FontString parentKey="label" inherits="GameFontNormal" setAllPoints="true" text="Profile">
+                                    <Color r="1" g="1" b="1"/>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                    </Button>
+                    
+                    <Button parentKey="openHelp">
+                        <Size y="30"/>
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT" relativeKey="$parent.openProfile" relativePoint="TOPLEFT" x="0" y="0"/>
+                            <Anchor point="BOTTOMRIGHT" relativeKey="$parent.openProfile" relativePoint="TOPRIGHT" x="0" y="0"/>
+                        </Anchors>
+                        <NormalTexture atlas="clickcastlist-buttonbackground"/>
+                        <PushedTexture/>
+                        <HighlightTexture atlas="clickcastlist-buttonhighlight"/>
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <FontString parentKey="label" inherits="GameFontNormal" setAllPoints="true" text="Help">
+                                    <Color r="1" g="1" b="1"/>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                    </Button>
+
+
+                </Frames>
+            </Frame>
+
+            <Frame parentKey="guild" hidden="true">
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="0" y="-24"/>
+                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                </Anchors>
+
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="background" alpha="0.4" setAllPoints="true"/>
+                    </Layer>
+                </Layers>
+
+                <Frames>
+
+                    <Frame parentKey="members" inherits="GuildbookListviewTemplate">
+                        <Size x="200"/>
+                        <Anchors>
+                            <Anchor point="TOPLEFT" x="0" y="-30"/>
+                            <Anchor point="BOTTOMLEFT" x="0" y="0"/>
+                        </Anchors>
+                        <KeyValues>
+                            <KeyValue key="frameType" value="FRAME" type="string"/>
+                            <KeyValue key="itemTemplate" value="GuildbookHomeMembersListviewItemTemplate" type="string"/>
+                            <KeyValue key="elementHeight" value="25" type="number"/>
+                            <KeyValue key="isSelectable" value="true" type="boolean"/>
+                            <KeyValue key="scrollToEnd" value="false" type="boolean"/>
+                        </KeyValues>
+                    </Frame>
+
+                    <Frame parentKey="guildHome" hidden="true">
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT" relativeKey="$parent.members" relativePoint="BOTTOMRIGHT" x="5" y="5"/>
+                            <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-5" y="5"/>
+                            <Anchor point="TOPLEFT" relativeKey="$parent.members" relativePoint="TOPRIGHT" x="5" y="20"/>
+                        </Anchors>
+
+                        <Frames>
+
+                            <Frame parentKey="events">
+
+                            </Frame>
+
+                            <ScrollingMessageFrame parentKey="activityFeed" justifyH="LEFT" enableHyperlinks="true">
+                                <Size y="170"/>
+                                <Anchors>
+                                    <Anchor point="BOTTOMLEFT" x="5" y="5"/>
+                                    <Anchor point="BOTTOMRIGHT" x="-205" y="5"/>
+                                </Anchors>
+                                <Layers>
+                                    <Layer level="OVERLAY">
+                                        <Texture parentKey="background" setAllPoints="true">
+                                            <Color r="0" g="0" b="0" a="0.25"/>
+                                        </Texture>
+                                    </Layer>
+                                </Layers>
+                            </ScrollingMessageFrame>
+
+                            <Frame parentKey="guildClassInfo">
+                                <Size y="170"/>
+                                <Anchors>
+                                    <Anchor point="BOTTOMRIGHT" x="-5"/>
+                                    <Anchor point="BOTTOMLEFT" relativeKey="$parent.activityFeed" relativePoint="BOTTOMRIGHT" x="5" y="0"/>
+                                </Anchors>
+                                <Layers>
+                                    <Layer level="OVERLAY">
+                                        <FontString parentKey="header" inherits="GameFontNormal" text="Class info">
+                                            <Size y="20"/>
+                                            <Color r="1" g="1" b="1"/>
+                                            <Anchors>
+                                                <Anchor point="TOP" x="0" y="0"/>
+                                            </Anchors>
+                                        </FontString>
+                                    </Layer>
+                                    <Layer level="BACKGROUND">
+                                        <Texture parentKey="background" setAllPoints="true">
+                                            <Color r="0" g="0" b="0" a="0.25"/>
+                                        </Texture>
+                                    </Layer>
+                                </Layers>
+                                <Frames>
+                                    <StatusBar parentKey="bar1" parentArray="bars" useParentLevel="true" minValue="0" maxValue="1" defaultValue="0" orientation="HORIZONTAL">
+                                        <Size y="15"/>
+                                        <Anchors>
+                                            <Anchor point="TOPLEFT"  x="0" y="-20"/>
+                                            <Anchor point="TOPRIGHT"  x="0" y="-20"/>
+                                        </Anchors>
+                                        <BarTexture file="Interface\TargetingFrame\UI-StatusBar"/>
+                                    </StatusBar>
+                                    <StatusBar parentKey="bar2" parentArray="bars" useParentLevel="true" minValue="0" maxValue="1" defaultValue="0" orientation="HORIZONTAL">
+                                        <Size y="15"/>
+                                        <Anchors>
+                                            <Anchor point="TOPLEFT"  x="0" y="-35"/>
+                                            <Anchor point="TOPRIGHT"  x="0" y="-35"/>
+                                        </Anchors>
+                                        <BarTexture file="Interface\TargetingFrame\UI-StatusBar"/>
+                                    </StatusBar>
+                                    <StatusBar parentKey="bar3" parentArray="bars" useParentLevel="true" minValue="0" maxValue="1" defaultValue="0" orientation="HORIZONTAL">
+                                        <Size y="15"/>
+                                        <Anchors>
+                                            <Anchor point="TOPLEFT"  x="0" y="-50"/>
+                                            <Anchor point="TOPRIGHT"  x="0" y="-50"/>
+                                        </Anchors>
+                                        <BarTexture file="Interface\TargetingFrame\UI-StatusBar"/>
+                                    </StatusBar>
+                                    <StatusBar parentKey="bar4" parentArray="bars" useParentLevel="true" minValue="0" maxValue="1" defaultValue="0" orientation="HORIZONTAL">
+                                        <Size y="15"/>
+                                        <Anchors>
+                                            <Anchor point="TOPLEFT"  x="0" y="-65"/>
+                                            <Anchor point="TOPRIGHT"  x="0" y="-65"/>
+                                        </Anchors>
+                                        <BarTexture file="Interface\TargetingFrame\UI-StatusBar"/>
+                                    </StatusBar>
+                                    <StatusBar parentKey="bar5" parentArray="bars" useParentLevel="true" minValue="0" maxValue="1" defaultValue="0" orientation="HORIZONTAL">
+                                        <Size y="15"/>
+                                        <Anchors>
+                                            <Anchor point="TOPLEFT"  x="0" y="-80"/>
+                                            <Anchor point="TOPRIGHT"  x="0" y="-80"/>
+                                        </Anchors>
+                                        <BarTexture file="Interface\TargetingFrame\UI-StatusBar"/>
+                                    </StatusBar>
+                                    <StatusBar parentKey="bar6" parentArray="bars" useParentLevel="true" minValue="0" maxValue="1" defaultValue="0" orientation="HORIZONTAL">
+                                        <Size y="15"/>
+                                        <Anchors>
+                                            <Anchor point="TOPLEFT"  x="0" y="-95"/>
+                                            <Anchor point="TOPRIGHT"  x="0" y="-95"/>
+                                        </Anchors>
+                                        <BarTexture file="Interface\TargetingFrame\UI-StatusBar"/>
+                                    </StatusBar>
+                                    <StatusBar parentKey="bar7" parentArray="bars" useParentLevel="true" minValue="0" maxValue="1" defaultValue="0" orientation="HORIZONTAL">
+                                        <Size y="15"/>
+                                        <Anchors>
+                                            <Anchor point="TOPLEFT"  x="0" y="-110"/>
+                                            <Anchor point="TOPRIGHT"  x="0" y="-110"/>
+                                        </Anchors>
+                                        <BarTexture file="Interface\TargetingFrame\UI-StatusBar"/>
+                                    </StatusBar>
+                                    <StatusBar parentKey="bar8" parentArray="bars" useParentLevel="true" minValue="0" maxValue="1" defaultValue="0" orientation="HORIZONTAL">
+                                        <Size y="15"/>
+                                        <Anchors>
+                                            <Anchor point="TOPLEFT"  x="0" y="-125"/>
+                                            <Anchor point="TOPRIGHT"  x="0" y="-125"/>
+                                        </Anchors>
+                                        <BarTexture file="Interface\TargetingFrame\UI-StatusBar"/>
+                                    </StatusBar>
+                                    <StatusBar parentKey="bar9" parentArray="bars" useParentLevel="true" minValue="0" maxValue="1" defaultValue="0" orientation="HORIZONTAL">
+                                        <Size y="15"/>
+                                        <Anchors>
+                                            <Anchor point="TOPLEFT"  x="0" y="-140"/>
+                                            <Anchor point="TOPRIGHT"  x="0" y="-140"/>
+                                        </Anchors>
+                                        <BarTexture file="Interface\TargetingFrame\UI-StatusBar"/>
+                                    </StatusBar>
+                                    <StatusBar parentKey="bar10" parentArray="bars" useParentLevel="true" minValue="0" maxValue="1" defaultValue="0" orientation="HORIZONTAL">
+                                        <Size y="15"/>
+                                        <Anchors>
+                                            <Anchor point="TOPLEFT"  x="0" y="-155"/>
+                                            <Anchor point="TOPRIGHT"  x="0" y="-155"/>
+                                        </Anchors>
+                                        <BarTexture file="Interface\TargetingFrame\UI-StatusBar"/>
+                                    </StatusBar>
+                                </Frames>
+                            </Frame>
+
+                            <Frame parentKey="guildHomeMembersHelptip" parentArray="helptips" hidden="true" inherits="GuildbookHelpTipTemplate_TopArrow">
+                                <Size x="220" y="60"/>
+                                <Anchors>
+                                    <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMLEFT" x="-50" y="200"/>
+                                </Anchors>
+                            </Frame>
+                        </Frames>
+
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <FontString parentKey="guildMOTD" inherits="GameFontNormalLarge">
+                                    <Size y="50"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="5" y="-5"/>
+                                        <Anchor point="TOPRIGHT" x="5" y="-5"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+
+                    </Frame>
+
+
+                    <Frame parentKey="tradeskills" hidden="true">
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT" relativeKey="$parent.members" relativePoint="BOTTOMRIGHT" x="5" y="5"/>
+                            <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-5" y="5"/>
+                            <Anchor point="TOPLEFT" relativeKey="$parent.members" relativePoint="TOPRIGHT" x="5" y="20"/>
+                        </Anchors>
+
+                        <Frames>
+
+                            <Frame parentKey="tradeskillHelp" parentArray="helptips" hidden="true" inherits="GuildbookHelpTipTemplate_BottomArrow">
+                                <Size x="220" y="70"/>
+                                <Anchors>
+                                    <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="-140" y="0"/>
+                                </Anchors>
+                            </Frame>
+
+                            <Frame parentKey="tradeskillCraftersHelp" parentArray="helptips" hidden="true" inherits="GuildbookHelpTipTemplate_BottomArrow">
+                                <Size x="220" y="40"/>
+                                <Anchors>
+                                    <Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="-240" y="-25"/>
+                                </Anchors>
+                            </Frame>
+
+                            <Frame parentKey="tradeskillRecipeInfoHelp" parentArray="helptips" hidden="true" inherits="GuildbookHelpTipTemplate_TopArrow">
+                                <Size x="220" y="50"/>
+                                <Anchors>
+                                    <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-280" y="80"/>
+                                </Anchors>
+                            </Frame>
+
+                            <Frame parentKey="workOrderHelp" parentArray="helptips" hidden="true" inherits="GuildbookHelpTipTemplate_BottomArrow">
+                                <Size x="280" y="130"/>
+                                <Anchors>
+                                    <Anchor point="RIGHT" relativePoint="RIGHT" x="160" y="140"/>
+                                </Anchors>
+                            </Frame>
+
+                            <Frame parentKey="alchemy" inherits="GuildbookLargeHighlightButton">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="0" y="0"/>
+                                </Anchors>
+                            </Frame>
+                            <Frame parentKey="blacksmithing" inherits="GuildbookLargeHighlightButton">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="40" y="0"/>
+                                </Anchors>
+                            </Frame>
+                            <Frame parentKey="enchanting" inherits="GuildbookLargeHighlightButton">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="80" y="0"/>
+                                </Anchors>
+                            </Frame>
+                            <Frame parentKey="engineering" inherits="GuildbookLargeHighlightButton">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="120" y="0"/>
+                                </Anchors>
+                            </Frame>
+                            <Frame parentKey="inscription" inherits="GuildbookLargeHighlightButton">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="160" y="0"/>
+                                </Anchors>
+                            </Frame>
+                            <Frame parentKey="jewelcrafting" inherits="GuildbookLargeHighlightButton">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="200" y="0"/>
+                                </Anchors>
+                            </Frame>
+                            <Frame parentKey="leatherworking" inherits="GuildbookLargeHighlightButton">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="240" y="0"/>
+                                </Anchors>
+                            </Frame>
+                            <Frame parentKey="tailoring" inherits="GuildbookLargeHighlightButton">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="280" y="0"/>
+                                </Anchors>
+                            </Frame>
+                            <Frame parentKey="mining" inherits="GuildbookLargeHighlightButton">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="320" y="0"/>
+                                </Anchors>
+                            </Frame>
+                            <Frame parentKey="cooking" inherits="GuildbookLargeHighlightButton">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="360" y="0"/>
+                                </Anchors>
+                            </Frame>
+                            <Frame parentKey="clear" inherits="GuildbookLargeHighlightButton">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="440" y="0"/>
+                                </Anchors>
+                            </Frame>
+
+                            <Editbox parentKey="search" inherits="InputBoxTemplate" autoFocus="false">
+                                <Size x="255" y="20"/>
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="5" y="-40"/>
+                                </Anchors>
+                                <Layers>
+                                    <Layer>
+                                        <FontString parentKey="label" inherits="GameFontNormal">
+                                            <Color r="0.5" g="0.5" b="0.5" a="0.75"/>
+                                            <Anchors>
+                                                <Anchor point="LEFT" relativePoint="LEFT" x="2" y="0"/>
+                                            </Anchors>
+                                        </FontString>
+                                    </Layer>
+                                </Layers> 
+                            </Editbox>
+
+                            <Frame parentKey="listview" inherits="GuildbookListviewTemplate">
+                                <Size x="260"/>
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" relativeKey="$parent.search" relativePoint="BOTTOMLEFT" x="-5" y="0"/>
+                                    <Anchor point="BOTTOM" x="0" y="0"/>
+                                </Anchors>
+                                <Layers>
+                                    <Layer level="BACKGROUND" textureSubLevel="0">
+                                        <Texture parentKey="background" setAllPoints="true">
+                                            <Color r="0" g="0" b="0" a="0.25"/>
+                                        </Texture>
+                                    </Layer>
+                                </Layers>
+                                <KeyValues>
+                                    <KeyValue key="frameType" value="FRAME" type="string"/>
+                                    <KeyValue key="itemTemplate" value="GuildbookTradeskillListviewItemTemplate" type="string"/>
+                                    <KeyValue key="elementHeight" value="22" type="number"/>
+                                    <KeyValue key="isSelectable" value="true" type="boolean"/>
+                                    <KeyValue key="scrollToEnd" value="false" type="boolean"/>
+                                </KeyValues>
+                            </Frame>
+
+                            <Frame parentKey="recipeCrafters" inherits="GuildbookListviewTemplate">
+                                <Size x="230" y="200"/>
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" relativeKey="$parent.listview" relativePoint="TOPRIGHT" x="5" y="-20"/>
+                                </Anchors>
+                                <Layers>
+                                    <Layer level="OVERLAY">
+                                        <FontString parentKey="header" inherits="GameFontNormal" text="Crafters">
+                                            <Size x="240" y="30"/>
+                                            <Color r="1" g="1" b="1" a="1"/>
+                                            <Anchors>
+                                                <Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="0" y="33"/>
+                                                <Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="0" y="33"/>
+                                            </Anchors>
+                                        </FontString>
+                                    </Layer>
+                                    <Layer level="BACKGROUND" textureSubLevel="0">
+                                        <Texture parentKey="background" setAllPoints="true">
+                                            <Color r="0" g="0" b="0" a="0.25"/>
+                                        </Texture>
+                                    </Layer>
+                                </Layers>
+                                <KeyValues>
+                                    <KeyValue key="frameType" value="FRAME" type="string"/>
+                                    <KeyValue key="itemTemplate" value="GuildbookTradeskillCrafterItemTemplate" type="string"/>
+                                    <KeyValue key="elementHeight" value="24" type="number"/>
+                                    <KeyValue key="isSelectable" value="true" type="boolean"/>
+                                    <KeyValue key="scrollToEnd" value="false" type="boolean"/>
+                                </KeyValues>
+                            </Frame>
+
+                            <Frame parentKey="recipeInfo" inherits="GuildbookListviewTemplate">
+                                <Anchors>
+                                    <Anchor point="TOPRIGHT" relativeKey="$parent.recipeCrafters" relativePoint="BOTTOMRIGHT" x="0" y="-30"/>
+                                    <Anchor point="BOTTOMLEFT" relativeKey="$parent.listview" relativePoint="BOTTOMRIGHT" x="5" y="0"/>
+                                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                                </Anchors>
+                                <Layers>
+                                    <Layer level="OVERLAY">
+                                        <FontString parentKey="header" inherits="GameFontNormal" text="Recipe info">
+                                            <Size x="240" y="25"/>
+                                            <Color r="1" g="1" b="1" a="1"/>
+                                            <Anchors>
+                                                <Anchor point="TOP" x="0" y="27"/>
+                                            </Anchors>
+                                        </FontString>
+                                    </Layer>
+                                    <Layer level="BACKGROUND" textureSubLevel="0">
+                                        <Texture parentKey="background" setAllPoints="true">
+                                            <Color r="0" g="0" b="0" a="0.25"/>
+                                        </Texture>
+                                    </Layer>
+                                </Layers>
+                                <KeyValues>
+                                    <KeyValue key="frameType" value="FRAME" type="string"/>
+                                    <KeyValue key="itemTemplate" value="GuildbookTradeskillRecipeInfoItemTemplate" type="string"/>
+                                    <KeyValue key="elementHeight" value="28" type="number"/>
+                                    <KeyValue key="isSelectable" value="true" type="boolean"/>
+                                    <KeyValue key="scrollToEnd" value="false" type="boolean"/>
+                                </KeyValues>
+                            </Frame>
+
+                            <Frame parentKey="workOrders" inherits="GuildbookListviewTemplate">
+                                <Anchors>
+                                    <Anchor point="TOPRIGHT" x="0" y="-5"/>
+                                    <Anchor point="TOPLEFT" relativeKey="$parent.recipeCrafters" relativePoint="TOPRIGHT" x="5" y="0"/>
+                                    <Anchor point="BOTTOMLEFT" relativeKey="$parent.recipeCrafters" relativePoint="BOTTOMRIGHT" x="5" y="0"/>
+                                </Anchors>
+                                <Layers>
+                                    <Layer level="OVERLAY">
+                                        <FontString parentKey="header" inherits="GameFontNormal" text="Work orders">
+                                            <Size x="240" y="25"/>
+                                            <Color r="1" g="1" b="1" a="1"/>
+                                            <Anchors>
+                                                <Anchor point="TOP" x="0" y="27"/>
+                                            </Anchors>
+                                        </FontString>
+                                    </Layer>
+                                    <Layer level="BACKGROUND" textureSubLevel="0">
+                                        <Texture parentKey="background" setAllPoints="true">
+                                            <Color r="0" g="0" b="0" a="0.25"/>
+                                        </Texture>
+                                    </Layer>
+                                </Layers>
+                                <KeyValues>
+                                    <KeyValue key="frameType" value="BUTTON" type="string"/>
+                                    <KeyValue key="itemTemplate" value="GuildbookTradeskillWorkOrderItemTemplate" type="string"/>
+                                    <KeyValue key="elementHeight" value="24" type="number"/>
+                                    <KeyValue key="isSelectable" value="true" type="boolean"/>
+                                    <KeyValue key="scrollToEnd" value="false" type="boolean"/>
+                                </KeyValues>
+                            </Frame>
+
+                            <Button parentKey="workOrdersDeleteAll">
+                                <Size x="20" y="20"/>
+                                <Anchors>
+                                    <Anchor point="BOTTOMRIGHT" relativeKey="$parent.workOrders" relativePoint="TOPRIGHT" x="0" y="2"/>
+                                </Anchors>
+                                <NormalTexture atlas="transmog-icon-remove"/>
+                                <PushedTexture/>
+                                <HighlightTexture/>
+                            </Button>
+
+                            <Frame parentKey="workOrderReagents" inherits="GuildbookListviewTemplate">
+                                <Anchors>
+                                    <Anchor point="RIGHT" x="0" y="0"/>
+                                    <Anchor point="TOPLEFT" relativeKey="$parent.recipeInfo" relativePoint="TOPRIGHT" x="5" y="0"/>
+                                    <Anchor point="BOTTOMLEFT" relativeKey="$parent.recipeInfo" relativePoint="BOTTOMRIGHT" x="5" y="0"/>
+                                </Anchors>
+                                <Layers>
+                                    <Layer level="OVERLAY">
+                                        <FontString parentKey="header" inherits="GameFontNormal" text="Materials required">
+                                            <Size x="240" y="25"/>
+                                            <Color r="1" g="1" b="1" a="1"/>
+                                            <Anchors>
+                                                <Anchor point="TOP" x="0" y="27"/>
+                                            </Anchors>
+                                        </FontString>
+                                    </Layer>
+                                    <Layer level="BACKGROUND" textureSubLevel="0">
+                                        <Texture parentKey="background" setAllPoints="true">
+                                            <Color r="0" g="0" b="0" a="0.25"/>
+                                        </Texture>
+                                    </Layer>
+                                </Layers>
+                                <KeyValues>
+                                    <KeyValue key="frameType" value="FRAME" type="string"/>
+                                    <KeyValue key="itemTemplate" value="GuildbookTradeskillRecipeInfoItemTemplate" type="string"/>
+                                    <KeyValue key="elementHeight" value="28" type="number"/>
+                                    <KeyValue key="isSelectable" value="true" type="boolean"/>
+                                    <KeyValue key="scrollToEnd" value="false" type="boolean"/>
+                                </KeyValues>
+                            </Frame>
+
+                        </Frames>
+                    </Frame>
+
+                    <ScrollFrame parentKey="character" hidden="true" inherits="UIPanelScrollFrameTemplate">
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT" relativeKey="$parent.members" relativePoint="BOTTOMRIGHT" x="5" y="5"/>
+                            <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-25" y="5"/>
+                            <Anchor point="TOPLEFT" relativeKey="$parent.members" relativePoint="TOPRIGHT" x="5" y="20"/>
+                        </Anchors>
+                        <ScrollChild>
+                            <Frame parentKey="scrollChild">
+                                <Anchors>
+                                    <Anchor point="LEFT" x="0" y="0"/>
+                                    <Anchor point="RIGHT" x="0" y="0"/>
+                                </Anchors>
+                                <Layers>
+
+                                    <Layer level="OVERLAY">
+                                        <FontString parentKey="name" inherits="GameFontNormalHuge">
+                                            <Anchors>
+                                                <Anchor point="TOP" x="0" y="-4"/>
+                                            </Anchors>
+                                        </FontString>
+
+                                    </Layer>
+
+                                </Layers>
+
+                                <Frames>
+
+                                    <Frame parentKey="profileInfo">
+                                        <Anchors>
+                                            <Anchor point="TOP" x="0" y="0"/>
+                                        </Anchors>
+
+                                        <Layers>
+                                            <Layer level="OVERLAY">
+                                                <FontString parentKey="mainSpec" inherits="GameFontNormalLarge" text="Beast master" justifyH="LEFT" justifyV="BOTTOM">
+                                                    <Size x="200" y="26"/>
+                                                    <Color r="1" g="1" b="1"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOP" x="-175" y="-60"/>
+                                                    </Anchors>
+                                                </FontString>
+                                                <FontString parentKey="offSpec" inherits="GameFontNormalLarge" text="Survival" justifyH="RIGHT" justifyV="BOTTOM">
+                                                    <Size x="200" y="26"/>
+                                                    <Color r="1" g="1" b="1"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOP" x="175" y="-60"/>
+                                                    </Anchors>
+                                                </FontString>
+
+                                                <FontString parentKey="realName" inherits="GameFontNormal" text="Sam">
+                                                    <Size x="200" y="20"/>
+                                                    <Color r="1" g="1" b="1"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOP" x="0" y="-50"/>
+                                                    </Anchors>
+                                                </FontString>
+
+                                                <FontString parentKey="realBio" inherits="GameFontNormal" justifyV="TOP" text="Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec qu.">
+                                                    <Size x="260" y="90"/>
+                                                    <Color r="1" g="1" b="1"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOP" relativeKey="$parent.realName" relativePoint="BOTTOM" x="0" y="-1"/>
+                                                    </Anchors>
+                                                </FontString>
+
+                                                <FontString parentKey="prof1" inherits="GameFontNormal" text="Leatherworking 450">
+                                                    <Size x="200" y="20"/>
+                                                    <Color r="1" g="1" b="1"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOP" relativeKey="$parent.realBio" relativePoint="BOTTOM" x="0" y="-10"/>
+                                                    </Anchors>
+                                                </FontString>
+
+                                                <FontString parentKey="prof2" inherits="GameFontNormal" text="Skinning 450">
+                                                    <Size x="200" y="20"/>
+                                                    <Color r="1" g="1" b="1"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOP" relativeKey="$parent.prof1" relativePoint="BOTTOM" x="0" y="-1"/>
+                                                    </Anchors>
+                                                </FontString>
+
+                                                <FontString parentKey="cooking" inherits="GameFontNormal" text="Cooking 450">
+                                                    <Size x="200" y="20"/>
+                                                    <Color r="1" g="1" b="1"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOP" relativeKey="$parent.prof2" relativePoint="BOTTOM" x="0" y="-1"/>
+                                                    </Anchors>
+                                                </FontString>
+
+                                                <FontString parentKey="fishing" inherits="GameFontNormal" text="Fishing 450">
+                                                    <Size x="200" y="20"/>
+                                                    <Color r="1" g="1" b="1"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOP" relativeKey="$parent.cooking" relativePoint="BOTTOM" x="0" y="-1"/>
+                                                    </Anchors>
+                                                </FontString>
+
+                                                <FontString parentKey="firstAid" inherits="GameFontNormal" text="First Aid 450">
+                                                    <Size x="200" y="20"/>
+                                                    <Color r="1" g="1" b="1"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOP" relativeKey="$parent.fishing" relativePoint="BOTTOM" x="0" y="-1"/>
+                                                    </Anchors>
+                                                </FontString>
+                                            </Layer>
+
+                                            <Layer level="ARTWORK">
+                                                <Texture parentKey="mainSpecIcon" atlas="GarrMission_ClassIcon-Hunter-BeastMastery">
+                                                    <Size x="44" y="44"/>
+                                                    <Anchors>
+                                                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.mainSpec" relativePoint="BOTTOMLEFT" x="-5" y="-5"/>
+                                                    </Anchors>
+                                                </Texture>
+                                                <Texture parentKey="offSpecIcon" atlas="GarrMission_ClassIcon-Hunter-Survival">
+                                                    <Size x="44" y="44"/>
+                                                    <Anchors>
+                                                        <Anchor point="BOTTOMLEFT" relativeKey="$parent.offSpec" relativePoint="BOTTOMRIGHT" x="5" y="-5"/>
+                                                    </Anchors>
+                                                </Texture>
+
+                                                <Texture parentKey="mainSpecIsPvp" atlas="Artifacts-PointsBox">
+                                                    <Size x="22" y="22"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOP" relativeKey="$parent.mainSpecIcon" relativePoint="BOTTOM" x="0" y="-10"/>
+                                                    </Anchors>
+                                                </Texture>
+
+                                                <Texture parentKey="offSpecIsPvp" atlas="Artifacts-PointsBox">
+                                                    <Size x="22" y="22"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOP" relativeKey="$parent.offSpecIcon" relativePoint="BOTTOM" x="0" y="-10"/>
+                                                    </Anchors>
+                                                </Texture>
+
+                                            </Layer>
+
+                                            <Layer level="OVERLAY">
+                                                <Texture parentKey="mainSpecIsPvpTick" atlas="orderhalltalents-done-checkmark" hidden="false">
+                                                    <Size x="18" y="18"/>
+                                                    <Anchors>
+                                                        <Anchor point="LEFT" relativeKey="$parent.mainSpecIsPvp" relativePoint="LEFT" x="3" y="2"/>
+                                                    </Anchors>
+                                                </Texture>
+                                                <Texture parentKey="offSpecIsPvpTick" atlas="orderhalltalents-done-checkmark" hidden="false">
+                                                    <Size x="18" y="18"/>
+                                                    <Anchors>
+                                                        <Anchor point="LEFT" relativeKey="$parent.offSpecIsPvp" relativePoint="LEFT" x="3" y="2"/>
+                                                    </Anchors>
+                                                </Texture>
+
+
+                                            </Layer>
+
+                                            <Layer level="OVERLAY">
+                                                <FontString parentKey="level" inherits="GameFontNormal">
+                                                    <Color r="1" g="1" b="1"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOP" x="0" y="-30"/>
+                                                    </Anchors>
+                                                </FontString>
+
+                                                <FontString parentKey="mainSpecIsPvpLabel" inherits="GameFontNormal" text="PvP Spec">
+                                                    <Color r="1" g="1" b="1"/>
+                                                    <Anchors>
+                                                        <Anchor point="LEFT" relativeKey="$parent.mainSpecIsPvp" relativePoint="RIGHT" x="5" y="0"/>
+                                                    </Anchors>
+                                                </FontString>
+                                                <FontString parentKey="offSpecIsPvpLabel" inherits="GameFontNormal" text="PvP Spec">
+                                                    <Color r="1" g="1" b="1"/>
+                                                    <Anchors>
+                                                        <Anchor point="RIGHT" relativeKey="$parent.offSpecIsPvp" relativePoint="LEFT" x="-5" y="0"/>
+                                                    </Anchors>
+                                                </FontString>
+
+                                                <FontString parentKey="mainSpecMajorGlyph1" inherits="GameFontNormal" text="major glyph 1">
+                                                    <Color r="1" g="1" b="1"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOPLEFT" relativeKey="$parent.mainSpecIsPvp" relativePoint="BOTTOMLEFT" x="0" y="-12"/>
+                                                    </Anchors>
+                                                </FontString>
+                                                <FontString parentKey="mainSpecMajorGlyph2" inherits="GameFontNormal" text="major glyph 2">
+                                                    <Color r="1" g="1" b="1"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOPLEFT" relativeKey="$parent.mainSpecMajorGlyph1" relativePoint="BOTTOMLEFT" x="0" y="-12"/>
+                                                    </Anchors>
+                                                </FontString>
+                                                <FontString parentKey="mainSpecMajorGlyph3" inherits="GameFontNormal" text="major glyph 3">
+                                                    <Color r="1" g="1" b="1"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOPLEFT" relativeKey="$parent.mainSpecMajorGlyph2" relativePoint="BOTTOMLEFT" x="0" y="-12"/>
+                                                    </Anchors>
+                                                </FontString>
+
+                                                <FontString parentKey="mainSpecMinorGlyph1" inherits="GameFontNormal" justifyH="RIGHT" text="minor glyph 1">
+                                                    <Color r="1" g="1" b="1"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOPLEFT" relativeKey="$parent.mainSpecMajorGlyph3" relativePoint="BOTTOMLEFT" x="0" y="-12"/>
+                                                    </Anchors>
+                                                </FontString>
+                                                <FontString parentKey="mainSpecMinorGlyph2" inherits="GameFontNormal" justifyH="RIGHT" text="minor glyph 2">
+                                                    <Color r="1" g="1" b="1"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOPLEFT" relativeKey="$parent.mainSpecMinorGlyph1" relativePoint="BOTTOMLEFT" x="0" y="-12"/>
+                                                    </Anchors>
+                                                </FontString>
+                                                <FontString parentKey="mainSpecMinorGlyph3" inherits="GameFontNormal" justifyH="RIGHT" text="minor glyph 3">
+                                                    <Color r="1" g="1" b="1"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOPLEFT" relativeKey="$parent.mainSpecMinorGlyph2" relativePoint="BOTTOMLEFT" x="0" y="-12"/>
+                                                    </Anchors>
+                                                </FontString>
+
+                                                <FontString parentKey="offSpecMajorGlyph1" inherits="GameFontNormal" justifyH="RIGHT" text="major glyph 1">
+                                                    <Color r="1" g="1" b="1"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOPRIGHT" relativeKey="$parent.offSpecIsPvp" relativePoint="BOTTOMRIGHT" x="0" y="-12"/>
+                                                    </Anchors>
+                                                </FontString>
+                                                <FontString parentKey="offSpecMajorGlyph2" inherits="GameFontNormal" justifyH="RIGHT" text="major glyph 2">
+                                                    <Color r="1" g="1" b="1"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOPRIGHT" relativeKey="$parent.offSpecMajorGlyph1" relativePoint="BOTTOMRIGHT" x="0" y="-12"/>
+                                                    </Anchors>
+                                                </FontString>
+                                                <FontString parentKey="offSpecMajorGlyph3" inherits="GameFontNormal" justifyH="RIGHT" text="major glyph 3">
+                                                    <Color r="1" g="1" b="1"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOPRIGHT" relativeKey="$parent.offSpecMajorGlyph2" relativePoint="BOTTOMRIGHT" x="0" y="-12"/>
+                                                    </Anchors>
+                                                </FontString>
+
+                                                <FontString parentKey="offSpecMinorGlyph1" inherits="GameFontNormal" justifyH="RIGHT" text="minor glyph 1">
+                                                    <Color r="1" g="1" b="1"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOPRIGHT" relativeKey="$parent.offSpecMajorGlyph3" relativePoint="BOTTOMRIGHT" x="0" y="-12"/>
+                                                    </Anchors>
+                                                </FontString>
+                                                <FontString parentKey="offSpecMinorGlyph2" inherits="GameFontNormal" justifyH="RIGHT" text="minor glyph 2">
+                                                    <Color r="1" g="1" b="1"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOPRIGHT" relativeKey="$parent.offSpecMinorGlyph1" relativePoint="BOTTOMRIGHT" x="0" y="-12"/>
+                                                    </Anchors>
+                                                </FontString>
+                                                <FontString parentKey="offSpecMinorGlyph3" inherits="GameFontNormal" justifyH="RIGHT" text="minor glyph 3">
+                                                    <Color r="1" g="1" b="1"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOPRIGHT" relativeKey="$parent.offSpecMinorGlyph2" relativePoint="BOTTOMRIGHT" x="0" y="-12"/>
+                                                    </Anchors>
+                                                </FontString>
+
+
+                                                <FontString parentKey="equipmentHeader" inherits="GameFontNormalLarge" text="Equipment">
+                                                    <Color r="1" g="1" b="1"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOP" relativeKey="$parent.firstAid" relativePoint="BOTTOM" x="0" y="-20"/>
+                                                    </Anchors>
+                                                </FontString>
+
+                                            </Layer>
+
+                                            <Layer level="BACKGROUND">
+                                                <Line thickness="8" atlas="communities-chat-date-line">
+                                                    <!-- <Color r="1" g="1" b="1"/> communities-chat-date-line -->
+                                                    <StartAnchor point="BOTTOM" x="60" y="-44"/>
+                                                    <EndAnchor point="BOTTOMRIGHT" y="-44"/>
+                                                </Line>
+                                                <Line thickness="8" atlas="communities-chat-date-line">
+                                                    <!-- <Color r="1" g="1" b="1"/> communities-chat-date-line -->
+                                                    <StartAnchor point="BOTTOM" x="-60" y="-44"/>
+                                                    <EndAnchor point="BOTTOMLEFT" y="-44"/>
+                                                </Line>
+                                            </Layer>
+                                        </Layers>
+                                    </Frame>
+
+                                    <Frame parentKey="equipsetDropdown" inherits="GuildbookDropdown">
+                                        <Size x="100" y="24"/>
+                                        <Anchors>
+                                            <Anchor point="TOP" relativeKey="$parent.profileInfo" relativePoint="BOTTOM"  x="0" y="-55"/>
+                                        </Anchors>
+                                    </Frame>
+
+                                    <DressUpModel parentKey="model" enableMouse="true" hidden="true">
+                                        <Anchors>
+                                            <Anchor point="TOP" relativeKey="$parent.eqiuipDropdown" relativePoint="BOTTOM"  x="0" y="-5"/>
+                                        </Anchors>
+                                    </DressUpModel>
+
+                                    <Frame parentKey="stats" inherits="GuildbookListviewTemplate">
+                                        <Size x="220" y="300"/>
+                                        <Anchors>
+                                            <Anchor point="TOP" relativeKey="$parent.equipsetDropdown" relativePoint="BOTTOM"  x="0" y="-15"/>
+                                        </Anchors>
+                                        <KeyValues>
+                                            <KeyValue key="frameType" value="FRAME" type="string"/>
+                                            <KeyValue key="itemTemplate" value="GuildbookCharacterStatsListviewItemTemplate" type="string"/>
+                                            <KeyValue key="elementHeight" value="16" type="number"/>
+                                        </KeyValues>
+                                    </Frame>
+
+                                    <Frame parentKey="equipSlotHead" parentArray="equipSlots" inherits="GuildbookProfileEquipmentIcon">
+                                        <Size x="190" y="32"/>
+                                        <Anchors>
+                                            <Anchor point="TOP" relativeKey="$parent.equipsetDropdown" relativePoint="TOP" x="-240" y="-40"/>
+                                        </Anchors>
+                                    </Frame>
+                                    <Frame parentKey="equipSlotNeck" parentArray="equipSlots" inherits="GuildbookProfileEquipmentIcon">
+                                        <Size x="190" y="32"/>
+                                        <Anchors>
+                                            <Anchor point="TOP" relativeKey="$parent.equipsetDropdown" relativePoint="TOP" x="-240" y="-80"/>
+                                        </Anchors>
+                                    </Frame>
+                                    <Frame parentKey="equipSlotShoulder" parentArray="equipSlots" inherits="GuildbookProfileEquipmentIcon">
+                                        <Size x="190" y="32"/>
+                                        <Anchors>
+                                            <Anchor point="TOP" relativeKey="$parent.equipsetDropdown" relativePoint="TOP"  x="-240" y="-120"/>
+                                        </Anchors>
+                                    </Frame>
+                                    <Frame parentKey="equipSlotShirt" parentArray="equipSlots" inherits="GuildbookProfileEquipmentIcon">
+                                        <Size x="190" y="32"/>
+                                        <Anchors>
+                                            <Anchor point="TOP" relativeKey="$parent.equipsetDropdown" relativePoint="TOP"  x="-240" y="-240"/>
+                                        </Anchors>
+                                    </Frame>
+
+                                    <Frame parentKey="equipSlotChest" parentArray="equipSlots" inherits="GuildbookProfileEquipmentIcon">
+                                        <Size x="190" y="32"/>
+                                        <Anchors>
+                                            <Anchor point="TOP" relativeKey="$parent.equipsetDropdown" relativePoint="TOP"  x="-240" y="-200"/>
+                                        </Anchors>
+                                    </Frame>
+                                    <Frame parentKey="equipSlotWaist" parentArray="equipSlots" inherits="GuildbookProfileEquipmentIcon">
+                                        <Size x="190" y="32"/>
+                                        <Anchors>
+                                            <Anchor point="TOP" relativeKey="$parent.equipsetDropdown" relativePoint="TOP"  x="240" y="-80"/>
+                                        </Anchors>
+                                    </Frame>
+                                    <Frame parentKey="equipSlotLegs" parentArray="equipSlots" inherits="GuildbookProfileEquipmentIcon">
+                                        <Size x="190" y="32"/>
+                                        <Anchors>
+                                            <Anchor point="TOP" relativeKey="$parent.equipsetDropdown" relativePoint="TOP"  x="240" y="-120"/>
+                                        </Anchors>
+                                    </Frame>
+                                    <Frame parentKey="equipSlotFeet" parentArray="equipSlots" inherits="GuildbookProfileEquipmentIcon">
+                                        <Size x="190" y="32"/>
+                                        <Anchors>
+                                            <Anchor point="TOP" relativeKey="$parent.equipsetDropdown" relativePoint="TOP"  x="240" y="-160"/>
+                                        </Anchors>
+                                    </Frame>
+
+                                    <Frame parentKey="equipSlotWrist" parentArray="equipSlots" inherits="GuildbookProfileEquipmentIcon">
+                                        <Size x="190" y="32"/>
+                                        <Anchors>
+                                            <Anchor point="TOP" relativeKey="$parent.equipsetDropdown" relativePoint="TOP"  x="-240" y="-320"/>
+                                        </Anchors>
+                                    </Frame>
+                                    <Frame parentKey="equipSlotHands" parentArray="equipSlots" inherits="GuildbookProfileEquipmentIcon">
+                                        <Size x="190" y="32"/>
+                                        <Anchors>
+                                            <Anchor point="TOP" relativeKey="$parent.equipsetDropdown" relativePoint="TOP"  x="240" y="-40"/>
+                                        </Anchors>
+                                    </Frame>
+                                    <Frame parentKey="equipSlotFinger0" parentArray="equipSlots" inherits="GuildbookProfileEquipmentIcon">
+                                        <Size x="190" y="32"/>
+                                        <Anchors>
+                                            <Anchor point="TOP" relativeKey="$parent.equipsetDropdown" relativePoint="TOP"  x="240" y="-200"/>
+                                        </Anchors>
+                                    </Frame>
+                                    <Frame parentKey="equipSlotFinger1" parentArray="equipSlots" inherits="GuildbookProfileEquipmentIcon">
+                                        <Size x="190" y="32"/>
+                                        <Anchors>
+                                            <Anchor point="TOP" relativeKey="$parent.equipsetDropdown" relativePoint="TOP"  x="240" y="-240"/>
+                                        </Anchors>
+                                    </Frame>
+
+                                    <Frame parentKey="equipSlotTrinket0" parentArray="equipSlots" inherits="GuildbookProfileEquipmentIcon">
+                                        <Size x="190" y="32"/>
+                                        <Anchors>
+                                            <Anchor point="TOP" relativeKey="$parent.equipsetDropdown" relativePoint="TOP"  x="240" y="-280"/>
+                                        </Anchors>
+                                    </Frame>
+                                    <Frame parentKey="equipSlotTrinket1" parentArray="equipSlots" inherits="GuildbookProfileEquipmentIcon">
+                                        <Size x="190" y="32"/>
+                                        <Anchors>
+                                            <Anchor point="TOP" relativeKey="$parent.equipsetDropdown" relativePoint="TOP"  x="240" y="-320"/>
+                                        </Anchors>
+                                    </Frame>
+
+                                    <Frame parentKey="equipSlotBack" parentArray="equipSlots" inherits="GuildbookProfileEquipmentIcon">
+                                        <Size x="190" y="32"/>
+                                        <Anchors>
+                                            <Anchor point="TOP" relativeKey="$parent.equipsetDropdown" relativePoint="TOP"  x="-240" y="-160"/>
+                                        </Anchors>
+                                    </Frame>
+
+                                    <Frame parentKey="equipSlotMainhand" parentArray="equipSlots" inherits="GuildbookProfileEquipmentIcon">
+                                        <Size x="190" y="32"/>
+                                        <Anchors>
+                                            <Anchor point="TOP" relativeKey="$parent.equipsetDropdown" relativePoint="TOP"  x="-240" y="-360"/>
+                                        </Anchors>
+                                    </Frame>
+                                    <Frame parentKey="equipSlotOffhand" parentArray="equipSlots" inherits="GuildbookProfileEquipmentIcon">
+                                        <Size x="190" y="32"/>
+                                        <Anchors>
+                                            <Anchor point="TOP" relativeKey="$parent.equipsetDropdown" relativePoint="TOP"  x="0" y="-360"/>
+                                        </Anchors>
+                                    </Frame>
+                                    <Frame parentKey="equipSlotRanged" parentArray="equipSlots" inherits="GuildbookProfileEquipmentIcon">
+                                        <Size x="190" y="32"/>
+                                        <Anchors>
+                                            <Anchor point="TOP" relativeKey="$parent.equipsetDropdown" relativePoint="TOP"  x="240" y="-360"/>
+                                        </Anchors>
+                                    </Frame>
+                                    <Frame parentKey="equipSlotTabard" parentArray="equipSlots" inherits="GuildbookProfileEquipmentIcon">
+                                        <Size x="190" y="32"/>
+                                        <Anchors>
+                                            <Anchor point="TOP" relativeKey="$parent.equipsetDropdown" relativePoint="TOP"  x="-240" y="-280"/>
+                                        </Anchors>
+                                    </Frame>
+
+                                    <Frame parentKey="talents">
+                                        <Anchors>
+                                            <Anchor point="TOP" relativeKey="$parent.equipSlotOffhand" relativePoint="BOTTOM" x="0" y="-30"/>
+                                        </Anchors>
+                                        <Layers>
+                                            <Layer level="BACKGROUND" >
+                                                <!-- <Line thickness="5" atlas="_GarrMission_TopBorder"> -->
+                                                <Line thickness="8" atlas="communities-chat-date-line">
+                                                    <!-- <Color r="1" g="1" b="1"/> communities-chat-date-line -->
+                                                    <StartAnchor point="TOP" x="60"/>
+                                                    <EndAnchor point="TOPRIGHT"/>
+                                                </Line>
+                                                <Line thickness="8" atlas="communities-chat-date-line">
+                                                    <!-- <Color r="1" g="1" b="1"/> communities-chat-date-line -->
+                                                    <StartAnchor point="TOP" x="-60"/>
+                                                    <EndAnchor point="TOPLEFT"/>
+                                                </Line>
+                                                <Texture parentKey="tree1">
+                                                    <Size x="237"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOPLEFT" x="0" y="-60"/>
+                                                        <Anchor point="BOTTOMLEFT" x="0" y="0"/>
+                                                    </Anchors>
+                                                </Texture>
+                                                <Texture parentKey="tree2">
+                                                    <Size x="237"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOPLEFT" x="237" y="-60"/>
+                                                        <Anchor point="BOTTOMLEFT" x="237" y="0"/>
+                                                    </Anchors>
+                                                </Texture>
+                                                <Texture parentKey="tree3">
+                                                    <Size x="237"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOPLEFT" x="474" y="-60"/>
+                                                        <Anchor point="BOTTOMLEFT" x="474" y="0"/>
+                                                    </Anchors>
+                                                </Texture>
+                                            </Layer>
+                                            <Layer level="OVERLAY">
+                                                <FontString parentKey="header" inherits="GameFontNormalLarge" text="Talents">
+                                                    <Color r="1" g="1" b="1"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOP" x="0" y="10"/>
+                                                    </Anchors>
+                                                </FontString>
+                                            </Layer>
+                                        </Layers>
+                                    </Frame>
+
+                                    <Frame parentKey="talentsDropdown" inherits="GuildbookDropdown">
+                                        <Size x="100" y="24"/>
+                                        <Anchors>
+                                            <Anchor point="TOP" relativeKey="$parent.talents" relativePoint="TOP" x="0" y="-10"/>
+                                        </Anchors>
+                                    </Frame>
+
+                                    <Frame parentKey="talentsHelp" parentArray="helptips" hidden="true" inherits="GuildbookHelpTipTemplate_BottomArrow">
+                                        <Size x="200" y="50"/>
+                                        <Anchors>
+                                            <Anchor point="BOTTOM" relativeKey="$parent.talentsDropdown" relativePoint="TOP" x="0" y="10"/>
+                                        </Anchors>
+                                    </Frame>
+
+                                    <Frame parentKey="equipmentHelp" parentArray="helptips" hidden="true" inherits="GuildbookHelpTipTemplate_TopArrow">
+                                        <Size x="240" y="50"/>
+                                        <Anchors>
+                                            <Anchor point="TOP" relativeKey="$parent.equipsetDropdown" relativePoint="TOP" x="0" y="-50"/>
+                                        </Anchors>
+                                    </Frame>
+
+                                </Frames>
+
+
+                            </Frame>
+                        </ScrollChild>
+                    </ScrollFrame>
+
+                </Frames>
+            </Frame>
+
+            <ScrollFrame parentKey="settings" hidden="true" inherits="UIPanelScrollFrameTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.menu" relativePoint="TOPRIGHT" x="5" y="0"/>
+                    <Anchor point="BOTTOMRIGHT" x="-25" y="0"/>
+                </Anchors>
+                <ScrollChild>
+                    <Frame parentKey="scrollChild">
+                        <Anchors>
+                            <Anchor point="LEFT" x="0" y="0"/>
+                            <Anchor point="RIGHT" x="0" y="0"/>
+                        </Anchors>
+
+                        <Frames>
+
+                            <CheckButton parentKey="showMinimapButton" inherits="ChatConfigCheckButtonTemplate" >
+                                <CheckedTexture atlas="orderhalltalents-done-checkmark"/>
+                                <Size x="24" y="24"/>
+                                <Layers>
+                                    <Layer>
+                                        <FontString parentKey="label" inherits="GameFontNormal" text="Show Minimap Button">
+                                            <Color r="1" g="1" b="1" a="1"/>
+                                            <FontHeight val="12"/>
+                                            <Anchors>
+                                                <Anchor point="LEFT">
+                                                    <offset x="24" y="0"/>
+                                                </Anchor>
+                                            </Anchors>
+                                        </FontString>
+                                    </Layer>
+                                </Layers>                
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="16" y="-16"/>
+                                </Anchors>
+                            </CheckButton>
+
+                            <CheckButton parentKey="blockCommsDuringCombat" inherits="ChatConfigCheckButtonTemplate" >
+                                <CheckedTexture atlas="orderhalltalents-done-checkmark"/>
+                                <Size x="24" y="24"/>
+                                <Layers>
+                                    <Layer>
+                                        <FontString parentKey="label" inherits="GameFontNormal" text="Block comms during combat">
+                                            <Color r="1" g="1" b="1" a="1"/>
+                                            <FontHeight val="12"/>
+                                            <Anchors>
+                                                <Anchor point="LEFT">
+                                                    <offset x="24" y="0"/>
+                                                </Anchor>
+                                            </Anchors>
+                                        </FontString>
+                                    </Layer>
+                                </Layers>                
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="16" y="-46"/>
+                                </Anchors>
+                            </CheckButton>
+
+                            <CheckButton parentKey="blockCommsDuringInstance" inherits="ChatConfigCheckButtonTemplate" >
+                                <CheckedTexture atlas="orderhalltalents-done-checkmark"/>
+                                <Size x="24" y="24"/>
+                                <Layers>
+                                    <Layer>
+                                        <FontString parentKey="label" inherits="GameFontNormal" text="Block comms while in an instsnce">
+                                            <Color r="1" g="1" b="1" a="1"/>
+                                            <FontHeight val="12"/>
+                                            <Anchors>
+                                                <Anchor point="LEFT">
+                                                    <offset x="24" y="0"/>
+                                                </Anchor>
+                                            </Anchors>
+                                        </FontString>
+                                    </Layer>
+                                </Layers>                
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="16" y="-76"/>
+                                </Anchors>
+                            </CheckButton>
+
+                            <CheckButton parentKey="showTooltipMainCharacter" inherits="ChatConfigCheckButtonTemplate" >
+                                <CheckedTexture atlas="orderhalltalents-done-checkmark"/>
+                                <Size x="24" y="24"/>
+                                <Layers>
+                                    <Layer>
+                                        <FontString parentKey="label" inherits="GameFontNormal" text="Show main character in tooltip">
+                                            <Color r="1" g="1" b="1" a="1"/>
+                                            <FontHeight val="12"/>
+                                            <Anchors>
+                                                <Anchor point="LEFT">
+                                                    <offset x="24" y="0"/>
+                                                </Anchor>
+                                            </Anchors>
+                                        </FontString>
+                                    </Layer>
+                                </Layers>                
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="16" y="-106"/>
+                                </Anchors>
+                            </CheckButton>
+
+                            <CheckButton parentKey="showTooltipMainSpec" inherits="ChatConfigCheckButtonTemplate" >
+                                <CheckedTexture atlas="orderhalltalents-done-checkmark"/>
+                                <Size x="24" y="24"/>
+                                <Layers>
+                                    <Layer>
+                                        <FontString parentKey="label" inherits="GameFontNormal" text="Show main spec in tooltip">
+                                            <Color r="1" g="1" b="1" a="1"/>
+                                            <FontHeight val="12"/>
+                                            <Anchors>
+                                                <Anchor point="LEFT">
+                                                    <offset x="24" y="0"/>
+                                                </Anchor>
+                                            </Anchors>
+                                        </FontString>
+                                    </Layer>
+                                </Layers>                
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="16" y="-136"/>
+                                </Anchors>
+                            </CheckButton>
+
+                            <CheckButton parentKey="showTooltipCharacterProfile" inherits="ChatConfigCheckButtonTemplate" >
+                                <CheckedTexture atlas="orderhalltalents-done-checkmark"/>
+                                <Size x="24" y="24"/>
+                                <Layers>
+                                    <Layer>
+                                        <FontString parentKey="label" inherits="GameFontNormal" text="Show character profile in tooltip">
+                                            <Color r="1" g="1" b="1" a="1"/>
+                                            <FontHeight val="12"/>
+                                            <Anchors>
+                                                <Anchor point="LEFT">
+                                                    <offset x="24" y="0"/>
+                                                </Anchor>
+                                            </Anchors>
+                                        </FontString>
+                                    </Layer>
+                                </Layers>                
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="16" y="-166"/>
+                                </Anchors>
+                            </CheckButton>
+
+                            <CheckButton parentKey="showTooltipTradeskills" inherits="ChatConfigCheckButtonTemplate" >
+                                <CheckedTexture atlas="orderhalltalents-done-checkmark"/>
+                                <Size x="24" y="24"/>
+                                <Layers>
+                                    <Layer>
+                                        <FontString parentKey="label" inherits="GameFontNormal" text="Show tradeskills in tooltip">
+                                            <Color r="1" g="1" b="1" a="1"/>
+                                            <FontHeight val="12"/>
+                                            <Anchors>
+                                                <Anchor point="LEFT">
+                                                    <offset x="24" y="0"/>
+                                                </Anchor>
+                                            </Anchors>
+                                        </FontString>
+                                    </Layer>
+                                </Layers>                
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="16" y="-196"/>
+                                </Anchors>
+                            </CheckButton>
+
+
+                            <Button parentKey="resetCharacter">
+                                <Size x="200" y="24"/>
+                                <NormalTexture atlas="clickcastlist-buttonbackground"/>
+                                <PushedTexture/>
+                                <HighlightTexture atlas="clickcastlist-buttonhighlight"/>
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="16" y="-226"/>
+                                </Anchors>
+                                <Layers>
+                                    <Layer level="OVERLAY">
+                                        <FontString parentKey="label" inherits="GameFontNormal">
+                                            <Color r="1" g="1" b="1"/>
+                                        </FontString>
+                                    </Layer>
+                                </Layers>
+                            </Button>
+
+                            <Button parentKey="resetGuild">
+                                <Size x="200" y="24"/>
+                                <NormalTexture atlas="clickcastlist-buttonbackground"/>
+                                <PushedTexture/>
+                                <HighlightTexture atlas="clickcastlist-buttonhighlight"/>
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="16" y="-256"/>
+                                </Anchors>
+                                <Layers>
+                                    <Layer level="OVERLAY">
+                                        <FontString parentKey="label" inherits="GameFontNormal">
+                                            <Color r="1" g="1" b="1"/>
+                                        </FontString>
+                                    </Layer>
+                                </Layers>
+                            </Button>
+
+
+
+                            <Button parentKey="scanForLocaleData">
+                                <Size x="200" y="24"/>
+                                <NormalTexture atlas="clickcastlist-buttonbackground"/>
+                                <PushedTexture/>
+                                <HighlightTexture atlas="clickcastlist-buttonhighlight"/>
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="16" y="-306"/>
+                                </Anchors>
+                                <Layers>
+                                    <Layer level="OVERLAY">
+                                        <FontString parentKey="label" inherits="GameFontNormal" text="Scan for locales">
+                                            <Color r="1" g="1" b="1"/>
+                                        </FontString>
+                                    </Layer>
+                                </Layers>
+                            </Button>
+
+
+                        </Frames>
+
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <FontString parentKey="header" inherits="GameFontNormalLarge" justifyH="CENTER" text="Settings">
+                                    <Size y="28"/>
+                                    <Color r="1" g="1" b="1"/>
+                                    <Anchors>
+                                        <Anchor point="TOP" x="0" y="-2"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                    </Frame>
+                </ScrollChild>
+            </ScrollFrame>
+
+            <Frame parentKey="profile" hidden="true">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.menu" relativePoint="TOPRIGHT" x="5" y="0"/>
+                    <Anchor point="BOTTOMRIGHT" x="-25" y="0"/>
+                </Anchors>
+
+                <Frames>
+                    
+                    <EditBox parentKey="realNameInput" inherits="InputBoxTemplate" autoFocus="false">
+                        <Size x="200" y="24"/>
+                        <Anchors>
+                            <Anchor point="TOPLEFT" x="32" y="-50"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <FontString parentKey="label" inherits="GameFontNormal">
+                                    <Color r="1" g="1" b="1"/>
+                                    <Anchors>
+                                        <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="6" y="2"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                    </EditBox>
+
+                    <ScrollFrame parentKey="realBioInput" parentArray="displayEdit" inherits="InputScrollFrameTemplate">
+                        <Size x="240" y="70"/>
+                        <KeyValue key="hideCharCount" value="false" type="boolean"/>
+                        <Anchors>
+                            <Anchor point="TOPLEFT" x="32" y="-108"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <FontString parentKey="label" inherits="GameFontNormal">
+                                    <Color r="1" g="1" b="1"/>
+                                    <Anchors>
+                                        <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="6" y="8"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                    </ScrollFrame>
+
+                    <Frame parentKey="realProfileHelptip" parentArray="helptips" hidden="true" inherits="GuildbookHelpTipTemplate_BottomArrow">
+                        <Size x="240" y="110"/>
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="-60" y="-10"/>
+                        </Anchors>
+                    </Frame>
+
+                    <Frame parentKey="primarySpecDropdown" inherits="GuildbookDropdown">
+                        <Size x="120" y="24"/>
+                        <Anchors>
+                            <Anchor point="TOPRIGHT" x="-200" y="-50"/>
+                        </Anchors>
+                    </Frame>
+                    <CheckButton parentKey="primarySpecIsPvp" inherits="ChatConfigCheckButtonTemplate" >
+                        <Size x="24" y="24"/>
+                        <HitRectInsets left="0" right="-10"/>
+                        <CheckedTexture atlas="orderhalltalents-done-checkmark"/>
+                        <DisabledCheckedTexture />
+                        <Layers>
+                            <Layer>
+                                <FontString parentKey="label" inherits="GameFontNormal" text="PvP">
+                                    <Color r="1" g="1" b="1" a="1"/>
+                                    <FontHeight val="12"/>
+                                    <Anchors>
+                                        <Anchor point="LEFT">
+                                            <offset x="24" y="0"/>
+                                        </Anchor>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>                
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeKey="$parent.primarySpecDropdown" relativePoint="BOTTOMLEFT" x="0" y="-5"/>
+                        </Anchors>
+                    </CheckButton>
+                    <Frame parentKey="secondarySpecDropdown" inherits="GuildbookDropdown">
+                        <Size x="120" y="24"/>
+                        <Anchors>
+                            <Anchor point="LEFT" relativeKey="$parent.primarySpecDropdown" relativePoint="RIGHT" x="50" y="0"/>
+                        </Anchors>
+                    </Frame>
+                    <CheckButton parentKey="secondarySpecIsPvp" inherits="ChatConfigCheckButtonTemplate" >
+                        <Size x="24" y="24"/>
+                        <HitRectInsets left="0" right="-10"/>
+                        <CheckedTexture atlas="orderhalltalents-done-checkmark"/>
+                        <DisabledCheckedTexture />
+                        <Layers>
+                            <Layer>
+                                <FontString parentKey="label" inherits="GameFontNormal" text="PvP">
+                                    <Color r="1" g="1" b="1" a="1"/>
+                                    <FontHeight val="12"/>
+                                    <Anchors>
+                                        <Anchor point="LEFT">
+                                            <offset x="24" y="0"/>
+                                        </Anchor>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>                
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeKey="$parent.secondarySpecDropdown" relativePoint="BOTTOMLEFT" x="0" y="-5"/>
+                        </Anchors>
+                    </CheckButton>
+
+                    <Frame parentKey="specializationHelptip" parentArray="helptips" hidden="true" inherits="GuildbookHelpTipTemplate_TopArrow">
+                        <Size x="180" y="60"/>
+                        <Anchors>
+                            <Anchor point="TOP" relativeKey="$parent.primarySpecDropdown" relativePoint="BOTTOM" x="30" y="-20"/>
+                        </Anchors>
+                    </Frame>
+
+                    <!-- <Frame parentKey="prof1Dropdown" inherits="GuildbookDropdown">
+                        <Size x="120" y="24"/>
+                        <Anchors>
+                            <Anchor point="TOPRIGHT" x="-200" y="-160"/>
+                        </Anchors>
+                    </Frame>
+                    <Frame parentKey="prof2Dropdown" inherits="GuildbookDropdown">
+                        <Size x="120" y="24"/>
+                        <Anchors>
+                            <Anchor point="LEFT" relativeKey="$parent.prof1Dropdown" relativePoint="RIGHT" x="50" y="0"/>
+                        </Anchors>
+                    </Frame> -->
+
+
+                </Frames>
+
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <FontString parentKey="header" inherits="GameFontNormalLarge">
+                            <Color r="1" g="1" b="1"/>
+                            <Anchors>
+                                <Anchor point="TOP" x="0" y="-2"/>
+                            </Anchors>
+                        </FontString>
+
+                        <FontString parentKey="specializationsHeader" inherits="GameFontNormal" text="Specializations">
+                            <Color r="1" g="1" b="1"/>
+                            <Anchors>
+                                <Anchor point="BOTTOMLEFT" relativeKey="$parent.primarySpecDropdown" relativePoint="TOPLEFT" x="0" y="5"/>
+                            </Anchors>
+                        </FontString>
+
+                        <!-- <FontString parentKey="tradeskillsHeader" inherits="GameFontNormal" text="Tradeskills">
+                            <Color r="1" g="1" b="1"/>
+                            <Anchors>
+                                <Anchor point="BOTTOMLEFT" relativeKey="$parent.prof1Dropdown" relativePoint="TOPLEFT" x="0" y="5"/>
+                            </Anchors>
+                        </FontString> -->
+
+                    </Layer>
+                </Layers>
+            </Frame>
+
+            <ScrollFrame parentKey="help" hidden="true" inherits="UIPanelScrollFrameTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.menu" relativePoint="TOPRIGHT" x="5" y="0"/>
+                    <Anchor point="BOTTOMRIGHT" x="-25" y="0"/>
+                </Anchors>
+                <ScrollChild>
+                    <Frame parentKey="scrollChild">
+                        <Anchors>
+                            <Anchor point="LEFT" x="0" y="0"/>
+                            <Anchor point="RIGHT" x="0" y="0"/>
+                        </Anchors>
+
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <FontString parentKey="text" inherits="GameFontNormal" setAllPoints="true" justifyH="LEFT" justifyV="TOP">
+                                    <Color r="1" g="1" b="1"/>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                    </Frame>
+                </ScrollChild>
+            </ScrollFrame>
+
+        </Frames>
+
+
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnUpdate method="OnUpdate"/>
+            <!-- <OnShow method="OnShow"/> -->
+            <OnHide method="OnHide"/>
+            <OnDragStart>
+                self:StartMoving()
+            </OnDragStart>
+            <OnDragStop>
+                self:StopMovingOrSizing()
+            </OnDragStop>
+        </Scripts>
+
+    </Frame>
+</UI>

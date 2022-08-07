@@ -1,13 +1,12 @@
-# This file is shown to unsupported (non classic) client
-# Addon should still work but will probably not work as intended
-## Interface: 00000
+## Interface: 30400
 ## Author: Copperbolts (Theboringdad)
-## Version: 4.994
-## Title: Guildbook |cFFFF0000ERROR|r
-## Notes: Unsupported client!
-## Notes-frFR : Client non supporté !
-## SavedVariables: GUILDBOOK_GLOBAL
-## SavedVariablesPerCharacter: GUILDBOOK_CHARACTER
+## Version: 5.0
+## Title: Guildbook
+## Notes: Guild addon for guild stuff!
+## Notes-frFR : Un addon pour les trucs de guilde !
+## SavedVariables: GUILDBOOK_GLOBAL, GUILDBOOK_CONFIG, GUILDBOOK_PRIVACY
+## SavedVariablesPerCharacter: GUILDBOOK_CHARACTER, craftData, glyphLocales, , tradeskillItemsSetIDs
+## Dependencies: Blizzard_TalentUI, Blizzard_TradeSkillUI
 
 
 Libs\LibStub\LibStub.lua
@@ -23,25 +22,32 @@ Libs\LibCraftInfo-1.0\LibCraftInfo-1.0.xml
 
 Locales.lua
 
+Colours.lua
+
+Tradeskills.lua
+
 Templates.lua
 Templates.xml
-
-Data.lua
-
 
 Debugger.xml
 Debugger.lua
 
-ModBlizzUI.lua
+Database.lua
+Comms.lua
 
-Core.lua
-Calendar.lua
-Dialogs.lua
-Options.lua
+#ModBlizzUI.lua
 
-Guildbook.lua
-Guildbook.xml
-
-Options.xml
 
 #TextureViewer.lua
+
+
+CraftData.lua
+
+Character.lua
+Guild.lua
+
+gb2.lua
+
+GuildbookMixin.lua
+
+gb2.xml

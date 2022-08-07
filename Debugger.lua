@@ -22,30 +22,29 @@ the copyright holders.
 
 local _, Guildbook = ...
 
+local Colours = Guildbook.Colours;
 
 local debugTypeToClassColour = {
     ['error'] = CreateColor(0.77, 0.12, 0.23),
-    ['func'] = CreateColor(Guildbook.Data.Class.HUNTER.RGB),
-    ['event'] = CreateColor(Guildbook.Data.Class.ROGUE.RGB),
-    ['comms_out'] = CreateColor(Guildbook.Data.Class.PALADIN.RGB),
-    ['comms_in'] = CreateColor(Guildbook.Data.Class.PALADIN.RGB),
-    ['db_func'] = CreateColor(Guildbook.Data.Class.PALADIN.RGB),
-    ['tsdb'] = CreateColor(Guildbook.Data.Class.PALADIN.RGB),
+    ['func'] = Colours['HUNTER'],
+    ['event'] = Colours['ROGUE'],
+    ['comms_out'] = Colours['PALADIN'],
+    ['comms_in'] = Colours['PALADIN'],
+    ['db_func'] = Colours['PALADIN'],
+    ['tsdb'] = Colours['PALADIN'],
 
-    ["commsMixin"] = CreateColor(Guildbook.Data.Class.SHAMAN.RGB),
-    ["databaseMixin"] = CreateColor(Guildbook.Data.Class.WARLOCK.RGB),
-    ["characterMixin"] = CreateColor(Guildbook.Data.Class.DRUID.RGB),
-    ["rosterMixin"] = CreateColor(Guildbook.Data.Class.MAGE.RGB),
+    ["commsMixin"] = Colours['SHAMAN'],
+    ["databaseMixin"] = Colours['DRUID'],
+    ["characterMixin"] = Colours['WARLOCK'],
+    ["rosterMixin"] = Colours['ROGUE'],
     ["calendarMixin"] = CreateColor({0, 255, 152}), --monk
     ["guildBankMixin"] = CreateColor({209,140,3}), --monk
 }
 GuildbookDebuggerListviewItemTemplateMixin = {}
 function GuildbookDebuggerListviewItemTemplateMixin:Init(elementData)
-    local rgb = debugTypeToClassColour[elementData.debugType]:GetRGBA()
-    if type(rgb) ~= "table" then
-        return
-    end
-    self.background:SetColorTexture(rgb[1], rgb[2], rgb[3], 0.2)
+    local r, g, b = debugTypeToClassColour[elementData.debugType]:GetRGB()
+
+    self.background:SetColorTexture(r,g,b,0.2)
     self.timestamp:SetText(elementData.timestamp)
     self.blockName:SetText(string.format("[%s]", elementData.blockName))
     self.message:SetText(elementData.message)
@@ -144,6 +143,7 @@ Guildbook.DebugEventSelected = nil;
 ---@param func string the function name
 ---@param msg string the debug message to display
 function Guildbook.DEBUG(id, func, msg, data)
+    
     local ts = date("%T")
     if Guildbook.DebugEventSelected == nil then
         Guildbook.DebuggerWindow.listview.DataProvider:Insert({
@@ -178,20 +178,24 @@ Guildbook.DebuggerWindow:RegisterForDrag("LeftButton")
 Guildbook.DebuggerWindow:SetScript("OnDragStart", Guildbook.DebuggerWindow.StartMoving)
 Guildbook.DebuggerWindow:SetScript("OnDragStop", Guildbook.DebuggerWindow.StopMovingOrSizing)
 _G['GuildbookDebugFrameClose']:SetScript('OnClick', function()
-    if GUILDBOOK_CHARACTER and GUILDBOOK_GLOBAL then
-        GUILDBOOK_GLOBAL['Debug'] = false
-        GuildbookOptionsDebugCB:SetChecked(GUILDBOOK_GLOBAL['Debug'])
-    end
-    if GuildbookOptionsDebugCB:GetChecked() == true then
-        Guildbook.DebuggerWindow:Show()
-    else
-        Guildbook.DebuggerWindow:Hide()
-    end
+    -- if GUILDBOOK_CHARACTER and GUILDBOOK_GLOBAL then
+    --     GUILDBOOK_GLOBAL['Debug'] = false
+    --     GuildbookOptionsDebugCB:SetChecked(GUILDBOOK_GLOBAL['Debug'])
+    -- end
+    -- if GuildbookOptionsDebugCB:GetChecked() == true then
+    --     Guildbook.DebuggerWindow:Show()
+    -- else
+    --     Guildbook.DebuggerWindow:Hide()
+    -- end
 end)
 
 Guildbook.DebuggerWindow.header = Guildbook.DebuggerWindow:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
 Guildbook.DebuggerWindow.header:SetPoint('TOP', 0, -9)
 Guildbook.DebuggerWindow.header:SetText('Guildbook Debug')
+
+Guildbook.DebuggerWindow:SetScript("OnUpdate", function()
+    Guildbook.DebuggerWindow.header:SetText(string.format("Guildbook Debug %s", date("%H:%M:%S", time())))
+end)
 
 Guildbook.DebuggerWindow.EventSelectionDropdown = CreateFrame("FRAME", "GuildbookDebugEventSelectionDropdown", Guildbook.DebuggerWindow, "GuildbookDropdown")
 Guildbook.DebuggerWindow.EventSelectionDropdown:SetPoint("TOPLEFT", 16, -30)

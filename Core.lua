@@ -591,400 +591,400 @@ Classes.Specializations = {
 
 
 
---[[
-/////////////////////////////////////////////////////////////////
+-- --[[
+-- /////////////////////////////////////////////////////////////////
 
-    @class Tradeskills
-
-
-/////////////////////////////////////////////////////////////////
-]]
---local Tradeskills = {}
-Tradeskills:GenerateCallbackEvents({
-    "OnRecipeItemDataReceived", --hmm?
-});
-Tradeskills.CurrentLocale = GetLocale()
-Tradeskills.TradeskillNames = {
-    ["Alchemy"] = 171,
-    ["Blacksmithing"] = 164,
-    ["Enchanting"] = 333,
-    ["Engineering"] = 202,
-    ["Inscription"] = 773,
-    ["Jewelcrafting"] = 755,
-    ["Leatherworking"] = 165,
-    ["Tailoring"] = 197,
-    ["Mining"] = 186,
-    ["Herbalism"] = 182,
-    ["Skinning"] = 393,
-    ["Cooking"] = 185,
-}
-Tradeskills.SpecializationSpellsIDs = {
-    --Alchemy:
-    [28672] = 171,
-    [28677] = 171,
-    [28675] = 171,
-    --Engineering:
-    [20222] = 202,
-    [20219] = 202,
-    --Tailoring:
-    [26798] = 197,
-    [26797] = 197,
-    [26801] = 197,
-    --Blacksmithing:
-    [9788] = 164,
-    [17039] = 164,
-    [17040] = 164,
-    [17041] = 164,
-    [9787] = 164,
-    --Leatherworking:
-    [10656] = 165,
-    [10658] = 165,
-    [10660] = 165,
-}
-Tradeskills.TradeskillIDsToLocaleName = {
-	enUS = {
-		[164] = "Blacksmithing",
-		[165] = "Leatherworking",
-		[171] = "Alchemy",
-		[182] = "Herbalism",
-		[185] = "Cooking",
-		[186] = "Mining",
-		[197] = "Tailoring",
-		[202] = "Engineering",
-		[333] = "Enchanting",
-		[356] = "Fishing",
-		[393] = "Skinning",
-		[755] = "Jewelcrafting",
-		[773] = "Inscription",
-		[129] = "First Aid"
-	},
-	deDE = {
-		[164] = "Schmiedekunst",
-		[165] = "Lederverarbeitung",
-		[171] = "Alchimie",
-		[182] = "Kräuterkunde",
-		[185] = "Kochkunst",
-		[186] = "Bergbau",
-		[197] = "Schneiderei",
-		[202] = "Ingenieurskunst",
-		[333] = "Verzauberkunst",
-		[356] = "Angeln",
-		[393] = "Kürschnerei",
-		[755] = "Juwelenschleifen",
-		[773] = "Inschriftenkunde",
-		[129] = "Erste Hilfe",
-	},
-	frFR = {
-		[164] = "Forge",
-		[165] = "Travail du cuir",
-		[171] = "Alchimie",
-		[182] = "Herboristerie",
-		[185] = "Cuisine",
-		[186] = "Minage",
-		[197] = "Couture",
-		[202] = "Ingénierie",
-		[333] = "Enchantement",
-		[356] = "Pêche",
-		[393] = "Dépeçage",
-		[755] = "Joaillerie",
-		[773] = "Calligraphie",
-		[129] = "Secourisme",
-	},
-	esMX = {
-		[164] = "Herrería",
-		[165] = "Peletería",
-		[171] = "Alquimia",
-		[182] = "Herboristería",
-		[185] = "Cocina",
-		[186] = "Minería",
-		[197] = "Sastrería",
-		[202] = "Ingeniería",
-		[333] = "Encantamiento",
-		[356] = "Pesca",
-		[393] = "Desuello",
-		[755] = "Joyería",
-		[773] = "Inscripción",
-		[129] = "Primeros auxilios",
-	},
-	-- discovered this locale exists also maybe esAL ?
-	esES = {
-        [164] = "Herrería",
-        [165] = "Peletería",
-        [171] = "Alquimia",
-        [182] = "Herboristería",
-        [185] = "Cocina",
-        [186] = "Minería",
-        [197] = "Sastrería",
-        [202] = "Ingeniería",
-        [333] = "Encantamiento",
-        [356] = "Pesca",
-        [393] = "Desuello",
-        [755] = "Joyería",
-        [773] = "Inscripción",
-		[129] = "Primeros auxilios",
-    },
-	ptBR = {
-		[164] = "Ferraria",
-		[165] = "Couraria",
-		[171] = "Alquimia",
-		[182] = "Herborismo",
-		[185] = "Culinária",
-		[186] = "Mineração",
-		[197] = "Alfaiataria",
-		[202] = "Engenharia",
-		[333] = "Encantamento",
-		[356] = "Pesca",
-		[393] = "Esfolamento",
-		[755] = "Joalheria",
-		[773] = "Escrivania",
-		[129] = "Primeiros Socorros",
-	},
-	ruRU = {
-		[164] = "Кузнечное дело",
-		[165] = "Кожевничество",
-		[171] = "Алхимия",
-		[182] = "Травничество",
-		[185] = "Кулинария",
-		[186] = "Горное дело",
-		[197] = "Портняжное дело",
-		[202] = "Инженерное дело",
-		[333] = "Наложение чар",
-		[356] = "Рыбная ловля",
-		[393] = "Снятие шкур",
-		[755] = "Ювелирное дело",
-		[773] = "Начертание",
-		[129] = "Первая помощь",
-	},
-	zhCN = {
-		[164] = "锻造",
-		[165] = "制皮",
-		[171] = "炼金术",
-		[182] = "草药学",
-		[185] = "烹饪",
-		[186] = "采矿",
-		[197] = "裁缝",
-		[202] = "工程学",
-		[333] = "附魔",
-		[356] = "钓鱼",
-		[393] = "剥皮",
-		[755] = "珠宝加工",
-		[773] = "铭文",
-		[129] = "急救",
-	},
-	zhTW = {
-		[164] = "鍛造",
-		[165] = "製皮",
-		[171] = "鍊金術",
-		[182] = "草藥學",
-		[185] = "烹飪",
-		[186] = "採礦",
-		[197] = "裁縫",
-		[202] = "工程學",
-		[333] = "附魔",
-		[356] = "釣魚",
-		[393] = "剝皮",
-		[755] = "珠寶設計",
-		[773] = "銘文學",
-		[129] = "急救", --Worked on PTR -Belrand
-	},
-	koKR = {
-		[164] = "대장기술",
-		[165] = "가죽세공",
-		[171] = "연금술",
-		[182] = "약초채집",
-		[185] = "요리",
-		[186] = "채광",
-		[197] = "재봉술",
-		[202] = "기계공학",
-		[333] = "마법부여",
-		[356] = "낚시",
-		[393] = "무두질",
-		[755] = "보석세공",
-		[773] = "주문각인",
-		[129] = "응급치료",
-	},
-}
-Tradeskills.TradeskillLocaleNameToID = tInvert(Tradeskills.TradeskillIDsToLocaleName[Tradeskills.CurrentLocale])
-
-function Tradeskills:IsTradeskill(tradeskillName, tradeskillID)
-    if type(tradeskillName) == "string" then
-        for id, name in pairs(self.TradeskillIDsToLocaleName[GetLocale()]) do
-            if name == tradeskillName then
-                return true;
-            end
-        end
-    else
-        if type(tradeskillID) == "number" then
-            for id, name in pairs(self.TradeskillIDsToLocaleName[GetLocale()]) do
-                if id == tradeskillID then
-                    return true;
-                end
-            end
-        end
-    end
-end
-
-function Tradeskills:GetEnglishNameFromID(tradeskillID)
-    if self.TradeskillIDsToLocaleName.enUS[tradeskillID] then
-        return self.TradeskillIDsToLocaleName.enUS[tradeskillID];
-    end
-end
-
-function Tradeskills:GetEnglishNameFromTradeskillName(tradeskillName)
-    local tradeskillID = self.TradeskillLocaleNameToID[tradeskillName]
-    if tradeskillID then
-        local tradeskill = self:GetEnglishNameFromID(tradeskillID)
-        return tostring(tradeskill);
-    end
-    return false;
-end
+--     @class Tradeskills
 
 
-function Tradeskills:RequestRecipeInfo()
+-- /////////////////////////////////////////////////////////////////
+-- ]]
+-- --local Tradeskills = {}
+-- Tradeskills:GenerateCallbackEvents({
+--     "OnRecipeItemDataReceived", --hmm?
+-- });
+-- Tradeskills.CurrentLocale = GetLocale()
+-- Tradeskills.TradeskillNames = {
+--     ["Alchemy"] = 171,
+--     ["Blacksmithing"] = 164,
+--     ["Enchanting"] = 333,
+--     ["Engineering"] = 202,
+--     ["Inscription"] = 773,
+--     ["Jewelcrafting"] = 755,
+--     ["Leatherworking"] = 165,
+--     ["Tailoring"] = 197,
+--     ["Mining"] = 186,
+--     ["Herbalism"] = 182,
+--     ["Skinning"] = 393,
+--     ["Cooking"] = 185,
+-- }
+-- Tradeskills.SpecializationSpellsIDs = {
+--     --Alchemy:
+--     [28672] = 171,
+--     [28677] = 171,
+--     [28675] = 171,
+--     --Engineering:
+--     [20222] = 202,
+--     [20219] = 202,
+--     --Tailoring:
+--     [26798] = 197,
+--     [26797] = 197,
+--     [26801] = 197,
+--     --Blacksmithing:
+--     [9788] = 164,
+--     [17039] = 164,
+--     [17040] = 164,
+--     [17041] = 164,
+--     [9787] = 164,
+--     --Leatherworking:
+--     [10656] = 165,
+--     [10658] = 165,
+--     [10660] = 165,
+-- }
+-- Tradeskills.TradeskillIDsToLocaleName = {
+-- 	enUS = {
+-- 		[164] = "Blacksmithing",
+-- 		[165] = "Leatherworking",
+-- 		[171] = "Alchemy",
+-- 		[182] = "Herbalism",
+-- 		[185] = "Cooking",
+-- 		[186] = "Mining",
+-- 		[197] = "Tailoring",
+-- 		[202] = "Engineering",
+-- 		[333] = "Enchanting",
+-- 		[356] = "Fishing",
+-- 		[393] = "Skinning",
+-- 		[755] = "Jewelcrafting",
+-- 		[773] = "Inscription",
+-- 		[129] = "First Aid"
+-- 	},
+-- 	deDE = {
+-- 		[164] = "Schmiedekunst",
+-- 		[165] = "Lederverarbeitung",
+-- 		[171] = "Alchimie",
+-- 		[182] = "Kräuterkunde",
+-- 		[185] = "Kochkunst",
+-- 		[186] = "Bergbau",
+-- 		[197] = "Schneiderei",
+-- 		[202] = "Ingenieurskunst",
+-- 		[333] = "Verzauberkunst",
+-- 		[356] = "Angeln",
+-- 		[393] = "Kürschnerei",
+-- 		[755] = "Juwelenschleifen",
+-- 		[773] = "Inschriftenkunde",
+-- 		[129] = "Erste Hilfe",
+-- 	},
+-- 	frFR = {
+-- 		[164] = "Forge",
+-- 		[165] = "Travail du cuir",
+-- 		[171] = "Alchimie",
+-- 		[182] = "Herboristerie",
+-- 		[185] = "Cuisine",
+-- 		[186] = "Minage",
+-- 		[197] = "Couture",
+-- 		[202] = "Ingénierie",
+-- 		[333] = "Enchantement",
+-- 		[356] = "Pêche",
+-- 		[393] = "Dépeçage",
+-- 		[755] = "Joaillerie",
+-- 		[773] = "Calligraphie",
+-- 		[129] = "Secourisme",
+-- 	},
+-- 	esMX = {
+-- 		[164] = "Herrería",
+-- 		[165] = "Peletería",
+-- 		[171] = "Alquimia",
+-- 		[182] = "Herboristería",
+-- 		[185] = "Cocina",
+-- 		[186] = "Minería",
+-- 		[197] = "Sastrería",
+-- 		[202] = "Ingeniería",
+-- 		[333] = "Encantamiento",
+-- 		[356] = "Pesca",
+-- 		[393] = "Desuello",
+-- 		[755] = "Joyería",
+-- 		[773] = "Inscripción",
+-- 		[129] = "Primeros auxilios",
+-- 	},
+-- 	-- discovered this locale exists also maybe esAL ?
+-- 	esES = {
+--         [164] = "Herrería",
+--         [165] = "Peletería",
+--         [171] = "Alquimia",
+--         [182] = "Herboristería",
+--         [185] = "Cocina",
+--         [186] = "Minería",
+--         [197] = "Sastrería",
+--         [202] = "Ingeniería",
+--         [333] = "Encantamiento",
+--         [356] = "Pesca",
+--         [393] = "Desuello",
+--         [755] = "Joyería",
+--         [773] = "Inscripción",
+-- 		[129] = "Primeros auxilios",
+--     },
+-- 	ptBR = {
+-- 		[164] = "Ferraria",
+-- 		[165] = "Couraria",
+-- 		[171] = "Alquimia",
+-- 		[182] = "Herborismo",
+-- 		[185] = "Culinária",
+-- 		[186] = "Mineração",
+-- 		[197] = "Alfaiataria",
+-- 		[202] = "Engenharia",
+-- 		[333] = "Encantamento",
+-- 		[356] = "Pesca",
+-- 		[393] = "Esfolamento",
+-- 		[755] = "Joalheria",
+-- 		[773] = "Escrivania",
+-- 		[129] = "Primeiros Socorros",
+-- 	},
+-- 	ruRU = {
+-- 		[164] = "Кузнечное дело",
+-- 		[165] = "Кожевничество",
+-- 		[171] = "Алхимия",
+-- 		[182] = "Травничество",
+-- 		[185] = "Кулинария",
+-- 		[186] = "Горное дело",
+-- 		[197] = "Портняжное дело",
+-- 		[202] = "Инженерное дело",
+-- 		[333] = "Наложение чар",
+-- 		[356] = "Рыбная ловля",
+-- 		[393] = "Снятие шкур",
+-- 		[755] = "Ювелирное дело",
+-- 		[773] = "Начертание",
+-- 		[129] = "Первая помощь",
+-- 	},
+-- 	zhCN = {
+-- 		[164] = "锻造",
+-- 		[165] = "制皮",
+-- 		[171] = "炼金术",
+-- 		[182] = "草药学",
+-- 		[185] = "烹饪",
+-- 		[186] = "采矿",
+-- 		[197] = "裁缝",
+-- 		[202] = "工程学",
+-- 		[333] = "附魔",
+-- 		[356] = "钓鱼",
+-- 		[393] = "剥皮",
+-- 		[755] = "珠宝加工",
+-- 		[773] = "铭文",
+-- 		[129] = "急救",
+-- 	},
+-- 	zhTW = {
+-- 		[164] = "鍛造",
+-- 		[165] = "製皮",
+-- 		[171] = "鍊金術",
+-- 		[182] = "草藥學",
+-- 		[185] = "烹飪",
+-- 		[186] = "採礦",
+-- 		[197] = "裁縫",
+-- 		[202] = "工程學",
+-- 		[333] = "附魔",
+-- 		[356] = "釣魚",
+-- 		[393] = "剝皮",
+-- 		[755] = "珠寶設計",
+-- 		[773] = "銘文學",
+-- 		[129] = "急救", --Worked on PTR -Belrand
+-- 	},
+-- 	koKR = {
+-- 		[164] = "대장기술",
+-- 		[165] = "가죽세공",
+-- 		[171] = "연금술",
+-- 		[182] = "약초채집",
+-- 		[185] = "요리",
+-- 		[186] = "채광",
+-- 		[197] = "재봉술",
+-- 		[202] = "기계공학",
+-- 		[333] = "마법부여",
+-- 		[356] = "낚시",
+-- 		[393] = "무두질",
+-- 		[755] = "보석세공",
+-- 		[773] = "주문각인",
+-- 		[129] = "응급치료",
+-- 	},
+-- }
+-- Tradeskills.TradeskillLocaleNameToID = tInvert(Tradeskills.TradeskillIDsToLocaleName[Tradeskills.CurrentLocale])
 
-end
+-- function Tradeskills:IsTradeskill(tradeskillName, tradeskillID)
+--     if type(tradeskillName) == "string" then
+--         for id, name in pairs(self.TradeskillIDsToLocaleName[GetLocale()]) do
+--             if name == tradeskillName then
+--                 return true;
+--             end
+--         end
+--     else
+--         if type(tradeskillID) == "number" then
+--             for id, name in pairs(self.TradeskillIDsToLocaleName[GetLocale()]) do
+--                 if id == tradeskillID then
+--                     return true;
+--                 end
+--             end
+--         end
+--     end
+-- end
+
+-- function Tradeskills:GetEnglishNameFromID(tradeskillID)
+--     if self.TradeskillIDsToLocaleName.enUS[tradeskillID] then
+--         return self.TradeskillIDsToLocaleName.enUS[tradeskillID];
+--     end
+-- end
+
+-- function Tradeskills:GetEnglishNameFromTradeskillName(tradeskillName)
+--     local tradeskillID = self.TradeskillLocaleNameToID[tradeskillName]
+--     if tradeskillID then
+--         local tradeskill = self:GetEnglishNameFromID(tradeskillID)
+--         return tostring(tradeskill);
+--     end
+--     return false;
+-- end
+
+
+-- function Tradeskills:RequestRecipeInfo()
+
+-- end
 
 
 
-function Tradeskills:FindCharactersWithRecipe(recipe)
-    local charactersWithRecipe = {}
-    local sorting = {}
-    if recipe.enchant == true then
-        for k, guid in ipairs(Guildbook.charactersWithEnchantRecipe[recipe.itemID]) do
-            table.insert(sorting, {
-                guid = guid,
-                online = Roster.onlineStatus[guid].isOnline and 1 or 0,
-            })
-        end
-    else
-        for k, guid in ipairs(Guildbook.charactersWithRecipe[recipe.itemID]) do
-            table.insert(sorting, {
-                guid = guid,
-                online = Roster.onlineStatus[guid].isOnline and 1 or 0,
-            })
-        end
-    end
-    table.sort(sorting, function(a,b)
-        return a.online > b.online
-    end)
-    for k, character in ipairs(sorting) do
-        table.insert(charactersWithRecipe, character.guid)
-    end
+-- function Tradeskills:FindCharactersWithRecipe(recipe)
+--     local charactersWithRecipe = {}
+--     local sorting = {}
+--     if recipe.enchant == true then
+--         for k, guid in ipairs(Guildbook.charactersWithEnchantRecipe[recipe.itemID]) do
+--             table.insert(sorting, {
+--                 guid = guid,
+--                 online = Roster.onlineStatus[guid].isOnline and 1 or 0,
+--             })
+--         end
+--     else
+--         for k, guid in ipairs(Guildbook.charactersWithRecipe[recipe.itemID]) do
+--             table.insert(sorting, {
+--                 guid = guid,
+--                 online = Roster.onlineStatus[guid].isOnline and 1 or 0,
+--             })
+--         end
+--     end
+--     table.sort(sorting, function(a,b)
+--         return a.online > b.online
+--     end)
+--     for k, character in ipairs(sorting) do
+--         table.insert(charactersWithRecipe, character.guid)
+--     end
 
-    return charactersWithRecipe;
-end
+--     return charactersWithRecipe;
+-- end
 
 
----load the characters tradeskills, currently this is triggered by the new home tab member listview
----@param prof string the profession to load recipes for or `allRecipes` for all of the characters recipes
----@param character table optional character table to use, overrides the guid arg
-function Tradeskills:LoadGuildMemberTradeskills(prof, character)
+-- ---load the characters tradeskills, currently this is triggered by the new home tab member listview
+-- ---@param prof string the profession to load recipes for or `allRecipes` for all of the characters recipes
+-- ---@param character table optional character table to use, overrides the guid arg
+-- function Tradeskills:LoadGuildMemberTradeskills(prof, character)
 
-    --hide the selected texture and flush the listviews
-    for _, button in ipairs(GuildbookTradeskillProfessionListview.profButtons) do
-        button.selected:Hide()
-    end
-    GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Flush()
-    GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Flush()
+--     --hide the selected texture and flush the listviews
+--     for _, button in ipairs(GuildbookTradeskillProfessionListview.profButtons) do
+--         button.selected:Hide()
+--     end
+--     GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:Flush()
+--     GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:Flush()
 
-    if prof == "Enchanting" then
-        if not Guildbook.tradeskillEnchantRecipesKeys then
-            return;
-        end
-        if next(Guildbook.tradeskillEnchantRecipesKeys) == nil then
-            GuildbookUI:SetInfoText("tradeskill enchant recipes not processed yet, key mapping not ready")
-            return
-        end
+--     if prof == "Enchanting" then
+--         if not Guildbook.tradeskillEnchantRecipesKeys then
+--             return;
+--         end
+--         if next(Guildbook.tradeskillEnchantRecipesKeys) == nil then
+--             GuildbookUI:SetInfoText("tradeskill enchant recipes not processed yet, key mapping not ready")
+--             return
+--         end
 
-    else
-        if not Guildbook.tradeskillRecipesKeys then
-            return;
-        end
-        if next(Guildbook.tradeskillRecipesKeys) == nil then
-            GuildbookUI:SetInfoText("tradeskill recipes not processed yet, key mapping not ready")
-            return
-        end
+--     else
+--         if not Guildbook.tradeskillRecipesKeys then
+--             return;
+--         end
+--         if next(Guildbook.tradeskillRecipesKeys) == nil then
+--             GuildbookUI:SetInfoText("tradeskill recipes not processed yet, key mapping not ready")
+--             return
+--         end
         
-    end
+--     end
 
-    if type(character) ~= "table" then
-        return
-    end
-    if prof == "Enginnering" then prof = "Engineering" end -- fix it back due to blizz spelling error
-    local recipes = {}
-    if prof ~= "allRecipes" and character[prof] then
-        for itemID, _ in pairs(character[prof]) do
-            if prof == "Enchanting" then
-                local key = Guildbook.tradeskillEnchantRecipesKeys[itemID]
-                table.insert(recipes, Guildbook.tradeskillRecipes[key])
-            else
-                local key = Guildbook.tradeskillRecipesKeys[itemID]
-                table.insert(recipes, Guildbook.tradeskillRecipes[key])
-            end
-        end
+--     if type(character) ~= "table" then
+--         return
+--     end
+--     if prof == "Enginnering" then prof = "Engineering" end -- fix it back due to blizz spelling error
+--     local recipes = {}
+--     if prof ~= "allRecipes" and character[prof] then
+--         for itemID, _ in pairs(character[prof]) do
+--             if prof == "Enchanting" then
+--                 local key = Guildbook.tradeskillEnchantRecipesKeys[itemID]
+--                 table.insert(recipes, Guildbook.tradeskillRecipes[key])
+--             else
+--                 local key = Guildbook.tradeskillRecipesKeys[itemID]
+--                 table.insert(recipes, Guildbook.tradeskillRecipes[key])
+--             end
+--         end
 
-    ---if no prof is given then load all the characters recipes
-    elseif prof == "allRecipes" then
-        local prof1 = character.Profession1
-        if prof1 and character[prof1] then
-            for itemID, _ in pairs(character[prof1]) do
-                if prof1 == "Enchanting" then
-                    local key = Guildbook.tradeskillEnchantRecipesKeys[itemID]
-                    table.insert(recipes, Guildbook.tradeskillRecipes[key])
-                else
-                    local key = Guildbook.tradeskillRecipesKeys[itemID]
-                    table.insert(recipes, Guildbook.tradeskillRecipes[key])
-                end
-            end
-        end
-        local prof2 = character.Profession2
-        if prof2 and character[prof2] then
-            for itemID, _ in pairs(character[prof2]) do
-                if prof2 == "Enchanting" then
-                    local key = Guildbook.tradeskillEnchantRecipesKeys[itemID]
-                    table.insert(recipes, Guildbook.tradeskillRecipes[key])
-                else
-                    local key = Guildbook.tradeskillRecipesKeys[itemID]
-                    table.insert(recipes, Guildbook.tradeskillRecipes[key])
-                end
-            end
-        end
-    end
-    if recipes and next(recipes) ~= nil then
-        GuildbookUI:SetInfoText(string.format("found %s recipes for %s [%s]", #recipes, prof, character.Name))
-        table.sort(recipes, function(a,b)
-            if type(a.expansion) ~= "number" and type(b.expansion) ~= "number" then
-                return a.rarity  > b.rarity;
-            end
-            if a.expansion == b.expansion then
-                if a.rarity == b.rarity then
-                    return a.name < b.name
-                else
-                    return a.rarity > b.rarity
-                end
-            else
-                return a.expansion > b.expansion
-            end
-        end)
-        GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:InsertTable(recipes)
+--     ---if no prof is given then load all the characters recipes
+--     elseif prof == "allRecipes" then
+--         local prof1 = character.Profession1
+--         if prof1 and character[prof1] then
+--             for itemID, _ in pairs(character[prof1]) do
+--                 if prof1 == "Enchanting" then
+--                     local key = Guildbook.tradeskillEnchantRecipesKeys[itemID]
+--                     table.insert(recipes, Guildbook.tradeskillRecipes[key])
+--                 else
+--                     local key = Guildbook.tradeskillRecipesKeys[itemID]
+--                     table.insert(recipes, Guildbook.tradeskillRecipes[key])
+--                 end
+--             end
+--         end
+--         local prof2 = character.Profession2
+--         if prof2 and character[prof2] then
+--             for itemID, _ in pairs(character[prof2]) do
+--                 if prof2 == "Enchanting" then
+--                     local key = Guildbook.tradeskillEnchantRecipesKeys[itemID]
+--                     table.insert(recipes, Guildbook.tradeskillRecipes[key])
+--                 else
+--                     local key = Guildbook.tradeskillRecipesKeys[itemID]
+--                     table.insert(recipes, Guildbook.tradeskillRecipes[key])
+--                 end
+--             end
+--         end
+--     end
+--     if recipes and next(recipes) ~= nil then
+--         GuildbookUI:SetInfoText(string.format("found %s recipes for %s [%s]", #recipes, prof, character.Name))
+--         table.sort(recipes, function(a,b)
+--             if type(a.expansion) ~= "number" and type(b.expansion) ~= "number" then
+--                 return a.rarity  > b.rarity;
+--             end
+--             if a.expansion == b.expansion then
+--                 if a.rarity == b.rarity then
+--                     return a.name < b.name
+--                 else
+--                     return a.rarity > b.rarity
+--                 end
+--             else
+--                 return a.expansion > b.expansion
+--             end
+--         end)
+--         GuildbookUI.tradeskills.tradeskillItemsListview.DataProvider:InsertTable(recipes)
 
-        -- the items in this list need to be changed to take a character name
-        --GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:InsertTable({guid}) -- why?
-    end
-    GuildbookUI:OpenTo("tradeskills")
-end
+--         -- the items in this list need to be changed to take a character name
+--         --GuildbookUI.tradeskills.tradeskillItemsCharacterListview.DataProvider:InsertTable({guid}) -- why?
+--     end
+--     GuildbookUI:OpenTo("tradeskills")
+-- end
 
 
 
-function Tradeskills:Init()
+-- function Tradeskills:Init()
 
-    Guildbook.DEBUG("func", "Tradeskills:Init", "initialising the tradeskills class")
+--     Guildbook.DEBUG("func", "Tradeskills:Init", "initialising the tradeskills class")
     
-    CallbackRegistryMixin.OnLoad(self)
+--     CallbackRegistryMixin.OnLoad(self)
 
-end
+-- end
 
-Guildbook.Tradeskills = Tradeskills;
+-- Guildbook.Tradeskills = Tradeskills;
 
 
 
@@ -1674,6 +1674,10 @@ end
 
 ---scan the players currently opened tradeskill recipes
 function Character:ScanTradeskillRecipes()
+
+    if not TradeSkillLinkButton:IsVisible() then
+        return
+    end
     local englishProf = nil;
 
     local localeProf, currentLevel, maxLevel = GetTradeSkillLine();
@@ -3755,42 +3759,42 @@ end
 function Guildbook:Load()
     Guildbook.DEBUG("func", "Load", "loading addon")
 
-    local ldb = LibStub("LibDataBroker-1.1")
-    self.MinimapButton = ldb:NewDataObject('GuildbookMinimapIcon', {
-        type = "data source",
-        icon = 134068,
-        OnClick = function(self, button)
-            if button == "RightButton" then
-                if InterfaceOptionsFrame:IsVisible() then
-                    InterfaceOptionsFrame:Hide()
-                else
-                    InterfaceOptionsFrame_OpenToCategory(addonName)
-                    InterfaceOptionsFrame_OpenToCategory(addonName)
-                end
-            elseif button == 'MiddleButton' then
-                ToggleFriendsFrame(3)
-            elseif button == "LeftButton" then
-                if GuildbookUI then
-                    if GuildbookUI:IsVisible() then
-                        GuildbookUI:Hide()
-                    else
-                        GuildbookUI:Show()
-                    end
-                end
-            end
-        end,
-        OnTooltipShow = function(tooltip)
-            if not tooltip or not tooltip.AddLine then return end
-            tooltip:AddLine(tostring('|cff0070DE'..addonName))
-            tooltip:AddDoubleLine(L["MINIMAP_TOOLTIP_LEFTCLICK"])
-            tooltip:AddDoubleLine(L["MINIMAP_TOOLTIP_LEFTCLICK_SHIFT"])
-            tooltip:AddDoubleLine(L["MINIMAP_TOOLTIP_RIGHTCLICK"])
-            tooltip:AddDoubleLine(L["MINIMAP_TOOLTIP_MIDDLECLICK"])
-        end,
-    })
-    self.MinimapIcon = LibStub("LibDBIcon-1.0")
-    if not GUILDBOOK_GLOBAL['MinimapButton'] then GUILDBOOK_GLOBAL['MinimapButton'] = {} end
-    self.MinimapIcon:Register('GuildbookMinimapIcon', self.MinimapButton, GUILDBOOK_GLOBAL['MinimapButton'])
+    -- local ldb = LibStub("LibDataBroker-1.1")
+    -- self.MinimapButton = ldb:NewDataObject('GuildbookMinimapIcon', {
+    --     type = "data source",
+    --     icon = 134068,
+    --     OnClick = function(self, button)
+    --         if button == "RightButton" then
+    --             if InterfaceOptionsFrame:IsVisible() then
+    --                 InterfaceOptionsFrame:Hide()
+    --             else
+    --                 InterfaceOptionsFrame_OpenToCategory(addonName)
+    --                 InterfaceOptionsFrame_OpenToCategory(addonName)
+    --             end
+    --         elseif button == 'MiddleButton' then
+    --             ToggleFriendsFrame(3)
+    --         elseif button == "LeftButton" then
+    --             if GuildbookUI then
+    --                 if GuildbookUI:IsVisible() then
+    --                     GuildbookUI:Hide()
+    --                 else
+    --                     GuildbookUI:Show()
+    --                 end
+    --             end
+    --         end
+    --     end,
+    --     OnTooltipShow = function(tooltip)
+    --         if not tooltip or not tooltip.AddLine then return end
+    --         tooltip:AddLine(tostring('|cff0070DE'..addonName))
+    --         tooltip:AddDoubleLine(L["MINIMAP_TOOLTIP_LEFTCLICK"])
+    --         tooltip:AddDoubleLine(L["MINIMAP_TOOLTIP_LEFTCLICK_SHIFT"])
+    --         tooltip:AddDoubleLine(L["MINIMAP_TOOLTIP_RIGHTCLICK"])
+    --         tooltip:AddDoubleLine(L["MINIMAP_TOOLTIP_MIDDLECLICK"])
+    --     end,
+    -- })
+    -- self.MinimapIcon = LibStub("LibDBIcon-1.0")
+    -- if not GUILDBOOK_GLOBAL['MinimapButton'] then GUILDBOOK_GLOBAL['MinimapButton'] = {} end
+    -- self.MinimapIcon:Register('GuildbookMinimapIcon', self.MinimapButton, GUILDBOOK_GLOBAL['MinimapButton'])
 
     self.MinimapCalendarButton = ldb:NewDataObject('GuildbookMinimapCalendarIcon', {
         type = "data source",
