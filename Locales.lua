@@ -39,6 +39,123 @@ local addonName, Guildbook = ...
 -- locales table
 local L = {}
 
+
+
+
+
+
+--new strings
+
+L["WELCOME_MESSAGE"] = [[
+Welcome to Guildbook!
+
+To get started tap, click or whack that arrow like symbol up in the top left.
+
+That opens the menu which should have your guild(s) listed. If it doesn't then
+go to curse and complain ;)
+
+All being well you can select your guild and view the characters, tradeskills and general information.
+
+Some changes were made to the saved variables for Guildbook, all being well you shouldn't have any
+issues. If you do then please go to curseforge and complain.
+]]
+
+
+--guild home
+L["GUILD_HOME_LABEL"] = "Home"
+L["GUILD_TRADESKILLS_LABEL"] = "Tradeskills"
+L["GUILD_HOME_NO_MOTD"] = "You are viewing a guild different to your characters, some information may be old or not available."
+L["GUILD_HOME_MEMBERS_HELPTIP"] = "Guild members are shown here, you can click a member to view more information about them."
+
+--tradeskill ui
+L["TRADESKILL_SEARCH_HEADER"] = "Search"
+L["TRADESKILL_SEARCH_HELPTIP"] = "Tradeskill items are listed here, see help for search prefixes.\n\nSelect an item to view more."
+L["TRADESKILL_CRAFTERS_HEADER_S"] = "Crafters: %s"
+L["TRADESKILL_CRAFTERS_HELPTIP"] = "Guild members who can craft the item will show here."
+L["TRADESKILL_RECIPE_INFO_HEADER"] = "Recipe info:"
+L["TRADESKILL_RECIPE_INFO_HELPTIP"] = "If you have Auctionator installed the cost of required materials will be calculated and shown."
+L["TRADESKILL_WORK_ORDER_HELPTIP"] = "Work orders acts like a list of items to craft.\n\nGuild members can send you items they would like crafted, you can also add items yourself to create a list of materials.\n\nWhen you have crafted the item(s) you can notify the guild member its ready."
+
+L["TRADESKILL_WORK_ORDER_CLICK_CAST"] = "Click to craft."
+L["TRADESKILL_WORK_ORDER_ADD_TOOLTIP"] = "Add to your own work orders to see a list of total materials required."
+L["TRADESKILL_WORK_ORDER_SEND_TOOLTIP"] = "Send work order to this character."
+
+
+
+--character profile ui
+L["PROFILE_SHOW_STATS_TOOLTIP"] = "Show stats"
+L["PROFILE_SHOW_MODEL_TOOLTIP"] = "Show model, (|cffFFD100currently show on your own character|r)"
+L["PROFILE_EQUIPMENT_DROPDOWN_LABEL"] = "Equipment"
+L["PROFILE_EQUIPMENT_DROPDOWN_HELPTIP"] = "If this character has equipment sets and shares this information you can select the sets here."
+L["PROFILE_TALENT_DROPDOWN_LABEL"] = "Spec."
+L["PROFILE_TALENT_DROPDOWN_HELPTIP"] = "If this character shares their talents you choose between primary or secondary builds."
+
+
+
+--settings ui
+L["SETTINGS_HEADER"] = "Settings"
+L["SETTINGS_EXPORT_IMPORT_LABEL"] = "You can import or export guild data here.\n\n*Click export to generate a big (|cffFFD100really big|r) gathering of characters which can be shared on various chat platforms.\n\n*Paste a data string then click import if your guild does that sort of thing."
+L["SETTINGS_SHOW_MINIMAP_BUTTON_LABEL"] = "Show minimap button"
+L["SETTINGS_SHOW_MINIMAP_BUTTON_TOOLTIP"] = "Enable or disable the minimap button"
+
+L["SETTINGS_BLOCK_COMMS_COMBAT_LABEL"] = "Block data comms during combat"
+L["SETTINGS_BLOCK_COMMS_COMBAT_TOOLTIP"] = "Guildbook might send or receive data that could prevent or interupt other addons sending data. Although its a small possibility and the addon uses AceComm you can disable comms during combat."
+
+L["SETTINGS_BLOCK_COMMS_INSTANCE_LABEL"] = "Block data comms during an instance"
+L["SETTINGS_BLOCK_COMMS_INSTANCE_TOOLTIP"] = "Guildbook might send or receive data that could prevent or interupt other addons sending data. Although its a small possibility and the addon uses AceComm you can disable comms during an instance."
+
+L["SETTINGS_RESET_CHARACTER_LABEL"] = "Reset character data"
+L["SETTINGS_RESET_GUILD_LABEL"] = "Reset guild data"
+
+
+
+--profile
+L["PROFILE_HEADER"] = "Profile"
+L["PROFILE_REAL_PROFILE_HELPTIP"] = "You can provide some information about yourself, real name or nick name and a short bio. This must follow Blizzards Terms of Service and be suitable for your guild members.\n\nOffensive profiles should be dealt with by guild officers otherwise they could be reported."
+L["PROFILE_REAL_NAME_LABEL"] = "Name"
+L["PROFILE_REAL_BIO_LABEL"] = "Bio"
+
+L["PROFILE_LEVEL_S"] = "Level %s"
+L["PROFILE_SPECIALIZATIONS_HELPTIP"] = "You can set your primary/secondary specializations and mark them as a PvP spec if you feel fancy."
+
+
+L["HELP_HEADER"] = "Help"
+L["HELP_ABOUT"] = "Guildbook provides guilds and players with a way to share their characters gear, stats, talents, spec and professions."
+
+L["HELP_FAQ_Q1"] = "Why doesn't my gear show up?"
+L["HELP_FAQ_A1"] = "Guildbook scans the default equipment manager to find gear sets, this currently returns itemIDs but not item links which means enchants and gems will be missing. A future update to Guildbook will attempt to get item links when gear sets are changed."
+
+L["HELP_FAQ_Q2"] = "Why doesn't it show my characters stats?"
+L["HELP_FAQ_A2"] = "Guildbook will scan your character stats whenever you change your equipment via the default equipment manager."
+
+L["HELP_FAQ_Q3"] = "Guild members dont know what profession items I can craft."
+L["HELP_FAQ_A3"] = "Guildbook scans your professions when you open the profession UI, if this is your first use you will need to open your professions to trigger this scan.."
+
+L["HELP_FAQ_Q4"] = "How do I set my characters spec?"
+L["HELP_FAQ_A4"] = "Previously Guildbook would guess your spec based on talent points spent in each tree. For now though its been left as a player choice which can be set in the Profile section."
+
+L["HELP_FAQ_Q5"] = "Why doesn't it show my talents and glyphs?"
+L["HELP_FAQ_A5"] = "Guildbook will scan your active spec when you login and then whenever you change your specialization."
+
+L["HELP_FAQ_Q6"] = ""
+L["HELP_FAQ_A6"] = ""
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 L["UPDATE_NEWS"] = [[
 What's New?
 -More Bug Fixes (we love a good bug fixing!)
@@ -78,7 +195,7 @@ L["GUILDBOOK_DATA_SHARE_HEADER"]	= "Guildbook data share \n\nYou can share your 
 L["GUILDBOOK_LOADER_HEADER"]        = "Welcome to Guildbook"
 L["TOOLTIP_ITEM_RECIPE_HEADER"]     = "Used for the following"
 
-L["HELP_ABOUT"]						= "Help & about"
+--L["HELP_ABOUT"]						= "Help & about"
 
 -- this is just a quick thing, will make the how section more fleshed out
 -- this is a nasty way to do this, its horrible and i need to make the help & about much better
