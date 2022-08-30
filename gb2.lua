@@ -2802,327 +2802,6 @@ end
 
 
 
-
-function addon:scanAtlasData()
-
-    local LCI = LibStub:GetLibrary("LibCraftInfo-1.0");
-
-    craftData = {
-        classic = {},
-        tbc = {},
-        wrath = {},
-    };
-
-    local classicItemsToQuery = {};
-    local tbcItemsToQuery = {};
-
-    for prof, data in pairs(addon.craftDataClassic) do
-        if prof == "Enchanting" then
-            for k, itemData in ipairs(data.items) do
-                for x, info in pairs(itemData) do
-                    if type(info) == "table" then
-                        for y, items in ipairs(info) do
-                            table.insert(classicItemsToQuery, {
-                                recipeID = items[2],
-                                prof = prof,
-                                itemID = items[2],
-                            })
-                        end
-                    end
-                end
-            end
-        else
-            for k, itemData in ipairs(data.items) do
-                for x, info in pairs(itemData) do
-                    if type(info) == "table" then
-                        for y, items in ipairs(info) do
-                            table.insert(classicItemsToQuery, {
-                                recipeID = items[2],
-                                prof = prof,
-                                itemID = LCI:GetCraftResultItem(items[2])
-                            })
-                        end
-                    end
-                end
-            end
-        end
-    end
-
-    for prof, data in pairs(addon.craftDataTBC) do
-        if prof == "EnchantingBC" then
-            for k, itemData in ipairs(data.items) do
-                for x, info in pairs(itemData) do
-                    if type(info) == "table" then
-                        for y, items in ipairs(info) do
-                            table.insert(tbcItemsToQuery, {
-                                recipeID = items[2],
-                                prof = prof,
-                                itemID = items[2],
-                            })
-                        end
-                    end
-                end
-            end
-        else
-            for k, itemData in ipairs(data.items) do
-                for x, info in pairs(itemData) do
-                    if type(info) == "table" then
-                        for y, items in ipairs(info) do
-                            table.insert(tbcItemsToQuery, {
-                                recipeID = items[2],
-                                prof = prof,
-                                itemID = LCI:GetCraftResultItem(items[2])
-                            })
-                        end
-                    end
-                end
-            end
-        end
-    end
-
-
-    -- extra, will require itemID from wowhead
-    table.insert(tbcItemsToQuery, {
-        recipeID = 351770,
-        prof = "Leatherworking",
-        itemID = 185849,
-    })
-    table.insert(tbcItemsToQuery, {
-        recipeID = 351771,
-        prof = "Leatherworking",
-        itemID = 185848,
-    })
-    table.insert(tbcItemsToQuery, {
-        recipeID = 351766,
-        prof = "Leatherworking",
-        itemID = 185852,
-    })
-    table.insert(tbcItemsToQuery, {
-        recipeID = 351768,
-        prof = "Leatherworking",
-        itemID = 185851,
-    })
-
-    local stagger = 0.1;
-
-    local i = 0
-    C_Timer.NewTicker(stagger, function()
-        i = i + 1;
-        local item = classicItemsToQuery[i];
-        if item and type(item.itemID) == "number" then
-
-            if item.prof == "Enchanting" or item.prof == "EnchantingBC" then
-                
-                local spell = Spell:CreateFromSpellID(item.itemID)
-                if spell:IsSpellEmpty() then
-                    
-                else
-                    spell:ContinueOnSpellLoad(function()
-                        local name = spell:GetSpellName()
-                        local icon = 134327;
-                        local rarity = 1;
-                        local link = string.format("%s:%s", "spell", spell:GetSpellID())
-
-                        local atlasInfo = addon.recipesListFromAtlas[item.recipeID]
-
-                        local reagents = {};
-                        if atlasInfo then
-                            local reagentsIDs = atlasInfo[6];
-                            local reagentsCount = atlasInfo[7];
-    
-                            for k, v in ipairs(reagentsIDs) do
-                                reagents[v] = reagentsCount[k];
-                            end 
-                        end
-
-                        local recipe = {
-                            recipeID = item.recipeID,
-                            itemID = item.itemID,
-                            quality = rarity,
-                            link = link,
-                            icon = icon,
-                            name = name,
-                            tradeskill = item.prof,
-                            reagents = reagents,
-                            class = -1,
-                            subClass = -1,
-                            equipLocation = "",
-                        }
-                        table.insert(craftData.classic, recipe)
-    
-                        print(string.format("got %s of %s - %s", i, #classicItemsToQuery, link))
-                        
-                    end)
-                end
-
-
-
-            else
-                local itemM = Item:CreateFromItemID(item.itemID)
-                if itemM:IsItemEmpty() then
-                    
-                else
-    
-                    itemM:ContinueOnItemLoad(function()
-                        local link = itemM:GetItemLink()
-                        local rarity = itemM:GetItemQuality()
-                        local name = itemM:GetItemName()
-                        local icon = itemM:GetItemIcon()
-    
-                        local itemID, itemType, itemSubType, itemEquipLoc, _, classID, subclassID = GetItemInfoInstant(link)
-    
-                        local atlasInfo = addon.recipesListFromAtlas[item.recipeID]
-    
-                        local reagents = {};
-                        if atlasInfo then
-                            local reagentsIDs = atlasInfo[6];
-                            local reagentsCount = atlasInfo[7];
-    
-                            for k, v in ipairs(reagentsIDs) do
-                                reagents[v] = reagentsCount[k];
-                            end 
-                        end
-    
-                        local recipe = {
-                            recipeID = item.recipeID,
-                            itemID = item.itemID,
-                            quality = rarity,
-                            link = link,
-                            icon = icon,
-                            name = name,
-                            tradeskill = item.prof,
-                            reagents = reagents,
-                            class = classID,
-                            subClass = subclassID,
-                            equipLocation = itemEquipLoc,
-                        }
-                        table.insert(craftData.classic, recipe)
-    
-                        print(string.format("got %s of %s - %s", i, #classicItemsToQuery, link))
-                    end)
-    
-                end
-
-            end
-
-            
-        end
-    end, #classicItemsToQuery)
-
-    C_Timer.After((#classicItemsToQuery * stagger) + 1.0, function()
-
-        print("starting tbc item requests >>>>>>>>>>>>>>>")
-
-        local i = 0;
-        C_Timer.NewTicker(stagger, function()
-            i = i + 1;
-            local item = tbcItemsToQuery[i];
-            if item and type(item.itemID) == "number" then
-
-                if item.prof == "Enchanting" or item.prof == "EnchantingBC" then
-
-                    local spell = Spell:CreateFromSpellID(item.itemID)
-                    if spell:IsSpellEmpty() then
-                        
-                    else
-                        spell:ContinueOnSpellLoad(function()
-                            local name = spell:GetSpellName()
-                            local icon = 134327;
-                            local rarity = 1;
-                            local link = string.format("%s:%s", "spell", spell:GetSpellID())
-
-                            local atlasInfo = addon.recipesListFromAtlas[item.recipeID]
-    
-                            local reagents = {};
-                            if atlasInfo then
-                                local reagentsIDs = atlasInfo[6];
-                                local reagentsCount = atlasInfo[7];
-        
-                                for k, v in ipairs(reagentsIDs) do
-                                    reagents[v] = reagentsCount[k];
-                                end 
-                            end
-
-                            local recipe = {
-                                recipeID = item.recipeID,
-                                itemID = item.itemID,
-                                quality = rarity,
-                                link = link,
-                                icon = icon,
-                                name = name,
-                                tradeskill = item.prof,
-                                reagents = reagents,
-                                class = -1,
-                                subClass = -1,
-                                equipLocation = "",
-                            }
-                            table.insert(craftData.tbc, recipe)
-        
-                            print(string.format("got %s of %s - %s", i, #tbcItemsToQuery, link))
-
-                        end)
-                    end
-
-                    
-                else
-                    local itemM = Item:CreateFromItemID(item.itemID)
-                    if itemM:IsItemEmpty() then
-                        
-                    else
-        
-                        itemM:ContinueOnItemLoad(function()
-                            local link = itemM:GetItemLink()
-                            local rarity = itemM:GetItemQuality()
-                            local name = itemM:GetItemName()
-                            local icon = itemM:GetItemIcon()
-        
-                            local itemID, itemType, itemSubType, itemEquipLoc, _, classID, subclassID = GetItemInfoInstant(link)
-    
-                            local atlasInfo = addon.recipesListFromAtlas[item.recipeID]
-    
-                            local reagents = {};
-                            if atlasInfo then
-                                local reagentsIDs = atlasInfo[6];
-                                local reagentsCount = atlasInfo[7];
-        
-                                for k, v in ipairs(reagentsIDs) do
-                                    reagents[v] = reagentsCount[k];
-                                end 
-                            end
-        
-                            local recipe = {
-                                recipeID = item.recipeID,
-                                itemID = item.itemID,
-                                quality = rarity,
-                                link = link,
-                                icon = icon,
-                                name = name,
-                                tradeskill = item.prof,
-                                reagents = reagents,
-                                class = classID,
-                                subClass = subclassID,
-                                equipLocation = itemEquipLoc,
-                            }
-                            table.insert(craftData.tbc, recipe)
-        
-                            print(string.format("got %s of %s - %s", i, #tbcItemsToQuery, link))
-                        end)
-        
-                    end
-
-                end
-    
-                
-            end
-        end, #tbcItemsToQuery)
-    end)
-
-
-end
-
-
-
-
 function addon:FormatNumberForCharacterStats(num)
     if type(num) == 'number' then
         local trimmed = string.format("%.2f", num)
@@ -3442,7 +3121,6 @@ end
 
 
 function addon:PLAYER_ENTERING_WORLD()
-    --self:scanAtlasData()
     self:TriggerEvent("OnPlayerEnteringWorld")
 
 	--grab the latest character info
@@ -3478,9 +3156,6 @@ end
 
 function addon:TRADE_SKILL_UPDATE(...)
 
-    if not TradeSkillLinkButton:IsVisible() then
-        return
-    end
     local englishProf = nil;
 
     local localeProf, currentLevel, maxLevel = GetTradeSkillLine();
@@ -3507,26 +3182,27 @@ function addon:TRADE_SKILL_UPDATE(...)
         end
     end
 
-    --check everything is all good
-    if type(localeProf) == "string" and type(currentLevel) == "number" and type(maxLevel) == "number" then
+	local tradeskillID = Tradeskills:GetTradeskillIDFromLocale(localeProf)
 
-        englishProf = Tradeskills:GetEnglishNameFromTradeskillName(localeProf)
-        if englishProf == false then
-            addon.DEBUG("characterMixin", "Character:ScanTradeskillRecipes", "englishProf not known")
-            return;
-        end
+	if type(tradeskillID) ~= "number" then
+		addon.DEBUG("func", "addon:TRADE_SKILL_UPDATE", "tradeskillID not found")
+	end
 
-    else
-        addon.DEBUG("characterMixin", "Character:ScanTradeskillRecipes", string.format("variables not correct type > %s %s %s", localeProf, currentLevel, maxLevel))
-        return;
-    end
+	if tradeskillID == 186 then
+		addon.DEBUG("characterMixin", "Character:ScanTradeskillRecipes", "got mining skipping link button")
+	else
 
-    if englishProf == nil then
-        addon.DEBUG("characterMixin", "Character:ScanTradeskillRecipes", "engLishProf is nil", localeProf)
-        return;
-    end
+		if TradeSkillLinkButton then
+			if TradeSkillLinkButton:IsVisible() then
+				--no link button suggests its not our own prof
+			else
+				return
+			end
+		else
 
-    addon.DEBUG("characterMixin", "Character:ScanTradeskillRecipes", string.format("found [%s] with current level [%s] scanning for recipes", englishProf, currentLevel))
+		end
+
+	end
 
     local tradeskillRecipes = {}
     local numTradeskills = GetNumTradeSkills()
@@ -3535,29 +3211,15 @@ function addon:TRADE_SKILL_UPDATE(...)
         if name and (_type == "optimal" or _type == "medium" or _type == "easy" or _type == "trivial") then -- this was a fix thanks to Sigma regarding their addon showing all recipes
             local link = GetTradeSkillItemLink(i)
             if link then
-                --print(name, link)
                 local itemID = GetItemInfoInstant(link)
                 if itemID then
                     table.insert(tradeskillRecipes, itemID)
-                    --local reagents = {}
-                    -- local numReagents = GetTradeSkillNumReagents(i);
-                    -- if numReagents > 0 then
-                    --     for j = 1, numReagents do
-                    --         local _, _, reagentCount, _ = GetTradeSkillReagentInfo(i, j)
-                    --         local reagentLink = GetTradeSkillReagentItemLink(i, j)
-                    --         local reagentID = GetItemInfoInstant(reagentLink)
-                    --         if reagentID and reagentCount then
-                    --             tradeskillRecipes[itemID][reagentID] = reagentCount
-                    --         end
-                    --     end
-                    -- end
                 end
             end
         end
     end
     --ViragDevTool:AddData(tradeskillRecipes, "Guildbook_tradeskillRecipes")
 
-	local tradeskillID = Tradeskills:GetTradeskillIDFromEnglishName(englishProf)
     self:TriggerEvent("OnPlayerTradeskillRecipesScanned", tradeskillID, currentLevel, tradeskillRecipes)
 end
 

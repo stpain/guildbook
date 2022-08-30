@@ -177,17 +177,9 @@ Guildbook.DebuggerWindow:EnableMouse(true)
 Guildbook.DebuggerWindow:RegisterForDrag("LeftButton")
 Guildbook.DebuggerWindow:SetScript("OnDragStart", Guildbook.DebuggerWindow.StartMoving)
 Guildbook.DebuggerWindow:SetScript("OnDragStop", Guildbook.DebuggerWindow.StopMovingOrSizing)
-_G['GuildbookDebugFrameClose']:SetScript('OnClick', function()
-    -- if GUILDBOOK_CHARACTER and GUILDBOOK_GLOBAL then
-    --     GUILDBOOK_GLOBAL['Debug'] = false
-    --     GuildbookOptionsDebugCB:SetChecked(GUILDBOOK_GLOBAL['Debug'])
-    -- end
-    -- if GuildbookOptionsDebugCB:GetChecked() == true then
-    --     Guildbook.DebuggerWindow:Show()
-    -- else
-    --     Guildbook.DebuggerWindow:Hide()
-    -- end
-end)
+-- _G['GuildbookDebugFrameClose']:SetScript('OnClick', function()
+
+-- end)
 
 Guildbook.DebuggerWindow.header = Guildbook.DebuggerWindow:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
 Guildbook.DebuggerWindow.header:SetPoint('TOP', 0, -9)

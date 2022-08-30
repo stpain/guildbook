@@ -51,6 +51,9 @@ Database.keysToRemove = {
         "lastVersionUpdate",
         "Calendar",
         "CalendarDeleted",
+        "myLockouts",
+        "config",
+        "MinimapCalendarButton"
     },
     config = {
         "parsePublicNotes",

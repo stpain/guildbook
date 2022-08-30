@@ -4,6 +4,7 @@ local _, addon = ...;
 
 local Character = {};
 local Tradeskills = addon.Tradeskills;
+local L = addon.Locales;
 
 
 --will use a specID as found from spellbook tabs-1 (ignore general) and then get the spec name from this table
@@ -123,20 +124,22 @@ function Character:SetSpec(spec, specID)
     elseif spec == "secondary" then
         self.data.offSpec = specID;
     end
+    --print("set spec", spec, specID)
 end
 
 function Character:GetSpec(spec)
     if spec == "primary" then
         local specName = classData[self.data.class].specializations[self.data.mainSpec]
-        return specName, self.data.mainSpec;
+        return L[specName], specName, self.data.mainSpec;
     elseif spec == "secondary" then
         local specName = classData[self.data.class].specializations[self.data.offSpec]
-        return specName, self.data.offSpec;
+        return L[specName], specName, self.data.offSpec;
     end
 end
 
 
 function Character:SetSpecIsPvp(spec, isPvp)
+    --print("set isPvp", spec, isPvp)
     if spec == "primary" then
         self.data.mainSpecIsPvP = isPvp;
     elseif spec == "secondary" then
@@ -396,7 +399,8 @@ end
 
 function Character:GetClassSpecAtlasName(spec)
 
-    local c, s = self.data.class, self:GetSpec(spec)
+    local c = self.data.class
+    local _, s = self:GetSpec(spec)
 
     if s == "Beast Master" then
         s = "BeastMastery";
@@ -411,7 +415,10 @@ function Character:GetClassSpecAtlasName(spec)
         s = "Outlaw";
     end
 
-    if c == nil and s == nil then
+    if c == nil then
+        return "questlegendaryturnin"
+    end
+    if s == nil then
         return "questlegendaryturnin"
     end
 
@@ -420,6 +427,39 @@ end
 
 
 function Character:CreateFromData(guid, data)
+
+    local prof1Recipes = nil;
+    if type(data.Profession1) == "string" then
+
+        if data[data.Profession1] then
+            prof1Recipes = {};
+            for itemID, _ in pairs(data[data.Profession1]) do
+                table.insert(prof1Recipes, itemID)
+            end
+            data.Profession1Recipes = prof1Recipes;
+        end
+
+        local tradeskillID = Tradeskills:GetTradeskillIDFromEnglishName(data.Profession1)
+        data.Profession1 = tradeskillID;
+
+    end
+
+    local prof2Recipes= nil;
+    if type(data.Profession2) == "string" then
+
+        if data[data.Profession2] then
+            prof2Recipes = {};
+            for itemID, _ in pairs(data[data.Profession2]) do
+                table.insert(prof2Recipes, itemID)
+            end
+            data.Profession2Recipes = prof2Recipes;
+        end
+
+        local tradeskillID = Tradeskills:GetTradeskillIDFromEnglishName(data.Profession2)
+        data.Profession2 = tradeskillID;
+    end
+
+
 
     --DevTools_Dump({data})
     if type(data) == "table" then
@@ -622,7 +662,7 @@ function Character:ResetData()
         }
     }
     if guid == UnitGUID("player") then
-        addon:TriggerEvent("Character_OnPlayerCharacterDataReset")
+        addon:TriggerEvent("Character_OnDataChanged")
     end
     addon.DEBUG("func", "Character:ResetData", string.format("reset data for %s", name))
 end

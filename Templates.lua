@@ -26,7 +26,7 @@ local L = gb.Locales or {};
 local Tradeskills = gb.Tradeskills;
 local Colours = gb.Colours;
 
-local locale = GetLocale();
+local LOCALE = GetLocale();
 
 GuildbookHelpTipMixin = {};
 function GuildbookHelpTipMixin:SetText(text)
@@ -61,6 +61,14 @@ end
 function GuildbookGuildMenuButtonTemplateMixin:ResetDataBinding()
 
 end
+
+
+
+
+
+
+
+
 
 
 
@@ -117,14 +125,14 @@ function GuildbookTradeskillListviewItemTemplateMixin:SetDataBinding(binding, he
     self.item = binding;
     self:SetHeight(height)
     if self.item.tradeskill == 333 then
-        if gb.tradeskillLocaleData[locale] then
-            self.link:SetText(gb.tradeskillLocaleData[locale][binding.itemID].name)
+        if gb.tradeskillLocaleData[LOCALE] then
+            self.link:SetText(gb.tradeskillLocaleData[LOCALE][binding.itemID].name)
         else
             self.link:SetText(binding.name)
         end
     else
-        if gb.tradeskillLocaleData[locale] then
-            self.link:SetText(gb.tradeskillLocaleData[locale][binding.itemID].link)
+        if gb.tradeskillLocaleData[LOCALE] then
+            self.link:SetText(gb.tradeskillLocaleData[LOCALE][binding.itemID].link)
         else
             self.link:SetText(binding.link)
         end
@@ -132,7 +140,7 @@ function GuildbookTradeskillListviewItemTemplateMixin:SetDataBinding(binding, he
 
     self.addToWorkOrder:SetSize(height-8, height-8)
     self.addToWorkOrder:SetScript("OnMouseDown", function()
-        gb:TriggerEvent("TradeskillListviewItem_OnAddToWorkOrder", { item = binding})
+        gb:TriggerEvent("TradeskillListviewItem_OnAddToWorkOrder", { item = binding })
     end)
 end
 
@@ -183,14 +191,14 @@ function GuildbookTradeskillWorkOrderListviewItemTemplateMixin:SetDataBinding(bi
     self.item = binding;
     self:SetHeight(height)
     if self.item.tradeskill == 333 then
-        if gb.tradeskillLocaleData[locale] then
-            self.link:SetText(gb.tradeskillLocaleData[locale][binding.itemID].name)
+        if gb.tradeskillLocaleData[LOCALE] then
+            self.link:SetText(gb.tradeskillLocaleData[LOCALE][binding.itemID].name)
         else
             self.link:SetText(binding.name)
         end
     else
-        if gb.tradeskillLocaleData[locale] then
-            self.link:SetText(gb.tradeskillLocaleData[locale][binding.itemID].link)
+        if gb.tradeskillLocaleData[LOCALE] then
+            self.link:SetText(gb.tradeskillLocaleData[LOCALE][binding.itemID].link)
         else
             self.link:SetText(binding.link)
         end
@@ -203,8 +211,8 @@ function GuildbookTradeskillWorkOrderListviewItemTemplateMixin:SetDataBinding(bi
 
     if binding.tradeskill ~= "Enchanting" then
         local localeName = binding.name
-        if gb.tradeskillLocaleData[locale] then
-            localeName = gb.tradeskillLocaleData[locale][binding.itemID].name;
+        if gb.tradeskillLocaleData[LOCALE] then
+            localeName = gb.tradeskillLocaleData[LOCALE][binding.itemID].name;
         end
         local macroText = [[
 /cast %s 
@@ -222,15 +230,17 @@ function GuildbookTradeskillWorkOrderListviewItemTemplateMixin:OnEnter()
     if self.item then
         GameTooltip:SetOwner(self, "ANCHOR_LEFT")
         local link = self.item.link
-        -- if gb.tradeskillLocaleData[locale] then
-        --     link = gb.tradeskillLocaleData[locale][self.item.itemID].link;
+        -- if gb.tradeskillLocaleData[LOCALE] then
+        --     link = gb.tradeskillLocaleData[LOCALE][self.item.itemID].link;
         -- end
         GameTooltip:SetHyperlink(link)
 
         if self.item.character then
             GameTooltip:AddLine(" ")
             GameTooltip:AddLine("Work order info:")
-            GameTooltip:AddDoubleLine("Requested by:", Colours[self.item.character:GetClass()]:WrapTextInColorCode(self.item.character:GetName()))
+
+            --this character object might get saved and will lose its methods so just access the data here
+            GameTooltip:AddDoubleLine("Requested by:", Colours[self.item.character.data.class]:WrapTextInColorCode(self.item.character.data.name).."|cffffffff["..self.item.guild.."]")
             GameTooltip:AddDoubleLine("Requested amount:", self.item.quantity)
             GameTooltip:AddLine(L["TRADESKILL_WORK_ORDER_CLICK_CAST"])
         end
@@ -276,7 +286,7 @@ function GuildbookTradeskillCrafterItemTemplateMixin:SetDataBinding(binding, hei
 
     self.name:SetText(Colours[self.character:GetClass():upper()]:WrapTextInColorCode(self.character:GetName()))
 
-    self.sendWorkOrder:SetSize(height+4, height-6)
+    self.sendWorkOrder:SetSize(height-1, height-1)
     self.sendWorkOrder:SetScript("OnMouseDown", function()
         gb:TriggerEvent("TradeskillCrafter_SendWorkOrder", binding, self.workOrderQuantity)
     end)
@@ -310,7 +320,7 @@ function GuildbookTradeskillCrafterItemTemplateMixin:OnLeave()
 end
 
 function GuildbookTradeskillCrafterItemTemplateMixin:OnLoad()
-    self.sendWorkOrder.icon:SetAtlas("glueannouncementpopup-arrow")
+    self.sendWorkOrder.icon:SetAtlas("mailbox")
     self.sendWorkOrder:SetScript("OnEnter", function()
         GameTooltip:SetOwner(self, "ANCHOR_TOP")
         GameTooltip:AddLine(L["TRADESKILL_WORK_ORDER_SEND_TOOLTIP"])
@@ -354,7 +364,7 @@ end
 
 function GuildbookTradeskillRecipeInfoItemTemplateMixin:OnMouseDown()
     --HandleModifiedItemClick(self.link)
-    if AuctionFrameBrowse:IsVisible() then
+    if AuctionFrameBrowse and AuctionFrameBrowse:IsVisible() then
         BrowseName:SetText(self.item.name)
         BrowseSearchButton:Click()
     end
@@ -693,7 +703,22 @@ function GuildbookDropDownFlyoutButtonMixin:SetText(text)
     self.Text:SetText(text)
 end
 
-function GuildbookDropDownFlyoutButtonMixin:GetText(text)
+function GuildbookDropDownFlyoutButtonMixin:SetIcon(icon)
+    local w, h = self:GetSize()
+    self.icon:SetSize(h-1, h-1)
+    if type(icon) == "number" then
+        self.icon:SetTexture(icon)
+
+    elseif type(icon) == "string" then
+        self.icon:SetAtlas(icon)
+
+    else
+        self.icon:SetTexture(nil)
+        self.icon:SetSize(1, h-1)
+    end
+end
+
+function GuildbookDropDownFlyoutButtonMixin:GetText()
     return self.Text:GetText()
 end
 
@@ -720,7 +745,7 @@ end
 GuildbookDropdownMixin = {}
 
 function GuildbookDropdownMixin:GetFlyout()
-    return self.Flyout
+    return self.flyout
 end
 
 function GuildbookDropdownMixin:OnLoad()
@@ -734,6 +759,7 @@ function GuildbookDropdownMixin:OnLoad()
         gb.dropdownWidgets = {}
     end
     table.insert(gb.dropdownWidgets, self)
+
 end
 
 function GuildbookDropdownMixin:OnShow()
@@ -742,7 +768,7 @@ end
 
 
 
-
+--this is the arrow down button to open the menu
 GuildbookDropdownButtonMixin = {}
 
 function GuildbookDropdownButtonMixin:OnEnter()
@@ -762,16 +788,14 @@ function GuildbookDropdownButtonMixin:OnMouseDown()
 
     if gb.dropdownWidgets and #gb.dropdownWidgets > 0 then -- quick fix, need to make sure all dropdowns/flyouts are in table
         for k, dd in ipairs(gb.dropdownWidgets) do
-            dd.Flyout:Hide()
+            dd.flyout:Hide()
         end
     end
 
-    local flyout = self:GetParent().Flyout
-    if flyout:IsVisible() then
-        flyout:Hide()
-    else
-        flyout:Show()
-    end
+    local flyout = self:GetParent():GetFlyout()
+    flyout:ClearAllPoints()
+    flyout:SetPoint("TOPRIGHT", -5, -26)
+    flyout:SetShown(not flyout:IsVisible())
 end
 
 function GuildbookDropdownButtonMixin:OnMouseUp()
@@ -781,12 +805,7 @@ end
 
 
 
-local frameBackdrop = {
-	bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
-	edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
-	tile = true, tileSize = 32, edgeSize = 32,
-	insets = { left = 8, right = 8, top = 8, bottom = 8 }
-}
+
 GuildbookDropdownFlyoutMixin = {}
 
 function GuildbookDropdownFlyoutMixin:OnLoad()
@@ -794,7 +813,6 @@ function GuildbookDropdownFlyoutMixin:OnLoad()
         gb.dropdownFlyouts = {}
     end
     table.insert(gb.dropdownFlyouts, self)
-    --self:SetBackdrop(frameBackdrop)
 end
 
 function GuildbookDropdownFlyoutMixin:OnLeave()
@@ -803,6 +821,15 @@ function GuildbookDropdownFlyoutMixin:OnLeave()
             self:Hide()
         end
     end)
+end
+
+function GuildbookDropdownFlyoutMixin:SetFlyoutBackgroundColour(colour)
+    if type(colour) == "table" then
+        self.background:SetColorTexture(colour:GetRGB())
+
+    elseif 1 == 0 then
+
+    end
 end
 
 function GuildbookDropdownFlyoutMixin:OnShow()
@@ -826,32 +853,38 @@ function GuildbookDropdownFlyoutMixin:OnShow()
         end
     end)
 
+    local borderSize = 2;
+    if self.borderSize then
+        borderSize = self.borderSize;
+    end
+
     -- the .menu needs to a table that mimics the blizz dropdown
     -- t = {
     --     text = buttonText,
     --     func = functionToRun,
     -- }
-    local maxWidth = 100;
+    local maxWidth = 1;
     if self:GetParent().menu then
         if not self.buttons then
             self.buttons = {}
         end
         for i = 1, #self.buttons do
             self.buttons[i]:SetText("")
+            self.buttons[i]:SetIcon(nil)
             self.buttons[i].func = nil
             self.buttons[i].updateText = nil;
             self.buttons[i]:Hide()
         end
         for buttonIndex, info in ipairs(self:GetParent().menu) do
             if not self.buttons[buttonIndex] then
-                self.buttons[buttonIndex] = CreateFrame("FRAME", nil, self, "GuildbookDropDownButton")
-                self.buttons[buttonIndex]:SetPoint("TOP", 0, (buttonIndex * -22) + 22)
+                self.buttons[buttonIndex] = CreateFrame("FRAME", nil, self, "GuildbookDropDownFlyoutButton")
+                self.buttons[buttonIndex]:SetPoint("TOP", 0, ((buttonIndex * -22) - borderSize) + 22)
             end
             self.buttons[buttonIndex]:SetText(info.text)
+            self.buttons[buttonIndex]:SetIcon(info.icon)
 
             local w = self.buttons[buttonIndex].Text:GetWidth()
             if w > maxWidth then
-                self:SetWidth(w + 4)
                 maxWidth = w;
             end
 
@@ -862,10 +895,12 @@ function GuildbookDropdownFlyoutMixin:OnShow()
             buttonIndex = buttonIndex + 1
         end
         for i = 1, #self.buttons do
-            self.buttons[i]:SetWidth(self:GetWidth() - 2)
+            self.buttons[i]:SetWidth(maxWidth * 1.4)
         end
-        self:SetHeight((#self.buttons * 22))
+        self:SetHeight((#self.buttons * 22) + (borderSize * 2))
     end
+
+    self:SetWidth((maxWidth * 1.4) + (borderSize * 2))
 end
 
 
@@ -1201,5 +1236,80 @@ function GuildbookHomeMembersListviewItemTemplateMixin:ResetDataBinding()
     
     self.name:SetText(nil)
     self.portrait:SetAtlas(nil)
+
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---this is the mixin for the character list on the home tab
+GuildbookTradeskillsListviewItemTemplateMixin = {};
+function GuildbookTradeskillsListviewItemTemplateMixin:OnLoad()
+
+end
+
+function GuildbookTradeskillsListviewItemTemplateMixin:OnEnter()
+
+end
+
+function GuildbookTradeskillsListviewItemTemplateMixin:OnLeave()
+    GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+end
+
+function GuildbookTradeskillsListviewItemTemplateMixin:SetDataBinding(binding, height)
+
+    self:SetHeight(height)
+
+    self.icon:SetSize(height * 0.8, height * 0.8)
+
+    if binding.atlas then
+        self.icon:SetAtlas(binding.atlas)
+
+    elseif binding.fileID then
+        self.icon:SetTexture(binding.fileID)
+
+    end
+
+    if binding.text then
+        self.name:SetText(binding.text)
+        
+    else
+        self.name:SetText(Tradeskills:GetLocaleNameFromID(binding.tradeskillID))
+
+    end
+
+    self:SetScript("OnMouseDown", function()
+
+        if binding.tradeskillID then
+            binding.onMouseDown(binding.tradeskillID)
+
+        elseif binding.classID then
+            binding.onMouseDown(binding.classID, binding.subClassID or nil)
+
+        end
+    end)
+
+end
+
+function GuildbookTradeskillsListviewItemTemplateMixin:ResetDataBinding()
+
+
 
 end

@@ -66,30 +66,54 @@ L["GUILD_HOME_LABEL"] = "Home"
 L["GUILD_TRADESKILLS_LABEL"] = "Tradeskills"
 L["GUILD_HOME_NO_MOTD"] = "You are viewing a guild different to your characters, some information may be old or not available."
 L["GUILD_HOME_MEMBERS_HELPTIP"] = "Guild members are shown here, you can click a member to view more information about them."
+L["GUILD_HOME_CALENDAR_HELPTIP"] = "Calendar events show here, (might need to open the calendar first)."
+L["GUILD_HOME_CLASS_INFO_HEADER"] = "Class info"
+
 
 --tradeskill ui
 L["TRADESKILL_SEARCH_HEADER"] = "Search"
-L["TRADESKILL_SEARCH_HELPTIP"] = "Tradeskill items are listed here, see help for search prefixes.\n\nSelect an item to view more."
-L["TRADESKILL_CRAFTERS_HEADER_S"] = "Crafters: %s"
+L["TRADESKILL_SEARCH_HELPTIP"] = "Profession items are listed here.\n\nSearch by profession or tap the dropdown arrow to view categories."
+L["TRADESKILL_CRAFTERS_HEADER"] = "Crafters"
 L["TRADESKILL_CRAFTERS_HELPTIP"] = "Guild members who can craft the item will show here."
 L["TRADESKILL_RECIPE_INFO_HEADER"] = "Recipe info:"
-L["TRADESKILL_RECIPE_INFO_HELPTIP"] = "If you have Auctionator installed the cost of required materials will be calculated and shown."
+L["TRADESKILL_RECIPE_INFO_HELPTIP"] = "If you have Auctionator installed the cost of required materials will be calculated and shown.\n\nIf you have the auction house UI open you can click to search."
 L["TRADESKILL_WORK_ORDER_HELPTIP"] = "Work orders acts like a list of items to craft.\n\nGuild members can send you items they would like crafted, you can also add items yourself to create a list of materials.\n\nWhen you have crafted the item(s) you can notify the guild member its ready."
 
 L["TRADESKILL_WORK_ORDER_CLICK_CAST"] = "Click to craft."
 L["TRADESKILL_WORK_ORDER_ADD_TOOLTIP"] = "Add to your own work orders to see a list of total materials required."
 L["TRADESKILL_WORK_ORDER_SEND_TOOLTIP"] = "Send work order to this character."
 
+--filter menu
+L["GEMS"]							= "Gems"
+L["HEAD"]							= "Head"
+L["SHOULDER"]						= "Shoulder"
+L["BACK"]							= "Back"
+L["CHEST"]							= "Chest"
+L["ROBE"]							= "Robes"
+L["WRIST"]							= "Wrist"
+L["HANDS"]							= "Hands"
+L["WAIST"]							= "Waist"
+L["LEGS"]							= "Legs"
+L["FEET"]							= "Feet"
+L["WEAPONS"]						= "Weapons"
+L["RANGED"]							= "Ranged"
+L["SHIELDS"]						= "Shields"
+L["FINGER"]							= "Rings"
+L["TRINKET"]						= "Trinkets"
+L["NECK"]							= "Necklace"
 
 
 --character profile ui
-L["PROFILE_SHOW_STATS_TOOLTIP"] = "Show stats"
-L["PROFILE_SHOW_MODEL_TOOLTIP"] = "Show model, (|cffFFD100currently show on your own character|r)"
-L["PROFILE_EQUIPMENT_DROPDOWN_LABEL"] = "Equipment"
-L["PROFILE_EQUIPMENT_DROPDOWN_HELPTIP"] = "If this character has equipment sets and shares this information you can select the sets here."
-L["PROFILE_TALENT_DROPDOWN_LABEL"] = "Spec."
-L["PROFILE_TALENT_DROPDOWN_HELPTIP"] = "If this character shares their talents you choose between primary or secondary builds."
-
+L["CHAR_PROFILE_SHOW_STATS_TOOLTIP"] = "Show stats"
+L["CHAR_PROFILE_SHOW_MODEL_TOOLTIP"] = "Show model, (|cffFFD100currently show on your own character|r)"
+L["CHAR_PROFILE_EQUIPMENT_HEADER"] = "Equipment"
+L["CHAR_PROFILE_EQUIPMENT_DROPDOWN_LABEL"] = "Equipment"
+L["CHAR_PROFILE_EQUIPMENT_DROPDOWN_HELPTIP"] = "If this character has equipment sets and shares this information you can select the sets here."
+L["CHAR_PROFILE_TALENT_DROPDOWN_LABEL"] = "Spec."
+L["CHAR_PROFILE_TALENT_DROPDOWN_HELPTIP"] = "If this character shares their talents you choose between primary or secondary builds."
+L["CHAR_PROFILE_TALENTS_HEADER"] = "Talents"
+L["CHAR_PROFILE_TALENTS_DROPDOWN_SPEC1"] = "Primary"
+L["CHAR_PROFILE_TALENTS_DROPDOWN_SPEC2"] = "Secondary"
 
 
 --settings ui
@@ -107,6 +131,8 @@ L["SETTINGS_BLOCK_COMMS_INSTANCE_TOOLTIP"] = "Guildbook might send or receive da
 L["SETTINGS_RESET_CHARACTER_LABEL"] = "Reset character data"
 L["SETTINGS_RESET_GUILD_LABEL"] = "Reset guild data"
 
+L["SETTINGS_IMPORT_GUILD_LABEL"] = "Import"
+L["SETTINGS_EXPORT_GUILD_LABEL"] = "Export"
 
 
 --profile
@@ -119,8 +145,14 @@ L["PROFILE_LEVEL_S"] = "Level %s"
 L["PROFILE_SPECIALIZATIONS_HELPTIP"] = "You can set your primary/secondary specializations and mark them as a PvP spec if you feel fancy."
 
 
+
+
+--help 
 L["HELP_HEADER"] = "Help"
 L["HELP_ABOUT"] = "Guildbook provides guilds and players with a way to share their characters gear, stats, talents, spec and professions."
+
+L["HELP_FAQ_Q0"] = "I just got the addon and its rubbish, doesnt show me anything!"
+L["HELP_FAQ_A0"] = "You should ask if a guild member can export their data for you. This can then be imported (in settings) and fingers crossed you wont leave bad reviews."
 
 L["HELP_FAQ_Q1"] = "Why doesn't my gear show up?"
 L["HELP_FAQ_A1"] = "Guildbook scans the default equipment manager to find gear sets, this currently returns itemIDs but not item links which means enchants and gems will be missing. A future update to Guildbook will attempt to get item links when gear sets are changed."
@@ -137,8 +169,70 @@ L["HELP_FAQ_A4"] = "Previously Guildbook would guess your spec based on talent p
 L["HELP_FAQ_Q5"] = "Why doesn't it show my talents and glyphs?"
 L["HELP_FAQ_A5"] = "Guildbook will scan your active spec when you login and then whenever you change your specialization."
 
-L["HELP_FAQ_Q6"] = ""
-L["HELP_FAQ_A6"] = ""
+L["HELP_FAQ_Q6"] = "What the heck are work orders?"
+L["HELP_FAQ_A6"] = "Work orders allow you to request a craft item from a guild member. The request will be sent to the crafter who will see it in their work orders list."
+
+L["HELP_FAQ_Q7"] = "Why dont I just ask in guild chat for the item?"
+L["HELP_FAQ_A7"] = "You can totally still be social and ask but, you or the crafter might be busy, fighting mobs, running a dungeon, cooking, shopping or surfing the forums..."
+
+L["HELP_FAQ_Q8"] = ""
+L["HELP_FAQ_A8"] = ""
+
+
+--class spec data
+--mage/dk
+L['Arcane']                         = 'Arcane'
+L['Fire']                           = 'Fire'
+L['Frost']                          = 'Frost'
+L['Blood']                          = 'Blood'
+L['Unholy']                         = 'Unholy'
+--druid/shaman
+L['Restoration']                    = 'Restoration'
+L['Enhancement']                    = 'Enhancement'
+L['Elemental']                      = 'Elemental'
+L["Warden"]							= "Warden"
+L['Cat']                            = 'Cat'
+L['Bear']                           = 'Bear'
+L['Balance']                        = 'Balance'
+L['Guardian']                       = 'Guardian'
+L["Feral"]							= "Feral"
+--rogue
+L['Assassination']                  = 'Assassination'
+L['Combat']                         = 'Combat'
+L['Subtlety']                       = 'Subtlety'
+--hunter
+L['Marksmanship']                   = 'Marksmanship'
+L['Beast Master']                   = 'Beast Master'
+L['BeastMaster']                   	= 'Beast Master'
+L['Survival']                       = 'Survival'
+--warlock
+L['Destruction']                    = 'Destruction'
+L['Affliction']                     = 'Affliction'
+L['Demonology']                     = 'Demonology'
+--warrior/paladin/priest
+L['Fury']                           = 'Fury'
+L['Arms']                           = 'Arms'
+L['Protection']                     = 'Protection'
+L['Retribution']                    = 'Retribution'
+L['Holy']                           = 'Holy'
+L['Discipline']                     = 'Discipline'
+L['Shadow']                         = 'Shadow'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -320,19 +414,25 @@ L["REMOVE_RECIPE_FROM_PROF"]		= "Right click to remove from this tradeskill."
 L["PROCESSED_RECIPES_SS"]			= "Processed %s of %s recipes"
 L["TRADESKILL_SLOT_FILTER_S"]		= "Filter %s items"
 L["TRADESKILL_SLOT_REMOVE"]			= "Clear filters"
-L["HEAD"]							= "head"
-L["SHOULDER"]						= "shoulder"
-L["BACK"]							= "back"
-L["CHEST"]							= "chest"
-L["WRIST"]							= "wrist"
-L["HANDS"]							= "hands"	
-L["WAIST"]							= "waist"
-L["LEGS"]							= "legs"
-L["FEET"]							= "feet"
-L["WEAPONS"]						= "weapons"
-L["OFF_HAND"]						= "off hand"	
-L["MISC"]							= "misc"
-L["CONSUMABLES"]					= "consumables"
+
+L["GEMS"]							= "Gems"
+
+L["HEAD"]							= "Head"
+L["SHOULDER"]						= "Shoulder"
+L["BACK"]							= "Back"
+L["CHEST"]							= "Chest"
+L["ROBE"]							= "Robes"
+L["WRIST"]							= "Wrist"
+L["HANDS"]							= "Hands"
+L["WAIST"]							= "Waist"
+L["LEGS"]							= "Legs"
+L["FEET"]							= "Feet"
+L["WEAPONS"]						= "Weapons"
+L["RANGED"]							= "Ranged"
+L["SHIELDS"]							= "Shields"
+L["FINGER"]							= "Rings"
+L["TRINKET"]						= "Trinkets"
+L["NECK"]							= "Necklace"
 
 
 L["PHASE2GB"]						= "With the arrival of guild banks to TBCC i have removed the guild bank system from Guildbook. I am working on something to replace it though!"

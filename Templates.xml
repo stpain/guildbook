@@ -594,22 +594,13 @@
 		<Anchors>
 			<Anchor point="TOPLEFT" x="2" y="-28"/>
 		</Anchors>
-        <!-- <Layers>
+        <Layers>
             <Layer level="BACKGROUND" textureSubLevel="-1">
-                <Texture setAllPoints="true">
+                <Texture parentKey="background" setAllPoints="true">
 					<Color r="1" g="1" b="1" a="1"/>
 				</Texture>
             </Layer>
-            <Layer level="BACKGROUND">
-                <Texture>
-					<Anchors>
-						<Anchor point="TOPLEFT" x="1" y="-1"/>
-						<Anchor point="BOTTOMRIGHT" x="-1" y="1"/>
-					</Anchors>
-					<Color r="0" g="0" b="0" a="1"/>
-				</Texture>
-            </Layer>
-        </Layers> -->
+        </Layers>
 		<Scripts>
 			<OnShow method="OnShow"/>
 			<OnLeave method="OnLeave"/>
@@ -681,26 +672,7 @@
 					<OnMouseUp method="OnMouseUp"/>
 				</Scripts>
 			</Frame>
-			<Frame parentKey="Flyout" mixin="GuildbookDropdownFlyoutMixin" hidden="true">
-				<Size x="100" y="275"/>
-				<Anchors>
-					<Anchor point="TOPLEFT" x="2" y="-28"/>
-				</Anchors>
-				<!-- <Layers>
-					<Layer level="BORDER">
-						<Texture parentKey="Background" atlas="auctionhouse-background-buy-commodities-market" useAtlasSize="false"> 
-							<Anchors>
-								<Anchor point="TOPLEFT" x="-1" y="1"/>
-								<Anchor point="BOTTOMRIGHT" x="1" y="-1"/>
-							</Anchors>
-						</Texture>
-					</Layer>
-				</Layers> -->
-				<Scripts>
-					<OnShow method="OnShow"/>
-					<OnLeave method="OnLeave"/>
-				</Scripts>
-			</Frame>
+			<Frame parentKey="flyout" frameLevel="10" frameStrata="HIGH" inherits="GuildbookDropdownFlyout" hidden="true"/>
 		</Frames>
 		<Scripts>
 			<OnLoad method="OnLoad"/>
@@ -722,7 +694,7 @@
     </Frame>
 
 
-	<Frame name="GuildbookDropDownButton" mixin="GuildbookDropDownFlyoutButtonMixin" virtual="true" enableMouse="true">
+	<Frame name="GuildbookDropDownFlyoutButton" mixin="GuildbookDropDownFlyoutButtonMixin" virtual="true" enableMouse="true">
         <Size y="22"/>
         <Anchors>
             <Anchor point="CENTER" x="0" y="0"/>
@@ -740,9 +712,16 @@
                 <Texture atlas="GarrMission_FollowerListButton-Highlight" useAtlasSize="false"/>
             </Layer>
             <Layer level="ARTWORK">
+                <Texture parentKey="icon">
+                    <Size x="1"/>
+                    <Anchors>
+                		<Anchor point="LEFT" x="1" y="0"/>
+                	</Anchors> 
+                </Texture>
+
                 <FontString parentKey="Text" inherits="GameFontNormal_NoShadow" justifyH="LEFT">
                 	<Anchors>
-                		<Anchor point="LEFT" x="2" y="0"/>
+                		<Anchor point="LEFT" relativeKey="$parent.icon" relativePoint="RIGHT" x="2" y="0"/>
                 	</Anchors>
                 	<Color r="1" g="1" b="1"/>
                 </FontString>
@@ -790,6 +769,48 @@
             <OnLoad method="OnLoad"/>
             <OnMouseDown method="OnMouseDown"/>
             <OnMouseUp method="OnMouseUp"/>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+        </Scripts>
+    </Frame>
+    
+
+    <Frame name="GuildbookTradeskillsListviewItemTemplate" mixin="GuildbookTradeskillsListviewItemTemplateMixin" virtual="true" enableMouse="true">
+        <Layers>
+            <Layer level="BACKGROUND">
+        		<Texture parentKey="background" atlas="clickcastlist-buttonbackground">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="-2" y="1"/>
+                        <Anchor point="BOTTOMRIGHT" x="2" y="-1"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+			<Layer level="HIGHLIGHT">
+				<Texture parentKey="Highlight" atlas="clickcastlist-buttonhighlight" useAtlasSize="false">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="-2" y="2"/>
+                        <Anchor point="BOTTOMRIGHT" x="2" y="-2"/>
+                    </Anchors>
+                </Texture>
+			</Layer>
+			<Layer level="ARTWORK" textureSubLevel="1">
+				<Texture parentKey="icon" useAtlasSize="false">
+                    <Anchors>
+                        <Anchor point="LEFT" x="0" y="0"/>
+                    </Anchors>
+                </Texture>
+			</Layer>
+            <Layer level="OVERLAY">
+                <FontString parentKey="name" inherits="GameFontNormal">
+                    <Color r="1" g="1" b="1"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent.icon" relativePoint="RIGHT" x="4" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
             <OnEnter method="OnEnter"/>
             <OnLeave method="OnLeave"/>
         </Scripts>

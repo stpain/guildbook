@@ -4,6 +4,7 @@ local addonName, addon = ...;
 
 addon.playerContainers = {};
 
+local LOCALE = GetLocale()
 local Database = addon.Database;
 local Colours = addon.Colours;
 local L = addon.Locales;
@@ -78,7 +79,51 @@ local talentTabsToBackground = {
         [3] = "WarriorProtection",
     },
 }
-
+local characterStats = {
+    ["attributes"] = {
+        { key = "Strength", displayName = L["STRENGTH"], },
+        { key = "Agility", displayName = L["AGILITY"], },
+        { key = "Stamina", displayName = L["STAMINA"], },
+        { key = "Intellect", displayName = L["INTELLECT"], },
+        { key = "Spirit", displayName = L["SPIRIT"], },
+    },
+    ["defence"] = {
+        { key = "Armor", displayName = L["ARMOR"], },
+        { key = "Defence", displayName = L["DEFENSE"], },
+        { key = "Dodge", displayName = L["DODGE"], },
+        { key = "Parry", displayName = L["PARRY"], },
+        { key = "Block", displayName = L["BLOCK"], },
+    },
+    ["melee"] = {
+        { key = "Expertise", displayName = L["EXPERTISE"], },
+        { key = "MeleeHit", displayName = L["HIT_CHANCE"], },
+        { key = "MeleeCrit", displayName = L["MELEE_CRIT"], },
+        { key = "MeleeDmgMH", displayName = L["MH_DMG"], },
+        { key = "MeleeDpsMH", displayName = L["MH_DPS"], },
+        { key = "MeleeDmgOH", displayName = L["OH_DMG"], },
+        { key = "MeleeDpsOH", displayName = L["OH_DPS"], },
+    },
+    ["ranged"] = {
+        { key = "RangedHit", displayName = L["RANGED_HIT"], },
+        { key = "RangedCrit", displayName = L["RANGED_CRIT"], },
+        { key = "RangedDmg", displayName = L["RANGED_DMG"], },
+        { key = "RangedDps", displayName = L["RANGED_DPS"], },
+    },
+    ["spells"] = {
+        { key = "Haste", displayName = L["SPELL_HASTE"], },
+        { key = "ManaRegen", displayName = L["MANA_REGEN"], },
+        { key = "ManaRegenCasting", displayName = L["MANA_REGEN_CASTING"], },
+        { key = "SpellHit", displayName = L["SPELL_HIT"], },
+        { key = "SpellCrit", displayName = L["SPELL_CRIT"], },
+        { key = "HealingBonus", displayName = L["HEALING_BONUS"], },
+        { key = "SpellDmgHoly", displayName = L["SPELL_DMG_HOLY"], },
+        { key = "SpellDmgFrost", displayName = L["SPELL_DMG_FROST"], },
+        { key = "SpellDmgShadow", displayName = L["SPELL_DMG_SHADOW"], },
+        { key = "SpellDmgArcane", displayName = L["SPELL_DMG_ARCANE"], },
+        { key = "SpellDmgFire", displayName = L["SPELL_DMG_FIRE"], },
+        { key = "SpellDmgNature", displayName = L["SPELL_DMG_NATURE"], },
+    }
+}
 
 
 
@@ -110,10 +155,16 @@ GuildbookMixin.workOrders = {};
 function GuildbookMixin:OpenTo(frame, showMenu)
 
     self.guild:Hide()
-    self.guild.guildHome:Hide()
-    self.guild.tradeskills:Hide()
-    self.guild.character:Hide()
+
+    self.guild.home:Hide()
+    self.guild.home.info:Hide()
+
+    self.guild.home.character:Hide()
+
     self.guild.background:SetTexture(nil)
+
+    self.guild.tradeskills:Hide()
+
     self.settings:Hide()
     self.profile:Hide()
     self.help:Hide()
@@ -121,7 +172,8 @@ function GuildbookMixin:OpenTo(frame, showMenu)
 
     if frame == "guild" then
         self.guild:Show()
-        self.guild.guildHome:Show()
+        self.guild.home:Show()
+        self.guild.home.info:Show()
 
     elseif frame == "tradeskills" then
         self.guild:Show()
@@ -129,7 +181,8 @@ function GuildbookMixin:OpenTo(frame, showMenu)
 
     elseif frame == "character" then
         self.guild:Show()
-        self.guild.character:Show()
+        self.guild.home:Show()
+        self.guild.home.character:Show()
 
     else
         if self[frame] then
@@ -173,9 +226,9 @@ function GuildbookMixin:OnLoad()
     self.title:SetText(string.format("%s v%s", addonName, GetAddOnMetadata(addonName, "Version")))
 
     --set some colours
-    self.border:SetColorTexture(Colours.WARLOCK:GetRGB())  
-    self.topBarBackground:SetColorTexture(Colours.DarkSlateGrey:GetRGB())
-    self.menu.background:SetColorTexture(Colours.DarkSlateGreen:GetRGB())
+    self.border:SetColorTexture(Colours.StoneGold:GetRGB())
+    self.topBarBackground:SetColorTexture(Colours.BrownGrey:GetRGB())
+    self.menu.background:SetColorTexture(Colours.MudBrown:GetRGB())
 
     --grab size 
     UI_WIDTH, UI_HEIGHT = self:GetSize()
@@ -186,7 +239,7 @@ function GuildbookMixin:OnLoad()
         local w, h = tip:GetSize()
         tip:SetSize(w*1.2, h*1.2)
     end
-    for k, tip in ipairs(self.guild.character.scrollChild.helptips) do
+    for k, tip in ipairs(self.guild.home.character.scrollChild.helptips) do
         local w, h = tip:GetSize()
         tip:SetSize(w*1.2, h*1.2)
     end
@@ -221,11 +274,11 @@ function GuildbookMixin:OnLoad()
     self.settings.scrollChild:SetSize(UI_WIDTH-210, UI_HEIGHT-50);
 
     --set the size for character scroll view
-    self.guild.character.scrollChild:SetSize(UI_WIDTH-210, UI_HEIGHT-50);
-    self.guild.character.scrollChild.profileInfo:SetSize(UI_WIDTH-210, 260)
+    self.guild.home.character.scrollChild:SetSize(UI_WIDTH - 210, UI_HEIGHT-50);
+    self.guild.home.character.scrollChild.profileInfo:SetSize(UI_WIDTH-210, 260)
 
     --set up the character model frame
-    local modelFrame = self.guild.character.scrollChild.model;
+    local modelFrame = self.guild.home.character.scrollChild.model;
     modelFrame:SetSize(((UI_WIDTH-210) / 3) + 60, UI_HEIGHT-60)
     modelFrame:SetUnit("player")
     modelFrame.portraitZoom = 0.1
@@ -266,76 +319,80 @@ function GuildbookMixin:OnLoad()
         end
     end)
 
-    self.guild.character.scrollChild.showStats:SetScript("OnClick", function()
-        self.guild.character.scrollChild.model:Hide()
-        self.guild.character.scrollChild.stats:Show()
+    local characterProfile = self.guild.home.character.scrollChild;
+
+    characterProfile.showStats:SetScript("OnClick", function()
+        characterProfile.model:Hide()
+        characterProfile.stats:Show()
     end)
-    self.guild.character.scrollChild.showStats:SetScript("OnEnter", function()
-        GameTooltip:SetOwner(self.guild.character.scrollChild.showStats, "ANCHOR_BOTTOM")
-        GameTooltip:AddLine(L["PROFILE_SHOW_STATS_TOOLTIP"])
+    characterProfile.showStats:SetScript("OnEnter", function()
+        GameTooltip:SetOwner(characterProfile.showStats, "ANCHOR_BOTTOM")
+        GameTooltip:AddLine(L["CHAR_PROFILE_SHOW_STATS_TOOLTIP"])
         GameTooltip:Show()
     end)
-    self.guild.character.scrollChild.showStats:SetScript("OnLeave", function()
+    characterProfile.showStats:SetScript("OnLeave", function()
         GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
     end)
 
-    self.guild.character.scrollChild.showModel:SetScript("OnClick", function()
-        self.guild.character.scrollChild.model:Show()
-        self.guild.character.scrollChild.stats:Hide()
+    characterProfile.showModel:SetScript("OnClick", function()
+        characterProfile.model:Show()
+        characterProfile.stats:Hide()
     end)
-    self.guild.character.scrollChild.showModel:SetScript("OnEnter", function()
-        GameTooltip:SetOwner(self.guild.character.scrollChild.showModel, "ANCHOR_BOTTOM")
-        GameTooltip:AddLine(L["PROFILE_SHOW_MODEL_TOOLTIP"])
+    characterProfile.showModel:SetScript("OnEnter", function()
+        GameTooltip:SetOwner(characterProfile.showModel, "ANCHOR_BOTTOM")
+        GameTooltip:AddLine(L["CHAR_PROFILE_SHOW_MODEL_TOOLTIP"])
         GameTooltip:Show()
     end)
-    self.guild.character.scrollChild.showModel:SetScript("OnLeave", function()
+    characterProfile.showModel:SetScript("OnLeave", function()
         GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
     end)
 
     --these are the templates for the characters equipment slots
-    self.guild.character.scrollChild.equipSlotHead:SetAllign("right")
-    self.guild.character.scrollChild.equipSlotNeck:SetAllign("right")
-    self.guild.character.scrollChild.equipSlotShoulder:SetAllign("right")
-    self.guild.character.scrollChild.equipSlotBack:SetAllign("right")
+    characterProfile.equipSlotHead:SetAllign("right")
+    characterProfile.equipSlotNeck:SetAllign("right")
+    characterProfile.equipSlotShoulder:SetAllign("right")
+    characterProfile.equipSlotBack:SetAllign("right")
 
-    self.guild.character.scrollChild.equipSlotChest:SetAllign("right")
-    self.guild.character.scrollChild.equipSlotTabard:SetAllign("right")
-    self.guild.character.scrollChild.equipSlotShirt:SetAllign("right")
-    self.guild.character.scrollChild.equipSlotWrist:SetAllign("right")
+    characterProfile.equipSlotChest:SetAllign("right")
+    characterProfile.equipSlotTabard:SetAllign("right")
+    characterProfile.equipSlotShirt:SetAllign("right")
+    characterProfile.equipSlotWrist:SetAllign("right")
 
-    self.guild.character.scrollChild.equipSlotHands:SetAllign("left")
-    self.guild.character.scrollChild.equipSlotWaist:SetAllign("left")
-    self.guild.character.scrollChild.equipSlotLegs:SetAllign("left")
-    self.guild.character.scrollChild.equipSlotFeet:SetAllign("left")
+    characterProfile.equipSlotHands:SetAllign("left")
+    characterProfile.equipSlotWaist:SetAllign("left")
+    characterProfile.equipSlotLegs:SetAllign("left")
+    characterProfile.equipSlotFeet:SetAllign("left")
 
-    self.guild.character.scrollChild.equipSlotFinger0:SetAllign("left")
-    self.guild.character.scrollChild.equipSlotFinger1:SetAllign("left")
-    self.guild.character.scrollChild.equipSlotTrinket0:SetAllign("left")
-    self.guild.character.scrollChild.equipSlotTrinket1:SetAllign("left")
-    self.guild.character.scrollChild.equipSlotFinger0:SetAllign("left")
+    characterProfile.equipSlotFinger0:SetAllign("left")
+    characterProfile.equipSlotFinger1:SetAllign("left")
+    characterProfile.equipSlotTrinket0:SetAllign("left")
+    characterProfile.equipSlotTrinket1:SetAllign("left")
+    characterProfile.equipSlotFinger0:SetAllign("left")
 
-    self.guild.character.scrollChild.equipSlotMainhand:SetAllign("right")
-    self.guild.character.scrollChild.equipSlotOffhand:SetAllign("left")
-    self.guild.character.scrollChild.equipSlotRanged:SetAllign("left")
+    characterProfile.equipSlotMainhand:SetAllign("right")
+    characterProfile.equipSlotOffhand:SetAllign("left")
+    characterProfile.equipSlotRanged:SetAllign("left")
+
+    characterProfile.profileInfo.equipmentHeader:SetText(L["CHAR_PROFILE_EQUIPMENT_HEADER"])
 
     --set up the talent trees
-    self.guild.character.scrollChild.talents:SetSize(UI_WIDTH-210, 620)
-    self.guild.character.scrollChild.talents.header:SetText("Talents")
+    characterProfile.talents:SetSize(UI_WIDTH-210, 620)
+    characterProfile.talents.header:SetText(L["CHAR_PROFILE_TALENTS_HEADER"])
 
     --set the text for the helptips
-    self.guild.character.scrollChild.equipmentHelp:SetText(L["PROFILE_EQUIPMENT_DROPDOWN_HELPTIP"])
-    self.guild.character.scrollChild.talentsHelp:SetText(L["PROFILE_TALENT_DROPDOWN_HELPTIP"])
+    characterProfile.equipmentHelp:SetText(L["CHAR_PROFILE_EQUIPMENT_DROPDOWN_HELPTIP"])
+    characterProfile.talentsHelp:SetText(L["CHAR_PROFILE_TALENT_DROPDOWN_HELPTIP"])
 
     --create the talent tree grids
-    self.guild.character.scrollChild.talents.talentTree = {}
+    characterProfile.talents.talentTree = {}
     local colPos = { 19.0, 78.0, 137.0, 196.0 }
     local rowPos = { 19.0, 78.0, 137.0, 196.0, 255.0, 314.0, 373.0, 432.0, 491.0, 550.0, 609.0 } --257
     for spec = 1, 3 do
-        self.guild.character.scrollChild.talents.talentTree[spec] = {}
+        characterProfile.talents.talentTree[spec] = {}
         for row = 1, 11 do
-            self.guild.character.scrollChild.talents.talentTree[spec][row] = {}
+            characterProfile.talents.talentTree[spec][row] = {}
             for col = 1, 4 do
-                local f = CreateFrame('BUTTON', tostring('GuildbookProfilesTalents'..spec..row..col), self.guild.character.scrollChild.talents, BackdropTemplateMixin and "BackdropTemplate")
+                local f = CreateFrame('BUTTON', tostring('GuildbookProfilesTalents'..spec..row..col), characterProfile.talents, BackdropTemplateMixin and "BackdropTemplate")
                 f:SetSize(28, 28)
                 f:SetPoint('TOPLEFT', 10+((colPos[col] * 0.85) + ((spec - 1) * 237)), ((rowPos[row] * 0.85) * -1) - 60)
 
@@ -374,7 +431,7 @@ function GuildbookMixin:OnLoad()
                         ChatEdit_InsertLink(self.link)
                     end
                 end)
-                self.guild.character.scrollChild.talents.talentTree[spec][row][col] = f
+                characterProfile.talents.talentTree[spec][row][col] = f
             end
         end
     end
@@ -384,19 +441,20 @@ function GuildbookMixin:OnLoad()
     self.guildName.label:SetText(L["GUILD_HOME_LABEL"] )
     self.guildTradeskills.label:SetText(L["GUILD_TRADESKILLS_LABEL"] )
 
-    self.guild.guildHome.guildHomeMembersHelptip:SetText(L["GUILD_HOME_MEMBERS_HELPTIP"])
-    self.guild.guildHome.guildMOTD:SetTextColor(Colours.Guild:GetRGB())
+    self.guild.home.guildHomeMembersHelptip:SetText(L["GUILD_HOME_MEMBERS_HELPTIP"])
+    self.guild.home.info.guildHomeCalendarHelptip:SetText(L["GUILD_HOME_CALENDAR_HELPTIP"])
+    self.guild.home.info.guildMOTD:SetTextColor(Colours.Guild:GetRGB())
 
-    self.guild.guildHome.guildClassInfo.header:SetText("Class Info")
+    self.guild.home.info.classInfo.header:SetText(L["GUILD_HOME_CLASS_INFO_HEADER"])
 
-    self.guild.guildHome.activityFeed:SetFontObject(GameFontNormal)
-    self.guild.guildHome.activityFeed:SetMaxLines(100)
-    self.guild.guildHome.activityFeed:SetFading(false)
-    self.guild.guildHome.activityFeed:SetJustifyH("LEFT")
-    self.guild.guildHome.activityFeed:SetTextColor(Colours.Guild:GetRGB())
+    self.guild.home.info.activityFeed:SetFontObject(GameFontNormal)
+    self.guild.home.info.activityFeed:SetMaxLines(100)
+    self.guild.home.info.activityFeed:SetFading(false)
+    self.guild.home.info.activityFeed:SetJustifyH("LEFT")
+    self.guild.home.info.activityFeed:SetTextColor(Colours.Guild:GetRGB())
 
-    self.guild.guildHome.activityFeed:SetScript("OnMouseWheel", function(_, delta)
-        self.guild.guildHome.activityFeed:ScrollByAmount(delta)
+    self.guild.home.info.activityFeed:SetScript("OnMouseWheel", function(_, delta)
+        self.guild.home.info.activityFeed:ScrollByAmount(delta)
     end)
 
     self.menu:SetFrameLevel(self:GetFrameLevel()+10)
@@ -439,13 +497,16 @@ function GuildbookMixin:OnLoad()
         for k, tip in ipairs(self.guild.tradeskills.helptips) do
             tip:SetShown(showHelptips)
         end
-        for k, tip in ipairs(self.guild.character.scrollChild.helptips) do
+        for k, tip in ipairs(characterProfile.helptips) do
             tip:SetShown(showHelptips)
         end
         for k, tip in ipairs(self.profile.helptips) do
             tip:SetShown(showHelptips)
         end
-        for k, tip in ipairs(self.guild.guildHome.helptips) do
+        for k, tip in ipairs(self.guild.home.helptips) do
+            tip:SetShown(showHelptips)
+        end
+        for k, tip in ipairs(self.guild.home.info.helptips) do
             tip:SetShown(showHelptips)
         end
     end)
@@ -454,13 +515,15 @@ function GuildbookMixin:OnLoad()
     self.guild.tradeskills.tradeskillHelp.Arrow:ClearAllPoints()
     self.guild.tradeskills.tradeskillHelp.Arrow:SetPoint("BOTTOMRIGHT", -20, -60)
     self.guild.tradeskills.tradeskillHelp:SetText(L["TRADESKILL_SEARCH_HELPTIP"])
+    self.guild.tradeskills.recipeInfo.header:SetText(L["TRADESKILL_RECIPE_INFO_HEADER"])
     self.guild.tradeskills.tradeskillRecipeInfoHelp:SetText(L["TRADESKILL_RECIPE_INFO_HELPTIP"])
+    self.guild.tradeskills.recipeCrafters.header:SetText(L["TRADESKILL_CRAFTERS_HEADER"])
     self.guild.tradeskills.tradeskillCraftersHelp:SetText(L["TRADESKILL_CRAFTERS_HELPTIP"])
     self.guild.tradeskills.workOrderHelp.Arrow:ClearAllPoints()
     self.guild.tradeskills.workOrderHelp.Arrow:SetPoint("BOTTOM", -60, -60)
     self.guild.tradeskills.workOrderHelp:SetText(L["TRADESKILL_WORK_ORDER_HELPTIP"])
     self.guild.tradeskills.workOrdersDeleteAll:SetScript("OnClick", function()
-        wipe(self.workOrders)
+        wipe(GUILDBOOK_GLOBAL.WorkOrders)
         self.guild.tradeskills.workOrders.DataProvider:Flush()
         self.guild.tradeskills.workOrders.DataProvider:InsertTable({})
     end)
@@ -486,10 +549,10 @@ function GuildbookMixin:OnLoad()
         end)
     end
 
-    local function filterByTradeskill(tradeskill)
+    local function filterByTradeskill(tradeskillID)
         local t = {};
 
-        if tradeskill == "none" then
+        if tradeskillID == "none" then
             self.guild.tradeskills.listview.DataProvider:Flush()
 
             sortTradeskillResults(addon.tradeskillItems)
@@ -497,8 +560,6 @@ function GuildbookMixin:OnLoad()
             self.guild.tradeskills.listview.DataProvider:InsertTable(addon.tradeskillItems)
 
         else
-
-            local tradeskillID = Tradeskills:GetTradeskillIDFromEnglishName(tradeskill)
 
             for k, item in ipairs(addon.tradeskillItems) do
                 if item.tradeskill == tradeskillID then
@@ -515,25 +576,78 @@ function GuildbookMixin:OnLoad()
 
     end
 
-    for k, prof in ipairs(tradeskills) do
-        prof = prof:sub(1,1):upper()..prof:sub(2)
-        if prof == "Engineering" then
-            self.guild.tradeskills[prof:lower()].icon:SetAtlas(string.format("Mobile-%s", "Enginnering"))
+    local function filterByClass(classID, subClassID)
+
+        local t = {};
+
+        if not subClassID then
+            for k, item in ipairs(addon.tradeskillItems) do
+                if item.class == classID then
+                    table.insert(t, item)
+                end
+            end
+
         else
-            self.guild.tradeskills[prof:lower()].icon:SetAtlas(string.format("Mobile-%s", prof))
+            for k, item in ipairs(addon.tradeskillItems) do
+                if item.class == classID and item.subClass == subClassID then
+                    table.insert(t, item)
+                end
+            end
+
         end
-        self.guild.tradeskills[prof:lower()].tooltipText = prof;
-        self.guild.tradeskills[prof:lower()]:SetScript("OnMouseDown", function()
-            filterByTradeskill(prof)
-        end)
+
+        self.guild.tradeskills.listview.DataProvider:Flush()
+        sortTradeskillResults(t)
+        self.guild.tradeskills.listview.DataProvider:InsertTable(t)
+
     end
 
-    self.guild.tradeskills.clear.icon:SetAtlas("transmog-icon-remove")
-    self.guild.tradeskills.clear.tooltipText = "Clear"
-    self.guild.tradeskills.clear:SetScript("OnMouseDown", function()
-        filterByTradeskill("none")
-        self.guild.tradeskills.search:SetText("")
-    end)
+    local function filterBySlot(slot)
+        local t = {}
+        for k, item in ipairs(addon.tradeskillItems) do
+
+            if slot == "WEAPONS" then
+                slot = "weapon"
+
+            elseif slot == "SHIELDS" then
+                slot = "shield"
+
+            elseif slot == "HANDS" then
+                slot = "hand"
+
+            else
+                if item.equipLocation:lower():find(slot:lower()) then
+                    table.insert(t, item)
+                end
+            end
+
+        end
+        self.guild.tradeskills.listview.DataProvider:Flush()
+        sortTradeskillResults(t)
+        self.guild.tradeskills.listview.DataProvider:InsertTable(t)
+    end
+
+    for k, prof in ipairs(tradeskills) do
+        prof = prof:sub(1,1):upper()..prof:sub(2)
+        local atlas = string.format("Mobile-%s", prof)
+        if prof == "Engineering" then
+            atlas = string.format("Mobile-%s", "Enginnering")
+        end
+        local tradeskillID = Tradeskills:GetTradeskillIDFromEnglishName(prof)
+
+        self.guild.tradeskills.tradeskillsList.DataProvider:Insert({
+            tradeskillID = tradeskillID,
+            atlas = atlas,
+            onMouseDown = filterByTradeskill,
+        })
+    end
+
+    -- self.guild.tradeskills.clear.icon:SetAtlas("transmog-icon-remove")
+    -- self.guild.tradeskills.clear.tooltipText = "Clear"
+    -- self.guild.tradeskills.clear:SetScript("OnMouseDown", function()
+    --     filterByTradeskill("none")
+    --     self.guild.tradeskills.search:SetText("")
+    -- end)
 
     self.guild.tradeskills.search.label:SetText(L["TRADESKILL_SEARCH_HEADER"])
 
@@ -590,8 +704,14 @@ function GuildbookMixin:OnLoad()
             local t = {};
 
             for k, item in ipairs(addon.tradeskillItems) do
-                if item.name:lower():find(eb:GetText():lower()) then
-                    table.insert(t, item)
+                if addon.tradeskillLocaleData[LOCALE] and addon.tradeskillLocaleData[LOCALE][item.itemID] then
+                    if addon.tradeskillLocaleData[LOCALE][item.itemID].name:lower():find(eb:GetText():lower()) then
+                        table.insert(t, item)
+                    end
+                else
+                    if item.name:lower():find(eb:GetText():lower()) then
+                        table.insert(t, item)
+                    end
                 end
             end
 
@@ -605,6 +725,65 @@ function GuildbookMixin:OnLoad()
             self.guild.tradeskills.listview.DataProvider:InsertTable(addon.tradeskillItems)
         end
     end)
+
+    local flyoutMenu = {}
+    for i = 1, 3 do
+        local subClassName = GetItemSubClassInfo(0, i)
+        table.insert(flyoutMenu, {
+            text = subClassName,
+            func = function()
+                filterByClass(0, i)
+            end,
+        })
+    end
+
+    table.insert(flyoutMenu, {
+        text = L["GEMS"],
+        func = function()
+            filterByClass(3)
+        end,
+    })
+
+    local slots = {
+        "HEAD",
+        "SHOULDER",
+        "CHEST",
+        "ROBE",
+        "BACK",
+        "WRIST",
+        "HANDS",
+        "WAIST",
+        "LEGS",
+        "FEET",
+        "FINGER",
+        "TRINKET",
+        "NECK",
+        "WEAPONS",
+        "RANGED",
+        "SHIELDS",
+    }
+    for k, slot in ipairs(slots) do
+        table.insert(flyoutMenu, {
+            text = L[slot],
+            func = function()
+                filterBySlot(slot)
+            end,
+        })
+    end
+
+    self.guild.tradeskills.searchMenu.menu = flyoutMenu;
+    self.guild.tradeskills.searchMenu.flyout:SetFlyoutBackgroundColour(Colours.StoneGold)
+    self.guild.tradeskills.searchMenu:SetScript("OnClick", function()
+
+        local flyout = self.guild.tradeskills.searchMenu.flyout;
+        flyout:ClearAllPoints()
+        flyout:SetPoint("TOPRIGHT", -5, -26)
+        flyout.borderSize = 2;
+
+        flyout:SetShown(not flyout:IsVisible())
+
+    end)
+
 
     self.guild.tradeskills.listview.DataProvider:InsertTable(addon.tradeskillItems)
 
@@ -622,10 +801,10 @@ function GuildbookMixin:OnLoad()
     self.settings.scrollChild.resetCharacter:SetText(L["SETTINGS_RESET_CHARACTER_LABEL"])
     self.settings.scrollChild.resetGuild:SetText(L["SETTINGS_RESET_GUILD_LABEL"])
 
-    self.settings.scrollChild.generateExportData:SetText("Export")
-    self.settings.scrollChild.importData:SetText("Import")
+    self.settings.scrollChild.generateExportData:SetText(L["SETTINGS_EXPORT_GUILD_LABEL"])
+    self.settings.scrollChild.importData:SetText(L["SETTINGS_IMPORT_GUILD_LABEL"])
 
-    self.settings.scrollChild.importExportEditbox.EditBox:SetMaxLetters(999999999)
+    self.settings.scrollChild.importExportEditbox.EditBox:SetMaxLetters(1000000000)
     self.settings.scrollChild.importExportEditbox.EditBox:HookScript("OnTextChanged", function()
         self.settings.scrollChild.importExportEditbox.CharCount:ClearAllPoints()
         self.settings.scrollChild.importExportEditbox.CharCount:SetPoint("BOTTOMRIGHT", 0, -28)
@@ -679,11 +858,14 @@ function GuildbookMixin:OnLoad()
             addon:TriggerEvent("Character_OnDataChanged")
         end
     end)
-
-    self.settings.scrollChild.scanForLocaleData:SetScript("OnClick", function()
-        addon:GetLocaleGlyphNames()
-        addon:GetLocaleTradeskillInfo()
+    self.settings.scrollChild.debug:SetScript("OnClick", function()
+        addon.DebuggerWindow:Show()
     end)
+
+    -- self.settings.scrollChild.scanForLocaleData:SetScript("OnClick", function()
+    --     addon:GetLocaleGlyphNames()
+    --     addon:GetLocaleTradeskillInfo()
+    -- end)
 
     self.settings.scrollChild.generateExportData:SetScript("OnClick", function()
         if self.selectedGuild then
@@ -702,16 +884,6 @@ function GuildbookMixin:OnLoad()
     end)
 
 
-    LoadAddOn("Blizzard_LookingForGroupUI")
-    LFGBrowseFrame:HookScript("OnShow", function()
-        local activities = C_LFGList.GetAvailableActivities();
-        for k, activity in ipairs(activities) do
-            local info = C_LFGList.GetActivityInfoTable(activity)
-            print(info.fullName, info.displayType)
-        end
-    end)
-
-
 
     --profile locales
     self.profile.header:SetText(L["PROFILE_HEADER"])
@@ -720,6 +892,24 @@ function GuildbookMixin:OnLoad()
     self.profile.realBioInput.label:SetText(L["PROFILE_REAL_BIO_LABEL"])
     self.profile.realBioInput.EditBox:SetMaxLetters(200)
     self.profile.specializationHelptip:SetText(L["PROFILE_SPECIALIZATIONS_HELPTIP"])
+
+    self.profile.primarySpecIsPvp:SetScript("OnClick", function()
+        for _, guild in ipairs(self.guilds) do
+            local player = guild:GetPlayerCharacter()
+            if type(player) == "table" then
+                player:SetSpecIsPvp("primary", self.profile.primarySpecIsPvp:GetChecked())
+            end
+        end
+    end)
+
+    self.profile.secondarySpecIsPvp:SetScript("OnClick", function()
+        for _, guild in ipairs(self.guilds) do
+            local player = guild:GetPlayerCharacter()
+            if type(player) == "table" then
+                player:SetSpecIsPvp("secondary", self.profile.secondarySpecIsPvp:GetChecked())
+            end
+        end
+    end)
 
     self.profile:SetScript("OnHide", function()
         for _, guild in ipairs(self.guilds) do
@@ -741,48 +931,22 @@ function GuildbookMixin:OnLoad()
     end)
 
 
-    -- local function setProf(slot, name)
-    --     for k, guild in ipairs(self.guilds) do
-    --         local player = guild:GetPlayerCharacter()
-    --         if type(player) == "table" then
-    --             player:SetTradeskill(slot, name)
-    --         end
-    --     end
-    -- end
-    -- self.profile.prof1Dropdown.menu = {};
-    -- self.profile.prof2Dropdown.menu = {};
-    -- for k, prof in ipairs(tradeskills) do
-    --     local localeProfName = Tradeskills:GetLocaleNameFromEnglish(prof);
-    --     table.insert(self.profile.prof1Dropdown.menu, {
-    --         text = localeProfName,
-    --         func = function()
-    --             print("selected", prof)
-    --         end,
-    --     })
-    --     table.insert(self.profile.prof2Dropdown.menu, {
-    --         text = localeProfName,
-    --         func = function()
-    --             print("selected", prof)
-    --         end,
-    --     })
-    -- end
-
 end
 
 
 
 function GuildbookMixin:LoadHelp()
 
-    self.help.scrollChild.header:SetText(L["HELP_HEADER"])
-    self.help.scrollChild.about:SetText(L["HELP_ABOUT"])
+    self.help.header:SetText(L["HELP_HEADER"])
+    self.help.about:SetText(L["HELP_ABOUT"])
 
-    local numFaq = 5
+    local numFaq = 7
 
-    for i = 1, numFaq do
+    for i = 0, numFaq do
         local fs = self.help.scrollChild:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 
-        fs:SetPoint("TOPLEFT", self.help.scrollChild.about, "BOTTOMLEFT", 0, ((i-1) * -60) -2)
-        fs:SetPoint("TOPRIGHT", self.help.scrollChild.about, "BOTTOMRIGHT", 0, ((i-1) * -60) -2)
+        fs:SetPoint("TOPLEFT", 0, (i * -60) -2)
+        fs:SetPoint("TOPRIGHT", -24, (i * -60) -2)
         
         fs:SetHeight(60)
         fs:SetJustifyH("LEFT")
@@ -825,7 +989,7 @@ function GuildbookMixin:OnCommsMessage(sender, data)
     self.statusText:SetText(string.format("%s from %s", commType, character:GetName()))
 
     if commType == "TRADESKILL_WORK_ORDER_ADD" then
-        self:TradeskillListviewItem_OnAddToWorkOrder(data.payload, character)
+        self:TradeskillListviewItem_OnAddToWorkOrder(data.payload, character, guild:GetName())
     end
 
     if commType == "CHARACTER_STATS" then
@@ -858,7 +1022,7 @@ function GuildbookMixin:OnCommsMessage(sender, data)
         character:SetProfileBio(profile.bio)
     end
 
-    if self.guild.character.selectedCharacter and (self.guild.character.selectedCharacter:GetGuid() == character:GetGuid()) then
+    if self.guild.home.character.selectedCharacter and (self.guild.home.character.selectedCharacter:GetGuid() == character:GetGuid()) then
         self:InitCharacterEquipmentDropdown(character)
         self:InitCharacterTalentsDropdown(character)
         self:LoadGlyphs(character)
@@ -890,7 +1054,7 @@ function GuildbookMixin:OnShow()
 
             for k, character in self.selectedGuild:GetCharacters("name") do
 
-                self.guild.members.DataProvider:Insert(character)
+                self.guild.home.members.DataProvider:Insert(character)
             end
 
         end
@@ -916,7 +1080,7 @@ function GuildbookMixin:OnDatabaseInitialised()
             ViragDevTool:AddData(GUILDBOOK_GLOBAL, "GUILDBOOK_GLOBAL")
             ViragDevTool:AddData(GUILDBOOK_CONFIG, "GUILDBOOK_CONFIG")
             ViragDevTool:AddData(GUILDBOOK_PRIVACY, "GUILDBOOK_PRIVACY")
-            ViragDevTool:AddData(self.workOrders, "Guildbook work orders")
+            ViragDevTool:AddData(GUILDBOOK_GLOBAL.WorkOrders, "Guildbook work orders")
         --end
     end)
 
@@ -972,6 +1136,15 @@ function GuildbookMixin:OnDatabaseInitialised()
     if not GUILDBOOK_GLOBAL['MinimapButton'] then GUILDBOOK_GLOBAL['MinimapButton'] = {} end
     self.MinimapIcon:Register('Guildbook', self.MinimapButton, GUILDBOOK_GLOBAL['MinimapButton'])
 
+    --as this requires libs to load, set this on PEW
+    local showMinimapButton = Database:GetConfigSetting("showMinimapButton");
+    self.settings.scrollChild.showMinimapButton:SetChecked(showMinimapButton)
+    if showMinimapButton == true then
+        self.MinimapIcon:Show("Guildbook")
+    else
+        self.MinimapIcon:Hide("Guildbook")
+    end
+
 
     --update the settings panel
     self.settings.scrollChild.blockCommsDuringCombat:SetChecked(Database:GetConfigSetting("blockCommsDuringCombat"))
@@ -981,6 +1154,12 @@ function GuildbookMixin:OnDatabaseInitialised()
     self.settings.scrollChild.showTooltipMainSpec:SetChecked(Database:GetConfigSetting("showTooltipMainSpec"))
     self.settings.scrollChild.showTooltipCharacterProfile:SetChecked(Database:GetConfigSetting("showTooltipCharacterProfile"))
     self.settings.scrollChild.showTooltipTradeskills:SetChecked(Database:GetConfigSetting("showTooltipTradeskills"))
+
+
+    C_Timer.After(0.1, function()
+        self.guild.tradeskills.workOrders.DataProvider:Flush()
+        self.guild.tradeskills.workOrders.DataProvider:InsertTable(GUILDBOOK_GLOBAL.WorkOrders)
+    end)
 
 
 end
@@ -1039,7 +1218,9 @@ function GuildbookMixin:OnPlayerEnteringWorld()
 
     --set the specs for profile dropdown
     self.profile.primarySpecDropdown.menu = {}
+    self.profile.primarySpecDropdown.flyout:SetFlyoutBackgroundColour(Colours.StoneGold)
     self.profile.secondarySpecDropdown.menu = {}
+    self.profile.secondarySpecDropdown.flyout:SetFlyoutBackgroundColour(Colours.StoneGold)
     
     local function setSpec(spec, specID)
         for k, guild in ipairs(self.guilds) do
@@ -1085,33 +1266,6 @@ function GuildbookMixin:OnPlayerEnteringWorld()
     end
 
 
-    -- for tab = 2, GetNumSpellTabs() do
-    --     local name, texture, offset, numSlots, isGuild, offspecID = GetSpellTabInfo(tab)
-
-    --     table.insert(self.profile.primarySpecDropdown.menu, {
-    --         text = name,
-    --         func = function()
-    --             setSpec("primary", tab-1)
-    --         end,
-    --     })
-    --     table.insert(self.profile.secondarySpecDropdown.menu, {
-    --         text = name,
-    --         func = function()
-    --             setSpec("secondary", tab-1)
-    --         end,
-    --     })
-    -- end
-
-
-    --as this requires libs to load, set this on PEW
-    local showMinimapButton = Database:GetConfigSetting("showMinimapButton");
-    self.settings.scrollChild.showMinimapButton:SetChecked(showMinimapButton)
-    if showMinimapButton == true then
-        self.MinimapIcon:Show("Guildbook")
-    else
-        self.MinimapIcon:Hide("Guildbook")
-    end
-
 end
 
 
@@ -1129,38 +1283,39 @@ function GuildbookMixin:OnGuildChanged(guild)
     --self.selectedGuild:LoadCharactersFromSavedVars()
     self.selectedGuild:ScanGuildRoster()
     --self.title:SetText(self.selectedGuild:GetName())
-    self.guild.members.DataProvider:Flush()
+    self.guild.home.members.DataProvider:Flush()
     for k, character in self.selectedGuild:GetCharacters("name") do
-        self.guild.members.DataProvider:Insert(character)
+        self.guild.home.members.DataProvider:Insert(character)
     end
 
     self:OpenTo("guild")
 
     self.guildName:Show()
+    self.guildName.label:SetText(self.selectedGuild.data.name)
     self.guildTradeskills:Show()
 
-    for k, bar in ipairs(self.guild.guildHome.guildClassInfo.bars) do
+    for k, bar in ipairs(self.guild.home.info.classInfo.bars) do
         bar:SetValue(0)
     end
 
     --if this is our current guild then lets show some info
     if self.selectedGuild:IsCurrentGuild() then
         
-        self.guild.guildHome.guildMOTD:SetText(GetGuildRosterMOTD())
+        self.guild.home.info.guildMOTD:SetText(GetGuildRosterMOTD())
 
 
         local classCounts, total = self.selectedGuild:GetClassCounts()
         for k, info in ipairs(classCounts) do
-            local sb = self.guild.guildHome.guildClassInfo["bar"..k];
+            local sb = self.guild.home.info.classInfo["bar"..k];
             sb:SetStatusBarColor(Colours[info.class]:GetRGB())
             sb:SetValue(info.count/total)
 
             sb.icon:SetAtlas(string.format("GarrMission_ClassIcon-%s", info.class))
-            sb.text:SetText(string.format("%s [%s%%]", info.count, (info.count/total) * 100))
+            sb.text:SetText(string.format("%s [%s%%]", info.count, math.floor((info.count/total) * 100)))
         end
 
 
-        self.guild.guildHome.guildCalendarEventsListview.DataProvider:Flush()
+        self.guild.home.info.guildCalendarEventsListview.DataProvider:Flush()
         local t = {};
         for day = 1, 31 do
             local numDayEvents = C_Calendar.GetNumDayEvents(0, day)
@@ -1176,11 +1331,11 @@ function GuildbookMixin:OnGuildChanged(guild)
         table.sort(t, function(a, b)
             return C_DateAndTime.CompareCalendarTime(a.startTime, b.startTime) > 0;
         end)
-        self.guild.guildHome.guildCalendarEventsListview.DataProvider:InsertTable(t)
+        self.guild.home.info.guildCalendarEventsListview.DataProvider:InsertTable(t)
 
     else
 
-        self.guild.guildHome.guildMOTD:SetText(L["GUILD_HOME_NO_MOTD"])
+        self.guild.home.info.guildMOTD:SetText(L["GUILD_HOME_NO_MOTD"])
 
     end
 end
@@ -1213,9 +1368,9 @@ function GuildbookMixin:OnChatMessageGuild(...)
         local msg, sender, _, _, _, _, _, _, _, _, _, guid = ...;
         local character = self.selectedGuild.data.members[guid];
         if character then
-            self.guild.guildHome.activityFeed:AddMessage(string.format("|cffffffff[|r%s|cffffffff]|r %s", Colours[character:GetClass()]:WrapTextInColorCode(Ambiguate(sender, "none")), msg))
+            self.guild.home.info.activityFeed:AddMessage(string.format("|cffffffff[|r%s|cffffffff]|r %s", Colours[character:GetClass()]:WrapTextInColorCode(Ambiguate(sender, "none")), msg))
         else
-            self.guild.guildHome.activityFeed:AddMessage(Colours.Guild:WrapTextInColorCode(string.format("|cffffffff[|r%s|cffffffff]|r %s", Ambiguate(sender, "none"), msg)))
+            self.guild.home.info.activityFeed:AddMessage(Colours.Guild:WrapTextInColorCode(string.format("|cffffffff[|r%s|cffffffff]|r %s", Ambiguate(sender, "none"), msg)))
         end
     end
 end
@@ -1231,6 +1386,9 @@ function GuildbookMixin:TradeskillListviewItem_OnMouseDown(item)
     else
         recipeHeader = item.link
     end
+
+    self.guild.tradeskills.recipeLink:SetText(recipeHeader)
+    self.guild.tradeskills.recipeIcon:SetTexture(item.icon)
 
 
     if item.reagents then
@@ -1280,8 +1438,6 @@ function GuildbookMixin:TradeskillListviewItem_OnMouseDown(item)
         end
     end
 
-    self.guild.tradeskills.recipeCrafters.header:SetText(L["TRADESKILL_CRAFTERS_HEADER_S"]:format(recipeHeader))
-
     self.guild.tradeskills.recipeCrafters.DataProvider:Flush()
     if self.selectedGuild then
         local charactersWithRecipe = self.selectedGuild:FindCharactersWithRecipe(item)
@@ -1298,31 +1454,32 @@ end
 
 
 
-function GuildbookMixin:TradeskillListviewItem_OnAddToWorkOrder(order, character)
+function GuildbookMixin:TradeskillListviewItem_OnAddToWorkOrder(order, character, guild)
 
-    if not self.workOrders then
-        self.workOrders = {};
+    if not GUILDBOOK_GLOBAL.WorkOrders then
+        GUILDBOOK_GLOBAL.WorkOrders = {};
     end
 
     local item = order.item;
 
-    table.insert(self.workOrders, {
+    table.insert(GUILDBOOK_GLOBAL.WorkOrders, {
         name = item.name,
         tradeskill = item.tradeskill,
         link = item.link,
         itemID = item.itemID,
         reagents = item.reagents,
         character = character or false,
+        guild = guild,
         quantity = order.quantity or 1,
     })
 
-    --DevTools_Dump({self.workOrders})
+    --DevTools_Dump({GUILDBOOK_GLOBAL.WorkOrders})
 
     self.guild.tradeskills.workOrders.DataProvider:Flush()
     self.guild.tradeskills.workOrders.DataProvider:InsertTable({})
     C_Timer.After(0.1, function()
         self.guild.tradeskills.workOrders.DataProvider:Flush()
-        self.guild.tradeskills.workOrders.DataProvider:InsertTable(self.workOrders)
+        self.guild.tradeskills.workOrders.DataProvider:InsertTable(GUILDBOOK_GLOBAL.WorkOrders)
     end)
     -- self.guild.tradeskills.workOrders.DataProvider:Insert({
     --     name = item.name,
@@ -1354,12 +1511,12 @@ function GuildbookMixin:TradeskillListviewItem_RemoveFromWorkOrder(item)
     --although for duplicated items it'll find each and return the last, as they're duplicates its not much of an issue
     --will probs add another if check when i add character data which will make it a unique item
     local key = nil;
-    for k, _item in ipairs(self.workOrders) do
+    for k, _item in ipairs(GUILDBOOK_GLOBAL.WorkOrders) do
         if _item.itemID == item.itemID then
             if _item.character == false and item.character == false then
                 key = k; 
             else
-                if type(_item.character) == "table" and type(item.character) == "table" and (_item.character:GetGuid() == item.character:GetGuid()) and (_item.quantity == item.quantity) then
+                if type(_item.character) == "table" and type(item.character) == "table" and (_item.character.data.guid == item.character.data.guid) and (_item.quantity == item.quantity) then
                     key = k;
                 end
             end
@@ -1367,7 +1524,7 @@ function GuildbookMixin:TradeskillListviewItem_RemoveFromWorkOrder(item)
     end
 
     if key then
-        table.remove(self.workOrders, key)
+        table.remove(GUILDBOOK_GLOBAL.WorkOrders, key)
         addon.DEBUG("func", "TradeskillListviewItem_OnRemoveFromWorkOrder", string.format("removed %s from work order", item.name), item)
     end
 
@@ -1376,7 +1533,7 @@ function GuildbookMixin:TradeskillListviewItem_RemoveFromWorkOrder(item)
     --not the ideal solution
     C_Timer.After(0.01, function()
         self.guild.tradeskills.workOrders.DataProvider:Flush()
-        self.guild.tradeskills.workOrders.DataProvider:InsertTable(self.workOrders)
+        self.guild.tradeskills.workOrders.DataProvider:InsertTable(GUILDBOOK_GLOBAL.WorkOrders)
         self:UpdateWorkOrderReagents()
     end)
 end
@@ -1387,7 +1544,7 @@ function GuildbookMixin:UpdateWorkOrderReagents()
 
     local reagents = {};
     local numReagents = 0;
-    for k, item in ipairs(self.workOrders) do
+    for k, item in ipairs(GUILDBOOK_GLOBAL.WorkOrders) do
         local quantityOrdered = item.quantity or 1;
         if item.reagents then
             for i = 1, quantityOrdered do
@@ -1448,6 +1605,9 @@ end
 function GuildbookMixin:TradeskillCrafter_SendWorkOrder(character, amount)
     
     if self.guild.tradeskills.recipeCrafters.selectedItem then
+
+        local targetGuid = character:GetGuid()
+
         local msg = {
             type = "TRADESKILL_WORK_ORDER_ADD",
             payload = {
@@ -1455,9 +1615,7 @@ function GuildbookMixin:TradeskillCrafter_SendWorkOrder(character, amount)
                 quantity = amount,
             },
         }
-        local targetGuid = character:GetGuid()
         Comms:SendChatMessage(msg, "WHISPER", targetGuid, "NORMAL") --leave this as direct so the crafter is aware of request
-        --Comms:QueueMessage(msg.type, msg, "WHISPER", targetGuid, "NORMAL")
     end
 end
 
@@ -1535,7 +1693,7 @@ function GuildbookMixin:HandleTradeskillUpdate(guid, tradeskill, level, recipes)
             end
 
             --if the character has no tradeskills set then update
-            if character:GetTradeskill(1) == "-" then
+            if type(character:GetTradeskill(1)) ~= "number" then
                 character:SetTradeskill(1, tradeskill)
                 character:SetTradeskillLevel(1, level)
                 character:SetTradeskillRecipes(1, recipes)
@@ -1543,7 +1701,7 @@ function GuildbookMixin:HandleTradeskillUpdate(guid, tradeskill, level, recipes)
                 addon.DEBUG("func", "OnPlayerTradeskillRecipesScanned", string.format("prof 1 is NEW > set prof 1 as %s at level %s", tradeskill, level))
 
             else
-                if (character:GetTradeskill(1) ~= tradeskill) and character:GetTradeskill(2) == "-" then
+                if (character:GetTradeskill(1) ~= tradeskill) and type(character:GetTradeskill(2)) ~= "number" then
                     character:SetTradeskill(2, tradeskill)
                     character:SetTradeskillLevel(2, level)
                     character:SetTradeskillRecipes(2, recipes)
@@ -1617,43 +1775,43 @@ function GuildbookMixin:LoadTalents(character, spec)
     for tab = 1, 3 do
         for col = 1, 4 do
             for row = 1, 11 do
-                self.guild.character.scrollChild.talents.talentTree[tab][row][col]:Hide()
-                self.guild.character.scrollChild.talents.talentTree[tab][row][col].TalentIndex = nil;
+                self.guild.home.character.scrollChild.talents.talentTree[tab][row][col]:Hide()
+                self.guild.home.character.scrollChild.talents.talentTree[tab][row][col].TalentIndex = nil;
             end
         end
     end
 
     local talents = character:GetTalents(spec)
-    if #talents ~= 0 then
+    if type(talents) == "table" and #talents ~= 0 then
         for k, info in ipairs(talents) do
             --print(info.Name, info.Rank, info.MaxRank, info.Icon, info.Tab, info.Row, info.Col)
-            if self.guild.character.scrollChild.talents.talentTree[info.Tab] and self.guild.character.scrollChild.talents.talentTree[info.Tab][info.Row] then
-                self.guild.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col]:Show()
-                self.guild.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].Icon:SetTexture(info.Icon)
-                --self.guild.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].talentIndex = info.TalentIndex
-                self.guild.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].rank = info.Rank
-                self.guild.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].maxRank = info.MxRnk
-                self.guild.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].link = info.Link
-                --self.guild.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].Points:SetText(info.Rank) --string.format("%s / %s", info.Rank, info.MxRnk))
-                self.guild.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].Points:Show()
-                self.guild.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].pointsBackground:Show()
+            if self.guild.home.character.scrollChild.talents.talentTree[info.Tab] and self.guild.home.character.scrollChild.talents.talentTree[info.Tab][info.Row] then
+                self.guild.home.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col]:Show()
+                self.guild.home.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].Icon:SetTexture(info.Icon)
+                --self.guild.home.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].talentIndex = info.TalentIndex
+                self.guild.home.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].rank = info.Rank
+                self.guild.home.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].maxRank = info.MxRnk
+                self.guild.home.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].link = info.Link
+                --self.guild.home.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].Points:SetText(info.Rank) --string.format("%s / %s", info.Rank, info.MxRnk))
+                self.guild.home.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].Points:Show()
+                self.guild.home.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].pointsBackground:Show()
 
-                self.guild.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].TalentIndex = info.Index
+                self.guild.home.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].TalentIndex = info.Index
 
                 if info.Rank > 0 then
-                    self.guild.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].Icon:SetDesaturated(false)
+                    self.guild.home.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].Icon:SetDesaturated(false)
                     if info.Rank < info.MxRnk then
-                        self.guild.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].Points:SetText('|cff40BF40'..info.Rank)
-                        self.guild.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].border:SetAtlas("orderhalltalents-spellborder-green")
+                        self.guild.home.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].Points:SetText('|cff40BF40'..info.Rank)
+                        self.guild.home.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].border:SetAtlas("orderhalltalents-spellborder-green")
                     else
-                        self.guild.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].Points:SetText('|cffFFFF00'..info.Rank)
-                        self.guild.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].border:SetAtlas("orderhalltalents-spellborder-yellow")
+                        self.guild.home.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].Points:SetText('|cffFFFF00'..info.Rank)
+                        self.guild.home.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].border:SetAtlas("orderhalltalents-spellborder-yellow")
                     end
                 else
-                    self.guild.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].Icon:SetDesaturated(true)
-                    self.guild.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].border:SetAtlas("orderhalltalents-spellborder")
-                    self.guild.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].Points:Hide()
-                    self.guild.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].pointsBackground:Hide()
+                    self.guild.home.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].Icon:SetDesaturated(true)
+                    self.guild.home.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].border:SetAtlas("orderhalltalents-spellborder")
+                    self.guild.home.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].Points:Hide()
+                    self.guild.home.character.scrollChild.talents.talentTree[info.Tab][info.Row][info.Col].pointsBackground:Hide()
                 end
             else
 
@@ -1673,37 +1831,37 @@ function GuildbookMixin:LoadGlyphs(character)
 
         --using lua to create the glyph icons
         for i = 1, 3 do
-            if not self.guild.character.scrollChild.profileInfo[mainOff.."SpecMajorGlyph"..i.."Icon"] then
-                local f = CreateFrame("FRAME", nil, self.guild.character.scrollChild.profileInfo)
+            if not self.guild.home.character.scrollChild.profileInfo[mainOff.."SpecMajorGlyph"..i.."Icon"] then
+                local f = CreateFrame("FRAME", nil, self.guild.home.character.scrollChild.profileInfo)
                 f:SetSize(20, 20)
-                f:SetPoint(point1, self.guild.character.scrollChild.profileInfo[mainOff.."SpecMajorGlyph"..i], point2, ((k == 1) and -2 or 2), 0)
+                f:SetPoint(point1, self.guild.home.character.scrollChild.profileInfo[mainOff.."SpecMajorGlyph"..i], point2, ((k == 1) and -2 or 2), 0)
                 f.icon = f:CreateTexture()
                 f.icon:SetAllPoints()
                 f:SetScript("OnLeave", function()
                     GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
                 end)
-                self.guild.character.scrollChild.profileInfo[mainOff.."SpecMajorGlyph"..i.."Icon"] = f;
+                self.guild.home.character.scrollChild.profileInfo[mainOff.."SpecMajorGlyph"..i.."Icon"] = f;
             else
-                self.guild.character.scrollChild.profileInfo[mainOff.."SpecMajorGlyph"..i.."Icon"].icon:SetTexture()
+                self.guild.home.character.scrollChild.profileInfo[mainOff.."SpecMajorGlyph"..i.."Icon"].icon:SetTexture()
             end
 
-            if not self.guild.character.scrollChild.profileInfo[mainOff.."SpecMinorGlyph"..i.."Icon"] then
-                local f = CreateFrame("FRAME", nil, self.guild.character.scrollChild.profileInfo)
+            if not self.guild.home.character.scrollChild.profileInfo[mainOff.."SpecMinorGlyph"..i.."Icon"] then
+                local f = CreateFrame("FRAME", nil, self.guild.home.character.scrollChild.profileInfo)
                 f:SetSize(20, 20)
-                f:SetPoint(point1, self.guild.character.scrollChild.profileInfo[mainOff.."SpecMinorGlyph"..i], point2, ((k == 1) and -2 or 2), 0)
+                f:SetPoint(point1, self.guild.home.character.scrollChild.profileInfo[mainOff.."SpecMinorGlyph"..i], point2, ((k == 1) and -2 or 2), 0)
                 f.icon = f:CreateTexture()
                 f.icon:SetAllPoints()
                 f:SetScript("OnLeave", function()
                     GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
                 end)
-                self.guild.character.scrollChild.profileInfo[mainOff.."SpecMinorGlyph"..i.."Icon"] = f;
+                self.guild.home.character.scrollChild.profileInfo[mainOff.."SpecMinorGlyph"..i.."Icon"] = f;
             else
-                self.guild.character.scrollChild.profileInfo[mainOff.."SpecMinorGlyph"..i.."Icon"].icon:SetTexture()
+                self.guild.home.character.scrollChild.profileInfo[mainOff.."SpecMinorGlyph"..i.."Icon"].icon:SetTexture()
             end
 
 
-            self.guild.character.scrollChild.profileInfo[mainOff.."SpecMajorGlyph"..i]:SetText("-")
-            self.guild.character.scrollChild.profileInfo[mainOff.."SpecMinorGlyph"..i]:SetText("-")
+            self.guild.home.character.scrollChild.profileInfo[mainOff.."SpecMajorGlyph"..i]:SetText("-")
+            self.guild.home.character.scrollChild.profileInfo[mainOff.."SpecMinorGlyph"..i]:SetText("-")
         end
 
         --load the glyphs
@@ -1717,9 +1875,9 @@ function GuildbookMixin:LoadGlyphs(character)
                 local _major = major;
                 local item = Item:CreateFromItemID(glyph.itemID)
                 item:ContinueOnItemLoad(function()
-                    self.guild.character.scrollChild.profileInfo[mainOff.."SpecMajorGlyph".._major]:SetText(item:GetItemLink())
-                    self.guild.character.scrollChild.profileInfo[mainOff.."SpecMajorGlyph".._major.."Icon"].icon:SetTexture(item:GetItemIcon())
-                    self.guild.character.scrollChild.profileInfo[mainOff.."SpecMajorGlyph".._major.."Icon"]:SetScript("OnEnter", function(f)
+                    self.guild.home.character.scrollChild.profileInfo[mainOff.."SpecMajorGlyph".._major]:SetText(item:GetItemLink())
+                    self.guild.home.character.scrollChild.profileInfo[mainOff.."SpecMajorGlyph".._major.."Icon"].icon:SetTexture(item:GetItemIcon())
+                    self.guild.home.character.scrollChild.profileInfo[mainOff.."SpecMajorGlyph".._major.."Icon"]:SetScript("OnEnter", function(f)
                         GameTooltip:SetOwner(f, "ANCHOR_TOP")
                         GameTooltip:SetHyperlink(item:GetItemLink())
                     end)
@@ -1732,9 +1890,9 @@ function GuildbookMixin:LoadGlyphs(character)
                 local _minor = minor;
                 local item = Item:CreateFromItemID(glyph.itemID)
                 item:ContinueOnItemLoad(function()
-                    self.guild.character.scrollChild.profileInfo[mainOff.."SpecMinorGlyph".._minor]:SetText(item:GetItemLink())
-                    self.guild.character.scrollChild.profileInfo[mainOff.."SpecMinorGlyph".._minor.."Icon"].icon:SetTexture(item:GetItemIcon())
-                    self.guild.character.scrollChild.profileInfo[mainOff.."SpecMinorGlyph".._minor.."Icon"]:SetScript("OnEnter", function(f)
+                    self.guild.home.character.scrollChild.profileInfo[mainOff.."SpecMinorGlyph".._minor]:SetText(item:GetItemLink())
+                    self.guild.home.character.scrollChild.profileInfo[mainOff.."SpecMinorGlyph".._minor.."Icon"].icon:SetTexture(item:GetItemIcon())
+                    self.guild.home.character.scrollChild.profileInfo[mainOff.."SpecMinorGlyph".._minor.."Icon"]:SetScript("OnEnter", function(f)
                         GameTooltip:SetOwner(f, "ANCHOR_TOP")
                         GameTooltip:SetHyperlink(item:GetItemLink())
                     end)
@@ -1756,51 +1914,51 @@ function GuildbookMixin:RosterListviewItem_OnMouseDown(character)
 
     self:OpenTo("character")
 
-    self.guild.character.selectedCharacter = character;
+    self.guild.home.character.selectedCharacter = character;
 
     local class = character:GetClass()
 
-    self.guild.character.scrollChild.model:Undress()
+    self.guild.home.character.scrollChild.model:Undress()
 
-    self.guild.character.scrollChild.name:SetText(Colours[class]:WrapTextInColorCode(character:GetName()))
+    self.guild.home.character.scrollChild.name:SetText(Colours[class]:WrapTextInColorCode(character:GetName()))
     self.guild.background:SetAtlas(string.format("legionmission-complete-background-%s", class:lower()))
 
     --profile strings
-    self.guild.character.scrollChild.profileInfo.level:SetText(L["PROFILE_LEVEL_S"]:format(character:GetLevel()))
+    self.guild.home.character.scrollChild.profileInfo.level:SetText(L["PROFILE_LEVEL_S"]:format(character:GetLevel()))
 
-    self.guild.character.scrollChild.profileInfo.mainSpec:SetText(character:GetSpec("primary"))
-    self.guild.character.scrollChild.profileInfo.mainSpecIcon:SetAtlas(character:GetClassSpecAtlasName("primary"))
-    self.guild.character.scrollChild.profileInfo.mainSpecIsPvpTick:Hide()
-    self.guild.character.scrollChild.profileInfo.mainSpecIsPvpTick:SetShown(character:GetSpecIsPvp("primary"))
+    self.guild.home.character.scrollChild.profileInfo.mainSpec:SetText(character:GetSpec("primary"))
+    self.guild.home.character.scrollChild.profileInfo.mainSpecIcon:SetAtlas(character:GetClassSpecAtlasName("primary"))
+    self.guild.home.character.scrollChild.profileInfo.mainSpecIsPvpTick:Hide()
+    self.guild.home.character.scrollChild.profileInfo.mainSpecIsPvpTick:SetShown(character:GetSpecIsPvp("primary"))
 
-    self.guild.character.scrollChild.profileInfo.offSpec:SetText(character:GetSpec("secondary"))
-    self.guild.character.scrollChild.profileInfo.offSpecIcon:SetAtlas(character:GetClassSpecAtlasName("secondary"))
-    self.guild.character.scrollChild.profileInfo.offSpecIsPvpTick:Hide()
-    self.guild.character.scrollChild.profileInfo.offSpecIsPvpTick:SetShown(character:GetSpecIsPvp("secondary"))
+    self.guild.home.character.scrollChild.profileInfo.offSpec:SetText(character:GetSpec("secondary"))
+    self.guild.home.character.scrollChild.profileInfo.offSpecIcon:SetAtlas(character:GetClassSpecAtlasName("secondary"))
+    self.guild.home.character.scrollChild.profileInfo.offSpecIsPvpTick:Hide()
+    self.guild.home.character.scrollChild.profileInfo.offSpecIsPvpTick:SetShown(character:GetSpecIsPvp("secondary"))
 
-    self.guild.character.scrollChild.profileInfo.realName:SetText(character:GetProfileName() or "-")
-    self.guild.character.scrollChild.profileInfo.realBio:SetText(character:GetProfileBio() or "-")
+    self.guild.home.character.scrollChild.profileInfo.realName:SetText(character:GetProfileName() or "-")
+    self.guild.home.character.scrollChild.profileInfo.realBio:SetText(character:GetProfileBio() or "-")
 
     local prof1 = Tradeskills:GetLocaleNameFromID(character:GetTradeskill(1)) or "-"
     local atlas1 = prof1 ~= "-" and CreateAtlasMarkup("Mobile-"..prof1, 20, 20) or " "
     if character:GetTradeskill(1) == 202 then
         atlas1 = CreateAtlasMarkup("Mobile-Enginnering", 20, 20)
     end
-    self.guild.character.scrollChild.profileInfo.prof1:SetText(string.format("%s %s %s", atlas1, prof1, character:GetTradeskillLevel(1)))
+    self.guild.home.character.scrollChild.profileInfo.prof1:SetText(string.format("%s %s %s", atlas1, prof1, character:GetTradeskillLevel(1)))
     
     local prof2 = Tradeskills:GetLocaleNameFromID(character:GetTradeskill(2)) or "-"
-    local atlas2 = prof2 ~= "-" and CreateAtlasMarkup("Mobile-"..prof1, 20, 20) or " "
+    local atlas2 = prof2 ~= "-" and CreateAtlasMarkup("Mobile-"..prof2, 20, 20) or " "
     if character:GetTradeskill(2) == 202 then
         atlas2 = CreateAtlasMarkup("Mobile-Enginnering", 20, 20)
     end
-    self.guild.character.scrollChild.profileInfo.prof2:SetText(string.format("%s %s %s", atlas2, prof2, character:GetTradeskillLevel(2)))
+    self.guild.home.character.scrollChild.profileInfo.prof2:SetText(string.format("%s %s %s", atlas2, prof2, character:GetTradeskillLevel(2)))
     
-    self.guild.character.scrollChild.profileInfo.cooking:SetText(string.format("%s %s %s", CreateAtlasMarkup("Mobile-Cooking", 20, 20), Tradeskills:GetLocaleNameFromID(185), character:GetCookingLevel() or "-"))
-    self.guild.character.scrollChild.profileInfo.fishing:SetText(string.format("%s %s %s", CreateAtlasMarkup("Mobile-Fishing", 20, 20), Tradeskills:GetLocaleNameFromID(356), character:GetFishingLevel() or "-"))
-    self.guild.character.scrollChild.profileInfo.firstAid:SetText(string.format("%s %s %s", CreateAtlasMarkup("Mobile-FirstAid", 20, 20), Tradeskills:GetLocaleNameFromID(129), character:GetFirstAidLevel() or "-"))
+    self.guild.home.character.scrollChild.profileInfo.cooking:SetText(string.format("%s %s %s", CreateAtlasMarkup("Mobile-Cooking", 20, 20), Tradeskills:GetLocaleNameFromID(185), character:GetCookingLevel() or "-"))
+    self.guild.home.character.scrollChild.profileInfo.fishing:SetText(string.format("%s %s %s", CreateAtlasMarkup("Mobile-Fishing", 20, 20), Tradeskills:GetLocaleNameFromID(356), character:GetFishingLevel() or "-"))
+    self.guild.home.character.scrollChild.profileInfo.firstAid:SetText(string.format("%s %s %s", CreateAtlasMarkup("Mobile-FirstAid", 20, 20), Tradeskills:GetLocaleNameFromID(129), character:GetFirstAidLevel() or "-"))
     
 
-    for k, slot in ipairs(self.guild.character.scrollChild.equipSlots) do
+    for k, slot in ipairs(self.guild.home.character.scrollChild.equipSlots) do
         slot:ClearItem()
     end
     self:InitCharacterEquipmentDropdown(character)
@@ -1810,31 +1968,31 @@ function GuildbookMixin:RosterListviewItem_OnMouseDown(character)
     for tab = 1, 3 do
         for col = 1, 4 do
             for row = 1, 11 do
-                self.guild.character.scrollChild.talents.talentTree[tab][row][col]:Hide()
-                self.guild.character.scrollChild.talents.talentTree[tab][row][col].TalentIndex = nil;
+                self.guild.home.character.scrollChild.talents.talentTree[tab][row][col]:Hide()
+                self.guild.home.character.scrollChild.talents.talentTree[tab][row][col].TalentIndex = nil;
             end
         end
     end
-    self.guild.character.scrollChild.talents.tree1:SetTexture(nil)
-    self.guild.character.scrollChild.talents.tree1:SetAlpha(0.6)
-    self.guild.character.scrollChild.talents.tree2:SetTexture(nil)
-    self.guild.character.scrollChild.talents.tree2:SetAlpha(0.6)
-    self.guild.character.scrollChild.talents.tree3:SetTexture(nil)
-    self.guild.character.scrollChild.talents.tree3:SetAlpha(0.6)
+    self.guild.home.character.scrollChild.talents.tree1:SetTexture(nil)
+    self.guild.home.character.scrollChild.talents.tree1:SetAlpha(0.6)
+    self.guild.home.character.scrollChild.talents.tree2:SetTexture(nil)
+    self.guild.home.character.scrollChild.talents.tree2:SetAlpha(0.6)
+    self.guild.home.character.scrollChild.talents.tree3:SetTexture(nil)
+    self.guild.home.character.scrollChild.talents.tree3:SetAlpha(0.6)
 
     self:InitCharacterTalentsDropdown(character)
     self:LoadGlyphs(character)
 
-    self.guild.character.scrollChild.talentsDropdown.MenuText:SetText(L["PROFILE_TALENT_DROPDOWN_LABEL"])
+    self.guild.home.character.scrollChild.talentsDropdown.MenuText:SetText(L["CHAR_PROFILE_TALENT_DROPDOWN_LABEL"])
 
     local backgrounds = talentTabsToBackground[class]
-    self.guild.character.scrollChild.talents.tree1:SetTexture(string.format("interface/talentframe/%s-topleft.blp", backgrounds[1]))
-    --self.guild.character.scrollChild.talents.tree1:SetTexture(string.format("Interface/TalentFrame/%s%s-TopLeft", "Paladin", "Holy"))
-    self.guild.character.scrollChild.talents.tree1:SetAlpha(0.6)
-    self.guild.character.scrollChild.talents.tree2:SetTexture(string.format("interface/talentframe/%s-topleft.blp", backgrounds[2]))
-    self.guild.character.scrollChild.talents.tree2:SetAlpha(0.6)
-    self.guild.character.scrollChild.talents.tree3:SetTexture(string.format("interface/talentframe/%s-topleft.blp", backgrounds[3]))
-    self.guild.character.scrollChild.talents.tree3:SetAlpha(0.6)
+    self.guild.home.character.scrollChild.talents.tree1:SetTexture(string.format("interface/talentframe/%s-topleft.blp", backgrounds[1]))
+    --self.guild.home.character.scrollChild.talents.tree1:SetTexture(string.format("Interface/TalentFrame/%s%s-TopLeft", "Paladin", "Holy"))
+    self.guild.home.character.scrollChild.talents.tree1:SetAlpha(0.6)
+    self.guild.home.character.scrollChild.talents.tree2:SetTexture(string.format("interface/talentframe/%s-topleft.blp", backgrounds[2]))
+    self.guild.home.character.scrollChild.talents.tree2:SetAlpha(0.6)
+    self.guild.home.character.scrollChild.talents.tree3:SetTexture(string.format("interface/talentframe/%s-topleft.blp", backgrounds[3]))
+    self.guild.home.character.scrollChild.talents.tree3:SetAlpha(0.6)
 
 end
 
@@ -1842,38 +2000,40 @@ end
 function GuildbookMixin:InitCharacterTalentsDropdown(character)
     local talentMenu = {};
     table.insert(talentMenu, {
-        text = "Primary",
+        text = L["CHAR_PROFILE_TALENTS_DROPDOWN_SPEC1"],
         func = function()
             self:LoadTalents(character, "primary")
         end,
     })
     table.insert(talentMenu, {
-        text = "Secondary",
+        text = L["CHAR_PROFILE_TALENTS_DROPDOWN_SPEC2"],
         func = function()
             self:LoadTalents(character, "secondary")
         end,
     })
-    self.guild.character.scrollChild.talentsDropdown.menu = talentMenu;
+    self.guild.home.character.scrollChild.talentsDropdown.menu = talentMenu;
+    self.guild.home.character.scrollChild.talentsDropdown.flyout:SetFlyoutBackgroundColour(Colours.StoneGold)
 end
 
 
 function GuildbookMixin:InitCharacterEquipmentDropdown(character)
     local equipment = character:GetInventory()
-    self.guild.character.scrollChild.equipsetDropdown.MenuText:SetText(L["PROFILE_EQUIPMENT_DROPDOWN_LABEL"])
-    self.guild.character.scrollChild.equipsetDropdown.menu = {}
+    self.guild.home.character.scrollChild.equipsetDropdown.MenuText:SetText(L["CHAR_PROFILE_EQUIPMENT_DROPDOWN_LABEL"])
+    self.guild.home.character.scrollChild.equipsetDropdown.menu = {}
+    self.guild.home.character.scrollChild.equipsetDropdown.flyout:SetFlyoutBackgroundColour(Colours.StoneGold)
     for name, info in pairs(equipment) do
-        table.insert(self.guild.character.scrollChild.equipsetDropdown.menu, {
+        table.insert(self.guild.home.character.scrollChild.equipsetDropdown.menu, {
             text = name,
             func = function()
-                for k, slot in ipairs(self.guild.character.scrollChild.equipSlots) do
+                for k, slot in ipairs(self.guild.home.character.scrollChild.equipSlots) do
                     local itemID = equipment[name][k]
                     slot:ClearItem()
                     slot:SetItem(itemID)
 
-                    self.guild.character.scrollChild.model:TryOn(string.format("item:%d",itemID))
+                    self.guild.home.character.scrollChild.model:TryOn(string.format("item:%d",itemID))
 
 
-                    self.guild.character.scrollChild.stats.DataProvider:Flush()
+                    self.guild.home.character.scrollChild.stats.DataProvider:Flush()
                     local stats = character:GetPaperdollStats(name)
                     if type(stats) == "table" then
                         local t = {}
@@ -1883,7 +2043,7 @@ function GuildbookMixin:InitCharacterEquipmentDropdown(character)
                                 value = v,
                             })
                         end
-                        self.guild.character.scrollChild.stats.DataProvider:InsertTable(t)
+                        self.guild.home.character.scrollChild.stats.DataProvider:InsertTable(t)
                     end
                 end
             end,
