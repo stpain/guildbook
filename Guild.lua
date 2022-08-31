@@ -1,6 +1,4 @@
---[[
-    the Guild object will manage the guild members
-]]
+
 
 local name, addon = ...;
 
@@ -118,7 +116,7 @@ function Guild:ScanGuildRoster()
                         zone = zone,
                     });
 
-                    addon.DEBUG("func", "Guild:ScanGuildRoster", string.format("updated character object for %s", nameRealm), character:GetData())
+                    --addon.DEBUG("func", "Guild:ScanGuildRoster", string.format("updated character object for %s", nameRealm), character:GetData())
                     
                 --if this is a new character then create a new character object and set the basic data
                 else
@@ -137,7 +135,7 @@ function Guild:ScanGuildRoster()
 
                     self.data.members[guid] = character;
 
-                    addon.DEBUG("func", "Guild:ScanGuildRoster", string.format("added new character object for %s", nameRealm), character:GetData())
+                    --addon.DEBUG("func", "Guild:ScanGuildRoster", string.format("added new character object for %s", nameRealm), character:GetData())
                 end
 
                 --update the saved variables

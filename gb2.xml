@@ -1610,7 +1610,7 @@
                                 </Anchors>
                             </Button>
 
-                            <Button parentKey="debug" inherits="UIPanelButtonTemplate">
+                            <Button parentKey="debug" inherits="UIPanelButtonTemplate" text="Debug">
                                 <Size x="200" y="24"/>
                                 <Anchors>
                                     <Anchor point="BOTTOMLEFT" x="16" y="16"/>
@@ -1619,7 +1619,7 @@
 
 
 
-                            <Button parentKey="scanForLocaleData">
+                            <Button parentKey="scanForLocaleData" hidden="true">
                                 <Size x="200" y="24"/>
                                 <NormalTexture atlas="clickcastlist-buttonbackground"/>
                                 <PushedTexture/>

@@ -144,26 +144,26 @@ Guildbook.DebugEventSelected = nil;
 ---@param msg string the debug message to display
 function Guildbook.DEBUG(id, func, msg, data)
     
-    local ts = date("%T")
-    if Guildbook.DebugEventSelected == nil then
-        Guildbook.DebuggerWindow.listview.DataProvider:Insert({
-            debugType = id,
-            blockName = func,
-            timestamp = ts,
-            message = msg,
-            tooltipTable = data,
-        })
-    else
-        if Guildbook.DebugEventSelected == id then
-            Guildbook.DebuggerWindow.listview.DataProvider:Insert({
-                debugType = id,
-                blockName = func,
-                timestamp = ts,
-                message = msg,
-                tooltipTable = data,
-            })
-        end
-    end
+    -- local ts = date("%T")
+    -- if Guildbook.DebugEventSelected == nil then
+    --     Guildbook.DebuggerWindow.listview.DataProvider:Insert({
+    --         debugType = id,
+    --         blockName = func,
+    --         timestamp = ts,
+    --         message = msg,
+    --         tooltipTable = data,
+    --     })
+    -- else
+    --     if Guildbook.DebugEventSelected == id then
+    --         Guildbook.DebuggerWindow.listview.DataProvider:Insert({
+    --             debugType = id,
+    --             blockName = func,
+    --             timestamp = ts,
+    --             message = msg,
+    --             tooltipTable = data,
+    --         })
+    --     end
+    -- end
 end
 
 
@@ -177,6 +177,9 @@ Guildbook.DebuggerWindow:EnableMouse(true)
 Guildbook.DebuggerWindow:RegisterForDrag("LeftButton")
 Guildbook.DebuggerWindow:SetScript("OnDragStart", Guildbook.DebuggerWindow.StartMoving)
 Guildbook.DebuggerWindow:SetScript("OnDragStop", Guildbook.DebuggerWindow.StopMovingOrSizing)
+Guildbook.DebuggerWindow:SetScript("OnHide", function()
+
+end)
 -- _G['GuildbookDebugFrameClose']:SetScript('OnClick', function()
 
 -- end)
