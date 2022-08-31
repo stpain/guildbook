@@ -1303,6 +1303,183 @@ if locale == "deDE" then
     french | In order to avoid missing new things, I sorted the whole locale back to match the original one - Belrand
 ]]
 elseif locale == 'frFR' then
+--new strings
+
+L["WELCOME_MESSAGE"] = [[
+Welcome to Guildbook!
+
+To get started tap, click or whack that arrow like symbol up in the top left.
+
+That opens the menu which should have your guild(s) listed. If it doesn't then
+go to curse and complain ;)
+
+All being well you can select your guild and view the characters, tradeskills and general information.
+
+Some changes were made to the saved variables for Guildbook, all being well you shouldn't have any
+issues. If you do then please go to curseforge and complain.
+]]
+
+
+--guild home
+L["GUILD_HOME_LABEL"] = "Accueil"
+L["GUILD_TRADESKILLS_LABEL"] = "Métiers"
+L["GUILD_HOME_NO_MOTD"] = "Vous visualisez une guilde différente de vos personnages, certaines infos peuvent être obsolètes ou absentes."
+L["GUILD_HOME_MEMBERS_HELPTIP"] = "Les membres de la guilde sont affichés ici, vous pouvez cliquer sur un membre pour voir plus d'infos sur lui."
+L["GUILD_HOME_CALENDAR_HELPTIP"] = "Les événements de Calendrier sont affichés ici (ouvrir le calendrier au préalable peut être nécessaire)."
+L["GUILD_HOME_CLASS_INFO_HEADER"] = "Classes"
+
+
+--tradeskill ui
+L["TRADESKILL_SEARCH_HEADER"] = "Recherche"
+L["TRADESKILL_SEARCH_HELPTIP"] = "Les objets d'artisanat sont listé ici, voir l'onglet \"Aide\" pour les préfix de recherche.\n\nRechercher par métier ou cliquer sur le menu déroulant pour voir les catégories."
+L["TRADESKILL_CRAFTERS_HEADER"] = "Fabriquants:"
+L["TRADESKILL_CRAFTERS_HELPTIP"] = "Les membres de la guilde qui peuvent fabriquer l'objet seront montrés ici."
+L["TRADESKILL_RECIPE_INFO_HEADER"] = "Recette:"
+L["TRADESKILL_RECIPE_INFO_HELPTIP"] = "Si vous avez Auctionator installé, le coût des matériaux requis sera calculé et affiché."
+L["TRADESKILL_WORK_ORDER_HELPTIP"] = "Les commandes sont les requêtes d'objets à fabriquer.\n\nLes membres de la guilde peuvent vous envoyez des commandes pour des objets qu'ils voudraient fabriquer, vous pouvez aussi ajouter vous-même des objets pour une créer une liste de matériaux.\n\nUne fois que vous avez fabriqué le ou les objet(s), vous pouvez notifier le membre de la guilde que c'est prêt."
+
+L["TRADESKILL_WORK_ORDER_CLICK_CAST"] = "Cliquer pour fabriquer."
+L["TRADESKILL_WORK_ORDER_ADD_TOOLTIP"] = "Ajouter à vos propres commandes pour voir la liste des matériaux totaux requis."
+L["TRADESKILL_WORK_ORDER_SEND_TOOLTIP"] = "Envoyer une commande à ce personnage."
+
+--filter menu
+L["GEMS"]							= "Gems"
+L["HEAD"]							= "Head"
+L["SHOULDER"]						= "Shoulder"
+L["BACK"]							= "Back"
+L["CHEST"]							= "Chest"
+L["ROBE"]							= "Robes"
+L["WRIST"]							= "Wrist"
+L["HANDS"]							= "Hands"
+L["WAIST"]							= "Waist"
+L["LEGS"]							= "Legs"
+L["FEET"]							= "Feet"
+L["WEAPONS"]						= "Weapons"
+L["RANGED"]							= "Ranged"
+L["SHIELDS"]						= "Shields"
+L["FINGER"]							= "Rings"
+L["TRINKET"]						= "Trinkets"
+L["NECK"]							= "Necklace"
+
+
+--character profile ui
+L["CHAR_PROFILE_SHOW_STATS_TOOLTIP"] = "Afficher les stats"
+L["CHAR_PROFILE_SHOW_MODEL_TOOLTIP"] = "Afficher le modèle, (|cffFFD100pour l'instant s'affiche sur votre perso|r)"
+L["CHAR_PROFILE_EQUIPMENT_HEADER"] = "Equipement"
+L["CHAR_PROFILE_EQUIPMENT_DROPDOWN_LABEL"] = "Equipement"
+L["CHAR_PROFILE_EQUIPMENT_DROPDOWN_HELPTIP"] = "If this character has equipment sets and shares this information you can select the sets here."
+L["CHAR_PROFILE_TALENT_DROPDOWN_LABEL"] = "Spé."
+L["CHAR_PROFILE_TALENT_DROPDOWN_HELPTIP"] = "If this character shares their talents you choose between primary or secondary builds."
+L["CHAR_PROFILE_TALENTS_HEADER"] = "Talents"
+L["CHAR_PROFILE_TALENTS_DROPDOWN_SPEC1"] = "Primary"
+L["CHAR_PROFILE_TALENTS_DROPDOWN_SPEC2"] = "Secondary"
+
+
+--settings ui
+L["SETTINGS_HEADER"] = "Settings"
+L["SETTINGS_EXPORT_IMPORT_LABEL"] = "You can import or export guild data here.\n\n*Click export to generate a big (|cffFFD100really big|r) gathering of characters which can be shared on various chat platforms.\n\n*Paste a data string then click import if your guild does that sort of thing."
+L["SETTINGS_SHOW_MINIMAP_BUTTON_LABEL"] = "Show minimap button"
+L["SETTINGS_SHOW_MINIMAP_BUTTON_TOOLTIP"] = "Enable or disable the minimap button"
+
+L["SETTINGS_BLOCK_COMMS_COMBAT_LABEL"] = "Block data comms during combat"
+L["SETTINGS_BLOCK_COMMS_COMBAT_TOOLTIP"] = "Guildbook might send or receive data that could prevent or interupt other addons sending data. Although its a small possibility and the addon uses AceComm you can disable comms during combat."
+
+L["SETTINGS_BLOCK_COMMS_INSTANCE_LABEL"] = "Block data comms during an instance"
+L["SETTINGS_BLOCK_COMMS_INSTANCE_TOOLTIP"] = "Guildbook might send or receive data that could prevent or interupt other addons sending data. Although its a small possibility and the addon uses AceComm you can disable comms during an instance."
+
+L["SETTINGS_RESET_CHARACTER_LABEL"] = "Reset character data"
+L["SETTINGS_RESET_GUILD_LABEL"] = "Reset guild data"
+
+L["SETTINGS_IMPORT_GUILD_LABEL"] = "Importer"
+L["SETTINGS_EXPORT_GUILD_LABEL"] = "Exporter"
+
+
+--profile
+L["PROFILE_HEADER"] = "Profil"
+L["PROFILE_REAL_PROFILE_HELPTIP"] = "You can provide some information about yourself, real name or nick name and a short bio. This must follow Blizzards Terms of Service and be suitable for your guild members.\n\nOffensive profiles should be dealt with by guild officers otherwise they could be reported."
+L["PROFILE_REAL_NAME_LABEL"] = "Nom"
+L["PROFILE_REAL_BIO_LABEL"] = "Bio"
+
+L["PROFILE_LEVEL_S"] = "Niveau %s"
+L["PROFILE_SPECIALIZATIONS_HELPTIP"] = "You can set your primary/secondary specializations and mark them as a PvP spec if you feel fancy."
+
+
+
+
+--help 
+L["HELP_HEADER"] = "Aide"
+L["HELP_ABOUT"] = "Guildbook provides guilds and players with a way to share their characters gear, stats, talents, spec and professions."
+
+L["HELP_FAQ_Q0"] = "I just got the addon and its rubbish, doesnt show me anything!"
+L["HELP_FAQ_A0"] = "You should ask if a guild member can export their data for you. This can then be imported (in settings) and fingers crossed you wont leave bad reviews."
+
+L["HELP_FAQ_Q1"] = "Why doesn't my gear show up?"
+L["HELP_FAQ_A1"] = "Guildbook scans the default equipment manager to find gear sets, this currently returns itemIDs but not item links which means enchants and gems will be missing. A future update to Guildbook will attempt to get item links when gear sets are changed."
+
+L["HELP_FAQ_Q2"] = "Why doesn't it show my characters stats?"
+L["HELP_FAQ_A2"] = "Guildbook will scan your character stats whenever you change your equipment via the default equipment manager."
+
+L["HELP_FAQ_Q3"] = "Guild members dont know what profession items I can craft."
+L["HELP_FAQ_A3"] = "Guildbook scans your professions when you open the profession UI, if this is your first use you will need to open your professions to trigger this scan.."
+
+L["HELP_FAQ_Q4"] = "How do I set my characters spec?"
+L["HELP_FAQ_A4"] = "Previously Guildbook would guess your spec based on talent points spent in each tree. For now though its been left as a player choice which can be set in the Profile section."
+
+L["HELP_FAQ_Q5"] = "Why doesn't it show my talents and glyphs?"
+L["HELP_FAQ_A5"] = "Guildbook will scan your active spec when you login and then whenever you change your specialization."
+
+L["HELP_FAQ_Q6"] = "What the heck are work orders?"
+L["HELP_FAQ_A6"] = "Work orders allow you to request a craft item from a guild member. The request will be sent to the crafter who will see it in their work orders list."
+
+L["HELP_FAQ_Q7"] = "Why dont I just ask in guild chat for the item?"
+L["HELP_FAQ_A7"] = "You can totally still be social and ask but, you or the crafter might be busy, fighting mobs, running a dungeon, cooking, shopping or surfing the forums..."
+
+L["HELP_FAQ_Q8"] = ""
+L["HELP_FAQ_A8"] = ""
+
+
+	--class spec data
+	--mage/dk
+	L['Arcane']                         = 'Arcane'
+	L['Fire']                           = 'Feu'
+	L['Frost']                          = 'Givre'
+	L['Blood']                          = 'Sang'
+	L['Unholy']                         = 'Impie'
+	--druid/shaman
+	L['Restoration']                    = 'Restauration'
+	L['Enhancement']                    = 'Amélioration'
+	L['Elemental']                      = 'Elémentaire'
+	L["Warden"]			    = "Gardien"
+	L['Cat']                            = 'Chat'
+	L['Bear']                           = 'Ours'
+	L['Guardian']                       = 'Gardien'
+	L['Balance']                        = 'Equilibre'
+	L["Feral"]			    = "Farouche"
+	--rogue
+	L['Assassination']                  = 'Assassinat'
+	L['Combat']                         = 'Combat'
+	L['Subtlety']                       = 'Finesse'
+	--hunter
+	L['Marksmanship']                   = 'Précision'
+	L['Beast Master']                   = 'Maîtrise des Bêtes'
+	L['BeastMaster']                   	= 'Maîtrise des Bêtes' 
+	L['Survival']                       = 'Survie'
+	--warlock
+	L['Destruction']                    = 'Destruction'
+	L['Affliction']                     = 'Affliction'
+	L['Demonology']                     = 'Démonologie'
+	--warrior/paladin/priest
+	L['Fury']                           = 'Fureur'
+	L['Arms']                           = 'Armes'
+	L['Protection']                     = 'Protection'
+	L['Retribution']                    = 'Vindicte'
+	L['Holy']                           = 'Sacré'
+	L['Discipline']                     = 'Discipline'
+	L['Shadow']                         = 'Ombre'
+
+
+
+
 	L["UPDATE_NEWS"] = [[
 Quoi de neuf?
 
@@ -2981,7 +3158,7 @@ Guildbook.ProfessionNames = {
 	deDE = {
 		[164] = "Schmiedekunst",
 		[165] = "Lederverarbeitung",
-		[171] = "Alchimie",
+		[171] = "Alchemie",
 		[182] = "Kräuterkunde",
 		[185] = "Kochkunst",
 		[186] = "Bergbau",

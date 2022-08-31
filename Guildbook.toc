@@ -3,6 +3,7 @@
 ## Version: 5.11
 ## Title: Guildbook
 ## Notes: Guild addon for guild stuff!
+## Notes-deDE : Gilden-Addon für alles rund um die Gilde!
 ## Notes-frFR : Un addon pour les trucs de guilde !
 ## SavedVariables: GUILDBOOK_GLOBAL, GUILDBOOK_CONFIG, GUILDBOOK_PRIVACY
 ## SavedVariablesPerCharacter: GUILDBOOK_CHARACTER, craftData, glyphLocales, , tradeskillItemsSetIDs
