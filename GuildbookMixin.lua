@@ -981,9 +981,16 @@ function GuildbookMixin:OnCommsMessage(sender, data)
     end
 
     --lets just save hassle and only accept data from same
-    if addonVersion < 5 then
+    if type(addonVersion) == "number" and (addonVersion < 5) then
         self.statusText:SetText(string.format("%s needs to update their addon, data ignored...", character:GetName()))
         return;
+    end
+
+    if not addonVersion then
+        return
+    end
+    if type(addonVersion) ~= "number" then
+        return
     end
 
     self.statusText:SetText(string.format("%s from %s", commType, character:GetName()))
@@ -1075,14 +1082,14 @@ end
 --once the database object has set up and verified the saved variables add some data to VDT and create the guild objects, minimap button
 function GuildbookMixin:OnDatabaseInitialised()
 
-    C_Timer.After(10, function()
+    --C_Timer.After(10, function()
         -- VirageDevTool then
-            ViragDevTool:AddData(GUILDBOOK_GLOBAL, "GUILDBOOK_GLOBAL")
-            ViragDevTool:AddData(GUILDBOOK_CONFIG, "GUILDBOOK_CONFIG")
-            ViragDevTool:AddData(GUILDBOOK_PRIVACY, "GUILDBOOK_PRIVACY")
-            ViragDevTool:AddData(GUILDBOOK_GLOBAL.WorkOrders, "Guildbook work orders")
+            -- ViragDevTool:AddData(GUILDBOOK_GLOBAL, "GUILDBOOK_GLOBAL")
+            -- ViragDevTool:AddData(GUILDBOOK_CONFIG, "GUILDBOOK_CONFIG")
+            -- ViragDevTool:AddData(GUILDBOOK_PRIVACY, "GUILDBOOK_PRIVACY")
+            -- ViragDevTool:AddData(GUILDBOOK_GLOBAL.WorkOrders, "Guildbook work orders")
         --end
-    end)
+    --end)
 
     if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache then
         
@@ -1094,9 +1101,9 @@ function GuildbookMixin:OnDatabaseInitialised()
             local guild = Guild:NewGuild(name)
             guild:LoadCharactersFromSavedVars()
 
-            C_Timer.After(5, function()
-                ViragDevTool:AddData(guild, "Guildbook_Guild "..name)
-            end)
+            -- C_Timer.After(5, function()
+            --     ViragDevTool:AddData(guild, "Guildbook_Guild "..name)
+            -- end)
 
             table.insert(self.guilds, guild)
 
@@ -1196,9 +1203,9 @@ function GuildbookMixin:OnPlayerEnteringWorld()
                 guild:ScanGuildRoster() --this will add new players and also update saved vars
                 --guild:LoadCharactersFromSavedVars()
     
-                C_Timer.After(5, function()
-                    ViragDevTool:AddData(guild, "Guildbook_Guild "..guildName)
-                end)
+                -- C_Timer.After(5, function()
+                --     ViragDevTool:AddData(guild, "Guildbook_Guild "..guildName)
+                -- end)
     
                 table.insert(self.guilds, guild)
     
@@ -1257,8 +1264,8 @@ function GuildbookMixin:OnPlayerEnteringWorld()
 
 
             local profile = player:GetProfile()
-            self.profile.realNameInput:SetText(profile.name)
-            self.profile.realBioInput.EditBox:SetText(profile.bio)
+            self.profile.realNameInput:SetText(profile.name or "-")
+            self.profile.realBioInput.EditBox:SetText(profile.bio or "-")
 
             self.profile.primarySpecDropdown.MenuText:SetText(player:GetSpec("primary"))
             self.profile.secondarySpecDropdown.MenuText:SetText(player:GetSpec("secondary"))
