@@ -548,34 +548,7 @@ function GuildbookMixin:OnLoad()
             end
         end)
     end
-
-    local function filterByTradeskill(tradeskillID)
-        local t = {};
-
-        if tradeskillID == "none" then
-            self.guild.tradeskills.listview.DataProvider:Flush()
-
-            sortTradeskillResults(addon.tradeskillItems)
-
-            self.guild.tradeskills.listview.DataProvider:InsertTable(addon.tradeskillItems)
-
-        else
-
-            for k, item in ipairs(addon.tradeskillItems) do
-                if item.tradeskill == tradeskillID then
-                    table.insert(t, item)
-                end
-            end
-
-            self.guild.tradeskills.listview.DataProvider:Flush()
-
-            sortTradeskillResults(t)
-
-            self.guild.tradeskills.listview.DataProvider:InsertTable(t)
-        end
-
-    end
-
+    
     local function filterByClass(classID, subClassID)
 
         local t = {};
@@ -616,7 +589,7 @@ function GuildbookMixin:OnLoad()
                 slot = "hand"
 
             else
-                if item.equipLocation:lower():find(slot:lower()) then
+                if item.equipLocation and item.equipLocation:lower():find(slot:lower()) then
                     table.insert(t, item)
                 end
             end
@@ -625,6 +598,131 @@ function GuildbookMixin:OnLoad()
         self.guild.tradeskills.listview.DataProvider:Flush()
         sortTradeskillResults(t)
         self.guild.tradeskills.listview.DataProvider:InsertTable(t)
+    end
+
+    local function filterGlyphsbyClass(class)
+        local t = {}
+        for k, item in ipairs(addon.tradeskillItems) do
+            if item.tradeskill == 773 then
+                if item.glyphClass == class then
+                    table.insert(t, item)
+                end
+            end
+        end
+        self.guild.tradeskills.listview.DataProvider:Flush()
+        sortTradeskillResults(t)
+        self.guild.tradeskills.listview.DataProvider:InsertTable(t)    
+    end
+
+    local flyoutMenu = {}
+    for i = 1, 3 do
+        local subClassName = GetItemSubClassInfo(0, i)
+        table.insert(flyoutMenu, {
+            text = subClassName,
+            func = function()
+                filterByClass(0, i)
+            end,
+        })
+    end
+
+    table.insert(flyoutMenu, {
+        text = L["GEMS"],
+        func = function()
+            filterByClass(3)
+        end,
+    })
+
+    local slots = {
+        "HEAD",
+        "SHOULDER",
+        "CHEST",
+        "ROBE",
+        "BACK",
+        "WRIST",
+        "HANDS",
+        "WAIST",
+        "LEGS",
+        "FEET",
+        "FINGER",
+        "TRINKET",
+        "NECK",
+        "WEAPONS",
+        "RANGED",
+        "SHIELDS",
+        "HOLDABLE",
+    }
+    for k, slot in ipairs(slots) do
+        table.insert(flyoutMenu, {
+            text = L[slot],
+            func = function()
+                filterBySlot(slot)
+            end,
+        })
+    end
+
+    local glyphFlyoutmenu = {}
+    for i = 1, GetNumClasses() do
+        local className, classFile, classID = GetClassInfo(i)
+
+        if className then
+
+            table.insert(glyphFlyoutmenu, {
+                text = className,
+                func = function()
+                    filterGlyphsbyClass(classFile)
+                end,
+            })
+        end
+    end
+
+
+    self.guild.tradeskills.searchMenu.menu = flyoutMenu;
+    self.guild.tradeskills.searchMenu.flyout:SetFlyoutBackgroundColour(Colours.StoneGold)
+    self.guild.tradeskills.searchMenu:SetScript("OnClick", function()
+
+        local flyout = self.guild.tradeskills.searchMenu.flyout;
+        flyout:ClearAllPoints()
+        flyout:SetPoint("TOPRIGHT", -5, -26)
+        flyout.borderSize = 2;
+
+        flyout:SetShown(not flyout:IsVisible())
+
+    end)
+
+
+    local function filterByTradeskill(tradeskillID)
+
+        if tradeskillID == 773 then
+            self.guild.tradeskills.searchMenu.menu = glyphFlyoutmenu;
+        else
+            self.guild.tradeskills.searchMenu.menu = flyoutMenu;
+        end
+
+
+        local t = {};
+
+        if tradeskillID == "none" then
+            self.guild.tradeskills.listview.DataProvider:Flush()
+
+            sortTradeskillResults(addon.tradeskillItems)
+
+            self.guild.tradeskills.listview.DataProvider:InsertTable(addon.tradeskillItems)
+
+        else
+
+            for k, item in ipairs(addon.tradeskillItems) do
+                if item.tradeskill == tradeskillID then
+                    table.insert(t, item)
+                end
+            end
+
+            self.guild.tradeskills.listview.DataProvider:Flush()
+
+            sortTradeskillResults(t)
+
+            self.guild.tradeskills.listview.DataProvider:InsertTable(t)
+        end
+
     end
 
     for k, prof in ipairs(tradeskills) do
@@ -724,64 +822,6 @@ function GuildbookMixin:OnLoad()
             sortTradeskillResults(addon.tradeskillItems)
             self.guild.tradeskills.listview.DataProvider:InsertTable(addon.tradeskillItems)
         end
-    end)
-
-    local flyoutMenu = {}
-    for i = 1, 3 do
-        local subClassName = GetItemSubClassInfo(0, i)
-        table.insert(flyoutMenu, {
-            text = subClassName,
-            func = function()
-                filterByClass(0, i)
-            end,
-        })
-    end
-
-    table.insert(flyoutMenu, {
-        text = L["GEMS"],
-        func = function()
-            filterByClass(3)
-        end,
-    })
-
-    local slots = {
-        "HEAD",
-        "SHOULDER",
-        "CHEST",
-        "ROBE",
-        "BACK",
-        "WRIST",
-        "HANDS",
-        "WAIST",
-        "LEGS",
-        "FEET",
-        "FINGER",
-        "TRINKET",
-        "NECK",
-        "WEAPONS",
-        "RANGED",
-        "SHIELDS",
-    }
-    for k, slot in ipairs(slots) do
-        table.insert(flyoutMenu, {
-            text = L[slot],
-            func = function()
-                filterBySlot(slot)
-            end,
-        })
-    end
-
-    self.guild.tradeskills.searchMenu.menu = flyoutMenu;
-    self.guild.tradeskills.searchMenu.flyout:SetFlyoutBackgroundColour(Colours.StoneGold)
-    self.guild.tradeskills.searchMenu:SetScript("OnClick", function()
-
-        local flyout = self.guild.tradeskills.searchMenu.flyout;
-        flyout:ClearAllPoints()
-        flyout:SetPoint("TOPRIGHT", -5, -26)
-        flyout.borderSize = 2;
-
-        flyout:SetShown(not flyout:IsVisible())
-
     end)
 
 
@@ -1405,6 +1445,8 @@ end
 
 
 function GuildbookMixin:TradeskillListviewItem_OnMouseDown(item)
+
+
     
     self.guild.tradeskills.recipeCrafters.selectedItem = nil;
 

@@ -103,6 +103,7 @@ L["SHIELDS"]						= "Shields"
 L["FINGER"]							= "Rings"
 L["TRINKET"]						= "Trinkets"
 L["NECK"]							= "Necklace"
+L["HOLDABLE"]						= "Off hand"
 
 
 --character profile ui

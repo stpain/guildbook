@@ -858,12 +858,15 @@ function GuildbookDropdownFlyoutMixin:OnShow()
         borderSize = self.borderSize;
     end
 
+    self:SetHeight(1)
+
     -- the .menu needs to a table that mimics the blizz dropdown
     -- t = {
     --     text = buttonText,
     --     func = functionToRun,
     -- }
     local maxWidth = 1;
+    local buttonsUsed = 0;
     if self:GetParent().menu then
         if not self.buttons then
             self.buttons = {}
@@ -892,12 +895,12 @@ function GuildbookDropdownFlyoutMixin:OnShow()
             self.buttons[buttonIndex].func = info.func;
             self.buttons[buttonIndex]:Show()
 
-            buttonIndex = buttonIndex + 1
+            buttonsUsed = buttonsUsed + 1
         end
         for i = 1, #self.buttons do
             self.buttons[i]:SetWidth(maxWidth * 1.4)
         end
-        self:SetHeight((#self.buttons * 22) + (borderSize * 2))
+        self:SetHeight((buttonsUsed * 22) + (borderSize * 2))
     end
 
     self:SetWidth((maxWidth * 1.4) + (borderSize * 2))

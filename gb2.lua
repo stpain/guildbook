@@ -2513,8 +2513,6 @@ function addon:GetLocaleGlyphNames()
 end
 
 
-
-
 --this is to get locale names/links for crafted items
 function addon:GetLocaleTradeskillInfo()
 
