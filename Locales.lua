@@ -54,10 +54,12 @@ To get started tap, click or whack that arrow like symbol up in the top left.
 That opens the menu which should have your guild(s) listed. If it doesn't then
 go to curse and complain ;)
 
-All being well you can select your guild and view the characters, tradeskills and general information.
+5.2
+- added inscription data
+- added option to modify default roster
+- set minimap icon to show by default
+- fixed memory issues
 
-Some changes were made to the saved variables for Guildbook, all being well you shouldn't have any
-issues. If you do then please go to curseforge and complain.
 ]]
 
 
@@ -133,6 +135,9 @@ L["SETTINGS_RESET_GUILD_LABEL"] = "Reset guild data"
 
 L["SETTINGS_IMPORT_GUILD_LABEL"] = "Import"
 L["SETTINGS_EXPORT_GUILD_LABEL"] = "Export"
+
+L["SETTINGS_MOD_BLIZZ_ROSTER_LABEL"] = "Modify the default Blizzard guild roster UI"
+L["SETTINGS_MOD_BLIZZ_ROSTER_TOOLTIP"] = "Expand the default Guild UI to show more columns.\n\n|cffAA0935WARNING - will cause a UI reload when toggled off!"
 
 
 --profile

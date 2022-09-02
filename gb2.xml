@@ -1595,18 +1595,39 @@
                                 </Anchors>
                             </CheckButton>
 
+                            <CheckButton parentKey="modifyDefaultGuildRoster" inherits="ChatConfigCheckButtonTemplate" >
+                                <CheckedTexture atlas="orderhalltalents-done-checkmark"/>
+                                <Size x="24" y="24"/>
+                                <Layers>
+                                    <Layer>
+                                        <FontString parentKey="label" inherits="GameFontNormal" text="Modify the default guild UI">
+                                            <Color r="1" g="1" b="1" a="1"/>
+                                            <FontHeight val="12"/>
+                                            <Anchors>
+                                                <Anchor point="LEFT">
+                                                    <offset x="24" y="0"/>
+                                                </Anchor>
+                                            </Anchors>
+                                        </FontString>
+                                    </Layer>
+                                </Layers>                
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="16" y="-226"/>
+                                </Anchors>
+                            </CheckButton>
+
 
                             <Button parentKey="resetCharacter" inherits="UIPanelButtonTemplate">
                                 <Size x="200" y="24"/>
                                 <Anchors>
-                                    <Anchor point="TOPLEFT" x="16" y="-226"/>
+                                    <Anchor point="TOPLEFT" x="16" y="-286"/>
                                 </Anchors>
                             </Button>
 
                             <Button parentKey="resetGuild" inherits="UIPanelButtonTemplate">
                                 <Size x="200" y="24"/>
                                 <Anchors>
-                                    <Anchor point="TOPLEFT" x="16" y="-256"/>
+                                    <Anchor point="TOPLEFT" x="16" y="-316"/>
                                 </Anchors>
                             </Button>
 

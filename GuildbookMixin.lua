@@ -801,6 +801,9 @@ function GuildbookMixin:OnLoad()
     self.settings.scrollChild.resetCharacter:SetText(L["SETTINGS_RESET_CHARACTER_LABEL"])
     self.settings.scrollChild.resetGuild:SetText(L["SETTINGS_RESET_GUILD_LABEL"])
 
+    self.settings.scrollChild.modifyDefaultGuildRoster:SetText(L["SETTINGS_MOD_BLIZZ_ROSTER_LABEL"])
+    self.settings.scrollChild.modifyDefaultGuildRoster.tooltip = L["SETTINGS_MOD_BLIZZ_ROSTER_TOOLTIP"]
+
     self.settings.scrollChild.generateExportData:SetText(L["SETTINGS_EXPORT_GUILD_LABEL"])
     self.settings.scrollChild.importData:SetText(L["SETTINGS_IMPORT_GUILD_LABEL"])
 
@@ -837,6 +840,17 @@ function GuildbookMixin:OnLoad()
     end)
     self.settings.scrollChild.showTooltipTradeskills:SetScript("OnClick", function()
         Database:SetConfigSetting("showTooltipTradeskills", self.settings.scrollChild.showTooltipTradeskills:GetChecked())
+    end)
+    self.settings.scrollChild.modifyDefaultGuildRoster:SetScript("OnClick", function()
+
+        local checked = self.settings.scrollChild.modifyDefaultGuildRoster:GetChecked()
+        Database:SetConfigSetting("modifyDefaultGuildRoster", checked)
+
+        if checked then
+            addon:ModBlizzUI()
+        else
+            ReloadUI()
+        end
     end)
 
     self.settings.scrollChild.resetCharacter:SetScript("OnClick", function()
@@ -1161,6 +1175,13 @@ function GuildbookMixin:OnDatabaseInitialised()
     self.settings.scrollChild.showTooltipMainSpec:SetChecked(Database:GetConfigSetting("showTooltipMainSpec"))
     self.settings.scrollChild.showTooltipCharacterProfile:SetChecked(Database:GetConfigSetting("showTooltipCharacterProfile"))
     self.settings.scrollChild.showTooltipTradeskills:SetChecked(Database:GetConfigSetting("showTooltipTradeskills"))
+
+    local modBlizzGuildUI = Database:GetConfigSetting("modifyDefaultGuildRoster")
+    self.settings.scrollChild.modifyDefaultGuildRoster:SetChecked(modBlizzGuildUI)
+
+    if modBlizzGuildUI == true then
+        addon:ModBlizzUI()
+    end
 
 
     C_Timer.After(0.1, function()

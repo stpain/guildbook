@@ -242,3 +242,9 @@ Guildbook.DebuggerWindow.EventSelectionDropdown.menu = {
 Guildbook.DebuggerWindow.listview = CreateFrame("FRAME", nil, Guildbook.DebuggerWindow, "GuildbookDebuggerListviewTemplate")
 Guildbook.DebuggerWindow.listview:SetPoint("BOTTOMLEFT", 10, 10)
 Guildbook.DebuggerWindow.listview:SetPoint("TOPRIGHT", -10, -60)
+
+Guildbook.DebuggerWindow:Hide()
+
+
+
+

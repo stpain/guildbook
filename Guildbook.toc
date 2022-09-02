@@ -1,12 +1,12 @@
 ## Interface: 30400
 ## Author: Copperbolts (Theboringdad)
-## Version: 5.12
+## Version: 5.2
 ## Title: Guildbook
 ## Notes: Guild addon for guild stuff!
 ## Notes-deDE : Gilden-Addon für alles rund um die Gilde!
 ## Notes-frFR : Un addon pour les trucs de guilde !
 ## SavedVariables: GUILDBOOK_GLOBAL, GUILDBOOK_CONFIG, GUILDBOOK_PRIVACY
-## SavedVariablesPerCharacter: GUILDBOOK_CHARACTER, craftData, glyphLocales, , tradeskillItemsSetIDs
+## SavedVariablesPerCharacter: GUILDBOOK_CHARACTER, craftData, glyphLocales, tradeskillItemsSetIDs, glyphData
 ## Dependencies: Blizzard_TalentUI, Blizzard_TradeSkillUI, Blizzard_Calendar
 
 
@@ -30,6 +30,8 @@ Tradeskills.lua
 Templates.lua
 Templates.xml
 
+
+ModBlizzUI.lua
 
 Debugger.xml
 Debugger.lua

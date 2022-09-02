@@ -23,7 +23,7 @@ Database.keys = {
 		showTooltipTradeskills = false,
 
 		showInfoMessages = true,
-		showMinimapButton = false,
+		showMinimapButton = true,
 
         blockCommsDuringCombat = false,
 		blockCommsDuringInstance = false,

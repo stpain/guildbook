@@ -91,7 +91,7 @@ function Guild:ScanGuildRoster()
     if self:IsCurrentGuild() then
         local numTotalGuildMembers, numOnlineGuildMembers, numOnlineAndMobileMembers = GetNumGuildMembers()
         for i = 1, numTotalGuildMembers do
-            local nameRealm, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoins, achievementRank, isMobile, canSoR, repStanding, guid = GetGuildRosterInfo(i)
+            local nameRealm, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, guid = GetGuildRosterInfo(i)
             if guid and guid:find("Player-") then
 
                 local name = Ambiguate(nameRealm, "none")

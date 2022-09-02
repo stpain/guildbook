@@ -22,6 +22,7 @@ the copyright holders.
 
 local addonName, Guildbook = ...
 local L = Guildbook.Locales
+local Tradeskills = Guildbook.Tradeskills
 
 --set constants
 local FRIENDS_FRAME_WIDTH = FriendsFrame:GetWidth()
@@ -52,8 +53,15 @@ Guildbook.GuildFrame = {
     ColumnMarginX = 1.0,
 }
 
-
+local guildName;
 function Guildbook:ModBlizzUI()
+
+    if IsInGuild() and GetGuildInfo("player") then
+        guildName, _, _, _ = GetGuildInfo('player');
+
+    else
+        return;
+    end
 
     FRIENDS_FRAME_WIDTH = FriendsFrame:GetWidth()
     GUILD_FRAME_WIDTH = GuildFrame:GetWidth()
@@ -216,47 +224,42 @@ function Guildbook:ModBlizzUI()
         formatGuildFrameButton(button.GuildbookColumnOnline, {1,1,1,1})   
     end
 
-    for i = 1, 13 do
-        local button = _G['GuildFrameButton'..i]
-        button:HookScript("OnEnter", function(self)
-            local _, rankName, _, level, _, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, _, _, _, GUID = GetGuildRosterInfo(tonumber(button.guildIndex))
-            local character = Guildbook:GetCharacterFromCache(GUID)
-            if type(character) == "table" then
-                local name = string.format("%s%s", Guildbook.Data.Class[class].FontColour, character.Name)
-                if character.MainCharacter then
-                    local main = Guildbook:GetCharacterFromCache(character.MainCharacter)
-                    if type(main) == "table" then
-                        name = string.format("%s [%s]", name, Guildbook.Colours[main.Class]:WrapTextInColorCode(main.Name))
-                    end
-                end
-                GameTooltip:SetOwner(self, 'ANCHOR_CURSOR', 0, 5)
-                GameTooltip:AddLine(name, 1,1,1,1)
-                GameTooltip:AddLine(" ")
-                GameTooltip:AddDoubleLine(character.Profession1, character.Profession1Level, 1,1,1,1,1,1)
-                GameTooltip:AddDoubleLine(character.Profession2, character.Profession2Level, 1,1,1,1,1,1)
-                GameTooltip:AddLine(" ")
-                GameTooltip:AddLine(Guildbook.Colours.BlizzBlue:WrapTextInColorCode(L["BLIZZ_GUILD_CLICK_TS"]))
-                GameTooltip:Show()
-            end
-        end)
+
+    --this will need more work to migrate to new api
+
+    -- for i = 1, 13 do
+    --     local button = _G['GuildFrameButton'..i]
+    --     button:HookScript("OnEnter", function(self)
+    --         local _name, rankName, _, level, _, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, _, _, _, GUID = GetGuildRosterInfo(tonumber(button.guildIndex))
+            
+    --         --slight hack for now, just dive into the db tables
+    --         if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[guildName] then
+    --             local character = GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]
+            
+    --             if type(character) == "table" then
+    --                 local name = Guildbook.Colours[class]:WrapTextInColorCode(Ambiguate(_name, "none"))
+    --                 -- if character.MainCharacter then
+    --                 --     local main = Guildbook:GetCharacterFromCache(character.MainCharacter)
+    --                 --     if type(main) == "table" then
+    --                 --         name = string.format("%s [%s]", name, Guildbook.Colours[main.Class]:WrapTextInColorCode(main.Name))
+    --                 --     end
+    --                 -- end
+    --                 GameTooltip:SetOwner(self, 'ANCHOR_CURSOR', 0, 5)
+    --                 GameTooltip:AddLine(name, 1,1,1,1)
+    --                 GameTooltip:AddLine(" ")
+    --                 GameTooltip:AddDoubleLine(character.Profession1, character.Profession1Level, 1,1,1,1,1,1)
+    --                 GameTooltip:AddDoubleLine(character.Profession2, character.Profession2Level, 1,1,1,1,1,1)
+    --                 GameTooltip:Show()
+    --             end
+    --         end
+    --     end)
 
 
-        --btw this technique could be used for other bits maybe?
-        button:HookScript("OnMouseDown", function(self)
-            local _, rankName, _, level, _, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, _, _, _, GUID = GetGuildRosterInfo(tonumber(button.guildIndex))
-            local character = Guildbook:GetCharacterFromCache(GUID)
-            if type(character) == "table" then
-                if button.GuildbookColumnProfession1:IsMouseOver() and character.Profession1 ~= "-" then
-                    GuildbookUI:OpenTo("tradeskills")
-                    Guildbook.Tradeskills:LoadGuildMemberTradeskills(character.Profession1, character)
-                end
-                if button.GuildbookColumnProfession2:IsMouseOver() and character.Profession2 ~= "-" then
-                    GuildbookUI:OpenTo("tradeskills")
-                    Guildbook.Tradeskills:LoadGuildMemberTradeskills(character.Profession2, character)
-                end
-            end
-        end)
-    end
+    --     --btw this technique could be used for other bits maybe?
+    --     -- button:HookScript("OnMouseDown", function(self)
+    --     --     local _, rankName, _, level, _, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, _, _, _, GUID = GetGuildRosterInfo(tonumber(button.guildIndex))
+    --     -- end)
+    -- end
     
     hooksecurefunc("GuildStatus_Update", function()
         local numTotal, numOnline, numOnlineAndMobile = GetNumGuildMembers()
@@ -320,7 +323,7 @@ function Guildbook:ModBlizzUI()
                 end                
                 --change class text colour
                 if class and classDisplayName then
-                    _G['GuildFrameButton'..i..'Class']:SetText(string.format('%s%s|r', self.Data.Class[class].FontColour, classDisplayName))
+                    _G['GuildFrameButton'..i..'Class']:SetText(Guildbook.Colours[class]:WrapTextInColorCode(classDisplayName))
                 end
                 -- set known columns
                 button.GuildbookColumnRank:SetText(rankName)    
@@ -332,15 +335,19 @@ function Guildbook:ModBlizzUI()
                 button.GuildbookColumnProfession1:SetText('-')
                 button.GuildbookColumnProfession2:SetText('-')
 
-                local character = Guildbook:GetCharacterFromCache(GUID)
-                if type(character) == "table" then
-                    button.GuildbookColumnMainSpec:SetText(L[character.MainSpec])
-                    button.GuildbookColumnProfession1:SetText(Guildbook:GetLocaleProf(character.Profession1))
-                    button.GuildbookColumnProfession2:SetText(Guildbook:GetLocaleProf(character.Profession2))
-                else
-                    button.GuildbookColumnMainSpec:SetText('-')
-                    button.GuildbookColumnProfession1:SetText('-')
-                    button.GuildbookColumnProfession2:SetText('-')   
+
+                --slight hack for now, just dive into the db tables
+                if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[guildName] then
+                    local character = GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]
+                    if type(character) == "table" then
+                        button.GuildbookColumnMainSpec:SetText(L[character.MainSpec])
+                        button.GuildbookColumnProfession1:SetText(Tradeskills:GetLocaleNameFromID(character.Profession1))
+                        button.GuildbookColumnProfession2:SetText(Tradeskills:GetLocaleNameFromID(character.Profession2))
+                    else
+                        button.GuildbookColumnMainSpec:SetText('-')
+                        button.GuildbookColumnProfession1:SetText('-')
+                        button.GuildbookColumnProfession2:SetText('-')   
+                    end
                 end
 
                 if (GuildFrameLFGButton:GetChecked() == false) and(i > numOnline) then
