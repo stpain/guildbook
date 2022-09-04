@@ -150,7 +150,9 @@ L["PROFILE_REAL_BIO_LABEL"] = "Bio"
 L["PROFILE_LEVEL_S"] = "Level %s"
 L["PROFILE_SPECIALIZATIONS_HELPTIP"] = "You can set your primary/secondary specializations and mark them as a PvP spec if you feel fancy."
 
-
+L["PROFILE_ALT_MANAGER_LABEL"] = "Alt manager"
+L["PROFILE_ALT_MANAGER_LABEL_RIGHT"] = "Main"
+L["PROFILE_ALTS_HELPTIP"] = "Here you can view your characters and set which is your main character.\n\nYou can set 1 main per guild."
 
 
 --help 

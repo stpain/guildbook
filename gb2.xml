@@ -324,7 +324,7 @@
                                                             </Anchors>
                                                         </FontString>
         
-                                                        <FontString parentKey="realBio" inherits="GameFontNormal" justifyV="TOP" text="Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec qu.">
+                                                        <FontString parentKey="realBio" inherits="GameFontNormal" justifyV="TOP" >
                                                             <Size x="260" y="90"/>
                                                             <Color r="1" g="1" b="1"/>
                                                             <Anchors>
@@ -521,7 +521,7 @@
                                                         <FontString parentKey="equipmentHeader" inherits="GameFontNormalLarge" text="Equipment">
                                                             <Color r="1" g="1" b="1"/>
                                                             <Anchors>
-                                                                <Anchor point="TOP" relativeKey="$parent.firstAid" relativePoint="BOTTOM" x="0" y="-20"/>
+                                                                <Anchor point="BOTTOM" x="0" y="0"/>
                                                             </Anchors>
                                                         </FontString>
         
@@ -530,22 +530,29 @@
                                                     <Layer level="BACKGROUND">
                                                         <Line thickness="8" atlas="communities-chat-date-line">
                                                             <!-- <Color r="1" g="1" b="1"/> communities-chat-date-line -->
-                                                            <StartAnchor point="BOTTOM" x="60" y="-44"/>
-                                                            <EndAnchor point="BOTTOMRIGHT" y="-44"/>
+                                                            <StartAnchor point="BOTTOM" x="60" y="6"/>
+                                                            <EndAnchor point="BOTTOMRIGHT" y="6"/>
                                                         </Line>
                                                         <Line thickness="8" atlas="communities-chat-date-line">
                                                             <!-- <Color r="1" g="1" b="1"/> communities-chat-date-line -->
-                                                            <StartAnchor point="BOTTOM" x="-60" y="-44"/>
-                                                            <EndAnchor point="BOTTOMLEFT" y="-44"/>
+                                                            <StartAnchor point="BOTTOM" x="-60" y="6"/>
+                                                            <EndAnchor point="BOTTOMLEFT" y="6"/>
                                                         </Line>
                                                     </Layer>
                                                 </Layers>
+                                            </Frame>
+
+                                            <Frame parentKey="altContainer">
+                                                <Size y="70"/>
+                                                <Anchors>
+                                                    <Anchor point="BOTTOM" relativeKey="$parent.profileInfo" relativePoint="BOTTOM"  x="0" y="60"/>
+                                                </Anchors>
                                             </Frame>
         
                                             <Frame parentKey="equipsetDropdown" inherits="GuildbookDropdown">
                                                 <Size x="100" y="24"/>
                                                 <Anchors>
-                                                    <Anchor point="TOP" relativeKey="$parent.profileInfo" relativePoint="BOTTOM"  x="0" y="-55"/>
+                                                    <Anchor point="TOP" relativeKey="$parent.profileInfo" relativePoint="BOTTOM"  x="0" y="-5"/>
                                                 </Anchors>
                                             </Frame>
         
@@ -1710,7 +1717,7 @@
                     </EditBox>
 
                     <ScrollFrame parentKey="realBioInput" parentArray="displayEdit" inherits="InputScrollFrameTemplate">
-                        <Size x="240" y="70"/>
+                        <Size x="260" y="70"/>
                         <KeyValue key="hideCharCount" value="false" type="boolean"/>
                         <Anchors>
                             <Anchor point="TOPLEFT" x="32" y="-108"/>
@@ -1726,6 +1733,43 @@
                             </Layer>
                         </Layers>
                     </ScrollFrame>
+
+                    <Frame parentKey="altManager" inherits="InsetFrameTemplate3,GuildbookListviewTemplate">
+                        <Size x="270" y="220"/>
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT" x="28" y="32"/>
+                        </Anchors>
+                        <KeyValues>
+                            <KeyValue key="frameType" value="FRAME" type="string"/>
+                            <KeyValue key="itemTemplate" value="GuildbookAltManagerListviewItemtemplate" type="string"/>
+                            <KeyValue key="elementHeight" value="24" type="number"/>
+                            <KeyValue key="isSelectable" value="true" type="boolean"/>
+                            <KeyValue key="scrollToEnd" value="false" type="boolean"/>
+                        </KeyValues>
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <FontString parentKey="label" inherits="GameFontNormal" text="Alt manager">
+                                    <Color r="1" g="1" b="1"/>
+                                    <Anchors>
+                                        <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="8" y="2"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="labelRight" inherits="GameFontNormal" text="Main">
+                                    <Color r="1" g="1" b="1"/>
+                                    <Anchors>
+                                        <Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT" x="-8" y="2"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                    </Frame>
+
+                    <Frame parentKey="altsHelptip" parentArray="helptips" hidden="true" inherits="GuildbookHelpTipTemplate_TopArrow">
+                        <Size x="185" y="70"/>
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT" x="-30" y="-40"/>
+                        </Anchors>
+                    </Frame>
 
                     <Frame parentKey="realProfileHelptip" parentArray="helptips" hidden="true" inherits="GuildbookHelpTipTemplate_BottomArrow">
                         <Size x="240" y="110"/>

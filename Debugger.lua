@@ -48,51 +48,33 @@ function GuildbookDebuggerListviewItemTemplateMixin:Init(elementData)
     self.timestamp:SetText(elementData.timestamp)
     self.blockName:SetText(string.format("[%s]", elementData.blockName))
     self.message:SetText(elementData.message)
-    -- self:SetScript("OnEnter", function()
-    --     GameTooltip:SetOwner(self, 'ANCHOR_LEFT', -20, 0)
-    --     if elementData.tooltipTable and type(elementData.tooltipTable) == "table" then
-    --         for k, v in pairs(elementData.tooltipTable) do
-    --             if type(v) ~= "table" then
-    --                 GameTooltip:AddDoubleLine("> "..k, v)
-    --             else
-    --                 for a, b in pairs(v) do
-    --                     GameTooltip:AddDoubleLine("> "..a, b)
-    --                     if type(b) == "table" then
-    --                         for c, d in pairs(b) do
-    --                             if d then
-    --                                 GameTooltip:AddDoubleLine(">> "..c, d)
-    --                             end                            end
-    --                         for c, d in ipairs(b) do
-    --                             if d then
-    --                                 --GameTooltip:AddDoubleLine(">> "..c, d)
-    --                             end  
-    --                         end
-    --                     end
-    --                 end
-    --                 -- for a, b in ipairs(v) do
-    --                 --     GameTooltip:AddDoubleLine("> "..a, b)
-    --                 --     if type(b) == "table" then
-    --                 --         for c, d in pairs(b) do
-    --                 --             if d then
-    --                 --                 GameTooltip:AddDoubleLine(">> "..c, d)
-    --                 --             end                            end
-    --                 --         for c, d in ipairs(b) do
-    --                 --             if d then
-    --                 --                 GameTooltip:AddDoubleLine(">> "..c, d)
-    --                 --             end                           
-    --                 --         end
-    --                 --     end
-    --                 -- end
-    --             end
-    --         end
-    --     else
-    --         GameTooltip:AddDoubleLine("-", elementData.tooltipTable)
-    --     end
-    --     GameTooltip:Show()
-    -- end)
-    -- self:SetScript("OnLeave", function()
-    --     GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-    -- end)
+    self:SetScript("OnEnter", function()
+        local maxLines = 10;
+        local lineCount = 0;
+        GameTooltip:SetOwner(self, 'ANCHOR_LEFT', -20, 0)
+        if elementData.tooltipTable and type(elementData.tooltipTable) == "table" then
+            for k, v in pairs(elementData.tooltipTable) do
+                if lineCount >= maxLines then
+                    return;
+                end
+                if type(v) ~= "table" then
+                    GameTooltip:AddDoubleLine("> "..k, v)
+                    lineCount = lineCount + 1;
+                else
+                    for a, b in pairs(v) do
+                        GameTooltip:AddDoubleLine("->"..a, b)
+                        lineCount = lineCount + 1;
+                    end
+                end
+            end
+        else
+            GameTooltip:AddDoubleLine("-", elementData.tooltipTable)
+        end
+        GameTooltip:Show()
+    end)
+    self:SetScript("OnLeave", function()
+        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+    end)
 end
 
 
@@ -144,26 +126,26 @@ Guildbook.DebugEventSelected = nil;
 ---@param msg string the debug message to display
 function Guildbook.DEBUG(id, func, msg, data)
     
-    -- local ts = date("%T")
-    -- if Guildbook.DebugEventSelected == nil then
-    --     Guildbook.DebuggerWindow.listview.DataProvider:Insert({
-    --         debugType = id,
-    --         blockName = func,
-    --         timestamp = ts,
-    --         message = msg,
-    --         tooltipTable = data,
-    --     })
-    -- else
-    --     if Guildbook.DebugEventSelected == id then
-    --         Guildbook.DebuggerWindow.listview.DataProvider:Insert({
-    --             debugType = id,
-    --             blockName = func,
-    --             timestamp = ts,
-    --             message = msg,
-    --             tooltipTable = data,
-    --         })
-    --     end
-    -- end
+    local ts = date("%T")
+    if Guildbook.DebugEventSelected == nil then
+        Guildbook.DebuggerWindow.listview.DataProvider:Insert({
+            debugType = id,
+            blockName = func,
+            timestamp = ts,
+            message = msg,
+            tooltipTable = data,
+        })
+    else
+        if Guildbook.DebugEventSelected == id then
+            Guildbook.DebuggerWindow.listview.DataProvider:Insert({
+                debugType = id,
+                blockName = func,
+                timestamp = ts,
+                message = msg,
+                tooltipTable = data,
+            })
+        end
+    end
 end
 
 

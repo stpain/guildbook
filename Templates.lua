@@ -124,17 +124,18 @@ function GuildbookTradeskillListviewItemTemplateMixin:SetDataBinding(binding, he
 
     self.item = binding;
     self:SetHeight(height)
-    if self.item.tradeskill == 333 then
-        if gb.tradeskillLocaleData[LOCALE] then
-            self.link:SetText(gb.tradeskillLocaleData[LOCALE][binding.itemID].name)
+    if gb.tradeskillLocaleData[LOCALE] and gb.tradeskillLocaleData[LOCALE][binding.itemID] then
+        local item = gb.tradeskillLocaleData[LOCALE][binding.itemID];
+        if self.item.tradeskill == 333 then
+            self.link:SetText(item.name)
         else
-            self.link:SetText(binding.name)
+            self.link:SetText(item.link)
         end
     else
-        if gb.tradeskillLocaleData[LOCALE] then
-            self.link:SetText(gb.tradeskillLocaleData[LOCALE][binding.itemID].link)
+        if self.item.tradeskill == 333 then
+            self.link:SetText(self.item.name)
         else
-            self.link:SetText(binding.link)
+            self.link:SetText(self.item.link)
         end
     end
 
@@ -281,14 +282,19 @@ end
 GuildbookTradeskillCrafterItemTemplateMixin = {}
 function GuildbookTradeskillCrafterItemTemplateMixin:SetDataBinding(binding, height)
 
-    self.character = binding;
     self:SetHeight(height)
 
-    self.name:SetText(Colours[self.character:GetClass():upper()]:WrapTextInColorCode(self.character:GetName()))
+    self.name:SetText(Colours[binding.character:GetClass():upper()]:WrapTextInColorCode(binding.character:GetName()))
+
+    self:SetScript("OnEnter", function()
+        GameTooltip:SetOwner(self, "ANCHOR_TOP")
+        GameTooltip:AddLine(binding.guild)
+        GameTooltip:Show()
+    end)
 
     self.sendWorkOrder:SetSize(height-1, height-1)
     self.sendWorkOrder:SetScript("OnMouseDown", function()
-        gb:TriggerEvent("TradeskillCrafter_SendWorkOrder", binding, self.workOrderQuantity)
+        gb:TriggerEvent("TradeskillCrafter_SendWorkOrder", binding.character, self.workOrderQuantity)
     end)
 
     self.workOrderQuantity = 1;
@@ -308,10 +314,6 @@ function GuildbookTradeskillCrafterItemTemplateMixin:SetDataBinding(binding, hei
 end
 
 function GuildbookTradeskillCrafterItemTemplateMixin:OnMouseDown()
-
-end
-
-function GuildbookTradeskillCrafterItemTemplateMixin:OnEnter()
 
 end
 
@@ -685,7 +687,7 @@ end
 
 --- custom dropdown widget supporting a single menu layer
 GuildbookDropDownFrameMixin = {}
-local DROPDOWN_CLOSE_DELAY = 2.0
+local DROPDOWN_CLOSE_DELAY = 3.0
 
 
 -- this is the dropdown button mixin, all that needs to happen is set the text and call any func if passed
@@ -832,6 +834,12 @@ function GuildbookDropdownFlyoutMixin:SetFlyoutBackgroundColour(colour)
     end
 end
 
+function GuildbookDropdownFlyoutMixin:OnHide()
+    if self.delay then
+        self.delay:Cancel()
+    end
+end
+
 function GuildbookDropdownFlyoutMixin:OnShow()
 
     if gb.dropdownFlyouts then
@@ -911,23 +919,17 @@ end
 
 GuildbookProfileSummaryRowAvatarTemplateMixin = {}
 
-function GuildbookProfileSummaryRowAvatarTemplateMixin:SetCharacter(guid)
-    if not guid then
-        return
-    end
-    self.character = gb:GetCharacterFromCache(guid)
-    if not self.character then
-        return
-    end
-    self.guid = guid;
-    if self.character.profile and self.character.profile.avatar then
-        self.avatar:SetTexture(self.character.profile.avatar)
-    else
-        self.avatar:SetAtlas(string.format("raceicon-%s-%s", self.character.Race, self.character.Gender))
-    end
-    self.name:SetText(gb.Data.Class[self.character.Class:upper()].FontColour..self.character.Name)
-    local rgb = gb.Data.Class[self.character.Class].RGB
-    self.border:SetVertexColor(rgb[1], rgb[2], rgb[3])
+function GuildbookProfileSummaryRowAvatarTemplateMixin:SetCharacter(alt)
+
+
+    self.avatar:SetAtlas(string.format("raceicon-%s-%s", alt:GetRace(), alt:GetGender()))
+
+    self.name:SetText(gb.Colours[alt:GetClass():upper()]:WrapTextInColorCode(alt:GetName()))
+    self.border:SetVertexColor(gb.Colours[alt:GetClass():upper()]:GetRGB())
+
+    self:SetScript("OnMouseDown", function()
+        gb:TriggerEvent("RosterListviewItem_OnMouseDown", alt)
+    end)
 end
 
 function GuildbookProfileSummaryRowAvatarTemplateMixin:OnEnter()
@@ -948,30 +950,7 @@ function GuildbookProfileSummaryRowAvatarTemplateMixin:OnLeave()
     self.anim:Stop()
 end
 
-function GuildbookProfileSummaryRowAvatarTemplateMixin:OnMouseDown(button)
 
-    if button == "LeftButton" then
-
-        if self.character then
-            GuildbookUI.profiles.character = self.character
-            if GuildbookUI.profiles.character then
-                GuildbookUI.profiles:LoadCharacter()
-            end
-        end
-
-    elseif button == "RightButton" then
-        
-        if self.guid and self.character then
-            if IsShiftKeyDown() then
-                GUILDBOOK_GLOBAL.myCharacters[self.guid] = true;
-                gb:PrintMessage(string.format("added %s to your characters!", self.character.Name))
-            elseif IsAltKeyDown() then
-                GUILDBOOK_GLOBAL.myCharacters[self.guid] = nil;
-                gb:PrintMessage(string.format("removed %s from your characters!", self.character.Name))
-            end
-        end
-    end
-end
 
 
 
@@ -1315,4 +1294,47 @@ function GuildbookTradeskillsListviewItemTemplateMixin:ResetDataBinding()
 
 
 
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+GuildbookAltManagerListviewItemtemplateMixin = {}
+function GuildbookAltManagerListviewItemtemplateMixin:OnLoad()
+
+end
+function GuildbookAltManagerListviewItemtemplateMixin:SetDataBinding(binding, height)
+
+    self:SetHeight(height)
+
+    self.classIcon:SetSize(height-2, height-2)
+
+    self.classIcon:SetAtlas(string.format("GarrMission_ClassIcon-%s", binding.alt:GetClass():lower()))
+
+    self.name:SetText(string.format("%s [%s]", binding.alt:GetName(), binding.guild:GetName()))
+
+    if binding.alt:GetGuid() == binding.alt:GetMainCharacter() then
+        self.checkbutton:SetChecked(true)
+    end
+
+
+    self.checkbutton:SetScript("OnClick", function()
+        local isChecked = self.checkbutton:GetChecked()
+        gb:TriggerEvent("AltManagerListviewItem_OnCheckButtonClicked", binding, isChecked)
+
+    end)
+end
+function GuildbookAltManagerListviewItemtemplateMixin:ResetDataBinding()
+    self.checkbutton:SetChecked(false)
 end

@@ -10,7 +10,7 @@ local Comms = {};
 Comms.prefix = "Guildbook";
 Comms.version = 0;
 Comms.processDelay = 2.0; --delay before processing incoming message data
-Comms.queueWaitingTime = 20.0; --delay from first outgoing message queued to actual dispatch time
+Comms.queueWaitingTime = 10.0; --delay from first outgoing message queued to actual dispatch time
 Comms.dispatcherElapsedDelay = 1.0; --stagger effect for the onUpdate func on dispatcher
 Comms.queue = {};
 Comms.queueExtendTime = 5.0; --the extension given to each message waiting in the queue, this limits how oftena  message can be dispatched
@@ -75,7 +75,7 @@ end
 ---the timer delay is determined by the previous timer to keep messages spaced out
 function Comms:QueueMessage(event, message, channel, target, priority)
 
-    addon.DEBUG("commsMixin", "Comms:QueueMessage", string.format("adding %s to the queue", event))
+    addon.DEBUG("commsMixin", "Comms:QueueMessage", string.format("adding %s to the queue", event), message)
 
     local exists = false;
     for k, info in ipairs(self.queue) do
@@ -88,7 +88,7 @@ function Comms:QueueMessage(event, message, channel, target, priority)
                 target = target,
                 priority = priority,
             }
-            addon.DEBUG("commsMixin", "Comms:QueueMessage", string.format("updated package data for %s", event))
+            addon.DEBUG("commsMixin", "Comms:QueueMessage", string.format("updated package data for %s", event), message)
         end
     end
 

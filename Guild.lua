@@ -219,6 +219,50 @@ function Guild:GetCharacter(guid)
 end
 
 
+function Guild:FindCharacterAlts(guid)
+    if not self.data.name then
+        return;
+    end
+
+    if type(guid) == "string" and guid:find("Player-") then
+        local t = {}
+        for _guid, character in pairs(self.data.members) do
+            if character:GetMainCharacter() == guid then
+                table.insert(t, character)
+            end
+        end
+        --DevTools_Dump({t})
+        return t;
+    else
+        return {};
+    end
+end
+
+
+function Guild:SetMainCharacterForAlts(main)
+
+    for guid, info in pairs(Database:GetMyCharacters()) do
+
+        local alt = self:GetCharacter(guid)
+
+        if type(alt) == "table" then
+            alt:SetMainCharacter(main)
+            print(string.format("set main for %s", alt:GetName()))
+        end
+    end
+end
+
+
+function Guild:RemoveMainCharacter(main)
+
+    for guid, character in pairs(self.data.members) do
+
+        if character:GetMainCharacter() == main then
+            character:SetMainCharacter(false)
+        end
+    end
+end
+
 function Guild:GetClassCounts()
     
     if not self.data.name then

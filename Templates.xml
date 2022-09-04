@@ -129,7 +129,6 @@
             </Frames>
         </Layers>
         <Scripts>
-            <OnMouseDown method="OnMouseDown"/>
             <OnEnter method="OnEnter"/>
             <OnLeave method="OnLeave"/>
         </Scripts>
@@ -521,7 +520,6 @@
         <Scripts>
             <OnLoad method="OnLoad"/>
             <OnMouseDown method="OnMouseDown"/>
-            <OnEnter method="OnEnter"/>
             <OnLeave method="OnLeave"/>
         </Scripts>
     </Frame>
@@ -603,6 +601,7 @@
         </Layers>
 		<Scripts>
 			<OnShow method="OnShow"/>
+			<OnHide method="OnHide"/>
 			<OnLeave method="OnLeave"/>
 			<OnLoad method="OnLoad"/>
 		</Scripts>
@@ -984,6 +983,58 @@
             <OnEnter method="OnEnter"/> 
             <OnLeave method="OnLeave"/> 
         </Scripts>
+    </Frame>
+
+
+
+
+    <Frame name="GuildbookAltManagerListviewItemtemplate" mixin="GuildbookAltManagerListviewItemtemplateMixin" enablemouse="true" virtual="true">
+        <Layers>
+            <Layer level="BACKGROUND">
+                
+            </Layer>
+            <Layer level="HIGHLIGHT">
+				<Texture parentKey="highlight" atlas="search-highlight-large" useAtlasSize="false" setAllPoints="true"/>
+            </Layer>
+            <Layer level="ARTWORK">
+                <Texture parentKey="classIcon">
+                    <Anchors>
+                        <Anchor point="LEFT" x="0" y="0"/>
+                    </Anchors>
+                </Texture>
+                <FontString parentKey="name" inherits="GameFontNormal">
+                    <Color r="1" g="1" b="1"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent.classIcon" relativePoint="RIGHT" x="5" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+
+        <Frames>
+            <CheckButton parentKey="checkbutton" inherits="ChatConfigCheckButtonTemplate" >
+                <Size x="24" y="24"/>
+                <HitRectInsets left="0" right="-5"/>
+                <CheckedTexture atlas="orderhalltalents-done-checkmark"/>
+                <DisabledCheckedTexture />
+                <!-- <Layers>
+                    <Layer>
+                        <FontString parentKey="label" inherits="GameFontNormal" text="PvP">
+                            <Color r="1" g="1" b="1" a="1"/>
+                            <FontHeight val="12"/>
+                            <Anchors>
+                                <Anchor point="LEFT">
+                                    <offset x="24" y="0"/>
+                                </Anchor>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>                 -->
+                <Anchors>
+                    <Anchor point="RIGHT" x="0" y="0"/>
+                </Anchors>
+            </CheckButton>
+        </Frames>
     </Frame>
 
 </UI>

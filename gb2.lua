@@ -2455,6 +2455,7 @@ addon:GenerateCallbackEvents({
 
     "OnPlayerBagsUpdated",
     "OnPlayerTradeskillRecipesScanned",
+	"OnPlayerSecondarySkillsScanned",
     "OnPlayerTalentSpecChanged",
     "OnPlayerEquipmentChanged",
 	"OnPlayerStatsChanged",
@@ -2467,6 +2468,8 @@ addon:GenerateCallbackEvents({
 	"TradeskillListviewItem_OnAddToWorkOrder",
 	"TradeskillListviewItem_RemoveFromWorkOrder",
 	"TradeskillCrafter_SendWorkOrder",
+
+	"AltManagerListviewItem_OnCheckButtonClicked",
 
 
 });
@@ -2810,7 +2813,7 @@ function addon:GetCharacterStats(setID)
         stats[stat] = self:FormatNumberForCharacterStats(b)
     end
 
-	ViragDevTool:AddData(stats, "Guildbook_CharStats_"..equipmentSetName)
+	--ViragDevTool:AddData(stats, "Guildbook_CharStats_"..equipmentSetName)
 
 	addon:TriggerEvent("OnPlayerStatsChanged", equipmentSetName, stats)
 end
@@ -2848,11 +2851,15 @@ function addon:ADDON_LOADED(...)
 
     if ... == addonName then
 
-        self.e:UnregisterEvent("ADDON_LOADED");
+        --self.e:UnregisterEvent("ADDON_LOADED");
 
         addon.Database:Init()
 		addon.Comms:Init()
 
+	end
+
+	if ... == "ViragDevTool" then
+		ViragDevTool:AddData(GUILDBOOK_GLOBAL, "GUILDBOOK_GLOBAL")
 	end
 
 	self:RegisterCallback("Character_OnDataChanged", self.ScanPlayerCharacter, self)
@@ -2861,6 +2868,9 @@ end
 
 
 function addon:PLAYER_ENTERING_WORLD()
+	
+	self.e:UnregisterEvent("PLAYER_ENTERING_WORLD");
+
     self:TriggerEvent("OnPlayerEnteringWorld")
 
 	--grab the latest character info
@@ -2947,7 +2957,8 @@ function addon:TRADE_SKILL_UPDATE(...)
     local tradeskillRecipes = {}
     local numTradeskills = GetNumTradeSkills()
     for i = 1, numTradeskills do
-        local name, _type, _, _, _ = GetTradeSkillInfo(i)
+        local name, _type, rank, _, _ = GetTradeSkillInfo(i)
+
         if name and (_type == "optimal" or _type == "medium" or _type == "easy" or _type == "trivial") then -- this was a fix thanks to Sigma regarding their addon showing all recipes
             local link = GetTradeSkillItemLink(i)
             if link then
@@ -2981,6 +2992,32 @@ function addon:EQUIPMENT_SWAP_FINISHED(...)
 	end)
 end
 
+
+function addon:SKILL_LINES_CHANGED(...)
+
+	local secondarySkills = {
+		[185] = 0,
+		[129] = 0,
+		[356] = 0,
+	}
+
+	for i = 1, GetNumSkillLines() do
+        local name, isHeader, _, rank = GetSkillLineInfo(i);
+
+		if name and type(rank) == "number" then
+			local tradeskillID = Tradeskills:GetTradeskillIDFromLocale(name)
+
+			if tradeskillID and secondarySkills[tradeskillID] then
+				secondarySkills[tradeskillID] = rank;
+			end
+
+		end
+
+	end
+
+	addon:TriggerEvent("OnPlayerSecondarySkillsScanned", secondarySkills)
+
+end
 
 addon.e = CreateFrame("Frame");
 addon.e:RegisterEvent("ADDON_LOADED");

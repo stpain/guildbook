@@ -372,6 +372,14 @@ function Character:GetPaperdollStats(name)
 end
 
 
+function Character:SetMainCharacter(main)
+    self.data.mainCharacter = main;
+end
+
+function Character:GetMainCharacter()
+    return self.data.mainCharacter;
+end
+
 function Character:SetAlts(alts)
     self.data.alts = alts;
 end
@@ -474,6 +482,7 @@ function Character:CreateFromData(guid, data)
                 race = data.Race,
                 rankName = data.RankName,
                 alts = data.Alts,
+                mainCharacter = data.MainCharacter,
                 publicNote = data.PublicNote,
                 mainSpec = data.MainSpec,
                 offSpec = data.OffSpec,
@@ -531,6 +540,7 @@ function Character:SetData(data)
         race = data.Race,
         rankName = data.RankName,
         alts = data.Alts,
+        mainCharacter = data.MainCharacter,
         publicNote = data.PublicNote,
         mainSpec = data.MainSpec,
         offSpec = data.OffSpec,
@@ -569,6 +579,7 @@ function Character:GetData()
         Level = self.data.level,
         Race = self.data.race,
         Alts = self.data.alts,
+        MainCharacter = self.data.mainCharacter,
         RankName = self.data.rankName,
         PublicNote = self.data.publicNote,
         MainSpec = self.data.mainSpec,

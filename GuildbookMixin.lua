@@ -259,10 +259,12 @@ function GuildbookMixin:OnLoad()
     addon:RegisterCallback("OnGuildRosterUpdate", self.OnGuildRosterUpdate, self)
     addon:RegisterCallback("OnGuildDataImported", self.OnGuildDataImported, self)
     addon:RegisterCallback("OnPlayerBagsUpdated", self.OnPlayerBagsUpdated, self)
+    addon:RegisterCallback("OnPlayerSecondarySkillsScanned", self.OnPlayerSecondarySkillsScanned, self)
     addon:RegisterCallback("OnPlayerTradeskillRecipesScanned", self.OnPlayerTradeskillRecipesScanned, self)
     addon:RegisterCallback("OnPlayerEquipmentChanged", self.OnPlayerEquipmentChanged, self)
     addon:RegisterCallback("OnPlayerStatsChanged", self.OnPlayerStatsChanged, self)
     addon:RegisterCallback("OnPlayerTalentSpecChanged", self.OnPlayerTalentSpecChanged, self)
+    addon:RegisterCallback("AltManagerListviewItem_OnCheckButtonClicked", self.AltManagerListviewItem_OnCheckButtonClicked, self)
     addon:RegisterCallback("TradeskillListviewItem_OnMouseDown", self.TradeskillListviewItem_OnMouseDown, self)
     addon:RegisterCallback("TradeskillListviewItem_OnAddToWorkOrder", self.TradeskillListviewItem_OnAddToWorkOrder, self)
     addon:RegisterCallback("TradeskillListviewItem_RemoveFromWorkOrder", self.TradeskillListviewItem_RemoveFromWorkOrder, self)
@@ -275,7 +277,7 @@ function GuildbookMixin:OnLoad()
 
     --set the size for character scroll view
     self.guild.home.character.scrollChild:SetSize(UI_WIDTH - 210, UI_HEIGHT-50);
-    self.guild.home.character.scrollChild.profileInfo:SetSize(UI_WIDTH-210, 260)
+    self.guild.home.character.scrollChild.profileInfo:SetSize(UI_WIDTH-210, 290)
 
     --set up the character model frame
     local modelFrame = self.guild.home.character.scrollChild.model;
@@ -946,6 +948,9 @@ function GuildbookMixin:OnLoad()
     self.profile.realBioInput.label:SetText(L["PROFILE_REAL_BIO_LABEL"])
     self.profile.realBioInput.EditBox:SetMaxLetters(200)
     self.profile.specializationHelptip:SetText(L["PROFILE_SPECIALIZATIONS_HELPTIP"])
+    self.profile.altsHelptip:SetText(L["PROFILE_ALTS_HELPTIP"])
+    self.profile.altManager.label:SetText(L["PROFILE_ALT_MANAGER_LABEL"])
+    self.profile.altManager.labelRight:SetText(L["PROFILE_ALT_MANAGER_LABEL_RIGHT"])
 
     self.profile.primarySpecIsPvp:SetScript("OnClick", function()
         for _, guild in ipairs(self.guilds) do
@@ -1061,6 +1066,10 @@ function GuildbookMixin:OnCommsMessage(sender, data)
         self:HandleTradeskillUpdate(senderGUID, data.payload.tradeskill, data.payload.level, data.payload.recipes)
     end
 
+    if commType == "SECONDARY_SKILLS" then
+        self:HandleSecondarySkillsUpdate(senderGUID, data.payload)
+    end
+
     if commType == "CHARACTER_EQUIPMENT" then
         character:SetInventory(data.payload)
     end
@@ -1136,15 +1145,6 @@ end
 --once the database object has set up and verified the saved variables add some data to VDT and create the guild objects, minimap button
 function GuildbookMixin:OnDatabaseInitialised()
 
-    --C_Timer.After(10, function()
-        -- VirageDevTool then
-            -- ViragDevTool:AddData(GUILDBOOK_GLOBAL, "GUILDBOOK_GLOBAL")
-            -- ViragDevTool:AddData(GUILDBOOK_CONFIG, "GUILDBOOK_CONFIG")
-            -- ViragDevTool:AddData(GUILDBOOK_PRIVACY, "GUILDBOOK_PRIVACY")
-            -- ViragDevTool:AddData(GUILDBOOK_GLOBAL.WorkOrders, "Guildbook work orders")
-        --end
-    --end)
-
     if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache then
         
         local i = 0;
@@ -1154,10 +1154,6 @@ function GuildbookMixin:OnDatabaseInitialised()
 
             local guild = Guild:NewGuild(name)
             guild:LoadCharactersFromSavedVars()
-
-            -- C_Timer.After(5, function()
-            --     ViragDevTool:AddData(guild, "Guildbook_Guild "..name)
-            -- end)
 
             table.insert(self.guilds, guild)
 
@@ -1219,9 +1215,12 @@ function GuildbookMixin:OnDatabaseInitialised()
     local modBlizzGuildUI = Database:GetConfigSetting("modifyDefaultGuildRoster")
     self.settings.scrollChild.modifyDefaultGuildRoster:SetChecked(modBlizzGuildUI)
 
-    if modBlizzGuildUI == true then
-        addon:ModBlizzUI()
-    end
+    --slight hack as db init fires off before guild info ready?
+    C_Timer.After(5, function()
+        if modBlizzGuildUI == true then
+            addon:ModBlizzUI()
+        end
+    end)
 
 
     C_Timer.After(0.1, function()
@@ -1333,6 +1332,32 @@ function GuildbookMixin:OnPlayerEnteringWorld()
         end
     end
 
+    --alts
+    local alts = {}
+    for guid, info in pairs(Database:GetMyCharacters()) do
+    
+        for k, guild in ipairs(self.guilds) do
+
+            local alt = guild:GetCharacter(guid)
+
+            if type(alt) == "table" then
+                table.insert(alts, {
+                    alt = alt,
+                    guild = guild,
+                })
+            end
+
+        end
+    end
+    table.sort(alts, function(a,b)
+        if a.guild == b.guild then
+            return a.alt.data.name < b.alt.data.name;
+        else
+            return a.guild:GetName() < b.guild:GetName();
+        end
+    end)
+    --self.profile.altManager.DataProvider:Flush()
+    self.profile.altManager.DataProvider:InsertTable(alts)
 
 end
 
@@ -1444,6 +1469,85 @@ function GuildbookMixin:OnChatMessageGuild(...)
 end
 
 
+function GuildbookMixin:AltManagerListviewItem_OnCheckButtonClicked(binding, isChecked)
+
+    self.profile.altManager.DataProvider:Flush()
+
+
+    if isChecked == false then
+        if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.myCharacters then
+            GUILDBOOK_GLOBAL.myCharacters[binding.alt:GetGuid()] = false;
+        end
+
+        binding.guild:RemoveMainCharacter(binding.alt:GetGuid())
+
+    else
+        local myCharacters = Database:GetMyCharacters()
+
+        local altsPerGuild = {};
+        for k, guild in ipairs(self.guilds) do
+            
+            if not altsPerGuild[guild:GetName()] then
+                altsPerGuild[guild:GetName()] = {};
+            end
+    
+            for guid, isMain in pairs(myCharacters) do
+                local alt = guild:GetCharacter(guid)
+                if alt then
+                    table.insert(altsPerGuild[guild:GetName()], guid)
+                end
+            end
+        end
+    
+        --set this characters alts in guild to false
+        for k, guid in ipairs(altsPerGuild[binding.guild:GetName()]) do
+            GUILDBOOK_GLOBAL.myCharacters[guid] = false;
+        end
+    
+        --get the selected alts guid
+        local altGUID = binding.alt:GetGuid()
+    
+        --set the roster cache data
+        binding.guild:SetMainCharacterForAlts(altGUID)
+    
+        --set the global db
+        GUILDBOOK_GLOBAL.myCharacters[altGUID] = isChecked;
+
+    end
+
+
+    --update the listview
+
+    --THIS IS DUPLICATED CODE, MAKE AS A PROPER ALT FUNCTION ?
+    local alts = {}
+    for guid, info in pairs(Database:GetMyCharacters()) do
+    
+        for k, guild in ipairs(self.guilds) do
+
+            local alt = guild:GetCharacter(guid)
+
+            if type(alt) == "table" then
+                table.insert(alts, {
+                    alt = alt,
+                    guild = guild,
+                })
+            end
+
+        end
+    end
+    table.sort(alts, function(a,b)
+        if a.guild == b.guild then
+            return a.alt.data.name < b.alt.data.name;
+        else
+            return a.guild:GetName() < b.guild:GetName();
+        end
+    end)
+    self.profile.altManager.DataProvider:InsertTable(alts)
+
+
+end
+
+
 function GuildbookMixin:TradeskillListviewItem_OnMouseDown(item)
 
 
@@ -1509,15 +1613,19 @@ function GuildbookMixin:TradeskillListviewItem_OnMouseDown(item)
     end
 
     self.guild.tradeskills.recipeCrafters.DataProvider:Flush()
-    if self.selectedGuild then
-        local charactersWithRecipe = self.selectedGuild:FindCharactersWithRecipe(item)
+
+    for k, guild in ipairs(self.guilds) do
+        local charactersWithRecipe = guild:FindCharactersWithRecipe(item)
 
         for k, character in ipairs(charactersWithRecipe) do
-            self.guild.tradeskills.recipeCrafters.DataProvider:Insert(character)
+            self.guild.tradeskills.recipeCrafters.DataProvider:Insert({
+                character = character,
+                guild = guild:GetName(),
+            })
         end
-
-        self.guild.tradeskills.recipeCrafters.selectedItem = item;
     end
+
+    self.guild.tradeskills.recipeCrafters.selectedItem = item;
 
 end
 
@@ -1711,6 +1819,16 @@ end
 
 
 
+function GuildbookMixin:OnPlayerSecondarySkillsScanned(secondarySkills)
+    
+    local msg = {
+        type = "SECONDARY_SKILLS",
+        payload = secondarySkills,
+    }
+    Comms:QueueMessage(msg.type, msg, "GUILD", nil, "NORMAL")
+end
+
+
 
 function GuildbookMixin:OnPlayerTradeskillRecipesScanned(tradeskill, level, recipes)
 
@@ -1727,10 +1845,24 @@ function GuildbookMixin:OnPlayerTradeskillRecipesScanned(tradeskill, level, reci
 end
 
 
+function GuildbookMixin:HandleSecondarySkillsUpdate(guid, secondarySkills)
+    
+    for k, guild in ipairs(self.guilds) do
+        local character = guild:GetCharacter(guid)
+        if type(character) == "table" then
+
+            character:SetCookingLevel(secondarySkills[185])
+            character:SetFirstAidLevel(secondarySkills[129])
+            character:SetFishingLevel(secondarySkills[356])
+
+        end
+    end
+end
+
 
 function GuildbookMixin:HandleTradeskillUpdate(guid, tradeskill, level, recipes)
 
-    addon.DEBUG("func", "HandleTradeskillUpdate", string.format("prof %s level %s", tradeskill, level))
+    --addon.DEBUG("func", "HandleTradeskillUpdate", string.format("prof %s level %s", tradeskill, level))
 
     for k, guild in ipairs(self.guilds) do
         local character = guild:GetCharacter(guid)
@@ -1738,49 +1870,68 @@ function GuildbookMixin:HandleTradeskillUpdate(guid, tradeskill, level, recipes)
 
             local prof = Tradeskills:GetLocaleNameFromID(tradeskill)
 
-            self:SetStatusText(string.format("%s sent %s recipes", character:GetName(), prof))
+            if prof then
 
-            addon.DEBUG("func", "HandleTradeskillUpdate", string.format("found character %s seting %s", character:GetName(), tradeskill))
+                self:SetStatusText(string.format("%s sent %s recipes", character:GetName(), prof))
 
-            --addon.DEBUG("func", "OnPlayerTradeskillRecipesScanned", "found character table")
+                addon.DEBUG("func", "HandleTradeskillUpdate", string.format("found character %s seting %s", character:GetName(), tradeskill))
 
-            --DevTools_Dump({character})
+                --addon.DEBUG("func", "OnPlayerTradeskillRecipesScanned", "found character table")
 
-            --check if the character has this tradeksill and update
-            if character:GetTradeskill(1) == tradeskill then
-                character:SetTradeskillLevel(1, level)
-                character:SetTradeskillRecipes(1, recipes)
+                --DevTools_Dump({character})
 
-                addon.DEBUG("func", "OnPlayerTradeskillRecipesScanned", string.format("prof 1 is known > set prof 1 at level %s", level))
-
-            else
-                if character:GetTradeskill(2) == tradeskill then
-                    character:SetTradeskillLevel(2, level)
-                    character:SetTradeskillRecipes(2, recipes)
-
-                    addon.DEBUG("func", "OnPlayerTradeskillRecipesScanned", string.format("prof 2 is known > set prof 2 at level %s", level))
+                -- add in here to cover secondary skills
+                if tradeskill == 185 then --cooking
+                    character:SetCookingLevel(level)
+                    character:SetCookingRecipes(recipes)
+                    return;
                 end
-            end
-
-            --if the character has no tradeskills set then update
-            if type(character:GetTradeskill(1)) ~= "number" then
-                character:SetTradeskill(1, tradeskill)
-                character:SetTradeskillLevel(1, level)
-                character:SetTradeskillRecipes(1, recipes)
-
-                addon.DEBUG("func", "OnPlayerTradeskillRecipesScanned", string.format("prof 1 is NEW > set prof 1 as %s at level %s", tradeskill, level))
-
-            else
-                if (character:GetTradeskill(1) ~= tradeskill) and type(character:GetTradeskill(2)) ~= "number" then
-                    character:SetTradeskill(2, tradeskill)
-                    character:SetTradeskillLevel(2, level)
-                    character:SetTradeskillRecipes(2, recipes)
-
-                    addon.DEBUG("func", "OnPlayerTradeskillRecipesScanned", string.format("prof 2 is NEW > set prof 2 as %s at level %s", tradeskill, level))
+                if tradeskill == 129 then --FA
+                    character:SetFirstAidLevel(level)
+                    return;
                 end
-            end
+                if tradeskill == 356 then --fishing
+                    character:SetFishingLevel(level)
+                    return;
+                end
 
-            guild:UpdateSavedVariablesForCharacter(guid)
+                --check if the character has this tradeksill and update
+                if character:GetTradeskill(1) == tradeskill then
+                    character:SetTradeskillLevel(1, level)
+                    character:SetTradeskillRecipes(1, recipes)
+
+                    addon.DEBUG("func", "OnPlayerTradeskillRecipesScanned", string.format("prof 1 is known > set prof 1 at level %s", level))
+
+                else
+                    if character:GetTradeskill(2) == tradeskill then
+                        character:SetTradeskillLevel(2, level)
+                        character:SetTradeskillRecipes(2, recipes)
+
+                        addon.DEBUG("func", "OnPlayerTradeskillRecipesScanned", string.format("prof 2 is known > set prof 2 at level %s", level))
+                    end
+                end
+
+                --if the character has no tradeskills set then update
+                if type(character:GetTradeskill(1)) ~= "number" then
+                    character:SetTradeskill(1, tradeskill)
+                    character:SetTradeskillLevel(1, level)
+                    character:SetTradeskillRecipes(1, recipes)
+
+                    addon.DEBUG("func", "OnPlayerTradeskillRecipesScanned", string.format("prof 1 is NEW > set prof 1 as %s at level %s", tradeskill, level))
+
+                else
+                    if (character:GetTradeskill(1) ~= tradeskill) and type(character:GetTradeskill(2)) ~= "number" then
+                        character:SetTradeskill(2, tradeskill)
+                        character:SetTradeskillLevel(2, level)
+                        character:SetTradeskillRecipes(2, recipes)
+
+                        addon.DEBUG("func", "OnPlayerTradeskillRecipesScanned", string.format("prof 2 is NEW > set prof 2 as %s at level %s", tradeskill, level))
+                    end
+                end
+
+                guild:UpdateSavedVariablesForCharacter(guid)
+
+            end
     
         end
     end
@@ -2027,6 +2178,48 @@ function GuildbookMixin:RosterListviewItem_OnMouseDown(character)
     self.guild.home.character.scrollChild.profileInfo.fishing:SetText(string.format("%s %s %s", CreateAtlasMarkup("Mobile-Fishing", 20, 20), Tradeskills:GetLocaleNameFromID(356), character:GetFishingLevel() or "-"))
     self.guild.home.character.scrollChild.profileInfo.firstAid:SetText(string.format("%s %s %s", CreateAtlasMarkup("Mobile-FirstAid", 20, 20), Tradeskills:GetLocaleNameFromID(129), character:GetFirstAidLevel() or "-"))
     
+
+    --alts
+    local alts = self.selectedGuild:FindCharacterAlts(character:GetMainCharacter())
+    if type(alts) == "table" then
+
+        if not self.guild.home.character.scrollChild.altContainer.portraits then
+            self.guild.home.character.scrollChild.altContainer.portraits = {}
+        end
+
+        for k, frame in ipairs(self.guild.home.character.scrollChild.altContainer.portraits) do
+            frame:Hide()
+        end
+
+        for k, alt in ipairs(alts) do
+
+            if not self.guild.home.character.scrollChild.altContainer.portraits[k] then
+                
+                local f = CreateFrame("FRAME", nil, self.guild.home.character.scrollChild.altContainer, "GuildbookProfileSummaryRowAvatarTemplate")
+                f:SetPoint("TOPLEFT", ((k-1) * 100), 0)
+                f:SetScale(0.9)
+                f:SetCharacter(alt)
+
+                self.guild.home.character.scrollChild.altContainer.portraits[k] = f;
+
+                f:Show()
+            else
+                local f = self.guild.home.character.scrollChild.altContainer.portraits[k]
+                f:SetCharacter(alt)
+                f:Show()
+            end
+        end
+
+        self.guild.home.character.scrollChild.altContainer:SetWidth(#alts * 90)
+    end
+
+    if #alts == 0 then
+        self.guild.home.character.scrollChild.profileInfo:SetSize(UI_WIDTH-210, 300)
+    else
+        self.guild.home.character.scrollChild.profileInfo:SetSize(UI_WIDTH-210, 400)
+    end
+
+
 
     for k, slot in ipairs(self.guild.home.character.scrollChild.equipSlots) do
         slot:ClearItem()

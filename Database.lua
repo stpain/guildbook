@@ -145,6 +145,13 @@ function Database:Init()
     end
     addon.DEBUG("func", "Database:Init", "removed old privacy saved variable keys")
 
+
+    --add this character guid to list
+    if not GUILDBOOK_GLOBAL.myCharacters then
+        GUILDBOOK_GLOBAL.myCharacters = {}
+    end
+    GUILDBOOK_GLOBAL.myCharacters[UnitGUID("player")] = false;
+
     addon:TriggerEvent("OnDatabaseInitialised")
 end
 
@@ -256,6 +263,14 @@ end
 
 function Database:GetPrivacySetting(privacy)
 
+end
+
+
+function Database:GetMyCharacters()
+    if not GUILDBOOK_GLOBAL.myCharacters then
+        GUILDBOOK_GLOBAL.myCharacters = {}
+    end
+    return GUILDBOOK_GLOBAL.myCharacters;
 end
 
 addon.Database = Database;
