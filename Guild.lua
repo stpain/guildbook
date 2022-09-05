@@ -144,6 +144,9 @@ function Guild:ScanGuildRoster()
         end
         --might be better to update all at this point as we scanned the whole roster
         self:UpdateSavedVariables()
+
+    else
+        
     end
 
     addon:TriggerEvent("OnGuildRosterScanned", self)
@@ -241,13 +244,25 @@ end
 
 function Guild:SetMainCharacterForAlts(main)
 
+    local alts = {}
     for guid, info in pairs(Database:GetMyCharacters()) do
 
         local alt = self:GetCharacter(guid)
 
         if type(alt) == "table" then
             alt:SetMainCharacter(main)
-            print(string.format("set main for %s", alt:GetName()))
+            table.insert(alts, alt:GetGuid())
+        end
+    end
+
+    --update the players characters alt data including the main
+    if self.data.members[main] then
+        self.data.members[main]:SetAlts(alts)
+    end
+    for k, alt in ipairs(alts) do
+        local character = self:GetCharacter(alt)
+        if type(character) == "table" then
+            character:SetAlts(alts)
         end
     end
 end

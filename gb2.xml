@@ -1638,6 +1638,13 @@
                                 </Anchors>
                             </Button>
 
+                            <Frame parentKey="selectStyle" inherits="GuildbookDropdown" hidden="true">
+                                <Size x="100" y="24"/>
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="16" y="-346"/>
+                                </Anchors>
+                            </Frame>
+
                             <Button parentKey="debug" inherits="UIPanelButtonTemplate" text="Debug">
                                 <Size x="200" y="24"/>
                                 <Anchors>
@@ -1653,7 +1660,7 @@
                                 <PushedTexture/>
                                 <HighlightTexture atlas="clickcastlist-buttonhighlight"/>
                                 <Anchors>
-                                    <Anchor point="TOPLEFT" x="16" y="-306"/>
+                                    <Anchor point="BOTTOMLEFT" x="16" y="-12"/>
                                 </Anchors>
                                 <Layers>
                                     <Layer level="OVERLAY">

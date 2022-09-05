@@ -23,3 +23,48 @@ addon.Colours.BrownGrey = CreateColor(75/255, 72/255, 63/255);
 addon.Colours.PaleOlive = CreateColor(108/255, 118/255, 87/255);
 addon.Colours.PaleBiege = CreateColor(189/255, 181/255, 159/255);
 addon.Colours.Pebble = CreateColor(147/255, 136/255, 123/255);
+
+addon.styles = {
+    default = {
+        background = "ClassHall_StoneFrame-BackgroundTile",
+        border = addon.Colours.StoneGold,
+        menuBackground = addon.Colours.BrownGrey,
+        topBar = addon.Colours.MudBrown,
+    },
+    guild = {
+        background = "ClassHall_InfoBoxMission-BackgroundTile",
+        border = addon.Colours.Guild,
+        menuBackground = addon.Colours.DarkSlateGrey,
+        topBar = addon.Colours.DarkSlateGreen,
+    },
+    sand = {
+        background = "collections-background-tile",
+        border = addon.Colours.Guild,
+        menuBackground = addon.Colours.DarkSlateGrey,
+        topBar = addon.Colours.DarkSlateGreen,
+    },
+    red = {
+        background = "Garr_InfoBox-BackgroundTile",
+        border = addon.Colours.Guild,
+        menuBackground = addon.Colours.DarkSlateGrey,
+        topBar = addon.Colours.DarkSlateGreen,
+    },
+    brown = {
+        background = "Garr_WoodFrame-BackgroundTile",
+        border = addon.Colours.Guild,
+        menuBackground = addon.Colours.DarkSlateGrey,
+        topBar = addon.Colours.DarkSlateGreen,
+    },
+    tan = {
+        background = "GarrLanding-MiddleTile",
+        border = addon.Colours.Pebble,
+        menuBackground = addon.Colours.DarkGold,
+        topBar = addon.Colours.PaleOlive,
+    },
+    mist = {
+        background = "ShipMissionParchment-Tile",
+        border = addon.Colours.Guild,
+        menuBackground = addon.Colours.DarkSlateGrey,
+        topBar = addon.Colours.DarkSlateGreen,
+    },
+}

@@ -230,6 +230,26 @@ function GuildbookMixin:OnLoad()
     self.topBarBackground:SetColorTexture(Colours.BrownGrey:GetRGB())
     self.menu.background:SetColorTexture(Colours.MudBrown:GetRGB())
 
+    local function setColours(style)
+        self.background:SetAtlas(style.background)
+        self.border:SetColorTexture(style.border:GetRGB())
+        self.topBarBackground:SetColorTexture(style.topBar:GetRGB())
+        self.menu.background:SetColorTexture(style.menuBackground:GetRGB())
+    end
+
+    local stylesMenu = {}
+    for k, v in pairs(addon.styles) do
+        table.insert(stylesMenu, {
+            text = k,
+            func = function()
+                setColours(v)
+            end,
+        })
+    end
+    self.settings.scrollChild.selectStyle.menu = stylesMenu
+
+    self.menu.header:SetText(L["GUILDS_LIST_HEADER"])
+
     --grab size 
     UI_WIDTH, UI_HEIGHT = self:GetSize()
 
@@ -278,6 +298,9 @@ function GuildbookMixin:OnLoad()
     --set the size for character scroll view
     self.guild.home.character.scrollChild:SetSize(UI_WIDTH - 210, UI_HEIGHT-50);
     self.guild.home.character.scrollChild.profileInfo:SetSize(UI_WIDTH-210, 290)
+
+    self.guild.home.character.scrollChild.profileInfo.mainSpecIsPvpLabel:SetText(L["CHAR_PROFILE_IS_PVP_SPEC"])
+    self.guild.home.character.scrollChild.profileInfo.offSpecIsPvpLabel:SetText(L["CHAR_PROFILE_IS_PVP_SPEC"])
 
     --set up the character model frame
     local modelFrame = self.guild.home.character.scrollChild.model;
@@ -524,10 +547,13 @@ function GuildbookMixin:OnLoad()
     self.guild.tradeskills.workOrderHelp.Arrow:ClearAllPoints()
     self.guild.tradeskills.workOrderHelp.Arrow:SetPoint("BOTTOM", -60, -60)
     self.guild.tradeskills.workOrderHelp:SetText(L["TRADESKILL_WORK_ORDER_HELPTIP"])
+    self.guild.tradeskills.workOrders.header:SetText(L["TRADESKILL_WORK_ORDER_HEADER"])
+    self.guild.tradeskills.workOrderReagents.header:SetText(L["TRADESKILL_WORK_ORDER_RECIPE_INFO_HEADER"])
     self.guild.tradeskills.workOrdersDeleteAll:SetScript("OnClick", function()
         wipe(GUILDBOOK_GLOBAL.WorkOrders)
         self.guild.tradeskills.workOrders.DataProvider:Flush()
-        self.guild.tradeskills.workOrders.DataProvider:InsertTable({})
+        self.guild.tradeskills.workOrderReagents.DataProvider:Flush()
+        --self.guild.tradeskills.workOrders.DataProvider:InsertTable({})
     end)
 
     ---sort the tradeskill items table
@@ -804,14 +830,11 @@ function GuildbookMixin:OnLoad()
             local t = {};
 
             for k, item in ipairs(addon.tradeskillItems) do
-                if addon.tradeskillLocaleData[LOCALE] and addon.tradeskillLocaleData[LOCALE][item.itemID] then
-                    if addon.tradeskillLocaleData[LOCALE][item.itemID].name:lower():find(eb:GetText():lower()) then
-                        table.insert(t, item)
-                    end
-                else
-                    if item.name:lower():find(eb:GetText():lower()) then
-                        table.insert(t, item)
-                    end
+
+                local localeData = Tradeskills:GetLocaleData(item.tradeskill, item.itemID)
+
+                if localeData.name:lower():find(eb:GetText():lower()) then
+                    table.insert(t, item)
                 end
             end
 
@@ -906,22 +929,28 @@ function GuildbookMixin:OnLoad()
         end
     end)
     self.settings.scrollChild.resetGuild:SetScript("OnClick", function()
-        if type(self.selectedGuild) == "table" then
-            self.selectedGuild:WipeAllCharacterData()
-            self.selectedGuild:ScanGuildRoster()
-            self:SetStatusText(string.format("reset guild data for %s", self.selectedGuild:GetName()))
 
-            addon:TriggerEvent("Character_OnDataChanged")
+        if type(self.selectedGuild) == "table" then
+
+            StaticPopup_Show("GuildbookResetGuildData", nil, nil, {
+                callback = function()
+                    self.selectedGuild:WipeAllCharacterData()
+                    self.selectedGuild:ScanGuildRoster()
+                    self:SetStatusText(string.format("reset guild data for %s", self.selectedGuild:GetName()))
+        
+                    addon:TriggerEvent("Character_OnDataChanged")
+                end,
+            })
         end
     end)
     self.settings.scrollChild.debug:SetScript("OnClick", function()
-        addon.DebuggerWindow:Show()
+        addon.DebuggerWindow:SetShown(not addon.DebuggerWindow:IsVisible())
+        self.settings.scrollChild.scanForLocaleData:SetShown(not self.settings.scrollChild.scanForLocaleData:IsVisible())
     end)
 
-    -- self.settings.scrollChild.scanForLocaleData:SetScript("OnClick", function()
-    --     addon:GetLocaleGlyphNames()
-    --     addon:GetLocaleTradeskillInfo()
-    -- end)
+    self.settings.scrollChild.scanForLocaleData:SetScript("OnClick", function()
+        addon:GetLocaleTradeskillInfo()
+    end)
 
     self.settings.scrollChild.generateExportData:SetScript("OnClick", function()
         if self.selectedGuild then
@@ -952,6 +981,7 @@ function GuildbookMixin:OnLoad()
     self.profile.altManager.label:SetText(L["PROFILE_ALT_MANAGER_LABEL"])
     self.profile.altManager.labelRight:SetText(L["PROFILE_ALT_MANAGER_LABEL_RIGHT"])
 
+    self.profile.primarySpecIsPvp.label:SetText(L["PVP"])
     self.profile.primarySpecIsPvp:SetScript("OnClick", function()
         for _, guild in ipairs(self.guilds) do
             local player = guild:GetPlayerCharacter()
@@ -961,6 +991,7 @@ function GuildbookMixin:OnLoad()
         end
     end)
 
+    self.profile.secondarySpecIsPvp.label:SetText(L["PVP"])
     self.profile.secondarySpecIsPvp:SetScript("OnClick", function()
         for _, guild in ipairs(self.guilds) do
             local player = guild:GetPlayerCharacter()
@@ -978,6 +1009,7 @@ function GuildbookMixin:OnLoad()
                 player:SetProfileName(self.profile.realNameInput:GetText())
                 player:SetProfileBio(self.profile.realBioInput.EditBox:GetText())
 
+                --this is a special method 
                 local profile = player:GetProfile();
                 local msg = {
                     type = "CHARACTER_PROFILE",
@@ -1090,6 +1122,11 @@ function GuildbookMixin:OnCommsMessage(sender, data)
 
         character:SetProfileName(profile.name)
         character:SetProfileBio(profile.bio)
+
+        character:SetMainCharacter(profile.mainCharacter)
+
+        --DevTools_Dump({profile})
+        character:SetAlts(profile.alts)
     end
 
     if self.guild.home.character.selectedCharacter and (self.guild.home.character.selectedCharacter:GetGuid() == character:GetGuid()) then
@@ -1212,16 +1249,15 @@ function GuildbookMixin:OnDatabaseInitialised()
     self.settings.scrollChild.showTooltipCharacterProfile:SetChecked(Database:GetConfigSetting("showTooltipCharacterProfile"))
     self.settings.scrollChild.showTooltipTradeskills:SetChecked(Database:GetConfigSetting("showTooltipTradeskills"))
 
-    local modBlizzGuildUI = Database:GetConfigSetting("modifyDefaultGuildRoster")
-    self.settings.scrollChild.modifyDefaultGuildRoster:SetChecked(modBlizzGuildUI)
-
-    --slight hack as db init fires off before guild info ready?
-    C_Timer.After(5, function()
-        if modBlizzGuildUI == true then
+    local isGuildUiModded = false;
+    GuildFrame:HookScript("OnShow", function()
+        local modBlizzGuildUI = Database:GetConfigSetting("modifyDefaultGuildRoster")
+        self.settings.scrollChild.modifyDefaultGuildRoster:SetChecked(modBlizzGuildUI)
+        if modBlizzGuildUI == true and isGuildUiModded == false then
             addon:ModBlizzUI()
+            isGuildUiModded = true;
         end
     end)
-
 
     C_Timer.After(0.1, function()
         self.guild.tradeskills.workOrders.DataProvider:Flush()
@@ -1554,14 +1590,9 @@ function GuildbookMixin:TradeskillListviewItem_OnMouseDown(item)
     
     self.guild.tradeskills.recipeCrafters.selectedItem = nil;
 
-    local recipeHeader;
-    if item.tradeskill == 333 then
-        recipeHeader = item.name
-    else
-        recipeHeader = item.link
-    end
+    local localeData = Tradeskills:GetLocaleData(item.tradeskill, item.itemID)
 
-    self.guild.tradeskills.recipeLink:SetText(recipeHeader)
+    self.guild.tradeskills.recipeLink:SetText(localeData.name)
     self.guild.tradeskills.recipeIcon:SetTexture(item.icon)
 
 
@@ -2161,14 +2192,14 @@ function GuildbookMixin:RosterListviewItem_OnMouseDown(character)
     self.guild.home.character.scrollChild.profileInfo.realBio:SetText(character:GetProfileBio() or "-")
 
     local prof1 = Tradeskills:GetLocaleNameFromID(character:GetTradeskill(1)) or "-"
-    local atlas1 = prof1 ~= "-" and CreateAtlasMarkup("Mobile-"..prof1, 20, 20) or " "
+    local atlas1 = prof1 ~= "-" and CreateAtlasMarkup("Mobile-"..Tradeskills:GetEnglishNameFromID(character:GetTradeskill(1)), 20, 20) or " "
     if character:GetTradeskill(1) == 202 then
         atlas1 = CreateAtlasMarkup("Mobile-Enginnering", 20, 20)
     end
     self.guild.home.character.scrollChild.profileInfo.prof1:SetText(string.format("%s %s %s", atlas1, prof1, character:GetTradeskillLevel(1)))
     
     local prof2 = Tradeskills:GetLocaleNameFromID(character:GetTradeskill(2)) or "-"
-    local atlas2 = prof2 ~= "-" and CreateAtlasMarkup("Mobile-"..prof2, 20, 20) or " "
+    local atlas2 = prof2 ~= "-" and CreateAtlasMarkup("Mobile-"..Tradeskills:GetEnglishNameFromID(character:GetTradeskill(2)), 20, 20) or " "
     if character:GetTradeskill(2) == 202 then
         atlas2 = CreateAtlasMarkup("Mobile-Enginnering", 20, 20)
     end
@@ -2180,7 +2211,7 @@ function GuildbookMixin:RosterListviewItem_OnMouseDown(character)
     
 
     --alts
-    local alts = self.selectedGuild:FindCharacterAlts(character:GetMainCharacter())
+    local alts = character:GetAlts()
     if type(alts) == "table" then
 
         if not self.guild.home.character.scrollChild.altContainer.portraits then
@@ -2193,20 +2224,24 @@ function GuildbookMixin:RosterListviewItem_OnMouseDown(character)
 
         for k, alt in ipairs(alts) do
 
-            if not self.guild.home.character.scrollChild.altContainer.portraits[k] then
-                
-                local f = CreateFrame("FRAME", nil, self.guild.home.character.scrollChild.altContainer, "GuildbookProfileSummaryRowAvatarTemplate")
-                f:SetPoint("TOPLEFT", ((k-1) * 100), 0)
-                f:SetScale(0.9)
-                f:SetCharacter(alt)
+            local character = self.selectedGuild:GetCharacter(alt)
+            if type(character) == "table" then
 
-                self.guild.home.character.scrollChild.altContainer.portraits[k] = f;
+                if not self.guild.home.character.scrollChild.altContainer.portraits[k] then
+                    
+                    local f = CreateFrame("FRAME", nil, self.guild.home.character.scrollChild.altContainer, "GuildbookProfileSummaryRowAvatarTemplate")
+                    f:SetPoint("TOPLEFT", ((k-1) * 100), 0)
+                    f:SetScale(0.9)
+                    f:SetCharacter(character)
 
-                f:Show()
-            else
-                local f = self.guild.home.character.scrollChild.altContainer.portraits[k]
-                f:SetCharacter(alt)
-                f:Show()
+                    self.guild.home.character.scrollChild.altContainer.portraits[k] = f;
+
+                    f:Show()
+                else
+                    local f = self.guild.home.character.scrollChild.altContainer.portraits[k]
+                    f:SetCharacter(character)
+                    f:Show()
+                end
             end
         end
 

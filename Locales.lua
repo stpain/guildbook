@@ -62,8 +62,12 @@ go to curse and complain ;)
 
 ]]
 
+--dialog
+L["RESET_GUILD_DATA"] = "Reset all guild data ?"
+
 
 --guild home
+L["GUILDS_LIST_HEADER"] = "Guilds"
 L["GUILD_HOME_LABEL"] = "Home"
 L["GUILD_TRADESKILLS_LABEL"] = "Tradeskills"
 L["GUILD_HOME_NO_MOTD"] = "You are viewing a guild different to your characters, some information may be old or not available."
@@ -80,6 +84,8 @@ L["TRADESKILL_CRAFTERS_HELPTIP"] = "Guild members who can craft the item will sh
 L["TRADESKILL_RECIPE_INFO_HEADER"] = "Recipe info:"
 L["TRADESKILL_RECIPE_INFO_HELPTIP"] = "If you have Auctionator installed the cost of required materials will be calculated and shown.\n\nIf you have the auction house UI open you can click to search."
 L["TRADESKILL_WORK_ORDER_HELPTIP"] = "Work orders acts like a list of items to craft.\n\nGuild members can send you items they would like crafted, you can also add items yourself to create a list of materials.\n\nWhen you have crafted the item(s) you can notify the guild member its ready."
+L["TRADESKILL_WORK_ORDER_HEADER"] = "Work orders"
+L["TRADESKILL_WORK_ORDER_RECIPE_INFO_HEADER"] = "Materials required"
 
 L["TRADESKILL_WORK_ORDER_CLICK_CAST"] = "Click to craft."
 L["TRADESKILL_WORK_ORDER_ADD_TOOLTIP"] = "Add to your own work orders to see a list of total materials required."
@@ -107,6 +113,7 @@ L["HOLDABLE"]						= "Off hand"
 
 
 --character profile ui
+L["CHAR_PROFILE_IS_PVP_SPEC"] = "PvP Spec"
 L["CHAR_PROFILE_SHOW_STATS_TOOLTIP"] = "Show stats"
 L["CHAR_PROFILE_SHOW_MODEL_TOOLTIP"] = "Show model, (|cffFFD100currently show on your own character|r)"
 L["CHAR_PROFILE_EQUIPMENT_HEADER"] = "Equipment"
@@ -148,6 +155,7 @@ L["PROFILE_REAL_NAME_LABEL"] = "Name"
 L["PROFILE_REAL_BIO_LABEL"] = "Bio"
 
 L["PROFILE_LEVEL_S"] = "Level %s"
+L["PVP"] = "PvP"
 L["PROFILE_SPECIALIZATIONS_HELPTIP"] = "You can set your primary/secondary specializations and mark them as a PvP spec if you feel fancy."
 
 L["PROFILE_ALT_MANAGER_LABEL"] = "Alt manager"

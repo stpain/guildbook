@@ -2519,27 +2519,66 @@ end
 --this is to get locale names/links for crafted items
 function addon:GetLocaleTradeskillInfo()
 
-	if not tradeskillLinkLocales then
-		tradeskillLinkLocales = {}
-	end
-	if not tradeskillLinkLocales[GetLocale()] then
-		tradeskillLinkLocales[GetLocale()] = {}
+	local dbCount = #addon.tradeskillItems
+	print("requesting locale data, db size:", dbCount)
+
+	if not tradeskillLocales then
+		tradeskillLocales = {
+			items = {},
+			enchants = {},
+		}
 	end
 
+
+	local queriesComplete = 0;
 	for k, _item in ipairs(addon.tradeskillItems) do
-		
-		local item = Item:CreateFromItemID(_item.itemID)
-		if not item:IsItemEmpty() then
-			item:ContinueOnItemLoad(function()
-				local name = item:GetItemName()
-				local link = item:GetItemLink()
 
-				tradeskillLinkLocales[GetLocale()][_item.itemID] = {
-					name = name,
-					link = link,
-				}
-			end)
+		print("query:", _item.link)
+
+		if _item.tradeskill == 333 then
+			
+			if not tradeskillLocales.enchants[GetLocale()] then
+				tradeskillLocales.enchants[GetLocale()] = {}
+			end
+
+			local spell = Spell:CreateFromSpellID(_item.itemID)
+			if not spell:IsSpellEmpty() then
+				spell:ContinueOnSpellLoad(function()
+					local name = spell:GetSpellName()
+					local desc = spell:GetSpellDescription()
+	
+					tradeskillLocales.enchants[GetLocale()][_item.itemID] = {
+						name = name,
+						link = string.format("spell:%s", _item.itemID),
+						desc = desc,
+					}
+					queriesComplete = queriesComplete + 1;
+					print("completed queries:", queriesComplete)
+				end)
+			end
+
+		else
+
+			if not tradeskillLocales.items[GetLocale()] then
+				tradeskillLocales.items[GetLocale()] = {}
+			end
+
+			local item = Item:CreateFromItemID(_item.itemID)
+			if not item:IsItemEmpty() then
+				item:ContinueOnItemLoad(function()
+					local name = item:GetItemName()
+					local link = item:GetItemLink()
+	
+					tradeskillLocales.items[GetLocale()][_item.itemID] = {
+						name = name,
+						link = link,
+					}
+					queriesComplete = queriesComplete + 1;
+					print("completed queries:", queriesComplete)
+				end)
+			end
 		end
+		
 	end
 end
 

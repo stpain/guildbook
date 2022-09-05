@@ -87,6 +87,9 @@ function GuildbookDebuggerListviewMixin:OnLoad()
     self.ScrollView:SetElementInitializer("FRAME", "GuildbookDebuggerListviewItemTemplate", function(frame, elementData)
         frame:Init(elementData)
     end);
+    -- self.scrollView:SetElementResetter(function(self)
+        
+    -- end);
     self.ScrollView:SetPadding(5, 5, 5, 5, 1);
 
     ScrollUtil.InitScrollBoxListWithScrollBar(self.ScrollBox, self.ScrollBar, self.ScrollView);
@@ -160,7 +163,7 @@ Guildbook.DebuggerWindow:RegisterForDrag("LeftButton")
 Guildbook.DebuggerWindow:SetScript("OnDragStart", Guildbook.DebuggerWindow.StartMoving)
 Guildbook.DebuggerWindow:SetScript("OnDragStop", Guildbook.DebuggerWindow.StopMovingOrSizing)
 Guildbook.DebuggerWindow:SetScript("OnHide", function()
-
+    Guildbook.DebuggerWindow.listview.DataProvider:Flush()
 end)
 -- _G['GuildbookDebugFrameClose']:SetScript('OnClick', function()
 

@@ -124,19 +124,12 @@ function GuildbookTradeskillListviewItemTemplateMixin:SetDataBinding(binding, he
 
     self.item = binding;
     self:SetHeight(height)
-    if gb.tradeskillLocaleData[LOCALE] and gb.tradeskillLocaleData[LOCALE][binding.itemID] then
-        local item = gb.tradeskillLocaleData[LOCALE][binding.itemID];
-        if self.item.tradeskill == 333 then
-            self.link:SetText(item.name)
-        else
-            self.link:SetText(item.link)
-        end
+
+    local localeData = Tradeskills:GetLocaleData(binding.tradeskill, binding.itemID)
+    if self.item.tradeskill == 333 then
+        self.link:SetText(localeData.name)
     else
-        if self.item.tradeskill == 333 then
-            self.link:SetText(self.item.name)
-        else
-            self.link:SetText(self.item.link)
-        end
+        self.link:SetText(localeData.link)
     end
 
     self.addToWorkOrder:SetSize(height-8, height-8)
@@ -191,18 +184,11 @@ function GuildbookTradeskillWorkOrderListviewItemTemplateMixin:SetDataBinding(bi
 
     self.item = binding;
     self:SetHeight(height)
+    local localeData = Tradeskills:GetLocaleData(binding.tradeskill, binding.itemID)
     if self.item.tradeskill == 333 then
-        if gb.tradeskillLocaleData[LOCALE] then
-            self.link:SetText(gb.tradeskillLocaleData[LOCALE][binding.itemID].name)
-        else
-            self.link:SetText(binding.name)
-        end
+        self.link:SetText(localeData.name)
     else
-        if gb.tradeskillLocaleData[LOCALE] then
-            self.link:SetText(gb.tradeskillLocaleData[LOCALE][binding.itemID].link)
-        else
-            self.link:SetText(binding.link)
-        end
+        self.link:SetText(localeData.link)
     end
 
     self.removeFromWorkOrder:SetSize(height-8, height-8)
@@ -210,17 +196,6 @@ function GuildbookTradeskillWorkOrderListviewItemTemplateMixin:SetDataBinding(bi
         gb:TriggerEvent("TradeskillListviewItem_RemoveFromWorkOrder", binding)
     end)
 
-    if binding.tradeskill ~= "Enchanting" then
-        local localeName = binding.name
-        if gb.tradeskillLocaleData[LOCALE] then
-            localeName = gb.tradeskillLocaleData[LOCALE][binding.itemID].name;
-        end
-        local macroText = [[
-/cast %s 
-/run for i=1,GetNumTradeSkills() do if GetTradeSkillInfo(i) == %q then CloseTradeSkill() DoTradeSkill(i) end end
-]]
-        self:SetAttribute("macrotext1", macroText:format(Tradeskills:GetLocaleNameFromID(binding.tradeskill), binding.name))
-    end
 end
 
 function GuildbookTradeskillWorkOrderListviewItemTemplateMixin:OnMouseDown()
@@ -231,9 +206,6 @@ function GuildbookTradeskillWorkOrderListviewItemTemplateMixin:OnEnter()
     if self.item then
         GameTooltip:SetOwner(self, "ANCHOR_LEFT")
         local link = self.item.link
-        -- if gb.tradeskillLocaleData[LOCALE] then
-        --     link = gb.tradeskillLocaleData[LOCALE][self.item.itemID].link;
-        -- end
         GameTooltip:SetHyperlink(link)
 
         if self.item.character then
@@ -241,9 +213,9 @@ function GuildbookTradeskillWorkOrderListviewItemTemplateMixin:OnEnter()
             GameTooltip:AddLine("Work order info:")
 
             --this character object might get saved and will lose its methods so just access the data here
-            GameTooltip:AddDoubleLine("Requested by:", Colours[self.item.character.data.class]:WrapTextInColorCode(self.item.character.data.name).."|cffffffff["..self.item.guild.."]")
+            GameTooltip:AddDoubleLine("Requested by:", Colours[self.item.character.data.class]:WrapTextInColorCode(self.item.character.data.name).." |cffffffff["..self.item.guild.."]")
             GameTooltip:AddDoubleLine("Requested amount:", self.item.quantity)
-            GameTooltip:AddLine(L["TRADESKILL_WORK_ORDER_CLICK_CAST"])
+            --GameTooltip:AddLine(L["TRADESKILL_WORK_ORDER_CLICK_CAST"])
         end
         GameTooltip:Show()
     end
@@ -336,6 +308,8 @@ end
 function GuildbookTradeskillCrafterItemTemplateMixin:ResetDataBinding()
     self.character = nil;
     self.name:SetText(nil)
+
+    self.quantity:SetText(1)
 end
 
 

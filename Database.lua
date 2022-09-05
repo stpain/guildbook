@@ -229,7 +229,7 @@ function Database:ImportGuildData(data)
         if self:GuildExists(data.name) then
             self:SetGuildRosterCache(data.name, data.cache)
 
-            ViragDevTool:AddData(data.cache, "import: "..data.name)
+            --ViragDevTool:AddData(data.cache, "import: "..data.name)
 
             addon.DEBUG("func", "Database:ImportGuildData", "guild exists setting roster cache")
 

@@ -327,6 +327,8 @@ function Character:GetProfile()
     t.mainSpecIsPvp = self.data.mainSpecIsPvP;
     t.offSpec = self.data.offSpec;
     t.offSpecIsPvP = self.data.offSpecIsPvP;
+    t.mainCharacter = self.data.mainCharacter;
+    t.alts = self.data.alts;
     return t;
 end
 
@@ -482,7 +484,7 @@ function Character:CreateFromData(guid, data)
                 race = data.Race,
                 rankName = data.RankName,
                 alts = data.Alts,
-                mainCharacter = data.MainCharacter,
+                mainCharacter = data.MainCharacter or false,
                 publicNote = data.PublicNote,
                 mainSpec = data.MainSpec,
                 offSpec = data.OffSpec,
@@ -540,7 +542,7 @@ function Character:SetData(data)
         race = data.Race,
         rankName = data.RankName,
         alts = data.Alts,
-        mainCharacter = data.MainCharacter,
+        mainCharacter = data.MainCharacter or false,
         publicNote = data.PublicNote,
         mainSpec = data.MainSpec,
         offSpec = data.OffSpec,
@@ -618,7 +620,7 @@ function Character:ResetData()
         gender = "",
         guid = guid,
 
-        mainCharacter = "-",
+        mainCharacter = false,
         publicNote = "",
         alts = {},
 
@@ -688,7 +690,7 @@ function Character:New()
             race = "",
             gender = "",
 
-            mainCharacter = "-",
+            mainCharacter = false,
             publicNote = "",
             alts = {},
 

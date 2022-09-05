@@ -22,6 +22,8 @@ the copyright holders.
 
 local addonName, addon = ...
 
+local L = addon.Locales;
+
 --leaving this dialogue here so i remember how they work if i need to add 1
 
 -- StaticPopupDialogs['MainCharacterAddAltCharacter'] = {
@@ -63,4 +65,19 @@ local addonName, addon = ...
 --     whileDead = true,
 --     hideOnEscape = false,
 -- }
+
+StaticPopupDialogs['GuildbookResetGuildData'] = {
+    text = L["RESET_GUILD_DATA"],
+    button1 = ACCEPT,
+    button2 = CANCEL,
+    OnAccept = function(self, t)
+        t.callback()
+    end,
+    OnCancel = function(self)
+
+    end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = false,
+}
 
