@@ -874,7 +874,7 @@ function GuildbookMixin:OnLoad()
     self.settings.scrollChild.resetCharacter:SetText(L["SETTINGS_RESET_CHARACTER_LABEL"])
     self.settings.scrollChild.resetGuild:SetText(L["SETTINGS_RESET_GUILD_LABEL"])
 
-    self.settings.scrollChild.modifyDefaultGuildRoster:SetText(L["SETTINGS_MOD_BLIZZ_ROSTER_LABEL"])
+    self.settings.scrollChild.modifyDefaultGuildRoster.label:SetText(L["SETTINGS_MOD_BLIZZ_ROSTER_LABEL"])
     self.settings.scrollChild.modifyDefaultGuildRoster.tooltip = L["SETTINGS_MOD_BLIZZ_ROSTER_TOOLTIP"]
 
     self.settings.scrollChild.generateExportData:SetText(L["SETTINGS_EXPORT_GUILD_LABEL"])
