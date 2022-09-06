@@ -141,6 +141,11 @@ L["SETTINGS_BLOCK_COMMS_COMBAT_TOOLTIP"] = "Guildbook might send or receive data
 L["SETTINGS_BLOCK_COMMS_INSTANCE_LABEL"] = "Block data comms during an instance"
 L["SETTINGS_BLOCK_COMMS_INSTANCE_TOOLTIP"] = "Guildbook might send or receive data that could prevent or interupt other addons sending data. Although its a small possibility and the addon uses AceComm you can disable comms during an instance."
 
+L["SETTINGS_SHOW_TOOLTIP_MAIN_CHAR"] = "Show main character in tooltip"
+L["SETTINGS_SHOW_TOOLTIP_MAIN_SPEC"] = "Show main spec in tooltip"
+L["SETTINGS_SHOW_TOOLTIP_CHAR_PROFILE"] = "Show character profile in tooltip"
+L["SETTINGS_SHOW_TOOLTIP_TRADESKILLS"] = "Show Tradeskills in tooltip"
+
 L["SETTINGS_RESET_CHARACTER_LABEL"] = "Reset character data"
 L["SETTINGS_RESET_GUILD_LABEL"] = "Reset guild data"
 

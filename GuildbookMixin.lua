@@ -867,6 +867,10 @@ function GuildbookMixin:OnLoad()
     self.settings.scrollChild.blockCommsDuringCombat.tooltip = L["SETTINGS_BLOCK_COMMS_COMBAT_TOOLTIP"]
     self.settings.scrollChild.blockCommsDuringInstance.label:SetText(L["SETTINGS_BLOCK_COMMS_INSTANCE_LABEL"])
     self.settings.scrollChild.blockCommsDuringInstance.tooltip = L["SETTINGS_BLOCK_COMMS_INSTANCE_TOOLTIP"]
+    self.settings.scrollChild.showTooltipMainCharacter.label:SetText(L["SETTINGS_SHOW_TOOLTIP_MAIN_CHAR"])
+    self.settings.scrollChild.showTooltipMainSpec.label:SetText(L["SETTINGS_SHOW_TOOLTIP_MAIN_SPEC"])
+    self.settings.scrollChild.showTooltipCharacterProfile.label:SetText(L["SETTINGS_SHOW_TOOLTIP_CHAR_PROFILE"])
+    self.settings.scrollChild.showTooltipTradeskills.label:SetText(L["SETTINGS_SHOW_TOOLTIP_TRADESKILLS"])
     self.settings.scrollChild.resetCharacter:SetText(L["SETTINGS_RESET_CHARACTER_LABEL"])
     self.settings.scrollChild.resetGuild:SetText(L["SETTINGS_RESET_GUILD_LABEL"])
 
