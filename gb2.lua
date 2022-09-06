@@ -600,22 +600,52 @@ function addon:TRADE_SKILL_UPDATE(...)
 
 	end
 
-    local tradeskillRecipes = {}
-    local numTradeskills = GetNumTradeSkills()
-    for i = 1, numTradeskills do
-        local name, _type, rank, _, _ = GetTradeSkillInfo(i)
+    --print("try getting prof reipes for", tradeskillID, localeProf)
 
-        if name and (_type == "optimal" or _type == "medium" or _type == "easy" or _type == "trivial") then -- this was a fix thanks to Sigma regarding their addon showing all recipes
-            local link = GetTradeSkillItemLink(i)
-            if link then
-                local itemID = GetItemInfoInstant(link)
-                if itemID then
-                    table.insert(tradeskillRecipes, itemID)
+    local tradeskillRecipes = {}
+    if tradeskillID == 333 then
+        
+        local numCrafts = GetNumTradeSkills()
+        --print("found", numCrafts, "recipes")
+        for i = 1, numCrafts do
+            local name, _type, _, _, _, _ = GetTradeSkillInfo(i)
+            if name and (_type == "optimal" or _type == "medium" or _type == "easy" or _type == "trivial") then -- this was a fix thanks to Sigma regarding their addon showing all recipes
+                --print("got recipe not header", name)
+
+                local link = GetTradeSkillRecipeLink(i)
+                if link then
+                    --print("got link", link)
+
+                    local itemID = string.match(link, "enchant:(%d+)")
+                    if itemID then
+                        itemID = tonumber(itemID)
+                        table.insert(tradeskillRecipes, itemID)
+                    end
                 end
             end
         end
+
+    else
+
+        local numTradeskills = GetNumTradeSkills()
+        for i = 1, numTradeskills do
+            local name, _type, rank, _, _ = GetTradeSkillInfo(i)
+    
+            if name and (_type == "optimal" or _type == "medium" or _type == "easy" or _type == "trivial") then -- this was a fix thanks to Sigma regarding their addon showing all recipes
+                local link = GetTradeSkillItemLink(i)
+                if link then
+                    local itemID = GetItemInfoInstant(link)
+                    if itemID then
+                        table.insert(tradeskillRecipes, itemID)
+                    end
+                end
+            end
+        end
+
     end
-    --ViragDevTool:AddData(tradeskillRecipes, "Guildbook_tradeskillRecipes")
+
+
+    DevTools_Dump({tradeskillRecipes})
 
     self:TriggerEvent("OnPlayerTradeskillRecipesScanned", tradeskillID, currentLevel, tradeskillRecipes)
 end
