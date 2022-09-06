@@ -1,4 +1,4 @@
-# guildbook
+# guildbook https://discord.gg/c7Y5Kp3cHG
 Guild Addon for world of warcraft classic
 
 Guildbook has been updated for Wrath of the Lich King!
