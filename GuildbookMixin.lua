@@ -281,6 +281,7 @@ function GuildbookMixin:OnLoad()
     addon:RegisterCallback("OnPlayerBagsUpdated", self.OnPlayerBagsUpdated, self)
     addon:RegisterCallback("OnPlayerSecondarySkillsScanned", self.OnPlayerSecondarySkillsScanned, self)
     addon:RegisterCallback("OnPlayerTradeskillRecipesScanned", self.OnPlayerTradeskillRecipesScanned, self)
+    addon:RegisterCallback("OnPlayerTradeskillRecipesLinked", self.OnPlayerTradeskillRecipesLinked, self)
     addon:RegisterCallback("OnPlayerEquipmentChanged", self.OnPlayerEquipmentChanged, self)
     addon:RegisterCallback("OnPlayerStatsChanged", self.OnPlayerStatsChanged, self)
     addon:RegisterCallback("OnPlayerTalentSpecChanged", self.OnPlayerTalentSpecChanged, self)
@@ -1037,6 +1038,7 @@ function GuildbookMixin:LoadHelp()
 
     self.help.header:SetText(L["HELP_HEADER"])
     self.help.about:SetText(L["HELP_ABOUT"])
+    self.help.discordLink:SetText("https://discord.gg/c7Y5Kp3cHG")
 
     local numFaq = 7
 
@@ -1080,7 +1082,7 @@ function GuildbookMixin:OnCommsMessage(sender, data)
 
     --lets just save hassle and only accept data from same
     if type(addonVersion) == "number" and (addonVersion < 5) then
-        self.statusText:SetText(string.format("%s needs to update their addon, data ignored...", character:GetName()))
+        self:SetStatusText(string.format("%s needs to update their addon, data ignored...", character:GetName()))
         return;
     end
 
@@ -1091,7 +1093,7 @@ function GuildbookMixin:OnCommsMessage(sender, data)
         return
     end
 
-    self.statusText:SetText(string.format("%s from %s", commType, character:GetName()))
+    self:SetStatusText(string.format("%s from %s", commType, character:GetName()))
 
     if commType == "TRADESKILL_WORK_ORDER_ADD" then
         self:TradeskillListviewItem_OnAddToWorkOrder(data.payload, character, guild:GetName())
@@ -1897,6 +1899,23 @@ function GuildbookMixin:OnPlayerTradeskillRecipesScanned(tradeskill, level, reci
     --Comms:SendChatMessage(msg, "GUILD", nil, "NORMAL")
     Comms:QueueMessage(msg.type, msg, "GUILD", nil, "NORMAL")
 end
+
+
+function GuildbookMixin:OnPlayerTradeskillRecipesLinked(characterName, tradeskill, level, recipes)
+
+    for k, guild in ipairs(self.guilds) do
+
+        for k, character in guild:GetCharacters("name") do
+
+            if character:GetName() == characterName then
+                local guid = character:GetGuid()
+                self:HandleTradeskillUpdate(guid, tradeskill, level, recipes)
+            end
+        end
+    end
+
+end
+
 
 
 function GuildbookMixin:HandleSecondarySkillsUpdate(guid, secondarySkills)

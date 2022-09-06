@@ -1903,7 +1903,7 @@
 
             <ScrollFrame parentKey="help" hidden="true" inherits="UIPanelScrollFrameTemplate">
                 <Anchors>
-                    <Anchor point="TOPLEFT" relativeKey="$parent.menu" relativePoint="TOPRIGHT" x="5" y="-84"/>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.menu" relativePoint="TOPRIGHT" x="5" y="-110"/>
                     <Anchor point="BOTTOMRIGHT" x="-25" y="0"/>
                 </Anchors>
                 <Layers>
@@ -1912,12 +1912,12 @@
                             <Size y="24"/>
                             <Color r="1" g="1" b="1"/>
                             <Anchors>
-                                <Anchor point="TOPLEFT" x="0" y="80"/>
-                                <Anchor point="TOPRIGHT" x="-26" y="80"/>
+                                <Anchor point="TOPLEFT" x="0" y="106"/>
+                                <Anchor point="TOPRIGHT" x="-26" y="106"/>
                             </Anchors>
                         </FontString>
                         <FontString parentKey="about" inherits="GameFontNormal">
-                            <Size y="60"/>
+                            <Size y="40"/>
                             <Color r="1" g="1" b="1"/>
                             <Anchors>
                                 <Anchor point="TOPLEFT" relativeKey="$parent.header" relativePoint="BOTTOMLEFT" x="0" y="-2"/>
@@ -1926,6 +1926,14 @@
                         </FontString>
                     </Layer>
                 </Layers>
+                <Frames>
+                    <EditBox parentKey="discordLink" inherits="InputBoxTemplate" autoFocus="false">
+                        <Size x="200" y="24"/>
+                        <Anchors>
+                            <Anchor point="TOP" relativeKey="$parent.about" relativePoint="BOTTOM" x="0" y="-5"/>
+                        </Anchors>
+                    </EditBox>
+                </Frames>
                 <ScrollChild>
                     <Frame parentKey="scrollChild">
                         <Anchors>

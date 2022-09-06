@@ -83,6 +83,7 @@ addon:GenerateCallbackEvents({
 
     "OnPlayerBagsUpdated",
     "OnPlayerTradeskillRecipesScanned",
+    "OnPlayerTradeskillRecipesLinked",
 	"OnPlayerSecondarySkillsScanned",
     "OnPlayerTalentSpecChanged",
     "OnPlayerEquipmentChanged",
@@ -114,34 +115,6 @@ CallbackRegistryMixin.OnLoad(addon);
 
 
 
-
-
-
-
-
-
-
-
-function addon:GetLocaleGlyphNames()
-
-	if not glyphLocales then
-		glyphLocales = {}
-	end
-	if not glyphLocales[GetLocale()] then
-		glyphLocales[GetLocale()] = {}
-	end
-
-	for k, glyph in ipairs(glyphsData) do
-		local item = Item:CreateFromItemID(glyph.itemId)
-		if not item:IsItemEmpty() then
-			item:ContinueOnItemLoad(function()
-				local name = item:GetItemName()
-				glyphLocales[GetLocale()][name] = glyph.itemId;
-			end)
-		end
-	end
-
-end
 
 
 --this is to get locale names/links for crafted items
@@ -584,21 +557,22 @@ function addon:TRADE_SKILL_UPDATE(...)
 		addon.DEBUG("func", "addon:TRADE_SKILL_UPDATE", "tradeskillID not found")
 	end
 
-	if tradeskillID == 186 then
-		addon.DEBUG("characterMixin", "Character:ScanTradeskillRecipes", "got mining skipping link button")
-	else
+	-- if tradeskillID == 186 then
+	-- 	addon.DEBUG("characterMixin", "Character:ScanTradeskillRecipes", "got mining skipping link button")
+	-- else
 
-		if TradeSkillLinkButton then
-			if TradeSkillLinkButton:IsVisible() then
-				--no link button suggests its not our own prof
-			else
-				return
-			end
-		else
+	-- 	if TradeSkillLinkButton then
+	-- 		if TradeSkillLinkButton:IsVisible() then
+				
+	-- 		else
+    --             local tradeskillLink = GetTradeSkillListLink()
+	-- 			return
+	-- 		end
+	-- 	else
 
-		end
+	-- 	end
 
-	end
+	-- end
 
     --print("try getting prof reipes for", tradeskillID, localeProf)
 
@@ -645,9 +619,16 @@ function addon:TRADE_SKILL_UPDATE(...)
     end
 
 
-    DevTools_Dump({tradeskillRecipes})
+    --DevTools_Dump({tradeskillRecipes})
 
-    self:TriggerEvent("OnPlayerTradeskillRecipesScanned", tradeskillID, currentLevel, tradeskillRecipes)
+    local isLinked, characterName = IsTradeSkillLinked()
+
+    if isLinked == true then
+        self:TriggerEvent("OnPlayerTradeskillRecipesLinked", characterName, tradeskillID, currentLevel, tradeskillRecipes)
+    else
+        self:TriggerEvent("OnPlayerTradeskillRecipesScanned", tradeskillID, currentLevel, tradeskillRecipes)
+    end
+
 end
 
 
