@@ -64683,7 +64683,14 @@ tradeskillLocales = {
 
 
 
-function Tradeskills:GetLocaleData(tradeskillID, id)
+function Tradeskills:GetLocaleData(item)
+
+	if LOCALE == "enUS" then
+		return item
+	end
+
+	local tradeskillID = item.tradeskill
+	local id = item.itemID
 
 	if tradeskillID == 333 then
 
@@ -64698,8 +64705,8 @@ function Tradeskills:GetLocaleData(tradeskillID, id)
 	end
 
 	return {
-		name = "-",
-		link = "-",
+		name = "locale unknown - report bug",
+		link = "locale unknown - report bug",
 	}
 end
 

@@ -34,20 +34,20 @@ local GUILD_INFORMATION_BUTTON_WIDTH = GuildFrameGuildInformationButton:GetWidth
 -- config stuff
 Guildbook.GuildFrame = {
     ColumnHeaders = {
-        { Text = 'Rank', Width = 70, },
-        { Text = 'Note', Width = 80, },
+        { Text = 'Rank', Width = 90, },
+        { Text = 'Note', Width = 100, },
         { Text = 'MainSpec', Width = 100, },
-        { Text = 'Profession1', Width = 90, },
-        { Text = 'Profession2', Width = 90, },
+        { Text = 'Profession1', Width = 95, },
+        { Text = 'Profession2', Width = 95, },
         { Text = 'Online', Width = 65, },
     },
     ColumnTabs = {},
     ColumnWidths = {
-        Rank = 67.0,
-        Note = 77.0,
+        Rank = 87.0,
+        Note = 97.0,
         MainSpec = 97.0,
-        Profession1 = 87.0,
-        Profession2 = 87.0,
+        Profession1 = 92.0,
+        Profession2 = 92.0,
         Online = 52.0,
     },
     ColumnMarginX = 1.0,
@@ -75,9 +75,9 @@ function Guildbook:ModBlizzUI()
     GuildFrameGuildInformationButton:SetWidth(GUILD_INFORMATION_BUTTON_WIDTH)
 
     GuildFrame:HookScript('OnShow', function()
-        C_Timer.After(0.1, function()
-            GuildFrame:SetWidth(830)
-            FriendsFrame:SetWidth(830)
+        C_Timer.After(0.01, function()
+            GuildFrame:SetWidth(880)
+            FriendsFrame:SetWidth(880)
         end)
     end)
     

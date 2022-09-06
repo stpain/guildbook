@@ -125,7 +125,7 @@ function GuildbookTradeskillListviewItemTemplateMixin:SetDataBinding(binding, he
     self.item = binding;
     self:SetHeight(height)
 
-    local localeData = Tradeskills:GetLocaleData(binding.tradeskill, binding.itemID)
+    local localeData = Tradeskills:GetLocaleData(binding)
     if self.item.tradeskill == 333 then
         self.link:SetText(localeData.name)
     else
@@ -140,7 +140,16 @@ end
 
 function GuildbookTradeskillListviewItemTemplateMixin:OnMouseDown()
     if self.item then
-        gb:TriggerEvent("TradeskillListviewItem_OnMouseDown", self.item)
+
+        if IsControlKeyDown() then
+            if self.item.tradeskill ~= 333 then
+                local localeData = Tradeskills:GetLocaleData(self.item)
+                DressUpItemLink(localeData.link)
+            end
+
+        else
+            gb:TriggerEvent("TradeskillListviewItem_OnMouseDown", self.item)
+        end
     end
 end
 
@@ -165,6 +174,7 @@ function GuildbookTradeskillListviewItemTemplateMixin:OnLoad()
     self.addToWorkOrder:SetScript("OnLeave", function()
         GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
     end)
+
 end
 
 function GuildbookTradeskillListviewItemTemplateMixin:ResetDataBinding()
@@ -184,7 +194,7 @@ function GuildbookTradeskillWorkOrderListviewItemTemplateMixin:SetDataBinding(bi
 
     self.item = binding;
     self:SetHeight(height)
-    local localeData = Tradeskills:GetLocaleData(binding.tradeskill, binding.itemID)
+    local localeData = Tradeskills:GetLocaleData(binding)
     if self.item.tradeskill == 333 then
         self.link:SetText(localeData.name)
     else

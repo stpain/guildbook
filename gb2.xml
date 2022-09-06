@@ -117,7 +117,9 @@
 
                 <Layers>
                     <Layer level="OVERLAY">
-                        <FontString parentKey="text" setAllPoints="true" inherits="GameFontNormal"/>
+                        <FontString parentKey="text" setAllPoints="true" inherits="GameFontNormalLarge">
+                            <Color r="1" g="1" b="1"/>
+                        </FontString>
                     </Layer>
                 </Layers>
             </Frame>
@@ -244,9 +246,39 @@
                             <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-5" y="5"/>
                         </Anchors>
 
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture atlas="questitemborder-small">
+                                    <Size x="195" y="28"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="2" y="1"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+
                         <Frames>
 
-                            <Frame parentKey="members" inherits="GuildbookListviewTemplate">
+                            <CheckButton parentKey="showOfflineMembers" inherits="ChatConfigCheckButtonTemplate" >
+                                <CheckedTexture atlas="orderhalltalents-done-checkmark"/>
+                                <Size x="24" y="24"/>
+                                <Layers>
+                                    <Layer>
+                                        <FontString parentKey="label" inherits="GameFontNormal" text="Show offline">
+                                            <Color r="1" g="1" b="1" a="1"/>
+                                            <FontHeight val="12"/>
+                                            <Anchors>
+                                                <Anchor point="LEFT" x="24"/>
+                                            </Anchors>
+                                        </FontString>
+                                    </Layer>
+                                </Layers>                
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="4" y="-2"/>
+                                </Anchors>
+                            </CheckButton>
+
+                            <Frame parentKey="members" inherits="InsetFrameTemplate3,GuildbookListviewTemplate">
                                 <Size x="200"/>
                                 <Anchors>
                                     <Anchor point="TOPLEFT" x="0" y="-30"/>
@@ -688,7 +720,7 @@
                                                 </Anchors>
                                             </Frame>
                                             <Frame parentKey="equipSlotOffhand" parentArray="equipSlots" inherits="GuildbookProfileEquipmentIcon">
-                                                <Size x="190" y="32"/>
+                                                <Size x="220" y="32"/>
                                                 <Anchors>
                                                     <Anchor point="TOP" relativeKey="$parent.equipsetDropdown" relativePoint="TOP"  x="0" y="-360"/>
                                                 </Anchors>
@@ -1181,30 +1213,30 @@
                             </Frame>
 
                             <Frame parentKey="tradeskillHelp" parentArray="helptips" hidden="true" inherits="GuildbookHelpTipTemplate_BottomArrow">
-                                <Size x="220" y="65"/>
+                                <Size x="220" y="85"/>
                                 <Anchors>
-                                    <Anchor point="BOTTOMRIGHT" relativePoint="TOPLEFT" x="240" y="0"/>
+                                    <Anchor point="BOTTOMRIGHT" relativePoint="TOPLEFT" x="260" y="0"/>
                                 </Anchors>
                             </Frame>
 
                             <Frame parentKey="tradeskillCraftersHelp" parentArray="helptips" hidden="true" inherits="GuildbookHelpTipTemplate_BottomArrow">
-                                <Size x="220" y="40"/>
+                                <Size x="180" y="65"/>
                                 <Anchors>
-                                    <Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="-240" y="-25"/>
+                                    <Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="-270" y="-15"/>
                                 </Anchors>
                             </Frame>
 
                             <Frame parentKey="tradeskillRecipeInfoHelp" parentArray="helptips" hidden="true" inherits="GuildbookHelpTipTemplate_TopArrow">
-                                <Size x="220" y="90"/>
+                                <Size x="220" y="85"/>
                                 <Anchors>
-                                    <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-280" y="60"/>
+                                    <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-210" y="40"/>
                                 </Anchors>
                             </Frame>
 
                             <Frame parentKey="workOrderHelp" parentArray="helptips" hidden="true" inherits="GuildbookHelpTipTemplate_BottomArrow">
-                                <Size x="280" y="115"/>
+                                <Size x="280" y="105"/>
                                 <Anchors>
-                                    <Anchor point="RIGHT" relativePoint="RIGHT" x="160" y="140"/>
+                                    <Anchor point="RIGHT" relativePoint="RIGHT" x="170" y="140"/>
                                 </Anchors>
                             </Frame>
 
@@ -1654,7 +1686,7 @@
 
 
 
-                            <Button parentKey="scanForLocaleData" hidden="true">
+                            <Button parentKey="sample" hidden="true">
                                 <Size x="200" y="24"/>
                                 <NormalTexture atlas="clickcastlist-buttonbackground"/>
                                 <PushedTexture/>
@@ -1664,7 +1696,7 @@
                                 </Anchors>
                                 <Layers>
                                     <Layer level="OVERLAY">
-                                        <FontString parentKey="label" inherits="GameFontNormal" text="Scan for locales">
+                                        <FontString parentKey="label" inherits="GameFontNormal" text="sample button">
                                             <Color r="1" g="1" b="1"/>
                                         </FontString>
                                     </Layer>

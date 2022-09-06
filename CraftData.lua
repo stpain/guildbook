@@ -42569,6 +42569,22 @@ local tradeskillItems = {
 		}, -- [105]
 		{
 			["tradeskill"] = 773,
+			["link"] = "|cffffffff|Hitem:41518::::::::65:::::::::|h[Glyph of Lightning Bolt]|h|r",
+			["class"] = 16,
+			["subClass"] = 7,
+			["glyphClass"] = "SHAMAN",
+			["name"] = "Glyph of Lightning Bolt",
+			["itemID"] = 41536,
+			["reagents"] = {
+				[43116] = 1,
+				[10648] = 1,
+			},
+			["glyphType"] = "Major",
+			["icon"] = 254295,
+			["quality"] = 1,
+		}, -- [106]
+		{
+			["tradeskill"] = 773,
 			["link"] = "|cffffffff|Hitem:41518::::::::65:::::::::|h[Glyph of Chain Lightning]|h|r",
 			["class"] = 16,
 			["subClass"] = 7,
@@ -54867,3 +54883,9 @@ for expansion, data in pairs(tradeskillItems) do
 	end
 end
 
+addon.glyphData = {}
+for k, item in ipairs(addon.tradeskillItems) do
+	if item.tradeskill == 773 then
+		table.insert(addon.glyphData, item)
+	end
+end

@@ -71,6 +71,13 @@ Database.keysToRemove = {
 
 function Database:Init()
 
+    if not GUILDBOOK_DATA then
+        GUILDBOOK_DATA = {
+            items = {},
+            enchants = {},
+        }
+    end
+
     --setup and check the account wide saved variables
     if not GUILDBOOK_GLOBAL then
         GUILDBOOK_GLOBAL = {};

@@ -54,11 +54,14 @@ To get started tap, click or whack that arrow like symbol up in the top left.
 That opens the menu which should have your guild(s) listed. If it doesn't then
 go to curse and complain ;)
 
-5.2
-- added inscription data
-- added option to modify default roster
-- set minimap icon to show by default
-- fixed memory issues
+
+UPDATES 5.4
+
+- added show offline roster check box
+- added locale data for tradeskill items
+- added ctrl click dress up option for tradeskill items
+- fixed issue with extended blizzard guild ui (hopefully)
+
 
 ]]
 
@@ -72,15 +75,15 @@ L["GUILD_HOME_LABEL"] = "Home"
 L["GUILD_TRADESKILLS_LABEL"] = "Tradeskills"
 L["GUILD_HOME_NO_MOTD"] = "You are viewing a guild different to your characters, some information may be old or not available."
 L["GUILD_HOME_MEMBERS_HELPTIP"] = "Guild members are shown here, you can click a member to view more information about them."
-L["GUILD_HOME_CALENDAR_HELPTIP"] = "Calendar events show here, (might need to open the calendar first)."
+L["GUILD_HOME_CALENDAR_HELPTIP"] = "Calendar events show here.\n\n(Might need to open the calendar first)."
 L["GUILD_HOME_CLASS_INFO_HEADER"] = "Class info"
 
 
 --tradeskill ui
 L["TRADESKILL_SEARCH_HEADER"] = "Search"
-L["TRADESKILL_SEARCH_HELPTIP"] = "Profession items are listed here.\n\nSearch by profession or tap the dropdown arrow to view categories."
+L["TRADESKILL_SEARCH_HELPTIP"] = "Profession items are listed here.\n\nSearch by profession or tap the dropdown arrow to view categories.\n\nCtrl+click to view an item on your character."
 L["TRADESKILL_CRAFTERS_HEADER"] = "Crafters"
-L["TRADESKILL_CRAFTERS_HELPTIP"] = "Guild members who can craft the item will show here."
+L["TRADESKILL_CRAFTERS_HELPTIP"] = "Characters who can craft the item are listed here.\n\nIf the character is offline the request will fail"
 L["TRADESKILL_RECIPE_INFO_HEADER"] = "Recipe info:"
 L["TRADESKILL_RECIPE_INFO_HELPTIP"] = "If you have Auctionator installed the cost of required materials will be calculated and shown.\n\nIf you have the auction house UI open you can click to search."
 L["TRADESKILL_WORK_ORDER_HELPTIP"] = "Work orders acts like a list of items to craft.\n\nGuild members can send you items they would like crafted, you can also add items yourself to create a list of materials.\n\nWhen you have crafted the item(s) you can notify the guild member its ready."
@@ -156,7 +159,7 @@ L["PROFILE_REAL_BIO_LABEL"] = "Bio"
 
 L["PROFILE_LEVEL_S"] = "Level %s"
 L["PVP"] = "PvP"
-L["PROFILE_SPECIALIZATIONS_HELPTIP"] = "You can set your primary/secondary specializations and mark them as a PvP spec if you feel fancy."
+L["PROFILE_SPECIALIZATIONS_HELPTIP"] = "You can set your primary/secondary specializations and mark them as a PvP spec if you like that sort of thing."
 
 L["PROFILE_ALT_MANAGER_LABEL"] = "Alt manager"
 L["PROFILE_ALT_MANAGER_LABEL_RIGHT"] = "Main"

@@ -536,6 +536,10 @@ function GuildbookMixin:OnLoad()
         end
     end)
 
+    self.guild.home.showOfflineMembers:SetScript("OnClick", function()
+        self:UpdateMembersList()
+    end)
+
     --set up the tradeskills view
     self.guild.tradeskills.tradeskillHelp.Arrow:ClearAllPoints()
     self.guild.tradeskills.tradeskillHelp.Arrow:SetPoint("BOTTOMRIGHT", -20, -60)
@@ -831,7 +835,7 @@ function GuildbookMixin:OnLoad()
 
             for k, item in ipairs(addon.tradeskillItems) do
 
-                local localeData = Tradeskills:GetLocaleData(item.tradeskill, item.itemID)
+                local localeData = Tradeskills:GetLocaleData(item)
 
                 if localeData.name:lower():find(eb:GetText():lower()) then
                     table.insert(t, item)
@@ -945,12 +949,12 @@ function GuildbookMixin:OnLoad()
     end)
     self.settings.scrollChild.debug:SetScript("OnClick", function()
         addon.DebuggerWindow:SetShown(not addon.DebuggerWindow:IsVisible())
-        self.settings.scrollChild.scanForLocaleData:SetShown(not self.settings.scrollChild.scanForLocaleData:IsVisible())
+        --self.settings.scrollChild.scanForLocaleData:SetShown(not self.settings.scrollChild.scanForLocaleData:IsVisible())
     end)
 
-    self.settings.scrollChild.scanForLocaleData:SetScript("OnClick", function()
-        addon:GetLocaleTradeskillInfo()
-    end)
+    -- self.settings.scrollChild.scanForLocaleData:SetScript("OnClick", function()
+    --     addon:GetLocaleTradeskillInfo()
+    -- end)
 
     self.settings.scrollChild.generateExportData:SetScript("OnClick", function()
         if self.selectedGuild then
@@ -960,7 +964,6 @@ function GuildbookMixin:OnLoad()
     end)
 
     self.settings.scrollChild.importData:SetScript("OnClick", function()
-        print("import")
         if self.settings.scrollChild.importExportEditbox.EditBox:GetText() ~= "" then
             local dataString = self.settings.scrollChild.importExportEditbox.EditBox:GetText()
             Comms.pause = true;
@@ -1141,6 +1144,29 @@ function GuildbookMixin:OnCommsMessage(sender, data)
 end
 
 
+function GuildbookMixin:UpdateMembersList()
+    
+    self.guild.home.members.DataProvider:Flush()
+
+    if type(self.selectedGuild) == "table" then
+
+        for k, character in self.selectedGuild:GetCharacters("name") do
+
+            local onlineInfo = character:GetOnlineStatus()
+
+            if self.guild.home.showOfflineMembers:GetChecked() == true then
+                self.guild.home.members.DataProvider:Insert(character) 
+            else
+                if onlineInfo.isOnline == true then
+                    self.guild.home.members.DataProvider:Insert(character)
+                end
+            end
+        end
+
+    end
+
+end
+
 
 --when the player opens the addon and no guild is currently selected, see if they are in a guild
 function GuildbookMixin:OnShow()
@@ -1156,18 +1182,9 @@ function GuildbookMixin:OnShow()
                 end
             end
         end
-
-        if type(self.selectedGuild) == "table" then
-
-            for k, character in self.selectedGuild:GetCharacters("name") do
-
-                self.guild.home.members.DataProvider:Insert(character)
-            end
-
-        end
-
     end
 
+    self:UpdateMembersList()
 end
 
 function GuildbookMixin:OnHide()
@@ -1249,10 +1266,11 @@ function GuildbookMixin:OnDatabaseInitialised()
     self.settings.scrollChild.showTooltipCharacterProfile:SetChecked(Database:GetConfigSetting("showTooltipCharacterProfile"))
     self.settings.scrollChild.showTooltipTradeskills:SetChecked(Database:GetConfigSetting("showTooltipTradeskills"))
 
+    self.settings.scrollChild.modifyDefaultGuildRoster:SetChecked(Database:GetConfigSetting("modifyDefaultGuildRoster"))
+
     local isGuildUiModded = false;
-    GuildFrame:HookScript("OnShow", function()
+    FriendsFrameTab3:HookScript("OnShow", function()
         local modBlizzGuildUI = Database:GetConfigSetting("modifyDefaultGuildRoster")
-        self.settings.scrollChild.modifyDefaultGuildRoster:SetChecked(modBlizzGuildUI)
         if modBlizzGuildUI == true and isGuildUiModded == false then
             addon:ModBlizzUI()
             isGuildUiModded = true;
@@ -1412,10 +1430,7 @@ function GuildbookMixin:OnGuildChanged(guild)
     --self.selectedGuild:LoadCharactersFromSavedVars()
     self.selectedGuild:ScanGuildRoster()
     --self.title:SetText(self.selectedGuild:GetName())
-    self.guild.home.members.DataProvider:Flush()
-    for k, character in self.selectedGuild:GetCharacters("name") do
-        self.guild.home.members.DataProvider:Insert(character)
-    end
+    self:UpdateMembersList()
 
     self:OpenTo("guild")
 
@@ -1590,9 +1605,13 @@ function GuildbookMixin:TradeskillListviewItem_OnMouseDown(item)
     
     self.guild.tradeskills.recipeCrafters.selectedItem = nil;
 
-    local localeData = Tradeskills:GetLocaleData(item.tradeskill, item.itemID)
+    local localeData = Tradeskills:GetLocaleData(item)
 
-    self.guild.tradeskills.recipeLink:SetText(localeData.name)
+    if item.tradeskill == 333 then
+        self.guild.tradeskills.recipeLink:SetText(localeData.name)
+    else
+        self.guild.tradeskills.recipeLink:SetText(localeData.link)
+    end
     self.guild.tradeskills.recipeIcon:SetTexture(item.icon)
 
 
