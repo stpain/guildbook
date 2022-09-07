@@ -242,7 +242,7 @@ function Guild:FindCharacterAlts(guid)
 end
 
 
-function Guild:SetMainCharacterForAlts(main)
+function Guild:SetMyCharactersAlts(main)
 
     local alts = {}
     for guid, info in pairs(Database:GetMyCharacters()) do
@@ -263,6 +263,16 @@ function Guild:SetMainCharacterForAlts(main)
         local character = self:GetCharacter(alt)
         if type(character) == "table" then
             character:SetAlts(alts)
+        end
+    end
+end
+
+
+function Guild:SetAllCharactersAlts(alts)
+
+    for k, guid in ipairs(alts) do
+        if self.data.members[guid] then
+            self.data.members[guid]:SetAlts(alts)
         end
     end
 end
