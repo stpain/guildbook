@@ -72,8 +72,8 @@ Database.keysToRemove = {
 
 function Database:Init()
 
-    if not GUILDBOOK_DATA then
-        GUILDBOOK_DATA = {
+    if not GUILDBOOK_LOCALES then
+        GUILDBOOK_LOCALES = {
             items = {},
             enchants = {},
         }

@@ -108,15 +108,6 @@ CallbackRegistryMixin.OnLoad(addon);
 
 
 
-
-
-
-
-
-
-
-
-
 --this is to get locale names/links for crafted items
 function addon:GetLocaleTradeskillInfo()
 
@@ -269,7 +260,7 @@ function addon:ScanPlayerTalents(...)
             if name then
                 for k, item in ipairs(addon.glyphData) do
 					local localeData = Tradeskills:GetLocaleData(item)
-					if localeData.name == name then
+					if localeData and (localeData.name == name) then
 						table.insert(glyphs, {
 							socket = i,
 							glyphType = item.glyphType,
@@ -506,6 +497,10 @@ function addon:PLAYER_ENTERING_WORLD()
 	hooksecurefunc(C_EquipmentSet, "DeleteEquipmentSet", function()
 		self:ScanPlayerEquipment()
 	end)
+
+    -- C_Timer.After(5, function()
+    --     self:GetLocaleTradeskillInfo()
+    -- end)
 end
 
 

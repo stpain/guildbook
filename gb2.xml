@@ -25,6 +25,30 @@
                         <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="10" y="-60"/>
                     </Anchors>
                 </FontString>
+                <FontString parentKey="mainCharacter" inherits="GameFontNormalLarge">
+                    <Color r="1" g="1" b="1"/>
+                    <Anchors>
+                        <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="10" y="-60"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="prof1" inherits="GameFontNormalLarge">
+                    <Color r="1" g="1" b="1"/>
+                    <Anchors>
+                        <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="10" y="-60"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="prof2" inherits="GameFontNormalLarge">
+                    <Color r="1" g="1" b="1"/>
+                    <Anchors>
+                        <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="10" y="-60"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="profile" inherits="GameFontNormalLarge">
+                    <Color r="1" g="1" b="1"/>
+                    <Anchors>
+                        <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="10" y="-60"/>
+                    </Anchors>
+                </FontString>
             </Layer>
         </Layers>
     </Frame>

@@ -60083,6 +60083,7 @@ for expansion, data in pairs(tradeskillItems) do
 			end
 		end
 	end
+
 end
 
 

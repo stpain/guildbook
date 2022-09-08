@@ -129,7 +129,11 @@ function GuildbookTradeskillListviewItemTemplateMixin:SetDataBinding(binding, he
     if self.item.tradeskill == 333 then
         self.link:SetText(localeData.name)
     else
-        self.link:SetText(localeData.link)
+        if localeData.link:find("spell:") then
+            self.link:SetText(localeData.name)
+        else
+            self.link:SetText(localeData.link)
+        end
     end
 
     self.addToWorkOrder:SetSize(height-8, height-8)
@@ -138,8 +142,10 @@ function GuildbookTradeskillListviewItemTemplateMixin:SetDataBinding(binding, he
     end)
 end
 
-function GuildbookTradeskillListviewItemTemplateMixin:OnMouseDown()
+function GuildbookTradeskillListviewItemTemplateMixin:OnMouseDown(button)
     if self.item then
+
+
 
         if IsControlKeyDown() then
             if self.item.tradeskill ~= 333 then
@@ -202,7 +208,11 @@ function GuildbookTradeskillWorkOrderListviewItemTemplateMixin:SetDataBinding(bi
     if self.item.tradeskill == 333 then
         self.link:SetText(localeData.name)
     else
-        self.link:SetText(localeData.link)
+        if localeData.link:find("spell:") then
+            self.link:SetText(localeData.name)
+        else
+            self.link:SetText(localeData.link)
+        end
     end
 
     self.removeFromWorkOrder:SetSize(height-8, height-8)
@@ -1358,12 +1368,22 @@ function GuildbookTooltipExtensionMixin:SetCharacter(character, showMain, showMa
     end
 
     if showMainSpec then
-        self.mainSpec:SetText(string.format("%s %s", CreateAtlasMarkup(character:GetClassSpecAtlasName("primary"), 20, 20), character:GetSpec("primary")))
+        local localeSpec, engSpec, specID = character:GetSpec("primary")
+        if localeSpec then
+            self.mainSpec:SetText(string.format("%s %s", CreateAtlasMarkup(character:GetClassSpecAtlasName("primary"), 20, 20), character:GetSpec("primary")))
+        end
     else
 
     end
 
     if showTradeskills then
+        local prof1 = character:GetTradeskill(1)
+        local prof1Level = character:GetTradeskillLevel(1)
+        local prof1Spec = character:GetTradeskillSpec(1)
+        local prof2 = character:GetTradeskill(2)
+        local prof2Level = character:GetTradeskillLevel(2)
+        local prof2Spec = character:GetTradeskillSpec(2)
+
         
     else
         
@@ -1380,4 +1400,5 @@ function GuildbookTooltipExtensionMixin:SetCharacter(character, showMain, showMa
 end
 function GuildbookTooltipExtensionMixin:Clear()
     self.name:SetText("")
+    self.mainSpec:SetText("")
 end

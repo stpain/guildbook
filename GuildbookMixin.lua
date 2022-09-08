@@ -179,6 +179,7 @@ function GuildbookMixin:OpenTo(frame, showMenu)
         self.guild:Show()
         self.guild.tradeskills:Show()
 
+
     elseif frame == "character" then
         self.guild:Show()
         self.guild.home:Show()
@@ -1378,6 +1379,7 @@ end
 --once the database object has set up and verified the saved variables add some data to VDT and create the guild objects, minimap button
 function GuildbookMixin:OnDatabaseInitialised()
 
+
     if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache then
         
         local i = 0;
@@ -1482,8 +1484,15 @@ function GuildbookMixin:OnDatabaseInitialised()
     self:InitThemeDropDown()
 
 
+    GameTooltip:HookScript("OnHide", function()
+        GuildbookTooltipExtension:ClearAllPoints()
+        GuildbookTooltipExtension:Clear()
+        GuildbookTooltipExtension:Hide()
+    end)
 
     GameTooltip:HookScript('OnTooltipSetUnit', function(tooltip)
+        GuildbookTooltipExtension:ClearAllPoints()
+        GuildbookTooltipExtension:Hide()
         if InCombatLockdown() then
             return;
         end
@@ -1491,12 +1500,9 @@ function GuildbookMixin:OnDatabaseInitialised()
         local guid = unit and UnitGUID(unit) or nil
         if guid and guid:find('Player-') then
             self:HandleTooltipExtension(tooltip, guid)
-        else
-            GuildbookTooltipExtension:ClearAllPoints()
-            GuildbookTooltipExtension:Hide()
-            GuildbookTooltipExtension:SetParent(UIParent)
         end
     end)
+
 end
 
 
@@ -1517,6 +1523,7 @@ function GuildbookMixin:HandleTooltipExtension(tooltip, guid)
         end
         if type(character) ~= "table" then
             GuildbookTooltipExtension:ClearAllPoints()
+            GuildbookTooltipExtension:Clear()
             GuildbookTooltipExtension:Hide()
             GuildbookTooltipExtension:SetParent(UIParent)
             return
@@ -1533,6 +1540,7 @@ function GuildbookMixin:HandleTooltipExtension(tooltip, guid)
 
     else
         GuildbookTooltipExtension:ClearAllPoints()
+        GuildbookTooltipExtension:Clear()
         GuildbookTooltipExtension:Hide()
         GuildbookTooltipExtension:SetParent(UIParent)
     end
@@ -1888,7 +1896,11 @@ function GuildbookMixin:TradeskillListviewItem_OnMouseDown(item)
     if item.tradeskill == 333 then
         self.guild.tradeskills.recipeLink:SetText(localeData.name)
     else
-        self.guild.tradeskills.recipeLink:SetText(localeData.link)
+        if localeData.link:find("spell:") then
+            self.guild.tradeskills.recipeLink:SetText(localeData.name)
+        else
+            self.guild.tradeskills.recipeLink:SetText(localeData.link)
+        end
     end
     self.guild.tradeskills.recipeIcon:SetTexture(item.icon)
 
