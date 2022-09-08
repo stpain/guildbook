@@ -60086,7 +60086,7 @@ for expansion, data in pairs(tradeskillItems) do
 end
 
 
---this is used byt the talent scan function to get the glyph itemID
+--this is used byt the talent scan function, rather than search all tradeskills i made this for just inscription
 local glyphsSeen = {}
 addon.glyphData = {}
 for k, item in ipairs(addon.tradeskillItems) do

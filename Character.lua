@@ -235,10 +235,10 @@ end
 
 function Character:CanCraftItem(item)
 
-    addon.DEBUG("func", "Character:CanCraftItem", string.format("looking for crafters for %s", item.name))
+    --addon.DEBUG("func", "Character:CanCraftItem", string.format("looking for crafters for %s", item.name))
 
     if self.data.profession1 == item.tradeskill then
-        addon.DEBUG("func", "Character:CanCraftItem", string.format("found matching prof 1 for %s", self.data.name))
+        --addon.DEBUG("func", "Character:CanCraftItem", string.format("found matching prof 1 for %s", self.data.name))
         for k, itemID in pairs(self.data.profession1Recipes) do
             if itemID == item.itemID then
                 return true;
@@ -247,7 +247,7 @@ function Character:CanCraftItem(item)
     end
 
     if self.data.profession2 == item.tradeskill then
-        addon.DEBUG("func", "Character:CanCraftItem", string.format("found matching prof 2 for %s", self.data.name))
+        --addon.DEBUG("func", "Character:CanCraftItem", string.format("found matching prof 2 for %s", self.data.name))
         for k, itemID in pairs(self.data.profession2Recipes) do
             if itemID == item.itemID then
                 return true;
@@ -598,7 +598,7 @@ function Character:GetData()
         Profession2Spec = self.data.profession2Spec,
         Profession2Recipes = self.data.profession2Recipes,
         CookingLevel = self.data.cookingLevel,
-        Cooking = self.data.cooking or {},
+        Cooking = self.data.cookingRecipes or {},
         FishingLevel = self.data.fishingLevel,
         FirstAidLevel = self.data.firstAidLevel,
         Talents = self.data.talents,

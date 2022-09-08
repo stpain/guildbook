@@ -147,6 +147,10 @@ function GuildbookTradeskillListviewItemTemplateMixin:OnMouseDown()
                 DressUpItemLink(localeData.link)
             end
 
+        elseif IsShiftKeyDown() then
+            local localeData = Tradeskills:GetLocaleData(self.item)
+            HandleModifiedItemClick(localeData.link)
+
         else
             gb:TriggerEvent("TradeskillListviewItem_OnMouseDown", self.item)
         end
@@ -716,6 +720,10 @@ function GuildbookDropDownFlyoutButtonMixin:OnMouseDown()
             self:GetParent():GetParent().MenuText:SetTextColor(1,1,1,1)
             self:GetParent():GetParent().MenuText:SetText(text)
         end
+        if self.selectedValue then
+            self:GetParent():GetParent().selectedValue = self.selectedValue;
+            --print("set selected value")
+        end
     end
     if self:GetParent().delay then
         self:GetParent().delay:Cancel()
@@ -881,6 +889,12 @@ function GuildbookDropdownFlyoutMixin:OnShow()
             local w = self.buttons[buttonIndex].Text:GetWidth()
             if w > maxWidth then
                 maxWidth = w;
+            end
+
+            if info.selectedValue then
+                self.buttons[buttonIndex].selectedValue = info.selectedValue
+            else
+                self.buttons[buttonIndex].selectedValue = nil
             end
 
             self.buttons[buttonIndex].updateText = info.updateText;
@@ -1321,4 +1335,49 @@ function GuildbookAltManagerListviewItemtemplateMixin:SetDataBinding(binding, he
 end
 function GuildbookAltManagerListviewItemtemplateMixin:ResetDataBinding()
     self.checkbutton:SetChecked(false)
+end
+
+
+
+
+
+
+GuildbookTooltipExtensionMixin = {}
+function GuildbookTooltipExtensionMixin:SetCharacter(character, showMain, showMainSpec, showTradeskills, showProfile)
+    if not character then
+        return
+    end
+
+    self.name:SetText(gb.Colours[character:GetClass()]:WrapTextInColorCode(character:GetName()))
+    self.classIcon:SetAtlas(string.format("GarrMission_ClassIcon-%s", character:GetClass():lower()))
+
+    if showMain then
+        
+    else
+        
+    end
+
+    if showMainSpec then
+        self.mainSpec:SetText(string.format("%s %s", CreateAtlasMarkup(character:GetClassSpecAtlasName("primary"), 20, 20), character:GetSpec("primary")))
+    else
+
+    end
+
+    if showTradeskills then
+        
+    else
+        
+    end
+
+    if showProfile then
+        
+    else
+        
+    end
+
+
+
+end
+function GuildbookTooltipExtensionMixin:Clear()
+    self.name:SetText("")
 end

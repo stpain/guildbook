@@ -230,24 +230,6 @@ function GuildbookMixin:OnLoad()
     self.topBarBackground:SetColorTexture(Colours.BrownGrey:GetRGB())
     self.menu.background:SetColorTexture(Colours.MudBrown:GetRGB())
 
-    local function setColours(style)
-        self.background:SetAtlas(style.background)
-        self.border:SetColorTexture(style.border:GetRGB())
-        self.topBarBackground:SetColorTexture(style.topBar:GetRGB())
-        self.menu.background:SetColorTexture(style.menuBackground:GetRGB())
-    end
-
-    local stylesMenu = {}
-    for k, v in pairs(addon.styles) do
-        table.insert(stylesMenu, {
-            text = k,
-            func = function()
-                setColours(v)
-            end,
-        })
-    end
-    self.settings.scrollChild.selectStyle.menu = stylesMenu
-
     self.menu.header:SetText(L["GUILDS_LIST_HEADER"])
 
     --grab size 
@@ -978,6 +960,170 @@ function GuildbookMixin:OnLoad()
 
 
 
+    --settings themes
+    local themeEdit = {
+        border = {
+            r = 0,
+            g = 0,
+            b = 0,
+            a = 0,
+        },
+        topBarBackground = {
+            r = 0,
+            g = 0,
+            b = 0,
+            a = 0,
+        },
+        menuBackground = {
+            r = 0,
+            g = 0,
+            b = 0,
+            a = 0,
+        },
+        background = "",
+    }
+    local atlasBackgrounds = {
+        ["ClassHall_StoneFrame"] = "ClassHall_StoneFrame-BackgroundTile",
+        ["ClassHall_InfoBoxMission"] = "ClassHall_InfoBoxMission-BackgroundTile",
+        ["collections-background"] = "collections-background-tile",
+        ["Garr_InfoBox"] = "Garr_InfoBoxMission-BackgroundTile",
+        ["Garr_WoodFrame"] = "Garr_WoodFrame-BackgroundTile",
+        ["GarrLanding"] = "GarrLanding-MiddleTile",
+        ["ShipMissionParchment"] = "ShipMissionParchment-Tile",
+    }
+    local backgroundMenu = {}
+    for name, atlas in pairs(atlasBackgrounds) do
+        table.insert(backgroundMenu, {
+            text = name,
+            func = function()
+                themeEdit.background = atlas;
+                self.background:SetAtlas(atlas)
+            end
+        })
+    end
+    self.settings.scrollChild.newThemeEditor.selectBackground.menu = backgroundMenu;
+
+    local themeColourPicked = {
+        key = false,
+        button = nil,
+        r = 0,
+        g = 0,
+        b = 0,
+        a = 0,
+    }
+    local function setThemeColor(restore)
+
+        if restore then
+            
+        else
+            local r, g, b = ColorPickerFrame:GetColorRGB()
+            local a = OpacitySliderFrame:GetValue();
+            themeColourPicked.r = r
+            themeColourPicked.g = g
+            themeColourPicked.b = b
+            themeColourPicked.a = a
+            if themeColourPicked.key == "menu" then
+                if type(themeColourPicked.key) == "string" then
+                    self.menu.background:SetColorTexture(themeColourPicked.r, themeColourPicked.g, themeColourPicked.b)
+                    themeColourPicked.button:GetNormalTexture():SetColorTexture(themeColourPicked.r, themeColourPicked.g, themeColourPicked.b)
+                    themeEdit.menuBackground = {
+                        r = r,
+                        g = g,
+                        b = b,
+                        a = a,
+                    }
+                end
+            else
+                if type(themeColourPicked.key) == "string" then
+                    self[themeColourPicked.key]:SetColorTexture(themeColourPicked.r, themeColourPicked.g, themeColourPicked.b)
+                    themeColourPicked.button:GetNormalTexture():SetColorTexture(themeColourPicked.r, themeColourPicked.g, themeColourPicked.b)
+                    themeEdit[themeColourPicked.key] = {
+                        r = r,
+                        g = g,
+                        b = b,
+                        a = a,
+                    }
+                end
+            end
+
+        end
+    end
+
+    self.settings.scrollChild.newTheme:SetScript("OnClick", function()
+        self.settings.scrollChild.newThemeEditor:Show()
+        themeEdit = {
+            border = {
+                r = 0,
+                g = 0,
+                b = 0,
+                a = 0,
+            },
+            topBarBackground = {
+                r = 0,
+                g = 0,
+                b = 0,
+                a = 0,
+            },
+            menuBackground = {
+                r = 0,
+                g = 0,
+                b = 0,
+                a = 0,
+            },
+            background = "",
+        }
+    end)
+
+    self.settings.scrollChild.deleteTheme:SetScript("OnClick", function()
+        if self.settings.scrollChild.selectTheme.selectedValue then
+            --print("delete theme", self.settings.scrollChild.selectTheme.selectedValue)
+            Database:DeleteTheme(self.settings.scrollChild.selectTheme.selectedValue)
+            self:InitThemeDropDown()
+        end
+    end)
+
+    self.settings.scrollChild.newThemeEditor.cancelTheme:SetScript("OnClick", function()
+        self.settings.scrollChild.newThemeEditor:Hide()
+    end)
+
+    self.settings.scrollChild.newThemeEditor.confirmTheme:SetScript("OnClick", function()
+        if (self.settings.scrollChild.newThemeEditor.themeName:GetText() ~= "") and (themeEdit.background ~= "") then
+            themeEdit.name = self.settings.scrollChild.newThemeEditor.themeName:GetText()
+            Database:AddTheme(themeEdit)
+            self:InitThemeDropDown()
+            self.settings.scrollChild.newThemeEditor:Hide()
+        end
+    end)
+
+    self.settings.scrollChild.newThemeEditor.selectBorder:SetScript("OnClick", function(button)
+        themeColourPicked.key = "border"
+        themeColourPicked.button = button
+        ColorPickerFrame:Show(0,0,0,0, setThemeColor)
+        ColorPickerFrame.func = setThemeColor
+        ColorPickerFrame:Hide()
+        ColorPickerFrame:Show()
+        
+    end)
+    self.settings.scrollChild.newThemeEditor.selectTopbar:SetScript("OnClick", function(button)
+        themeColourPicked.key = "topBarBackground"
+        themeColourPicked.button = button
+        ColorPickerFrame:Show(0,0,0,0, setThemeColor)
+        ColorPickerFrame.func = setThemeColor
+        ColorPickerFrame:Hide()
+        ColorPickerFrame:Show()
+        
+    end)
+    self.settings.scrollChild.newThemeEditor.selectMenu:SetScript("OnClick", function(button)
+        themeColourPicked.key = "menu"
+        themeColourPicked.button = button
+        ColorPickerFrame:Show(0,0,0,0, setThemeColor)
+        ColorPickerFrame.func = setThemeColor
+        ColorPickerFrame:Hide()
+        ColorPickerFrame:Show()
+        
+    end)
+
+
     --profile locales
     self.profile.header:SetText(L["PROFILE_HEADER"])
     self.profile.realProfileHelptip:SetText(L["PROFILE_REAL_PROFILE_HELPTIP"])
@@ -1134,8 +1280,7 @@ function GuildbookMixin:OnCommsMessage(sender, data)
 
         character:SetMainCharacter(profile.mainCharacter)
 
-        --DevTools_Dump({profile})
-        character:SetAlts(profile.alts)
+        guild:SetAllCharactersAlts(profile.alts)
     end
 
     if self.guild.home.character.selectedCharacter and (self.guild.home.character.selectedCharacter:GetGuid() == character:GetGuid()) then
@@ -1151,25 +1296,53 @@ end
 
 
 function GuildbookMixin:UpdateMembersList()
-    
-    self.guild.home.members.DataProvider:Flush()
 
     if type(self.selectedGuild) == "table" then
 
-        for k, character in self.selectedGuild:GetCharacters("name") do
+        GuildRoster()
 
-            local onlineInfo = character:GetOnlineStatus()
+        self.guild.home.members.DataProvider:Flush()
 
-            if self.guild.home.showOfflineMembers:GetChecked() == true then
-                self.guild.home.members.DataProvider:Insert(character) 
-            else
+        if self.guild.home.showOfflineMembers:GetChecked() == true then
+
+            for k, character in self.selectedGuild:GetCharacters("name") do
+                self.guild.home.members.DataProvider:Insert(character)
+            end
+
+        else
+
+            for k, character in self.selectedGuild:GetCharacters("name") do
+
+                local onlineInfo = character:GetOnlineStatus()
                 if onlineInfo.isOnline == true then
                     self.guild.home.members.DataProvider:Insert(character)
                 end
-            end
-        end
 
+            end
+
+            --this is not ideal but getting who is actually online is a voodoo science at best
+            --so just adding a an extra check after a few seconds to try again 
+            C_Timer.After(2.0, function()
+
+                GuildRoster()
+
+                C_Timer.After(1.0, function()
+                    self.guild.home.members.DataProvider:Flush()
+                    for k, character in self.selectedGuild:GetCharacters("name") do
+
+                        local onlineInfo = character:GetOnlineStatus()
+                        if onlineInfo.isOnline == true then
+                            self.guild.home.members.DataProvider:Insert(character)
+                        end
+    
+                    end
+                end)
+
+            end)
+
+        end
     end
+
 
 end
 
@@ -1289,6 +1462,105 @@ function GuildbookMixin:OnDatabaseInitialised()
     end)
 
 
+    for k, v in pairs(addon.styles) do
+        
+        local theme = {
+            name = k,
+            background = v.background,
+            border = v.border,
+            menuBackground = v.menuBackground,
+            topBarBackground = v.topBarBackground,
+        }
+        Database:AddTheme(theme)
+    end
+
+    local theme = Database:GetConfigSetting("selectedTheme")
+    if type(theme) == "string" then
+        self:SetTheme(Database:GetTheme(theme))
+    end
+
+    self:InitThemeDropDown()
+
+
+
+    GameTooltip:HookScript('OnTooltipSetUnit', function(tooltip)
+        if InCombatLockdown() then
+            return;
+        end
+        local _, unit = tooltip:GetUnit()
+        local guid = unit and UnitGUID(unit) or nil
+        if guid and guid:find('Player-') then
+            self:HandleTooltipExtension(tooltip, guid)
+        else
+            GuildbookTooltipExtension:ClearAllPoints()
+            GuildbookTooltipExtension:Hide()
+            GuildbookTooltipExtension:SetParent(UIParent)
+        end
+    end)
+end
+
+
+function GuildbookMixin:HandleTooltipExtension(tooltip, guid)
+
+    local showMain = Database:GetConfigSetting("showTooltipMainCharacter")
+    local showMainSpec = Database:GetConfigSetting("showTooltipMainSpec")
+    local showTradeskills = Database:GetConfigSetting("showTooltipTradeskills")
+    local showProfile = Database:GetConfigSetting("showTooltipCharacterProfile")
+
+    if (showMain == true) or (showMainSpec == true) or (showTradeskills == true) or (showProfile == true) then
+
+        local character;
+        for k, guild in ipairs(self.guilds) do
+            if guild:GetCharacter(guid) then
+                character = guild:GetCharacter(guid)
+            end
+        end
+        if type(character) ~= "table" then
+            GuildbookTooltipExtension:ClearAllPoints()
+            GuildbookTooltipExtension:Hide()
+            GuildbookTooltipExtension:SetParent(UIParent)
+            return
+        end
+
+        GuildbookTooltipExtension:SetCharacter(character, showMain, showMainSpec, showTradeskills, showProfile)
+        
+        GuildbookTooltipExtension:SetParent(tooltip)
+        GuildbookTooltipExtension:ClearAllPoints()
+        GuildbookTooltipExtension:SetPoint("BOTTOMLEFT", tooltip, "TOPLEFT", 0, 0)
+        GuildbookTooltipExtension:SetPoint("BOTTOMRIGHT", tooltip, "TOPRIGHT", 0, 0)
+        GuildbookTooltipExtension:Show()
+
+
+    else
+        GuildbookTooltipExtension:ClearAllPoints()
+        GuildbookTooltipExtension:Hide()
+        GuildbookTooltipExtension:SetParent(UIParent)
+    end
+end
+
+
+function GuildbookMixin:SetTheme(theme)
+    self.background:SetAtlas(theme.background)
+    self.border:SetColorTexture(theme.border.r, theme.border.g, theme.border.b)
+    self.topBarBackground:SetColorTexture(theme.topBarBackground.r, theme.topBarBackground.g, theme.topBarBackground.b)
+    self.menu.background:SetColorTexture(theme.menuBackground.r, theme.menuBackground.g, theme.menuBackground.b)
+end
+
+function GuildbookMixin:InitThemeDropDown()
+
+    local themesMenu = {}
+    for k, theme in pairs(Database:GetThemes()) do
+        table.insert(themesMenu, {
+            text = theme.name,
+            func = function()
+                self:SetTheme(theme)
+                Database:SetConfigSetting("selectedTheme", theme.name)
+            end,
+            selectedValue = theme.name;
+        })
+    end
+
+    self.settings.scrollChild.selectTheme.menu = themesMenu
 end
 
 function GuildbookMixin:OnAddonLoaded()
@@ -1565,7 +1837,7 @@ function GuildbookMixin:AltManagerListviewItem_OnCheckButtonClicked(binding, isC
         local altGUID = binding.alt:GetGuid()
     
         --set the roster cache data
-        binding.guild:SetMainCharacterForAlts(altGUID)
+        binding.guild:SetMyCharactersAlts(altGUID)
     
         --set the global db
         GUILDBOOK_GLOBAL.myCharacters[altGUID] = isChecked;
@@ -1702,7 +1974,12 @@ function GuildbookMixin:TradeskillListviewItem_OnAddToWorkOrder(order, character
         link = item.link,
         itemID = item.itemID,
         reagents = item.reagents,
-        character = character or false,
+        character = {
+            data = {
+                name = character:GetName(),
+                class = character:GetClass()
+            }
+        },
         guild = guild,
         quantity = order.quantity or 1,
     })

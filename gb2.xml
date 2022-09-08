@@ -1,5 +1,34 @@
 <UI>
 
+    <Frame name="GuildbookTooltipExtension" mixin="GuildbookTooltipExtensionMixin" inherits="TooltipBorderedFrameTemplate" hidden="true">
+        <Size y="100"/>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="classIcon">
+                    <Size x="50" y="50"/>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT" x="-10" y="-10"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Layers>
+            <Layer level="OVERLAY">
+                <FontString parentKey="name" inherits="GameFontNormalHuge">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="10" y="-10"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="mainSpec" inherits="GameFontNormalLarge">
+                    <Color r="1" g="1" b="1"/>
+                    <Anchors>
+                        <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="10" y="-60"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+    </Frame>
+
     <Frame name="GuildbookInterface" mixin="GuildbookMixin" parent="UIParent" frameStrata="HIGH" enableMouse="true" movable="true" hidden="true">
         <Size x="940" y="510"/>
         <Anchors>
@@ -1462,6 +1491,40 @@
                             <Anchor point="RIGHT" x="0" y="0"/>
                         </Anchors>
 
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <FontString parentKey="header" inherits="GameFontNormalLarge" justifyH="CENTER" text="Settings">
+                                    <Size y="28"/>
+                                    <Color r="1" g="1" b="1"/>
+                                    <Anchors>
+                                        <Anchor point="TOP" x="0" y="-2"/>
+                                    </Anchors>
+                                </FontString>
+
+                                <FontString parentKey="generalHeader" inherits="GameFontNormal" justifyH="CENTER" text="General">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="8" y="-32"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="themeHeader" inherits="GameFontNormal" justifyH="CENTER" text="Theme">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="8" y="-112"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="commsHeader" inherits="GameFontNormal" justifyH="CENTER" text="Data sync">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="8" y="-192"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="tooltipHeader" inherits="GameFontNormal" justifyH="CENTER" text="Tooltip">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="8" y="-272"/>
+                                    </Anchors>
+                                </FontString>
+
+                            </Layer>
+                        </Layers>
+
                         <Frames>
 
                             <ScrollFrame parentKey="importExportEditbox" inherits="InputScrollFrameTemplate" autoFocus="false" multiline="true">
@@ -1492,145 +1555,17 @@
                                 <Size x="24" y="24"/>
                                 <Layers>
                                     <Layer>
-                                        <FontString parentKey="label" inherits="GameFontNormal" text="Show Minimap Button">
+                                        <FontString parentKey="label" inherits="GameFontNormal" text="Show Minimap Button" justifyH="LEFT">
                                             <Color r="1" g="1" b="1" a="1"/>
-                                            <FontHeight val="12"/>
+                                            <Size x="280" y="26"/>
                                             <Anchors>
-                                                <Anchor point="LEFT">
-                                                    <offset x="24" y="0"/>
-                                                </Anchor>
+                                                <Anchor point="LEFT" x="24" y="0"/>
                                             </Anchors>
                                         </FontString>
                                     </Layer>
                                 </Layers>                
                                 <Anchors>
-                                    <Anchor point="TOPLEFT" x="16" y="-16"/>
-                                </Anchors>
-                            </CheckButton>
-
-                            <CheckButton parentKey="blockCommsDuringCombat" inherits="ChatConfigCheckButtonTemplate" >
-                                <CheckedTexture atlas="orderhalltalents-done-checkmark"/>
-                                <Size x="24" y="24"/>
-                                <Layers>
-                                    <Layer>
-                                        <FontString parentKey="label" inherits="GameFontNormal" text="Block comms during combat">
-                                            <Color r="1" g="1" b="1" a="1"/>
-                                            <FontHeight val="12"/>
-                                            <Anchors>
-                                                <Anchor point="LEFT">
-                                                    <offset x="24" y="0"/>
-                                                </Anchor>
-                                            </Anchors>
-                                        </FontString>
-                                    </Layer>
-                                </Layers>                
-                                <Anchors>
-                                    <Anchor point="TOPLEFT" x="16" y="-46"/>
-                                </Anchors>
-                            </CheckButton>
-
-                            <CheckButton parentKey="blockCommsDuringInstance" inherits="ChatConfigCheckButtonTemplate" >
-                                <CheckedTexture atlas="orderhalltalents-done-checkmark"/>
-                                <Size x="24" y="24"/>
-                                <Layers>
-                                    <Layer>
-                                        <FontString parentKey="label" inherits="GameFontNormal" text="Block comms while in an instsnce">
-                                            <Color r="1" g="1" b="1" a="1"/>
-                                            <FontHeight val="12"/>
-                                            <Anchors>
-                                                <Anchor point="LEFT">
-                                                    <offset x="24" y="0"/>
-                                                </Anchor>
-                                            </Anchors>
-                                        </FontString>
-                                    </Layer>
-                                </Layers>                
-                                <Anchors>
-                                    <Anchor point="TOPLEFT" x="16" y="-76"/>
-                                </Anchors>
-                            </CheckButton>
-
-                            <CheckButton parentKey="showTooltipMainCharacter" inherits="ChatConfigCheckButtonTemplate" >
-                                <CheckedTexture atlas="orderhalltalents-done-checkmark"/>
-                                <Size x="24" y="24"/>
-                                <Layers>
-                                    <Layer>
-                                        <FontString parentKey="label" inherits="GameFontNormal" text="Show main character in tooltip">
-                                            <Color r="1" g="1" b="1" a="1"/>
-                                            <FontHeight val="12"/>
-                                            <Anchors>
-                                                <Anchor point="LEFT">
-                                                    <offset x="24" y="0"/>
-                                                </Anchor>
-                                            </Anchors>
-                                        </FontString>
-                                    </Layer>
-                                </Layers>                
-                                <Anchors>
-                                    <Anchor point="TOPLEFT" x="16" y="-106"/>
-                                </Anchors>
-                            </CheckButton>
-
-                            <CheckButton parentKey="showTooltipMainSpec" inherits="ChatConfigCheckButtonTemplate" >
-                                <CheckedTexture atlas="orderhalltalents-done-checkmark"/>
-                                <Size x="24" y="24"/>
-                                <Layers>
-                                    <Layer>
-                                        <FontString parentKey="label" inherits="GameFontNormal" text="Show main spec in tooltip">
-                                            <Color r="1" g="1" b="1" a="1"/>
-                                            <FontHeight val="12"/>
-                                            <Anchors>
-                                                <Anchor point="LEFT">
-                                                    <offset x="24" y="0"/>
-                                                </Anchor>
-                                            </Anchors>
-                                        </FontString>
-                                    </Layer>
-                                </Layers>                
-                                <Anchors>
-                                    <Anchor point="TOPLEFT" x="16" y="-136"/>
-                                </Anchors>
-                            </CheckButton>
-
-                            <CheckButton parentKey="showTooltipCharacterProfile" inherits="ChatConfigCheckButtonTemplate" >
-                                <CheckedTexture atlas="orderhalltalents-done-checkmark"/>
-                                <Size x="24" y="24"/>
-                                <Layers>
-                                    <Layer>
-                                        <FontString parentKey="label" inherits="GameFontNormal" text="Show character profile in tooltip">
-                                            <Color r="1" g="1" b="1" a="1"/>
-                                            <FontHeight val="12"/>
-                                            <Anchors>
-                                                <Anchor point="LEFT">
-                                                    <offset x="24" y="0"/>
-                                                </Anchor>
-                                            </Anchors>
-                                        </FontString>
-                                    </Layer>
-                                </Layers>                
-                                <Anchors>
-                                    <Anchor point="TOPLEFT" x="16" y="-166"/>
-                                </Anchors>
-                            </CheckButton>
-
-                            <CheckButton parentKey="showTooltipTradeskills" inherits="ChatConfigCheckButtonTemplate" >
-                                <CheckedTexture atlas="orderhalltalents-done-checkmark"/>
-                                <Size x="24" y="24"/>
-                                <Layers>
-                                    <Layer>
-                                        <FontString parentKey="label" inherits="GameFontNormal" text="Show tradeskills in tooltip">
-                                            <Color r="1" g="1" b="1" a="1"/>
-                                            <FontHeight val="12"/>
-                                            <Anchors>
-                                                <Anchor point="LEFT">
-                                                    <offset x="24" y="0"/>
-                                                </Anchor>
-                                            </Anchors>
-                                        </FontString>
-                                    </Layer>
-                                </Layers>                
-                                <Anchors>
-                                    <Anchor point="TOPLEFT" x="16" y="-196"/>
+                                    <Anchor point="TOPLEFT" relativeKey="$parent.generalHeader" relativePoint="BOTTOMLEFT" x="8" y="-4"/>
                                 </Anchors>
                             </CheckButton>
 
@@ -1639,48 +1574,270 @@
                                 <Size x="24" y="24"/>
                                 <Layers>
                                     <Layer>
-                                        <FontString parentKey="label" inherits="GameFontNormal" text="Modify the default guild UI">
+                                        <FontString parentKey="label" inherits="GameFontNormal" text="Modify the default guild UI" justifyH="LEFT">
                                             <Color r="1" g="1" b="1" a="1"/>
-                                            <FontHeight val="12"/>
+                                            <Size x="280" y="26"/>
                                             <Anchors>
-                                                <Anchor point="LEFT">
-                                                    <offset x="24" y="0"/>
-                                                </Anchor>
+                                                <Anchor point="LEFT" x="24" y="0"/>
                                             </Anchors>
                                         </FontString>
                                     </Layer>
                                 </Layers>                
                                 <Anchors>
-                                    <Anchor point="TOPLEFT" x="16" y="-226"/>
+                                    <Anchor point="TOP" relativeKey="$parent.showMinimapButton" relativePoint="BOTTOM" x="0" y="0"/>
+                                </Anchors>
+                            </CheckButton>
+
+                            <Frame parentKey="selectTheme" inherits="GuildbookDropdown">
+                                <Size x="140" y="24"/>
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" relativeKey="$parent.themeHeader" relativePoint="BOTTOMLEFT" x="8" y="-4"/>
+                                </Anchors>
+                            </Frame>
+
+                            <Button parentKey="newTheme" inherits="UIPanelButtonTemplate" text="New">
+                                <Size x="140" y="24"/>
+                                <Anchors>
+                                    <Anchor point="LEFT" relativeKey="$parent.selectTheme" relativePoint="RIGHT" x="8" y="0"/>
+                                </Anchors>
+                            </Button>
+                            <Button parentKey="deleteTheme" inherits="UIPanelButtonTemplate" text="Delete">
+                                <Size x="140" y="24"/>
+                                <Anchors>
+                                    <Anchor point="TOP" relativeKey="$parent.newTheme" relativePoint="BOTTOM" x="0" y="-4"/>
+                                </Anchors>
+                            </Button>
+
+                            <Frame parentKey="newThemeEditor" inherits="InsetFrameTemplate,InsetFrameTemplate3" frameStrata="DIALOGUE" frameLevel="6" hidden="true">
+                                <Size x="295" y="165"/>
+                                <Anchors>
+                                    <Anchor point="TOPRIGHT" relativeKey="$parent.newTheme" relativePoint="BOTTOMRIGHT" x="0" y="-6"/>
+                                </Anchors>
+
+                                <Layers>
+                                    <Layer level="OVERLAY">
+                                        <FontString parentKey="borderColour" inherits="GameFontNormal" text="Border">
+                                            <Color r="1" g="1" b="1"/>
+                                            <Anchors>
+                                                <Anchor point="TOPLEFT" x="14" y="-14"/>
+                                            </Anchors>
+                                        </FontString>
+                                        <FontString parentKey="topbarColour" inherits="GameFontNormal" text="Top bar">
+                                            <Color r="1" g="1" b="1"/>
+                                            <Anchors>
+                                                <Anchor point="TOPLEFT" x="14" y="-39"/>
+                                            </Anchors>
+                                        </FontString>
+                                        <FontString parentKey="menuColour" inherits="GameFontNormal" text="Menu">
+                                            <Color r="1" g="1" b="1"/>
+                                            <Anchors>
+                                                <Anchor point="TOPLEFT" x="14" y="-64"/>
+                                            </Anchors>
+                                        </FontString>
+                                        <FontString parentKey="background" inherits="GameFontNormal" text="Background">
+                                            <Color r="1" g="1" b="1"/>
+                                            <Anchors>
+                                                <Anchor point="TOPLEFT" x="14" y="-89"/>
+                                            </Anchors>
+                                        </FontString>
+                                        <FontString parentKey="themeName" inherits="GameFontNormal" text="Name">
+                                            <Color r="1" g="1" b="1"/>
+                                            <Anchors>
+                                                <Anchor point="TOPLEFT" x="14" y="-114"/>
+                                            </Anchors>
+                                        </FontString>
+                                    </Layer>
+                                </Layers>
+
+                                <Frames>
+
+                                    <Button parentKey="selectBorder">
+                                        <Size x="150" y="16"/>
+                                        <Anchors>
+                                            <Anchor point="TOPRIGHT" x="-14" y="-12"/>
+                                        </Anchors>
+                                        <NormalTexture>
+                                            <Color r="1" g="1" b="1"/>
+                                        </NormalTexture>
+                                    </Button>
+                                    <Button parentKey="selectTopbar">
+                                        <Size x="150" y="16"/>
+                                        <Anchors>
+                                            <Anchor point="TOPRIGHT" x="-14" y="-37"/>
+                                        </Anchors>
+                                        <NormalTexture>
+                                            <Color r="1" g="1" b="1"/>
+                                        </NormalTexture>
+                                    </Button>
+                                    <Button parentKey="selectMenu">
+                                        <Size x="150" y="16"/>
+                                        <Anchors>
+                                            <Anchor point="TOPRIGHT" x="-14" y="-62"/>
+                                        </Anchors>
+                                        <NormalTexture>
+                                            <Color r="1" g="1" b="1"/>
+                                        </NormalTexture>
+                                    </Button>
+                                    <Frame parentKey="selectBackground" inherits="GuildbookDropdown">
+                                        <Size x="170" y="24"/>
+                                        <Anchors>
+                                            <Anchor point="TOPRIGHT" x="-6" y="-85"/>
+                                        </Anchors>
+                                    </Frame>
+                                    <EditBox parentKey="themeName" inherits="InputBoxTemplate" autoFocus="false">
+                                        <Size x="160" y="20"/>
+                                        <Anchors>
+                                            <Anchor point="TOPRIGHT" x="-8" y="-115"/>
+                                        </Anchors>
+                                    </EditBox>
+                                    <Button parentKey="confirmTheme" inherits="UIPanelButtonTemplate" text="Confirm">
+                                        <Size x="146" y="20"/>
+                                        <Anchors>
+                                            <Anchor point="BOTTOMLEFT" x="2" y="1"/>
+                                        </Anchors>
+                                    </Button>
+                                    <Button parentKey="cancelTheme" inherits="UIPanelButtonTemplate" text="Cancel">
+                                        <Size x="146" y="20"/>
+                                        <Anchors>
+                                            <Anchor point="BOTTOMRIGHT" x="-2" y="1"/>
+                                        </Anchors>
+                                    </Button>
+                                </Frames>
+                            </Frame>
+
+                            <CheckButton parentKey="blockCommsDuringCombat" inherits="ChatConfigCheckButtonTemplate" >
+                                <CheckedTexture atlas="orderhalltalents-done-checkmark"/>
+                                <Size x="24" y="24"/>
+                                <Layers>
+                                    <Layer>
+                                        <FontString parentKey="label" inherits="GameFontNormal" text="Block comms during combat" justifyH="LEFT">
+                                            <Color r="1" g="1" b="1" a="1"/>
+                                            <Size x="280" y="26"/>
+                                            <Anchors>
+                                                <Anchor point="LEFT" x="24" y="0"/>
+                                            </Anchors>
+                                        </FontString>
+                                    </Layer>
+                                </Layers>                
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" relativeKey="$parent.commsHeader" relativePoint="BOTTOMLEFT" x="8" y="-4"/>
+                                </Anchors>
+                            </CheckButton>
+
+                            <CheckButton parentKey="blockCommsDuringInstance" inherits="ChatConfigCheckButtonTemplate" >
+                                <CheckedTexture atlas="orderhalltalents-done-checkmark"/>
+                                <Size x="24" y="24"/>
+                                <Layers>
+                                    <Layer>
+                                        <FontString parentKey="label" inherits="GameFontNormal" text="Block comms while in an instsnce" justifyH="LEFT">
+                                            <Color r="1" g="1" b="1" a="1"/>
+                                            <Size x="280" y="26"/>
+                                            <Anchors>
+                                                <Anchor point="LEFT" x="24" y="0"/>
+                                            </Anchors>
+                                        </FontString>
+                                    </Layer>
+                                </Layers>                
+                                <Anchors>
+                                    <Anchor point="TOP" relativeKey="$parent.blockCommsDuringCombat" relativePoint="BOTTOM" x="0" y="0"/>
+                                </Anchors>
+                            </CheckButton>
+
+                            <CheckButton parentKey="showTooltipMainCharacter" inherits="ChatConfigCheckButtonTemplate" >
+                                <CheckedTexture atlas="orderhalltalents-done-checkmark"/>
+                                <Size x="24" y="24"/>
+                                <Layers>
+                                    <Layer>
+                                        <FontString parentKey="label" inherits="GameFontNormal" text="Show main character in tooltip" justifyH="LEFT">
+                                            <Color r="1" g="1" b="1" a="1"/>
+                                            <Size x="280" y="26"/>
+                                            <Anchors>
+                                                <Anchor point="LEFT" x="24" y="0"/>
+                                            </Anchors>
+                                        </FontString>
+                                    </Layer>
+                                </Layers>                
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" relativeKey="$parent.tooltipHeader" relativePoint="BOTTOMLEFT" x="6" y="-4"/>
+                                </Anchors>
+                            </CheckButton>
+
+                            <CheckButton parentKey="showTooltipMainSpec" inherits="ChatConfigCheckButtonTemplate" >
+                                <CheckedTexture atlas="orderhalltalents-done-checkmark"/>
+                                <Size x="24" y="24"/>
+                                <Layers>
+                                    <Layer>
+                                        <FontString parentKey="label" inherits="GameFontNormal" text="Show main spec in tooltip" justifyH="LEFT">
+                                            <Color r="1" g="1" b="1" a="1"/>
+                                            <Size x="280" y="26"/>
+                                            <Anchors>
+                                                <Anchor point="LEFT" x="24" y="0"/>
+                                            </Anchors>
+                                        </FontString>
+                                    </Layer>
+                                </Layers>                
+                                <Anchors>
+                                    <Anchor point="TOP" relativeKey="$parent.showTooltipMainCharacter" relativePoint="BOTTOM" x="0" y="0"/>
+                                </Anchors>
+                            </CheckButton>
+
+                            <CheckButton parentKey="showTooltipCharacterProfile" inherits="ChatConfigCheckButtonTemplate" >
+                                <CheckedTexture atlas="orderhalltalents-done-checkmark"/>
+                                <Size x="24" y="24"/>
+                                <Layers>
+                                    <Layer>
+                                        <FontString parentKey="label" inherits="GameFontNormal" text="Show character profile in tooltip" justifyH="LEFT">
+                                            <Color r="1" g="1" b="1" a="1"/>
+                                            <Size x="280" y="26"/>
+                                            <Anchors>
+                                                <Anchor point="LEFT" x="24" y="0"/>
+                                            </Anchors>
+                                        </FontString>
+                                    </Layer>
+                                </Layers>                
+                                <Anchors>
+                                    <Anchor point="TOP" relativeKey="$parent.showTooltipMainSpec" relativePoint="BOTTOM" x="0" y="0"/>
+                                </Anchors>
+                            </CheckButton>
+
+                            <CheckButton parentKey="showTooltipTradeskills" inherits="ChatConfigCheckButtonTemplate" >
+                                <CheckedTexture atlas="orderhalltalents-done-checkmark"/>
+                                <Size x="24" y="24"/>
+                                <Layers>
+                                    <Layer>
+                                        <FontString parentKey="label" inherits="GameFontNormal" text="Show tradeskills in tooltip" justifyH="LEFT">
+                                            <Color r="1" g="1" b="1" a="1"/>
+                                            <Size x="280" y="26"/>
+                                            <Anchors>
+                                                <Anchor point="LEFT" x="24" y="0"/>
+                                            </Anchors>
+                                        </FontString>
+                                    </Layer>
+                                </Layers>                
+                                <Anchors>
+                                    <Anchor point="TOP" relativeKey="$parent.showTooltipCharacterProfile" relativePoint="BOTTOM" x="0" y="0"/>
                                 </Anchors>
                             </CheckButton>
 
 
                             <Button parentKey="resetCharacter" inherits="UIPanelButtonTemplate">
-                                <Size x="200" y="24"/>
+                                <Size x="310" y="24"/>
                                 <Anchors>
-                                    <Anchor point="TOPLEFT" x="16" y="-286"/>
+                                    <Anchor point="BOTTOMLEFT" x="8" y="0"/>
                                 </Anchors>
                             </Button>
 
                             <Button parentKey="resetGuild" inherits="UIPanelButtonTemplate">
-                                <Size x="200" y="24"/>
+                                <Size x="310" y="24"/>
                                 <Anchors>
-                                    <Anchor point="TOPLEFT" x="16" y="-316"/>
+                                    <Anchor point="BOTTOM" relativeKey="$parent.resetCharacter" relativePoint="TOP" x="0" y="0"/>
                                 </Anchors>
                             </Button>
 
-                            <Frame parentKey="selectStyle" inherits="GuildbookDropdown" hidden="true">
-                                <Size x="100" y="24"/>
-                                <Anchors>
-                                    <Anchor point="TOPLEFT" x="16" y="-346"/>
-                                </Anchors>
-                            </Frame>
-
                             <Button parentKey="debug" inherits="UIPanelButtonTemplate" text="Debug">
-                                <Size x="200" y="24"/>
+                                <Size x="310" y="24"/>
                                 <Anchors>
-                                    <Anchor point="BOTTOMLEFT" x="16" y="16"/>
+                                    <Anchor point="BOTTOMLEFT" x="8" y="-80"/>
                                 </Anchors>
                             </Button>
 
@@ -1708,14 +1865,6 @@
 
                         <Layers>
                             <Layer level="OVERLAY">
-                                <FontString parentKey="header" inherits="GameFontNormalLarge" justifyH="CENTER" text="Settings">
-                                    <Size y="28"/>
-                                    <Color r="1" g="1" b="1"/>
-                                    <Anchors>
-                                        <Anchor point="TOP" x="0" y="-2"/>
-                                    </Anchors>
-                                </FontString>
-
                                 <FontString parentKey="exportImportLabel" inherits="GameFontNormal" justifyH="LEFT" justifyV="TOP" text="You can export or import guild data here.">
                                     <Size y="120"/>
                                     <Color r="1" g="1" b="1"/>

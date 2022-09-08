@@ -65,6 +65,7 @@ Tradeskills.TradeskillIDsToLocaleName = {
 		[164] = "Schmiedekunst",
 		[165] = "Lederverarbeitung",
 		[171] = "Alchemie",
+		--[171] = "Alchimie",
 		[182] = "Kräuterkunde",
 		[185] = "Kochkunst",
 		[186] = "Bergbau",
@@ -208,6 +209,9 @@ Tradeskills.TradeskillIDsToLocaleName = {
 	},
 }
 Tradeskills.TradeskillLocaleNameToID = tInvert(Tradeskills.TradeskillIDsToLocaleName[LOCALE])
+if LOCALE == "deDE" then
+	Tradeskills.TradeskillLocaleNameToID["Alchimie"] = 171
+end
 
 function Tradeskills:IsTradeskill(tradeskillName, tradeskillID)
     if type(tradeskillName) == "string" then
@@ -269,7 +273,7 @@ end
 
 
 --adding locale data here so Tradeskills can return whats needed
-tradeskillLocales = {
+local tradeskillLocales = {
 	["items"] = {
 		["ptBR"] = {
 			[14342] = {
@@ -64682,7 +64686,6 @@ tradeskillLocales = {
 }
 
 
-
 function Tradeskills:GetLocaleData(item)
 
 	if LOCALE == "enUS" then
@@ -64704,10 +64707,20 @@ function Tradeskills:GetLocaleData(item)
 		end
 	end
 
-	return {
-		name = "locale unknown - report bug",
-		link = "locale unknown - report bug",
-	}
+	--to cover anything not currently handle by the addon
+	local item = Item:CreateFromItemID(id)
+	if not item:IsEmptyItem() then
+		item:ContinueOnLoad(function()
+			local name = item:GetItemName()
+			local link = item:GetItemLink()
+
+			return {
+				name = name,
+				link = link,
+			}
+		end)
+	end
+
 end
 
 

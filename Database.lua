@@ -20,8 +20,6 @@ Database.keys = {
     config = {
 		modifyDefaultGuildRoster = false,
 
-		showTooltipTradeskills = false,
-
 		showInfoMessages = true,
 		showMinimapButton = true,
 
@@ -32,8 +30,11 @@ Database.keys = {
         
         showTooltipMainSpec = false,
 		showTooltipMainCharacter = false,
-
+        showTooltipTradeskills = false,
 		showTooltipCharacterProfile = false,
+
+        themes = {},
+        selectedTheme = "default",
 	},
     privacy = {
         shareInventoryMinRank = "",
@@ -279,5 +280,44 @@ function Database:GetMyCharacters()
     end
     return GUILDBOOK_GLOBAL.myCharacters;
 end
+
+
+
+
+function Database:AddTheme(theme)
+    if not GUILDBOOK_CONFIG.themes then
+        return
+    end
+
+    GUILDBOOK_CONFIG.themes[theme.name] = theme;
+end
+
+function Database:DeleteTheme(theme)
+    if not GUILDBOOK_CONFIG.themes then
+        return
+    end
+
+    if GUILDBOOK_CONFIG.themes[theme] then
+        GUILDBOOK_CONFIG.themes[theme] = nil;
+    end
+end
+
+function Database:GetTheme(name)
+    if not GUILDBOOK_CONFIG.themes then
+        return
+    end
+
+    return GUILDBOOK_CONFIG.themes[name];
+end
+
+function Database:GetThemes()
+    if not GUILDBOOK_CONFIG.themes then
+        return
+    end
+
+    return GUILDBOOK_CONFIG.themes;
+end
+
+
 
 addon.Database = Database;
