@@ -55,12 +55,9 @@ That opens the menu which should have your guild(s) listed. If it doesn't then
 go to curse and complain ;)
 
 
-UPDATES 5.4
+UPDATES 5.43
 
-- added show offline roster check box
-- added locale data for tradeskill items
-- added ctrl click dress up option for tradeskill items
-- fixed issue with extended blizzard guild ui (hopefully)
+- added more locales 
 
 
 ]]
