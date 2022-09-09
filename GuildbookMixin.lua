@@ -450,6 +450,8 @@ function GuildbookMixin:OnLoad()
     self.guildName.label:SetText(L["GUILD_HOME_LABEL"] )
     self.guildTradeskills.label:SetText(L["GUILD_TRADESKILLS_LABEL"] )
 
+    self.guild.home.showOfflineMembers.label:SetText(L["GUILD_HOME_SHOW_OFFLINE_MEMBERS_LABEL"])
+
     self.guild.home.guildHomeMembersHelptip:SetText(L["GUILD_HOME_MEMBERS_HELPTIP"])
     self.guild.home.info.guildHomeCalendarHelptip:SetText(L["GUILD_HOME_CALENDAR_HELPTIP"])
     self.guild.home.info.guildMOTD:SetTextColor(Colours.Guild:GetRGB())
@@ -1185,7 +1187,7 @@ function GuildbookMixin:LoadHelp()
 
     self.help.header:SetText(L["HELP_HEADER"])
     self.help.about:SetText(L["HELP_ABOUT"])
-    self.help.discordLink:SetText("https://discord.gg/c7Y5Kp3cHG")
+    self.help.discordLink:SetText("https://discord.gg/G8WFZAuez9")
 
     local numFaq = 7
 

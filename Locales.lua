@@ -77,6 +77,7 @@ L["GUILD_HOME_NO_MOTD"] = "You are viewing a guild different to your characters,
 L["GUILD_HOME_MEMBERS_HELPTIP"] = "Guild members are shown here, you can click a member to view more information about them."
 L["GUILD_HOME_CALENDAR_HELPTIP"] = "Calendar events show here.\n\n(Might need to open the calendar first)."
 L["GUILD_HOME_CLASS_INFO_HEADER"] = "Class info"
+L["GUILD_HOME_SHOW_OFFLINE_MEMBERS_LABEL"] = " Show offline"
 
 
 --tradeskill ui
@@ -1001,6 +1002,7 @@ if locale == "deDE" then
 	L["Warden"] = "Wächter"
 	L["WEAPONS"] = "Waffen"
 	L["WRIST"] = "Handgelenk"
+	L["GUILD_HOME_SHOW_OFFLINE_MEMBERS_LABEL"] = "Offline-Spieler anzeigen"
 
 	--ModBlizz.lua
 	L["YEARS"]                          = "Jahre"
@@ -1510,6 +1512,7 @@ L["GUILD_HOME_NO_MOTD"] = "Vous visualisez une guilde différente de vos personn
 L["GUILD_HOME_MEMBERS_HELPTIP"] = "Les membres de la guilde sont affichés ici, vous pouvez cliquer sur un membre pour voir plus d'infos sur lui."
 L["GUILD_HOME_CALENDAR_HELPTIP"] = "Les événements de Calendrier sont affichés ici (ouvrir le calendrier au préalable peut être nécessaire)."
 L["GUILD_HOME_CLASS_INFO_HEADER"] = "Classes"
+L["GUILD_HOME_SHOW_OFFLINE_MEMBERS_LABEL"]	= "Voir les membres hors-ligne"
 
 
 --tradeskill ui
