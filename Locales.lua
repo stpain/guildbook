@@ -55,8 +55,9 @@ That opens the menu which should have your guild(s) listed. If it doesn't then
 go to curse and complain ;)
 
 
-UPDATES 5.51
+UPDATES 5.52
 
+- added the code to actually check if you're in an instance
 - added tooltip extension
 - added additional scan for skills (professions)
 

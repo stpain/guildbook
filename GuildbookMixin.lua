@@ -1517,6 +1517,14 @@ end
 
 function GuildbookMixin:HandleTooltipExtension(tooltip, guid)
 
+    local inInstance, instanceType = IsInInstance()
+    if instanceType ~= "none" then
+        local disableTooltipInInstance = Database:GetConfigSetting("disableTooltipInInstance");
+        if disableTooltipInInstance == true then
+            return;
+        end
+    end
+
     local showMain = Database:GetConfigSetting("showTooltipMainCharacter")
     local showMainSpec = Database:GetConfigSetting("showTooltipMainSpec")
     local showTradeskills = Database:GetConfigSetting("showTooltipTradeskills")
