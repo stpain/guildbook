@@ -55,9 +55,10 @@ That opens the menu which should have your guild(s) listed. If it doesn't then
 go to curse and complain ;)
 
 
-UPDATES 5.43
+UPDATES 5.51
 
-- added more locales 
+- added tooltip extension
+- added additional scan for skills (professions)
 
 
 ]]
