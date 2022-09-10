@@ -866,10 +866,17 @@ local locale = GetLocale()
 ]]
 if locale == "deDE" then
 
-	L["WELCOME_MESSAGE"] = [=[Willkommen zu Guildbook! Um zu beginnen, klicke auf das Pfeilsymbol in der oberen linken Ecke. Das öffnet ein Menü in dem du deine Gilde(n) siehst. Wenn du nichts siehst, geh zu Curse und beschwer dich ;)
+	L["WELCOME_MESSAGE"] = [[
+Willkommen zu Guildbook! 
+
+Um zu beginnen, klicke auf das Pfeilsymbol in der oberen linken Ecke. Das öffnet ein Menü in dem du deine Gilde(n) siehst. 
+
+Wenn du nichts siehst, geh zu Curse und beschwer dich ;)
+
 Update 5.52
 - Erweiterte Tooltips hinzugefügt
 - Zusätzlicher Scan fuer Berufe hinzugefügt.
+]]
 
 	L["Affliction"] = "Gebrechen"
 	L["Arcane"] = "Arkan"
