@@ -33,6 +33,7 @@ the copyright holders.
 -- add this to proper helpAbout section when finished 
 --Written by Kylanda@Pyrewood Village, translations
 --French, Belrand@Auberdine / Belrand#1998
+--German, Ashnagarr#7229
 
 local addonName, Guildbook = ...
 
@@ -862,7 +863,7 @@ local locale = GetLocale()
 
 
 --[[
-    german  - thanks to Nezzquikk from discord for these translations
+    german  | Translation by Ashnagarr#7229
 ]]
 if locale == "deDE" then
 
@@ -1484,7 +1485,7 @@ Update 5.52
 
 
 --[[
-    french | In order to avoid missing new things, I sorted the whole locale back to match the original one - Belrand
+    french | Translation by Belrand#1998
 ]]
 elseif locale == 'frFR' then
 --new strings
