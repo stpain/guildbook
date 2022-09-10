@@ -866,10 +866,9 @@ local locale = GetLocale()
 if locale == "deDE" then
 
 	L["WELCOME_MESSAGE"] = [=[Willkommen zu Guildbook! Um zu beginnen, klicke auf das Pfeilsymbol in der oberen linken Ecke. Das öffnet ein Menü in dem du deine Gilde(n) siehst. Wenn du nichts siehst, geh zu Curse und beschwer dich ;)
-5.2 - Inschriftenkunde-Rezepte hinzugefügt
-- Option hinzugefügt die Charakterliste zu modifizieren
-- Minimap-Knopf ist jetzt standardmässig sichtbar
-- Speicher-Probleme behoben]=]
+Update 5.52
+- Erweiterte Tooltips hinzugefügt
+- Zusätzlicher Scan fuer Berufe hinzugefügt.
 
 	L["Affliction"] = "Gebrechen"
 	L["Arcane"] = "Arkan"
@@ -978,6 +977,7 @@ if locale == "deDE" then
 	L["SETTINGS_SHOW_TOOLTIP_MAIN_CHAR"] = "Hauptcharakter im Tooltip anzeigen"
 	L["SETTINGS_SHOW_TOOLTIP_MAIN_SPEC"] = "Haupt-Talentspezialisierung im Tooltip anzeigen"
 	L["SETTINGS_SHOW_TOOLTIP_TRADESKILLS"] = "Berufe im Tooltip anzeigen"
+	L["SETTINGS_DISABLE_TOOLTIP_EXTENSION"] = "Tooltip in Instanzen deaktivieren"
 	L["Shadow"] = "Schatten"
 	L["SHIELDS"] = "Schilde"
 	L["SHOULDER"] = "Schultern"
@@ -1491,11 +1491,8 @@ Si ce n'est pas le cas venez sur discord vous plaindre sur Curseforge ou Discord
 
 
 5.43
-- traduction (elle a mis du temps à venir celle là!)
-- corrections de bugs des versions précédentes qui n'ont pas été documentés
-- ajout d'une option "Voire membre hors ligne"
-- ajout de quelques objets manquants dans les métiers (n'hésitez pas a reporté ceux qui manquent)
-- correction d'un bug qui empéchait la fenêtre de guilde étendue d'apparaître (normalement)
+- ajout de tooltip étendu
+- ajout de scans supplémentaires pour les méties
 
 ]]
 
@@ -1590,7 +1587,7 @@ L["SETTINGS_EXPORT_GUILD_LABEL"] = "Exporter"
 
 L["SETTINGS_MOD_BLIZZ_ROSTER_LABEL"] = "Modifier la fenêtre de guilde"
 L["SETTINGS_MOD_BLIZZ_ROSTER_TOOLTIP"] = "Étend la fenêtre de guilde de Blizzard pour montrer plus d'infos.\n\n|cffAA0935ATTENTION - Cela va cause un rechargement de l'interface quand désactivé!"
-
+L["SETTINGS_DISABLE_TOOLTIP_EXTENSION"] = "Désactive les tooltips en instances"
 
 --profile
 L["PROFILE_HEADER"] = "Profil"
