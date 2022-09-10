@@ -262,7 +262,7 @@ function GuildbookMixin:OnLoad()
     addon:RegisterCallback("OnGuildRosterUpdate", self.OnGuildRosterUpdate, self)
     addon:RegisterCallback("OnGuildDataImported", self.OnGuildDataImported, self)
     addon:RegisterCallback("OnPlayerBagsUpdated", self.OnPlayerBagsUpdated, self)
-    addon:RegisterCallback("OnPlayerSecondarySkillsScanned", self.OnPlayerSecondarySkillsScanned, self)
+    addon:RegisterCallback("OnPlayerSkillsScanned", self.OnPlayerSkillsScanned, self)
     addon:RegisterCallback("OnPlayerTradeskillRecipesScanned", self.OnPlayerTradeskillRecipesScanned, self)
     addon:RegisterCallback("OnPlayerTradeskillRecipesLinked", self.OnPlayerTradeskillRecipesLinked, self)
     addon:RegisterCallback("OnPlayerEquipmentChanged", self.OnPlayerEquipmentChanged, self)
@@ -857,6 +857,7 @@ function GuildbookMixin:OnLoad()
     self.settings.scrollChild.showTooltipMainSpec.label:SetText(L["SETTINGS_SHOW_TOOLTIP_MAIN_SPEC"])
     self.settings.scrollChild.showTooltipCharacterProfile.label:SetText(L["SETTINGS_SHOW_TOOLTIP_CHAR_PROFILE"])
     self.settings.scrollChild.showTooltipTradeskills.label:SetText(L["SETTINGS_SHOW_TOOLTIP_TRADESKILLS"])
+    self.settings.scrollChild.disableTooltipInInstance.label:SetText(L["SETTINGS_DISABLE_TOOLTIP_EXTENSION"])
     self.settings.scrollChild.resetCharacter:SetText(L["SETTINGS_RESET_CHARACTER_LABEL"])
     self.settings.scrollChild.resetGuild:SetText(L["SETTINGS_RESET_GUILD_LABEL"])
 
@@ -899,6 +900,9 @@ function GuildbookMixin:OnLoad()
     end)
     self.settings.scrollChild.showTooltipTradeskills:SetScript("OnClick", function()
         Database:SetConfigSetting("showTooltipTradeskills", self.settings.scrollChild.showTooltipTradeskills:GetChecked())
+    end)
+    self.settings.scrollChild.disableTooltipInInstance:SetScript("OnClick", function()
+        Database:SetConfigSetting("disableTooltipInInstance", self.settings.scrollChild.disableTooltipInInstance:GetChecked())
     end)
     self.settings.scrollChild.modifyDefaultGuildRoster:SetScript("OnClick", function()
 
@@ -1168,11 +1172,13 @@ function GuildbookMixin:OnLoad()
 
                 --this is a special method 
                 local profile = player:GetProfile();
-                local msg = {
-                    type = "CHARACTER_PROFILE",
-                    payload = profile,
-                }
-                Comms:QueueMessage("CHARACTER_PROFILE", msg, "GUILD", nil, "NORMAL")
+                if profile then
+                    local msg = {
+                        type = "CHARACTER_PROFILE",
+                        payload = profile,
+                    }
+                    Comms:QueueMessage("CHARACTER_PROFILE", msg, "GUILD", nil, "NORMAL")
+                end
                 return;
             end
         end
@@ -1256,8 +1262,8 @@ function GuildbookMixin:OnCommsMessage(sender, data)
         self:HandleTradeskillUpdate(senderGUID, data.payload.tradeskill, data.payload.level, data.payload.recipes)
     end
 
-    if commType == "SECONDARY_SKILLS" then
-        self:HandleSecondarySkillsUpdate(senderGUID, data.payload)
+    if commType == "CHARACTER_SKILLS" then
+        self:HandleCharacterSkillsUpdate(senderGUID, data.payload)
     end
 
     if commType == "CHARACTER_EQUIPMENT" then
@@ -1289,7 +1295,7 @@ function GuildbookMixin:OnCommsMessage(sender, data)
     if self.guild.home.character.selectedCharacter and (self.guild.home.character.selectedCharacter:GetGuid() == character:GetGuid()) then
         self:InitCharacterEquipmentDropdown(character)
         self:InitCharacterTalentsDropdown(character)
-        self:LoadGlyphs(character)
+        self:LoadCharacterScrollView(character)
     end
 
     C_Timer.After(1.0, function()
@@ -1448,6 +1454,7 @@ function GuildbookMixin:OnDatabaseInitialised()
     self.settings.scrollChild.showTooltipMainSpec:SetChecked(Database:GetConfigSetting("showTooltipMainSpec"))
     self.settings.scrollChild.showTooltipCharacterProfile:SetChecked(Database:GetConfigSetting("showTooltipCharacterProfile"))
     self.settings.scrollChild.showTooltipTradeskills:SetChecked(Database:GetConfigSetting("showTooltipTradeskills"))
+    self.settings.scrollChild.disableTooltipInInstance:SetChecked(Database:GetConfigSetting("disableTooltipInInstance"))
 
     self.settings.scrollChild.modifyDefaultGuildRoster:SetChecked(Database:GetConfigSetting("modifyDefaultGuildRoster"))
 
@@ -1666,11 +1673,13 @@ function GuildbookMixin:OnPlayerEnteringWorld()
 
 
             local profile = player:GetProfile()
-            self.profile.realNameInput:SetText(profile.name or "-")
-            self.profile.realBioInput.EditBox:SetText(profile.bio or "-")
+            if profile then
+                self.profile.realNameInput:SetText(profile.name or "-")
+                self.profile.realBioInput.EditBox:SetText(profile.bio or "-")
 
-            self.profile.primarySpecDropdown.MenuText:SetText(player:GetSpec("primary"))
-            self.profile.secondarySpecDropdown.MenuText:SetText(player:GetSpec("secondary"))
+                self.profile.primarySpecDropdown.MenuText:SetText(player:GetSpec("primary"))
+                self.profile.secondarySpecDropdown.MenuText:SetText(player:GetSpec("secondary"))
+            end
         end
     end
 
@@ -1982,21 +1991,39 @@ function GuildbookMixin:TradeskillListviewItem_OnAddToWorkOrder(order, character
 
     local item = order.item;
 
-    table.insert(GUILDBOOK_GLOBAL.WorkOrders, {
-        name = item.name,
-        tradeskill = item.tradeskill,
-        link = item.link,
-        itemID = item.itemID,
-        reagents = item.reagents,
-        character = {
-            data = {
-                name = character:GetName(),
-                class = character:GetClass()
-            }
-        },
-        guild = guild,
-        quantity = order.quantity or 1,
-    })
+    if not character then
+        table.insert(GUILDBOOK_GLOBAL.WorkOrders, {
+            name = item.name,
+            tradeskill = item.tradeskill,
+            link = item.link,
+            itemID = item.itemID,
+            reagents = item.reagents,
+            character = {
+                data = { --this was a character object at first, to keep compatability leaving the .data table here
+                    name = UnitName("player"),
+                    class = UnitClass("player"):upper(),
+                }
+            },
+            guild = guild,
+            quantity = order.quantity or 1,
+        })
+    else
+        table.insert(GUILDBOOK_GLOBAL.WorkOrders, {
+            name = item.name,
+            tradeskill = item.tradeskill,
+            link = item.link,
+            itemID = item.itemID,
+            reagents = item.reagents,
+            character = {
+                data = {
+                    name = character:GetName(),
+                    class = character:GetClass()
+                }
+            },
+            guild = guild,
+            quantity = order.quantity or 1,
+        })
+    end
 
     --DevTools_Dump({GUILDBOOK_GLOBAL.WorkOrders})
 
@@ -2166,11 +2193,14 @@ end
 
 
 
-function GuildbookMixin:OnPlayerSecondarySkillsScanned(secondarySkills)
+function GuildbookMixin:OnPlayerSkillsScanned(secondarySkills, primarySkills)
     
     local msg = {
-        type = "SECONDARY_SKILLS",
-        payload = secondarySkills,
+        type = "CHARACTER_SKILLS",
+        payload = {
+            secondarySkills = secondarySkills,
+            primarySkills = primarySkills,
+        }
     }
     Comms:QueueMessage(msg.type, msg, "GUILD", nil, "NORMAL")
 end
@@ -2209,15 +2239,51 @@ end
 
 
 
-function GuildbookMixin:HandleSecondarySkillsUpdate(guid, secondarySkills)
+function GuildbookMixin:HandleCharacterSkillsUpdate(guid, data)
     
     for k, guild in ipairs(self.guilds) do
         local character = guild:GetCharacter(guid)
         if type(character) == "table" then
 
-            character:SetCookingLevel(secondarySkills[185])
-            character:SetFirstAidLevel(secondarySkills[129])
-            character:SetFishingLevel(secondarySkills[356])
+            character:SetCookingLevel(data.secondarySkills[185])
+            character:SetFirstAidLevel(data.secondarySkills[129])
+            character:SetFishingLevel(data.secondarySkills[356])
+
+            --DevTools_Dump({data.primarySkills})
+
+            for tradeskill, level in pairs(data.primarySkills) do
+
+                --check if the character has this tradeksill and update
+                if character:GetTradeskill(1) == tradeskill then
+                    character:SetTradeskillLevel(1, level)
+
+                    addon.DEBUG("func", "HandleCharacterSkillsUpdate", string.format("prof 1 is known > set prof 1 at level %s", level))
+
+                else
+                    if character:GetTradeskill(2) == tradeskill then
+                        character:SetTradeskillLevel(2, level)
+
+                        addon.DEBUG("func", "HandleCharacterSkillsUpdate", string.format("prof 2 is known > set prof 2 at level %s", level))
+                    end
+                end
+
+                --if the character has no tradeskills set then update
+                if type(character:GetTradeskill(1)) ~= "number" then
+                    character:SetTradeskill(1, tradeskill)
+                    character:SetTradeskillLevel(1, level)
+
+                    addon.DEBUG("func", "HandleCharacterSkillsUpdate", string.format("prof 1 is NEW > set prof 1 as %s at level %s", tradeskill, level))
+
+                else
+                    if (character:GetTradeskill(1) ~= tradeskill) and type(character:GetTradeskill(2)) ~= "number" then
+                        character:SetTradeskill(2, tradeskill)
+                        character:SetTradeskillLevel(2, level)
+
+                        addon.DEBUG("func", "HandleCharacterSkillsUpdate", string.format("prof 2 is NEW > set prof 2 as %s at level %s", tradeskill, level))
+                    end
+                end
+
+            end
 
         end
     end
@@ -2500,6 +2566,12 @@ function GuildbookMixin:RosterListviewItem_OnMouseDown(character)
     self:OpenTo("character")
 
     self.guild.home.character.selectedCharacter = character;
+
+    self:LoadCharacterScrollView(character)
+
+end
+
+function GuildbookMixin:LoadCharacterScrollView(character)
 
     local class = character:GetClass()
 

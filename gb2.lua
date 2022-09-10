@@ -84,7 +84,7 @@ addon:GenerateCallbackEvents({
     "OnPlayerBagsUpdated",
     "OnPlayerTradeskillRecipesScanned",
     "OnPlayerTradeskillRecipesLinked",
-	"OnPlayerSecondarySkillsScanned",
+	"OnPlayerSkillsScanned",
     "OnPlayerTalentSpecChanged",
     "OnPlayerEquipmentChanged",
 	"OnPlayerStatsChanged",
@@ -552,39 +552,18 @@ function addon:TRADE_SKILL_UPDATE(...)
 		addon.DEBUG("func", "addon:TRADE_SKILL_UPDATE", "tradeskillID not found")
 	end
 
-	-- if tradeskillID == 186 then
-	-- 	addon.DEBUG("characterMixin", "Character:ScanTradeskillRecipes", "got mining skipping link button")
-	-- else
 
-	-- 	if TradeSkillLinkButton then
-	-- 		if TradeSkillLinkButton:IsVisible() then
-				
-	-- 		else
-    --             local tradeskillLink = GetTradeSkillListLink()
-	-- 			return
-	-- 		end
-	-- 	else
-
-	-- 	end
-
-	-- end
-
-    --print("try getting prof reipes for", tradeskillID, localeProf)
 
     local tradeskillRecipes = {}
     if tradeskillID == 333 then
         
         local numCrafts = GetNumTradeSkills()
-        --print("found", numCrafts, "recipes")
         for i = 1, numCrafts do
             local name, _type, _, _, _, _ = GetTradeSkillInfo(i)
             if name and (_type == "optimal" or _type == "medium" or _type == "easy" or _type == "trivial") then -- this was a fix thanks to Sigma regarding their addon showing all recipes
-                --print("got recipe not header", name)
-
                 local link = GetTradeSkillRecipeLink(i)
                 if link then
-                    --print("got link", link)
-
+                    --thanks to meo for this to get the itemID
                     local itemID = string.match(link, "enchant:(%d+)")
                     if itemID then
                         itemID = tonumber(itemID)
@@ -653,21 +632,40 @@ function addon:SKILL_LINES_CHANGED(...)
 		[356] = 0,
 	}
 
+    local primarySkillIDs = {
+        [164] = 0,
+		[165] = 0,
+		[171] = 0,
+		[182] = 0,
+		[186] = 0,
+		[197] = 0,
+		[202] = 0,
+		[333] = 0,
+		[393] = 0,
+		[755] = 0,
+		[773] = 0,
+    }
+    local primarySkills = {}
+
 	for i = 1, GetNumSkillLines() do
         local name, isHeader, _, rank = GetSkillLineInfo(i);
 
 		if name and type(rank) == "number" then
 			local tradeskillID = Tradeskills:GetTradeskillIDFromLocale(name)
 
-			if tradeskillID and secondarySkills[tradeskillID] then
+			if tradeskillID and secondarySkills[tradeskillID] and (type(rank) == "number") and (rank > 0) then
 				secondarySkills[tradeskillID] = rank;
+			end
+
+			if tradeskillID and primarySkillIDs[tradeskillID] and (type(rank) == "number") and (rank > 0) then
+				primarySkills[tradeskillID] = rank;
 			end
 
 		end
 
 	end
 
-	addon:TriggerEvent("OnPlayerSecondarySkillsScanned", secondarySkills)
+	addon:TriggerEvent("OnPlayerSkillsScanned", secondarySkills, primarySkills)
 
 end
 

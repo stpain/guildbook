@@ -143,6 +143,7 @@ L["SETTINGS_SHOW_TOOLTIP_MAIN_CHAR"] = "Show main character in tooltip"
 L["SETTINGS_SHOW_TOOLTIP_MAIN_SPEC"] = "Show main spec in tooltip"
 L["SETTINGS_SHOW_TOOLTIP_CHAR_PROFILE"] = "Show character profile in tooltip"
 L["SETTINGS_SHOW_TOOLTIP_TRADESKILLS"] = "Show Tradeskills in tooltip"
+L["SETTINGS_DISABLE_TOOLTIP_EXTENSION"] = "Disable tooltip for Instances"
 
 L["SETTINGS_RESET_CHARACTER_LABEL"] = "Reset character data"
 L["SETTINGS_RESET_GUILD_LABEL"] = "Reset guild data"

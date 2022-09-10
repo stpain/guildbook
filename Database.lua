@@ -32,6 +32,7 @@ Database.keys = {
 		showTooltipMainCharacter = false,
         showTooltipTradeskills = false,
 		showTooltipCharacterProfile = false,
+        disableTooltipInInstance = true,
 
         themes = {},
         selectedTheme = "default",

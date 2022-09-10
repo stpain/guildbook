@@ -44,6 +44,15 @@ Tradeskills.SpecializationSpellsIDs = {
     [10658] = 165,
     [10660] = 165,
 }
+function Tradeskills:TradeskillIDToAtlas(id)
+
+	if id == 202 then
+		return "Mobile-Enginnering";
+	else
+		return string.format("Mobile-%s", self.TradeskillIDsToLocaleName.enUS[id])
+	end
+end
+
 Tradeskills.TradeskillIDsToLocaleName = {
 	enUS = {
 		[164] = "Blacksmithing",

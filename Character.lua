@@ -297,6 +297,9 @@ function Character:SetProfileDob(timeStamp)
 end
 
 function Character:GetProfileDob()
+    if not self.data.profile then
+        return "";
+    end
     return self.data.profile.dob;
 end
 
@@ -306,6 +309,9 @@ function Character:SetProfileName(name)
 end
 
 function Character:GetProfileName()
+    if not self.data.profile then
+        return "";
+    end
     return self.data.profile.name;
 end
 
@@ -315,12 +321,18 @@ function Character:SetProfileBio(bio)
 end
 
 function Character:GetProfileBio()
+    if not self.data.profile then
+        return "";
+    end
     return self.data.profile.bio;
 end
 
 --used to set dispaly text and detect when changes occur
 function Character:GetProfile()
     local t = {};
+    if not self.data.profile then
+        return false;
+    end
     t.name = self.data.profile.name;
     t.bio = self.data.profile.bio;
     t.mainSpec = self.data.mainSpec;

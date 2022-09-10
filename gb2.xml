@@ -1,56 +1,128 @@
 <UI>
 
-    <Frame name="GuildbookTooltipExtension" mixin="GuildbookTooltipExtensionMixin" inherits="TooltipBorderedFrameTemplate" hidden="true">
-        <Size y="100"/>
+    <Frame name="GuildbookTooltipExtension" parent="UIParent" mixin="GuildbookTooltipExtensionMixin" inherits="TooltipBorderedFrameTemplate" hidden="false">
+        <Anchors>
+            <Anchor point="CENTER"/>
+        </Anchors>
         <Layers>
-            <Layer level="BACKGROUND">
+            <Layer level="ARTWORK">
                 <Texture parentKey="classIcon">
-                    <Size x="50" y="50"/>
+                    <Size x="42" y="42"/>
                     <Anchors>
                         <Anchor point="TOPRIGHT" x="-10" y="-10"/>
                     </Anchors>
                 </Texture>
             </Layer>
-        </Layers>
-        <Layers>
             <Layer level="OVERLAY">
                 <FontString parentKey="name" inherits="GameFontNormalHuge">
                     <Anchors>
                         <Anchor point="TOPLEFT" x="10" y="-10"/>
                     </Anchors>
                 </FontString>
-                <FontString parentKey="mainSpec" inherits="GameFontNormalLarge">
-                    <Color r="1" g="1" b="1"/>
-                    <Anchors>
-                        <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="10" y="-60"/>
-                    </Anchors>
-                </FontString>
                 <FontString parentKey="mainCharacter" inherits="GameFontNormalLarge">
                     <Color r="1" g="1" b="1"/>
                     <Anchors>
-                        <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="10" y="-60"/>
+                        <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="10" y="-50"/>
                     </Anchors>
                 </FontString>
-                <FontString parentKey="prof1" inherits="GameFontNormalLarge">
-                    <Color r="1" g="1" b="1"/>
-                    <Anchors>
-                        <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="10" y="-60"/>
-                    </Anchors>
-                </FontString>
-                <FontString parentKey="prof2" inherits="GameFontNormalLarge">
-                    <Color r="1" g="1" b="1"/>
-                    <Anchors>
-                        <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="10" y="-60"/>
-                    </Anchors>
-                </FontString>
-                <FontString parentKey="profile" inherits="GameFontNormalLarge">
-                    <Color r="1" g="1" b="1"/>
-                    <Anchors>
-                        <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="10" y="-60"/>
-                    </Anchors>
-                </FontString>
+
             </Layer>
         </Layers>
+        <Frames>
+            <Frame parentKey="specPanel">
+                <Size y="50"/>
+                <Anchors>
+                    <Anchor point="TOP" x="0" y="-60"/>
+                    <Anchor point="LEFT" x="0" y="0"/>
+                    <Anchor point="RIGHT" x="0" y="0"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <FontString parentKey="specLabel" inherits="GameFontNormalSmall" justifyH="LEFT" text="Specializations">
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="15" y="0"/>
+                            </Anchors>
+                        </FontString>
+                        <FontString parentKey="mainSpec" inherits="GameFontNormal" justifyH="LEFT">
+                            <Color r="1" g="1" b="1"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="10" y="-20"/>
+                            </Anchors>
+                        </FontString>
+                        <FontString parentKey="offSpec" inherits="GameFontNormal" justifyH="RIGHT">
+                            <Color r="1" g="1" b="1"/>
+                            <Anchors>
+                                <Anchor point="TOPRIGHT" x="-10" y="-20"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+            </Frame>
+
+            <Frame parentKey="tradeskillsPanel">
+                <Size y="60"/>
+                <Anchors>
+                    <Anchor point="TOP" relativeKey="$parent.specPanel" relativePoint="BOTTOM" x="0" y="0"/>
+                    <Anchor point="LEFT" x="0" y="0"/>
+                    <Anchor point="RIGHT" x="0" y="0"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <FontString parentKey="tradeskillsLabel" inherits="GameFontNormalSmall" justifyH="LEFT" text="Tradeskills">
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="15" y="0"/>
+                            </Anchors>
+                        </FontString>
+                        <FontString parentKey="prof1" inherits="GameFontNormal" justifyH="LEFT">
+                            <Color r="1" g="1" b="1"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="10" y="-20"/>
+                            </Anchors>
+                        </FontString>
+                        <FontString parentKey="prof2" inherits="GameFontNormal" justifyH="LEFT">
+                            <Color r="1" g="1" b="1"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="10" y="-40"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+            </Frame>
+
+            <Frame parentKey="profilePanel">
+                <Size y="60"/>
+                <Anchors>
+                    <Anchor point="TOP" relativeKey="$parent.tradeskillsPanel" relativePoint="BOTTOM" x="0" y="0"/>
+                    <Anchor point="LEFT" x="0" y="0"/>
+                    <Anchor point="RIGHT" x="0" y="0"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <FontString parentKey="profileLabel" inherits="GameFontNormalSmall" justifyH="LEFT" text="Profile">
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="15" y="0"/>
+                            </Anchors>
+                        </FontString>                
+                        <FontString parentKey="profileName" inherits="GameFontNormal" justifyH="LEFT" justifyV="TOP">
+                            <Color r="1" g="1" b="1"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="10" y="-20"/>
+                            </Anchors>
+                        </FontString>
+                        <FontString parentKey="profileBio" inherits="GameFontNormalSmall" justifyH="LEFT" justifyV="TOP">
+                            <Color r="1" g="1" b="1"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="10" y="-40"/>
+                                <Anchor point="BOTTOMRIGHT" x="-10" y="10"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+            </Frame>
+        </Frames>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+        </Scripts>
     </Frame>
 
     <Frame name="GuildbookInterface" mixin="GuildbookMixin" parent="UIParent" frameStrata="HIGH" enableMouse="true" movable="true" hidden="true">
@@ -1532,17 +1604,17 @@
                                 </FontString>
                                 <FontString parentKey="themeHeader" inherits="GameFontNormal" justifyH="CENTER" text="Theme">
                                     <Anchors>
-                                        <Anchor point="TOPLEFT" x="8" y="-112"/>
+                                        <Anchor point="TOPLEFT" x="8" y="-110"/>
                                     </Anchors>
                                 </FontString>
                                 <FontString parentKey="commsHeader" inherits="GameFontNormal" justifyH="CENTER" text="Data sync">
                                     <Anchors>
-                                        <Anchor point="TOPLEFT" x="8" y="-192"/>
+                                        <Anchor point="TOPLEFT" x="8" y="-188"/>
                                     </Anchors>
                                 </FontString>
                                 <FontString parentKey="tooltipHeader" inherits="GameFontNormal" justifyH="CENTER" text="Tooltip">
                                     <Anchors>
-                                        <Anchor point="TOPLEFT" x="8" y="-272"/>
+                                        <Anchor point="TOPLEFT" x="8" y="-266"/>
                                     </Anchors>
                                 </FontString>
 
@@ -1840,6 +1912,25 @@
                                 </Layers>                
                                 <Anchors>
                                     <Anchor point="TOP" relativeKey="$parent.showTooltipCharacterProfile" relativePoint="BOTTOM" x="0" y="0"/>
+                                </Anchors>
+                            </CheckButton>
+
+                            <CheckButton parentKey="disableTooltipInInstance" inherits="ChatConfigCheckButtonTemplate" >
+                                <CheckedTexture atlas="orderhalltalents-done-checkmark"/>
+                                <Size x="24" y="24"/>
+                                <Layers>
+                                    <Layer>
+                                        <FontString parentKey="label" inherits="GameFontNormal" text="Show tradeskills in tooltip" justifyH="LEFT">
+                                            <Color r="1" g="1" b="1" a="1"/>
+                                            <Size x="280" y="26"/>
+                                            <Anchors>
+                                                <Anchor point="LEFT" x="24" y="0"/>
+                                            </Anchors>
+                                        </FontString>
+                                    </Layer>
+                                </Layers>                
+                                <Anchors>
+                                    <Anchor point="TOP" relativeKey="$parent.showTooltipTradeskills" relativePoint="BOTTOM" x="0" y="0"/>
                                 </Anchors>
                             </CheckButton>
 

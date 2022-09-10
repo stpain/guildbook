@@ -1353,6 +1353,9 @@ end
 
 
 GuildbookTooltipExtensionMixin = {}
+function GuildbookTooltipExtensionMixin:OnLoad()
+
+end
 function GuildbookTooltipExtensionMixin:SetCharacter(character, showMain, showMainSpec, showTradeskills, showProfile)
     if not character then
         return
@@ -1361,19 +1364,34 @@ function GuildbookTooltipExtensionMixin:SetCharacter(character, showMain, showMa
     self.name:SetText(gb.Colours[character:GetClass()]:WrapTextInColorCode(character:GetName()))
     self.classIcon:SetAtlas(string.format("GarrMission_ClassIcon-%s", character:GetClass():lower()))
 
+    self:SetHeight(60)
+
     if showMain then
+
+        local mainGUID = character:GetMainCharacter()
+        for k, guild in ipairs(GuildbookInterface.guilds) do
+            local main = guild:GetCharacter(mainGUID)
+            if type(main) == "table" then
+                self.mainCharacter:SetText("|cffffffff["..gb.Colours[main:GetClass()]:WrapTextInColorCode(main:GetName()).."|cffffffff]")
+            end
+        end
         
     else
         
     end
 
     if showMainSpec then
-        local localeSpec, engSpec, specID = character:GetSpec("primary")
-        if localeSpec then
-            self.mainSpec:SetText(string.format("%s %s", CreateAtlasMarkup(character:GetClassSpecAtlasName("primary"), 20, 20), character:GetSpec("primary")))
+        if character:GetSpec("primary") then
+            self.specPanel.mainSpec:SetText(string.format("%s %s", CreateAtlasMarkup(character:GetClassSpecAtlasName("primary"), 20, 20), character:GetSpec("primary")))
         end
+        if character:GetSpec("secondary") then
+            self.specPanel.offSpec:SetText(string.format("%s %s", character:GetSpec("secondary"), CreateAtlasMarkup(character:GetClassSpecAtlasName("secondary"), 20, 20)))
+        end
+        self.specPanel:Show()
+        self.specPanel:SetHeight(50)
     else
-
+        self.specPanel:Hide()
+        self.specPanel:SetHeight(1)
     end
 
     if showTradeskills then
@@ -1384,21 +1402,86 @@ function GuildbookTooltipExtensionMixin:SetCharacter(character, showMain, showMa
         local prof2Level = character:GetTradeskillLevel(2)
         local prof2Spec = character:GetTradeskillSpec(2)
 
+        local prof1String = ""
+        if type(prof1) == "number" then
+            prof1String = CreateAtlasMarkup(Tradeskills:TradeskillIDToAtlas(prof1), 20, 20)
+            prof1 = Tradeskills:GetLocaleNameFromID(prof1)
+        end
+        if type(prof1) == "string" then
+            prof1String = prof1String.." "..prof1
+        end
+        if type(prof1Level) == "number" then
+            prof1String = prof1String.." ["..prof1Level.."]"
+        end
+        if type(prof1Spec) == "number" then
+            prof1Spec = GetSpellInfo(prof1Spec)
+            prof1String = prof1String.." "..(prof1Spec and prof1Spec or "")
+        end
+        self.tradeskillsPanel.prof1:SetText(prof1String)
+
+        local prof2String = ""
+        if type(prof2) == "number" then
+            prof2String = CreateAtlasMarkup(Tradeskills:TradeskillIDToAtlas(prof2), 20, 20)
+            prof2 = Tradeskills:GetLocaleNameFromID(prof2)
+        end
+        if type(prof2) == "string" then
+            prof2String = prof2String.." "..prof2
+        end
+        if type(prof2Level) == "number" then
+            prof2String = prof2String.." ["..prof2Level.."]"
+        end
+        if type(prof2Spec) == "number" then
+            prof2Spec = GetSpellInfo(prof2Spec)
+            prof2String = prof2String.." "..(prof2Spec and prof2Spec or "")
+        end
+        self.tradeskillsPanel.prof2:SetText(prof2String)
         
+        self.tradeskillsPanel:Show()
+        self.tradeskillsPanel:SetHeight(70)
     else
-        
+        self.tradeskillsPanel:Hide()
+        self.tradeskillsPanel:SetHeight(1)
     end
 
     if showProfile then
-        
+
+        local profile = character:GetProfile()
+        if profile then
+
+            self.profilePanel.profileName:SetText(profile.name)
+            self.profilePanel.profileBio:SetText(profile.bio)
+
+            self.profilePanel:Show()
+            self.profilePanel:SetHeight(110)
+
+        end
     else
-        
+        self.profilePanel:Hide()
+        self.profilePanel:SetHeight(1)
     end
 
+    self:SetHeight(60 + self.specPanel:GetHeight() + self.tradeskillsPanel:GetHeight() + self.profilePanel:GetHeight())
 
 
 end
 function GuildbookTooltipExtensionMixin:Clear()
-    self.name:SetText("")
-    self.mainSpec:SetText("")
+
+    self.specPanel:SetHeight(1)
+    self.tradeskillsPanel:SetHeight(1)
+    self.profilePanel:SetHeight(1)
+
+    self.specPanel:Hide()
+    self.tradeskillsPanel:Hide()
+    self.profilePanel:Hide()
+
+    self.mainCharacter:SetText("")
+
+    self.specPanel.mainSpec:SetText("")
+    self.specPanel.offSpec:SetText("")
+
+    self.tradeskillsPanel.prof1:SetText("")
+    self.tradeskillsPanel.prof2:SetText("")
+
+    self.profilePanel.profileName:SetText("")
+    self.profilePanel.profileBio:SetText("")
 end
