@@ -1490,8 +1490,8 @@ Cela va ouvrir le menu dans lequel votre (ou vos) guilde(s) sont listés.
 Si ce n'est pas le cas venez sur discord vous plaindre sur Curseforge ou Discord ;)
 
 
-5.43
-- ajout de tooltip étendu
+5.52
+- ajout de tooltips étendus
 - ajout de scans supplémentaires pour les méties
 
 ]]
