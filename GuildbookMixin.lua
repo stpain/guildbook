@@ -222,6 +222,8 @@ function GuildbookMixin:OnLoad()
 
     self:RegisterForDrag("LeftButton")
 
+    self.resize:Init(self, 940, 510)
+
     self.welcomeMessage.text:SetText(L["WELCOME_MESSAGE"])
 
     self.title:SetText(string.format("%s v%s", addonName, GetAddOnMetadata(addonName, "Version")))
@@ -942,7 +944,7 @@ function GuildbookMixin:OnLoad()
         end
     end)
     self.settings.scrollChild.debug:SetScript("OnClick", function()
-        addon.DebuggerWindow:SetShown(not addon.DebuggerWindow:IsVisible())
+        --addon.DEBUGgerWindow:SetShown(not addon.DebuggerWindow:IsVisible())
         --self.settings.scrollChild.scanForLocaleData:SetShown(not self.settings.scrollChild.scanForLocaleData:IsVisible())
     end)
 
@@ -1228,7 +1230,7 @@ function GuildbookMixin:OnCommsMessage(sender, data)
         if _guild:GetCharacter(senderGUID) then
             character = _guild:GetCharacter(senderGUID)
             guild = _guild;
-            addon.DEBUG("func", "OnCommsMessage", string.format("found character"))
+            --addon.DEBUG("func", "OnCommsMessage", string.format("found character"))
         end
     end
     if type(character) ~= "table" then
@@ -1376,7 +1378,7 @@ function GuildbookMixin:OnShow()
 end
 
 function GuildbookMixin:OnHide()
-
+    collectgarbage("collect")
 end
 
 function GuildbookMixin:OnUpdate()
@@ -2049,7 +2051,7 @@ function GuildbookMixin:TradeskillListviewItem_OnAddToWorkOrder(order, character
     --     character = character or false,
     -- })
 
-    addon.DEBUG("func", "TradeskillListviewItem_OnAddToWorkOrder", string.format("added %s to work order", item.name), item)
+    --addon.DEBUG("func", "TradeskillListviewItem_OnAddToWorkOrder", string.format("added %s to work order", item.name), item)
 
     self:UpdateWorkOrderReagents()
 end
@@ -2062,10 +2064,10 @@ function GuildbookMixin:TradeskillListviewItem_RemoveFromWorkOrder(item)
     self.guild.tradeskills.workOrders.DataProvider:InsertTable({})
 
     if item.character == false then
-        addon.DEBUG("func", "", string.format("removing item without character data > %s", item.name))
+        --addon.DEBUG("func", "", string.format("removing item without character data > %s", item.name))
 
     else
-        addon.DEBUG("func", "", string.format("removing item with character data > %s", item.name))
+        --addon.DEBUG("func", "", string.format("removing item with character data > %s", item.name))
     end
 
     --although for duplicated items it'll find each and return the last, as they're duplicates its not much of an issue
@@ -2085,7 +2087,7 @@ function GuildbookMixin:TradeskillListviewItem_RemoveFromWorkOrder(item)
 
     if key then
         table.remove(GUILDBOOK_GLOBAL.WorkOrders, key)
-        addon.DEBUG("func", "TradeskillListviewItem_OnRemoveFromWorkOrder", string.format("removed %s from work order", item.name), item)
+        --addon.DEBUG("func", "TradeskillListviewItem_OnRemoveFromWorkOrder", string.format("removed %s from work order", item.name), item)
     end
 
     --self.guild.tradeskills.workOrders.scrollView:FindFrame(item)
@@ -2265,13 +2267,13 @@ function GuildbookMixin:HandleCharacterSkillsUpdate(guid, data)
                 if character:GetTradeskill(1) == tradeskill then
                     character:SetTradeskillLevel(1, level)
 
-                    addon.DEBUG("func", "HandleCharacterSkillsUpdate", string.format("prof 1 is known > set prof 1 at level %s", level))
+                    --addon.DEBUG("func", "HandleCharacterSkillsUpdate", string.format("prof 1 is known > set prof 1 at level %s", level))
 
                 else
                     if character:GetTradeskill(2) == tradeskill then
                         character:SetTradeskillLevel(2, level)
 
-                        addon.DEBUG("func", "HandleCharacterSkillsUpdate", string.format("prof 2 is known > set prof 2 at level %s", level))
+                        --addon.DEBUG("func", "HandleCharacterSkillsUpdate", string.format("prof 2 is known > set prof 2 at level %s", level))
                     end
                 end
 
@@ -2280,14 +2282,14 @@ function GuildbookMixin:HandleCharacterSkillsUpdate(guid, data)
                     character:SetTradeskill(1, tradeskill)
                     character:SetTradeskillLevel(1, level)
 
-                    addon.DEBUG("func", "HandleCharacterSkillsUpdate", string.format("prof 1 is NEW > set prof 1 as %s at level %s", tradeskill, level))
+                    --addon.DEBUG("func", "HandleCharacterSkillsUpdate", string.format("prof 1 is NEW > set prof 1 as %s at level %s", tradeskill, level))
 
                 else
                     if (character:GetTradeskill(1) ~= tradeskill) and type(character:GetTradeskill(2)) ~= "number" then
                         character:SetTradeskill(2, tradeskill)
                         character:SetTradeskillLevel(2, level)
 
-                        addon.DEBUG("func", "HandleCharacterSkillsUpdate", string.format("prof 2 is NEW > set prof 2 as %s at level %s", tradeskill, level))
+                        --addon.DEBUG("func", "HandleCharacterSkillsUpdate", string.format("prof 2 is NEW > set prof 2 as %s at level %s", tradeskill, level))
                     end
                 end
 
@@ -2312,7 +2314,7 @@ function GuildbookMixin:HandleTradeskillUpdate(guid, tradeskill, level, recipes)
 
                 self:SetStatusText(string.format("%s sent %s recipes", character:GetName(), prof))
 
-                addon.DEBUG("func", "HandleTradeskillUpdate", string.format("found character %s seting %s", character:GetName(), tradeskill))
+                --addon.DEBUG("func", "HandleTradeskillUpdate", string.format("found character %s seting %s", character:GetName(), tradeskill))
 
                 --addon.DEBUG("func", "OnPlayerTradeskillRecipesScanned", "found character table")
 
@@ -2338,14 +2340,14 @@ function GuildbookMixin:HandleTradeskillUpdate(guid, tradeskill, level, recipes)
                     character:SetTradeskillLevel(1, level)
                     character:SetTradeskillRecipes(1, recipes)
 
-                    addon.DEBUG("func", "OnPlayerTradeskillRecipesScanned", string.format("prof 1 is known > set prof 1 at level %s", level))
+                    --addon.DEBUG("func", "OnPlayerTradeskillRecipesScanned", string.format("prof 1 is known > set prof 1 at level %s", level))
 
                 else
                     if character:GetTradeskill(2) == tradeskill then
                         character:SetTradeskillLevel(2, level)
                         character:SetTradeskillRecipes(2, recipes)
 
-                        addon.DEBUG("func", "OnPlayerTradeskillRecipesScanned", string.format("prof 2 is known > set prof 2 at level %s", level))
+                        --addon.DEBUG("func", "OnPlayerTradeskillRecipesScanned", string.format("prof 2 is known > set prof 2 at level %s", level))
                     end
                 end
 
@@ -2355,7 +2357,7 @@ function GuildbookMixin:HandleTradeskillUpdate(guid, tradeskill, level, recipes)
                     character:SetTradeskillLevel(1, level)
                     character:SetTradeskillRecipes(1, recipes)
 
-                    addon.DEBUG("func", "OnPlayerTradeskillRecipesScanned", string.format("prof 1 is NEW > set prof 1 as %s at level %s", tradeskill, level))
+                    --addon.DEBUG("func", "OnPlayerTradeskillRecipesScanned", string.format("prof 1 is NEW > set prof 1 as %s at level %s", tradeskill, level))
 
                 else
                     if (character:GetTradeskill(1) ~= tradeskill) and type(character:GetTradeskill(2)) ~= "number" then
@@ -2363,7 +2365,7 @@ function GuildbookMixin:HandleTradeskillUpdate(guid, tradeskill, level, recipes)
                         character:SetTradeskillLevel(2, level)
                         character:SetTradeskillRecipes(2, recipes)
 
-                        addon.DEBUG("func", "OnPlayerTradeskillRecipesScanned", string.format("prof 2 is NEW > set prof 2 as %s at level %s", tradeskill, level))
+                        --addon.DEBUG("func", "OnPlayerTradeskillRecipesScanned", string.format("prof 2 is NEW > set prof 2 as %s at level %s", tradeskill, level))
                     end
                 end
 
@@ -2565,10 +2567,10 @@ end
 function GuildbookMixin:RosterListviewItem_OnMouseDown(character)
 
     if type(character) ~= "table" then
-        addon.DEBUG("func", "RosterListviewItem_OnMouseDown", "character object not a table", character)
+        --addon.DEBUG("func", "RosterListviewItem_OnMouseDown", "character object not a table", character)
         return
     else
-        addon.DEBUG("func", "RosterListviewItem_OnMouseDown", "character object is a table", character)
+        --addon.DEBUG("func", "RosterListviewItem_OnMouseDown", "character object is a table", character)
     end
 
     self:OpenTo("character")

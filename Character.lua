@@ -689,11 +689,11 @@ function Character:ResetData()
     if guid == UnitGUID("player") then
         addon:TriggerEvent("Character_OnDataChanged")
     end
-    addon.DEBUG("func", "Character:ResetData", string.format("reset data for %s", name))
+    --addon.DEBUG("func", "Character:ResetData", string.format("reset data for %s", name))
 end
 
 function Character:New()
-    addon.DEBUG("func", "Character:New", string.format("created new character object"))
+    --addon.DEBUG("func", "Character:New", string.format("created new character object"))
     return Mixin({ 
         data = {
             name = "",

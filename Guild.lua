@@ -85,7 +85,7 @@ end
 --scan the guild roster to get member data
 function Guild:ScanGuildRoster()
 
-    addon.DEBUG("func", "Guild:ScanGuildRoster", "scanning current guild roster")
+    --addon.DEBUG("func", "Guild:ScanGuildRoster", "scanning current guild roster")
 
     --lets make sure we only update the current guild data
     if self:IsCurrentGuild() then
@@ -158,7 +158,7 @@ function Guild:LoadCharactersFromSavedVars()
         return;
     end
 
-    addon.DEBUG("func", "Guild:LoadCharactersFromSavedVars", string.format("loading character data from saved vars for %s", self.data.name))
+    --addon.DEBUG("func", "Guild:LoadCharactersFromSavedVars", string.format("loading character data from saved vars for %s", self.data.name))
 
     local cache = Database:GetGuildRosterCache(self.data.name)
     for guid, info in pairs(cache) do
@@ -180,7 +180,7 @@ function Guild:UpdateSavedVariables()
 
     local t = {};
 
-    addon.DEBUG("func", "Guild:UpdateSavedVariables", string.format("updating saved variables for %s", self.data.name))
+    --addon.DEBUG("func", "Guild:UpdateSavedVariables", string.format("updating saved variables for %s", self.data.name))
     for guid, character in pairs(self.data.members) do
         t[guid] = character:GetData();
     end

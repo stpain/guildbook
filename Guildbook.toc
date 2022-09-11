@@ -36,12 +36,8 @@ Dialogs.lua
 
 ModBlizzUI.lua
 
-Debugger.xml
-Debugger.lua
-
 Database.lua
 Comms.lua
-
 
 CraftData.lua
 

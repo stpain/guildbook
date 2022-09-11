@@ -226,7 +226,7 @@ function addon:ScanPlayerTalents(...)
 		newSpec = 1
 	end
 
-	addon.DEBUG("func", "ScanPlayerTalents", string.format("scannign spec for set %s", newSpec))
+	--addon.DEBUG("func", "ScanPlayerTalents", string.format("scannign spec for set %s", newSpec))
 
     local tabs, talents = {}, {}
     for tabIndex = 1, GetNumTalentTabs() do
@@ -542,14 +542,14 @@ function addon:TRADE_SKILL_UPDATE(...)
             if type(maxLevel) == "string" then
                 maxLevel = tonumber(maxLevel)
             end
-            addon.DEBUG("characterMixin", "Character:ScanTradeskillRecipes", string.format("found prof level [%s] from UI text", currentLevel))
+            --addon.DEBUG("characterMixin", "Character:ScanTradeskillRecipes", string.format("found prof level [%s] from UI text", currentLevel))
         end
     end
 
 	local tradeskillID = Tradeskills:GetTradeskillIDFromLocale(localeProf)
 
 	if type(tradeskillID) ~= "number" then
-		addon.DEBUG("func", "addon:TRADE_SKILL_UPDATE", "tradeskillID not found")
+		--addon.DEBUG("func", "addon:TRADE_SKILL_UPDATE", "tradeskillID not found")
 	end
 
 
@@ -695,4 +695,5 @@ addon.e:SetScript("OnEvent", function(self, event, ...)
     if addon[event] then
         addon[event](addon, ...)
     end
+    collectgarbage("collect")
 end)

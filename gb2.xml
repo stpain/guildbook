@@ -125,7 +125,7 @@
         </Scripts>
     </Frame>
 
-    <Frame name="GuildbookInterface" mixin="GuildbookMixin" parent="UIParent" frameStrata="HIGH" enableMouse="true" movable="true" hidden="true">
+    <Frame name="GuildbookInterface" mixin="GuildbookMixin" parent="UIParent" frameStrata="HIGH" enableMouse="true" movable="true" resizable="true" hidden="true">
         <Size x="940" y="510"/>
         <Anchors>
             <Anchor point="CENTER" x="0" y="0"/>
@@ -2208,12 +2208,19 @@
                 </ScrollChild>
             </ScrollFrame>
 
+            <Button parentKey="resize" inherits="PanelResizeButtonTemplate">
+                <Size x="16" y="16"/>
+                <Anchors>
+                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                </Anchors>
+            </Button>
+
         </Frames>
 
 
         <Scripts>
             <OnLoad method="OnLoad"/>
-            <OnUpdate method="OnUpdate"/>
+            <!-- <OnUpdate method="OnUpdate"/> -->
             <!-- <OnShow method="OnShow"/> -->
             <OnHide method="OnHide"/>
             <OnDragStart>
