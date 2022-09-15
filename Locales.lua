@@ -158,6 +158,9 @@ L["SETTINGS_EXPORT_GUILD_LABEL"] = "Export"
 L["SETTINGS_MOD_BLIZZ_ROSTER_LABEL"] = "Modify the default Blizzard guild roster UI"
 L["SETTINGS_MOD_BLIZZ_ROSTER_TOOLTIP"] = "Expand the default Guild UI to show more columns.\n\n|cffAA0935WARNING - will cause a UI reload when toggled off!"
 
+L["SETTINGS_SHOW_CHAT_MESSAGES"] = "Display chat window messages"
+L["SETTINGS_SHOW_CHAT_MESSAGES_TOOLTIP"] = "SPAM WARNING\n\nThis might generate a lot of messages!"
+
 
 --profile
 L["PROFILE_HEADER"] = "Profile"
@@ -255,7 +258,12 @@ L['< an hour']			    		= '< an hour'
 
 
 
-
+--chat messages
+L["GB_CHAT_MSG_SCANNED_TALENTS_GLYPHS"] = "scanned talents and glyphs, awesome!"
+L["GB_CHAT_MSG_SCANNED_TRADESKILL_RECIPES_S"] = "got your %s recipes, thanks."
+L["GB_CHAT_MSG_SCANNED_EQUIPMENT_SETS"] = "scanned your equipment sets, sweet threads!"
+L["GB_CHAT_MSG_SCANNED_CHARACTER_STATS_S"] = "got stats for %s, powerful stuff!"
+L["GB_CHAT_MSG_SCANNED_SKILLS"] = "took a look at your skills."
 
 
 

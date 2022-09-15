@@ -1599,22 +1599,22 @@
 
                                 <FontString parentKey="generalHeader" inherits="GameFontNormal" justifyH="CENTER" text="General">
                                     <Anchors>
-                                        <Anchor point="TOPLEFT" x="8" y="-32"/>
+                                        <Anchor point="TOPLEFT" x="8" y="-40"/>
                                     </Anchors>
                                 </FontString>
                                 <FontString parentKey="themeHeader" inherits="GameFontNormal" justifyH="CENTER" text="Theme">
                                     <Anchors>
-                                        <Anchor point="TOPLEFT" x="8" y="-110"/>
+                                        <Anchor point="TOPLEFT" x="8" y="-140"/>
                                     </Anchors>
                                 </FontString>
                                 <FontString parentKey="commsHeader" inherits="GameFontNormal" justifyH="CENTER" text="Data sync">
                                     <Anchors>
-                                        <Anchor point="TOPLEFT" x="8" y="-188"/>
+                                        <Anchor point="TOPLEFT" x="8" y="-220"/>
                                     </Anchors>
                                 </FontString>
                                 <FontString parentKey="tooltipHeader" inherits="GameFontNormal" justifyH="CENTER" text="Tooltip">
                                     <Anchors>
-                                        <Anchor point="TOPLEFT" x="8" y="-266"/>
+                                        <Anchor point="TOPLEFT" x="8" y="-300"/>
                                     </Anchors>
                                 </FontString>
 
@@ -1681,6 +1681,25 @@
                                 </Layers>                
                                 <Anchors>
                                     <Anchor point="TOP" relativeKey="$parent.showMinimapButton" relativePoint="BOTTOM" x="0" y="0"/>
+                                </Anchors>
+                            </CheckButton>
+
+                            <CheckButton parentKey="showChatWindowMessages" inherits="ChatConfigCheckButtonTemplate" >
+                                <CheckedTexture atlas="orderhalltalents-done-checkmark"/>
+                                <Size x="24" y="24"/>
+                                <Layers>
+                                    <Layer>
+                                        <FontString parentKey="label" inherits="GameFontNormal" text="Show messages in chat window" justifyH="LEFT">
+                                            <Color r="1" g="1" b="1" a="1"/>
+                                            <Size x="280" y="26"/>
+                                            <Anchors>
+                                                <Anchor point="LEFT" x="24" y="0"/>
+                                            </Anchors>
+                                        </FontString>
+                                    </Layer>
+                                </Layers>                
+                                <Anchors>
+                                    <Anchor point="TOP" relativeKey="$parent.modifyDefaultGuildRoster" relativePoint="BOTTOM" x="0" y="0"/>
                                 </Anchors>
                             </CheckButton>
 
@@ -1938,7 +1957,7 @@
                             <Button parentKey="resetCharacter" inherits="UIPanelButtonTemplate">
                                 <Size x="310" y="24"/>
                                 <Anchors>
-                                    <Anchor point="BOTTOMLEFT" x="8" y="0"/>
+                                    <Anchor point="TOPLEFT" x="8" y="-560"/>
                                 </Anchors>
                             </Button>
 
@@ -1946,13 +1965,6 @@
                                 <Size x="310" y="24"/>
                                 <Anchors>
                                     <Anchor point="BOTTOM" relativeKey="$parent.resetCharacter" relativePoint="TOP" x="0" y="0"/>
-                                </Anchors>
-                            </Button>
-
-                            <Button parentKey="debug" inherits="UIPanelButtonTemplate" text="Debug">
-                                <Size x="310" y="24"/>
-                                <Anchors>
-                                    <Anchor point="BOTTOMLEFT" x="8" y="-80"/>
                                 </Anchors>
                             </Button>
 

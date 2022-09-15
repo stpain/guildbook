@@ -5,6 +5,7 @@
 local addonName, addon = ...;
 
 local Tradeskills = addon.Tradeskills;
+local L = addon.Locales;
 
 addon.playerContainers = {};
 
@@ -230,7 +231,11 @@ end
 
 
 
-
+function addon:PostChatWindowMessage(msg)
+    if Database:GetConfigSetting("showChatWindowMessages") then
+        print(string.format("[|cffB34BD4%s|r] %s", addonName, msg))
+    end
+end
 
 
 
@@ -249,8 +254,6 @@ function addon:ScanPlayerTalents(...)
 	if type(newSpec) ~= "number" then
 		newSpec = 1
 	end
-
-	--addon.DEBUG("func", "ScanPlayerTalents", string.format("scannign spec for set %s", newSpec))
 
     local tabs, talents = {}, {}
     for tabIndex = 1, GetNumTalentTabs() do
@@ -302,6 +305,7 @@ function addon:ScanPlayerTalents(...)
         self:TriggerEvent("OnPlayerTalentSpecChanged", "secondary", talents, glyphs)
     end
 
+    self:PostChatWindowMessage(L["GB_CHAT_MSG_SCANNED_TALENTS_GLYPHS"])
 end
 
 
@@ -450,6 +454,8 @@ function addon:GetCharacterStats(setID)
 	--ViragDevTool:AddData(stats, "Guildbook_CharStats_"..equipmentSetName)
 
 	addon:TriggerEvent("OnPlayerStatsChanged", equipmentSetName, stats)
+
+    self:PostChatWindowMessage(L["GB_CHAT_MSG_SCANNED_CHARACTER_STATS_S"]:format(equipmentSetName))
 end
 
 
@@ -483,6 +489,8 @@ function addon:ScanPlayerEquipment()
     equipment.current = t;
 
     self:TriggerEvent("OnPlayerEquipmentChanged", equipment)
+
+    self:PostChatWindowMessage(L["GB_CHAT_MSG_SCANNED_EQUIPMENT_SETS"])
 end
 
 
@@ -493,6 +501,53 @@ function addon:ScanPlayerCharacter()
 	
 end
 
+
+
+function addon:ScanSkills()
+	local secondarySkills = {
+		[185] = 0,
+		[129] = 0,
+		[356] = 0,
+	}
+
+    local primarySkillIDs = {
+        [164] = 0,
+		[165] = 0,
+		[171] = 0,
+		[182] = 0,
+		[186] = 0,
+		[197] = 0,
+		[202] = 0,
+		[333] = 0,
+		[393] = 0,
+		[755] = 0,
+		[773] = 0,
+    }
+    local primarySkills = {}
+
+	for i = 1, GetNumSkillLines() do
+        local name, isHeader, _, rank = GetSkillLineInfo(i);
+
+		if name and type(rank) == "number" then
+            print(name)
+			local tradeskillID = Tradeskills:GetTradeskillIDFromLocale(name)
+
+			if tradeskillID and secondarySkills[tradeskillID] and (type(rank) == "number") and (rank > 0) then
+				secondarySkills[tradeskillID] = rank;
+			end
+
+			if tradeskillID and primarySkillIDs[tradeskillID] and (type(rank) == "number") and (rank > 0) then
+				primarySkills[tradeskillID] = rank;
+			end
+
+		end
+
+	end
+
+	addon:TriggerEvent("OnPlayerSkillsScanned", secondarySkills, primarySkills)
+
+    self:PostChatWindowMessage(L["GB_CHAT_MSG_SCANNED_SKILLS"])
+end
 
 
 function addon:ADDON_LOADED(...)
@@ -527,6 +582,9 @@ function addon:PLAYER_ENTERING_WORLD()
 	--set up some hooks
 	PlayerTalentFrame:HookScript("OnHide", function()
 		self:ScanPlayerTalents({})
+	end)
+	SkillFrame:HookScript("OnShow", function()
+		self:ScanSkills()
 	end)
 
 	hooksecurefunc(C_EquipmentSet, "CreateEquipmentSet", function()
@@ -645,6 +703,7 @@ function addon:TRADE_SKILL_UPDATE(...)
         self:TriggerEvent("OnPlayerTradeskillRecipesScanned", tradeskillID, currentLevel, tradeskillRecipes)
     end
 
+    self:PostChatWindowMessage(L["GB_CHAT_MSG_SCANNED_TRADESKILL_RECIPES_S"]:format(localeProf))
 end
 
 
@@ -667,48 +726,7 @@ end
 
 
 function addon:SKILL_LINES_CHANGED(...)
-
-	local secondarySkills = {
-		[185] = 0,
-		[129] = 0,
-		[356] = 0,
-	}
-
-    local primarySkillIDs = {
-        [164] = 0,
-		[165] = 0,
-		[171] = 0,
-		[182] = 0,
-		[186] = 0,
-		[197] = 0,
-		[202] = 0,
-		[333] = 0,
-		[393] = 0,
-		[755] = 0,
-		[773] = 0,
-    }
-    local primarySkills = {}
-
-	for i = 1, GetNumSkillLines() do
-        local name, isHeader, _, rank = GetSkillLineInfo(i);
-
-		if name and type(rank) == "number" then
-			local tradeskillID = Tradeskills:GetTradeskillIDFromLocale(name)
-
-			if tradeskillID and secondarySkills[tradeskillID] and (type(rank) == "number") and (rank > 0) then
-				secondarySkills[tradeskillID] = rank;
-			end
-
-			if tradeskillID and primarySkillIDs[tradeskillID] and (type(rank) == "number") and (rank > 0) then
-				primarySkills[tradeskillID] = rank;
-			end
-
-		end
-
-	end
-
-	addon:TriggerEvent("OnPlayerSkillsScanned", secondarySkills, primarySkills)
-
+    self:ScanSkills()
 end
 
 addon.e = CreateFrame("Frame");

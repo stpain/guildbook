@@ -22,6 +22,7 @@ Database.keys = {
 
 		showInfoMessages = true,
 		showMinimapButton = true,
+        showChatWindowMessages = false,
 
         blockCommsDuringCombat = false,
 		blockCommsDuringInstance = false,

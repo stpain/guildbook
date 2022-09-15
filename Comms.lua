@@ -32,6 +32,11 @@ function Comms:Init()
 end
 
 
+---the pourpose of this function is to check the queued mesages once per second and take action
+---if there is a message and its dispatch time has been reached then push the message, then update remaining messages to dispatch at n secon intervals
+---if the queue is empty remove the onUpdate script
+---@param self table Comms object
+---@param elapsed number elapsed since last OnUpdate
 function Comms.DispatcherOnUpdate(self, elapsed)
 
     Comms.dispatcherElapsed = Comms.dispatcherElapsed + elapsed;
@@ -44,21 +49,26 @@ function Comms.DispatcherOnUpdate(self, elapsed)
 
     if #Comms.queue == 0 then
         self:SetScript("OnUpdate", nil)
-        --addon.DEBUG("commsMixin", "Comms:DispatcherOnUpdate", string.format("queue is empty removed the onUpdate func"))
     else
 
         local now = time();
+
+        --grab the message from the queue
         local event = Comms.queue[1];
+
+        --if the message is due to go push it
         if event.dispatchTime < now then
             Comms:SendChatMessage(event.message, event.channel, event.target, event.priority)
+
+            --set remaining messages to dispatch in 'n' second intervals
             for i = 2, #Comms.queue do
                 Comms.queue[i].dispatchTime = now + ((i - 1) * Comms.queueExtendTime)
-                --addon.DEBUG("commsMixin", "Comms:DispatcherOnUpdate", string.format("extended dispatch time for %s", Comms.queue[i].event))
             end
+
+            --remove the message
             table.remove(Comms.queue, 1)
             if #Comms.queue == 0 then
                 self:SetScript("OnUpdate", nil)
-                --addon.DEBUG("commsMixin", "Comms:DispatcherOnUpdate", string.format("queue is empty removed the onUpdate func"))
             end
         end
     end

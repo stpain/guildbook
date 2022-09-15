@@ -19,6 +19,7 @@ Tradeskills.TradeskillNames = {
     ["Skinning"] = 393,
     ["Cooking"] = 185,
 	["FirstAid"] = 129,
+	["First Aid"] = 129,
 	["Fishing"] = 356,
 }
 Tradeskills.SpecializationSpellsIDs = {

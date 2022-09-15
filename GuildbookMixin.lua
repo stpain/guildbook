@@ -224,7 +224,7 @@ function GuildbookMixin:OnLoad()
     SLASH_GUILDBOOK2 = '/gbk'
     SLASH_GUILDBOOK3 = '/gb'
     SlashCmdList['GUILDBOOK'] = function(msg)
-        self:OpenTo("guild")
+        GuildbookInterface:Show()
     end
 
     self:RegisterForDrag("LeftButton")
@@ -874,6 +874,9 @@ function GuildbookMixin:OnLoad()
     self.settings.scrollChild.modifyDefaultGuildRoster.label:SetText(L["SETTINGS_MOD_BLIZZ_ROSTER_LABEL"])
     self.settings.scrollChild.modifyDefaultGuildRoster.tooltip = L["SETTINGS_MOD_BLIZZ_ROSTER_TOOLTIP"]
 
+    self.settings.scrollChild.showChatWindowMessages.label:SetText(L["SETTINGS_SHOW_CHAT_MESSAGES"])
+    self.settings.scrollChild.showChatWindowMessages.tooltip = L["SETTINGS_SHOW_CHAT_MESSAGES_TOOLTIP"]
+
     self.settings.scrollChild.generateExportData:SetText(L["SETTINGS_EXPORT_GUILD_LABEL"])
     self.settings.scrollChild.importData:SetText(L["SETTINGS_IMPORT_GUILD_LABEL"])
 
@@ -925,6 +928,10 @@ function GuildbookMixin:OnLoad()
             ReloadUI()
         end
     end)
+    self.settings.scrollChild.showChatWindowMessages:SetScript("OnClick", function()
+        Database:SetConfigSetting("showChatWindowMessages", self.settings.scrollChild.showChatWindowMessages:GetChecked())
+    end)
+
 
     self.settings.scrollChild.resetCharacter:SetScript("OnClick", function()
         for k, guild in ipairs(self.guilds) do
@@ -951,14 +958,7 @@ function GuildbookMixin:OnLoad()
             })
         end
     end)
-    self.settings.scrollChild.debug:SetScript("OnClick", function()
-        --addon.DEBUGgerWindow:SetShown(not addon.DebuggerWindow:IsVisible())
-        --self.settings.scrollChild.scanForLocaleData:SetShown(not self.settings.scrollChild.scanForLocaleData:IsVisible())
-    end)
 
-    -- self.settings.scrollChild.scanForLocaleData:SetScript("OnClick", function()
-    --     addon:GetLocaleTradeskillInfo()
-    -- end)
 
     self.settings.scrollChild.generateExportData:SetScript("OnClick", function()
         if self.selectedGuild then
@@ -1481,6 +1481,7 @@ function GuildbookMixin:OnDatabaseInitialised()
     self.settings.scrollChild.disableTooltipInInstance:SetChecked(Database:GetConfigSetting("disableTooltipInInstance"))
 
     self.settings.scrollChild.modifyDefaultGuildRoster:SetChecked(Database:GetConfigSetting("modifyDefaultGuildRoster"))
+    self.settings.scrollChild.showChatWindowMessages:SetChecked(Database:GetConfigSetting("showChatWindowMessages"))
 
     local isGuildUiModded = false;
     FriendsFrameTab3:HookScript("OnShow", function()
@@ -2804,7 +2805,7 @@ function GuildbookMixin:InitCharacterEquipmentDropdown(character)
     self.guild.home.character.scrollChild.equipsetDropdown.flyout:SetFlyoutBackgroundColour(Colours.StoneGold)
 
     local currentEquipment = character:GetCurrentInventory()
-    if currentEquipment then
+    if type(currentEquipment) == "table" then
         table.insert(self.guild.home.character.scrollChild.equipsetDropdown.menu, {
             text = "Current",
             func = function()
@@ -2822,32 +2823,34 @@ function GuildbookMixin:InitCharacterEquipmentDropdown(character)
     end
 
     local equipment = character:GetInventory()
-    for name, info in pairs(equipment) do
-        table.insert(self.guild.home.character.scrollChild.equipsetDropdown.menu, {
-            text = name,
-            func = function()
-                for k, slot in ipairs(self.guild.home.character.scrollChild.equipSlots) do
-                    local itemID = equipment[name][k]
-                    slot:ClearItem()
-                    slot:SetItem(itemID)
+    if type(equipment) == "table" then
+        for name, info in pairs(equipment) do
+            table.insert(self.guild.home.character.scrollChild.equipsetDropdown.menu, {
+                text = name,
+                func = function()
+                    for k, slot in ipairs(self.guild.home.character.scrollChild.equipSlots) do
+                        local itemID = equipment[name][k]
+                        slot:ClearItem()
+                        slot:SetItem(itemID)
 
-                    self.guild.home.character.scrollChild.model:TryOn(string.format("item:%d",itemID))
+                        self.guild.home.character.scrollChild.model:TryOn(string.format("item:%d",itemID))
 
 
-                    self.guild.home.character.scrollChild.stats.DataProvider:Flush()
-                    local stats = character:GetPaperdollStats(name)
-                    if type(stats) == "table" then
-                        local t = {}
-                        for k, v in pairs(stats) do
-                            table.insert(t, {
-                                name = k,
-                                value = v,
-                            })
+                        self.guild.home.character.scrollChild.stats.DataProvider:Flush()
+                        local stats = character:GetPaperdollStats(name)
+                        if type(stats) == "table" then
+                            local t = {}
+                            for k, v in pairs(stats) do
+                                table.insert(t, {
+                                    name = k,
+                                    value = v,
+                                })
+                            end
+                            self.guild.home.character.scrollChild.stats.DataProvider:InsertTable(t)
                         end
-                        self.guild.home.character.scrollChild.stats.DataProvider:InsertTable(t)
                     end
-                end
-            end,
-        })
+                end,
+            })
+        end
     end
 end
