@@ -732,6 +732,5 @@ addon.e:RegisterEvent('EQUIPMENT_SWAP_FINISHED')
 addon.e:SetScript("OnEvent", function(self, event, ...)
     if addon[event] then
         addon[event](addon, ...)
-        collectgarbage("collect")
     end
 end)
