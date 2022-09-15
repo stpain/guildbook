@@ -42,7 +42,16 @@ function GuildbookGuildMenuButtonTemplateMixin:OnLoad()
 
 end
 
-function GuildbookGuildMenuButtonTemplateMixin:OnMouseDown()
+function GuildbookGuildMenuButtonTemplateMixin:OnMouseDown(button)
+
+    if button == "RightButton" then
+        StaticPopup_Show("GuildbookRemoveGuildData", nil, nil, {
+            callback = function()
+                gb:TriggerEvent("OnGuildRemoved", self.guild)
+            end,
+        })
+        return;
+    end
 
     gb:TriggerEvent("OnGuildChanged", self.guild)
 
@@ -237,8 +246,10 @@ function GuildbookTradeskillWorkOrderListviewItemTemplateMixin:OnEnter()
             GameTooltip:AddLine("Work order info:")
 
             --this character object might get saved and will lose its methods so just access the data here
-            GameTooltip:AddDoubleLine("Requested by:", Colours[self.item.character.data.class]:WrapTextInColorCode(self.item.character.data.name).." |cffffffff["..self.item.guild.."]")
-            GameTooltip:AddDoubleLine("Requested amount:", self.item.quantity)
+            if self.item.character and self.item.guild then
+                GameTooltip:AddDoubleLine("Requested by:", Colours[self.item.character.data.class]:WrapTextInColorCode(self.item.character.data.name).." |cffffffff["..self.item.guild.."]")
+                GameTooltip:AddDoubleLine("Requested amount:", self.item.quantity)
+            end
             --GameTooltip:AddLine(L["TRADESKILL_WORK_ORDER_CLICK_CAST"])
         end
         GameTooltip:Show()

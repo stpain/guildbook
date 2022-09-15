@@ -237,28 +237,33 @@ function Character:CanCraftItem(item)
 
     --addon.DEBUG("func", "Character:CanCraftItem", string.format("looking for crafters for %s", item.name))
 
-    if self.data.profession1 == item.tradeskill then
-        --addon.DEBUG("func", "Character:CanCraftItem", string.format("found matching prof 1 for %s", self.data.name))
-        for k, itemID in pairs(self.data.profession1Recipes) do
-            if itemID == item.itemID then
-                return true;
+    if type(self.data.profession1Recipes) == "table" then
+        if self.data.profession1 == item.tradeskill then
+            --addon.DEBUG("func", "Character:CanCraftItem", string.format("found matching prof 1 for %s", self.data.name))
+            for k, itemID in ipairs(self.data.profession1Recipes) do
+                if itemID == item.itemID then
+                    return true;
+                end
             end
         end
     end
 
-    if self.data.profession2 == item.tradeskill then
-        --addon.DEBUG("func", "Character:CanCraftItem", string.format("found matching prof 2 for %s", self.data.name))
-        for k, itemID in pairs(self.data.profession2Recipes) do
-            if itemID == item.itemID then
-                return true;
+    if type(self.data.profession2Recipes) == "table" then
+        if self.data.profession2 == item.tradeskill then
+            for k, itemID in ipairs(self.data.profession2Recipes) do
+                if itemID == item.itemID then
+                    return true;
+                end
             end
         end
     end
 
-    if item.tradeskill == 185 then --cooking
-        for k, itemID in pairs(self.data.cookingRecipes) do
-            if itemID == item.itemID then
-                return true;
+    if type(self.data.cookingRecipes) == "table" then
+        if item.tradeskill == 185 then --cooking
+            for k, itemID in ipairs(self.data.cookingRecipes) do
+                if itemID == item.itemID then
+                    return true;
+                end
             end
         end
     end
@@ -372,6 +377,15 @@ end
 
 function Character:GetInventory()
     return self.data.inventory;
+end
+
+
+function Character:SetCurrentInventory(inventory)
+    self.data.currentInventory = inventory;
+end
+
+function Character:GetCurrentInventory()
+    return self.data.currentInventory;
 end
 
 
@@ -518,6 +532,7 @@ function Character:CreateFromData(guid, data)
                 talents = data.Talents or {},
                 glyphs = data.Glyphs or {},
                 inventory = data.Inventory,
+                currentInventory = data.currentInventory or {},
                 paperDollStats = data.PaperDollStats,
                 onlineStatus = {
                     isOnline = false,
@@ -576,6 +591,7 @@ function Character:SetData(data)
         talents = data.Talents or {},
         glyphs = data.Glyphs or {},
         inventory = data.Inventory,
+        currentInventory = data.currentInventory or {},
         paperDollStats = data.PaperDollStats,
         onlineStatus = {
             isOnline = false,
@@ -616,6 +632,7 @@ function Character:GetData()
         Talents = self.data.talents,
         Glyphs = self.data.glyphs,
         Inventory = self.data.inventory,
+        CurrentInventory = self.data.currentInventory,
         PaperDollStats = self.data.paperDollStats,
     }
     return data;
@@ -666,6 +683,7 @@ function Character:ResetData()
         },
 
         inventory = {},
+        currentInventory = {},
 
         rankName = "",
         profile = {
@@ -715,8 +733,8 @@ function Character:New()
             profession2 = "-",
             profession1Level = 0,
             profession2Level = 0,
-            profession1Recipes = 0,
-            profession2Recipes = 0,
+            profession1Recipes = {},
+            profession2Recipes = {},
             profession1Spec = 0,
             profession2Spec = 0,
 
@@ -736,6 +754,7 @@ function Character:New()
             },
 
             inventory = {},
+            currentInventory = {},
 
             rankName = "",
             profile = {

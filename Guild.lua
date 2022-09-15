@@ -242,6 +242,16 @@ function Guild:FindCharacterAlts(guid)
 end
 
 
+function Guild:FindMyMainCharacter()
+
+    for guid, isMain in pairs(Database:GetMyCharacters()) do
+
+        if self.data.members[guid] and isMain == true then
+            return self.data.members[guid]
+        end
+    end
+end
+
 function Guild:SetMyCharactersAlts(main)
 
     local alts = {}

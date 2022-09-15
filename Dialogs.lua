@@ -81,3 +81,18 @@ StaticPopupDialogs['GuildbookResetGuildData'] = {
     hideOnEscape = false,
 }
 
+StaticPopupDialogs['GuildbookRemoveGuildData'] = {
+    text = L["REMOVE_GUILD_DATA"],
+    button1 = ACCEPT,
+    button2 = CANCEL,
+    OnAccept = function(self, t)
+        t.callback()
+    end,
+    OnCancel = function(self)
+
+    end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = false,
+}
+

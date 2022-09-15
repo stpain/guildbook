@@ -53,6 +53,40 @@ Guildbook.GuildFrame = {
     ColumnMarginX = 1.0,
 }
 
+--quick fix till this gets updated to use character objects
+local classData = {
+    DEATHKNIGHT = { 
+        specializations={'Frost','Blood','Unholy'} 
+    },
+    DRUID = { 
+        specializations={'Balance', 'Cat' ,'Bear', 'Restoration',}
+    },
+    HUNTER = { 
+        specializations={'Beast Master', 'Marksmanship','Survival',} 
+    },
+    MAGE = { 
+        specializations={'Arcane', 'Fire','Frost',} 
+    },
+    PALADIN = { 
+        specializations={'Holy','Protection','Retribution',} 
+    },
+    PRIEST = { 
+        specializations={'Discipline','Holy','Shadow',} 
+    },
+    ROGUE = { 
+        specializations={'Assassination','Combat','Subtlety',} -- outlaw could need adding in here
+    },
+    SHAMAN = { 
+        specializations={'Elemental', 'Enhancement', 'Restoration'} 
+    },
+    WARLOCK = {  
+        specializations={'Affliction','Demonology','Destruction',} 
+    },
+    WARRIOR = { 
+        specializations={'Arms','Fury','Protection',} 
+    },
+}
+
 local guildName;
 function Guildbook:ModBlizzUI()
 
@@ -340,7 +374,7 @@ function Guildbook:ModBlizzUI()
                 if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[guildName] then
                     local character = GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]
                     if type(character) == "table" then
-                        button.GuildbookColumnMainSpec:SetText(L[character.MainSpec])
+                        button.GuildbookColumnMainSpec:SetText(L[classData[character.Class].specializations[character.MainSpec]])
                         button.GuildbookColumnProfession1:SetText(Tradeskills:GetLocaleNameFromID(character.Profession1))
                         button.GuildbookColumnProfession2:SetText(Tradeskills:GetLocaleNameFromID(character.Profession2))
                     else

@@ -67,6 +67,7 @@ UPDATES 5.52
 
 --dialog
 L["RESET_GUILD_DATA"] = "Reset all guild data ?"
+L["REMOVE_GUILD_DATA"] = "Remove guild ?"
 
 
 --guild home

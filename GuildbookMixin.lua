@@ -220,6 +220,13 @@ end
 
 function GuildbookMixin:OnLoad()
 
+    SLASH_GUILDBOOK1 = '/guildbook'
+    SLASH_GUILDBOOK2 = '/gbk'
+    SLASH_GUILDBOOK3 = '/gb'
+    SlashCmdList['GUILDBOOK'] = function(msg)
+        self:OpenTo("guild")
+    end
+
     self:RegisterForDrag("LeftButton")
 
     self.resize:Init(self, 940, 510)
@@ -261,6 +268,7 @@ function GuildbookMixin:OnLoad()
     addon:RegisterCallback("OnPlayerEnteringWorld", self.OnPlayerEnteringWorld, self)
     addon:RegisterCallback("OnChatMessageGuild", self.OnChatMessageGuild, self)
     addon:RegisterCallback("OnGuildChanged", self.OnGuildChanged, self)
+    addon:RegisterCallback("OnGuildRemoved", self.OnGuildRemoved, self)
     addon:RegisterCallback("OnGuildRosterUpdate", self.OnGuildRosterUpdate, self)
     addon:RegisterCallback("OnGuildDataImported", self.OnGuildDataImported, self)
     addon:RegisterCallback("OnPlayerBagsUpdated", self.OnPlayerBagsUpdated, self)
@@ -1164,6 +1172,11 @@ function GuildbookMixin:OnLoad()
         end
     end)
 
+    self.profile:SetScript("OnShow", function()
+        self:InitProfileSpecDropdown()
+        self:UpdateAltManager()
+    end)
+
     self.profile:SetScript("OnHide", function()
         for _, guild in ipairs(self.guilds) do
             local player = guild:GetPlayerCharacter()
@@ -1214,7 +1227,6 @@ function GuildbookMixin:LoadHelp()
 end
 
 
-
 function GuildbookMixin:OnCommsMessage(sender, data)
 
     -- print(sender)
@@ -1252,29 +1264,41 @@ function GuildbookMixin:OnCommsMessage(sender, data)
 
     self:SetStatusText(string.format("%s from %s", commType, character:GetName()))
 
+    --schedule this before we return out
+    C_Timer.After(1.0, function()
+        guild:UpdateSavedVariablesForCharacter(senderGUID)
+    end)
+
     if commType == "TRADESKILL_WORK_ORDER_ADD" then
         self:TradeskillListviewItem_OnAddToWorkOrder(data.payload, character, guild:GetName())
+        return;
     end
 
     if commType == "CHARACTER_STATS" then
         character:SetPaperdollStats(data.payload.name, data.payload.stats)
+        return;
     end
 
     if commType == "TRADESKILL_RECIPES" then
         self:HandleTradeskillUpdate(senderGUID, data.payload.tradeskill, data.payload.level, data.payload.recipes)
+        return;
     end
 
     if commType == "CHARACTER_SKILLS" then
         self:HandleCharacterSkillsUpdate(senderGUID, data.payload)
+        return;
     end
 
-    if commType == "CHARACTER_EQUIPMENT" then
-        character:SetInventory(data.payload)
+    if commType == "CHARACTER_EQUIPMENT_V2" then
+        character:SetInventory(data.payload.sets)
+        character:SetCurrentInventory(data.payload.current)
+        return;
     end
 
     if commType == "CHARACTER_SPEC" then
         character:SetTalents(data.payload.spec, data.payload.talents)
         character:SetGlyphs(data.payload.spec, data.payload.glyphs)
+        return;
     end
 
     if commType == "CHARACTER_PROFILE" then
@@ -1292,6 +1316,7 @@ function GuildbookMixin:OnCommsMessage(sender, data)
         character:SetMainCharacter(profile.mainCharacter)
 
         guild:SetAllCharactersAlts(profile.alts)
+        return;
     end
 
     if self.guild.home.character.selectedCharacter and (self.guild.home.character.selectedCharacter:GetGuid() == character:GetGuid()) then
@@ -1300,9 +1325,6 @@ function GuildbookMixin:OnCommsMessage(sender, data)
         self:LoadCharacterScrollView(character)
     end
 
-    C_Timer.After(1.0, function()
-        guild:UpdateSavedVariablesForCharacter(senderGUID)
-    end)
 end
 
 
@@ -1643,6 +1665,45 @@ function GuildbookMixin:OnPlayerEnteringWorld()
     self:OnPlayerBagsUpdated()
 
     --set the specs for profile dropdown
+    self:InitProfileSpecDropdown()
+
+    self:UpdateAltManager()
+
+    self:SayHello()
+
+end
+
+
+function GuildbookMixin:SayHello()
+
+    for k, guild in ipairs(self.guilds) do
+        local player = guild:GetPlayerCharacter()
+        if type(player) == "table" then
+
+            --check for alts if this is a new alt
+            if player:GetMainCharacter() == false then
+                local myMain = guild:FindMyMainCharacter()
+                if type(myMain) == "table" then
+                    guild:SetMyCharactersAlts(myMain:GetGuid())
+                end
+            end
+
+
+            local profile = player:GetProfile();
+            if profile then
+                local msg = {
+                    type = "CHARACTER_PROFILE",
+                    payload = profile,
+                }
+                Comms:QueueMessage("CHARACTER_PROFILE", msg, "GUILD", nil, "NORMAL")
+                self:SetStatusText("saying hello!")
+            end
+        end
+    end
+end
+
+
+function GuildbookMixin:InitProfileSpecDropdown()
     self.profile.primarySpecDropdown.menu = {}
     self.profile.primarySpecDropdown.flyout:SetFlyoutBackgroundColour(Colours.StoneGold)
     self.profile.secondarySpecDropdown.menu = {}
@@ -1689,11 +1750,17 @@ function GuildbookMixin:OnPlayerEnteringWorld()
 
                 self.profile.primarySpecDropdown.MenuText:SetText(player:GetSpec("primary"))
                 self.profile.secondarySpecDropdown.MenuText:SetText(player:GetSpec("secondary"))
+
+                self.profile.primarySpecIsPvp:SetChecked(player:GetSpecIsPvp("primary"))
+                self.profile.secondarySpecIsPvp:SetChecked(player:GetSpecIsPvp("secondary"))
             end
         end
     end
+end
 
-    --alts
+
+function GuildbookMixin:UpdateAltManager()
+    self.profile.altManager.DataProvider:Flush()
     local alts = {}
     for guid, info in pairs(Database:GetMyCharacters()) do
     
@@ -1717,9 +1784,34 @@ function GuildbookMixin:OnPlayerEnteringWorld()
             return a.guild:GetName() < b.guild:GetName();
         end
     end)
-    --self.profile.altManager.DataProvider:Flush()
     self.profile.altManager.DataProvider:InsertTable(alts)
+end
 
+
+function GuildbookMixin:OnGuildRemoved(guild)
+    Database:RemoveGuild(guild:GetName())
+
+    self.menu.guilds.DataProvider:Flush()
+    self.profile.altManager.DataProvider:Flush()
+
+    local key
+    for k, _guild in ipairs(self.guilds) do
+        if _guild:GetName() == guild:GetName() then
+            key = k
+        end
+    end
+    if key then
+        table.remove(self.guilds, key)
+    end
+
+    for k, _guild in ipairs(self.guilds) do
+        self.menu.guilds.DataProvider:Insert({
+            name = _guild:GetName(),
+            guild = _guild,
+        })
+    end
+
+    self:UpdateAltManager()
 end
 
 
@@ -1862,7 +1954,7 @@ function GuildbookMixin:AltManagerListviewItem_OnCheckButtonClicked(binding, isC
             GUILDBOOK_GLOBAL.myCharacters[guid] = false;
         end
     
-        --get the selected alts guid
+        --get the selected alts guid (this is the alt selected as the main)
         local altGUID = binding.alt:GetGuid()
     
         --set the roster cache data
@@ -1874,33 +1966,7 @@ function GuildbookMixin:AltManagerListviewItem_OnCheckButtonClicked(binding, isC
     end
 
 
-    --update the listview
-
-    --THIS IS DUPLICATED CODE, MAKE AS A PROPER ALT FUNCTION ?
-    local alts = {}
-    for guid, info in pairs(Database:GetMyCharacters()) do
-    
-        for k, guild in ipairs(self.guilds) do
-
-            local alt = guild:GetCharacter(guid)
-
-            if type(alt) == "table" then
-                table.insert(alts, {
-                    alt = alt,
-                    guild = guild,
-                })
-            end
-
-        end
-    end
-    table.sort(alts, function(a,b)
-        if a.guild == b.guild then
-            return a.alt.data.name < b.alt.data.name;
-        else
-            return a.guild:GetName() < b.guild:GetName();
-        end
-    end)
-    self.profile.altManager.DataProvider:InsertTable(alts)
+    self:UpdateAltManager()
 
 
 end
@@ -2385,7 +2451,7 @@ function GuildbookMixin:OnPlayerEquipmentChanged(equipment)
     self:SetStatusText("scanned player equipment sets")
 
     local msg = {
-        type = "CHARACTER_EQUIPMENT",
+        type = "CHARACTER_EQUIPMENT_V2", --v2 includes a new payload with current gear
         payload = equipment,
     }
 
@@ -2583,6 +2649,8 @@ end
 
 function GuildbookMixin:LoadCharacterScrollView(character)
 
+    self.guild.home.character.scrollChild.stats.DataProvider:Flush()
+
     local class = character:GetClass()
 
     self.guild.home.character.scrollChild.model:Undress()
@@ -2730,10 +2798,30 @@ end
 
 
 function GuildbookMixin:InitCharacterEquipmentDropdown(character)
-    local equipment = character:GetInventory()
+
     self.guild.home.character.scrollChild.equipsetDropdown.MenuText:SetText(L["CHAR_PROFILE_EQUIPMENT_DROPDOWN_LABEL"])
     self.guild.home.character.scrollChild.equipsetDropdown.menu = {}
     self.guild.home.character.scrollChild.equipsetDropdown.flyout:SetFlyoutBackgroundColour(Colours.StoneGold)
+
+    local currentEquipment = character:GetCurrentInventory()
+    if currentEquipment then
+        table.insert(self.guild.home.character.scrollChild.equipsetDropdown.menu, {
+            text = "Current",
+            func = function()
+                for k, slot in ipairs(self.guild.home.character.scrollChild.equipSlots) do
+                    slot:ClearItem()
+                    slot:SetItem(currentEquipment[k])
+
+                    self.guild.home.character.scrollChild.model:TryOn(currentEquipment[k])
+
+                    self.guild.home.character.scrollChild.stats.DataProvider:Flush()
+
+                end
+            end,
+        })
+    end
+
+    local equipment = character:GetInventory()
     for name, info in pairs(equipment) do
         table.insert(self.guild.home.character.scrollChild.equipsetDropdown.menu, {
             text = name,

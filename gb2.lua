@@ -59,6 +59,29 @@ local spellSchools = {
 	[7] = 'Arcane',
 }
 
+local invSlots = {
+    "HEADSLOT",
+    "NECKSLOT",
+    "SHOULDERSLOT",
+    "SHIRTSLOT",
+    "CHESTSLOT",
+    "WAISTSLOT",
+    "LEGSSLOT",
+    "FEETSLOT",
+    "WRISTSLOT",
+    "HANDSSLOT",
+    "FINGER0SLOT",
+    "FINGER1SLOT",
+    "TRINKET0SLOT",
+    "TRINKET1SLOT",
+    "BACKSLOT",
+    "MAINHANDSLOT",
+    "SECONDARYHANDSLOT",
+    "RANGEDSLOT",
+    "TABARDSLOT",
+
+}
+
 
 
 Mixin(addon, CallbackRegistryMixin)
@@ -90,6 +113,7 @@ addon:GenerateCallbackEvents({
 	"OnPlayerStatsChanged",
 
     "OnGuildChanged",
+    "OnGuildRemoved",
 
     "OnChatMessageGuild",
 
@@ -433,7 +457,10 @@ end
 function addon:ScanPlayerEquipment()
     local sets = C_EquipmentSet.GetEquipmentSetIDs();
 
-    local equipment = {};
+    local equipment = {
+        sets = {},
+        current = {},
+    };
 
     for k, v in ipairs(sets) do
         
@@ -441,8 +468,19 @@ function addon:ScanPlayerEquipment()
 
         local setItemIDs = C_EquipmentSet.GetItemIDs(setID)
 
-        equipment[name] = setItemIDs;
+        equipment.sets[name] = setItemIDs;
     end
+
+
+    --lets grab the current gear
+    local t = {}
+    for k, slot in ipairs(invSlots) do
+        local link = GetInventoryItemLink('player', GetInventorySlotInfo(slot)) or false;
+        if link ~= nil then
+            t[k] = link;
+        end
+    end
+    equipment.current = t;
 
     self:TriggerEvent("OnPlayerEquipmentChanged", equipment)
 end
@@ -516,6 +554,10 @@ end
 
 function addon:GUILD_ROSTER_UPDATE()
     self:TriggerEvent("OnGuildRosterUpdate")
+end
+
+function addon:PLAYER_EQUIPMENT_CHANGED(...)
+    self:ScanPlayerEquipment()
 end
 
 function addon:TRADE_SKILL_UPDATE(...)

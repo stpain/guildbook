@@ -171,6 +171,13 @@ function Database:GuildExists(guildName)
     return false;
 end
 
+
+function Database:RemoveGuild(guildName)
+    if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[guildName] then
+        GUILDBOOK_GLOBAL.GuildRosterCache[guildName] = nil;
+    end
+end
+
 function Database:CreateNewGuildRosterCache(guildName, cache)
     if not GUILDBOOK_GLOBAL.GuildRosterCache[guildName] then
         GUILDBOOK_GLOBAL.GuildRosterCache[guildName] = cache or {};

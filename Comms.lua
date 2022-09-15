@@ -10,10 +10,10 @@ local Comms = {};
 Comms.prefix = "Guildbook";
 Comms.version = 0;
 Comms.processDelay = 2.0; --delay before processing incoming message data
-Comms.queueWaitingTime = 10.0; --delay from first outgoing message queued to actual dispatch time
-Comms.dispatcherElapsedDelay = 1.0; --stagger effect for the onUpdate func on dispatcher
+Comms.queueWaitingTime = 12.0; --delay from transmit request to first dispatch attempt, this prevents spamming if a player opens/closes a panel that triggers a transmit
+Comms.dispatcherElapsedDelay = 1.0; --stagger effect for the onUpdate func on dispatcher, limits the onUpdate to once per second
 Comms.queue = {};
-Comms.queueExtendTime = 5.0; --the extension given to each message waiting in the queue, this limits how oftena  message can be dispatched
+Comms.queueExtendTime = 7.0; --the extension given to each message waiting in the queue, this limits how often a message can be dispatched
 Comms.dispatcher = CreateFrame("FRAME");
 Comms.dispatcherElapsed = 0;
 Comms.pause = false;
@@ -139,6 +139,7 @@ function Comms:SendChatMessage(data, channel, targetGUID, priority)
     end
     if IsInGuild() and GetGuildInfo("player") then
         -- we just want to make sure we are in a guild here to stop spam
+        data["senderGuild"] = GetGuildInfo('player');
     else
         return;
     end
