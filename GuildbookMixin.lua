@@ -1151,6 +1151,23 @@ function GuildbookMixin:OnLoad()
     self.profile.altsHelptip:SetText(L["PROFILE_ALTS_HELPTIP"])
     self.profile.altManager.label:SetText(L["PROFILE_ALT_MANAGER_LABEL"])
     self.profile.altManager.labelRight:SetText(L["PROFILE_ALT_MANAGER_LABEL_RIGHT"])
+    
+    self.profile.addAltCharacter:SetText(L["PROFILE_ADD_ALT_LABEL"])
+    self.profile.addAltCharacter:SetScript("OnClick", function()
+        StaticPopup_Show("GuildbookAddMainCharacter", nil, nil, {
+            findCharacter = function(characterName)
+                for k, guild in ipairs(self.guilds) do
+                    if guild:GetCharacterByName(characterName) then
+                        return guild:GetCharacterByName(characterName)
+                    end
+                end
+            end,
+            addAlt = function(character)
+                Database:AddAltToMyCharacters(character:GetGuid())
+                self:UpdateAltManager()
+            end,
+        })
+    end)
 
     self.profile.primarySpecIsPvp.label:SetText(L["PVP"])
     self.profile.primarySpecIsPvp:SetScript("OnClick", function()

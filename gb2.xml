@@ -1338,7 +1338,7 @@
                             </Frame>
 
                             <Frame parentKey="tradeskillHelp" parentArray="helptips" hidden="true" inherits="GuildbookHelpTipTemplate_BottomArrow">
-                                <Size x="220" y="85"/>
+                                <Size x="220" y="105"/>
                                 <Anchors>
                                     <Anchor point="BOTTOMRIGHT" relativePoint="TOPLEFT" x="260" y="0"/>
                                 </Anchors>
@@ -2078,6 +2078,13 @@
                             </Layer>
                         </Layers>
                     </Frame>
+
+                    <Button parentKey="addAltCharacter" inherits="UIPanelButtonTemplate" text="Add alt">
+                        <Size x="135" y="22"/>
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeKey="$parent.altManager" relativePoint="BOTTOMLEFT" x="0" y="-5"/>
+                        </Anchors>
+                    </Button>
 
                     <Frame parentKey="altsHelptip" parentArray="helptips" hidden="true" inherits="GuildbookHelpTipTemplate_TopArrow">
                         <Size x="185" y="70"/>

@@ -67,7 +67,7 @@ local L = addon.Locales;
 -- }
 
 StaticPopupDialogs['GuildbookResetGuildData'] = {
-    text = L["RESET_GUILD_DATA"],
+    text = L["DIALOG_RESET_GUILD_DATA"],
     button1 = ACCEPT,
     button2 = CANCEL,
     OnAccept = function(self, t)
@@ -82,7 +82,7 @@ StaticPopupDialogs['GuildbookResetGuildData'] = {
 }
 
 StaticPopupDialogs['GuildbookRemoveGuildData'] = {
-    text = L["REMOVE_GUILD_DATA"],
+    text = L["DIALOG_REMOVE_GUILD_DATA"],
     button1 = ACCEPT,
     button2 = CANCEL,
     OnAccept = function(self, t)
@@ -96,3 +96,39 @@ StaticPopupDialogs['GuildbookRemoveGuildData'] = {
     hideOnEscape = false,
 }
 
+StaticPopupDialogs['GuildbookAddMainCharacter'] = {
+    text = L["DIALOG_ADD_MAIN_CHARACTER"],
+    button1 = ACCEPT,
+    button2 = CANCEL,
+    hasEditBox = true,
+    OnShow = function(self)
+        self.button1:Disable()
+    end,
+    EditBoxOnTextChanged = function(self, data)
+        if self:GetText() ~= '' then
+            local character = data.findCharacter(self:GetText())
+            local dialogText = _G[self:GetParent():GetName().."Text"]
+            if type(character) == "table" then
+                dialogText:SetText(L["DIALOG_FOUND_MAIN_CHAR_SSS"]:format(character:GetName(), character:GetLevel(), character:GetClass()))
+                self:GetParent().button1:Enable()
+            else
+                dialogText:SetText(L["DIALOG_ADD_MAIN_CHARACTER"])
+                self:GetParent().button1:Disable()
+            end
+        end
+    end,
+
+    -- will look at having this just set the alt/main stuff when my brain is working, for now it just adds the guid to the alt characters table where it can then be set
+    OnAccept = function(self, data)
+        local character = data.findCharacter(self:GetText())
+        if type(character) == "table" then
+            data.addAlt(character)
+        end
+    end,
+    OnCancel = function(self)
+
+    end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = false,
+}

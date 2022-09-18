@@ -222,6 +222,17 @@ function Guild:GetCharacter(guid)
 end
 
 
+function Guild:GetCharacterByName(name)
+
+    for guid, info in pairs(self.data.members) do
+        if info.data.name == name then
+            return info;
+        end
+    end
+    return false;
+end
+
+
 function Guild:FindCharacterAlts(guid)
     if not self.data.name then
         return;
@@ -246,7 +257,7 @@ function Guild:FindMyMainCharacter()
 
     for guid, isMain in pairs(Database:GetMyCharacters()) do
 
-        if self.data.members[guid] and isMain == true then
+        if self.data.members[guid] and (isMain == true) then
             return self.data.members[guid]
         end
     end

@@ -282,6 +282,12 @@ function Database:GetPrivacySetting(privacy)
 
 end
 
+function Database:AddAltToMyCharacters(guid)
+    if not GUILDBOOK_GLOBAL.myCharacters then
+        GUILDBOOK_GLOBAL.myCharacters = {}
+    end
+    GUILDBOOK_GLOBAL.myCharacters[guid] = false;
+end
 
 function Database:GetMyCharacters()
     if not GUILDBOOK_GLOBAL.myCharacters then

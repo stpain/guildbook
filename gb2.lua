@@ -230,7 +230,8 @@ end
 
 
 
-
+local lastChatMessage;
+local lastChatMessageTime;
 function addon:PostChatWindowMessage(msg)
     if Database:GetConfigSetting("showChatWindowMessages") then
         print(string.format("[|cffB34BD4%s|r] %s", addonName, msg))
@@ -529,7 +530,6 @@ function addon:ScanSkills()
         local name, isHeader, _, rank = GetSkillLineInfo(i);
 
 		if name and type(rank) == "number" then
-            print(name)
 			local tradeskillID = Tradeskills:GetTradeskillIDFromLocale(name)
 
 			if tradeskillID and secondarySkills[tradeskillID] and (type(rank) == "number") and (rank > 0) then

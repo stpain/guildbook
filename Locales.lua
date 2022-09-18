@@ -50,24 +50,34 @@ local L = {}
 L["WELCOME_MESSAGE"] = [[
 Welcome to Guildbook!
 
-To get started tap, click or whack that arrow like symbol up in the top left.
 
-That opens the menu which should have your guild(s) listed. If it doesn't then
-go to curse and complain ;)
+To get started tap, click or whack that arrow like symbol up in the top left, 
+click the (i) icon in the top right to display help tips.
 
+You should open your tradeskills so the addon can scan your recipes and share this with your guild.
 
-UPDATES 5.52
+Its also worth going to the profile section and setting your characters specializations and selecting your main (if you play alts).
 
-- added the code to actually check if you're in an instance
-- added tooltip extension
-- added additional scan for skills (professions)
+UPDATES 5.53
 
+- added a type check before looking for crafters of an item
+- added an option to show info messages in default chat window
+- added current inventory, new event type for this
+- added right click delete guild from main menu
+- improved alt system
+- added slash commands /gb /gbk /guildbook
+- fixed first aid not showing
+- tweaked comms queue system
+- fixed blizz roster not showing main spec
+- added option to add alts from other accounts
 
 ]]
 
 --dialog
-L["RESET_GUILD_DATA"] = "Reset all guild data ?"
-L["REMOVE_GUILD_DATA"] = "Remove guild ?"
+L["DIALOG_RESET_GUILD_DATA"] = "Reset all guild data ?"
+L["DIALOG_REMOVE_GUILD_DATA"] = "Remove guild ?"
+L["DIALOG_ADD_MAIN_CHARACTER"] = "Enter your characters name...."
+L["DIALOG_FOUND_MAIN_CHAR_SSS"] = "Found %s level %s %s"
 
 
 --guild home
@@ -83,7 +93,7 @@ L["GUILD_HOME_SHOW_OFFLINE_MEMBERS_LABEL"] = " Show offline"
 
 --tradeskill ui
 L["TRADESKILL_SEARCH_HEADER"] = "Search"
-L["TRADESKILL_SEARCH_HELPTIP"] = "Profession items are listed here.\n\nSearch by profession or tap the dropdown arrow to view categories.\n\nCtrl+click to view an item on your character."
+L["TRADESKILL_SEARCH_HELPTIP"] = "Profession items are listed here.\n\nSearch by profession or tap the dropdown arrow to view categories. This menu will change depending on which profession you are viewing.\n\nCtrl+click to view an item on your character."
 L["TRADESKILL_CRAFTERS_HEADER"] = "Crafters"
 L["TRADESKILL_CRAFTERS_HELPTIP"] = "Characters who can craft the item are listed here.\n\nIf the character is offline the request will fail"
 L["TRADESKILL_RECIPE_INFO_HEADER"] = "Recipe info:"
@@ -176,6 +186,7 @@ L["PROFILE_ALT_MANAGER_LABEL"] = "Alt manager"
 L["PROFILE_ALT_MANAGER_LABEL_RIGHT"] = "Main"
 L["PROFILE_ALTS_HELPTIP"] = "Here you can view your characters and set which is your main character.\n\nYou can set 1 main per guild."
 
+L["PROFILE_ADD_ALT_LABEL"] = "Add Alt"
 
 --help 
 L["HELP_HEADER"] = "Help"

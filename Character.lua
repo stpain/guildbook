@@ -239,7 +239,6 @@ function Character:CanCraftItem(item)
 
     if type(self.data.profession1Recipes) == "table" then
         if self.data.profession1 == item.tradeskill then
-            --addon.DEBUG("func", "Character:CanCraftItem", string.format("found matching prof 1 for %s", self.data.name))
             for k, itemID in ipairs(self.data.profession1Recipes) do
                 if itemID == item.itemID then
                     return true;
