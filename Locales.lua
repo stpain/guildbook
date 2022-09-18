@@ -1514,19 +1514,30 @@ L["WELCOME_MESSAGE"] = [[
 Bienvenue sur Guildbook!
 
 Pour démarrer, cliquez sur la flèche en haut à gauche.
+Cliquez sur l'icône (i) jaune en haut à droite pour afficher l'aide.
 
-Cela va ouvrir le menu dans lequel votre (ou vos) guilde(s) sont listés.
-Si ce n'est pas le cas venez sur discord vous plaindre sur Curseforge ou Discord ;)
+Vous devriez ouvrir les fenêtres de vos métiers afin que l'addon puisse les scanner et les partager à votre guilde.
+
+Ca vaut aussi le coup de passer dans la section "Profile" pour définir vos spés et votre personnage principal.
 
 
-5.52
-- ajout de tooltips étendus
-- ajout de scans supplémentaires pour les méties
+MàJ 5.53
+- correction de bugs
+- ajout d'une option pour montrer des messages d'information dans la fenêtre de chat
+- ajout d'une option "équipement actuel" dans le profil du perso
+- ajout d'une option "clique droit pour supprimer" une guilde dans le menu principale
+- amélioration du système de reroll/persos secondaires
+- ajout d'une option pour les rerolls/persos secondaires sur un autre compte
+- ajout des commandes slash "/gb", "/gbk", "/guildbook"
+- peaufinage du système de partage de données
 
 ]]
 
 --dialog
 L["RESET_GUILD_DATA"] = "Réinitialiser données de guildes ?"
+L["DIALOG_REMOVE_GUILD_DATA"] = "Supprimer guilde ?"
+L["DIALOG_ADD_MAIN_CHARACTER"] = "Entrez nom du personnage...."
+L["DIALOG_FOUND_MAIN_CHAR_SSS"] = "Trouvé: %s niveau %s %s"
 
 
 --guild home
@@ -1607,6 +1618,7 @@ L["SETTINGS_SHOW_TOOLTIP_MAIN_CHAR"] = "Afficher le personnage principal dans le
 L["SETTINGS_SHOW_TOOLTIP_MAIN_SPEC"] = "Afficher la spé principale dans le tooltip"
 L["SETTINGS_SHOW_TOOLTIP_CHAR_PROFILE"] = "Afficher le profil du joueur dans le tooltip"
 L["SETTINGS_SHOW_TOOLTIP_TRADESKILLS"] = "Afficher les métiers dans le tooltip"
+L["SETTINGS_DISABLE_TOOLTIP_EXTENSION"] = "Désactiver les tooltips en instances"
 
 L["SETTINGS_RESET_CHARACTER_LABEL"] = "Réinitialiser données de perso"
 L["SETTINGS_RESET_GUILD_LABEL"] = "Réinitialiser données de Guildes"
@@ -1616,7 +1628,9 @@ L["SETTINGS_EXPORT_GUILD_LABEL"] = "Exporter"
 
 L["SETTINGS_MOD_BLIZZ_ROSTER_LABEL"] = "Modifier la fenêtre de guilde"
 L["SETTINGS_MOD_BLIZZ_ROSTER_TOOLTIP"] = "Étend la fenêtre de guilde de Blizzard pour montrer plus d'infos.\n\n|cffAA0935ATTENTION - Cela va cause un rechargement de l'interface quand désactivé!"
-L["SETTINGS_DISABLE_TOOLTIP_EXTENSION"] = "Désactive les tooltips en instances"
+
+L["SETTINGS_SHOW_CHAT_MESSAGES"] = "Afficher les messages systèmes dans le chat"
+L["SETTINGS_SHOW_CHAT_MESSAGES_TOOLTIP"] = "ATTENTION\n\nCela peut générer beaucoup de messages!"
 
 --profile
 L["PROFILE_HEADER"] = "Profil"
@@ -1632,6 +1646,7 @@ L["PROFILE_ALT_MANAGER_LABEL"] = "Personnages secondaires"
 L["PROFILE_ALT_MANAGER_LABEL_RIGHT"] = "Main"
 L["PROFILE_ALTS_HELPTIP"] = "Ici, vous pouvez voir vos personages et en sélectionner un comme personnage principal.\n\nVous pouvez en sélectionner 1 par guilde."
 
+L["PROFILE_ADD_ALT_LABEL"] = "Ajouter reroll"
 
 --help 
 L["HELP_HEADER"] = "Aide"
@@ -1711,6 +1726,13 @@ L["HELP_FAQ_A8"] = ""
 	L["DAYS"]                           = "jours"
 	L["HOURS"]                          = "heures"
 	L['< an hour']			    		= 'moins d\'1h'
+
+	--chat messages
+	L["GB_CHAT_MSG_SCANNED_TALENTS_GLYPHS"] = "a scanné vos talents et glyphes, génial!"
+	L["GB_CHAT_MSG_SCANNED_TRADESKILL_RECIPES_S"] = "a trouvé vos %s recettes, merci."
+	L["GB_CHAT_MSG_SCANNED_EQUIPMENT_SETS"] = "a scanné vos ensembles d'équipement, belle garde-robe!"
+	L["GB_CHAT_MSG_SCANNED_CHARACTER_STATS_S"] = "a trouvé vos stats de %s, quelle puissance!"
+	L["GB_CHAT_MSG_SCANNED_SKILLS"] = "a regardé vos métiers."
 
 ------------------------------------------------------------------------------------------
 
