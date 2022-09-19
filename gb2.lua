@@ -321,6 +321,10 @@ function addon:GetCharacterStats(setID)
 		end
     end
 
+    if equipmentSetName == "" then
+        equipmentSetName = "gb-char-cur-equip-stats"
+    end
+
     local stats = {};
 
     ---go through getting each stat value
@@ -385,14 +389,18 @@ function addon:GetCharacterStats(setID)
         stats.RangedHit = self:FormatNumberForCharacterStats(GetCombatRatingBonus(CR_HIT_RANGED));
 
     else
-    
+        stats.SpellHit = self:FormatNumberForCharacterStats(GetCombatRatingBonus(CR_HIT_SPELL));
+        stats.MeleeHit = self:FormatNumberForCharacterStats(GetCombatRatingBonus(CR_HIT_MELEE));
+        stats.RangedHit = self:FormatNumberForCharacterStats(GetCombatRatingBonus(CR_HIT_RANGED));
     end
 
     stats.RangedCrit = self:FormatNumberForCharacterStats(GetRangedCritChance());
     stats.MeleeCrit = self:FormatNumberForCharacterStats(GetCritChance());
 
-    stats.Haste = self:FormatNumberForCharacterStats(GetHaste());
+    stats.Haste = self:FormatNumberForCharacterStats(GetCombatRatingBonus(20));
     local base, casting = GetManaRegen()
+    base = base*5;
+    casting = casting*5;
     stats.ManaRegen = base and self:FormatNumberForCharacterStats(base) or 0;
     stats.ManaRegenCasting = casting and self:FormatNumberForCharacterStats(casting) or 0;
 
@@ -586,6 +594,9 @@ function addon:PLAYER_ENTERING_WORLD()
 	SkillFrame:HookScript("OnShow", function()
 		self:ScanSkills()
 	end)
+    CharacterFrame:HookScript("OnHide", function()
+        self:GetCharacterStats()
+    end)
 
 	hooksecurefunc(C_EquipmentSet, "CreateEquipmentSet", function()
 		self:ScanPlayerEquipment()

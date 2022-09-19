@@ -550,13 +550,38 @@ function GuildbookCharacterStatsListviewItemTemplateMixin:OnLeave()
 end
 
 function GuildbookCharacterStatsListviewItemTemplateMixin:SetDataBinding(stat)
-    self.label:SetText(stat.name)
-    self.value:SetText(stat.value)
+    if stat.value == nil then
+        self.label:ClearAllPoints()
+        self.label:SetPoint("CENTER", 0, 0)
+
+        self.label:SetText(stat.name)
+        self.background:SetAtlas("UI-Character-Info-Title")
+    else
+        self.label:SetText(stat.name)
+
+        if type(stat.value) == "table" then
+            self.value:SetText(stat.value.Base)
+        else
+            self.value:SetText(stat.value)
+        end
+
+        if stat.hasBounce then
+            self.background:SetAtlas("UI-Character-Info-Line-Bounce")
+        else
+            self.background:SetTexture(nil)
+        end
+    end
+
 end
 
 function GuildbookCharacterStatsListviewItemTemplateMixin:ResetDataBinding()
     self.label:SetText(nil)
     self.value:SetText(nil)
+
+    self.label:ClearAllPoints()
+    self.label:SetPoint("LEFT", 0, 0)
+
+    self.background:SetTexture(nil)
 end
 
 

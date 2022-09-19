@@ -739,7 +739,7 @@
                                                 <KeyValues>
                                                     <KeyValue key="frameType" value="FRAME" type="string"/>
                                                     <KeyValue key="itemTemplate" value="GuildbookCharacterStatsListviewItemTemplate" type="string"/>
-                                                    <KeyValue key="elementHeight" value="16" type="number"/>
+                                                    <KeyValue key="elementHeight" value="22" type="number"/>
                                                 </KeyValues>
                                             </Frame>
         

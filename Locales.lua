@@ -54,7 +54,7 @@ Welcome to Guildbook!
 To get started tap, click or whack that arrow like symbol up in the top left, 
 click the (i) icon in the top right to display help tips.
 
-You should open your tradeskills so the addon can scan your recipes and share this with your guild.
+You should open your tradeskills and character frame so Guildbook can scan various bits of info.
 
 Its also worth going to the profile section and setting your characters specializations and selecting your main (if you play alts).
 
@@ -140,9 +140,62 @@ L["CHAR_PROFILE_TALENTS_HEADER"] = "Talents"
 L["CHAR_PROFILE_TALENTS_DROPDOWN_SPEC1"] = "Primary"
 L["CHAR_PROFILE_TALENTS_DROPDOWN_SPEC2"] = "Secondary"
 
+--attributes
+L["Strength"]						= "Strength"
+L["Agility"]						= "Agility"
+L["Stamina"]						= "Stamina"
+L["Intellect"]						= "Intellect"
+L["Spirit"]							= "Spirit"
+--defence
+L["Armor"]							= "Armor"
+L["Defence"]						= "Defence"
+L["Dodge"]							= "Dodge"
+L["Parry"]							= "Parry"
+L["Block"]							= "Block"
+L["ShieldBlock"]							= "Shield Block"
+--melee
+L["Expertise"]						= "Expertise"
+L["MeleeHit"]						= "Hit"
+L["MeleeCrit"]						= "Crit"
+L["AttackPower"]						= "Attack power"
+L["MeleeDmgMH"]						= "Main hand dmg"
+L["MeleeDmgOH"] 					= "Off hand dmg"
+L["MeleeDpsMH"] 					= "Main hand dps"
+L["MeleeDpsOH"] 					= "Off hand dps"
+--ranged
+L["RangedHit"] 					= "Hit"
+L["RangedCrit"] 					= "Crit"
+L["RangedDmg"] 					= "Damage"
+L["RangedDps"] 					= "Dps"
+--spells
+L["Haste"] 					= "Haste"
+L["ManaRegen"] 					= "Mana Regen"
+L["ManaRegenCasting"] 			= "Mana Regen (casting)"
+L["SpellHit"] 						= "Spell Hit"
+L["SpellCrit"] 						= "Spell Crit"
+L["SpellCritHoly"] 					= "Crit Holy"
+L["SpellCritFrost"] 					= "Crit Frost"
+L["SpellCritFire"] 					= "Crit Fire"
+L["SpellCritShadow"] 					= "Crit Shadow"
+L["SpellCritArcane"] 					= "Crit Arcane"
+L["SpellCritNature"] 					= "Crit Nature"
+L["HealingBonus"] 					= "Healing bonus"
+L["SpellDmgHoly"] 				= "Holy"
+L["SpellDmgFrost"] 				= "Frost"
+L["SpellDmgShadow"] 				= "Shadow"
+L["SpellDmgArcane"] 				= "Arcane"
+L["SpellDmgFire"] 				= "Fire"
+L["SpellDmgNature"] 				= "Nature"
+
+
 
 --settings ui
 L["SETTINGS_HEADER"] = "Settings"
+L["SETTINGS_GENERAL_LABEL"] = "General"
+L["SETTINGS_THEME_LABEL"] = "Theme"
+L["SETTINGS_DATASYNC_LABEL"] = "Data sync"
+L["SETTINGS_TOOLTIP_LABEL"] = "Tooltip"
+
 L["SETTINGS_EXPORT_IMPORT_LABEL"] = "You can import or export guild data here.\n\n*Click export to generate a big (|cffFFD100really big|r) gathering of characters which can be shared on various chat platforms.\n\n*Paste a data string then click import if your guild does that sort of thing."
 L["SETTINGS_SHOW_MINIMAP_BUTTON_LABEL"] = "Show minimap button"
 L["SETTINGS_SHOW_MINIMAP_BUTTON_TOOLTIP"] = "Enable or disable the minimap button"
@@ -170,6 +223,11 @@ L["SETTINGS_MOD_BLIZZ_ROSTER_TOOLTIP"] = "Expand the default Guild UI to show mo
 
 L["SETTINGS_SHOW_CHAT_MESSAGES"] = "Display chat window messages"
 L["SETTINGS_SHOW_CHAT_MESSAGES_TOOLTIP"] = "SPAM WARNING\n\nThis might generate a lot of messages!"
+
+L["SETTINGS_THEME_NEW"] = "New"
+L["SETTINGS_THEME_DELETE"] = "Delete"
+L["SETTINGS_THEME_EDITOR_CONFIRM_LABEL"] = "Confirm"
+L["SETTINGS_THEME_EDITOR_CANCEL_LABEL"] = "Cancel"
 
 
 --profile

@@ -120,7 +120,7 @@ StaticPopupDialogs['GuildbookAddMainCharacter'] = {
 
     -- will look at having this just set the alt/main stuff when my brain is working, for now it just adds the guid to the alt characters table where it can then be set
     OnAccept = function(self, data)
-        local character = data.findCharacter(self:GetText())
+        local character = data.findCharacter(self.editBox:GetText())
         if type(character) == "table" then
             data.addAlt(character)
         end

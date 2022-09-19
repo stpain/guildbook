@@ -332,7 +332,7 @@
                 <Texture atlas="search-highlight" setAllPoints="true"/>
             </Layer>
             <Layer level="BACKGROUND">
-                <Texture setAllPoints="true"/>
+                <Texture parentKey="background" setAllPoints="true"/>
             </Layer>
             <Layer level="OVERLAY">
                 <FontString parentKey="label" inherits="GameFontNormalSmall">

@@ -379,6 +379,15 @@ function Character:GetInventory()
 end
 
 
+function Character:SetCurrentPaperdollStats(stats)
+    self.data.currentPaperdollStats = stats;
+end
+
+function Character:GetCurrentPaperdollStats()
+    return self.data.currentPaperdollStats; 
+end
+
+
 function Character:SetCurrentInventory(inventory)
     self.data.currentInventory = inventory;
 end
@@ -533,6 +542,7 @@ function Character:CreateFromData(guid, data)
                 inventory = data.Inventory,
                 currentInventory = data.currentInventory or {},
                 paperDollStats = data.PaperDollStats,
+                currentPaperdollStats = data.CurrentPaperdollStats or {},
                 onlineStatus = {
                     isOnline = false,
                     zone = "",
@@ -592,6 +602,7 @@ function Character:SetData(data)
         inventory = data.Inventory,
         currentInventory = data.currentInventory or {},
         paperDollStats = data.PaperDollStats,
+        currentPaperdollStats = data.CurrentPaperdollStats or {},
         onlineStatus = {
             isOnline = false,
             zone = "",
@@ -633,6 +644,7 @@ function Character:GetData()
         Inventory = self.data.inventory,
         CurrentInventory = self.data.currentInventory,
         PaperDollStats = self.data.paperDollStats,
+        CurrentPaperdollStats = self.data.currentPaperdollStats or {},
     }
     return data;
 end
@@ -697,6 +709,7 @@ function Character:ResetData()
             primary = {},
             secondary = {},
         },
+        CurrentPaperdollStats = {},
 
         onlineStatus = {
             isOnline = false,
@@ -768,6 +781,7 @@ function Character:New()
                 primary = {},
                 secondary = {},
             },
+            CurrentPaperdollStats = {},
         },
     }, self)
 end

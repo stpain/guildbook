@@ -80,51 +80,195 @@ local talentTabsToBackground = {
     },
 }
 local characterStats = {
-    ["attributes"] = {
-        { key = "Strength", displayName = L["STRENGTH"], },
-        { key = "Agility", displayName = L["AGILITY"], },
-        { key = "Stamina", displayName = L["STAMINA"], },
-        { key = "Intellect", displayName = L["INTELLECT"], },
-        { key = "Spirit", displayName = L["SPIRIT"], },
-    },
-    ["defence"] = {
-        { key = "Armor", displayName = L["ARMOR"], },
-        { key = "Defence", displayName = L["DEFENSE"], },
-        { key = "Dodge", displayName = L["DODGE"], },
-        { key = "Parry", displayName = L["PARRY"], },
-        { key = "Block", displayName = L["BLOCK"], },
-    },
-    ["melee"] = {
-        { key = "Expertise", displayName = L["EXPERTISE"], },
-        { key = "MeleeHit", displayName = L["HIT_CHANCE"], },
-        { key = "MeleeCrit", displayName = L["MELEE_CRIT"], },
-        { key = "MeleeDmgMH", displayName = L["MH_DMG"], },
-        { key = "MeleeDpsMH", displayName = L["MH_DPS"], },
-        { key = "MeleeDmgOH", displayName = L["OH_DMG"], },
-        { key = "MeleeDpsOH", displayName = L["OH_DPS"], },
-    },
-    ["ranged"] = {
-        { key = "RangedHit", displayName = L["RANGED_HIT"], },
-        { key = "RangedCrit", displayName = L["RANGED_CRIT"], },
-        { key = "RangedDmg", displayName = L["RANGED_DMG"], },
-        { key = "RangedDps", displayName = L["RANGED_DPS"], },
-    },
-    ["spells"] = {
-        { key = "Haste", displayName = L["SPELL_HASTE"], },
-        { key = "ManaRegen", displayName = L["MANA_REGEN"], },
-        { key = "ManaRegenCasting", displayName = L["MANA_REGEN_CASTING"], },
-        { key = "SpellHit", displayName = L["SPELL_HIT"], },
-        { key = "SpellCrit", displayName = L["SPELL_CRIT"], },
-        { key = "HealingBonus", displayName = L["HEALING_BONUS"], },
-        { key = "SpellDmgHoly", displayName = L["SPELL_DMG_HOLY"], },
-        { key = "SpellDmgFrost", displayName = L["SPELL_DMG_FROST"], },
-        { key = "SpellDmgShadow", displayName = L["SPELL_DMG_SHADOW"], },
-        { key = "SpellDmgArcane", displayName = L["SPELL_DMG_ARCANE"], },
-        { key = "SpellDmgFire", displayName = L["SPELL_DMG_FIRE"], },
-        { key = "SpellDmgNature", displayName = L["SPELL_DMG_NATURE"], },
-    }
-}
 
+    {
+        isHeader = true,
+        stat = "Attributes",
+    },
+    {
+        isHeader = false,
+        stat = "Strength",
+    },
+    {
+        isHeader = false,
+        stat = "Agility",
+    },
+    {
+        isHeader = false,
+        stat = "Stamina",
+    },
+    {
+        isHeader = false,
+        stat = "Intellect",
+    },
+    {
+        isHeader = false,
+        stat = "Spirit",
+    },
+
+    {
+        isHeader = true,
+        stat = "Defence",
+    },
+    {
+        isHeader = false,
+        stat = "Armor",
+    },
+    {
+        isHeader = false,
+        stat = "Defence",
+    },
+    {
+        isHeader = false,
+        stat = "Dodge",
+    },
+    {
+        isHeader = false,
+        stat = "Parry",
+    },
+    {
+        isHeader = false,
+        stat = "Block",
+    },
+    {
+        isHeader = false,
+        stat = "ShieldBlock",
+    },
+
+    {
+        isHeader = true,
+        stat = "Melee",
+    },
+    {
+        isHeader = false,
+        stat = "AttackPower",
+    },
+    {
+        isHeader = false,
+        stat = "Expertise",
+    },
+    {
+        isHeader = false,
+        stat = "MeleeHit",
+    },
+    {
+        isHeader = false,
+        stat = "MeleeCrit",
+    },
+    {
+        isHeader = false,
+        stat = "MeleeDmgMH",
+    },
+    {
+        isHeader = false,
+        stat = "MeleeDmgOH",
+    },
+    {
+        isHeader = false,
+        stat = "MeleeDpsMH",
+    },
+    {
+        isHeader = false,
+        stat = "MeleeDpsOH",
+    },
+
+    {
+        isHeader = true,
+        stat = "Ranged",
+    },
+    {
+        isHeader = false,
+        stat = "RangedHit",
+    },
+    {
+        isHeader = false,
+        stat = "RangedCrit",
+    },
+    {
+        isHeader = false,
+        stat = "RangedDmg",
+    },
+    {
+        isHeader = false,
+        stat = "RangedDps",
+    },
+
+    {
+        isHeader = true,
+        stat = "Spells",
+    },
+    {
+        isHeader = false,
+        stat = "SpellHit",
+    },
+    {
+        isHeader = false,
+        stat = "SpellCrit",
+    },
+    {
+        isHeader = false,
+        stat = "Haste",
+    },
+    {
+        isHeader = false,
+        stat = "ManaRegen",
+    },
+    {
+        isHeader = false,
+        stat = "ManaRegenCasting",
+    },
+
+    {
+        isHeader = false,
+        stat = "SpellDmgArcane",
+    },
+    {
+        isHeader = false,
+        stat = "SpellDmgHoly",
+    },
+    {
+        isHeader = false,
+        stat = "SpellDmgFire",
+    },
+    {
+        isHeader = false,
+        stat = "SpellDmgFrost",
+    },
+    {
+        isHeader = false,
+        stat = "SpellDmgNature",
+    },
+    {
+        isHeader = false,
+        stat = "SpellDmgShadow",
+    },
+    
+    {
+        isHeader = false,
+        stat = "SpellCritArcane",
+    },
+    {
+        isHeader = false,
+        stat = "SpellCritHoly",
+    },
+    {
+        isHeader = false,
+        stat = "SpellCritFire",
+    },
+    {
+        isHeader = false,
+        stat = "SpellCritFrost",
+    },
+    {
+        isHeader = false,
+        stat = "SpellCritNature",
+    },
+    {
+        isHeader = false,
+        stat = "SpellCritShadow",
+    },
+
+}
 
 
 
@@ -856,6 +1000,18 @@ function GuildbookMixin:OnLoad()
 
     --settings locales
     self.settings.scrollChild.header:SetText(L["SETTINGS_HEADER"])
+
+    self.settings.scrollChild.generalHeader:SetText(L["SETTINGS_GENERAL_LABEL"])
+    self.settings.scrollChild.themeHeader:SetText(L["SETTINGS_THEME_LABEL"])
+    self.settings.scrollChild.commsHeader:SetText(L["SETTINGS_DATASYNC_LABEL"])
+    self.settings.scrollChild.tooltipHeader:SetText(L["SETTINGS_TOOLTIP_LABEL"])
+
+
+    self.settings.scrollChild.newTheme:SetText(L["SETTINGS_TOOLTIP_LABEL"])
+    self.settings.scrollChild.deleteTheme:SetText(L["SETTINGS_TOOLTIP_LABEL"])
+    self.settings.scrollChild.newThemeEditor.confirmTheme:SetText(L["SETTINGS_THEME_EDITOR_CONFIRM_LABEL"])
+    self.settings.scrollChild.newThemeEditor.cancelTheme:SetText(L["SETTINGS_THEME_EDITOR_CANCEL_LABEL"])
+
     self.settings.scrollChild.exportImportLabel:SetText(L["SETTINGS_EXPORT_IMPORT_LABEL"])
     self.settings.scrollChild.showMinimapButton.label:SetText(L["SETTINGS_SHOW_MINIMAP_BUTTON_LABEL"])
     self.settings.scrollChild.showMinimapButton.tooltip = L["SETTINGS_SHOW_MINIMAP_BUTTON_TOOLTIP"]
@@ -1284,6 +1440,12 @@ function GuildbookMixin:OnCommsMessage(sender, data)
     --schedule this before we return out
     C_Timer.After(1.0, function()
         guild:UpdateSavedVariablesForCharacter(senderGUID)
+        
+        if self.guild.home.character.selectedCharacter and (self.guild.home.character.selectedCharacter:GetGuid() == character:GetGuid()) then
+            self:InitCharacterEquipmentDropdown(character)
+            self:InitCharacterTalentsDropdown(character)
+            self:LoadCharacterScrollView(character)
+        end
     end)
 
     if commType == "TRADESKILL_WORK_ORDER_ADD" then
@@ -1292,7 +1454,11 @@ function GuildbookMixin:OnCommsMessage(sender, data)
     end
 
     if commType == "CHARACTER_STATS" then
-        character:SetPaperdollStats(data.payload.name, data.payload.stats)
+        if data.payload.name == "gb-char-cur-equip-stats" then
+            character:SetCurrentPaperdollStats(data.payload.stats)
+        else
+            character:SetPaperdollStats(data.payload.name, data.payload.stats)
+        end
         return;
     end
 
@@ -1334,12 +1500,6 @@ function GuildbookMixin:OnCommsMessage(sender, data)
 
         guild:SetAllCharactersAlts(profile.alts)
         return;
-    end
-
-    if self.guild.home.character.selectedCharacter and (self.guild.home.character.selectedCharacter:GetGuid() == character:GetGuid()) then
-        self:InitCharacterEquipmentDropdown(character)
-        self:InitCharacterTalentsDropdown(character)
-        self:LoadCharacterScrollView(character)
     end
 
 end
@@ -2815,6 +2975,36 @@ function GuildbookMixin:InitCharacterTalentsDropdown(character)
 end
 
 
+function GuildbookMixin:LoadCharacterProfileStatsListview(stats)
+    self.guild.home.character.scrollChild.stats.DataProvider:Flush()
+    if type(stats) == "table" then
+        --DevTools_Dump({stats})
+        local t = {}
+        local i = 1;
+        for k, v in pairs(characterStats) do
+            if v.isHeader == true then
+                table.insert(t, {
+                    name = v.stat,
+                    value = nil,
+                })
+                i = 1;
+            else
+                if stats[v.stat] then
+                    table.insert(t, {
+                        name = L[v.stat],
+                        value = stats[v.stat],
+                        hasBounce = (i % 2) == 0 and true or false
+                    })
+                    i = i + 1;
+                end
+            end
+
+        end
+        self.guild.home.character.scrollChild.stats.DataProvider:InsertTable(t)
+    end
+end
+
+
 function GuildbookMixin:InitCharacterEquipmentDropdown(character)
 
     self.guild.home.character.scrollChild.equipsetDropdown.MenuText:SetText(L["CHAR_PROFILE_EQUIPMENT_DROPDOWN_LABEL"])
@@ -2828,12 +3018,14 @@ function GuildbookMixin:InitCharacterEquipmentDropdown(character)
             func = function()
                 for k, slot in ipairs(self.guild.home.character.scrollChild.equipSlots) do
                     slot:ClearItem()
-                    slot:SetItem(currentEquipment[k])
-
-                    self.guild.home.character.scrollChild.model:TryOn(currentEquipment[k])
+                    if currentEquipment[k] then
+                        slot:SetItem(currentEquipment[k])
+                        self.guild.home.character.scrollChild.model:TryOn(currentEquipment[k])
+                    end
 
                     self.guild.home.character.scrollChild.stats.DataProvider:Flush()
-
+                    local stats = character:GetCurrentPaperdollStats()
+                    self:LoadCharacterProfileStatsListview(stats)
                 end
             end,
         })
@@ -2848,23 +3040,16 @@ function GuildbookMixin:InitCharacterEquipmentDropdown(character)
                     for k, slot in ipairs(self.guild.home.character.scrollChild.equipSlots) do
                         local itemID = equipment[name][k]
                         slot:ClearItem()
-                        slot:SetItem(itemID)
 
-                        self.guild.home.character.scrollChild.model:TryOn(string.format("item:%d",itemID))
+                        if itemID then
+                            slot:SetItem(itemID)
 
+                            self.guild.home.character.scrollChild.model:TryOn(string.format("item:%d",itemID))
+                        end
 
                         self.guild.home.character.scrollChild.stats.DataProvider:Flush()
                         local stats = character:GetPaperdollStats(name)
-                        if type(stats) == "table" then
-                            local t = {}
-                            for k, v in pairs(stats) do
-                                table.insert(t, {
-                                    name = k,
-                                    value = v,
-                                })
-                            end
-                            self.guild.home.character.scrollChild.stats.DataProvider:InsertTable(t)
-                        end
+                        self:LoadCharacterProfileStatsListview(stats)
                     end
                 end,
             })
