@@ -109,8 +109,16 @@ StaticPopupDialogs['GuildbookAddMainCharacter'] = {
             local character = data.findCharacter(self:GetText())
             local dialogText = _G[self:GetParent():GetName().."Text"]
             if type(character) == "table" then
-                dialogText:SetText(L["DIALOG_FOUND_MAIN_CHAR_SSS"]:format(character:GetName(), character:GetLevel(), character:GetClass()))
-                self:GetParent().button1:Enable()
+                if (GetLocale() == "enUS") then
+                    dialogText:SetText(L["DIALOG_FOUND_MAIN_CHAR_SSS"]:format(character:GetName(), character:GetLevel(), character:GetClass()))
+                    self:GetParent().button1:Enable()
+                elseif (GetLocale() == "deDE") then
+                    dialogText:SetText(L["DIALOG_FOUND_MAIN_CHAR_SSS"]:format(string.upper(L[character:GetClass()]), character:GetLevel(), character:GetName()))
+                    self:GetParent().button1:Enable()
+                 elseif (GetLocale() == "frFR") or (GetLocale() == "esES") or (GetLocale() == "esMX") or (GetLocale() == "ptBR") then
+                    dialogText:SetText(L["DIALOG_FOUND_MAIN_CHAR_SSS"]:format(character:GetName(), string.upper(L[character:GetClass()]), character:GetLevel()))
+                    self:GetParent().button1:Enable()
+                end
             else
                 dialogText:SetText(L["DIALOG_ADD_MAIN_CHARACTER"])
                 self:GetParent().button1:Disable()

@@ -945,18 +945,7 @@ local locale = GetLocale()
 ]]
 if locale == "deDE" then
 
-	L["WELCOME_MESSAGE"] = [[
-Willkommen zu Guildbook! 
-
-Um zu beginnen, klicke auf das Pfeilsymbol in der oberen linken Ecke. Das öffnet ein Menü in dem du deine Gilde(n) siehst. 
-
-Wenn du nichts siehst, geh zu Curse und beschwer dich ;)
-
-Update 5.52
-- Erweiterte Tooltips hinzugefügt
-- Zusätzlicher Scan fuer Berufe hinzugefügt.
-]]
-
+	L["< an hour"] = "< eine Stunde"
 	L["Affliction"] = "Gebrechen"
 	L["Arcane"] = "Arkan"
 	L["Arms"] = "Waffen"
@@ -981,8 +970,14 @@ Update 5.52
 	L["CHAR_PROFILE_TALENTS_HEADER"] = "Talente"
 	L["CHEST"] = "Brust"
 	L["Combat"] = "Kampf"
+	L["DAYS"] = "Tage"
 	L["Demonology"] = "Dämonologie"
 	L["Destruction"] = "Zerstörung"
+	L["DIALOG_ADD_MAIN_CHARACTER"] = "Namen deines Charakters eintragen..."
+	--[[Translation missing --]]
+	L["DIALOG_FOUND_MAIN_CHAR_SSS"] = "%s Stufe %s %s gefunden"
+	L["DIALOG_REMOVE_GUILD_DATA"] = "Gilde entfernen?"
+	L["DIALOG_RESET_GUILD_DATA"] = "Alle Gildendaten zurücksetzen?"
 	L["Discipline"] = "Disziplin"
 	L["Elemental"] = "Elementar"
 	L["Enhancement"] = "Verstärkung"
@@ -992,6 +987,11 @@ Update 5.52
 	L["Fire"] = "Feuer"
 	L["Frost"] = "Frost"
 	L["Fury"] = "Furor"
+	L["GB_CHAT_MSG_SCANNED_CHARACTER_STATS_S"] = "hat Charakterwerte für %s bekommen, echt interessant!"
+	L["GB_CHAT_MSG_SCANNED_EQUIPMENT_SETS"] = "hat deine Ausrüstungssets gescannt."
+	L["GB_CHAT_MSG_SCANNED_SKILLS"] = "hat sich deine Berufe angeschaut."
+	L["GB_CHAT_MSG_SCANNED_TALENTS_GLYPHS"] = "hat deine Talente und Glyphen gescannt, cool!"
+	L["GB_CHAT_MSG_SCANNED_TRADESKILL_RECIPES_S"] = "hat deine %s Rezepte erhalten, danke."
 	L["GEMS"] = "Edelsteine"
 	L["Guardian"] = "Wächter"
 	L["GUILD_HOME_CALENDAR_HELPTIP"] = "Hier werden Kalenderereignisse angezeigt (eventuell muss der Kalender zuerst einmal geöffnet werden)."
@@ -999,6 +999,7 @@ Update 5.52
 	L["GUILD_HOME_LABEL"] = "Home"
 	L["GUILD_HOME_MEMBERS_HELPTIP"] = "Hier werden Gildenmitglieder angezeigt. Klicke auf einen Charakter um mehr Informationen über ihn zu sehen."
 	L["GUILD_HOME_NO_MOTD"] = "Du schaust dir eine Gilde an der dein Charakter nicht angehört - manche Informationen können fehlen oder veraltet sein."
+	L["GUILD_HOME_SHOW_OFFLINE_MEMBERS_LABEL"] = "Offline-Spieler anzeigen"
 	L["GUILD_TRADESKILLS_LABEL"] = "Berufe"
 	L["GUILDS_LIST_HEADER"] = "Gilden"
 	L["HANDS"] = "Hände"
@@ -1013,7 +1014,7 @@ Update 5.52
 	L["HELP_FAQ_A6"] = "Herstellungsaufträge erlauben dir, einem Gildenmitglied eine Nachricht via Guildbook zu schicken dass du einen Gegenstand hergestellt haben möchtest. Dein Gildenmitglied sieht deine Anfrage dann in ihrer Liste der Herstellungsaufträge."
 	L["HELP_FAQ_A7"] = "Du kannst natürlich immer noch einfach selbst fragen, aber vielleicht ist das Gildenmitglied ja beschäftigt, gerade in einem Bosskampf, afk oder sonstiges..."
 	--[[Translation missing --]]
-	--[[ L["HELP_FAQ_A8"] = "HELP_FAQ_A8"--]] 
+	--[[ L["HELP_FAQ_A8"] = ""--]] 
 	L["HELP_FAQ_Q0"] = "Ich habe das Addon gerade erst installiert und es zeigt überhaupt nichts an, so ein Mist!"
 	L["HELP_FAQ_Q1"] = "Warum sehe ich meine Ausrüstung nicht?"
 	L["HELP_FAQ_Q2"] = "Warum sehe ich meine Charakterwerte nicht?"
@@ -1023,13 +1024,17 @@ Update 5.52
 	L["HELP_FAQ_Q6"] = "Was zum Geier sind Herstellungsaufträge?"
 	L["HELP_FAQ_Q7"] = "Warum frage ich nicht einfach im Gildenchat oder flüstere die Person an?"
 	--[[Translation missing --]]
-	--[[ L["HELP_FAQ_Q8"] = "HELP_FAQ_Q8"--]] 
+	--[[ L["HELP_FAQ_Q8"] = ""--]] 
 	L["HELP_HEADER"] = "Hilfe"
 	L["HOLDABLE"] = "Nebenhand"
 	L["Holy"] = "Heilig"
+	L["HOURS"] = "Stunde(n)"
 	L["LEGS"] = "Beine"
 	L["Marksmanship"] = "Treffsicherheit"
+	L["MONTHS"] = "Monat(e)"
 	L["NECK"] = "Amulett"
+	L["Online"] = "Online"
+	L["PROFILE_ADD_ALT_LABEL"] = "Alt hinzufügen"
 	L["PROFILE_ALT_MANAGER_LABEL"] = "Twink-Manager"
 	L["PROFILE_ALT_MANAGER_LABEL_RIGHT"] = "Hauptcharakter"
 	L["PROFILE_ALTS_HELPTIP"] = "Hier kannst du all deine Charaktere sehen und einstellen wer dein Hauptcharakter ist. Du kannst nur einen Hauptcharakter pro Gilde haben."
@@ -1050,6 +1055,7 @@ Update 5.52
 	L["SETTINGS_BLOCK_COMMS_COMBAT_TOOLTIP"] = "Wenn Guildbook Daten sendet oder empfängt, kann dies unter Umständen andere Addons, die auch Daten schicken/empfangen, beeinträchtigen oder sogar blockieren. Obwohl dies eine sehr unwahrscheinliche Situation ist (Guildbook benutz AceComm), kannst du die Datenkommunikation während des Kampfes hiermit unterbinden."
 	L["SETTINGS_BLOCK_COMMS_INSTANCE_LABEL"] = "Datenkommunikation in Instanzen blocken"
 	L["SETTINGS_BLOCK_COMMS_INSTANCE_TOOLTIP"] = "Wenn Guildbook Daten sendet oder empfängt, kann dies unter Umständen andere Addons, die auch Daten schicken/empfangen, beeinträchtigen oder sogar blockieren. Obwohl dies eine sehr unwahrscheinliche Situation ist (Guildbook benutz AceComm), kannst du die Datenkommunikation während du in Instanzen bist hiermit unterbinden."
+	L["SETTINGS_DISABLE_TOOLTIP_EXTENSION"] = "Tooltip in Instanzen deaktivieren"
 	L["SETTINGS_EXPORT_GUILD_LABEL"] = "Exportieren"
 	L["SETTINGS_EXPORT_IMPORT_LABEL"] = "Hier kannst du Gildendaten importieren oder exportieren. *Klicke 'Exportieren' um einen langen (|cffFFD100wirklich langen|r) Zeichensatz zu erstellen den du dann mit anderen teilen kannst. *Kopiere einen Zeichensatz den dir jemand aus deiner Gilde exportiert hat hier rein und klicke dann 'Importieren'"
 	L["SETTINGS_HEADER"] = "Einstellungen"
@@ -1058,13 +1064,14 @@ Update 5.52
 	L["SETTINGS_MOD_BLIZZ_ROSTER_TOOLTIP"] = "Erweitert das standard Gilden-UI und zeigt deutlich mehr Informationen an. |cffAA0935VORSICHT - den Haken zu entfernen löst ein Neuladen des Interfaces aus."
 	L["SETTINGS_RESET_CHARACTER_LABEL"] = "Charakterdaten zurücksetzen"
 	L["SETTINGS_RESET_GUILD_LABEL"] = "Gildendaten zurücksetzen"
+	L["SETTINGS_SHOW_CHAT_MESSAGES"] = "Chat-Nachrichten anzeigen"
+	L["SETTINGS_SHOW_CHAT_MESSAGES_TOOLTIP"] = "Spam-Warnung - Das kann jede Menge Nachrichten erzeugen!"
 	L["SETTINGS_SHOW_MINIMAP_BUTTON_LABEL"] = "Minimap-Knopf anzeigen"
 	L["SETTINGS_SHOW_MINIMAP_BUTTON_TOOLTIP"] = "Den Knopf an der Minimap ein- oder ausschalten"
 	L["SETTINGS_SHOW_TOOLTIP_CHAR_PROFILE"] = "Charakterprofil im Tooltip anzeigen"
 	L["SETTINGS_SHOW_TOOLTIP_MAIN_CHAR"] = "Hauptcharakter im Tooltip anzeigen"
 	L["SETTINGS_SHOW_TOOLTIP_MAIN_SPEC"] = "Haupt-Talentspezialisierung im Tooltip anzeigen"
 	L["SETTINGS_SHOW_TOOLTIP_TRADESKILLS"] = "Berufe im Tooltip anzeigen"
-	L["SETTINGS_DISABLE_TOOLTIP_EXTENSION"] = "Tooltip in Instanzen deaktivieren"
 	L["Shadow"] = "Schatten"
 	L["SHIELDS"] = "Schilde"
 	L["SHOULDER"] = "Schultern"
@@ -1087,15 +1094,22 @@ Update 5.52
 	L["WAIST"] = "Taille"
 	L["Warden"] = "Wächter"
 	L["WEAPONS"] = "Waffen"
-	L["WRIST"] = "Handgelenk"
-	L["GUILD_HOME_SHOW_OFFLINE_MEMBERS_LABEL"] = "Offline-Spieler anzeigen"
+	L["WELCOME_MESSAGE"] = [=[
+Willkommen zu Guildbook! Um zu beginnen, klicke auf das Pfeilsymbol in der oberen linken Ecke. 
+Das öffnet ein Menü in dem du deine Gilde(n) siehst. Wenn du nichts siehst, geh zu Curse und beschwer dich ;)
 
-	--ModBlizz.lua
-	L["YEARS"]                          = "Jahre"
-	L["MONTHS"]                         = "Monate"
-	L["DAYS"]                           = "Tage"
-	L["HOURS"]                          = "Stunden"
-	L['< an hour']			    		= '< eine Stunde'
+5.53 - Neuen Check hinzugefügt bevor nach Herstellern eines Gegenstandes geschaut wird
+ * Aktuelles Inventar hinzugefügt mit neuem Event-Typ
+ * 'Rechtsklick um Gilde aus dem Hauptmenü zu löschen' hinzugefügt
+ * Alt-Charakter-System verbessert
+ * Slash-Befehle hinzugefügt /gb /gbk /guildbook
+ * Erste Hilfe korrigiert (wird jetzt angezeigt)
+ * Internes Nachrichten-Wartelistensystem verbessert
+ * Gilden-Roster zeigt jetzt die Haupt-Talentspezialisierung
+ * Option hinzugefügt um Alt-Charaktere von anderen Accounts anzuzeigen]=]
+	L["WRIST"] = "Handgelenk"
+	L["YEARS"] = "Jahr(e)"
+	
 
 -------------------------------------------------------------------------------------------------------------------------------------
 
@@ -1595,7 +1609,7 @@ MàJ 5.53
 L["RESET_GUILD_DATA"] = "Réinitialiser données de guildes ?"
 L["DIALOG_REMOVE_GUILD_DATA"] = "Supprimer guilde ?"
 L["DIALOG_ADD_MAIN_CHARACTER"] = "Entrez nom du personnage...."
-L["DIALOG_FOUND_MAIN_CHAR_SSS"] = "Trouvé: %s niveau %s %s"
+L["DIALOG_FOUND_MAIN_CHAR_SSS"] = "Trouvé: %s %s niveau %s"
 
 
 --guild home
