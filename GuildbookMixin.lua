@@ -83,7 +83,7 @@ local characterStats = {
 
     {
         isHeader = true,
-        stat = "Attributes",
+        stat = L["Attributes"],
     },
     {
         isHeader = false,
@@ -108,7 +108,7 @@ local characterStats = {
 
     {
         isHeader = true,
-        stat = "Defence",
+        stat = L["Defence"],
     },
     {
         isHeader = false,
@@ -137,7 +137,7 @@ local characterStats = {
 
     {
         isHeader = true,
-        stat = "Melee",
+        stat = L["Melee"],
     },
     {
         isHeader = false,
@@ -174,7 +174,7 @@ local characterStats = {
 
     {
         isHeader = true,
-        stat = "Ranged",
+        stat = L["Ranged"],
     },
     {
         isHeader = false,
@@ -195,7 +195,7 @@ local characterStats = {
 
     {
         isHeader = true,
-        stat = "Spells",
+        stat = L["Spells"],
     },
     {
         isHeader = false,
