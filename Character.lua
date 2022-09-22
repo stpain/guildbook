@@ -349,7 +349,11 @@ function Character:GetProfile()
 end
 
 function Character:SetTalents(spec, talents)
-    self.data.talents[spec] = talents;
+    if (#talents > 0) then
+        self.data.talents[spec] = talents;
+    else
+        --print("talents", spec, "no data")
+    end
 end
 
 function Character:GetTalents(spec)
@@ -360,7 +364,12 @@ end
 
 
 function Character:SetGlyphs(spec, glyphs)
-    self.data.glyphs[spec] = glyphs;
+
+    if (#glyphs > 0) then
+        self.data.glyphs[spec] = glyphs;
+    else
+        --print("glyphs", spec, "no data")
+    end
 end
 
 function Character:GetGlyphs(spec)

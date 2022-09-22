@@ -58,7 +58,7 @@ You should open your tradeskills and character frame so Guildbook can scan vario
 
 Its also worth going to the profile section and setting your characters specializations and selecting your main (if you play alts).
 
-UPDATES 5.53
+UPDATES 5.54
 
 - added a type check before looking for crafters of an item
 - added an option to show info messages in default chat window
@@ -1149,7 +1149,7 @@ if locale == "deDE" then
 Willkommen zu Guildbook! Um zu beginnen, klicke auf das Pfeilsymbol in der oberen linken Ecke. 
 Das öffnet ein Menü in dem du deine Gilde(n) siehst. Wenn du nichts siehst, geh zu Curse und beschwer dich ;)
 
-5.53 - Neuen Check hinzugefügt bevor nach Herstellern eines Gegenstandes geschaut wird
+5.54 - Neuen Check hinzugefügt bevor nach Herstellern eines Gegenstandes geschaut wird
  * Aktuelles Inventar hinzugefügt mit neuem Event-Typ
  * 'Rechtsklick um Gilde aus dem Hauptmenü zu löschen' hinzugefügt
  * Alt-Charakter-System verbessert
@@ -1644,7 +1644,7 @@ Vous devriez ouvrir les fenêtres de vos métiers afin que l'addon puisse les sc
 Ca vaut aussi le coup de passer dans la section "Profile" pour définir vos spés et votre personnage principal.
 
 
-MàJ 5.53
+MàJ 5.54
 - correction de bugs
 - ajout d'une option pour montrer des messages d'information dans la fenêtre de chat
 - ajout d'une option "équipement actuel" dans le profil du perso

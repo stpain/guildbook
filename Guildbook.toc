@@ -1,6 +1,6 @@
 ## Interface: 30400
 ## Author: Copperbolts (Theboringdad)
-## Version: 5.53
+## Version: 5.54
 ## Title: Guildbook
 ## Notes: Guild addon for guild stuff!
 ## Notes-deDE : Gilden-Addon für alles rund um die Gilde!
