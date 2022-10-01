@@ -2463,6 +2463,10 @@ end
 
 function GuildbookMixin:OnPlayerTradeskillRecipesScanned(tradeskill, level, recipes)
 
+    if #recipes < 1 then
+        return
+    end
+
     local msg = {
         type = "TRADESKILL_RECIPES",
         payload = {
@@ -2584,12 +2588,18 @@ function GuildbookMixin:HandleTradeskillUpdate(guid, tradeskill, level, recipes)
                     character:SetTradeskillLevel(1, level)
                     character:SetTradeskillRecipes(1, recipes)
 
+                    -- print(string.format("prof 1 is known > set prof 1 at level %s", level))
+                    -- DevTools_Dump({recipes})
+
                     --addon.DEBUG("func", "OnPlayerTradeskillRecipesScanned", string.format("prof 1 is known > set prof 1 at level %s", level))
 
                 else
                     if character:GetTradeskill(2) == tradeskill then
                         character:SetTradeskillLevel(2, level)
                         character:SetTradeskillRecipes(2, recipes)
+
+                        -- print(string.format("prof 2 is known > set prof 2 at level %s", level))
+                        -- DevTools_Dump({recipes})
 
                         --addon.DEBUG("func", "OnPlayerTradeskillRecipesScanned", string.format("prof 2 is known > set prof 2 at level %s", level))
                     end

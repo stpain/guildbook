@@ -37976,7 +37976,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [82]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:42142::::::::65:::::::::|h[Bold Dragon's Eye]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -37991,7 +37991,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [83]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:42143::::::::65:::::::::|h[Delicate Dragon's Eye]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -38006,7 +38006,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [84]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:42144::::::::65:::::::::|h[Runed Dragon's Eye]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -38021,7 +38021,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [85]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:42151::::::::65:::::::::|h[Subtle Dragon's Eye]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -38036,7 +38036,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [86]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:42152::::::::65:::::::::|h[Flashing Dragon's Eye]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -38051,7 +38051,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [87]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:42154::::::::65:::::::::|h[Precise Dragon's Eye]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -38066,7 +38066,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [88]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:36767::::::::65:::::::::|h[Solid Dragon's Eye]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -38081,7 +38081,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [89]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:42145::::::::65:::::::::|h[Sparkling Dragon's Eye]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -38096,7 +38096,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [90]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:42155::::::::65:::::::::|h[Stormy Dragon's Eye]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -38111,7 +38111,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [91]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:42158::::::::65:::::::::|h[Mystic Dragon's Eye]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -38126,7 +38126,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [92]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:42150::::::::65:::::::::|h[Quick Dragon's Eye]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -38141,7 +38141,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [93]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:42156::::::::65:::::::::|h[Rigid Dragon's Eye]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -38156,7 +38156,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [94]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:42149::::::::65:::::::::|h[Smooth Dragon's Eye]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -38171,7 +38171,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [95]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:42646::::::::65:::::::::|h[Titanium Earthguard Chain]|h|r",
 			["equipLocation"] = "INVTYPE_NECK",
 			["class"] = 4,
@@ -38190,7 +38190,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [96]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:42645::::::::65:::::::::|h[Titanium Impact Choker]|h|r",
 			["equipLocation"] = "INVTYPE_NECK",
 			["class"] = 4,
@@ -38209,7 +38209,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [97]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:42647::::::::65:::::::::|h[Titanium Spellshock Necklace]|h|r",
 			["equipLocation"] = "INVTYPE_NECK",
 			["class"] = 4,
@@ -38228,7 +38228,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [98]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:45812::::::::65:::::::::|h[Emerald Choker]|h|r",
 			["equipLocation"] = "INVTYPE_NECK",
 			["class"] = 4,
@@ -38244,7 +38244,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [99]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:45813::::::::65:::::::::|h[Sky Sapphire Amulet]|h|r",
 			["equipLocation"] = "INVTYPE_NECK",
 			["class"] = 4,
@@ -38260,7 +38260,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [100]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:42339::::::::65:::::::::|h[Blood Sun Necklace]|h|r",
 			["equipLocation"] = "INVTYPE_NECK",
 			["class"] = 4,
@@ -38278,7 +38278,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [101]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:42338::::::::65:::::::::|h[Jade Dagger Pendant]|h|r",
 			["equipLocation"] = "INVTYPE_NECK",
 			["class"] = 4,
@@ -38295,7 +38295,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [102]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:42643::::::::65:::::::::|h[Titanium Earthguard Ring]|h|r",
 			["equipLocation"] = "INVTYPE_FINGER",
 			["class"] = 4,
@@ -38314,7 +38314,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [103]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:42642::::::::65:::::::::|h[Titanium Impact Band]|h|r",
 			["equipLocation"] = "INVTYPE_FINGER",
 			["class"] = 4,
@@ -38333,7 +38333,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [104]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:42644::::::::65:::::::::|h[Titanium Spellshock Ring]|h|r",
 			["equipLocation"] = "INVTYPE_FINGER",
 			["class"] = 4,
@@ -38352,7 +38352,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [105]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:43582::::::::65:::::::::|h[Titanium Frostguard Ring]|h|r",
 			["equipLocation"] = "INVTYPE_FINGER",
 			["class"] = 4,
@@ -38370,7 +38370,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [106]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:42340::::::::65:::::::::|h[Dream Signet]|h|r",
 			["equipLocation"] = "INVTYPE_FINGER",
 			["class"] = 4,
@@ -38387,7 +38387,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [107]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:43250::::::::65:::::::::|h[Ring of Earthen Might]|h|r",
 			["equipLocation"] = "INVTYPE_FINGER",
 			["class"] = 4,
@@ -38403,7 +38403,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [108]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:43253::::::::65:::::::::|h[Ring of Northern Tears]|h|r",
 			["equipLocation"] = "INVTYPE_FINGER",
 			["class"] = 4,
@@ -38420,7 +38420,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [109]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:43251::::::::65:::::::::|h[Ring of Scarlet Shadows]|h|r",
 			["equipLocation"] = "INVTYPE_FINGER",
 			["class"] = 4,
@@ -38437,7 +38437,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [110]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:45808::::::::65:::::::::|h[Runed Mana Band]|h|r",
 			["equipLocation"] = "INVTYPE_FINGER",
 			["class"] = 4,
@@ -38453,7 +38453,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [111]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:43498::::::::65:::::::::|h[Savage Titanium Band]|h|r",
 			["equipLocation"] = "INVTYPE_FINGER",
 			["class"] = 4,
@@ -38469,7 +38469,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [112]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:43482::::::::65:::::::::|h[Savage Titanium Ring]|h|r",
 			["equipLocation"] = "INVTYPE_FINGER",
 			["class"] = 4,
@@ -38485,7 +38485,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [113]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:45809::::::::65:::::::::|h[Scarlet Signet]|h|r",
 			["equipLocation"] = "INVTYPE_FINGER",
 			["class"] = 4,
@@ -38501,7 +38501,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [114]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:43252::::::::65:::::::::|h[Windfire Band]|h|r",
 			["equipLocation"] = "INVTYPE_FINGER",
 			["class"] = 4,
@@ -38518,7 +38518,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [115]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:43249::::::::65:::::::::|h[Shadowmight Ring]|h|r",
 			["equipLocation"] = "INVTYPE_FINGER",
 			["class"] = 4,
@@ -38534,7 +38534,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [116]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:43248::::::::65:::::::::|h[Stoneguard Band]|h|r",
 			["equipLocation"] = "INVTYPE_FINGER",
 			["class"] = 4,
@@ -38549,7 +38549,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [117]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:43246::::::::65:::::::::|h[Earthshadow Ring]|h|r",
 			["equipLocation"] = "INVTYPE_FINGER",
 			["class"] = 4,
@@ -38565,7 +38565,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [118]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:43247::::::::65:::::::::|h[Jade Ring of Slaying]|h|r",
 			["equipLocation"] = "INVTYPE_FINGER",
 			["class"] = 4,
@@ -38581,7 +38581,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [119]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:42336::::::::65:::::::::|h[Bloodstone Band]|h|r",
 			["equipLocation"] = "INVTYPE_FINGER",
 			["class"] = 4,
@@ -38597,7 +38597,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [120]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:42337::::::::65:::::::::|h[Sun Rock Ring]|h|r",
 			["equipLocation"] = "INVTYPE_FINGER",
 			["class"] = 4,
@@ -38613,7 +38613,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [121]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:42418::::::::65:::::::::|h[Figurine - Emerald Boar]|h|r",
 			["equipLocation"] = "INVTYPE_TRINKET",
 			["class"] = 4,
@@ -38630,7 +38630,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [122]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:44063::::::::65:::::::::|h[Figurine - Monarch Crab]|h|r",
 			["equipLocation"] = "INVTYPE_TRINKET",
 			["class"] = 4,
@@ -38647,7 +38647,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [123]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:42341::::::::65:::::::::|h[Figurine - Ruby Hare]|h|r",
 			["equipLocation"] = "INVTYPE_TRINKET",
 			["class"] = 4,
@@ -38664,7 +38664,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [124]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:42413::::::::65:::::::::|h[Figurine - Sapphire Owl]|h|r",
 			["equipLocation"] = "INVTYPE_TRINKET",
 			["class"] = 4,
@@ -38681,7 +38681,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [125]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:42395::::::::65:::::::::|h[Figurine - Twilight Serpent]|h|r",
 			["equipLocation"] = "INVTYPE_TRINKET",
 			["class"] = 4,
@@ -38698,7 +38698,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [126]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:41380::::::::65:::::::::|h[Austere Earthsiege Diamond]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -38713,7 +38713,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [127]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:41389::::::::65:::::::::|h[Beaming Earthsiege Diamond]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -38728,7 +38728,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [128]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:41395::::::::65:::::::::|h[Bracing Earthsiege Diamond]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -38743,7 +38743,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [129]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:41396::::::::65:::::::::|h[Eternal Earthsiege Diamond]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -38758,7 +38758,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [130]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:41401::::::::65:::::::::|h[Insightful Earthsiege Diamond]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -38773,7 +38773,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [131]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:41385::::::::65:::::::::|h[Invigorating Earthsiege Diamond]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -38788,7 +38788,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [132]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:41381::::::::65:::::::::|h[Persistent Earthsiege Diamond]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -38803,7 +38803,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [133]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:41397::::::::65:::::::::|h[Powerful Earthsiege Diamond]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -38818,7 +38818,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [134]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:41398::::::::65:::::::::|h[Relentless Earthsiege Diamond]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -38833,7 +38833,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [135]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:41382::::::::65:::::::::|h[Trenchant Earthsiege Diamond]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -38848,7 +38848,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [136]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:41285::::::::65:::::::::|h[Chaotic Skyflare Diamond]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -38863,7 +38863,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [137]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:41307::::::::65:::::::::|h[Destructive Skyflare Diamond]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -38878,7 +38878,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [138]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:41333::::::::65:::::::::|h[Ember Skyflare Diamond]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -38893,7 +38893,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [139]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:41335::::::::65:::::::::|h[Enigmatic Skyflare Diamond]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -38908,7 +38908,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [140]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:41378::::::::65:::::::::|h[Forlorn Skyflare Diamond]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -38923,7 +38923,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [141]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:41379::::::::65:::::::::|h[Impassive Skyflare Diamond]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -38938,7 +38938,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [142]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:41376::::::::65:::::::::|h[Revitalizing Skyflare Diamond]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -38953,7 +38953,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [143]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:41377::::::::65:::::::::|h[Effulgent Skyflare Diamond]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -38968,7 +38968,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [144]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:41339::::::::65:::::::::|h[Swift Skyflare Diamond]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -38983,7 +38983,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [145]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:41400::::::::65:::::::::|h[Thundering Skyflare Diamond]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -38998,7 +38998,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [146]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:41375::::::::65:::::::::|h[Tireless Skyflare Diamond]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39013,7 +39013,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [147]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40111::::::::65:::::::::|h[Bold Cardinal Ruby]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39028,7 +39028,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [148]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40113::::::::65:::::::::|h[Runed Cardinal Ruby]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39043,7 +39043,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [149]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40112::::::::65:::::::::|h[Delicate Cardinal Ruby]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39058,7 +39058,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [150]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40116::::::::65:::::::::|h[Flashing Cardinal Ruby]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39073,7 +39073,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [151]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40118::::::::65:::::::::|h[Precise Cardinal Ruby]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39088,7 +39088,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [152]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:39996::::::::65:::::::::|h[Bold Scarlet Ruby]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39103,7 +39103,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [153]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:39998::::::::65:::::::::|h[Runed Scarlet Ruby]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39118,7 +39118,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [154]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:39997::::::::65:::::::::|h[Delicate Scarlet Ruby]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39133,7 +39133,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [155]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40001::::::::65:::::::::|h[Flashing Scarlet Ruby]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39148,7 +39148,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [156]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40003::::::::65:::::::::|h[Precise Scarlet Ruby]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39163,7 +39163,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [157]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39900::::::::65:::::::::|h[Bold Bloodstone]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39178,7 +39178,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [158]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39905::::::::65:::::::::|h[Delicate Bloodstone]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39193,7 +39193,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [159]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39908::::::::65:::::::::|h[Flashing Bloodstone]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39208,7 +39208,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [160]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39910::::::::65:::::::::|h[Precise Bloodstone]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39223,7 +39223,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [161]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40127::::::::65:::::::::|h[Mystic King's Amber]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39238,7 +39238,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [162]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40128::::::::65:::::::::|h[Quick King's Amber]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39253,7 +39253,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [163]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40125::::::::65:::::::::|h[Rigid King's Amber]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39268,7 +39268,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [164]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40124::::::::65:::::::::|h[Smooth King's Amber]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39283,7 +39283,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [165]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40016::::::::65:::::::::|h[Mystic Autumn's Glow]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39298,7 +39298,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [166]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40017::::::::65:::::::::|h[Quick Autumn's Glow]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39313,7 +39313,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [167]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40014::::::::65:::::::::|h[Rigid Autumn's Glow]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39328,7 +39328,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [168]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40013::::::::65:::::::::|h[Smooth Autumn's Glow]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39343,7 +39343,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [169]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39912::::::::65:::::::::|h[Brilliant Sun Crystal]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39358,7 +39358,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [170]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39917::::::::65:::::::::|h[Mystic Sun Crystal]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39373,7 +39373,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [171]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39918::::::::65:::::::::|h[Quick Sun Crystal]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39388,7 +39388,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [172]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39915::::::::65:::::::::|h[Rigid Sun Crystal]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39403,7 +39403,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [173]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40120::::::::65:::::::::|h[Sparkling Majestic Zircon]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39418,7 +39418,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [174]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40119::::::::65:::::::::|h[Solid Majestic Zircon]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39433,7 +39433,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [175]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40120::::::::65:::::::::|h[Sparkling Majestic Zircon]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39448,7 +39448,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [176]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40122::::::::65:::::::::|h[Stormy Majestic Zircon]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39463,7 +39463,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [177]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40008::::::::65:::::::::|h[Solid Sky Sapphire]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39478,7 +39478,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [178]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40010::::::::65:::::::::|h[Lustrous Sky Sapphire]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39493,7 +39493,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [179]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40011::::::::65:::::::::|h[Stormy Sky Sapphire]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39508,7 +39508,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [180]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39919::::::::65:::::::::|h[Solid Chalcedony]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39523,7 +39523,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [181]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39927::::::::65:::::::::|h[Lustrous Chalcedony]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39538,7 +39538,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [182]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39932::::::::65:::::::::|h[Stormy Chalcedony]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39553,7 +39553,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [183]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40144::::::::65:::::::::|h[Champion's Ametrine]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39568,7 +39568,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [184]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40147::::::::65:::::::::|h[Deadly Ametrine]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39583,7 +39583,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [185]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40150::::::::65:::::::::|h[Deft Ametrine]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39598,7 +39598,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [186]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40146::::::::65:::::::::|h[Fierce Ametrine]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39613,7 +39613,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [187]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40142::::::::65:::::::::|h[Inscribed Ametrine]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39628,7 +39628,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [188]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40149::::::::65:::::::::|h[Lucent Ametrine]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39643,7 +39643,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [189]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40152::::::::65:::::::::|h[Potent Ametrine]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39658,7 +39658,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [190]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40155::::::::65:::::::::|h[Reckless Ametrine]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39673,7 +39673,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [191]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40163::::::::65:::::::::|h[Resolute Ametrine]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39688,7 +39688,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [192]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40145::::::::65:::::::::|h[Resplendent Ametrine]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39703,7 +39703,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [193]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40160::::::::65:::::::::|h[Stalwart Ametrine]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39718,7 +39718,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [194]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40154::::::::65:::::::::|h[Durable Ametrine]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39733,7 +39733,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [195]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40039::::::::65:::::::::|h[Champion's Monarch Topaz]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39748,7 +39748,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [196]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40055::::::::65:::::::::|h[Stark Monarch Topaz]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39763,7 +39763,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [197]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40041::::::::65:::::::::|h[Fierce Monarch Topaz]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39778,7 +39778,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [198]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40037::::::::65:::::::::|h[Inscribed Monarch Topaz]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39793,7 +39793,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [199]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40045::::::::65:::::::::|h[Lucent Monarch Topaz]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39808,7 +39808,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [200]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40048::::::::65:::::::::|h[Potent Monarch Topaz]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39823,7 +39823,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [201]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40051::::::::65:::::::::|h[Reckless Monarch Topaz]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39838,7 +39838,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [202]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40059::::::::65:::::::::|h[Resolute Monarch Topaz]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39853,7 +39853,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [203]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40040::::::::65:::::::::|h[Resplendent Monarch Topaz]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39868,7 +39868,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [204]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40057::::::::65:::::::::|h[Glimmering Monarch Topaz]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39883,7 +39883,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [205]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40050::::::::65:::::::::|h[Durable Monarch Topaz]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39898,7 +39898,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [206]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39949::::::::65:::::::::|h[Champion's Huge Citrine]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39913,7 +39913,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [207]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39952::::::::65:::::::::|h[Deadly Huge Citrine]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39928,7 +39928,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [208]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39955::::::::65:::::::::|h[Deft Huge Citrine]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39943,7 +39943,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [209]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39951::::::::65:::::::::|h[Fierce Huge Citrine]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39958,7 +39958,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [210]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39947::::::::65:::::::::|h[Inscribed Huge Citrine]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39973,7 +39973,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [211]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39954::::::::65:::::::::|h[Lucent Huge Citrine]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -39988,7 +39988,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [212]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39956::::::::65:::::::::|h[Potent Huge Citrine]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40003,7 +40003,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [213]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39959::::::::65:::::::::|h[Reckless Huge Citrine]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40018,7 +40018,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [214]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39967::::::::65:::::::::|h[Resolute Huge Citrine]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40033,7 +40033,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [215]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39950::::::::65:::::::::|h[Resplendent Huge Citrine]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40048,7 +40048,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [216]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39965::::::::65:::::::::|h[Glimmering Huge Citrine]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40063,7 +40063,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [217]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39958::::::::65:::::::::|h[Durable Huge Citrine]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40078,7 +40078,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [218]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40179::::::::65:::::::::|h[Energized Eye of Zul]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40093,7 +40093,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [219]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40169::::::::65:::::::::|h[Forceful Eye of Zul]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40108,7 +40108,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [220]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40165::::::::65:::::::::|h[Jagged Eye of Zul]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40123,7 +40123,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [221]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40177::::::::65:::::::::|h[Lambent Eye of Zul]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40138,7 +40138,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [222]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40171::::::::65:::::::::|h[Misty Eye of Zul]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40153,7 +40153,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [223]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40166::::::::65:::::::::|h[Vivid Eye of Zul]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40168,7 +40168,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [224]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40180::::::::65:::::::::|h[Radiant Eye of Zul]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40183,7 +40183,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [225]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40167::::::::65:::::::::|h[Enduring Eye of Zul]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40198,7 +40198,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [226]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40182::::::::65:::::::::|h[Shattered Eye of Zul]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40213,7 +40213,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [227]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40168::::::::65:::::::::|h[Steady Eye of Zul]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40228,7 +40228,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [228]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40173::::::::65:::::::::|h[Turbid Eye of Zul]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40243,7 +40243,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [229]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40105::::::::65:::::::::|h[Energized Forest Emerald]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40258,7 +40258,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [230]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40091::::::::65:::::::::|h[Forceful Forest Emerald]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40273,7 +40273,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [231]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40086::::::::65:::::::::|h[Jagged Forest Emerald]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40288,7 +40288,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [232]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40100::::::::65:::::::::|h[Lambent Forest Emerald]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40303,7 +40303,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [233]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40095::::::::65:::::::::|h[Misty Forest Emerald]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40318,7 +40318,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [234]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40088::::::::65:::::::::|h[Vivid Forest Emerald]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40333,7 +40333,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [235]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40098::::::::65:::::::::|h[Radiant Forest Emerald]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40348,7 +40348,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [236]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40089::::::::65:::::::::|h[Enduring Forest Emerald]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40363,7 +40363,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [237]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40106::::::::65:::::::::|h[Shattered Forest Emerald]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40378,7 +40378,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [238]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40090::::::::65:::::::::|h[Steady Forest Emerald]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40393,7 +40393,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [239]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40102::::::::65:::::::::|h[Turbid Forest Emerald]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40408,7 +40408,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [240]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39983::::::::65:::::::::|h[Intricate Dark Jade]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40423,7 +40423,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [241]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39978::::::::65:::::::::|h[Forceful Dark Jade]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40438,7 +40438,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [242]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39981::::::::65:::::::::|h[Shining Dark Jade]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40453,7 +40453,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [243]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39980::::::::65:::::::::|h[Misty Dark Jade]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40468,7 +40468,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [244]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39975::::::::65:::::::::|h[Vivid Dark Jade]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40483,7 +40483,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [245]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39991::::::::65:::::::::|h[Tense Dark Jade]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40498,7 +40498,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [246]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39976::::::::65:::::::::|h[Enduring Dark Jade]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40513,7 +40513,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [247]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39992::::::::65:::::::::|h[Shattered Dark Jade]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40528,7 +40528,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [248]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39977::::::::65:::::::::|h[Steady Dark Jade]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40543,7 +40543,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [249]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39982::::::::65:::::::::|h[Turbid Dark Jade]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40558,7 +40558,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [250]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40139::::::::65:::::::::|h[Defender's Dreadstone]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40573,7 +40573,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [251]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40141::::::::65:::::::::|h[Guardian's Dreadstone]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40588,7 +40588,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [252]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40135::::::::65:::::::::|h[Mysterious Dreadstone]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40603,7 +40603,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [253]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40133::::::::65:::::::::|h[Purified Dreadstone]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40618,7 +40618,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [254]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40130::::::::65:::::::::|h[Shifting Dreadstone]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40633,7 +40633,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [255]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cffa335ee|Hitem:40129::::::::65:::::::::|h[Sovereign Dreadstone]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40648,7 +40648,7 @@ local tradeskillItems = {
 			["quality"] = 4,
 		}, -- [256]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40032::::::::65:::::::::|h[Defender's Twilight Opal]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40663,7 +40663,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [257]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40025::::::::65:::::::::|h[Glowing Twilight Opal]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40678,7 +40678,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [258]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40034::::::::65:::::::::|h[Guardian's Twilight Opal]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40693,7 +40693,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [259]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40028::::::::65:::::::::|h[Mysterious Twilight Opal]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40708,7 +40708,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [260]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40026::::::::65:::::::::|h[Purified Twilight Opal]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40723,7 +40723,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [261]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40023::::::::65:::::::::|h[Shifting Twilight Opal]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40738,7 +40738,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [262]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:40022::::::::65:::::::::|h[Sovereign Twilight Opal]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40753,7 +40753,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [263]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39939::::::::65:::::::::|h[Defender's Shadow Crystal]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40768,7 +40768,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [264]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39940::::::::65:::::::::|h[Guardian's Shadow Crystal]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40783,7 +40783,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [265]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39945::::::::65:::::::::|h[Mysterious Shadow Crystal]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40798,7 +40798,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [266]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39933::::::::65:::::::::|h[Puissant Shadow Crystal]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40813,7 +40813,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [267]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39935::::::::65:::::::::|h[Shifting Shadow Crystal]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40828,7 +40828,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [268]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39934::::::::65:::::::::|h[Sovereign Shadow Crystal]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40843,7 +40843,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [269]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:39942::::::::65:::::::::|h[Tenuous Shadow Crystal]|h|r",
 			["equipLocation"] = "",
 			["class"] = 3,
@@ -40858,7 +40858,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [270]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff0070dd|Hitem:44943::::::::65:::::::::|h[Icy Prism]|h|r",
 			["equipLocation"] = "",
 			["class"] = 0,
@@ -40876,7 +40876,7 @@ local tradeskillItems = {
 			["quality"] = 3,
 		}, -- [271]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:42421::::::::65:::::::::|h[Shadow Jade Focusing Lens]|h|r",
 			["equipLocation"] = "",
 			["class"] = 0,
@@ -40892,7 +40892,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [272]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:42420::::::::65:::::::::|h[Shadow Crystal Focusing Lens]|h|r",
 			["equipLocation"] = "",
 			["class"] = 0,
@@ -40907,7 +40907,7 @@ local tradeskillItems = {
 			["quality"] = 2,
 		}, -- [273]
 		{
-			["tradeskill"] = 775,
+			["tradeskill"] = 755,
 			["link"] = "|cff1eff00|Hitem:41367::::::::65:::::::::|h[Dark Jade Focusing Lens]|h|r",
 			["equipLocation"] = "",
 			["class"] = 0,

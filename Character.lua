@@ -235,8 +235,6 @@ end
 
 function Character:CanCraftItem(item)
 
-    --addon.DEBUG("func", "Character:CanCraftItem", string.format("looking for crafters for %s", item.name))
-
     if type(self.data.profession1Recipes) == "table" then
         if self.data.profession1 == item.tradeskill then
             for k, itemID in ipairs(self.data.profession1Recipes) do
