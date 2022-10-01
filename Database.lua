@@ -88,7 +88,7 @@ function Database:Init()
     end
 
     for k, v in pairs(self.keys.global) do
-        if not GUILDBOOK_GLOBAL[k] then
+        if GUILDBOOK_GLOBAL[k] == nil then
             GUILDBOOK_GLOBAL[k] = v;
         end
     end
@@ -106,7 +106,7 @@ function Database:Init()
         --addon.DEBUG("func", "Database:Init", "declared config saved variables as new table")
     end
     for k, v in pairs(self.keys.config) do
-        if not GUILDBOOK_CONFIG[k] then
+        if GUILDBOOK_CONFIG[k] == nil then
             GUILDBOOK_CONFIG[k] = v;
         end
     end
@@ -135,7 +135,7 @@ function Database:Init()
         --addon.DEBUG("func", "Database:Init", "declared privacy saved variables as new table")
     end
     for k, v in pairs(self.keys.privacy) do
-        if not GUILDBOOK_PRIVACY[k] then
+        if GUILDBOOK_PRIVACY[k] == nil then
             GUILDBOOK_PRIVACY[k] = v;
         end
     end

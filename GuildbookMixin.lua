@@ -1637,15 +1637,6 @@ function GuildbookMixin:OnDatabaseInitialised()
     if not GUILDBOOK_GLOBAL['MinimapButton'] then GUILDBOOK_GLOBAL['MinimapButton'] = {} end
     self.MinimapIcon:Register('Guildbook', self.MinimapButton, GUILDBOOK_GLOBAL['MinimapButton'])
 
-    --as this requires libs to load, set this on PEW
-    local showMinimapButton = Database:GetConfigSetting("showMinimapButton");
-    self.settings.scrollChild.showMinimapButton:SetChecked(showMinimapButton)
-    if showMinimapButton == true then
-        self.MinimapIcon:Show("Guildbook")
-    else
-        self.MinimapIcon:Hide("Guildbook")
-    end
-
 
     --update the settings panel
     self.settings.scrollChild.blockCommsDuringCombat:SetChecked(Database:GetConfigSetting("blockCommsDuringCombat"))
@@ -1838,6 +1829,15 @@ function GuildbookMixin:OnPlayerEnteringWorld()
         end
 
     end, 30)
+
+    --as this requires libs to load, set this on PEW
+    local showMinimapButton = Database:GetConfigSetting("showMinimapButton");
+    self.settings.scrollChild.showMinimapButton:SetChecked(showMinimapButton)
+    if showMinimapButton == true then
+        self.MinimapIcon:Show("Guildbook")
+    else
+        self.MinimapIcon:Hide("Guildbook")
+    end
 
     --might as well scan bags now
     self:OnPlayerBagsUpdated()
