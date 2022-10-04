@@ -10,10 +10,10 @@ local Comms = {};
 Comms.prefix = "Guildbook";
 Comms.version = 0;
 Comms.processDelay = 2.0; --delay before processing incoming message data
-Comms.queueWaitingTime = 15.0; --delay from transmit request to first dispatch attempt, this prevents spamming if a player opens/closes a panel that triggers a transmit
+Comms.queueWaitingTime = 25.0; --delay from transmit request to first dispatch attempt, this prevents spamming if a player opens/closes a panel that triggers a transmit
 Comms.dispatcherElapsedDelay = 1.0; --stagger effect for the onUpdate func on dispatcher, limits the onUpdate to once per second
 Comms.queue = {};
-Comms.queueExtendTime = 5.0; --the extension given to each message waiting in the queue, this limits how often a message can be dispatched
+Comms.queueExtendTime = 10.0; --the extension given to each message waiting in the queue, this limits how often a message can be dispatched
 Comms.dispatcher = CreateFrame("FRAME");
 Comms.dispatcherElapsed = 0;
 Comms.pause = false;
@@ -72,6 +72,10 @@ function Comms.DispatcherOnUpdate(self, elapsed)
             end
         end
     end
+
+    if GuildbookInterface:IsVisible() then
+        GuildbookInterface.statusText:SetText(string.format("[%s] messages in queue", #Comms.queue))
+    end
 end
 
 function Comms:SendPlainTextMessage(msg, target)
@@ -103,14 +107,31 @@ function Comms:QueueMessage(event, message, channel, target, priority)
     end
 
     if exists == false then
-        table.insert(self.queue, {
-            event = event,
-            message = message,
-            channel = channel,
-            target = target,
-            priority = priority,
-            dispatchTime = time() + self.queueWaitingTime;
-        })
+
+        --if this was a character data request then bump to the start of the queue
+        if event == "CHARACTER_DATA" then
+            table.insert(self.queue, 1, {
+                event = event,
+                message = message,
+                channel = channel,
+                target = target,
+                priority = priority,
+                dispatchTime = time() + 1.0; --override this so it goes out almost instantly
+            })
+        else
+            table.insert(self.queue, {
+                event = event,
+                message = message,
+                channel = channel,
+                target = target,
+                priority = priority,
+                dispatchTime = time() + self.queueWaitingTime;
+            })
+        end
+
+    end
+
+    if self.dispatcher:GetScript("OnUpdate") == nil then
         self.dispatcher:SetScript("OnUpdate", self.DispatcherOnUpdate)
     end
 end

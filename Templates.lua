@@ -1161,6 +1161,7 @@ GuildbookHomeMembersListviewItemTemplateMixin = {};
 function GuildbookHomeMembersListviewItemTemplateMixin:OnLoad()
     self.background:SetAlpha(0.9)
 
+    --these are here to updaste the listview item when changes happen
     gb:RegisterCallback("OnCharacterChanged", self.OnCharacterChanged, self)
     gb:RegisterCallback("OnGuildRosterScanned", self.OnRosterScanned, self)
 end

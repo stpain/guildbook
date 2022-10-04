@@ -73,6 +73,9 @@ UPDATES 5.54
 
 ]]
 
+L["COMMS_S"] = "Sent %s"
+L["COMMS_SS"] = "Sent %s to %s"
+
 --dialog
 L["DIALOG_RESET_GUILD_DATA"] = "Reset all guild data ?"
 L["DIALOG_REMOVE_GUILD_DATA"] = "Remove guild ?"
@@ -101,6 +104,7 @@ L["TRADESKILL_RECIPE_INFO_HELPTIP"] = "If you have Auctionator installed the cos
 L["TRADESKILL_WORK_ORDER_HELPTIP"] = "Work orders acts like a list of items to craft.\n\nGuild members can send you items they would like crafted, you can also add items yourself to create a list of materials.\n\nWhen you have crafted the item(s) you can notify the guild member its ready."
 L["TRADESKILL_WORK_ORDER_HEADER"] = "Work orders"
 L["TRADESKILL_WORK_ORDER_RECIPE_INFO_HEADER"] = "Materials required"
+L["TRADESKILL_WORK_ORDER_RESPONSE"] = "Got your work order!"
 
 L["TRADESKILL_WORK_ORDER_CLICK_CAST"] = "Click to craft."
 L["TRADESKILL_WORK_ORDER_ADD_TOOLTIP"] = "Add to your own work orders to see a list of total materials required."

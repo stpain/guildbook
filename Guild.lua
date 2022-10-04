@@ -41,6 +41,36 @@ function Guild:FetchOnlineStatus()
     -- end
 end
 
+function Guild:GetMemberSortedIndex(online, guid)
+
+    local t = {}
+
+    if self:IsCurrentGuild() then
+        local numTotalGuildMembers, numOnlineGuildMembers, numOnlineAndMobileMembers = GetNumGuildMembers()
+        for i = 1, ((online == true) and numOnlineGuildMembers or numTotalGuildMembers) do
+            local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, _guid = GetGuildRosterInfo(i)
+            if name then
+                table.insert(t, {
+                    name = name,
+                    guid = _guid,
+                })
+            end
+        end
+    end
+
+    table.sort(t, function(a, b)
+        return a.name < b.name;
+    end)
+
+    for k, v in ipairs(t) do
+        if v.guid == guid then
+            return k;
+        end
+    end
+
+    return false;
+end
+
 
 function Guild:IsMemberOnline(guid)
 

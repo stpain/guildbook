@@ -2,6 +2,10 @@
 
 local addonName, addon = ...;
 
+--this is to stop the addon spamming data when it loads up, there is a specific HELLO_GUILD msg to use on load
+local LOAD_TIME = GetTime()
+local COMMS_LOGIN_DELAY = 15.0;
+
 addon.playerContainers = {};
 
 local LOCALE = GetLocale()
@@ -1007,8 +1011,8 @@ function GuildbookMixin:OnLoad()
     self.settings.scrollChild.tooltipHeader:SetText(L["SETTINGS_TOOLTIP_LABEL"])
 
 
-    self.settings.scrollChild.newTheme:SetText(L["SETTINGS_TOOLTIP_LABEL"])
-    self.settings.scrollChild.deleteTheme:SetText(L["SETTINGS_TOOLTIP_LABEL"])
+    self.settings.scrollChild.newTheme:SetText(L["SETTINGS_THEME_NEW"])
+    self.settings.scrollChild.deleteTheme:SetText(L["SETTINGS_THEME_DELETE"])
     self.settings.scrollChild.newThemeEditor.confirmTheme:SetText(L["SETTINGS_THEME_EDITOR_CONFIRM_LABEL"])
     self.settings.scrollChild.newThemeEditor.cancelTheme:SetText(L["SETTINGS_THEME_EDITOR_CANCEL_LABEL"])
 
@@ -1366,6 +1370,7 @@ function GuildbookMixin:OnLoad()
                         payload = profile,
                     }
                     Comms:QueueMessage("CHARACTER_PROFILE", msg, "GUILD", nil, "NORMAL")
+                    self:SetStatusText(L["COMMS_S"]:format(msg.type))
                 end
                 return;
             end
@@ -1438,7 +1443,7 @@ function GuildbookMixin:OnCommsMessage(sender, data)
     self:SetStatusText(string.format("%s from %s", commType, character:GetName()))
 
     --schedule this before we return out
-    C_Timer.After(1.0, function()
+    C_Timer.After(1.5, function()
         guild:UpdateSavedVariablesForCharacter(senderGUID)
         
         if self.guild.home.character.selectedCharacter and (self.guild.home.character.selectedCharacter:GetGuid() == character:GetGuid()) then
@@ -1448,8 +1453,34 @@ function GuildbookMixin:OnCommsMessage(sender, data)
         end
     end)
 
+    if commType == "CHARACTER_DATA_REQUEST" then
+
+        return;
+    end
+
+    if commType == "HELLO_GUILD" then
+        character:SetData(data.payload)
+
+        --we can return our own data to the player who just logged in
+
+        local index = guild:GetMemberSortedIndex(true, UnitGUID("player"))
+        if index == false then
+            return;
+        end
+        C_Timer.After(index*0.1, function()
+            self:SendMyCharacterData(senderGUID)
+        end)
+        return;
+    end
+
+    if commType == "CHARACTER_DATA" then
+        character:SetData(data.payload)
+        return;
+    end
+
     if commType == "TRADESKILL_WORK_ORDER_ADD" then
         self:TradeskillListviewItem_OnAddToWorkOrder(data.payload, character, guild:GetName())
+        SendChatMessage(L["TRADESKILL_WORK_ORDER_RESPONSE"], "WHISPER", nil, character:GetName())
         return;
     end
 
@@ -1504,6 +1535,22 @@ function GuildbookMixin:OnCommsMessage(sender, data)
 
 end
 
+
+function GuildbookMixin:SendMyCharacterData(targetGUID)
+    for k, guild in ipairs(self.guilds) do
+        local player = guild:GetPlayerCharacter()
+        if type(player) == "table" then
+            local me = player:GetData()
+            if type(me) == "table" then
+                local msg = {
+                    type = "CHARACTER_DATA",
+                    payload = me,
+                }
+                Comms:QueueMessage("CHARACTER_DATA", msg, "WHISPER", targetGUID, "NORMAL")
+            end
+        end
+    end
+end
 
 function GuildbookMixin:UpdateMembersList()
 
@@ -1866,16 +1913,16 @@ function GuildbookMixin:SayHello()
                 end
             end
 
-
-            local profile = player:GetProfile();
-            if profile then
+            local me = player:GetData()
+            if type(me) == "table" then
                 local msg = {
-                    type = "CHARACTER_PROFILE",
-                    payload = profile,
+                    type = "HELLO_GUILD",
+                    payload = me,
                 }
-                Comms:QueueMessage("CHARACTER_PROFILE", msg, "GUILD", nil, "NORMAL")
-                self:SetStatusText("saying hello!")
+                Comms:QueueMessage("HELLO_GUILD", msg, "GUILD", nil, "NORMAL")
+                self:SetStatusText(L["COMMS_S"]:format(msg.type))
             end
+
         end
     end
 end
@@ -2413,15 +2460,18 @@ function GuildbookMixin:TradeskillCrafter_SendWorkOrder(character, amount)
     if self.guild.tradeskills.recipeCrafters.selectedItem then
 
         local targetGuid = character:GetGuid()
+        if type(targetGuid) == "string" and targetGuid:find("Player-") then
 
-        local msg = {
-            type = "TRADESKILL_WORK_ORDER_ADD",
-            payload = {
-                item = self.guild.tradeskills.recipeCrafters.selectedItem,
-                quantity = amount,
-            },
-        }
-        Comms:SendChatMessage(msg, "WHISPER", targetGuid, "NORMAL") --leave this as direct so the crafter is aware of request
+            local msg = {
+                type = "TRADESKILL_WORK_ORDER_ADD",
+                payload = {
+                    item = self.guild.tradeskills.recipeCrafters.selectedItem,
+                    quantity = amount,
+                },
+            }
+            Comms:SendChatMessage(msg, "WHISPER", targetGuid, "NORMAL") --leave this as direct so the crafter is aware of request
+            self:SetStatusText(L["COMMS_S"]:format(msg.type))
+        end
     end
 end
 
@@ -2448,6 +2498,10 @@ end
 
 
 function GuildbookMixin:OnPlayerSkillsScanned(secondarySkills, primarySkills)
+
+    if (GetTime() - LOAD_TIME) < COMMS_LOGIN_DELAY then
+        return
+    end
     
     local msg = {
         type = "CHARACTER_SKILLS",
@@ -2457,11 +2511,16 @@ function GuildbookMixin:OnPlayerSkillsScanned(secondarySkills, primarySkills)
         }
     }
     Comms:QueueMessage(msg.type, msg, "GUILD", nil, "NORMAL")
+    self:SetStatusText(L["COMMS_S"]:format(msg.type))
 end
 
 
 
 function GuildbookMixin:OnPlayerTradeskillRecipesScanned(tradeskill, level, recipes)
+
+    if (GetTime() - LOAD_TIME) < COMMS_LOGIN_DELAY then
+        return
+    end
 
     if #recipes < 1 then
         return
@@ -2475,8 +2534,8 @@ function GuildbookMixin:OnPlayerTradeskillRecipesScanned(tradeskill, level, reci
             recipes = recipes,
         }
     }
-    --Comms:SendChatMessage(msg, "GUILD", nil, "NORMAL")
     Comms:QueueMessage(msg.type, msg, "GUILD", nil, "NORMAL")
+    self:SetStatusText(L["COMMS_S"]:format(msg.type))
 end
 
 
@@ -2636,6 +2695,10 @@ end
 
 function GuildbookMixin:OnPlayerEquipmentChanged(equipment)
 
+    if (GetTime() - LOAD_TIME) < COMMS_LOGIN_DELAY then
+        return
+    end
+
     self:SetStatusText("scanned player equipment sets")
 
     local msg = {
@@ -2643,8 +2706,8 @@ function GuildbookMixin:OnPlayerEquipmentChanged(equipment)
         payload = equipment,
     }
 
-    --Comms:SendChatMessage(msg, "GUILD", nil, "NORMAL")
     Comms:QueueMessage(msg.type, msg, "GUILD", nil, "NORMAL")
+    self:SetStatusText(L["COMMS_S"]:format(msg.type))
 end
 
 
@@ -2652,6 +2715,10 @@ end
 
 
 function GuildbookMixin:OnPlayerStatsChanged(name, stats)
+
+    if (GetTime() - LOAD_TIME) < COMMS_LOGIN_DELAY then
+        return
+    end
 
     self:SetStatusText("scanned player stats")
     
@@ -2663,12 +2730,16 @@ function GuildbookMixin:OnPlayerStatsChanged(name, stats)
         }
     }
     
-    --Comms:SendChatMessage(msg, "GUILD", nil, "NORMAL")
     Comms:QueueMessage(msg.type, msg, "GUILD", nil, "NORMAL")
+    self:SetStatusText(L["COMMS_S"]:format(msg.type))
 end
 
 
 function GuildbookMixin:OnPlayerTalentSpecChanged(spec, talents, glyphs)
+
+    if (GetTime() - LOAD_TIME) < COMMS_LOGIN_DELAY then
+        return
+    end
 
     self:SetStatusText(string.format("scanned player talents and glyphs for %s spec", spec))
 
@@ -2680,8 +2751,8 @@ function GuildbookMixin:OnPlayerTalentSpecChanged(spec, talents, glyphs)
             glyphs = glyphs,
         },
     }
-    --Comms:SendChatMessage(msg, "GUILD", nil, "NORMAL")
     Comms:QueueMessage(msg.type, msg, "GUILD", nil, "NORMAL")
+    self:SetStatusText(L["COMMS_S"]:format(msg.type))
 end
 
 
@@ -2825,6 +2896,17 @@ function GuildbookMixin:RosterListviewItem_OnMouseDown(character)
         return
     else
         --addon.DEBUG("func", "RosterListviewItem_OnMouseDown", "character object is a table", character)
+    end
+
+    local characterGUID = character:GetGuid()
+    local onlineStatus = character:GetOnlineStatus()
+    if type(characterGUID) == "string" and characterGUID:find("Player-") and onlineStatus.isOnline == true then
+        local msg = {
+            type = "CHARACTER_DATA_REQUEST",
+            --payload = {},
+        }
+        Comms:SendChatMessage(msg, "WHISPER", characterGUID, "NORMAL")
+        self:SetStatusText(L["COMMS_S"]:format(msg.type))
     end
 
     self:OpenTo("character")

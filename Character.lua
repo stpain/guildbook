@@ -479,6 +479,8 @@ end
 
 function Character:CreateFromData(guid, data)
 
+
+    --this is here to update from the older string keys for professions
     local prof1Recipes = nil;
     if type(data.Profession1) == "string" then
 
@@ -494,7 +496,6 @@ function Character:CreateFromData(guid, data)
         data.Profession1 = tradeskillID;
 
     end
-
     local prof2Recipes= nil;
     if type(data.Profession2) == "string" then
 
@@ -509,7 +510,7 @@ function Character:CreateFromData(guid, data)
         local tradeskillID = Tradeskills:GetTradeskillIDFromEnglishName(data.Profession2)
         data.Profession2 = tradeskillID;
     end
-
+    --end
 
 
     --DevTools_Dump({data})
@@ -562,22 +563,8 @@ end
 
 function Character:SetData(data)
 
-    -- local prof1 = data.Profession1;
-    -- local prof2 = data.Profession2;
-
-    -- if type(prof1) == "string" then
-    --     prof1 = Tradeskills:GetTradeskillIDFromEnglishName(prof1)
-    -- end
-    -- if type(prof2) == "string" then
-    --     prof1 = Tradeskills:GetTradeskillIDFromEnglishName(prof2)
-    -- end
-
-    -- if data.Name == "Silvessa" then
-    --     print(prof1, prof2)
-    --     DevTools_Dump({data[prof1]})
-    -- end
-
     self.data = {
+        guid = data.Guid,
         name = data.Name,
         class = data.Class,
         gender = data.Gender,
@@ -620,6 +607,7 @@ end
 
 function Character:GetData()
     local data = {
+        Guid = self.data.guid,
         Name = self.data.name,
         Class = self.data.class,
         Gender = self.data.gender,
