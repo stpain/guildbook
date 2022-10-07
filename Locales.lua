@@ -83,6 +83,13 @@ L["DIALOG_ADD_MAIN_CHARACTER"] = "Enter your characters name...."
 L["DIALOG_FOUND_MAIN_CHAR_SSS"] = "Found %s level %s %s"
 
 
+--comms
+L["COMMS_QUEUE_TOOLTIP_REMAINING"] = "Time to dispatch:"
+L["COMMS_QUEUE_TOOLTIP_CHANNEL"] = "Channel:"
+L["COMMS_QUEUE_TOOLTIP_TARGET"] = "Sending to:"
+L["COMMS_QUEUE_TOOLTIP_TYPE"] = ""
+
+
 --guild home
 L["GUILDS_LIST_HEADER"] = "Guilds"
 L["GUILD_HOME_LABEL"] = "Home"

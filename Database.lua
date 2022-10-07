@@ -43,6 +43,9 @@ Database.keys = {
         shareTalentsMinRank = "",
         shareProfileMinRank = "",
     },
+    tradeskill = {
+        missingRecipes = {},
+    }
 };
 
 Database.keysToRemove = {
@@ -161,6 +164,16 @@ function Database:Init()
         GUILDBOOK_GLOBAL.myCharacters = {}
     end
     GUILDBOOK_GLOBAL.myCharacters[UnitGUID("player")] = false;
+
+
+    if not GUILDBOOK_TRADESKILLS then
+        GUILDBOOK_TRADESKILLS = {}
+        for k, v in pairs(self.keys.tradeskill) do
+            if GUILDBOOK_TRADESKILLS[k] == nil then
+                GUILDBOOK_TRADESKILLS[k] = v;
+            end
+        end
+    end
 
     addon:TriggerEvent("OnDatabaseInitialised")
 end

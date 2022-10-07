@@ -108,6 +108,7 @@ addon:GenerateCallbackEvents({
     "OnPlayerBagsUpdated",
     "OnPlayerTradeskillRecipesScanned",
     "OnPlayerTradeskillRecipesLinked",
+    "OnPlayerTradeskillUnlearned",
 	"OnPlayerSkillsScanned",
     "OnPlayerTalentSpecChanged",
     "OnPlayerEquipmentChanged",
@@ -558,6 +559,19 @@ function addon:ScanSkills()
 end
 
 
+function addon:debug(...)
+    local data = ...;
+    if (data) then
+        if (type(data) == "table") then
+            UIParentLoadAddOn("Blizzard_DebugTools");
+            --DevTools_Dump(data);
+            DisplayTableInspectorWindow(data);
+        else
+            print("GuildBook Debug:", ...);
+        end
+    end
+
+
 function addon:ADDON_LOADED(...)
 
     if ... == addonName then
@@ -740,15 +754,56 @@ function addon:SKILL_LINES_CHANGED(...)
     self:ScanSkills()
 end
 
+function addon:CONSOLE_MESSAGE(...)
+
+	local msg, _ = ...;
+
+	local _, tradeskillID, _, _, oldRank, _, newRank = strsplit(" ", msg)
+
+    if tonumber(tradeskillID) and tonumber(oldRank) and tonumber(newRank) then
+
+        tradeskillID = tonumber(tradeskillID)
+
+        local x = Tradeskills:IsTradeskill(nil, tradeskillID)
+        if (x == true) and (tonumber(newRank) == 0) then
+            --self:TriggerEvent("OnPlayerTradeskillUnlearned", tradeskillID)
+        end
+
+    end
+
+end
+
+
+function addon:CHAT_MSG_SYSTEM(...)
+
+    local msg = ...;
+
+    local tradeskillUnlearned = ERR_SPELL_UNLEARNED_S:gsub("%%s", ".*")
+    if msg:find(tradeskillUnlearned) then
+        local _, _, _, localeProf = strsplit(" ", msg)
+
+        local x = Tradeskills:IsTradeskill(localeProf)
+        if x == true then
+            local tradeskillID = Tradeskills:GetTradeskillIDFromLocale(localeProf)
+            if type(tradeskillID) == "number" then
+                self:TriggerEvent("OnPlayerTradeskillUnlearned", tradeskillID)
+            end
+        end
+    end
+
+end
+
 addon.e = CreateFrame("Frame");
 addon.e:RegisterEvent("ADDON_LOADED");
 addon.e:RegisterEvent("PLAYER_ENTERING_WORLD");
+--addon.e:RegisterEvent("CONSOLE_MESSAGE");
 addon.e:RegisterEvent("TRADE_SKILL_UPDATE")
 addon.e:RegisterEvent("CRAFT_UPDATE")
 addon.e:RegisterEvent("SKILL_LINES_CHANGED")
 addon.e:RegisterEvent("CHARACTER_POINTS_CHANGED")
 addon.e:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
 addon.e:RegisterEvent("CHAT_MSG_SKILL")
+addon.e:RegisterEvent("CHAT_MSG_SYSTEM")
 addon.e:RegisterEvent("GUILD_ROSTER_UPDATE")
 addon.e:RegisterEvent("CHAT_MSG_SYSTEM")
 addon.e:RegisterEvent("CHAT_MSG_GUILD")

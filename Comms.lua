@@ -73,7 +73,9 @@ function Comms.DispatcherOnUpdate(self, elapsed)
         end
     end
 
-    if GuildbookInterface:IsVisible() then
+    if #Comms.queue == 1 then
+        GuildbookInterface.statusText:SetText(string.format("[%s] message in queue", #Comms.queue))
+    else
         GuildbookInterface.statusText:SetText(string.format("[%s] messages in queue", #Comms.queue))
     end
 end
@@ -95,13 +97,14 @@ function Comms:QueueMessage(event, message, channel, target, priority)
     for k, info in ipairs(self.queue) do
         if info.event == event then
             exists = true;
-            info = {
-                event = event,
-                message = message,
-                channel = channel,
-                target = target,
-                priority = priority,
-            }
+            -- info = {
+            --     event = event,
+            --     message = message,
+            --     channel = channel,
+            --     target = target,
+            --     priority = priority,
+            -- }
+            info.message = message
             --addon.DEBUG("commsMixin", "Comms:QueueMessage", string.format("updated package data for %s", event), message)
         end
     end

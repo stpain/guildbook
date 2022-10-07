@@ -190,6 +190,13 @@
                 <NormalTexture atlas="glueannouncementpopup-icon-info"/>
             </Button>
 
+            <Frame parentKey="statusPanel">
+                <Size x="300" y="20"/>
+                <Anchors>
+                    <Anchor point="TOPRIGHT" x="-44" y="-2"/>
+                </Anchors>
+            </Frame>
+
             <Button parentKey="openMenu">
                 <Size x="24" y="24"/>
                 <Anchors>

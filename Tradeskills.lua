@@ -78322,6 +78322,22 @@ end
 
 
 
+function Tradeskills:FetchMissingItemData(itemID, isEnchant)
+
+	if isEnchant then
+
+	else
+
+		local item = Item:CreateFromItemID(itemID)
+		if not item:IsEmptyItem() then
+			item:ContinueOnItemLoad(function()
+			
+			end)
+		end
+	end
+
+end
+
 
 
 addon.Tradeskills = Tradeskills;

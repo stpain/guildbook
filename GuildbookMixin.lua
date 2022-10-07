@@ -422,6 +422,7 @@ function GuildbookMixin:OnLoad()
     addon:RegisterCallback("OnPlayerBagsUpdated", self.OnPlayerBagsUpdated, self)
     addon:RegisterCallback("OnPlayerSkillsScanned", self.OnPlayerSkillsScanned, self)
     addon:RegisterCallback("OnPlayerTradeskillRecipesScanned", self.OnPlayerTradeskillRecipesScanned, self)
+    addon:RegisterCallback("OnPlayerTradeskillUnlearned", self.OnPlayerTradeskillUnlearned, self)
     addon:RegisterCallback("OnPlayerTradeskillRecipesLinked", self.OnPlayerTradeskillRecipesLinked, self)
     addon:RegisterCallback("OnPlayerEquipmentChanged", self.OnPlayerEquipmentChanged, self)
     addon:RegisterCallback("OnPlayerStatsChanged", self.OnPlayerStatsChanged, self)
@@ -432,6 +433,40 @@ function GuildbookMixin:OnLoad()
     addon:RegisterCallback("TradeskillListviewItem_RemoveFromWorkOrder", self.TradeskillListviewItem_RemoveFromWorkOrder, self)
     addon:RegisterCallback("TradeskillCrafter_SendWorkOrder", self.TradeskillCrafter_SendWorkOrder, self)
     addon:RegisterCallback("RosterListviewItem_OnMouseDown", self.RosterListviewItem_OnMouseDown, self)
+
+    self.statusPanel.UpdateTooltip = function()
+        if Comms.queue and (#Comms.queue > 0) then
+            GameTooltip:SetOwner(self.statusPanel, "ANCHOR_TOP")
+            GameTooltip:AddLine("Queued")
+
+            for k, msg in ipairs(Comms.queue) do
+
+                GameTooltip:AddLine(" ")
+                GameTooltip:AddLine(msg.event)
+                GameTooltip:AddDoubleLine(L["COMMS_QUEUE_TOOLTIP_REMAINING"], (msg.dispatchTime - time()), 1,1,1, 1,1,1)
+                GameTooltip:AddDoubleLine(L["COMMS_QUEUE_TOOLTIP_CHANNEL"], msg.channel, 1,1,1, 1,1,1)
+
+                if msg.channel == "WHISPER" then
+                    GameTooltip:AddDoubleLine(L["COMMS_QUEUE_TOOLTIP_TARGET"], msg.target, 1,1,1, 1,1,1)
+                end
+
+            end
+
+            GameTooltip:Show()
+
+        else
+            GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+        end
+    end
+
+    self.statusPanel:SetScript("OnEnter", function()
+
+        self.statusPanel.UpdateTooltip()
+
+    end)
+    self.statusPanel:SetScript("OnLeave", function()
+        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+    end)
 
 
     --set the size for the settings scroll frame
@@ -1493,6 +1528,24 @@ function GuildbookMixin:OnCommsMessage(sender, data)
         return;
     end
 
+    if commType == "TRADESKILL_UNLEARNED" then
+        if character:GetTradeskill(1) == data.payload then
+            character:SetTradeskill(1, "-")
+            character:SetTradeskillLevel(1, 0)
+            character:SetTradeskillSpec(1, 0)
+            character:SetTradeskillRecipes(1, {})
+
+        else
+            if character:GetTradeskill(2) == data.payload then
+                character:SetTradeskill(2, "-")
+                character:SetTradeskillLevel(2, 0)
+                character:SetTradeskillSpec(2, 0)
+                character:SetTradeskillRecipes(2, {})
+            end
+        end
+        return;
+    end
+
     if commType == "TRADESKILL_RECIPES" then
         self:HandleTradeskillUpdate(senderGUID, data.payload.tradeskill, data.payload.level, data.payload.recipes)
         return;
@@ -2515,6 +2568,21 @@ function GuildbookMixin:OnPlayerSkillsScanned(secondarySkills, primarySkills)
 end
 
 
+function GuildbookMixin:OnPlayerTradeskillUnlearned(tradeskillID)
+
+    if (GetTime() - LOAD_TIME) < COMMS_LOGIN_DELAY then
+        return
+    end
+
+    local msg = {
+        type = "TRADESKILL_UNLEARNED",
+        payload = tradeskillID,
+    }
+    Comms:QueueMessage(msg.type, msg, "GUILD", nil, "NORMAL")
+    self:SetStatusText(L["COMMS_S"]:format(msg.type))
+
+end
+
 
 function GuildbookMixin:OnPlayerTradeskillRecipesScanned(tradeskill, level, recipes)
 
@@ -2574,13 +2642,9 @@ function GuildbookMixin:HandleCharacterSkillsUpdate(guid, data)
                 if character:GetTradeskill(1) == tradeskill then
                     character:SetTradeskillLevel(1, level)
 
-                    --addon.DEBUG("func", "HandleCharacterSkillsUpdate", string.format("prof 1 is known > set prof 1 at level %s", level))
-
                 else
                     if character:GetTradeskill(2) == tradeskill then
                         character:SetTradeskillLevel(2, level)
-
-                        --addon.DEBUG("func", "HandleCharacterSkillsUpdate", string.format("prof 2 is known > set prof 2 at level %s", level))
                     end
                 end
 
@@ -2589,14 +2653,10 @@ function GuildbookMixin:HandleCharacterSkillsUpdate(guid, data)
                     character:SetTradeskill(1, tradeskill)
                     character:SetTradeskillLevel(1, level)
 
-                    --addon.DEBUG("func", "HandleCharacterSkillsUpdate", string.format("prof 1 is NEW > set prof 1 as %s at level %s", tradeskill, level))
-
                 else
                     if (character:GetTradeskill(1) ~= tradeskill) and type(character:GetTradeskill(2)) ~= "number" then
                         character:SetTradeskill(2, tradeskill)
                         character:SetTradeskillLevel(2, level)
-
-                        --addon.DEBUG("func", "HandleCharacterSkillsUpdate", string.format("prof 2 is NEW > set prof 2 as %s at level %s", tradeskill, level))
                     end
                 end
 
@@ -2609,8 +2669,6 @@ end
 
 function GuildbookMixin:HandleTradeskillUpdate(guid, tradeskill, level, recipes)
 
-    --addon.DEBUG("func", "HandleTradeskillUpdate", string.format("prof %s level %s", tradeskill, level))
-
     for k, guild in ipairs(self.guilds) do
         local character = guild:GetCharacter(guid)
         if type(character) == "table" then
@@ -2620,12 +2678,6 @@ function GuildbookMixin:HandleTradeskillUpdate(guid, tradeskill, level, recipes)
             if prof then
 
                 self:SetStatusText(string.format("%s sent %s recipes", character:GetName(), prof))
-
-                --addon.DEBUG("func", "HandleTradeskillUpdate", string.format("found character %s seting %s", character:GetName(), tradeskill))
-
-                --addon.DEBUG("func", "OnPlayerTradeskillRecipesScanned", "found character table")
-
-                --DevTools_Dump({character})
 
                 -- add in here to cover secondary skills
                 if tradeskill == 185 then --cooking
@@ -2642,43 +2694,34 @@ function GuildbookMixin:HandleTradeskillUpdate(guid, tradeskill, level, recipes)
                     return;
                 end
 
+                local prof1 = character:GetTradeskill(1)
+                local prof2 = character:GetTradeskill(2)
+
                 --check if the character has this tradeksill and update
-                if character:GetTradeskill(1) == tradeskill then
+                if prof1 == tradeskill then
                     character:SetTradeskillLevel(1, level)
                     character:SetTradeskillRecipes(1, recipes)
 
-                    -- print(string.format("prof 1 is known > set prof 1 at level %s", level))
-                    -- DevTools_Dump({recipes})
-
-                    --addon.DEBUG("func", "OnPlayerTradeskillRecipesScanned", string.format("prof 1 is known > set prof 1 at level %s", level))
 
                 else
-                    if character:GetTradeskill(2) == tradeskill then
+                    if prof2 == tradeskill then
                         character:SetTradeskillLevel(2, level)
                         character:SetTradeskillRecipes(2, recipes)
 
-                        -- print(string.format("prof 2 is known > set prof 2 at level %s", level))
-                        -- DevTools_Dump({recipes})
-
-                        --addon.DEBUG("func", "OnPlayerTradeskillRecipesScanned", string.format("prof 2 is known > set prof 2 at level %s", level))
                     end
                 end
 
                 --if the character has no tradeskills set then update
-                if type(character:GetTradeskill(1)) ~= "number" then
+                if type(prof1) ~= "number" then
                     character:SetTradeskill(1, tradeskill)
                     character:SetTradeskillLevel(1, level)
                     character:SetTradeskillRecipes(1, recipes)
 
-                    --addon.DEBUG("func", "OnPlayerTradeskillRecipesScanned", string.format("prof 1 is NEW > set prof 1 as %s at level %s", tradeskill, level))
-
                 else
-                    if (character:GetTradeskill(1) ~= tradeskill) and type(character:GetTradeskill(2)) ~= "number" then
+                    if (prof1 ~= tradeskill) and type(prof2) ~= "number" then
                         character:SetTradeskill(2, tradeskill)
                         character:SetTradeskillLevel(2, level)
                         character:SetTradeskillRecipes(2, recipes)
-
-                        --addon.DEBUG("func", "OnPlayerTradeskillRecipesScanned", string.format("prof 2 is NEW > set prof 2 as %s at level %s", tradeskill, level))
                     end
                 end
 
