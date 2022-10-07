@@ -570,6 +570,7 @@ function addon:debug(...)
             print("GuildBook Debug:", ...);
         end
     end
+end
 
 
 function addon:ADDON_LOADED(...)
