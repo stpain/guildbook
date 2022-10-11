@@ -115,6 +115,8 @@ end
 --scan the guild roster to get member data
 function Guild:ScanGuildRoster()
 
+    local guids = {}
+
     --addon.DEBUG("func", "Guild:ScanGuildRoster", "scanning current guild roster")
 
     --lets make sure we only update the current guild data
@@ -123,6 +125,8 @@ function Guild:ScanGuildRoster()
         for i = 1, numTotalGuildMembers do
             local nameRealm, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, guid = GetGuildRosterInfo(i)
             if guid and guid:find("Player-") then
+
+                guids[guid] = true
 
                 local name = Ambiguate(nameRealm, "none")
                 local _, _, _, race, gender, _, _ = GetPlayerInfoByGUID(guid)
@@ -175,6 +179,14 @@ function Guild:ScanGuildRoster()
         --might be better to update all at this point as we scanned the whole roster
         self:UpdateSavedVariables()
 
+        local cache = Database:GetGuildRosterCache(self.data.name)
+        for guid, info in pairs(cache) do
+            if not guids[guid] then
+                Database:RemoveCharacter(self.data.name, guid)
+                self.data.members[guid] = nil;
+            end
+        end
+
     else
         
     end
@@ -187,6 +199,8 @@ function Guild:LoadCharactersFromSavedVars()
     if not self.data.name then
         return;
     end
+
+    self.data.members = {};
 
     --addon.DEBUG("func", "Guild:LoadCharactersFromSavedVars", string.format("loading character data from saved vars for %s", self.data.name))
 

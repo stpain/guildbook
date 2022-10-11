@@ -185,6 +185,11 @@ function Database:GuildExists(guildName)
     return false;
 end
 
+function Database:RemoveCharacter(guildName, guid)
+    if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[guildName] and GUILDBOOK_GLOBAL.GuildRosterCache[guildName][guid] then
+        GUILDBOOK_GLOBAL.GuildRosterCache[guildName][guid] = nil;
+    end
+end
 
 function Database:RemoveGuild(guildName)
     if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache[guildName] then
