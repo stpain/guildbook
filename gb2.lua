@@ -584,9 +584,9 @@ function addon:ADDON_LOADED(...)
 
 	end
 
-	if ... == "ViragDevTool" then
-		ViragDevTool:AddData(GUILDBOOK_GLOBAL, "GUILDBOOK_GLOBAL")
-	end
+	-- if ... == "ViragDevTool" then
+	-- 	ViragDevTool:AddData(GUILDBOOK_GLOBAL, "GUILDBOOK_GLOBAL")
+	-- end
 
 	self:RegisterCallback("Character_OnDataChanged", self.ScanPlayerCharacter, self)
 
