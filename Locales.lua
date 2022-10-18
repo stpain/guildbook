@@ -990,6 +990,11 @@ if locale == "deDE" then
 	L["CHAR_PROFILE_TALENTS_HEADER"] = "Talente"
 	L["CHEST"] = "Brust"
 	L["Combat"] = "Kampf"
+	L["COMMS_QUEUE_TOOLTIP_CHANNEL"] = "Channel:"
+	L["COMMS_QUEUE_TOOLTIP_REMAINING"] = "Zeit bis zum Absenden: "
+	L["COMMS_QUEUE_TOOLTIP_TARGET"] = "Sendet zu: "
+	--[[Translation missing --]]
+	--[[ L["COMMS_QUEUE_TOOLTIP_TYPE"] = ""--]] 
 	L["DAYS"] = "Tage"
 	L["Defence"] = "Verteidigung"
 	L["Demonology"] = "Dämonologie"
@@ -1673,6 +1678,11 @@ L["DIALOG_REMOVE_GUILD_DATA"] = "Supprimer guilde ?"
 L["DIALOG_ADD_MAIN_CHARACTER"] = "Entrez nom du personnage...."
 L["DIALOG_FOUND_MAIN_CHAR_SSS"] = "Trouvé: %s %s niveau %s"
 
+--comms
+L["COMMS_QUEUE_TOOLTIP_REMAINING"] = "Délai d'envoi:"
+L["COMMS_QUEUE_TOOLTIP_CHANNEL"] = "Chan:"
+L["COMMS_QUEUE_TOOLTIP_TARGET"] = "Envoi vers:"
+L["COMMS_QUEUE_TOOLTIP_TYPE"] = ""
 
 --guild home
 L["GUILDS_LIST_HEADER"] = "Guildes"
