@@ -1672,6 +1672,9 @@ MàJ 5.54
 
 ]]
 
+L["COMMS_S"] = "Envoyé %s"
+L["COMMS_SS"] = "Envoyé %s to %s"
+
 --dialog
 L["RESET_GUILD_DATA"] = "Réinitialiser données de guildes ?"
 L["DIALOG_REMOVE_GUILD_DATA"] = "Supprimer guilde ?"
@@ -1705,6 +1708,7 @@ L["TRADESKILL_RECIPE_INFO_HELPTIP"] = "Si vous avez Auctionator installé, le co
 L["TRADESKILL_WORK_ORDER_HELPTIP"] = "Les commandes sont les requêtes d'objets à fabriquer.\n\nLes membres de la guilde peuvent vous envoyez des commandes pour des objets qu'ils voudraient fabriquer, vous pouvez aussi ajouter vous-même des objets pour une créer une liste de matériaux.\n\nUne fois que vous avez fabriqué le ou les objet(s), vous pouvez notifier le membre de la guilde que c'est prêt."
 L["TRADESKILL_WORK_ORDER_HEADER"] = "Commandes:"
 L["TRADESKILL_WORK_ORDER_RECIPE_INFO_HEADER"] = "Matériaux requis:"
+L["TRADESKILL_WORK_ORDER_RESPONSE"] = "Commande reçue!"
 
 L["TRADESKILL_WORK_ORDER_CLICK_CAST"] = "Cliquer pour fabriquer."
 L["TRADESKILL_WORK_ORDER_ADD_TOOLTIP"] = "Ajouter à vos propres commandes pour voir la liste du total de matériaux requis."
@@ -1800,11 +1804,12 @@ L["CHAR_PROFILE_TALENTS_DROPDOWN_SPEC2"] = "Secondaire"
 
 --settings ui
 L["SETTINGS_HEADER"] = "Paramètres"
-L["SETTINGS_EXPORT_IMPORT_LABEL"] = "Vous pouvez importez ou exportez les données de la guilde ici.\n\n*Cliquez sur Exporter pour générer une (|cffFFD100très|r) grosse chaîne de caractère qui peut être partagée via différentes plateformes de chat.\n\n*Coller (Ctrl+V) une chaîne de caractères et cliquer sur Importer si votre guilde utilise cette option."
+L["SETTINGS_GENERAL_LABEL"] = "Général"
 L["SETTINGS_THEME_LABEL"] = "Thème"
 L["SETTINGS_DATASYNC_LABEL"] = "Synchronisation de données"
 L["SETTINGS_TOOLTIP_LABEL"] = "Info-bulle (Tooltip)"
 
+L["SETTINGS_EXPORT_IMPORT_LABEL"] = "Vous pouvez importez ou exportez les données de la guilde ici.\n\n*Cliquez sur Exporter pour générer une (|cffFFD100très|r) grosse chaîne de caractère qui peut être partagée via différentes plateformes de chat.\n\n*Coller (Ctrl+V) une chaîne de caractères et cliquer sur Importer si votre guilde utilise cette option."
 L["SETTINGS_SHOW_MINIMAP_BUTTON_LABEL"] = "Afficher bouton de la minicarte"
 L["SETTINGS_SHOW_MINIMAP_BUTTON_TOOLTIP"] = "Active ou désactive le bouton de la minicarte"
 
@@ -1831,6 +1836,11 @@ L["SETTINGS_MOD_BLIZZ_ROSTER_TOOLTIP"] = "Étend la fenêtre de guilde de Blizza
 
 L["SETTINGS_SHOW_CHAT_MESSAGES"] = "Afficher les messages systèmes dans le chat"
 L["SETTINGS_SHOW_CHAT_MESSAGES_TOOLTIP"] = "ATTENTION\n\nCela peut générer beaucoup de messages!"
+
+L["SETTINGS_THEME_NEW"] = "Nouveau"
+L["SETTINGS_THEME_DELETE"] = "Supprimer"
+L["SETTINGS_THEME_EDITOR_CONFIRM_LABEL"] = "Confirmer"
+L["SETTINGS_THEME_EDITOR_CANCEL_LABEL"] = "Annuler"
 
 --profile
 L["PROFILE_HEADER"] = "Profil"
