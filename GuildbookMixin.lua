@@ -1016,7 +1016,7 @@ function GuildbookMixin:OnLoad()
 
                 local localeData = Tradeskills:GetLocaleData(item)
 
-                if localeData.name:lower():find(eb:GetText():lower()) then
+                if localeData.name:lower():find(eb:GetText():lower(), 0, ".") then
                     table.insert(t, item)
                 end
             end
