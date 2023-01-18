@@ -2534,14 +2534,16 @@ end
 function GuildbookMixin:OnPlayerBagsUpdated()
     self.playerContainers = {};
     for bag = 0, 4 do
-        for slot = 0, GetContainerNumSlots(bag) do
-            local itemID = GetContainerItemID(bag, slot)
+        for slot = 0, C_Container.GetContainerNumSlots(bag) do
+            local itemID = C_Container.GetContainerItemID(bag, slot)
             if itemID then
-                local icon, count = GetContainerItemInfo(bag, slot)
-                if not self.playerContainers[itemID] then
-                    self.playerContainers[itemID] = count;
-                else
-                    self.playerContainers[itemID] = self.playerContainers[itemID] + count;
+                local slotInfo = C_Container.GetContainerItemInfo(bag, slot)
+                if slotInfo then
+                    if not self.playerContainers[itemID] then
+                        self.playerContainers[itemID] = slotInfo.stackCount;
+                    else
+                        self.playerContainers[itemID] = self.playerContainers[itemID] + slotInfo.stackCount;
+                    end
                 end
             end
         end
