@@ -734,12 +734,12 @@ Tradeskills.TradeskillIDsToLocaleName = {
 	-- discovered this locale exists also maybe esAL ?
 	esES = {
         [164] = "Herrería",
-        [165] = "Peletería",
+        [165] = {"Peletería", "Marroquinería"},
         [171] = "Alquimia",
         [182] = "Herboristería",
         [185] = "Cocina",
         [186] = "Minería",
-        [197] = "Sastrería",
+        [197] = {"Sastrería", "Costura"},
         [202] = "Ingeniería",
         [333] = "Encantamiento",
         [356] = "Pesca",
@@ -829,13 +829,38 @@ Tradeskills.TradeskillIDsToLocaleName = {
 		[129] = "응급치료",
 	},
 }
+
+-- Invert the table so we can look up the ID by name(s)
+function tInvert(t)
+    local s = {}
+    for k, v in pairs(t) do
+        if type(v) == "table" then
+            for i, value in ipairs(v) do
+                s[value] = k
+            end
+        else
+            s[v] = k
+        end
+    end
+    return s
+end
+
 Tradeskills.TradeskillLocaleNameToID = tInvert(Tradeskills.TradeskillIDsToLocaleName[Tradeskills.CurrentLocale])
 
+-- returns true if the tradeskill is a valid tradeskill
 function Tradeskills:IsTradeskill(tradeskillName, tradeskillID)
     if type(tradeskillName) == "string" then
         for id, name in pairs(self.TradeskillIDsToLocaleName[GetLocale()]) do
-            if name == tradeskillName then
-                return true;
+            if type(name) == "table" then
+                for i, value in ipairs(name) do
+                    if value == tradeskillName then
+                        return true
+                    end
+                end
+            else
+                if name == tradeskillName then
+                    return true
+                end
             end
         end
     else
@@ -1727,7 +1752,6 @@ function Character:ScanTradeskillRecipes()
 
     --check everything is all good
     if type(localeProf) == "string" and type(currentLevel) == "number" and type(maxLevel) == "number" then
-
         englishProf = Tradeskills:GetEnglishNameFromTradeskillName(localeProf)
         if englishProf == false then
             Guildbook.DEBUG("characterMixin", "Character:ScanTradeskillRecipes", "englishProf not known")
