@@ -717,12 +717,12 @@ Tradeskills.TradeskillIDsToLocaleName = {
 	},
 	esMX = {
 		[164] = "Herrería",
-		[165] = "Peletería",
+        [165] = {"Peletería", "Marroquinería"},
 		[171] = "Alquimia",
-		[182] = "Herboristería",
+        [182] = {"Herboristería", "Botánica"},
 		[185] = "Cocina",
 		[186] = "Minería",
-		[197] = "Sastrería",
+        [197] = {"Sastrería", "Costura"},
 		[202] = "Ingeniería",
 		[333] = "Encantamiento",
 		[356] = "Pesca",
@@ -731,12 +731,12 @@ Tradeskills.TradeskillIDsToLocaleName = {
 		[773] = "Inscripción",
 		[129] = "Primeros auxilios",
 	},
-	-- discovered this locale exists also maybe esAL ?
-	esES = {
+    -- discovered this locale exists also maybe esAL ?
+    esES = {
         [164] = "Herrería",
         [165] = {"Peletería", "Marroquinería"},
         [171] = "Alquimia",
-        [182] = "Herboristería",
+        [182] = {"Herboristería", "Botánica"},
         [185] = "Cocina",
         [186] = "Minería",
         [197] = {"Sastrería", "Costura"},
@@ -746,7 +746,7 @@ Tradeskills.TradeskillIDsToLocaleName = {
         [393] = "Desuello",
         [755] = "Joyería",
         [773] = "Inscripción",
-		[129] = "Primeros auxilios",
+        [129] = "Primeros auxilios",
     },
 	ptBR = {
 		[164] = "Ferraria",
