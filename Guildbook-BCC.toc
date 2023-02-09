@@ -1,10 +1,12 @@
 ## Interface: 20504
 ## Author: Copperbolts (Theboringdad)
-## Version: 4.99411
+## Version: 4.99412
 ## Title: Guildbook
 ## Notes: Guild addon for guild stuff!
 ## Notes-deDE : Gilden-Addon für alles rund um die Gilde!
 ## Notes-frFR : Un addon pour les trucs de guilde !
+## Notes-esES: ¡Addon de hermandad para cosas de hermandad!
+## Notes-esMX: ¡Addon de hermandad para cosas de hermandad!
 ## SavedVariables: GUILDBOOK_GLOBAL
 ## SavedVariablesPerCharacter: GUILDBOOK_CHARACTER
 
