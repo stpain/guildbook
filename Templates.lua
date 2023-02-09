@@ -122,9 +122,17 @@ function GuildbookListviewItemMixin:OnLoad()
     -- self.Text:SetFont([[Interface\Addons\Guildbook\Media\Fonts\Acme-Regular.ttf]], size+4, flags)
 end
 
+-- shows the item in the listview. If the table contains multiple tradeskill names, use the first one
 function GuildbookListviewItemMixin:SetItem(info)
     self.Icon:SetAtlas(info.Atlas)
-    self.Text:SetText(gb.Tradeskills.TradeskillIDsToLocaleName[GetLocale()][info.id])
+    local tradeskillName
+    local tradeskill = gb.Tradeskills.TradeskillIDsToLocaleName[GetLocale()][info.id]
+    if type(tradeskill) == "table" then
+        tradeskillName = tradeskill[1]
+    else
+        tradeskillName = tradeskill
+    end
+    self.Text:SetText(tradeskillName)
 end
 
 function GuildbookListviewItemMixin:OnMouseDown()
