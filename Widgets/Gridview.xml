@@ -1,0 +1,16 @@
+<Ui>
+    <ScrollFrame name = "GuildbookWrathEraWidgetsGridviewTemplate" mixin="GuildbookWrathEraWidgetsGridviewMixin" inherits="UIPanelScrollFrameTemplate" enableMouse="true" virtual="true">
+        <ScrollChild>
+            <Frame parentKey="scrollChild" enableMouse="true">
+                <Anchors>
+                    <Anchor point="LEFT" x="0" y="0"/>
+                    <Anchor point="RIGHT" x="0" y="0"/>
+                </Anchors>
+            </Frame>
+        </ScrollChild>
+
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+        </Scripts>
+    </ScrollFrame>
+</Ui>

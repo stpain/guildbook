@@ -1,0 +1,316 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
+
+    <Frame name="GuildbookUI" mixin="GuildbookMixin" hidden="true" parent="UIParent" inherits="PortraitFrameTemplate" frameStrata="HIGH" enableMouse="true" resizable="true" movable="true">
+        <Size x="920" y="510"/>
+        <Anchors>
+            <Anchor point="CENTER" x="0" y="0"/>
+        </Anchors>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="statusTextBackground">
+                    <Size y="17"/>
+                    <Color r="0" g="0" b="0" a="0.6"/>
+                    <Anchors>
+                        <Anchor point="BOTTOMLEFT" x="1" y="1"/>
+                        <Anchor point="BOTTOMRIGHT" x="-2" y="1"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <FontString parentKey="statusText" inherits="GameFontNormalSmall" justifyH="LEFT" text="load text">
+                    <Size x="700" y="10"/>
+                    <Anchors>
+                        <Anchor point="BOTTOMLEFT" x="5" y="4"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="memoryUsage" inherits="GameFontNormalSmall" justifyH="LEFT" text="mem">
+                    <Size x="180" y="10"/>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT" x="-70" y="-6"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+
+        <Frames>
+            <Button parentKey="portraitButton">
+                <Size x="64" y="64"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="-6" y="8"/>
+                </Anchors>
+                <NormalTexture>
+                </NormalTexture>
+                <HighlightTexture>
+                </HighlightTexture>
+            </Button>
+            <Button parentKey="help">
+                <Size x="18" y="18"/>
+                <Anchors>
+                    <Anchor point="TOPRIGHT" x="-26" y="-2"/>
+                </Anchors>
+                <NormalTexture atlas="glueannouncementpopup-icon-info"/>
+                <HighlightTexture atlas="communities-create-avatar-border-hover"/>
+            </Button>
+            <Button parentKey="settings">
+                <Size x="18" y="18"/>
+                <Anchors>
+                    <Anchor point="RIGHT" relativeKey="$parent.help" relativePoint="LEFT" x="-2" y="0"/>
+                </Anchors>
+                <NormalTexture atlas="OptionsIcon-Brown"/>
+                <HighlightTexture atlas="communities-create-avatar-border-hover"/>
+            </Button>
+        
+            <Button parentKey="resize" inherits="PanelResizeButtonTemplate">
+                <Size x="16" y="16"/>
+                <Anchors>
+                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                </Anchors>
+            </Button>
+
+            <Frame parentKey="ribbon" useParentLevel="true">
+                <Size y="30"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT"  x="0" y="-25"/>
+                    <Anchor point="TOPRIGHT" x="0" y="-25"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND" textureSubLevel="-1">
+                        <Texture setAllPoints="true">
+                            <Color r="0" g="0" b="0" a="0.6"/>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Frames>
+                    <Frame parentKey="viewHistoryBack" inherits = "GuildbookWrathEraSmallHighlightButton" enableMouse="true">
+                        <Size x="30" y="30"/>
+                        <Anchors>
+                            <Anchor point="LEFT" x="60" y="0"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture parentKey="background" setAllPoints="true"/>
+                            </Layer>
+                        </Layers>
+                        <KeyValues>
+                            <KeyValue key="tooltipText" value="RIBBON_VIEW_HISTORY_BACK_TT" type="string"/>
+                        </KeyValues>
+                    </Frame>
+                    <Frame parentKey="guildtree" inherits = "GuildbookWrathEraSmallHighlightButton" hidden="false">
+                        <Anchors>
+                            <Anchor point="LEFT" relativeKey="$parent.viewHistoryBack" relativePoint="RIGHT" x="4" y="0"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture atlas="GarrMission_MissionIcon-Recruit" setAllPoints="true">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="-2" y="2"/>
+                                        <Anchor point="BOTTOMRIGHT" x="2" y="-2"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                        <KeyValues>
+                            <KeyValue key="tooltipText" value="PROFILES" type="string"/>
+                        </KeyValues>
+                    </Frame>
+                    <Frame parentKey="tradeskills" inherits = "GuildbookWrathEraSmallHighlightButton" hidden="false">
+                        <Anchors>
+                            <Anchor point="LEFT" relativeKey="$parent.guildtree" relativePoint="RIGHT" x="4" y="0"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture atlas="Mobile-Blacksmithing" setAllPoints="true"/>
+                            </Layer>
+                        </Layers>
+                        <KeyValues>
+                            <KeyValue key="tooltipText" value="TRADESKILLS" type="string"/>
+                        </KeyValues>
+                    </Frame>
+                    <Frame parentKey="chat" inherits = "GuildbookWrathEraSmallHighlightButton" hidden="false">
+                        <Anchors>
+                            <Anchor point="LEFT" relativeKey="$parent.tradeskills" relativePoint="RIGHT" x="4" y="0"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <!-- <Texture atlas="socialqueuing-icon-group" setAllPoints="true"/> -->
+                                <Texture file="interface/helpframe/reportlagicon-chat" setAllPoints="true">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="-8" y="8"/>
+                                        <Anchor point="BOTTOMRIGHT" x="8" y="-8"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                        <KeyValues>
+                            <KeyValue key="tooltipText" value="CHAT" type="string"/>
+                        </KeyValues>
+                    </Frame>
+                    <Frame parentKey="guildroster" inherits = "GuildbookWrathEraSmallHighlightButton" hidden="false">
+                        <Anchors>
+                            <Anchor point="LEFT" relativeKey="$parent.chat" relativePoint="RIGHT" x="4" y="0"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture atlas="poi-workorders" setAllPoints="true"/>
+                            </Layer>
+                        </Layers>
+                        <KeyValues>
+                            <KeyValue key="tooltipText" value="ROSTER" type="string"/>
+                        </KeyValues>
+                    </Frame>
+                    <!-- <Frame parentKey="calendar" inherits = "GuildbookWrathEraSmallHighlightButton" hidden="false">
+                        <Anchors>
+                            <Anchor point="LEFT" relativeKey="$parent.guildroster" relativePoint="RIGHT" x="4" y="0"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture file="Interface\Addons\Guildbook_WrathEra\Media\CalendarMinimapButton">
+                                    <TexCoords left="0.0" right="0.72" top="0.0" bottom="0.72"/>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                        <KeyValues>
+                            <KeyValue key="tooltipText" value="CALENDAR" type="string"/>
+                        </KeyValues>
+                    </Frame> -->
+                    <Frame parentKey="guildbank" inherits = "GuildbookWrathEraSmallHighlightButton" hidden="false">
+                        <Anchors>
+                            <Anchor point="LEFT" relativeKey="$parent.guildroster" relativePoint="RIGHT" x="4" y="0"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture atlas="ShipMissionIcon-Treasure-Map">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="-4" y="4"/>
+                                        <Anchor point="BOTTOMRIGHT" x="4" y="-4"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                        <KeyValues>
+                            <KeyValue key="tooltipText" value="GUILD_BANK" type="string"/>
+                        </KeyValues>
+                    </Frame>
+
+                    <!-- <Frame parentKey="privacy" inherits = "GuildbookWrathEraSmallHighlightButton" enableMouse="true">
+                        <Size x="30" y="30"/>
+                        <Anchors>
+                            <Anchor point="RIGHT" relativeKey="$parent.myProfile" relativepoint="LEFT" x="-5" y="0"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture parentKey="background" atlas="transmog-icon-hidden" useAtlasSize="false" setAllPoints="true">
+                                    <Size x="30" y="30"/>
+                                    <Anchors>
+                                        <Anchor point="CENTER" x="0" y="0"/>
+                                    </Anchors>
+                                </Texture>
+                                <MaskTexture parentKey="mask" file="Interface/CHARACTERFRAME/TempPortraitAlphaMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="2" y="-2"/>
+                                        <Anchor point="BOTTOMRIGHT" x="-2" y="2"/>
+                                    </Anchors>
+                                    <MaskedTextures>
+                                        <MaskedTexture childKey="background"/>
+                                    </MaskedTextures>
+                                </MaskTexture>
+                            </Layer>
+                        </Layers>
+                        <KeyValues>
+                            <KeyValue key="tooltipText" value="PRIVACY"/>
+                        </KeyValues>
+                    </Frame> -->
+
+                    <!-- <Frame parentKey="helpAbout" inherits = "GuildbookWrathEraSmallHighlightButton" enableMouse="true">
+                        <Size x="30" y="30"/>
+                        <Anchors>
+                            <Anchor point="RIGHT" relativeKey="$parent.privacy" relativepoint="LEFT" x="-5" y="0"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture parentKey="background" setAllPoints="true" atlas="questlegendaryturnin"/>
+                            </Layer>
+                        </Layers>
+                        <KeyValues>
+                            <KeyValue key="tooltipText" value="HELP_ABOUT"/>
+                        </KeyValues>
+                    </Frame> -->
+
+                    <EditBox parentKey="searchBox" inherits="InputBoxTemplate" autoFocus="false">
+                        <Size x="200" y="20"/>
+                        <Anchors>
+                            <Anchor point="LEFT" relativeKey="$parent.guildbank" relativePoint="RIGHT" x="15" y="0"/>
+                            <Anchor point="RIGHT" x="-10" y="0"/>
+                        </Anchors>
+
+                    </EditBox>
+                </Frames>
+            </Frame>
+
+            <Frame parentKey="content">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.ribbon" relativePoint="BOTTOMLEFT" x="2" y="0"/>
+                    <Anchor point="BOTTOMRIGHT" x="-6" y="16"/>
+                </Anchors>
+            </Frame>
+
+            <Frame parentKey="import" hidden="true" parentArray="specialFrames">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.ribbon" relativePoint="BOTTOMLEFT" x="2" y="0"/>
+                    <Anchor point="BOTTOMRIGHT" x="-6" y="16"/>
+                </Anchors>
+                <Frames>
+
+                    <Button parentKey="importData" inherits="UIPanelButtonTemplate" text="Import">
+                        <Size x="260" y="22"/>
+                        <Anchors>
+                            <Anchor point="TOPLEFT" x="20" y="-60"/>
+                        </Anchors>
+                    </Button>
+
+                    <ScrollFrame parentKey="importExportEditbox" inherits="InputScrollFrameTemplate">
+                        <Anchors>
+                            <Anchor point="LEFT" x="300"/>
+                            <Anchor point="TOPRIGHT" x="-12" y="-60"/>
+                            <Anchor point="BOTTOMRIGHT" x="-12" y="12"/>
+                        </Anchors>
+                    </ScrollFrame>
+                </Frames>
+            </Frame>
+
+            <Frame parentKey="debug" hidden="true" parentArray="specialFrames">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.ribbon" relativePoint="BOTTOMLEFT" x="2" y="0"/>
+                    <Anchor point="BOTTOMRIGHT" x="-6" y="16"/>
+                </Anchors>
+                <Frames>
+                    <Frame parentKey="messageLogListview" inherits = "GuildbookWrathEraWidgetsListviewTemplate,InsetFrameTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" x="1" y="-1"/>
+                            <Anchor point="BOTTOMRIGHT" x="-1" y="1"/>
+                        </Anchors>
+                        <KeyValues>
+                            <KeyValue key="frameType" value="FRAME" type="string"/>
+                            <KeyValue key="itemTemplate" value="GuildbookWrathEraSimpleIconLabelFrame" type="string"/>
+                            <KeyValue key="elementHeight" value="26" type="number"/>
+                        </KeyValues>
+                    </Frame>
+                </Frames>
+            </Frame>
+
+            
+        </Frames>
+
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnUpdate method="OnUpdate"/>
+            <OnEvent method="OnEvent"/>
+            <OnDragStart>
+                self:StartMoving()
+            </OnDragStart>
+            <OnDragStop>
+                self:StopMovingOrSizing()
+            </OnDragStop>
+        </Scripts>
+    </Frame>
+</Ui>

@@ -1,0 +1,52 @@
+<Ui>
+    <Frame name="GuildbookGuildRoster" mixin="GuildbookGuildRosterMixin">
+        <Layers>
+            <Layer level="BACKGROUND">
+                <!-- <Texture parentKey="background" atlas="loottab-background"> -->
+                <Texture parentKey="background" atlas="ClassHall_StoneFrame-BackgroundTile" horizTile="true" vertTile="true">
+                
+                </Texture>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Button parentKey="classFilter" inherits = "GuildbookWrathEraWidgetsDropDownTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="0" y="0"/>
+                </Anchors>
+                <Size x="120" y="32"/>
+            </Button>
+            <Slider name="GuildbookGuildRosterMinLevelSlider" parentKey="minLevel" inherits = "GuildbookWrathEraSlider">
+                <Anchors>
+                    <Anchor point="LEFT" relativeKey="$parent.classFilter" relativePoint="RIGHT" x="70" y="0"/>
+                </Anchors>
+                <Size x="80" y="16"/>
+            </Slider>
+            <Slider name="GuildbookGuildRosterMaxLevelSlider" parentKey="maxLevel" inherits = "GuildbookWrathEraSlider">
+                <Anchors>
+                    <Anchor point="LEFT" relativeKey="$parent.minLevel" relativePoint="RIGHT" x="90" y="0"/>
+                </Anchors>
+                <Size x="80" y="16"/>
+            </Slider>
+            <CheckButton parentKey="showOfflineCheckbox" inherits = "GuildbookWrathEraWidgetsCheckButton">
+                <Anchors>
+                    <Anchor point="TOPRIGHT" x="-120" y="-8"/>
+                </Anchors>
+            </CheckButton>
+            <Frame parentKey="rosterListview" inherits = "GuildbookWrathEraWidgetsListviewTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="0" y="-32"/>
+                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                </Anchors>
+                <KeyValues>
+                    <KeyValue key="frameType" value="FRAME" type="string"/>
+                    <KeyValue key="itemTemplate" value="GuildbookWrathEraRosterListviewItem" type="string"/>
+                    <KeyValue key="elementHeight" value="26" type="number"/>
+                </KeyValues>
+            </Frame>
+        </Frames>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnShow method="OnShow"/>
+        </Scripts>  
+    </Frame>
+</Ui>

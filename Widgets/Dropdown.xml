@@ -1,0 +1,80 @@
+<Ui>
+    <Frame name = "GuildbookWrathEraWidgetsDropDownListviewItemTemplate" mixin="GuildbookWrathEraWidgetsDropDownListviewItemTemplateMixin" enableMouse="true" virtual="true">
+        <Layers>
+            <Layer level="BACKGROND">
+                <Texture parentKey="background">
+                    <Color r="0" g="0" b="0" a="0.9"/>
+                </Texture>
+            </Layer>
+            <Layer level="HIGHLIGHT">
+                <Texture parentKey="highlight" atlas="search-highlight-large" setAllPoints="true"/>
+            </Layer>
+            <Layer level="ARTWORK">
+                <Texture parentKey="icon">
+                    <Anchors>
+                        <Anchor point="LEFT" x="0" y="0"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+
+                <FontString parentKey="text" inherits="GameFontNormal" justifyH="LEFT">
+                    <Color r="1" g="1" b="1"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent.icon" relativePoint="RIGHT" x="2" y="0"/>
+                        <Anchor point="RIGHT" x="0" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+        </Scripts>
+    </Frame>
+
+    <Button name = "GuildbookWrathEraWidgetsDropDownTemplate" mixin="GuildbookWrathEraWidgetsDropDownTemplateMixin" virtual="true">
+        <NormalTexture atlas="charactercreate-customize-dropdownbox">
+            <TexCoords left="0.025" right="0.975" top="0.05" bottom="0.95" />
+        </NormalTexture>
+        <HighlightTexture atlas="charactercreate-customize-dropdownbox-hover">
+            <TexCoords left="0.025" right="0.975" top="0.05" bottom="0.95" />
+        </HighlightTexture>
+        <Frames>
+            <Frame parentKey="label" setAllPoints="true">
+                <Layers>
+                    <Layer level="OVERLAY" textureSubLevel="7">
+                        <FontString parentKey="text" inherits="GameFontNormal" setAllPoints="true">
+                            <Color r="1" g="1" b="1"/>
+                            <Anchors>
+                                <Anchor point="CENTER" x="0" y="0"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+            </Frame>
+            <Frame parentKey="flyout" frameLevel="7" frameStrata="DIALOG" hidden="true" inherits="InsetFrameTemplate">
+                <Size y="230"/>
+                <Anchors>
+                    <Anchor point="TOP" relativePoint="BOTTOM" x="0" y="4"/>
+                    <!-- <Anchor point="TOPRIGHT" relativePoint="BOTTOMRIGHT" x="10" y="5"/> -->
+                </Anchors>
+                <Frames>
+                    <Frame parentKey="listview" useParentLevel="true" inherits="GuildbookWrathEraWidgetsListviewTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" x="0" y="0"/>
+                            <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                        </Anchors>
+                        <KeyValues>
+                            <KeyValue key="frameType" value="FRAME" type="string"/>
+                            <KeyValue key="itemTemplate" value="GuildbookWrathEraWidgetsDropDownListviewItemTemplate" type="string"/>
+                            <KeyValue key="elementHeight" value="24" type="number"/>
+                        </KeyValues>
+                    </Frame>
+                </Frames>
+            </Frame>
+        </Frames>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+        </Scripts>
+    </Button>
+</Ui>

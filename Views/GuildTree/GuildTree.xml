@@ -1,0 +1,34 @@
+<Ui>
+    <Frame name="GuildbookGuildTree" mixin="GuildbookGuildTreeMixin">
+
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="background" atlas="ClassHall_StoneFrame-BackgroundTile" vertTile="true" horizTile="true">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="0" y="0"/>
+                        <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+
+        <Frames>
+            <Frame parentKey="listview" inherits = "GuildbookWrathEraWidgetsListviewTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="0" y="0"/>
+                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                </Anchors>
+                <KeyValues>
+                    <KeyValue key="frameType" value="FRAME" type="string"/>
+                    <KeyValue key="itemTemplate" value="GuildbookWrathEraProfilesRowTemplate" type="string"/>
+                    <KeyValue key="elementHeight" value="120" type="number"/>
+                </KeyValues>
+            </Frame>
+        </Frames>
+
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnShow method="OnShow"/>
+        </Scripts>  
+    </Frame>
+</Ui>

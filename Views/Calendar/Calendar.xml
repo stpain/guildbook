@@ -1,0 +1,140 @@
+<Ui>
+    <Frame name="GuildbookCalendarDayTile" mixin="GuildbookCalendarDayTileMixin" enableMouse="true" virtual="true">
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="background" setAllPoints="true">
+                
+                </Texture>
+            </Layer>
+            <Layer level="HIGHLIGHT">
+                <Texture parentKey="highlight" setAllPoints="true" alpha="0.6">
+                
+                </Texture>
+            </Layer>
+            <Layer level="BORDER">
+                <Texture parentKey="worldEventTexture" setAllPoints="true" alpha="0.6">
+                
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <FontString parentKey="dateLabel" inherits="GameFontNormal" text="23">
+                    <Color r="1" g="1" b="1" a="1"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="2" y="-2"/>
+                    </Anchors>
+                </FontString>
+                <Texture parentKey="overlay" setAllPoints="true" hidden="true">
+                    <Color r="0.6" g="0.6" b="0.6" a="0.6"/>
+                </Texture>
+                <Texture parentKey="currentDayTexture" hidden="true">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="-15" y="15"/>
+                        <Anchor point="BOTTOMRIGHT" x="16" y="-10"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="ARTWORK">
+            
+            </Layer>
+        </Layers>
+        <Frames>
+            <Button parentKey="event1" >
+                <Size y="14"/>
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT" x="0" y="0"/>
+                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                </Anchors>
+                <NormalTexture atlas="groupfinder-button-cover"/>
+                <PushedTexture atlas="groupfinder-button-cover-down"/>
+                <HighlightTexture atlas="PetList-ButtonHighlight"/>
+            </Button>
+            <Button parentKey="event2" >
+                <Size y="14"/>
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT" x="0" y="14"/>
+                    <Anchor point="BOTTOMRIGHT" x="0" y="14"/>
+                </Anchors>
+                <NormalTexture atlas="groupfinder-button-cover"/>
+                <PushedTexture atlas="groupfinder-button-cover-down"/>
+                <HighlightTexture atlas="PetList-ButtonHighlight"/>
+            </Button>
+            <Button parentKey="event3" >
+                <Size y="14"/>
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT" x="0" y="28"/>
+                    <Anchor point="BOTTOMRIGHT" x="0" y="28"/>
+                </Anchors>
+                <NormalTexture atlas="groupfinder-button-cover"/>
+                <PushedTexture atlas="groupfinder-button-cover-down"/>
+                <HighlightTexture atlas="PetList-ButtonHighlight"/>
+            </Button>
+        </Frames>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+        </Scripts>
+    </Frame>
+
+    <Frame name="GuildbookCalendar" mixin="GuildbookCalendarMixin">
+        <Size x="810" y="400"/>
+        <Anchors>
+            <Anchor point="CENTER"/>
+        </Anchors>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture setAllPoints="true">
+                    <Color r="0" g="0" b="0" a="0.5"/>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+            
+            </Layer>
+            <Layer level="ARTWORK">
+            
+            </Layer>
+        </Layers>
+
+        <Frames>
+            <Frame parentKey="monthView">
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="0" y="0"/>
+                    <Anchor point="BOTTOMLEFT" x="0" y="0"/>
+                </Anchors>
+            </Frame>
+            <Frame parentKey="sidePanel">
+                <Anchors>
+                    <Anchor point="LEFT" relativeKey="$parent.monthView" relativePoint="RIGHT" x="0" y="0"/>
+                    <Anchor point="TOPRIGHT" x="0" y="0"/>
+                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                </Anchors>
+                <Frames>
+                    <Button parentKey="previousMonth">
+                        <Size x="30" y="30"/>
+                        <Anchors>
+                            <Anchor point="TOPLEFT" x="0" y="0"/>
+                        </Anchors>
+                    </Button>
+                    <Button parentKey="nextMonth">
+                        <Size x="30" y="30"/>
+                        <Anchors>
+                            <Anchor point="TOPRIGHT" x="0" y="0"/>
+                        </Anchors>
+                    </Button>
+                </Frames>
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <FontString parentKey="monthName" inherits="GameFontWhite">
+                            <Anchors>
+                                <Anchor point="TOP" x="0" y="0"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+            </Frame>
+        </Frames>
+
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnShow method="OnShow"/>
+        </Scripts>
+    </Frame>
+</Ui>

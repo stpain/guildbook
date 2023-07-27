@@ -1,0 +1,67 @@
+<Ui>
+    <Frame name="GuildbookChat" mixin="GuildbookChatMixin">
+
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="background" atlas="Garr_InfoBoxMission-BackgroundTile" vertTile="true" horizTile="true">
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <FontString parentKey="charactersHeader" inherits="GameFontNormalLarge" text="Chats">
+                    <Size x="200" y="26"/>
+                    <Color r="1" g="1" b="1"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="0" y="0"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="chatInfo" inherits="GameFontNormalLarge" justifyH="LEFT">
+                    <Size x="300" y="26"/>
+                    <Color r="1" g="1" b="1"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent.charactersHeader" relativePoint="RIGHT" x="0" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+
+        <Frames>
+
+            <Frame parentKey="charactersListview" inherits = "GuildbookWrathEraWidgetsListviewTemplate">
+                <Size x="200"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="0" y="-30"/>
+                    <Anchor point="BOTTOMLEFT" x="0" y="0"/>
+                </Anchors>
+                <KeyValues>
+                    <KeyValue key="frameType" value="FRAME" type="string"/>
+                    <KeyValue key="itemTemplate" value="GuildbookWrathEraChatCharacterListviewItem" type="string"/>
+                    <KeyValue key="elementHeight" value="40" type="number"/>
+                </KeyValues>
+            </Frame>
+
+            <Frame parentKey="chatHistory" inherits = "GuildbookWrathEraWidgetsListviewTemplate, InsetFrameTemplate3">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.charactersListview" relativePoint="TOPRIGHT" x="6" y="0"/>
+                    <Anchor point="BOTTOMRIGHT" x="-6" y="65"/>
+                </Anchors>
+                <KeyValues>
+                    <KeyValue key="frameType" value="FRAME" type="string"/>
+                    <KeyValue key="itemTemplate" value="GuildbookWrathEraChatBubble" type="string"/>
+                    <KeyValue key="elementHeight" value="50" type="number"/>
+                </KeyValues>
+            </Frame>
+
+            <ScrollFrame parentKey="messageInput" inherits="InputScrollFrameTemplate" autoFocus="false" multiline="true">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.chatHistory" relativePoint="BOTTOMLEFT" x="5" y="-8"/>
+                    <Anchor point="BOTTOMRIGHT" x="-11" y="12"/>
+                </Anchors>
+            </ScrollFrame>
+        </Frames>
+    
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnShow method="OnShow"/>
+        </Scripts>  
+    </Frame>
+</Ui>

@@ -1,0 +1,36 @@
+<Ui>
+    <Frame name="GuildbookSearch" mixin="GuildbookSearchMixin">
+        <Layers>
+            <Layer level="BACKGROUND">
+                <!-- <Texture atlas="communities-widebackground" setAllPoints="true"> -->
+                <!-- <Texture atlas="glueannouncementpopup-background" setAllPoints="true"> -->
+            </Layer>
+            <Layer level="OVERLAY">
+                <FontString parentKey="header" inherits="GameFontWhite" text="Search">
+                    <Anchors>
+                        <Anchor point="TOP" x="0" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+
+        <Frames>
+            <Frame parentKey="resultsListview" inherits = "GuildbookWrathEraWidgetsListviewTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="0" y="-30"/>
+                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                </Anchors>
+                <KeyValues>
+                    <KeyValue key="frameType" value="FRAME" type="string"/>
+                    <KeyValue key="itemTemplate" value="GuildbookSearchListviewItem" type="string"/>
+                    <KeyValue key="elementHeight" value="40" type="number"/>
+                </KeyValues>
+            </Frame>
+        </Frames>
+
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <!-- <OnShow method="OnShow"/> -->
+        </Scripts> 
+    </Frame>
+</Ui>

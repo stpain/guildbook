@@ -1,13 +1,10 @@
-## Interface: 30400
-## Author: Copperbolts (Theboringdad)
-## Version: 5.6
+## Interface: 30401
+## Author: TheBoringDad
+## Version: 6.0
 ## Title: Guildbook
-## Notes: Guild addon for guild stuff!
-## Notes-deDE : Gilden-Addon für alles rund um die Gilde!
-## Notes-frFR : Un addon pour les trucs de guilde !
-## SavedVariables: GUILDBOOK_GLOBAL, GUILDBOOK_CONFIG, GUILDBOOK_PRIVACY, GUILDBOOK_TRADESKILL
-## SavedVariablesPerCharacter: tradeskillLocales
-## Dependencies: Blizzard_TalentUI, Blizzard_TradeSkillUI, Blizzard_Calendar
+## Notes: An addon for guilds
+## SavedVariables: GUILDBOOK_GLOBAL
+## SavedVariablesPerCharacter: GUILDBOOK_CHARACTER
 
 
 Libs\LibStub\LibStub.lua
@@ -15,35 +12,76 @@ Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
 Libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
 Libs\LibDbIcon-1.0\LibDbIcon-1.0.lua
 Libs\ChatThrottleLib.lua
+Libs\json.lua
 Libs\LibDeflate\LibDeflate.lua
 Libs\AceComm-3.0\AceComm-3.0.xml
 Libs\LibSerialize\lib.xml
+Libs\LibCraftInfo-1.0\LibCraftInfo-1.0.xml
+Libs\HereBeDragons\HereBeDragons-2.0.lua
+Libs\HereBeDragons\HereBeDragons-Pins-2.0.lua
 
-
+Widgets\Listview.lua
+Widgets\Listview.xml
+Widgets\Gridview.lua
+Widgets\Gridview.xml
+Widgets\Dropdown.lua
+Widgets\Dropdown.xml
+Widgets\Checkbox.xml
+Widgets\ScrollFrame.lua
+Widgets\ScrollFrame.xml
+Widgets\Slider.xml
+Widgets\Helptips.lua
+Widgets\Helptips.xml
 
 Locales.lua
+Data2.lua
+ItemData.lua
+Database.lua
 
-Colours.lua
+Classes\Tradeskills.lua
+Classes\Character.lua
+Classes\Guild.lua
+Classes\Talents.lua
 
-Tradeskills.lua
+Globals.lua
+Callbacks.lua
 
 Templates.lua
 Templates.xml
 
-Dialogs.lua
+GuildbookMixin.lua
+GuildbookUI.xml
 
-ModBlizzUI.lua
+Views\Calendar\Calendar.lua
+Views\Calendar\Calendar.xml
 
-Database.lua
+Views\Tradeskills\Tradeskills.lua
+Views\Tradeskills\Tradeskills.xml
+
+Views\GuildRoster\GuildRoster.lua
+Views\GuildRoster\GuildRoster.xml
+
+Views\GuildBank\GuildBank.lua
+Views\GuildBank\GuildBank.xml
+
+Views\Profile\Profile.lua
+Views\Profile\Profile.xml
+
+Views\Chat\Chat.lua
+Views\Chat\Chat.xml
+
+Views\GuildTree\GuildTree.lua
+Views\GuildTree\GuildTree.xml
+
+Views\Settings\Settings.lua
+Views\Settings\Settings.xml
+
+Views\Search\Search.lua
+Views\Search\Search.xml
+
+
 Comms.lua
 
-CraftData.lua
+tempData.lua
 
-Character.lua
-Guild.lua
-
-gb2.lua
-
-GuildbookMixin.lua
-
-gb2.xml
+Events.lua

@@ -1,8 +1,10 @@
-# guildbook https://discord.gg/c7Y5Kp3cHG
-Guild Addon for world of warcraft classic
+# Guildbook_WrathEra
+Classic Guildbook for Era servers
 
-Guildbook has been updated for Wrath of the Lich King!
+The below is only a rough guide
 
-Added support for multiple Guilds
-Added support for dual spec, glyphs and equipment manager
+Software development plan:
 
+*Finish guild roster view
+*Finish settings panels
+*Setup calendar events

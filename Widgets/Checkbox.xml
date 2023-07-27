@@ -1,0 +1,18 @@
+<Ui>
+    <CheckButton name = "GuildbookWrathEraWidgetsCheckButton" inherits="ChatConfigCheckButtonTemplate" virtual="true">
+        <CheckedTexture atlas="orderhalltalents-done-checkmark"/>
+        <Size x="24" y="24"/>
+        <HitRectInsets left="0" right="-10"/>
+        <Layers>
+            <Layer level="OVERLAY">
+                <FontString parentKey="label" inherits="GameFontNormal" justifyH="LEFT">
+                    <Color r="1" g="1" b="1" a="1"/>
+                    <Size x="280" y="26"/>
+                    <Anchors>
+                        <Anchor point="LEFT" x="24" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+    </CheckButton>
+</Ui>

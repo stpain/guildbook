@@ -1,43 +1,120 @@
+--[[
+    Comms:
+        The Comms class is used to send and receive data on the GUILD channel and WHISPER channel
 
+        There is a queue system to prevent the addon spamming chat channels and disrupting other addon communications.
+        The queue is simple, messages get added to the queue and are held for n number of seconds, during this time
+        and new data of the same message type will cause the currently queued message to be updated rather than a new
+        message added to the queue.
+        Once a message dispatch time arrives the message will be sent and the remaining queued messages will have their
+        dispatch time increased by n seconds. This means the addon will only send a message once every n seconds, and 
+        where cases exists that a message might be spammed, it'll be caught by the initial delay.
 
-local addonName, addon = ...;
+        The guild bank messages ignore the queue and mostly use the WHISPER channel.
+]]
+
+local name, addon = ...;
 
 local AceComm = LibStub:GetLibrary("AceComm-3.0")
 local LibDeflate = LibStub:GetLibrary("LibDeflate")
 local LibSerialize = LibStub:GetLibrary("LibSerialize")
 
-local Comms = {};
-Comms.prefix = "Guildbook";
-Comms.version = 0;
-Comms.processDelay = 2.0; --delay before processing incoming message data
-Comms.queueWaitingTime = 25.0; --delay from transmit request to first dispatch attempt, this prevents spamming if a player opens/closes a panel that triggers a transmit
-Comms.dispatcherElapsedDelay = 1.0; --stagger effect for the onUpdate func on dispatcher, limits the onUpdate to once per second
-Comms.queue = {};
-Comms.queueExtendTime = 10.0; --the extension given to each message waiting in the queue, this limits how often a message can be dispatched
-Comms.dispatcher = CreateFrame("FRAME");
-Comms.dispatcherElapsed = 0;
-Comms.pause = false;
+local Comms = {
+    prefix = "Guildbook", --name var was to long
+    version = 1,
+
+    --delay from transmit request to first dispatch attempt, this prevents spamming if a player opens/closes a panel that triggers a transmit
+    queueWaitingTime = 2.0,
+    --the time added to each message waiting in the queue, this limits how often a message can be dispatched
+    queueExtendTime = 2.0,
+
+     --limiter effect for the dispatcher onUpdate func, limits the onUpdate to once per second
+    dispatcherElapsedDelay = 1.0,
+    
+    queue = {},
+    dispatcher = CreateFrame("FRAME"),
+    dispatcherElapsed = 0,
+    paused = false,
+};
+
+
+--this table should contain only the character.data[key] keys which we want to send
+--[[
+    for example, when the characters mainSpec changes, the character obj will notify to broadcast
+    then this table will be checked for the key 'mainSpec' and its value passed on as an EVENT flag for the data payload
+]]
+Comms.characterKeyToEventName = {
+    --containers = "CONTAINERS_TRANSMIT", --for guild banks -REMOVED THIS SYSTEM
+    inventory = "INVENTORY_TRANSMIT",
+    paperDollStats = "PAPERDOLL_STATS_TRANSMIT",
+    talents = "TALENT_TRANSMIT",
+    glyphs = "GLYPH_TRANSMIT",
+    resistances = "RESISTANCE_TRANSMIT",
+    auras = "AURA_TRANSMIT",
+    -- alts = self.data.alts,
+    -- mainCharacter = self.data.mainCharacter,
+    -- publicNote = self.data.publicNote,
+    mainSpec = "SPEC_TRANSMIT",
+    -- offSpec = self.data.offSpec,
+    -- mainSpecIsPvP = self.data.mainSpecIsPvP,
+    -- offSpecIsPvP = self.data.offSpecIsPvP,
+    profession1 = "TRADESKILL_TRANSMIT",
+    profession1Level = "TRADESKILL_TRANSMIT",
+    profession1Spec = "TRADESKILL_TRANSMIT",
+    profession1Recipes = "TRADESKILL_TRANSMIT",
+    profession2 = "TRADESKILL_TRANSMIT",
+    profession2Level = "TRADESKILL_TRANSMIT",
+    profession2Spec = "TRADESKILL_TRANSMIT",
+    profession2Recipes = "TRADESKILL_TRANSMIT",
+    cookingLevel = "TRADESKILL_TRANSMIT",
+    cookingRecipes = "TRADESKILL_TRANSMIT",
+    fishingLevel = "TRADESKILL_TRANSMIT",
+    firstAidLevel = "TRADESKILL_TRANSMIT",
+    firstAidRecipes = "TRADESKILL_TRANSMIT",
+
+    --CurrentInventory = self.data.currentInventory,
+    --CurrentPaperdollStats = self.data.currentPaperdollStats or {},
+
+}
+Comms.characterKeyToTargetComms = {
+
+}
+
 
 function Comms:Init()
+    
+    AceComm:Embed(self);
+    self:RegisterComm(self.prefix);
 
-    AceComm:Embed(self)
-    self:RegisterComm(self.prefix)
-
-    self.version = tonumber(GetAddOnMetadata('Guildbook', "Version"));
-
-    --addon.DEBUG("func", "Comms:Init", "comms init")
-
+    self.version = tonumber(GetAddOnMetadata(name, "Version"));
 
     self.dispatcher:SetScript("OnUpdate", Comms.DispatcherOnUpdate)
+
+    addon:TriggerEvent("StatusText_OnChanged", "[Comms:Init]")
+    addon:RegisterCallback("Player_Regen_Enabled", self.Player_Regen_Enabled, self)
+    addon:RegisterCallback("Player_Regen_Disabled", self.Player_Regen_Disabled, self)
 end
 
+--pause comms during combat
+--this setup doesn't affect guild bank and non queue comms, however checking the banks wouuld likely be done in a city or rested area
+function Comms:Player_Regen_Enabled()
+    self.paused = false;
+end
 
----the pourpose of this function is to check the queued mesages once per second and take action
+function Comms:Player_Regen_Disabled()
+    self.paused = true;
+end
+
+---the purpose of this function is to check the queued mesages once per second and take action
 ---if there is a message and its dispatch time has been reached then push the message, then update remaining messages to dispatch at n secon intervals
 ---if the queue is empty remove the onUpdate script
----@param self table Comms object
+---@param self frame the dispatch frame
 ---@param elapsed number elapsed since last OnUpdate
 function Comms.DispatcherOnUpdate(self, elapsed)
+
+    if Comms.paused then
+        return;
+    end
 
     Comms.dispatcherElapsed = Comms.dispatcherElapsed + elapsed;
 
@@ -54,84 +131,86 @@ function Comms.DispatcherOnUpdate(self, elapsed)
         local now = time();
 
         --grab the message from the queue
-        local event = Comms.queue[1];
+        local message = Comms.queue[1];
 
         --if the message is due to go push it
-        if event.dispatchTime < now then
-            Comms:SendChatMessage(event.message, event.channel, event.target, event.priority)
+        if message.dispatchTime < now then
+
+            if not message.payload.version then
+                message.payload.version = Comms.version;
+            end
+
+            local serialized = LibSerialize:Serialize(message.payload);
+            local compressed = LibDeflate:CompressDeflate(serialized);
+            local encoded    = LibDeflate:EncodeForWoWAddonChannel(compressed);
+
+            Comms:SendCommMessage(Comms.prefix, encoded, message.channel, message.target, "NORMAL")
+            addon.LogDebugMessage("comms_out", string.format("sending message [|cffE7B007%s|r] on channel [%s]", message.event, message.channel))
 
             --set remaining messages to dispatch in 'n' second intervals
             for i = 2, #Comms.queue do
                 Comms.queue[i].dispatchTime = now + ((i - 1) * Comms.queueExtendTime)
+                addon.LogDebugMessage("comms", string.format("updated dispatch time for [|cffE7B007%s|r] will dispatch at %s", Comms.queue[i].event, date("%T", Comms.queue[i].dispatchTime)))
             end
 
             --remove the message
             table.remove(Comms.queue, 1)
             if #Comms.queue == 0 then
                 self:SetScript("OnUpdate", nil)
+                addon.LogDebugMessage("comms", "Queue is empty, removed OnUpdate script")
+            else
+                addon.LogDebugMessage("comms", string.format("%d messages left in queue", #Comms.queue))
             end
         end
     end
 
-    if #Comms.queue == 1 then
-        GuildbookInterface.statusText:SetText(string.format("[%s] message in queue", #Comms.queue))
-    else
-        GuildbookInterface.statusText:SetText(string.format("[%s] messages in queue", #Comms.queue))
-    end
 end
 
-function Comms:SendPlainTextMessage(msg, target)
-    C_ChatInfo.SendAddonMessageLogged(self.prefix, msg, target)
-end
 
+-- local inInstance, instanceType = IsInInstance()
+-- if instanceType ~= "none" then
+--     local blockCommsDuringInstance = Database:GetConfigSetting("blockCommsDuringInstance");
+--     if blockCommsDuringInstance == true then
+--         addon:TriggerEvent("OnCommsBlocked", "blocked comms during instance")
+--         return;
+--     end
+-- end
+-- local inLockdown = InCombatLockdown()
+-- if inLockdown then
+--     local blockCommsDuringCombat = Database:GetConfigSetting("blockCommsDuringCombat");
+--     if blockCommsDuringCombat == true then
+--         addon:TriggerEvent("OnCommsBlocked", "blocked comms during combat")
+--         return;
+--     end
+-- end
 
 ---the purpose of this queue function is to provide some relief to the addon comms channel
----if a message with the same type is queued more than once within a 'stagger' period of time
+---if a message with the same type is queued more than once within a period of time (a waiting room if you like)
 ---the data of the message is kept and then sent after a timer.
 ---the timer delay is determined by the previous timer to keep messages spaced out
-function Comms:QueueMessage(event, message, channel, target, priority)
-
-    --addon.DEBUG("commsMixin", "Comms:QueueMessage", string.format("adding %s to the queue", event), message)
+function Comms:QueueMessage(event, message, channel, target)
 
     local exists = false;
-    for k, info in ipairs(self.queue) do
-        if info.event == event then
+    for k, v in ipairs(self.queue) do
+        --if (v.event == event) and (v.payload.method == message.payload.method) and (v.payload.subKey == message.payload.subKey) then
+        if (v.event == event) then
             exists = true;
-            -- info = {
-            --     event = event,
-            --     message = message,
-            --     channel = channel,
-            --     target = target,
-            --     priority = priority,
-            -- }
-            info.message = message
-            --addon.DEBUG("commsMixin", "Comms:QueueMessage", string.format("updated package data for %s", event), message)
+            v.payload = message
+            addon.LogDebugMessage("comms", string.format("updated message payload for [|cffE7B007%s|r]", event))
         end
     end
 
+    local dispatchTime = time() + self.queueWaitingTime
     if exists == false then
+        table.insert(self.queue, {
+            event = event,
+            payload = message,
+            channel = channel,
+            target = target,
+            dispatchTime = dispatchTime;
+        })
 
-        --if this was a character data request then bump to the start of the queue
-        if event == "CHARACTER_DATA" then
-            table.insert(self.queue, 1, {
-                event = event,
-                message = message,
-                channel = channel,
-                target = target,
-                priority = priority,
-                dispatchTime = time() + 1.0; --override this so it goes out almost instantly
-            })
-        else
-            table.insert(self.queue, {
-                event = event,
-                message = message,
-                channel = channel,
-                target = target,
-                priority = priority,
-                dispatchTime = time() + self.queueWaitingTime;
-            })
-        end
-
+        addon.LogDebugMessage("comms", string.format("queued [|cffE7B007%s|r] dispatch time %s", event, date("%T", dispatchTime)))
     end
 
     if self.dispatcher:GetScript("OnUpdate") == nil then
@@ -139,138 +218,42 @@ function Comms:QueueMessage(event, message, channel, target, priority)
     end
 end
 
----send an addon message through the aceComm lib
----@param data table the data to send including a comm type
----@param channel string the addon channel to use for the comm
----@param targetGUID string the targets GUID, this is used to make comms work on conneted realms - only required for WHISPER comms
----@param priority string the prio to use
-function Comms:SendChatMessage(data, channel, targetGUID, priority)
 
-    if self.pause == true then
-        return;
-    end
-
-    if targetGUID == UnitGUID("player") then
-        --addon.DEBUG('commsMixin', 'Comms:Transmit', "cancel transmit as target is player", data)
-        --return;
-    end
-
-    local inInstance, instanceType = IsInInstance()
-    if instanceType ~= "none" then
-        local blockCommsDuringInstance = Database:GetConfigSetting("blockCommsDuringInstance");
-        if blockCommsDuringInstance == true then
-            addon:TriggerEvent("OnCommsBlocked", "blocked comms during instance")
-            return;
-        end
-    end
-    local inLockdown = InCombatLockdown()
-    if inLockdown then
-        local blockCommsDuringCombat = Database:GetConfigSetting("blockCommsDuringCombat");
-        if blockCommsDuringCombat == true then
-            addon:TriggerEvent("OnCommsBlocked", "blocked comms during combat")
-            return;
-        end
-    end
-    if IsInGuild() and GetGuildInfo("player") then
-        -- we just want to make sure we are in a guild here to stop spam
-        data["senderGuild"] = GetGuildInfo('player');
-    else
-        return;
-    end
-    
-    -- add the version and sender guid to the message
-    data["version"] = self.version;
-    data["senderGUID"] = UnitGUID("player")
-
-    -- clean up the target name when using a whisper
-    if channel == 'WHISPER' then
-
-        local foundTargetInCurrentGuild = false;
-
-        -- i dont like this approach but if i get reports of spam messages this might have to exist as the solution, on a positive it frees up the ui to show online list better
-        local totalMembers = GetNumGuildMembers()
-        for i = 1, totalMembers do
-            local nameRealm, _, _, _, _, _, _, _, isOnline, _, _, _, _, _, _, _, guid = GetGuildRosterInfo(i)
-            if guid == targetGUID and isOnline == true then
-                
-                --addon.DEBUG('commsMixin', 'SendCommMessage_TargetOnline', string.format("type: %s, channel: %s target: %s, prio: %s", data.type or 'nil', channel, (target or 'nil'), priority), data)
-                
-                local target = Ambiguate(nameRealm, "none")
-
-                local serialized = LibSerialize:Serialize(data);
-                local compressed = LibDeflate:CompressDeflate(serialized);
-                local encoded    = LibDeflate:EncodeForWoWAddonChannel(compressed);
-            
-                if encoded and channel and priority and target then
-                
-                    self:SendCommMessage(Comms.prefix, encoded, channel, target, priority)
-                    foundTargetInCurrentGuild = true
-                    return; -- stop looping the roster
-
-                end
-            end
-        end
-
-        if foundTargetInCurrentGuild == false then
-            
-            if data.type == "TRADESKILL_WORK_ORDER_ADD" then
-                
-                --this could be a way to send work orders cross guilds - BUT - if the target is offline the chat window will probs get spammed
-
-                local _, _, _, _, _, target = GetPlayerInfoByGUID(targetGUID) --this can be replaced with a guild search if the function ever goes away
-
-                if type(target) == "string" then
-                    local serialized = LibSerialize:Serialize(data);
-                    local compressed = LibDeflate:CompressDeflate(serialized);
-                    local encoded    = LibDeflate:EncodeForWoWAddonChannel(compressed);
-                
-                    if encoded and channel and priority and target then
-                    
-                        self:SendCommMessage(Comms.prefix, encoded, channel, target, priority)
-                        return;
-    
-                    end 
-                end
-            end
-
-        end
-
-    elseif channel == "GUILD" then
-        local serialized = LibSerialize:Serialize(data);
-        local compressed = LibDeflate:CompressDeflate(serialized);
-        local encoded    = LibDeflate:EncodeForWoWAddonChannel(compressed);
-
-        if encoded and channel and priority then
-            --addon.DEBUG('commsMixin', 'SendCommMessage_NoTarget', string.format("type: %s, channel: %s target: %s, prio: %s", data.type or 'nil', channel, 'nil', priority), data)
-            self:SendCommMessage(Comms.prefix, encoded, channel, nil, priority)
-        end
-    end
+function Comms:TransmitToTarget(event, data, method, subKey, target)
+    local msg = {
+        event = event,
+        version = Comms.version,
+        payload = {
+            method = method, --the character:method
+            subKey = subKey, --a subkey if used
+            data = data, --the value being sent
+        },
+    }
+    Comms:QueueMessage(msg.event, msg, "WHISPER", target)
 end
 
+function Comms:TransmitToGuild(event, data, method, subKey)
+    local msg = {
+        event = event,
+        version = Comms.version,
+        payload = {
+            method = method, --these could likely be coded into a lookup table?
+            subKey = subKey,
+            data = data,
+        },
+    }
+    Comms:QueueMessage(msg.event, msg, "GUILD", nil)
+end
+
+function Comms:Transmit_NoQueue(msg, channel, target)
+    local serialized = LibSerialize:Serialize(msg);
+    local compressed = LibDeflate:CompressDeflate(serialized);
+    local encoded    = LibDeflate:EncodeForWoWAddonChannel(compressed);
+    self:SendCommMessage(self.prefix, encoded, channel, target, "NORMAL")
+    addon.LogDebugMessage("comms_out", string.format("No queue message [%s] to %s", (msg.event or "-"), (target or "-")))
+end
 
 function Comms:OnCommReceived(prefix, message, distribution, sender)
-
-    if self.pause == true then
-        return;
-    end
-
-    ---check if we want to process comms data
-    local inInstance, instanceType = IsInInstance()
-    if instanceType ~= "none" then
-        local blockCommsDuringInstance = Database:GetConfigSetting("blockCommsDuringInstance");
-        if blockCommsDuringInstance == true then
-            addon:TriggerEvent("OnCommsBlocked", "blocked comms during instance")
-            return;
-        end
-    end
-    local inLockdown = InCombatLockdown()
-    if inLockdown then
-        local blockCommsDuringCombat = Database:GetConfigSetting("blockCommsDuringCombat");
-        if blockCommsDuringCombat == true then
-            addon:TriggerEvent("OnCommsBlocked", "blocked comms during combat")
-            return;
-        end
-    end
 
     if prefix ~= self.prefix then 
         return 
@@ -288,19 +271,218 @@ function Comms:OnCommReceived(prefix, message, distribution, sender)
         return;
     end
 
-    --addon.DEBUG('commsMixin', string.format("Comms:OnCommsReceived <%s>", distribution), string.format("%s from %s", data.type, sender), data)
+    --print(sender, data.version)
+
+    if data.version and (data.version >= self.version) then
+        if Comms.events[data.event] then
+            addon:TriggerEvent("StatusText_OnChanged", string.format("received [|cffE7B007%s|r] from %s", data.event, sender))
+            Comms.events[data.event](Comms, sender, data)
+            addon.LogDebugMessage("comms_in", string.format("[|cffE7B007%s|r] data incoming from %s", data.event, sender))
+        end
+    else
+        --DevTools_Dump(data)
+    end
+end
+
+
+function Comms:Character_OnDataReceived(sender, message)
+
+    if not sender:find("-") then
+        local realm = GetNormalizedRealmName()
+        sender = string.format("%s-%s", sender, realm)
+    end
+
+    local character = addon.characters[sender]
+    if character and character[message.payload.method] then
+        if message.subKey then
+            character[message.payload.method](character, message.payload.subKey, message.payload.data)
+        else
+            character[message.payload.method](character, message.payload.data)
+        end
+    end
+
+end
+
+
+--Comms will be notified when character data changes
+--check its the clients character and proceed with sending data
+function Comms:Character_BroadcastChange(character, ...)
+
+    if addon.thisCharacter and (character.data.name == addon.thisCharacter) then
+
+        --[[
+            the character object comms is a little like an extension of the callback system btu works across the chat channels
+            example use:
+
+                -the character object will fire this event with the following args (string method, string key, var subKey)
+                    addon:TriggerEvent("Character_BroadcastChange", self, "SetAuras", "auras", info)
+
+                -comms will use those args on the receiving end with the correct character object
+                    Character[method](subKey, key, info)
+                    Character[method](key, info)
+
+                in this example 
+                SetAuras is a method of the character class/object
+                auras is the key (this is the object.data.auras)
+                info is the actual aura info
+        ]]
+
+        --doing things this way adds addition text to the message but greatly simplifies the addon code required
+        --the addon will take the method sent if it exists rather than having to hard code message.event > character.method (although this could be better as time goes on)
+        local method, key, subKey = ...;
+
+        if self.characterKeyToEventName[key] then
+
+            addon.LogDebugMessage("comms", string.format("received %s", key))
+
+            local data;
+            if subKey then
+                data = character.data[key][subKey]
+            else
+                data = character.data[key]
+            end
+
+            if data then
+                self:TransmitToGuild(self.characterKeyToEventName[key], data, method, subKey)
+            else
+                addon.LogDebugMessage("comms", string.format("no data found in character.data[%s]", key))
+            end
+
+        end
+
+    end
     
-    ---before we process the data pause to allow all messages to be put together again
-    C_Timer.After(self.processDelay, function()
-        self:ProcessIncomingData(data, sender)
-    end)
 end
 
 
-function Comms:ProcessIncomingData(data, sender)
-    addon:TriggerEvent("OnCommsMessage", sender, data)
-    --addon.DEBUG('commsMixin', "Comms:ProcessIncomingData", string.format("Handler %s does exist", data.type), data)
+function Comms:Guildbank_TimeStampRequest(bank)
+    local msg = {
+        event = "GUILDBANK_TIMESTAMPS_REQUEST",
+        version = self.version,
+        payload = {
+            bank = bank,
+        }
+    }
+    self:Transmit_NoQueue(msg, "GUILD", nil) --this goes out to everyone, data replies use whisper channel
 end
 
+function Comms:Guildbank_OnTimestampsRequested(sender, message)
+
+    local transmit = false;
+
+    if not sender:find("-") then
+        local realm = GetNormalizedRealmName()
+        sender = string.format("%s-%s", sender, realm)
+    end
+
+    --see if this sender has access to any banks
+    if addon.guilds and addon.guilds[addon.thisGuild] and addon.guilds[addon.thisGuild].banks[message.payload.bank] and addon.guilds[addon.thisGuild].bankRules[message.payload.bank] then
+        if addon.guilds[addon.thisGuild].bankRules[message.payload.bank].shareBags or addon.guilds[addon.thisGuild].bankRules[message.payload.bank].shareBank then
+            --DevTools_Dump(addon.characters[sender])
+            if addon.characters[sender] and addon.characters[sender].data.rank then
+                if addon.characters[sender].data.rank <= addon.guilds[addon.thisGuild].bankRules[message.payload.bank].shareRank then
+                    transmit = true;
+                end
+            end
+        end
+    end
+
+    --
+    if transmit == true then
+        local msg = {
+            event = "GUILDBANK_TIMESTAMPS_TRANSMIT",
+            version = self.version,
+            payload = addon.guilds[addon.thisGuild].banks,
+        }
+        self:Transmit_NoQueue(msg, "WHISPER", sender)
+    end
+end
+
+function Comms:Guildbank_OnTimestampsReceived(sender, message)
+    addon:TriggerEvent("Guildbank_OnTimestampsReceived", sender, message)
+end
+
+function Comms:Guildbank_DataRequest(target, bank)
+    local msg = {
+        event = "GUILDBANK_DATA_REQUEST",
+        version = self.version,
+        payload = {
+            bank = bank,
+        }
+    }
+    self:Transmit_NoQueue(msg, "WHISPER", target)
+end
+
+function Comms:Guildbank_OnDataRequested(sender, message)
+
+    if not sender:find("-") then
+        local realm = GetNormalizedRealmName()
+        sender = string.format("%s-%s", sender, realm)
+    end
+
+    if addon.characters and addon.characters[message.payload.bank] then
+
+        local containers = {
+            copper = 0,
+            bags = {},
+            bank = {},
+        }
+
+        --check if sharing gold as this could be different from items
+        if addon.guilds[addon.thisGuild].bankRules[message.payload.bank].shareCopper then
+            containers.copper = addon.characters[message.payload.bank].data.containers.copper
+        end
+        if addon.guilds[addon.thisGuild].bankRules[message.payload.bank].shareBags then
+            containers.bags = addon.characters[message.payload.bank].data.containers.bags
+        end
+        if addon.guilds[addon.thisGuild].bankRules[message.payload.bank].shareBank then
+            containers.bank = addon.characters[message.payload.bank].data.containers.bank
+        end
+
+        local msg = {
+            event = "GUILDBANK_DATA_TRANSMIT",
+            version = self.version,
+            payload = {
+                bank = message.payload.bank,
+                containers = containers
+            }
+        }
+        self:Transmit_NoQueue(msg, "WHISPER", sender)
+    end
+end
+
+function Comms:Guildbank_OnDataReceived(sender, message)
+    addon:TriggerEvent("Guildbank_OnDataReceived", sender, message)
+end
+
+
+--when a comms is received check the event type and pass to the relavent function
+Comms.events = {
+
+    --character events
+    --CONTAINERS_TRANSMIT = Comms.Character_OnDataReceived,
+    INVENTORY_TRANSMIT = Comms.Character_OnDataReceived,
+    PAPERDOLL_STATS_TRANSMIT = Comms.Character_OnDataReceived,
+    RESISTANCE_TRANSMIT = Comms.Character_OnDataReceived,
+    AURA_TRANSMIT = Comms.Character_OnDataReceived,
+    TALENT_TRANSMIT = Comms.Character_OnDataReceived,
+    GLYPH_TRANSMIT = Comms.Character_OnDataReceived,
+    SPEC_TRANSMIT = Comms.Character_OnDataReceived,
+    TRADESKILL_TRANSMIT = Comms.Character_OnDataReceived,
+
+    --calendar events
+    CALENDAR_EVENT_TRANSMIT = "",
+
+    --guild bank events
+    GUILDBANK_TIMESTAMPS_REQUEST = Comms.Guildbank_OnTimestampsRequested,
+    GUILDBANK_DATA_REQUEST = Comms.Guildbank_OnDataRequested,
+    GUILDBANK_TIMESTAMPS_TRANSMIT = Comms.Guildbank_OnTimestampsReceived,
+    GUILDBANK_DATA_TRANSMIT = Comms.Guildbank_OnDataReceived,
+}
+
+addon:RegisterCallback("Guildbank_DataRequest", Comms.Guildbank_DataRequest, Comms)
+addon:RegisterCallback("Guildbank_TimeStampRequest", Comms.Guildbank_TimeStampRequest, Comms)
+addon:RegisterCallback("Character_BroadcastChange", Comms.Character_BroadcastChange, Comms)
+addon:RegisterCallback("Database_OnInitialised", Comms.Init, Comms)
 
 addon.Comms = Comms;

@@ -1,0 +1,73 @@
+<Ui>
+    <Frame name = "GuildbookWrathEraHelpTipTemplate_BottomArrow" inherits="GlowBoxTemplate" mixin="GuildbookWrathEraHelpTipMixin" virtual="true" enableMouse="true" frameStrata="TOOLTIP">
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString parentKey="text" inherits="GameFontHighlightLeft" justifyH="LEFT" justifyV="MIDDLE">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="5" y="-5"/>
+                        <Anchor point="BOTTOMRIGHT" x="-5" y="5"/>
+                    </Anchors>
+                </FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame parentKey="Arrow" inherits="GlowBoxArrowTemplate">
+				<Size x="61" y="61"/>
+				<Anchors>
+					<Anchor point="BOTTOM" x="0" y="-60"/>
+				</Anchors>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnShow method="OnShow"/>
+		</Scripts>
+	</Frame>
+
+	<Frame name = "GuildbookWrathEraHelpTipTemplate_RightArrow" inherits="GlowBoxTemplate" mixin="GuildbookWrathEraHelpTipMixin" virtual="true" enableMouse="true" frameStrata="TOOLTIP">
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString parentKey="text" inherits="GameFontHighlightLeft" justifyH="LEFT" justifyV="MIDDLE">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="5" y="-5"/>
+                        <Anchor point="BOTTOMRIGHT" x="-5" y="5"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="background">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="1" y="-1"/>
+						<Anchor point="BOTTOMRIGHT" x="-1" y="1"/>
+					</Anchors>
+					<Color r="1" g="1" b="1"/>
+					<Gradient orientation="VERTICAL">
+						<MaxColor r="0.23" g="0.19" b="0"/>
+						<MinColor r="0" g="0" b="0"/>
+					</Gradient>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame parentKey="Arrow" inherits="GlowBoxArrowTemplate">
+				<Size x="61" y="61"/>
+				<Anchors>
+					<Anchor point="BOTTOM" relativePoint="TOP" x="0" y="-30"/>
+				</Anchors>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnShow method="OnShow"/>
+            <OnLoad>
+                self.BG:Hide()
+                self.Arrow:ClearAllPoints()
+                self.Arrow:SetPoint("RIGHT", 36, 0)
+                self.Arrow.Arrow:ClearAllPoints()
+                self.Arrow.Arrow:SetPoint("RIGHT", 0, -1)
+                self.Arrow.Arrow:SetRotation(1.57)
+                self.Arrow.Glow:ClearAllPoints()
+                self.Arrow.Glow:SetPoint("RIGHT", 10, 0)
+                self.Arrow.Glow:SetRotation(1.57)
+            </OnLoad>
+		</Scripts>
+	</Frame>
+</Ui>

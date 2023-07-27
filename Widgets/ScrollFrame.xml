@@ -1,0 +1,12 @@
+<Ui>
+    <!-- <ScrollFrame name = "GuildbookWrathEraScrollFrameTemplate" inherits="UIPanelScrollFrameTemplate,InsetFrameTemplate3"> -->
+    <ScrollFrame name = "GuildbookWrathEraScrollFrameTemplate" mixin="GuildbookWrathEraScrollFrameMixin" inherits="UIPanelScrollFrameTemplate" virtual="true">
+        <ScrollChild>
+            <Frame parentKey="scrollChild">
+            </Frame>
+        </ScrollChild>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+        </Scripts>
+    </ScrollFrame>
+</Ui>

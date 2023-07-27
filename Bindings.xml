@@ -1,0 +1,5 @@
+<Bindings>
+    <Binding name="Open" header="GENERAL" category="Guildbook ">
+        GuildbookUI:Show()
+    </Binding>
+</Bindings>

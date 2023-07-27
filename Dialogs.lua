@@ -1,6 +1,6 @@
 --[==[
 
-Copyright ©2022 Samuel Thomas Pain
+Copyright ©2020 Samuel Thomas Pain
 
 The contents of this addon, excluding third-party resources, are
 copyrighted to their authors with all rights reserved.
@@ -20,58 +20,19 @@ the copyright holders.
 
 ]==]--
 
-local addonName, addon = ...
+local addonName, Guildbook = ...
 
-local L = addon.Locales;
+local L = Guildbook.Locales
+local DEBUG = Guildbook.DEBUG
+local PRINT = Guildbook.PRINT
 
---leaving this dialogue here so i remember how they work if i need to add 1
 
--- StaticPopupDialogs['MainCharacterAddAltCharacter'] = {
---     text = L["DIALOG_MAIN_CHAR_ADD"],
---     button1 = L["UPDATE"],
---     button2 = L["CANCEL"],
---     hasEditBox = true,
---     OnShow = function(self)
---         self.button1:Disable()
---     end,
---     EditBoxOnTextChanged = function(self)
---         if self:GetText() ~= '' then
---             local guid = Roster:GetGuildMemberGUID(self:GetText())
---             local dialogText = _G[self:GetParent():GetName().."Text"]
---             if guid then
---                 local character = Guildbook:GetCharacterFromCache(guid)
---                 dialogText:SetText(string.format(L["DIALOG_MAIN_CHAR_ADD_FOUND"], character.Name, character.Level, L[character.Class]))
---                 self:GetParent().button1:Enable()
---             else
---                 dialogText:SetText(L["DIALOG_MAIN_CHAR_ADD"])
---                 self:GetParent().button1:Disable()
---             end
---         end
---     end,
+StaticPopupDialogs['Error'] = {
+    text = '|cffC41F3BError|r: %s',
+    button1 = 'Yes',
+    --button2 = 'Cancel',
+    OnAccept = function(self, data)
 
---     -- will look at having this just set the alt/main stuff when my brain is working, for now it just adds the guid to the alt characters table where it can then be set
---     OnAccept = function(self)
---         local guid = Roster:GetGuildMemberGUID(self.editBox:GetText())
---         if guid then
---             if not GUILDBOOK_GLOBAL.myCharacters[guid] then
---                 GUILDBOOK_GLOBAL.myCharacters[guid] = true
---             end
---         end
---     end,
---     OnCancel = function(self)
-
---     end,
---     timeout = 0,
---     whileDead = true,
---     hideOnEscape = false,
--- }
-
-StaticPopupDialogs['GuildbookResetGuildData'] = {
-    text = L["DIALOG_RESET_GUILD_DATA"],
-    button1 = ACCEPT,
-    button2 = CANCEL,
-    OnAccept = function(self, t)
-        t.callback()
     end,
     OnCancel = function(self)
 
@@ -79,14 +40,33 @@ StaticPopupDialogs['GuildbookResetGuildData'] = {
     timeout = 0,
     whileDead = true,
     hideOnEscape = false,
+    preferredIndex = 3,
+    showAlert = 1,
 }
 
-StaticPopupDialogs['GuildbookRemoveGuildData'] = {
-    text = L["DIALOG_REMOVE_GUILD_DATA"],
-    button1 = ACCEPT,
-    button2 = CANCEL,
-    OnAccept = function(self, t)
-        t.callback()
+StaticPopupDialogs['Reload'] = {
+    text = 'Settings have changed and a UI reload is required!',
+    button1 = 'Reload UI',
+    --button2 = 'Cancel',
+    OnAccept = function(self)
+        ReloadUI()
+    end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = false,
+    preferredIndex = 3,
+    showAlert = 1,
+}
+
+StaticPopupDialogs['GuildbookDeleteGuild'] = {
+    text = 'Delete all data for %s',
+    button1 = 'Yes',
+    button2 = 'Cancel',
+    OnAccept = function(self, data)
+        GUILDBOOK_GLOBAL['GuildRosterCache'][data.Guild] = nil
+        GUILDBOOK_GLOBAL['Calendar'][data.Guild] = nil
+        GUILDBOOK_GLOBAL['CalendarDeleted'][data.Guild] = nil
+        print('All data for '..data.Guild..' deleted')
     end,
     OnCancel = function(self)
 
@@ -94,44 +74,100 @@ StaticPopupDialogs['GuildbookRemoveGuildData'] = {
     timeout = 0,
     whileDead = true,
     hideOnEscape = false,
+    preferredIndex = 3,
+    showAlert = 1,
 }
 
-StaticPopupDialogs['GuildbookAddMainCharacter'] = {
-    text = L["DIALOG_ADD_MAIN_CHARACTER"],
-    button1 = ACCEPT,
-    button2 = CANCEL,
+StaticPopupDialogs['GuildbookResetCharacter'] = {
+    text = 'Reset data for '..select(1, UnitName("player"))..' to default values?',
+    button1 = 'Reset',
+    button2 = 'Cancel',
+    OnAccept = function(self)
+        wipe(GUILDBOOK_CHARACTER)
+        local guildName = Guildbook:GetGuildName()
+        if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
+            GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][UnitGUID('player')] = nil
+        end
+        GUILDBOOK_CHARACTER = Guildbook.Data.DefaultCharacterSettings
+        DEBUG("error", "ResetCharacterData", "set character saved var table to default values")
+    end,
+    OnCancel = function(self)
+
+    end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = false,
+    preferredIndex = 3,
+    showAlert = 1,
+}
+
+StaticPopupDialogs['GuildbookResetCacheCharacter'] = {
+    text = 'Reset data for %s?',
+    button1 = 'Reset',
+    button2 = 'Cancel',
+    OnAccept = function(self, t)
+        wipe(GUILDBOOK_CHARACTER)
+        local guildName = Guildbook:GetGuildName()
+        if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
+            GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][t.guid] = nil
+        end
+    end,
+    OnCancel = function(self)
+
+    end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = false,
+    preferredIndex = 3,
+    showAlert = 1,
+}
+
+StaticPopupDialogs['GuildbookResetGlobalSettings'] = {
+    text = 'Reset global settings to default values? \n\nThis will delete all data about all guilds you are a member of.',
+    button1 = 'Reset',
+    button2 = 'Cancel',
+    OnAccept = function(self)
+        if GUILDBOOK_GLOBAL then
+            wipe(GUILDBOOK_GLOBAL)
+            GUILDBOOK_GLOBAL = Guildbook.Data.DefaultGlobalSettings
+            GuildbookOptionsDebugCB:SetChecked(GUILDBOOK_GLOBAL['Debug'])
+        end
+        ReloadUI()
+    end,
+    OnCancel = function(self)
+
+    end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = false,
+    preferredIndex = 3,
+    showAlert = 1,
+}
+
+StaticPopupDialogs['GuildbookGatheringDatabaseEditObject'] = {
+    text = '-',
+    button1 = 'Update',
+    button2 = 'Cancel',
     hasEditBox = true,
     OnShow = function(self)
         self.button1:Disable()
     end,
-    EditBoxOnTextChanged = function(self, data)
+    EditBoxOnTextChanged = function(self)
         if self:GetText() ~= '' then
-            local character = data.findCharacter(self:GetText())
-            local dialogText = _G[self:GetParent():GetName().."Text"]
-            if type(character) == "table" then
-                if (GetLocale() == "enUS") then
-                    dialogText:SetText(L["DIALOG_FOUND_MAIN_CHAR_SSS"]:format(character:GetName(), character:GetLevel(), character:GetClass()))
-                    self:GetParent().button1:Enable()
-                elseif (GetLocale() == "deDE") then
-                    dialogText:SetText(L["DIALOG_FOUND_MAIN_CHAR_SSS"]:format(string.upper(L[character:GetClass()]), character:GetLevel(), character:GetName()))
-                    self:GetParent().button1:Enable()
-                 elseif (GetLocale() == "frFR") or (GetLocale() == "esES") or (GetLocale() == "esMX") or (GetLocale() == "ptBR") then
-                    dialogText:SetText(L["DIALOG_FOUND_MAIN_CHAR_SSS"]:format(character:GetName(), string.upper(L[character:GetClass()]), character:GetLevel()))
-                    self:GetParent().button1:Enable()
-                end
-            else
-                dialogText:SetText(L["DIALOG_ADD_MAIN_CHARACTER"])
+            if(self:GetText():match("%W")) then
                 self:GetParent().button1:Disable()
             end
+            self:GetParent().button1:Enable()
         end
     end,
-
-    -- will look at having this just set the alt/main stuff when my brain is working, for now it just adds the guid to the alt characters table where it can then be set
-    OnAccept = function(self, data)
-        local character = data.findCharacter(self.editBox:GetText())
-        if type(character) == "table" then
-            data.addAlt(character)
+    OnAccept = function(self, data, data2) --data is the gameObject and data2 is the key within the object
+        if tostring(type(data[data2])) == 'number' then
+            data[data2] = tonumber(self.editBox:GetText())
+        else
+            data[data2] = tostring(self.editBox:GetText())
         end
+        PRINT(Guildbook.FONT_COLOUR, tostring('updated game object field: '..data2..' with new value: '..self.editBox:GetText()))
+        Guildbook.OptionsInterface.GatheringDatabase.RefreshListView()
     end,
     OnCancel = function(self)
 
@@ -139,4 +175,42 @@ StaticPopupDialogs['GuildbookAddMainCharacter'] = {
     timeout = 0,
     whileDead = true,
     hideOnEscape = false,
+    preferredIndex = 3,
+    showAlert = 1,
 }
+
+StaticPopupDialogs['GuildbookUpdateAvailable'] = {
+    text = 'Guildbook: %s',
+    button1 = 'OK',
+    hasEditBox = true,
+    OnShow = function(self)
+        --self.icon:SetTexture(132049)
+        self.icon:SetTexture(nil)
+        self.editBox:SetMaxLetters(50)
+        --self.editBox:SetWidth(300)
+        self.editBox:SetText('https://www.curseforge.com/wow/addons/guildbook')
+        self.editBox:HighlightText()
+    end,
+    OnAccept = function(self)
+
+    end,
+}
+
+StaticPopupDialogs['GuildbookUpdates'] = {
+    text = 'Guildbook Version: %s\n\n%s',
+    button1 = 'OK',
+    OnAccept = function(self)
+        GUILDBOOK_GLOBAL.configUpdate = true
+    end,
+    OnShow = function(self)
+    end,
+    OnHide = function(self)
+        --self.icon:SetTexture("Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew")
+    end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = false,
+    preferredIndex = 3,
+    showAlert = 1,
+}
+

@@ -1,0 +1,376 @@
+<Ui>
+    <Frame name="GuildbookProfile" mixin="GuildbookProfileMixin">
+        <Animations>
+            <AnimationGroup parentKey="anim" setToFinalAlpha="true">
+                <Alpha duration="0.16" fromAlpha="0" toAlpha="1"/>
+            </AnimationGroup>
+        </Animations>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="background" setAllPoints="true" vertTile="true" horizTile="true">
+                    <Color r="0" g="0" b="0" a="0.7"/>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Frames>
+
+            <Frame parentKey="sidePane" useParentLevel="true">
+                <Animations>
+                    <AnimationGroup parentKey="anim" setToFinalAlpha="true">
+                        <Alpha parentKey="fadeIn" duration="0.25" fromAlpha="0" toAlpha="1"/>
+                    </AnimationGroup>
+                </Animations>
+                <Size x="170"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="0" y="0"/>
+                    <Anchor point="BOTTOMLEFT" x="0" y="0"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND" textureSubLevel="1">
+                        <Texture parentKey="background" atlas="transmog-background-race-human" setAllPoints="true" alpha="1">
+                        </Texture>
+                    </Layer>
+                    <Layer level="OVERLAY">
+                        <FontString parentKey="name" inherits="GameFontNormalLarge" text="-">
+                            <Color r="1" g="1" b="1"/>
+                            <Size y="46"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="0" y="-5"/>
+                                <Anchor point="TOPRIGHT" x="0" y="-5"/>
+                            </Anchors>
+                        </FontString>
+                        <FontString parentKey="mainCharacter" inherits="GameFontNormal" text="">
+                            <Size y="16"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeKey="$parent.name" x="0" y="-10"/>
+                                <Anchor point="TOPRIGHT" relativePoint="BOTTOMRIGHT" relativeKey="$parent.name" x="0" y="-10"/>
+                            </Anchors>
+                        </FontString>
+                        <FontString parentKey="mainSpec" inherits="GameFontNormalLarge" text="-">
+                            <Color r="1" g="1" b="1"/>
+                            <Size y="26"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeKey="$parent.mainCharacter" x="0" y="-15"/>
+                                <Anchor point="TOPRIGHT" relativePoint="BOTTOMRIGHT" relativeKey="$parent.mainCharacter" x="0" y="-15"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+                <Frames>
+                    <Frame parentKey="listview" inherits = "GuildbookWrathEraWidgetsListviewTemplate">
+                        <Anchors>
+                            <Anchor point="TOP" relativeKey="$parent.mainSpec" relativePoint="BOTTOM" x="0" y="-15"/>
+                            <Anchor point="BOTTOMLEFT" x="0" y="0"/>
+                            <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                        </Anchors>
+                        <KeyValues>
+                            <KeyValue key="frameType" value="FRAME" type="string"/>
+                            <KeyValue key="itemTemplate" value="GuildbookWrathEraSimpleIconLabelFrame" type="string"/>
+                            <KeyValue key="elementHeight" value="32" type="number"/>
+                        </KeyValues>
+                    </Frame>
+                    <Frame parentKey="helptip" frameLevel="7" inherits = "GuildbookWrathEraHelpTipTemplate_RightArrow">
+                        <Size x="200" y="210"/>
+                        <Anchors>
+                            <Anchor point="RIGHT" relativeKey="$parent.listview" relativePoint="LEFT" x="-20" y="60"/>
+                        </Anchors>
+                    </Frame>
+                </Frames>
+
+            </Frame>
+
+            <!-- <Frame parentKey="avatarPicker" mixin="GuildbookAvatarPickerMixin" inherits="BasicFrameTemplate" hidden="true">
+                <Size x="275"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" relativeTo="GuildbookUI" x="5" y="0"/>
+                    <Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" relativeTo="GuildbookUI" x="5" y="0"/>
+                </Anchors>
+                <Scripts>
+                    <OnLoad method="OnLoad"/>
+                </Scripts>
+                <Frames>
+                    <Button parentKey="resetAvatar" inherits="UIPanelButtonTemplate">
+                        <Size x="100" y="20"/>
+                        <Anchors>
+                            <Anchor point="TOP" x="0" y="0"/>
+                        </Anchors>
+                    </Button>
+                    <Slider parentKey="scrollBar" inherits="UIPanelScrollBarTemplate" orientation="VERTICAL">
+                        <Anchors>
+                            <Anchor point="TOPRIGHT" x="-6" y="-42"/>
+                            <Anchor point="BOTTOMRIGHT" x="-6" y="20"/>
+                        </Anchors>
+                        <Scripts>
+                            <OnValueChanged>
+                                self:GetParent():ScrollBar_OnValueChanged()
+                            </OnValueChanged>
+                        </Scripts>
+                    </Slider>
+                </Frames>
+                <Scripts>
+                    <OnMouseWheel method="OnMouseWheel"/>
+                </Scripts>
+            </Frame> -->
+
+            <Frame parentKey="inventory" parentArray="contentViews">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.sidePane" relativePoint="TOPRIGHT" x="0" y="0"/>
+                    <Anchor point="BOTTOMLEFT" relativeKey="$parent.sidePane" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+                    <Anchor point="TOPRIGHT" x="0" y="0"/>
+                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                </Anchors>
+                <Frames>
+                    <ScrollFrame parentKey="resistanceGridview" inherits = "GuildbookWrathEraWidgetsGridviewTemplate">
+                        <Anchors>
+                            <Anchor point="TOPRIGHT" x="0" y="0"/>
+                        </Anchors>
+                    </ScrollFrame>
+                    <Frame parentKey="equipmentHelptip" frameLevel="7" inherits = "GuildbookWrathEraHelpTipTemplate_RightArrow">
+                        <Size x="360" y="140"/>
+                        <Anchors>
+                            <Anchor point="RIGHT" relativeKey="$parent.resistanceGridview" relativePoint="LEFT" x="-10" y="-80"/>
+                        </Anchors>
+                    </Frame>
+                    <ScrollFrame parentKey="auraGridview" inherits = "GuildbookWrathEraWidgetsGridviewTemplate">
+                        <Anchors>
+                            <Anchor point="TOPRIGHT" relativeKey="$parent.resistanceGridview" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+                            <Anchor point="TOPLEFT" relativeKey="$parent.resistanceGridview" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+                        </Anchors>
+                    </ScrollFrame>
+                    <Frame parentKey="statsListview" inherits = "GuildbookWrathEraWidgetsListviewTemplate">
+                        <Anchors>
+                            <Anchor point="TOPRIGHT" relativeKey="$parent.auraGridview" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+                            <Anchor point="TOPLEFT" relativeKey="$parent.auraGridview" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+                            <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture parentKey="background">
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                        <KeyValues>
+                            <KeyValue key="frameType" value="FRAME" type="string"/>
+                            <KeyValue key="itemTemplate" value="GuildbookWrathEraStatsGroup" type="string"/>
+                            <KeyValue key="elementHeight" value="26" type="number"/>
+                        </KeyValues>
+                    </Frame>
+                    <Frame parentKey="equipmentListview" inherits = "GuildbookWrathEraWidgetsListviewTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" x="0" y="-32"/>
+                            <Anchor point="BOTTOMLEFT" x="0" y="0"/>
+                            <Anchor point="BOTTOMRIGHT" relativeKey="$parent.statsListview" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture parentKey="background">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="0" y="32"/>
+                                        <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                        <KeyValues>
+                            <KeyValue key="frameType" value="FRAME" type="string"/>
+                            <KeyValue key="itemTemplate" value="GuildbookWrathEraSimpleIconLabelFrame" type="string"/>
+                            <KeyValue key="elementHeight" value="32" type="number"/>
+                        </KeyValues>                        
+                    </Frame>
+                    <Button parentKey="equipmentMenu" inherits="GuildbookWrathEraWidgetsDropDownTemplate">
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT" relativeKey="$parent.equipmentListview" relativePoint="TOPLEFT" x="0" y="0"/>
+                        </Anchors>
+                        <Size x="120" y="32"/>
+                    </Button>
+                </Frames>
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <FontString parentKey="gearScore" inherits="GameFontNormal" text="GearScore">
+                            <Color r="1" g="1" b="1"/>
+                            <Size x="120" y="32"/>
+                            <Anchors>
+                                <Anchor point="LEFT" relativeKey="$parent.equipmentMenu" relativePoint="RIGHT" x="10" y="0"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+            </Frame>
+
+            <Frame parentKey="glyphs" parentArray="contentViews" hidden="true">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.sidePane" relativePoint="TOPRIGHT" x="0" y="0"/>
+                    <Anchor point="TOPRIGHT" x="0" y="0"/>
+                </Anchors>
+                <Size y="50"/>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        
+                    </Layer>
+                    <Layer level="OVERLAY">
+                        <FontString parentKey="major1" inherits="GameFontNormal">
+                            <Color r="1" g="1" b="1"/>
+                            <Size y="25"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="0" y="0"/>
+                            </Anchors>
+                        </FontString>
+                        <FontString parentKey="major2" inherits="GameFontNormal">
+                            <Color r="1" g="1" b="1"/>
+                            <Size y="25"/>
+                            <Anchors>
+                                <Anchor point="LEFT" relativeKey="$parent.major1" relativePoint="RIGHT" x="0" y="0"/>
+                            </Anchors>
+                        </FontString>
+                        <FontString parentKey="major3" inherits="GameFontNormal">
+                            <Color r="1" g="1" b="1"/>
+                            <Size y="25"/>
+                            <Anchors>
+                                <Anchor point="LEFT" relativeKey="$parent.major2" relativePoint="RIGHT" x="0" y="0"/>
+                            </Anchors>
+                        </FontString>
+                        <FontString parentKey="minor1" inherits="GameFontNormal">
+                            <Color r="1" g="1" b="1"/>
+                            <Size y="25"/>
+                            <Anchors>
+                                <Anchor point="BOTTOMLEFT" x="0" y="0"/>
+                            </Anchors>
+                        </FontString>
+                        <FontString parentKey="minor2" inherits="GameFontNormal">
+                            <Color r="1" g="1" b="1"/>
+                            <Size y="25"/>
+                            <Anchors>
+                                <Anchor point="LEFT" relativeKey="$parent.minor1" relativePoint="RIGHT" x="0" y="0"/>
+                            </Anchors>
+                        </FontString>
+                        <FontString parentKey="minor3" inherits="GameFontNormal">
+                            <Color r="1" g="1" b="1"/>
+                            <Size y="25"/>
+                            <Anchors>
+                                <Anchor point="LEFT" relativeKey="$parent.minor2" relativePoint="RIGHT" x="0" y="0"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+            </Frame>
+
+            <Frame parentKey="talents" parentArray="contentViews" hidden="true">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.glyphs" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+                    <Anchor point="BOTTOMLEFT" relativeKey="$parent.sidePane" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                </Anchors>
+                <Frames>
+                    <Button parentKey="primarySpec">
+                        <Size x="70" y="70"/>
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="2" y="-30"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture parentKey="icon" setAllPoints="true" file="interface/spellbook/spellbook-skilllinetab">
+                                </Texture>
+                            </Layer>
+                            <Layer level="ARTWORK">
+                                <Texture parentKey="icon">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="4" y="-14"/>
+                                        <Anchor point="BOTTOMRIGHT" x="-34" y="24"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                    </Button>
+                    <Button parentKey="secondarySpec">
+                        <Size x="70" y="70"/>
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="2" y="-90"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture parentKey="icon" setAllPoints="true" file="interface/spellbook/spellbook-skilllinetab">
+                                </Texture>
+                            </Layer>
+                            <Layer level="ARTWORK">
+                                <Texture parentKey="icon">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="4" y="-14"/>
+                                        <Anchor point="BOTTOMRIGHT" x="-34" y="24"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                    </Button>
+                    <Frame parentKey="tree1">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" x="0" y="0"/>
+                            <Anchor point="BOTTOMLEFT" x="0" y="0"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture parentKey="background" setAllPoints="true">
+                                    <Texcoords left="0" right="0.5546875" top="0" bottom="0.611328125"/>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                        <Frames>
+                            <ScrollFrame parentKey="talentsGridview" inherits = "GuildbookWrathEraWidgetsGridviewTemplate">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="0" y="0"/>
+                                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                                </Anchors>
+                            </ScrollFrame>
+                        </Frames>
+                    </Frame>
+                    <Frame parentKey="tree2">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeKey="$parent.tree1" relativePoint="TOPRIGHT" x="0" y="0"/>
+                            <Anchor point="BOTTOMLEFT" relativeKey="$parent.tree1" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture parentKey="background" setAllPoints="true">
+                                    <Texcoords left="0" right="0.5546875" top="0" bottom="0.611328125"/>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                        <Frames>
+                            <ScrollFrame parentKey="talentsGridview" inherits = "GuildbookWrathEraWidgetsGridviewTemplate">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="0" y="0"/>
+                                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                                </Anchors>
+                            </ScrollFrame>
+                        </Frames>
+                    </Frame>
+                    <Frame parentKey="tree3">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeKey="$parent.tree2" relativePoint="TOPRIGHT" x="0" y="0"/>
+                            <Anchor point="BOTTOMLEFT" relativeKey="$parent.tree2" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+                            <Anchor point="RIGHT" x="0" y="0"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture parentKey="background" setAllPoints="true">
+                                    <Texcoords left="0" right="0.5546875" top="0" bottom="0.611328125"/>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                        <Frames>
+                            <ScrollFrame parentKey="talentsGridview" inherits = "GuildbookWrathEraWidgetsGridviewTemplate">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="0" y="0"/>
+                                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                                </Anchors>
+                            </ScrollFrame>
+                        </Frames>
+                    </Frame>
+                </Frames>
+            </Frame>
+        </Frames>
+
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+        </Scripts>
+    </Frame>
+</Ui>
