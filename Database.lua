@@ -21,9 +21,13 @@ local configUpdates = {
     tradeskillsShowMyRecipesUsingTooltip = false,
 }
 
-function Database:Init()
+function Database:Init(updateAccepted)
 
     local version = tonumber(GetAddOnMetadata(name, "Version"));
+
+    if not GUILDBOOK_GLOBAL then
+        GUILDBOOK_GLOBAL = {}
+    end
 
     if not GUILDBOOK_GLOBAL.version then
         GUILDBOOK_GLOBAL = nil
@@ -31,6 +35,10 @@ function Database:Init()
         if GUILDBOOK_GLOBAL.version < version then
             
         end
+    end
+
+    if updateAccepted then
+        GUILDBOOK_GLOBAL.showUpdateDialog = false;
     end
 
     if not GUILDBOOK_GLOBAL then
@@ -67,7 +75,7 @@ end
 
 function Database:Reset()
 
-    GUILDBOOK_WRATH_GLOBAL = {
+    GUILDBOOK_GLOBAL = {
         config = {
             chatGuildHistoryLimit = 50,
             chatWhisperHistoryLimit = 50,
@@ -84,7 +92,7 @@ function Database:Reset()
         debug = false,
     }
 
-    self.db = GUILDBOOK_WRATH_GLOBAL;
+    self.db = GUILDBOOK_GLOBAL;
 
     addon.guilds = {}
     addon.characters = {}

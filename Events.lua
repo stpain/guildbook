@@ -399,7 +399,11 @@ function e:PLAYER_ENTERING_WORLD()
 
     -- Talents:GetPlayerTalentInfo()
 
-    Database:Init()
+    if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.showUpdateDialog then
+        StaticPopup_Show("GuildbookUpdated")
+    else
+        Database:Init()
+    end
 end
 
 local classFileNameToClassId = {
@@ -419,6 +423,13 @@ local classFileNameToClassId = {
 }
 addon.initialGuildRosterScanned = false
 function e:GUILD_ROSTER_UPDATE()
+
+    if not Database then
+        return
+    end
+    if not Database.db then
+        return
+    end
 
     local guildName;
     if IsInGuild() and GetGuildInfo("player") then
@@ -452,7 +463,7 @@ function e:GUILD_ROSTER_UPDATE()
                     general = {},
                     members = {}, --use this for people joining/leaving the guild
                     promotions = {}, --use this for members being promoted/demoted
-                    guildbank = {}, --use this for guild bank withdraw etc
+                    --guildbank = {}, --use this for guild bank withdraw etc
                 },
                 info = {},
                 achievements = {},
@@ -586,6 +597,7 @@ function e:GUILD_ROSTER_UPDATE()
                     -- end
                 end
 
+                --? cannot remember why i did this...
                 local objsRemoved = false;
                 for name, obj in pairs(addon.characters) do
                     if not members[obj.data.name] then
@@ -621,12 +633,12 @@ local function processSkillLines(skills)
                 if addon.characters[addon.thisCharacter].data.profession1 == "-" then
                     addon.characters[addon.thisCharacter]:SetTradeskill(1, tradeskillId, true);
                     addon.characters[addon.thisCharacter]:SetTradeskillLevel(1, level, true)
-                    tempProf1 = tradeskillId
+                    --tempProf1 = tradeskillId
                 else
                     if (addon.characters[addon.thisCharacter].data.profession2 == "-") and (addon.characters[addon.thisCharacter].data.profession1 ~= tradeskillId) then
                         addon.characters[addon.thisCharacter]:SetTradeskill(2, tradeskillId, true);
                         addon.characters[addon.thisCharacter]:SetTradeskillLevel(2, level, true)
-                        tempProf2 = tradeskillId
+                        --tempProf2 = tradeskillId
                     end
                 end
                 if addon.characters[addon.thisCharacter].data.profession1 == tradeskillId then
@@ -825,12 +837,7 @@ function e:Database_OnInitialised()
 
     if not Database.db.myCharacters[addon.thisCharacter] then
         Database.db.myCharacters[addon.thisCharacter] = false;
-        print("Registered character:", addon.thisCharacter)
     end
-
-    -- C_Timer.After(5, function()
-    --     -0-addon.scanTradeskillItems()
-    -- end)
 
     UIParentLoadAddOn("Blizzard_DebugTools");
 

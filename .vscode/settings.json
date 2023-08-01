@@ -36,6 +36,9 @@
         "ScrollUtil",
         "CreateScrollBoxListLinearView",
         "GenerateClosure",
-        "CreateAnchor"
+        "CreateAnchor",
+        "YES",
+        "NO",
+        "StaticPopup_Show"
     ]
 }

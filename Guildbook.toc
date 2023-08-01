@@ -43,6 +43,8 @@ Classes\Character.lua
 Classes\Guild.lua
 Classes\Talents.lua
 
+Dialogs.lua
+
 Globals.lua
 Callbacks.lua
 
@@ -52,8 +54,8 @@ Templates.xml
 GuildbookMixin.lua
 GuildbookUI.xml
 
-Views\Calendar\Calendar.lua
-Views\Calendar\Calendar.xml
+#Views\Calendar\Calendar.lua
+#Views\Calendar\Calendar.xml
 
 Views\Tradeskills\Tradeskills.lua
 Views\Tradeskills\Tradeskills.xml
@@ -81,7 +83,5 @@ Views\Search\Search.xml
 
 
 Comms.lua
-
-tempData.lua
 
 Events.lua

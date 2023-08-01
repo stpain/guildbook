@@ -11,6 +11,8 @@ addon:GenerateCallbackEvents({
     "Character_OnDataChanged",
     "Character_OnTradeskillSelected",
     "Character_BroadcastChange",
+    
+    "Profile_OnItemDataLoaded",
 
     "Player_Regen_Disabled",
     "Player_Regen_Enabled",

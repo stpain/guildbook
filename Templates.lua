@@ -996,6 +996,12 @@ function GuildbookSimpleIconLabelMixin:SetDataBinding(binding, height)
 
     self:SetScript("OnMouseDown", nil)
 
+    if binding.backgroundAlpha then
+        self.background:SetAlpha(binding.backgroundAlpha)
+    else
+        self.background:SetAlpha(0)
+    end
+
     self.label:SetText(binding.label)
     if binding.atlas then
         self.icon:SetAtlas(binding.atlas)
@@ -1055,6 +1061,8 @@ function GuildbookSimpleIconLabelMixin:SetDataBinding(binding, height)
 							HandleModifiedItemClick(link)
 						end
                     end)
+
+                    addon:TriggerEvent("Profile_OnItemDataLoaded")
                 end)
             end
         end

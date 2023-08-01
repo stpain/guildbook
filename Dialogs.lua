@@ -20,29 +20,11 @@ the copyright holders.
 
 ]==]--
 
-local addonName, Guildbook = ...
+local addonName, addon = ...
 
-local L = Guildbook.Locales
-local DEBUG = Guildbook.DEBUG
-local PRINT = Guildbook.PRINT
+local L = addon.Locales
 
 
-StaticPopupDialogs['Error'] = {
-    text = '|cffC41F3BError|r: %s',
-    button1 = 'Yes',
-    --button2 = 'Cancel',
-    OnAccept = function(self, data)
-
-    end,
-    OnCancel = function(self)
-
-    end,
-    timeout = 0,
-    whileDead = true,
-    hideOnEscape = false,
-    preferredIndex = 3,
-    showAlert = 1,
-}
 
 StaticPopupDialogs['Reload'] = {
     text = 'Settings have changed and a UI reload is required!',
@@ -58,15 +40,16 @@ StaticPopupDialogs['Reload'] = {
     showAlert = 1,
 }
 
-StaticPopupDialogs['GuildbookDeleteGuild'] = {
-    text = 'Delete all data for %s',
-    button1 = 'Yes',
-    button2 = 'Cancel',
+StaticPopupDialogs['GuildbookUpdated'] = {
+    text = "WARNING !!!\n\n|cffC41F3BGuildbook has changed and if you proceed with this update you will lose all current data|r.\n\nGuildbook 6.0 is a rework of an older version that was updated for classic era, it is NOT compatabile with the current wrath version\n\nBUT\n\nit does include missing recipes and will have th best chance of getting any updates.\n\nDo you want to continue...",
+    button1 = YES,
+    button2 = NO,
     OnAccept = function(self, data)
-        GUILDBOOK_GLOBAL['GuildRosterCache'][data.Guild] = nil
-        GUILDBOOK_GLOBAL['Calendar'][data.Guild] = nil
-        GUILDBOOK_GLOBAL['CalendarDeleted'][data.Guild] = nil
-        print('All data for '..data.Guild..' deleted')
+        GUILDBOOK_GLOBAL = nil
+        print('Well thats it, all data has been exterminated! Fingers crossed this thing boots up.....')
+        C_Timer.After(math.random(3,9), function()
+            addon.Database:Init(true)
+        end)
     end,
     OnCancel = function(self)
 
@@ -77,140 +60,3 @@ StaticPopupDialogs['GuildbookDeleteGuild'] = {
     preferredIndex = 3,
     showAlert = 1,
 }
-
-StaticPopupDialogs['GuildbookResetCharacter'] = {
-    text = 'Reset data for '..select(1, UnitName("player"))..' to default values?',
-    button1 = 'Reset',
-    button2 = 'Cancel',
-    OnAccept = function(self)
-        wipe(GUILDBOOK_CHARACTER)
-        local guildName = Guildbook:GetGuildName()
-        if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
-            GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][UnitGUID('player')] = nil
-        end
-        GUILDBOOK_CHARACTER = Guildbook.Data.DefaultCharacterSettings
-        DEBUG("error", "ResetCharacterData", "set character saved var table to default values")
-    end,
-    OnCancel = function(self)
-
-    end,
-    timeout = 0,
-    whileDead = true,
-    hideOnEscape = false,
-    preferredIndex = 3,
-    showAlert = 1,
-}
-
-StaticPopupDialogs['GuildbookResetCacheCharacter'] = {
-    text = 'Reset data for %s?',
-    button1 = 'Reset',
-    button2 = 'Cancel',
-    OnAccept = function(self, t)
-        wipe(GUILDBOOK_CHARACTER)
-        local guildName = Guildbook:GetGuildName()
-        if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL['GuildRosterCache'] and GUILDBOOK_GLOBAL['GuildRosterCache'][guildName] then
-            GUILDBOOK_GLOBAL['GuildRosterCache'][guildName][t.guid] = nil
-        end
-    end,
-    OnCancel = function(self)
-
-    end,
-    timeout = 0,
-    whileDead = true,
-    hideOnEscape = false,
-    preferredIndex = 3,
-    showAlert = 1,
-}
-
-StaticPopupDialogs['GuildbookResetGlobalSettings'] = {
-    text = 'Reset global settings to default values? \n\nThis will delete all data about all guilds you are a member of.',
-    button1 = 'Reset',
-    button2 = 'Cancel',
-    OnAccept = function(self)
-        if GUILDBOOK_GLOBAL then
-            wipe(GUILDBOOK_GLOBAL)
-            GUILDBOOK_GLOBAL = Guildbook.Data.DefaultGlobalSettings
-            GuildbookOptionsDebugCB:SetChecked(GUILDBOOK_GLOBAL['Debug'])
-        end
-        ReloadUI()
-    end,
-    OnCancel = function(self)
-
-    end,
-    timeout = 0,
-    whileDead = true,
-    hideOnEscape = false,
-    preferredIndex = 3,
-    showAlert = 1,
-}
-
-StaticPopupDialogs['GuildbookGatheringDatabaseEditObject'] = {
-    text = '-',
-    button1 = 'Update',
-    button2 = 'Cancel',
-    hasEditBox = true,
-    OnShow = function(self)
-        self.button1:Disable()
-    end,
-    EditBoxOnTextChanged = function(self)
-        if self:GetText() ~= '' then
-            if(self:GetText():match("%W")) then
-                self:GetParent().button1:Disable()
-            end
-            self:GetParent().button1:Enable()
-        end
-    end,
-    OnAccept = function(self, data, data2) --data is the gameObject and data2 is the key within the object
-        if tostring(type(data[data2])) == 'number' then
-            data[data2] = tonumber(self.editBox:GetText())
-        else
-            data[data2] = tostring(self.editBox:GetText())
-        end
-        PRINT(Guildbook.FONT_COLOUR, tostring('updated game object field: '..data2..' with new value: '..self.editBox:GetText()))
-        Guildbook.OptionsInterface.GatheringDatabase.RefreshListView()
-    end,
-    OnCancel = function(self)
-
-    end,
-    timeout = 0,
-    whileDead = true,
-    hideOnEscape = false,
-    preferredIndex = 3,
-    showAlert = 1,
-}
-
-StaticPopupDialogs['GuildbookUpdateAvailable'] = {
-    text = 'Guildbook: %s',
-    button1 = 'OK',
-    hasEditBox = true,
-    OnShow = function(self)
-        --self.icon:SetTexture(132049)
-        self.icon:SetTexture(nil)
-        self.editBox:SetMaxLetters(50)
-        --self.editBox:SetWidth(300)
-        self.editBox:SetText('https://www.curseforge.com/wow/addons/guildbook')
-        self.editBox:HighlightText()
-    end,
-    OnAccept = function(self)
-
-    end,
-}
-
-StaticPopupDialogs['GuildbookUpdates'] = {
-    text = 'Guildbook Version: %s\n\n%s',
-    button1 = 'OK',
-    OnAccept = function(self)
-        GUILDBOOK_GLOBAL.configUpdate = true
-    end,
-    OnShow = function(self)
-    end,
-    OnHide = function(self)
-        --self.icon:SetTexture("Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew")
-    end,
-    timeout = 0,
-    whileDead = true,
-    hideOnEscape = false,
-    preferredIndex = 3,
-    showAlert = 1,
-}
-

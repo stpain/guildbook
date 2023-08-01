@@ -6,428 +6,6 @@ local Tradeskills = addon.Tradeskills;
 local Character = addon.Character;
 
 
-local talentData = {
-	["tabs"] = {
-		{
-			["fileName"] = "WarlockCurses",
-			["pointsSpent"] = 0,
-		}, -- [1]
-		{
-			["fileName"] = "WarlockSummoning",
-			["pointsSpent"] = 0,
-		}, -- [2]
-		{
-			["fileName"] = "WarlockDestruction",
-			["pointsSpent"] = 0,
-		}, -- [3]
-	},
-	["talents"] = {
-		{
-			["tabID"] = 1,
-			["spellId"] = 18174,
-			["col"] = 2,
-			["maxRank"] = 5,
-			["row"] = 1,
-			["rank"] = 0,
-		}, -- [1]
-		{
-			["tabID"] = 1,
-			["spellId"] = 17810,
-			["col"] = 3,
-			["maxRank"] = 5,
-			["row"] = 1,
-			["rank"] = 0,
-		}, -- [2]
-		{
-			["tabID"] = 1,
-			["spellId"] = 18179,
-			["col"] = 1,
-			["maxRank"] = 3,
-			["row"] = 2,
-			["rank"] = 0,
-		}, -- [3]
-		{
-			["tabID"] = 1,
-			["spellId"] = 18213,
-			["col"] = 2,
-			["maxRank"] = 2,
-			["row"] = 2,
-			["rank"] = 0,
-		}, -- [4]
-		{
-			["tabID"] = 1,
-			["spellId"] = 18182,
-			["col"] = 3,
-			["maxRank"] = 2,
-			["row"] = 2,
-			["rank"] = 0,
-		}, -- [5]
-		{
-			["tabID"] = 1,
-			["spellId"] = 17804,
-			["col"] = 4,
-			["maxRank"] = 5,
-			["row"] = 2,
-			["rank"] = 0,
-		}, -- [6]
-		{
-			["tabID"] = 1,
-			["spellId"] = 18827,
-			["col"] = 1,
-			["maxRank"] = 3,
-			["row"] = 3,
-			["rank"] = 0,
-		}, -- [7]
-		{
-			["tabID"] = 1,
-			["spellId"] = 17783,
-			["col"] = 2,
-			["maxRank"] = 5,
-			["row"] = 3,
-			["rank"] = 0,
-		}, -- [8]
-		{
-			["tabID"] = 1,
-			["spellId"] = 18288,
-			["col"] = 3,
-			["maxRank"] = 1,
-			["row"] = 3,
-			["rank"] = 0,
-		}, -- [9]
-		{
-			["tabID"] = 1,
-			["spellId"] = 18218,
-			["col"] = 1,
-			["maxRank"] = 2,
-			["row"] = 4,
-			["rank"] = 0,
-		}, -- [10]
-		{
-			["tabID"] = 1,
-			["spellId"] = 18094,
-			["col"] = 2,
-			["maxRank"] = 2,
-			["row"] = 4,
-			["rank"] = 0,
-		}, -- [11]
-		{
-			["tabID"] = 1,
-			["spellId"] = 17864,
-			["col"] = 4,
-			["maxRank"] = 2,
-			["row"] = 4,
-			["rank"] = 0,
-		}, -- [12]
-		{
-			["tabID"] = 1,
-			["spellId"] = 18265,
-			["col"] = 2,
-			["maxRank"] = 1,
-			["row"] = 5,
-			["rank"] = 0,
-		}, -- [13]
-		{
-			["tabID"] = 1,
-			["spellId"] = 18223,
-			["col"] = 3,
-			["maxRank"] = 1,
-			["row"] = 5,
-			["rank"] = 0,
-		}, -- [14]
-		{
-			["tabID"] = 1,
-			["spellId"] = 18310,
-			["col"] = 4,
-			["maxRank"] = 4,
-			["row"] = 5,
-			["rank"] = 0,
-		}, -- [15]
-		{
-			["tabID"] = 1,
-			["spellId"] = 18271,
-			["col"] = 2,
-			["maxRank"] = 5,
-			["row"] = 6,
-			["rank"] = 0,
-		}, -- [16]
-		{
-			["tabID"] = 1,
-			["spellId"] = 18220,
-			["col"] = 2,
-			["maxRank"] = 1,
-			["row"] = 7,
-			["rank"] = 0,
-		}, -- [17]
-		{
-			["tabID"] = 2,
-			["spellId"] = 18692,
-			["col"] = 1,
-			["maxRank"] = 2,
-			["row"] = 1,
-			["rank"] = 0,
-		}, -- [18]
-		{
-			["tabID"] = 2,
-			["spellId"] = 18696,
-			["col"] = 2,
-			["maxRank"] = 3,
-			["row"] = 1,
-			["rank"] = 3,
-		}, -- [19]
-		{
-			["tabID"] = 2,
-			["spellId"] = 18698,
-			["col"] = 3,
-			["maxRank"] = 5,
-			["row"] = 1,
-			["rank"] = 2,
-		}, -- [20]
-		{
-			["tabID"] = 2,
-			["spellId"] = 18703,
-			["col"] = 1,
-			["maxRank"] = 2,
-			["row"] = 2,
-			["rank"] = 0,
-		}, -- [21]
-		{
-			["tabID"] = 2,
-			["spellId"] = 18705,
-			["col"] = 2,
-			["maxRank"] = 3,
-			["row"] = 2,
-			["rank"] = 0,
-		}, -- [22]
-		{
-			["tabID"] = 2,
-			["spellId"] = 18731,
-			["col"] = 3,
-			["maxRank"] = 5,
-			["row"] = 2,
-			["rank"] = 0,
-		}, -- [23]
-		{
-			["tabID"] = 2,
-			["spellId"] = 18754,
-			["col"] = 1,
-			["maxRank"] = 3,
-			["row"] = 3,
-			["rank"] = 0,
-		}, -- [24]
-		{
-			["tabID"] = 2,
-			["spellId"] = 18708,
-			["col"] = 2,
-			["maxRank"] = 1,
-			["row"] = 3,
-			["rank"] = 0,
-		}, -- [25]
-		{
-			["tabID"] = 2,
-			["spellId"] = 18748,
-			["col"] = 3,
-			["maxRank"] = 5,
-			["row"] = 3,
-			["rank"] = 0,
-		}, -- [26]
-		{
-			["tabID"] = 2,
-			["spellId"] = 18709,
-			["col"] = 2,
-			["maxRank"] = 2,
-			["row"] = 4,
-			["rank"] = 0,
-		}, -- [27]
-		{
-			["tabID"] = 2,
-			["spellId"] = 18769,
-			["col"] = 3,
-			["maxRank"] = 5,
-			["row"] = 4,
-			["rank"] = 0,
-		}, -- [28]
-		{
-			["tabID"] = 2,
-			["spellId"] = 18821,
-			["col"] = 1,
-			["maxRank"] = 5,
-			["row"] = 5,
-			["rank"] = 0,
-		}, -- [29]
-		{
-			["tabID"] = 2,
-			["spellId"] = 18788,
-			["col"] = 2,
-			["maxRank"] = 1,
-			["row"] = 5,
-			["rank"] = 0,
-		}, -- [30]
-		{
-			["tabID"] = 2,
-			["spellId"] = 18767,
-			["col"] = 4,
-			["maxRank"] = 2,
-			["row"] = 5,
-			["rank"] = 0,
-		}, -- [31]
-		{
-			["tabID"] = 2,
-			["spellId"] = 23785,
-			["col"] = 3,
-			["maxRank"] = 5,
-			["row"] = 6,
-			["rank"] = 0,
-		}, -- [32]
-		{
-			["tabID"] = 2,
-			["spellId"] = 19028,
-			["col"] = 2,
-			["maxRank"] = 1,
-			["row"] = 7,
-			["rank"] = 0,
-		}, -- [33]
-		{
-			["tabID"] = 2,
-			["spellId"] = 18774,
-			["col"] = 3,
-			["maxRank"] = 2,
-			["row"] = 7,
-			["rank"] = 0,
-		}, -- [34]
-		{
-			["tabID"] = 3,
-			["spellId"] = 17793,
-			["col"] = 2,
-			["maxRank"] = 5,
-			["row"] = 1,
-			["rank"] = 0,
-		}, -- [35]
-		{
-			["tabID"] = 3,
-			["spellId"] = 17778,
-			["col"] = 3,
-			["maxRank"] = 5,
-			["row"] = 1,
-			["rank"] = 0,
-		}, -- [36]
-		{
-			["tabID"] = 3,
-			["spellId"] = 17788,
-			["col"] = 2,
-			["maxRank"] = 5,
-			["row"] = 2,
-			["rank"] = 0,
-		}, -- [37]
-		{
-			["tabID"] = 3,
-			["spellId"] = 18119,
-			["col"] = 3,
-			["maxRank"] = 5,
-			["row"] = 2,
-			["rank"] = 0,
-		}, -- [38]
-		{
-			["tabID"] = 3,
-			["spellId"] = 18126,
-			["col"] = 1,
-			["maxRank"] = 2,
-			["row"] = 3,
-			["rank"] = 0,
-		}, -- [39]
-		{
-			["tabID"] = 3,
-			["spellId"] = 18128,
-			["col"] = 2,
-			["maxRank"] = 2,
-			["row"] = 3,
-			["rank"] = 0,
-		}, -- [40]
-		{
-			["tabID"] = 3,
-			["spellId"] = 18130,
-			["col"] = 3,
-			["maxRank"] = 5,
-			["row"] = 3,
-			["rank"] = 0,
-		}, -- [41]
-		{
-			["tabID"] = 3,
-			["spellId"] = 17877,
-			["col"] = 4,
-			["maxRank"] = 1,
-			["row"] = 3,
-			["rank"] = 0,
-		}, -- [42]
-		{
-			["tabID"] = 3,
-			["spellId"] = 18135,
-			["col"] = 1,
-			["maxRank"] = 2,
-			["row"] = 4,
-			["rank"] = 0,
-		}, -- [43]
-		{
-			["tabID"] = 3,
-			["spellId"] = 17917,
-			["col"] = 2,
-			["maxRank"] = 2,
-			["row"] = 4,
-			["rank"] = 0,
-		}, -- [44]
-		{
-			["tabID"] = 3,
-			["spellId"] = 17927,
-			["col"] = 4,
-			["maxRank"] = 5,
-			["row"] = 4,
-			["rank"] = 0,
-		}, -- [45]
-		{
-			["tabID"] = 3,
-			["spellId"] = 18096,
-			["col"] = 1,
-			["maxRank"] = 2,
-			["row"] = 5,
-			["rank"] = 0,
-		}, -- [46]
-		{
-			["tabID"] = 3,
-			["spellId"] = 17815,
-			["col"] = 2,
-			["maxRank"] = 5,
-			["row"] = 5,
-			["rank"] = 0,
-		}, -- [47]
-		{
-			["tabID"] = 3,
-			["spellId"] = 17959,
-			["col"] = 3,
-			["maxRank"] = 1,
-			["row"] = 5,
-			["rank"] = 0,
-		}, -- [48]
-		{
-			["tabID"] = 3,
-			["spellId"] = 17954,
-			["col"] = 3,
-			["maxRank"] = 5,
-			["row"] = 6,
-			["rank"] = 0,
-		}, -- [49]
-		{
-			["tabID"] = 3,
-			["spellId"] = 17962,
-			["col"] = 2,
-			["maxRank"] = 1,
-			["row"] = 7,
-			["rank"] = 0,
-		}, -- [50]
-	},
-}
-
-
-
-
 local statsSchema = {
     {
         header = "attributes",
@@ -569,6 +147,7 @@ function GuildbookProfileMixin:OnLoad()
     addon:RegisterCallback("Character_OnProfileSelected", self.LoadCharacter, self)
     addon:RegisterCallback("Character_OnDataChanged", self.Update, self)
     addon:RegisterCallback("UI_OnSizeChanged", self.UpdateLayout, self)
+    addon:RegisterCallback("Profile_OnItemDataLoaded", self.UpdateItemLevel, self)
 
 	self.sidePane.helptip:SetText(L.PROFILE_SIDEPANE_HT)
 	self.inventory.equipmentHelptip:SetText(L.PROFILE_INVENTORY_HT)
@@ -593,7 +172,8 @@ function GuildbookProfileMixin:LoadCharacter(character)
 	self.ignoreCharacterUpdates = false
     self:Update()
     GuildbookUI:SelectView(self.name)
-    self.anim:Play()
+    self.inventory:SetAlpha(0)
+    self.inventory.anim:Play()
 
 end
 
@@ -612,9 +192,16 @@ function GuildbookProfileMixin:UpdateLayout()
     self.inventory.resistanceGridview:SetHeight(statsWidth / 5)
 
     local auraCount = 0
-    if self.character and self.character.data.auras.current then
-        auraCount = #self.character.data.auras.current or 0;
-    end
+	if self.currentEquipmentSet then
+		if self.character and self.character.data.auras[self.currentEquipmentSet] then
+			auraCount = #self.character.data.auras[self.currentEquipmentSet] or 0;
+		end
+	else
+		if self.character and self.character.data.auras.current then
+			auraCount = #self.character.data.auras.current or 0;
+		end
+	end
+
     if auraCount == 0 then
         self.inventory.auraGridview:SetHeight(1)
     else
@@ -673,10 +260,56 @@ function GuildbookProfileMixin:UpdateLayout()
 end
 
 
+function GuildbookProfileMixin:UpdateItemLevel()
+
+	self.inventory.gearScore:SetText("-")
+	
+	if self.currentEquipmentSet then
+		local set = self.character.data.inventory[self.currentEquipmentSet]
+		if set then
+			local numItems, totalItemlevel = 0, 0;
+			for i = 1, 19 do
+				if (i ~= 4) and (i ~= 19) and type(set[i]) == "number" then
+					local n, l, q, ilvl = GetItemInfo(set[i])
+
+					if ilvl then
+						numItems = numItems + 1;
+						totalItemlevel = totalItemlevel + ilvl;
+
+					end
+				end
+			end
+			---print(numItems, totalItemlevel, (totalItemlevel / numItems))
+
+			self.inventory.gearScore:SetText(string.format("Item Level: %0.2f", (totalItemlevel / numItems)))
+		end
+
+	else
+		if self.character and self.character.data.inventory.current then
+			for slot, link in pairs(self.character.data.inventory.current) do
+				local numItems, totalItemlevel = 0, 0;
+					if type(link) == "string" then
+						local n, l, q, ilvl = GetItemInfo(link)
+	
+						if ilvl then
+							numItems = numItems + 1;
+							totalItemlevel = totalItemlevel + ilvl;
+	
+						end
+					end
+
+				---print(numItems, totalItemlevel, (totalItemlevel / numItems))
+	
+				self.inventory.gearScore:SetText(string.format("Item Level: %0.2f", (totalItemlevel / numItems)))
+			end
+		end
+	end
+
+	self.inventory.gearScore:SetAlpha(1)
+end
+
 
 function GuildbookProfileMixin:Update()
-
-    --self.sidePane.anim:Play()
 
     if not self.character then
         return
@@ -835,8 +468,9 @@ function GuildbookProfileMixin:Update()
 	end
 
 	self:LoadEquipmentSetInfo("current")
+	self:UpdateItemLevel()
 
-
+	self.currentEquipmentSet = nil
 	--equipment sets
 	if self.character.data.inventory then
 		local equipmentSetNames = {}
@@ -847,6 +481,7 @@ function GuildbookProfileMixin:Update()
 					func = function()
 
 						self.ignoreCharacterUpdates = true;
+						self.currentEquipmentSet = name;
 
 						self:LoadEquipmentSetInfo(name)
 
@@ -859,7 +494,7 @@ function GuildbookProfileMixin:Update()
 										label = self.character.data.inventory.current[v.slot],
 										icon = v.icon,
 										link = self.character.data.inventory.current[v.slot],
-					
+										--backgroundAlpha = 0.6,
 										onMouseDown = function()
 											if IsControlKeyDown() then
 												DressUpItemLink(self.character.data.inventory.current[v.slot])
@@ -886,8 +521,10 @@ function GuildbookProfileMixin:Update()
 								end
 								
 								if type(itemIDs[i]) == "number" then
+
 									self.inventory.equipmentListview.DataProvider:Insert({
 										label = "-",
+										--backgroundAlpha = 0.6,
 										getItemInfoFromID = true,
 										itemID = itemIDs[i],
 										icon = icon,
@@ -1106,4 +743,5 @@ function GuildbookProfileMixin:LoadEquipmentSetInfo(setName)
 		self.inventory.statsListview.DataProvider:InsertTable(stats)
 	end
 
+	self:UpdateLayout()
 end
