@@ -21,25 +21,9 @@ local configUpdates = {
     tradeskillsShowMyRecipesUsingTooltip = false,
 }
 
-function Database:Init(updateAccepted)
+function Database:Init()
 
     local version = tonumber(GetAddOnMetadata(name, "Version"));
-
-    if not GUILDBOOK_GLOBAL then
-        GUILDBOOK_GLOBAL = {}
-    end
-
-    if not GUILDBOOK_GLOBAL.version then
-        GUILDBOOK_GLOBAL = nil
-    else
-        if GUILDBOOK_GLOBAL.version < version then
-            
-        end
-    end
-
-    if updateAccepted then
-        GUILDBOOK_GLOBAL.showUpdateDialog = false;
-    end
 
     if not GUILDBOOK_GLOBAL then
         GUILDBOOK_GLOBAL = {
@@ -61,6 +45,27 @@ function Database:Init(updateAccepted)
         }
     end
 
+    if GUILDBOOK_GLOBAL.version < 6.2 then
+        GUILDBOOK_GLOBAL = {
+            config = {
+                chatGuildHistoryLimit = 50,
+                chatWhisperHistoryLimit = 50,
+            },
+            minimapButton = {},
+            calendarButton = {},
+            guilds = {},
+            worldEvents = {},
+            myCharacters = {},
+            characterDirectory = {},
+            chats = {
+                guild = {},
+            },
+            debug = false,
+            version = version,
+        }
+    end
+
+
     self.db = GUILDBOOK_GLOBAL;
 
     for k, v in pairs(configUpdates) do
@@ -75,11 +80,13 @@ end
 
 function Database:Reset()
 
+    local version = tonumber(GetAddOnMetadata(name, "Version"));
+
     GUILDBOOK_GLOBAL = {
         config = {
             chatGuildHistoryLimit = 50,
             chatWhisperHistoryLimit = 50,
-        },        
+        },
         minimapButton = {},
         calendarButton = {},
         guilds = {},
@@ -90,6 +97,7 @@ function Database:Reset()
             guild = {},
         },
         debug = false,
+        version = version,
     }
 
     self.db = GUILDBOOK_GLOBAL;

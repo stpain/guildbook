@@ -399,8 +399,14 @@ function e:PLAYER_ENTERING_WORLD()
 
     -- Talents:GetPlayerTalentInfo()
 
-    if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.showUpdateDialog then
+    local version = tonumber(GetAddOnMetadata(name, "Version"));
+
+    if GUILDBOOK_GLOBAL and (GUILDBOOK_GLOBAL.version < version) then
         StaticPopup_Show("GuildbookUpdated")
+
+    elseif GUILDBOOK_GLOBAL and not GUILDBOOK_GLOBAL.version then
+        StaticPopup_Show("GuildbookUpdated")
+        
     else
         Database:Init()
     end

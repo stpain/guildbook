@@ -1,6 +1,6 @@
 ## Interface: 30401
 ## Author: TheBoringDad
-## Version: 6.0
+## Version: 6.1
 ## Title: Guildbook
 ## Notes: An addon for guilds
 ## SavedVariables: GUILDBOOK_GLOBAL

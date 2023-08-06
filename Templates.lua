@@ -695,6 +695,7 @@ function GuildbookRecipeListviewItemMixin:SetDataBinding(binding, height)
                         GameTooltip:Show()
                     end
                 end)
+
             end)
         end
     end
@@ -720,8 +721,15 @@ function GuildbookRecipeListviewItemMixin:SetDataBinding(binding, height)
     end)
 
     self:SetScript("OnMouseDown", function()
-        if binding.func then
-            binding.func()
+        if IsLeftAltKeyDown() then
+            if AuctionFrameBrowse and AuctionFrameBrowse:IsVisible() then
+                BrowseName:SetText(string.format('"%s"', self.item:GetItemName()))
+                BrowseSearchButton:Click()
+            end
+        else
+            if binding.func then
+                binding.func()
+            end
         end
     end)
 
@@ -1060,6 +1068,9 @@ function GuildbookSimpleIconLabelMixin:SetDataBinding(binding, height)
 						elseif IsShiftKeyDown() then
 							HandleModifiedItemClick(link)
 						end
+                        if binding.onMouseDown then
+                            binding.onMouseDown()
+                        end
                     end)
 
                     addon:TriggerEvent("Profile_OnItemDataLoaded")
