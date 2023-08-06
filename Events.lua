@@ -1,4 +1,4 @@
-local name, addon = ...;
+local addonName, addon = ...;
 
 local Guild = addon.Guild;
 local Character = addon.Character;
@@ -399,7 +399,7 @@ function e:PLAYER_ENTERING_WORLD()
 
     -- Talents:GetPlayerTalentInfo()
 
-    local version = tonumber(GetAddOnMetadata(name, "Version"));
+    local version = tonumber(GetAddOnMetadata(addonName, "Version"));
 
     if GUILDBOOK_GLOBAL and (GUILDBOOK_GLOBAL.version < version) then
         StaticPopup_Show("GuildbookUpdated")

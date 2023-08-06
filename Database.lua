@@ -45,7 +45,7 @@ function Database:Init()
         }
     end
 
-    if GUILDBOOK_GLOBAL.version < 6.2 then
+    if GUILDBOOK_GLOBAL.version < 6.3 then
         GUILDBOOK_GLOBAL = {
             config = {
                 chatGuildHistoryLimit = 50,
