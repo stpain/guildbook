@@ -401,15 +401,7 @@ function e:PLAYER_ENTERING_WORLD()
 
     local version = tonumber(GetAddOnMetadata(addonName, "Version"));
 
-    if GUILDBOOK_GLOBAL and (GUILDBOOK_GLOBAL.version < version) then
-        StaticPopup_Show("GuildbookUpdated")
-
-    elseif GUILDBOOK_GLOBAL and not GUILDBOOK_GLOBAL.version then
-        StaticPopup_Show("GuildbookUpdated")
-        
-    else
-        Database:Init()
-    end
+    Database:Init()
 end
 
 local classFileNameToClassId = {

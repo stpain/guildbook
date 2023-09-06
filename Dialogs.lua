@@ -45,7 +45,7 @@ StaticPopupDialogs['GuildbookUpdated'] = {
     button1 = YES,
     button2 = NO,
     OnAccept = function(self, data)
-        GUILDBOOK_GLOBAL = nil
+        --GUILDBOOK_GLOBAL = nil
         print('Well thats it, all data has been exterminated! Fingers crossed this thing boots up.....')
         C_Timer.After(math.random(3,9), function()
             addon.Database:Init(true)
