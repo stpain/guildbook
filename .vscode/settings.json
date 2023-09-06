@@ -39,6 +39,7 @@
         "CreateAnchor",
         "YES",
         "NO",
-        "StaticPopup_Show"
+        "StaticPopup_Show",
+        "SETTINGS"
     ]
 }

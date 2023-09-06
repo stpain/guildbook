@@ -1,6 +1,6 @@
 ## Interface: 30401
 ## Author: TheBoringDad
-## Version: 6.2
+## Version: 6.3
 ## Title: Guildbook
 ## Notes: An addon for guilds
 ## SavedVariables: GUILDBOOK_GLOBAL
@@ -85,3 +85,5 @@ Views\Search\Search.xml
 Comms.lua
 
 Events.lua
+
+ModBlizzUI.lua

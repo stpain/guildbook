@@ -77,6 +77,9 @@ function GuildbookSettingsMixin:OnLoad()
     self.content.character:SetScript("OnShow", function()
         self:CharacterPanel_OnShow()
     end)
+    self.content.guild:SetScript("OnShow", function()
+        self:GuildPanel_OnShow()
+    end)
     self.content.tradeskills:SetScript("OnShow", function()
         self:TradeskillPanel_OnShow()
     end)
@@ -250,6 +253,27 @@ function GuildbookSettingsMixin:PreparePanels()
     
 
 
+    --=========================================
+    --guild panel
+    --=========================================
+    self.content.guild.scrollFrame.scrollChild.modBlizzRoster.label:SetText(L.SETTINGS_GUILD_MOD_BLIZZ_ROSTER)
+    self.content.guild.scrollFrame.scrollChild.modBlizzRoster:SetScript("OnClick", function(cb)
+        Database.db.config["modBlizzRoster"] = cb:GetChecked()
+
+        if Database.db.config["modBlizzRoster"] == false then
+            ReloadUI()
+
+        else
+            addon:ModBlizzUI()
+        end
+    end)
+
+    self.content.guild.scrollFrame.scrollChild.modBlizzRoster:SetChecked(Database.db.config["modBlizzRoster"])
+
+    if Database.db.config["modBlizzRoster"] then
+        addon:ModBlizzUI()
+    end
+
 
     --=========================================
     --Tradeskills panel
@@ -267,7 +291,7 @@ function GuildbookSettingsMixin:PreparePanels()
                 Database.db.config[v] = false
             end
             cb:SetChecked(true)
-            Database.db.config[v] = cb:GetChecked()        
+            Database.db.config[v] = cb:GetChecked()
         end)
     end
 
@@ -380,6 +404,13 @@ function GuildbookSettingsMixin:TradeskillPanel_OnShow()
 
     local x, y = self.content:GetSize()
     self.content.tradeskills.scrollFrame.scrollChild:SetSize(x-24, y)
+
+end
+
+function GuildbookSettingsMixin:GuildPanel_OnShow()
+
+    local x, y = self.content:GetSize()
+    self.content.guild.scrollFrame.scrollChild:SetSize(x-24, y)
 
 end
 

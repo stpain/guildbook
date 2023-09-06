@@ -11,9 +11,9 @@ local L = addon.Locales;
 --will use a specID as found from spellbook tabs-1 (ignore general) and then get the spec name from this table
 --for display the name value can be used to grab the locale
 local classData = {
-    -- DEATHKNIGHT = { 
-    --     specializations={'Frost','Blood','Unholy'} 
-    -- },
+    DEATHKNIGHT = { 
+        specializations={'Frost','Blood','Unholy'} 
+    },
     DRUID = { 
         specializations={'Balance', 'Cat' ,'Bear', 'Restoration',}
     },

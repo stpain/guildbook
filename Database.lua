@@ -19,6 +19,8 @@ local configUpdates = {
 
     tradeskillsShowAllRecipesUsingTooltip = false,
     tradeskillsShowMyRecipesUsingTooltip = false,
+
+    modBlizzRoster = false,
 }
 
 function Database:Init()
@@ -44,27 +46,6 @@ function Database:Init()
             version = version,
         }
     end
-
-    if GUILDBOOK_GLOBAL.version < 6.3 then
-        GUILDBOOK_GLOBAL = {
-            config = {
-                chatGuildHistoryLimit = 50,
-                chatWhisperHistoryLimit = 50,
-            },
-            minimapButton = {},
-            calendarButton = {},
-            guilds = {},
-            worldEvents = {},
-            myCharacters = {},
-            characterDirectory = {},
-            chats = {
-                guild = {},
-            },
-            debug = false,
-            version = version,
-        }
-    end
-
 
     self.db = GUILDBOOK_GLOBAL;
 

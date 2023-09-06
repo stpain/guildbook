@@ -20,8 +20,9 @@ the copyright holders.
 
 ]==]
 
-local addonName, Guildbook = ...
-local L = Guildbook.Locales
+local addonName, addon = ...
+local L = addon.Locales
+local Tradeskills = addon.Tradeskills;
 
 --set constants
 local ROSTER_VISIBLE = true
@@ -36,7 +37,7 @@ C_Timer.After(5, function()
     GuildFrameGuildInformationButton:SetWidth(GUILD_INFORMATION_BUTTON_WIDTH)
 end)
 -- config stuff
-Guildbook.GuildFrame = {
+addon.GuildFrame = {
     ColumnHeaders = {
         { Text = 'Rank', Width = 70, },
         { Text = 'Note', Width = 80, },
@@ -47,18 +48,22 @@ Guildbook.GuildFrame = {
     },
     ColumnTabs = {},
     ColumnWidths = {
-        Rank = 67.0,
-        Note = 77.0,
-        MainSpec = 97.0,
-        Profession1 = 87.0,
-        Profession2 = 87.0,
+        Rank = 64.0,
+        Note = 74.0,
+        MainSpec = 94.0,
+        Profession1 = 84.0,
+        Profession2 = 84.0,
         Online = 52.0,
     },
-    ColumnMarginX = 1.0,
+    ColumnMarginX = 4.0,
 }
 
+local isModified = false
+function addon:ModBlizzUI()
 
-function Guildbook:ModBlizzUI()
+    if isModified == true then
+        return
+    end
 
     -- adjust blizz layout and add widgets
     GuildFrameGuildListToggleButton:Hide()
@@ -140,9 +145,9 @@ function Guildbook:ModBlizzUI()
     end
     
     local anchor = IsAddOnLoaded('ElvUI') and GuildFrameButton1Zone or GuildFrameButton1Class
-    local x = IsAddOnLoaded('ElvUI') and 12.0 or -12.0
+    --local x = IsAddOnLoaded('ElvUI') and 12.0 or 0
     GuildFrameButton1.GuildbookColumnRank = GuildFrameButton1:CreateFontString('$parentGuildbookRank', 'OVERLAY', 'GameFontNormalSmall')
-    GuildFrameButton1.GuildbookColumnRank:SetPoint('LEFT', anchor, 'RIGHT', x, 0)
+    GuildFrameButton1.GuildbookColumnRank:SetPoint('LEFT', anchor, 'RIGHT', 12, 0)
     GuildFrameButton1.GuildbookColumnRank:SetSize(self.GuildFrame.ColumnWidths['Rank'], GuildFrameButton1:GetHeight())
     formatGuildFrameButton(GuildFrameButton1.GuildbookColumnRank, {1,1,1,1})
     
@@ -179,9 +184,9 @@ function Guildbook:ModBlizzUI()
         button:SetPoint('TOPRIGHT', _G['GuildFrameButton'..(i-1)], 'BOTTOMRIGHT', 0.0, 0.0)
         button:GetHighlightTexture():SetAllPoints(button)
     
-        local x = IsAddOnLoaded('ElvUI') and 12.0 or -12.0
+        --local x = IsAddOnLoaded('ElvUI') and 12.0 or 0
         button.GuildbookColumnRank = button:CreateFontString('$parentGuildbookRank', 'OVERLAY', 'GameFontNormalSmall')
-        button.GuildbookColumnRank:SetPoint('LEFT', anchor, 'RIGHT', x, 0)
+        button.GuildbookColumnRank:SetPoint('LEFT', anchor, 'RIGHT', 12, 0)
         button.GuildbookColumnRank:SetSize(self.GuildFrame.ColumnWidths['Rank'], button:GetHeight())
         formatGuildFrameButton(button.GuildbookColumnRank, {1,1,1,1})
     
@@ -224,7 +229,7 @@ function Guildbook:ModBlizzUI()
             button.GuildbookColumnProfession1:SetText('')
             button.GuildbookColumnProfession2:SetText('')
             button.GuildbookColumnOnline:SetText('')
-            local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, GUID = GetGuildRosterInfo(idx)
+            local memberName, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, GUID = GetGuildRosterInfo(idx)
             local offline = L['Online']
             if isOnline == false then            
                 local yearsOffline, monthsOffline, daysOffline, hoursOffline = GetGuildRosterLastOnline(idx)
@@ -276,18 +281,25 @@ function Guildbook:ModBlizzUI()
             button.GuildbookColumnProfession1:SetText('-')
             button.GuildbookColumnProfession2:SetText('-')
             -- loop local cache and update columns
-            local guildName = Guildbook:GetGuildName()
-            if guildName then
-                if GUILDBOOK_GLOBAL and GUILDBOOK_GLOBAL.GuildRosterCache and GUILDBOOK_GLOBAL.GuildRosterCache[guildName] and GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID] then
-                    local character = GUILDBOOK_GLOBAL.GuildRosterCache[guildName][GUID]
-                    button.GuildbookColumnMainSpec:SetText(character.MainSpec)
-                    button.GuildbookColumnProfession1:SetText(character.Profession1)
-                    button.GuildbookColumnProfession2:SetText(character.Profession2)
-                else
-                    button.GuildbookColumnMainSpec:SetText('-')
-                    button.GuildbookColumnProfession1:SetText('-')
-                    button.GuildbookColumnProfession2:SetText('-')           
+            
+            if addon.characters and addon.characters[memberName] then
+
+                button.GuildbookColumnMainSpec:SetText(addon.characters[memberName]:GetSpec("primary"))
+
+                local prof1 = addon.characters[memberName]:GetTradeskill(1);
+                if prof1 then
+                    button.GuildbookColumnProfession1:SetText(Tradeskills:GetLocaleNameFromID(prof1))
                 end
+
+                local prof2 = addon.characters[memberName]:GetTradeskill(2);
+                if prof2 then
+                    button.GuildbookColumnProfession2:SetText(Tradeskills:GetLocaleNameFromID(prof2))
+                end
+
+            else
+                button.GuildbookColumnMainSpec:SetText('-')
+                button.GuildbookColumnProfession1:SetText('-')
+                button.GuildbookColumnProfession2:SetText('-')
             end
             if (GuildFrameLFGButton:GetChecked() == false) and(i > numOnline) then
                 button:Hide()
@@ -295,4 +307,6 @@ function Guildbook:ModBlizzUI()
         end
     end)
     
+
+    isModified = true;
 end

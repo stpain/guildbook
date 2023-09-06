@@ -234,6 +234,31 @@
                                 </FontString>
                             </Layer>
                         </Layers>
+                        <Frames>
+                            <ScrollFrame parentKey="scrollFrame" inherits = "GuildbookWrathEraScrollFrameTemplate">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="0" y="-60"/>
+                                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                                </Anchors>
+                                <ScrollChild>
+                                    <Frame parentKey="scrollChild">
+                                        <Anchors>
+                                            <Anchor point="LEFT" x="0" y="0"/>
+                                            <Anchor point="RIGHT" x="0" y="0"/>
+                                        </Anchors>
+                                        <Frames>
+                                            <CheckButton parentKey="modBlizzRoster" inherits = "GuildbookWrathEraWidgetsCheckButton">
+                                                <Size x="24" y="24"/>
+                                                <Anchors>
+                                                    <Anchor point="TOPLEFT" x="16" y="-32"/>
+                                                </Anchors>
+                                            </CheckButton>
+                                        </Frames>
+                                    </Frame>
+
+                                </ScrollChild>
+                            </ScrollFrame> 
+                        </Frames> 
                     </Frame>
 
                     <Frame parentKey="tradeskills" parentArray="panels" hidden="true" inherits="InsetFrameTemplate3">

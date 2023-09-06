@@ -52,6 +52,10 @@ local L = {
 	CHARACTER = "Character",
 	SETTINGS_CHARACTER_GENERAL = "Set your characters specialization and if you have alts select which is your main.",
 
+
+	--guild
+	SETTINGS_GUILD_MOD_BLIZZ_ROSTER = "Modify the default roster to show more info (requires UI reload to remove).",
+
 	--tradeskills
 	TRADESKILLS = "Tradeskills.",
 	REAGENT = "Reagent",
