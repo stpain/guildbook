@@ -89,6 +89,19 @@ Talents.TalentBackgrounds = {
 	["WarriorProtection"] = "Interface\\Addons\\Guildbook\\Media\\Talents\\WARRIOR\\Protection", 
 }
 
+
+function Talents:GetSpecIndex(class, fileName)
+    if class and fileName then
+        if self[class] then
+            for k, v in ipairs(self[class]) do
+                if v == fileName then
+                    return k
+                end
+            end
+        end
+    end
+end
+
 function Talents:GetClassTalentTreeArtwork(classID)
     local _, class = GetClassInfo(classID)
     if self.ClassTalentTreeIndexToFileName[class] then

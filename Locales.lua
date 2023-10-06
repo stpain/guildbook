@@ -399,6 +399,8 @@ L["MIDSUMMER_FIRE_FESTIVAL"]		= "Midsummer Fire Festival"
 L["HARVEST_FESTIVAL"]				= "Harvest Festival"
 L["HALLOWS_END"]					= "Hallows End"
 L["FEAST_OF_WINTER_VEIL"]			= "Feast of Winter Veil"
+L["BREWFEST"]						= "Brewfest"
+L["PILGRIMS_BOUNTY"]						= "Pilgrims Bounty"
 
 
 

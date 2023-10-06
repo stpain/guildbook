@@ -34,7 +34,6 @@ Widgets\Helptips.lua
 Widgets\Helptips.xml
 
 Locales.lua
-Data2.lua
 ItemData.lua
 Database.lua
 
@@ -54,8 +53,8 @@ Templates.xml
 GuildbookMixin.lua
 GuildbookUI.xml
 
-#Views\Calendar\Calendar.lua
-#Views\Calendar\Calendar.xml
+Views\Calendar\Calendar.lua
+Views\Calendar\Calendar.xml
 
 Views\Tradeskills\Tradeskills.lua
 Views\Tradeskills\Tradeskills.xml
@@ -80,6 +79,9 @@ Views\Settings\Settings.xml
 
 Views\Search\Search.lua
 Views\Search\Search.xml
+
+Views\Alts\Alts.lua
+Views\Alts\Alts.xml
 
 
 Comms.lua

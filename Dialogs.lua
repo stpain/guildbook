@@ -21,7 +21,7 @@ the copyright holders.
 ]==]--
 
 local addonName, addon = ...
-
+local Database = addon.Database;
 local L = addon.Locales
 
 
@@ -40,6 +40,20 @@ StaticPopupDialogs['Reload'] = {
     showAlert = 1,
 }
 
+StaticPopupDialogs['GuildbookDeleteCharacter'] = {
+    text = 'Delete %s',
+    button1 = YES,
+    button2 = NO,
+    OnAccept = function(self, data)
+        Database:DeleteCharacter(data)
+    end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = false,
+    preferredIndex = 3,
+    showAlert = 1,
+}
+
 StaticPopupDialogs['GuildbookUpdated'] = {
     text = "WARNING !!!\n\n|cffC41F3BGuildbook has changed and if you proceed with this update you will lose all current data|r.\n\nGuildbook 6.0 is a rework of an older version that was updated for classic era, it is NOT compatabile with the current wrath version\n\nBUT\n\nit does include missing recipes and will have th best chance of getting any updates.\n\nDo you want to continue...",
     button1 = YES,
@@ -48,13 +62,63 @@ StaticPopupDialogs['GuildbookUpdated'] = {
         --GUILDBOOK_GLOBAL = nil
         print('Well thats it, all data has been exterminated! Fingers crossed this thing boots up.....')
         C_Timer.After(math.random(3,9), function()
-            addon.Database:Init(true)
+            Database:Init(true)
         end)
     end,
     OnCancel = function(self)
 
     end,
     timeout = 0,
+    whileDead = true,
+    hideOnEscape = false,
+    preferredIndex = 3,
+    showAlert = 1,
+}
+
+StaticPopupDialogs['GuildbookCalendarAddBirthday'] = {
+    text = "Add birthday, enter character/player name.",
+    button1 = YES,
+    button2 = NO,
+    OnAccept = function(self, data)
+        local str = self.editBox:GetText()
+        if str and (#str > 0) and (str ~= " ") then
+            local ts = time(data)
+            if not Database.db.calendar.birthdays[ts] then
+                Database.db.calendar.birthdays[ts] = {}
+            end
+            table.insert(Database.db.calendar.birthdays[ts], str)
+        end
+    end,
+    OnCancel = function(self)
+
+    end,
+    timeout = 0,
+    hasEditBox = true,
+    whileDead = true,
+    hideOnEscape = false,
+    preferredIndex = 3,
+    showAlert = 1,
+}
+
+StaticPopupDialogs['GuildbookCalendarAddNote'] = {
+    text = "Add note for %s.",
+    button1 = YES,
+    button2 = NO,
+    OnAccept = function(self, data)
+        local str = self.editBox:GetText()
+        if str and (#str > 0) and (str ~= " ") then
+            local ts = time(data)
+            if not Database.db.calendar.events[ts] then
+                Database.db.calendar.events[ts] = {}
+            end
+            table.insert(Database.db.calendar.events[ts], str)
+        end
+    end,
+    OnCancel = function(self)
+
+    end,
+    timeout = 0,
+    hasEditBox = true,
     whileDead = true,
     hideOnEscape = false,
     preferredIndex = 3,

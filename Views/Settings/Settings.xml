@@ -410,6 +410,12 @@
                                 </Anchors>
                                 <Size x="180" y="16"/>
                             </Slider>
+                            <Button parentKey="deleteAllChats" inherits="UIPanelButtonTemplate" text="Wipe all chats.">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" relativeKey="$parent.chatWhisperHistoryLimit" relativePoint="BOTTOMLEFT" x="0" y="-40"/>
+                                </Anchors>
+                                <Size x="160" y="22"/>
+                            </Button>
                         </Frames>                  
                     </Frame>
 

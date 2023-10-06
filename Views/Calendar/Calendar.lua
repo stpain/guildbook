@@ -1,62 +1,86 @@
 local name , addon = ...;
 
 local L = addon.Locales;
+local Database = addon.Database;
+local LibDeflate = LibStub:GetLibrary("LibDeflate")
+local LibSerialize = LibStub:GetLibrary("LibSerialize")
 
-
-local Calendar = {}
-
-Calendar.Event = {}
-function Calendar.Event:New(title, desc, type, starts)
+local Event = {}
+function Event:New(title, desc, type, starts)
     if addon.thisCharacter then
         local event = {
             title = title,
+            icon = 134149,
             desc = desc,
             type = type,
             starts = starts,
-            group = {},
+            attendees = {},
             owner = addon.thisCharacter,
-            id = string.format("%s-%d", addon.thisCharacter, starts)
         }
         return Mixin(event, self)
     end
 end
 
-function Calendar.Event:CreateFromData(data)
-    if data.title and data.desc and data.type and data.starts and data.group and data.owner and data.id then
-        local event = {
-            data = data,
-        }
-        return Mixin(event, self)
+function Event:CreateFromString(str)
+
+        -- local serialized = LibSerialize:Serialize(census)
+        -- local compressed = LibDeflate:CompressDeflate(serialized)
+        -- local encoded = LibDeflate:EncodeForPrint(compressed)
+
+    local decoded = LibDeflate:DecodeForPrint(str)
+    if not decoded then
+        return;
+    end
+    local decompressed = LibDeflate:DecompressDeflate(decoded);
+    if not decompressed then
+        return;
+    end
+    local success, data = LibSerialize:Deserialize(decompressed);
+    if not success or type(data) ~= "table" then
+        return;
+    end
+
+    self:CreateFromData(data)
+
+end
+
+function Event:CreateFromData(data)
+    if data.title and data.icon and data.desc and data.type and data.starts and data.attendees and data.owner then
+        return Mixin({data = data}, self)
     end
 end
 
-function Calendar.Event:GetID()
-    return self.id;
+function Event:GetOwner()
+    return self.data.owner;
 end
 
-function Calendar.Event:UpdateTitle(title)
-    self.title = title;
+function Event:UpdateTitle(title)
+    self.data.title = title;
 end
 
-function Calendar.Event:UpdateDescription(desc)
-    self.desc = desc;
+function Event:UpdateDescription(desc)
+    self.data.desc = desc;
 end
 
-function Calendar.Event:UpdateStartTime(starts)
-    self.starts = starts;
+function Event:UpdateStartTime(starts)
+    self.data.starts = starts;
 end
 
-function Calendar.Event:UpdateType(type)
-    self.type = type;
+function Event:UpdateType(type)
+    self.data.type = type;
 end
 
-function Calendar.Event:UpdateGroup(character, status)
-    self.group[character] = status;
+function Event:UpdateAttendee(character, status)
+    self.data.group[character] = status;
 end
 
 
 
 
+local WorldEvent = {}
+function WorldEvent:CreateFromData(data)
+
+end
 
 
 
@@ -78,17 +102,47 @@ function GuildbookCalendarDayTileMixin:OnLoad()
     self.highlight:SetTexture(235438)
     self.highlight:SetTexCoord(0.0, 0.35, 0.0, 0.7)
 
-    self.overlay:SetColorTexture(0,0,0,0.6)
+    self.otherMonthOverlay:SetColorTexture(0,0,0,0.6)
     self.currentDayTexture:SetTexture(235433)
     self.currentDayTexture:SetTexCoord(0.05, 0.55, 0.05, 0.55)
     self.currentDayTexture:SetAlpha(0.7)
 
-    self.worldEventTexture:SetTexture(235448)
-    self.worldEventTexture:SetTexCoord(0.0, 0.71, 0.0, 0.71)
+    -- self.worldEventTexture:SetTexture(235448)
+    -- self.worldEventTexture:SetTexCoord(0.0, 0.71, 0.0, 0.71)
+
+    self.holidayTextures = {}
+
+    self.eventTexture:Hide()
 
     self.worldEvents = {}
     self.guildEvents = {}
+    self.events = {}
 
+    -- for i = 1, 3 do
+    --     self["event"..i]:Raise()
+    --     self["event"..i]:SetHeight(16)
+    -- end
+
+    self:SetScript("OnEnter", function()
+        if self.events and (#self.events > 0) then
+            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+            GameTooltip:AddLine(date("%d %B %Y", time(self.date)))
+            for k, v in ipairs(self.events) do
+                GameTooltip:AddLine(v.name, 1,1,1)
+            end
+            GameTooltip:Show()
+        end
+    end)
+    self:SetScript("OnLeave", function()
+        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+    end)
+
+end
+
+function GuildbookCalendarDayTileMixin:ClearHolidayTextures()
+    for k, v in ipairs(self.holidayTextures) do
+        v:SetTexture(nil)
+    end
 end
 
 
@@ -134,11 +188,157 @@ function GuildbookCalendarMixin:UpdateLayout()
 end
 
 function GuildbookCalendarMixin:OnShow()
+    self:UpdateLockouts()
+    self:MonthChanged()
     self:UpdateLayout()
 end
 
+
+--local name, id, reset, difficulty, locked, extended, instanceIDMostSig, isRaid, maxPlayers, difficultyName, numEncounters, encounterProgress = GetSavedInstanceInfo(i)
+local lockoutKeys = {
+    "Name",
+    "ID",
+    "Reset",
+    "Difficulty",
+    "Locked",
+    "Extended",
+    "instanceIDMostSig",
+    "IsRaid",
+    "MaxPlayers",
+    "DifficultyName",
+    "NumEncounters",
+    "EncounterProgress",
+}
+function GuildbookCalendarMixin:UpdateLockouts()
+
+    local instances = {};
+
+    local t = {}
+    local sortTable = {}
+
+    if addon.characters then
+        for nameRealm, character in pairs(addon.characters) do
+            local lockouts = character:GetLockouts()
+            for k, v in ipairs(lockouts) do
+                local x = {}
+                x.player = nameRealm
+                for a, b in pairs(v) do
+                    x[a] = b;
+                end
+                table.insert(sortTable, x)
+            end
+        end
+    end
+
+    table.sort(sortTable, function(a, b)
+        if a.reset == b.reset then
+            if a.name == b.name then
+                return a.player < b.player
+            else
+                return a.name < b.name
+            end
+        else
+            return a.reset < b.reset
+        end
+    end)
+
+    local inserted = {}
+    for k, lockout in ipairs(sortTable) do
+        if GetServerTime() < lockout.reset then
+
+            local instanceName = lockout.name:lower():gsub("[%c%p%s]", "")
+            local iconPath = "";
+            local iconCoords = {0,1,0,1}
+
+            --not ideal but dungeons and raids have different artwork
+            if lockout.isRaid then
+                iconPath = string.format("Interface/encounterjournal/ui-ej-dungeonbutton-%s", instanceName)
+                iconCoords = {0.17578125, 0.49609375, 0.03125, 0.71875}         
+            else
+                iconPath = string.format("Interface/lfgframe/lfgicon-%s", instanceName)
+            end
+
+            if not inserted[lockout.name] then
+
+                table.insert(t, {
+                    label = string.format("%s\n|cffE5AC00%s|r", lockout.name, lockout.difficultyName),
+                    backgroundRGB = {r = 0.4, g = 0.4, b = 0.4,},
+                    backgroundAlpha = 0.4,
+                    icon = iconPath,
+                    iconCoords = iconCoords,
+                })
+                inserted[lockout.name] = true;
+            end
+
+            table.insert(t, {
+                label = string.format("%s\n|cffffffff%s|r", addon.characters[lockout.player]:GetName(true), date("%Y-%m-%d %H:%M:%S", lockout.reset)),
+                -- atlas = addon.characters[player]:GetProfileAvatar(),
+                -- showMask = true,
+                onMouseEnter = function(f)
+                    GameTooltip:SetOwner(f, "ANCHOR_RIGHT")
+                    GameTooltip:AddLine(name)
+                    for k, v in pairs(lockout) do
+                        GameTooltip:AddDoubleLine("|cffffffff"..k.."|r", tostring(v))
+                    end
+                    GameTooltip:Show()
+                end,
+            })
+
+        end
+    end
+
+    -- local inserted = {}
+    -- for name, lockouts in pairs(instances) do
+    --     for player, lockout in pairs(lockouts) do
+
+    --         if GetServerTime() < lockout.reset then
+
+    --             local instanceName = name:lower():gsub("[%c%p%s]", "")
+    --             local iconPath = "";
+    --             local iconCoords = {0,1,0,1}
+
+    --             --not ideal but dungeons and raids have different artwork
+    --             if lockout.isRaid then
+    --                 iconPath = string.format("Interface/encounterjournal/ui-ej-dungeonbutton-%s", instanceName)
+    --                 iconCoords = {0.17578125, 0.49609375, 0.03125, 0.71875}         
+    --             else
+    --                 iconPath = string.format("Interface/lfgframe/lfgicon-%s", instanceName)
+    --             end
+
+    --             if not inserted[name] then
+
+    --                 table.insert(t, {
+    --                     label = string.format("%s\n|cffE5AC00%s|r", name, lockout.difficultyName),
+    --                     backgroundRGB = {r = 0.4, g = 0.4, b = 0.4,},
+    --                     backgroundAlpha = 0.4,
+    --                     icon = iconPath,
+    --                     iconCoords = iconCoords,
+    --                 })
+    --                 inserted[name] = true;
+    --             end
+
+    --             table.insert(t, {
+    --                 label = string.format("%s\n|cffffffff%s|r", addon.characters[player]:GetName(true), date("%Y-%m-%d %H:%M:%S", lockout.reset)),
+    --                 -- atlas = addon.characters[player]:GetProfileAvatar(),
+    --                 -- showMask = true,
+    --                 onMouseEnter = function(f)
+    --                     GameTooltip:SetOwner(f, "ANCHOR_RIGHT")
+    --                     GameTooltip:AddLine(name)
+    --                     for k, v in pairs(lockout) do
+    --                         GameTooltip:AddDoubleLine("|cffffffff"..k.."|r", tostring(v))
+    --                     end
+    --                     GameTooltip:Show()
+    --                 end,
+    --             })
+
+    --         end
+    --     end
+    -- end
+
+    self.sidePanel.lockouts.scrollView:SetDataProvider(CreateDataProvider(t))
+end
+
 function GuildbookCalendarMixin:OnLoad()
-    self:RegisterEvent("PLAYER_ENTERING_WORLD")
 
     self.date = date("*t")
 
@@ -151,20 +351,7 @@ function GuildbookCalendarMixin:OnLoad()
         L["SATURDAY"],
         L["SUNDAY"],
     }
-    self.monthNames = {
-        L['JANUARY'],
-        L['FEBRUARY'],
-        L['MARCH'],
-        L['APRIL'],
-        L['MAY'],
-        L['JUNE'],
-        L['JULY'],
-        L['AUGUST'],
-        L['SEPTEMBER'],
-        L['OCTOBER'],
-        L['NOVEMBER'],
-        L['DECEMBER']
-    }
+
 
     self.dayTileWidth = 88;
     self.dayTileHeight = 64;
@@ -197,7 +384,6 @@ function GuildbookCalendarMixin:OnLoad()
             local tile = CreateFrame("FRAME", nil, self.monthView, "GuildbookCalendarDayTile")
             tile:SetPoint("TOPLEFT",  ((day - 1) * self.dayTileWidth), (((week - 1) * self.dayTileHeight) * -1) -18 )
             tile:SetSize(self.dayTileWidth, self.dayTileHeight)
-
             self.monthView.dayTiles[i] = tile;
             i = i + 1;
         end
@@ -260,31 +446,38 @@ function GuildbookCalendarMixin:GetMonthStart(month, year)
     return monthStart.wday
 end
 
+
 function GuildbookCalendarMixin:MonthChanged()
-    self.sidePanel.monthName:SetText(self.monthNames[self.date.month]..' '..self.date.year)
+
+    --this appears to also update the default calendar, which is fine, the main thing is it means we can make use of calendar api using month offset
+    C_Calendar.SetAbsMonth(self.date.month, self.date.year)
+
+    self.sidePanel.monthName:SetText(date("%B %Y", time(self.date)))
     local monthStart = self:GetMonthStart(self.date.month, self.date.year)
     local daysInMonth = self:GetDaysInMonth(self.date.month, self.date.year)
+
     local daysInLastMonth = 0
     if self.date.month == 1 then
         daysInLastMonth = self:GetDaysInMonth(12, self.date.year - 1)
     else
         daysInLastMonth = self:GetDaysInMonth(self.date.month - 1, self.date.year)
     end
+
     local thisMonthDay, nextMonthDay = 1, 1
     for i, day in ipairs(self.monthView.dayTiles) do
-        for b = 1, 3 do
-            day['event'..b]:Hide()
-        end
+        day:SetScript("OnMouseDown", nil)
+        day:ClearHolidayTextures()
+
         day.currentDayTexture:Hide()
-        -- wipe(day.events)
-        -- wipe(day.worldEvents)
-        day.dmf = false
+        wipe(day.events)
+        wipe(day.worldEvents)
+
         day:EnableMouse(false)
         day.dateLabel:SetText(' ')
-        day.worldEventTexture:SetTexture(nil)
+        --day.worldEventTexture:SetTexture(nil)
         -- day.guildEventTexture:SetTexture(nil)
         local today = date("*t")
-        if thisMonthDay == today.day and self.date.month == today.month then
+        if (thisMonthDay == today.day) and (self.date.month == today.month) then
             day.currentDayTexture:Show()
         end
 
@@ -292,117 +485,72 @@ function GuildbookCalendarMixin:MonthChanged()
         if i < monthStart then
             day.dateLabel:SetText((daysInLastMonth - monthStart + 2) + (i - 1))
             day.dateLabel:SetTextColor(0.5, 0.5, 0.5, 1)
-            day.overlay:Show()
+            day.otherMonthOverlay:Show()
+            day.currentDayTexture:Hide()
         end
 
         -- setup current months days
         if i >= monthStart and thisMonthDay <= daysInMonth then
             day.dateLabel:SetText(thisMonthDay)
             day.dateLabel:SetTextColor(1,1,1,1)
-            day.overlay:Hide()
+            day.otherMonthOverlay:Hide()
             day:EnableMouse(true)
             day.date = {
                 day = thisMonthDay,
                 month = self.date.month,
                 year = self.date.year,
             }
-            day:Hide()
-            local dmf = 'Elwynn'
-            if day.date.month % 2 == 0 then
-                dmf = 'Mulgore'
-            end
-            if i == 7 then
-                day.worldEventTexture:SetTexture(addon.CalendarWorldEvents[L["DARKMOON_FAIRE"]][dmf]['Start'])
-                day.dmf = dmf
-            end
-            if i > 7 and i < 14 then
-                day.worldEventTexture:SetTexture(addon.CalendarWorldEvents[L["DARKMOON_FAIRE"]][dmf]['OnGoing'])
-                day.dmf = dmf
-            end
-            if i == 14 then
-                day.worldEventTexture:SetTexture(addon.CalendarWorldEvents[L["DARKMOON_FAIRE"]][dmf]['End'])
-                day.dmf = dmf
-            end
 
-            for eventName, event in pairs(addon.CalendarWorldEvents) do
-                if eventName ~= L["DARKMOON_FAIRE"] then
-                    if (event.Start.month == self.date.month) and (event.Start.day == thisMonthDay) then
-                        day.worldEventTexture:SetTexture(event.Texture.Start)
-                        if not day.worldEvents[eventName] then
-                            day.worldEvents[eventName] = true
-                        end
-                    end
-                    if (event.End.month == self.date.month) and (event.End.day == thisMonthDay) then
-                        day.worldEventTexture:SetTexture(event.Texture.End)
-                        if not day.worldEvents[eventName] then
-                            day.worldEvents[eventName] = true
-                        end
-                    end
 
-                    -- events in the same month
-                    if (event.Start.month == self.date.month) and (event.Start.month == event.End.month) then
-                        if thisMonthDay > event.Start.day and thisMonthDay < event.End.day then
-                            day.worldEventTexture:SetTexture(event.Texture.OnGoing)
-                            if not day.worldEvents[eventName] then
-                                day.worldEvents[eventName] = true
-                            end
-                        end
+            --grab the events for the day and loop in reverse order, do this as it seems larger events (events spanning weeks not just a day) are indexed lower
+            --so going reverse we add the small single day events first and use a low number for the subLayer
+            for i = C_Calendar.GetNumDayEvents(0, thisMonthDay), 1, -1 do
+                local event = C_Calendar.GetHolidayInfo(0, thisMonthDay, i)
+                local subLayer = 1
+                if event then
+                    if not day.holidayTextures[i] then
+                        day.holidayTextures[i] = day:CreateTexture(nil, "BORDER")
+                        day.holidayTextures[i]:SetAllPoints()
+                        day.holidayTextures[i]:SetTexCoord(0.0, 0.71, 0.0, 0.71)
                     end
+                    day.holidayTextures[i]:SetDrawLayer("BORDER", subLayer)
+                    day.holidayTextures[i]:SetTexture(event.texture)
 
-                    -- events that cover 2 months
-                    if (event.Start.month == self.date.month) and (event.Start.month < event.End.month) then
-                        if thisMonthDay > event.Start.day then
-                            day.worldEventTexture:SetTexture(event.Texture.OnGoing)
-                            if not day.worldEvents[eventName] then
-                                day.worldEvents[eventName] = true
-                            end
-                        end
-                    end
-                    if (event.End.month == self.date.month) and (event.Start.month < event.End.month) then
-                        if thisMonthDay < event.End.day then
-                            day.worldEventTexture:SetTexture(event.Texture.OnGoing)
-                            if not day.worldEvents[eventName] then
-                                day.worldEvents[eventName] = true
-                            end
-                        end
-                    end
+                    table.insert(day.events, event)
                 end
-                -- special case for christmas as it covers 2 years
-                if eventName == L["FEAST_OF_WINTER_VEIL"] then
-                    if self.date.month == 12 then
-                        if thisMonthDay == event.Start.day then
-                            day.worldEventTexture:SetTexture(event.Texture.Start)
-                            if not day.worldEvents[eventName] then
-                                day.worldEvents[eventName] = true
-                            end
-                        end
-                        if thisMonthDay > event.Start.day then
-                            day.worldEventTexture:SetTexture(event.Texture.OnGoing)
-                            if not day.worldEvents[eventName] then
-                                day.worldEvents[eventName] = true
-                            end
-                        end
-                    end
-                    if self.date.month == 1 then
-                        if thisMonthDay == event.End.day then
-                            day.worldEventTexture:SetTexture(event.Texture.End)
-                            if not day.worldEvents[eventName] then
-                                day.worldEvents[eventName] = true
-                            end
-                        end
-                        if thisMonthDay < event.End.day then
-                            day.worldEventTexture:SetTexture(event.Texture.OnGoing)
-                            if not day.worldEvents[eventName] then
-                                day.worldEvents[eventName] = true
-                            end
-                        end
-                    end
-                    day.worldEventTexture:SetTexCoord(0.0, 0.71, 0.0, 0.55)
-                end
+                subLayer = subLayer + 1;
             end
 
-            --day.events = self:GetEventsForDate(day.date)
-            day:Show()
+            local contextMenu = {
+                {
+                    text = date("%d %B %Y", time(day.date)),
+                    isTitle = true,
+                    notCheckable = true,
+                    func = function()
+        
+                    end,
+                },
+                {
+                    text = "Add Note",
+                    notCheckable = true,
+                    func = function()
+                        StaticPopup_Show("GuildbookCalendarAddNote", date("%d %B %Y", time(day.date)), nil, day.date)
+                    end,
+                },
+                {
+                    text = "Add Birthday",
+                    notCheckable = true,
+                    func = function()
+                        StaticPopup_Show("GuildbookCalendarAddBirthday", nil, nil, {day.date.month, day.date.day})
+                    end,
+                },
+            }
+            day:SetScript("OnMouseDown", function(f, b)
+                if b == "RightButton" then
+                    EasyMenu(contextMenu, addon.contextMenu, "cursor", 0, 0, "MENU")
+                end
+            end)
+
             thisMonthDay = thisMonthDay + 1
         end
 
@@ -410,7 +558,26 @@ function GuildbookCalendarMixin:MonthChanged()
         if i > (daysInMonth + (monthStart - 1)) then
             day.dateLabel:SetText(nextMonthDay)
             day.dateLabel:SetTextColor(0.5, 0.5, 0.5, 1)
-            day.overlay:Show()
+            day.otherMonthOverlay:Show()
+            day.currentDayTexture:Hide()
+
+            for i = C_Calendar.GetNumDayEvents(1, nextMonthDay), 1, -1 do
+                local event = C_Calendar.GetHolidayInfo(1, nextMonthDay, i)
+                local subLayer = 1
+                if event then
+                    if not day.holidayTextures[i] then
+                        day.holidayTextures[i] = day:CreateTexture(nil, "BORDER")
+                        day.holidayTextures[i]:SetAllPoints()
+                        day.holidayTextures[i]:SetTexCoord(0.0, 0.71, 0.0, 0.71)
+                    end
+                    day.holidayTextures[i]:SetDrawLayer("BORDER", subLayer)
+                    day.holidayTextures[i]:SetTexture(event.texture)
+
+                    table.insert(day.events, event)
+                end
+                subLayer = subLayer + 1;
+            end
+
             nextMonthDay = nextMonthDay + 1
         end
     end

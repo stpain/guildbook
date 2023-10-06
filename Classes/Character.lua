@@ -88,7 +88,13 @@ function Character:SetName(name)
     self.data.name = name;
 end
 
-function Character:GetName()
+function Character:GetName(colourized)
+    if colourized then
+        if type(self.data.class) == "number" then
+            local _, class = GetClassInfo(self.data.class);
+            return RAID_CLASS_COLORS[class]:WrapTextInColorCode(self.data.name);
+        end
+    end
     return self.data.name;
 end
 
@@ -682,6 +688,36 @@ function Character:GetProfileAvatar()
     return "questlegendaryturnin"
 end
 
+function Character:GetSpecInfo()
+
+    local t = {
+        primary = {
+            [1] = { id = 1, points = 0 },
+            [2] = { id = 2, points = 0 },
+            [3] = { id = 3, points = 0 },
+        },
+        secondary = {
+            [1] = { id = 1, points = 0 },
+            [2] = { id = 2, points = 0 },
+            [3] = { id = 3, points = 0 },
+        },
+    }
+
+    for k, spec in ipairs({"primary", "secondary"}) do
+        if self.data.talents[spec] then
+            for k, v in ipairs(self.data.talents[spec]) do
+                t[spec][v.tabID].points = t[spec][v.tabID].points + v.rank
+            end
+        end
+        table.sort(t[spec], function(a,b)
+            return a.points > b.points
+        end)
+    end
+
+    return t;
+    
+end
+
 function Character:GetClassSpecAtlasInfo()
     if type(self.data.class) == "number" then
         local _, class = GetClassInfo(self.data.class)
@@ -718,8 +754,10 @@ function Character:GetClassSpecAtlasName(spec)
             local s;
             if spec == "primary" then
                 s = classData[class].specializations[self.data.mainSpec]
-            else
+            elseif spec == "secondary" then
                 s = classData[class].specializations[self.data.offSpec]
+            elseif type(spec) == "number" then
+                s = classData[class].specializations[spec]
             end
 
             if s == "Beast Master" then
@@ -799,10 +837,18 @@ end
 -- end
 
 
-function Character:CreateFromData(data)
-    --print(string.format("Created Character Obj [%s] at %s", data.name or "-", date('%H:%M:%S', time())))
+function Character:SetLockouts(lockouts)
+    self.data.lockouts = lockouts;
+end
 
-    --lets crack player info
+
+function Character:GetLockouts()
+    return self.data.lockouts or {};
+end
+
+
+
+function Character:CreateFromData(data)
     if (data.race == false) or (data.gender == false) then
         self.ticker = C_Timer.NewTicker(1, function()
             local _, _, _, englishRace, sex = GetPlayerInfoByGUID(data.guid)
@@ -810,7 +856,6 @@ function Character:CreateFromData(data)
                 if addon.characters[data.name] then
                     addon.characters[data.name]:SetGender(sex)
                     addon.characters[data.name]:SetRace(raceFileStringToId[englishRace])
-                    --print(string.format("Got race and gender info [%s] at %s", data.name or "-", date('%H:%M:%S', time())))
                     addon.characters[data.name].ticker:Cancel()
                 end
             end
@@ -820,6 +865,63 @@ function Character:CreateFromData(data)
 end
 
 
+function Character:CreateEmpty()
+    local character = {
+        guid = "",
+        name = "",
+        class = false,
+        gender = false,
+        level = 0,
+        race = false,
+        rank = 0,
+        onlineStatus = {
+            isOnline = false,
+            zone = "",
+        },
+        alts = {},
+        mainCharacter = false,
+        publicNote = "",
+        mainSpec = false,
+        offSpec = false,
+        mainSpecIsPvP = false,
+        offSpecIsPvP = false,
+        profile = {},
+        profession1 = "-",
+        profession1Level = 0,
+        profession1Spec = false,
+        profession1Recipes = {},
+        profession2 = "-",
+        profession2Level = 0,
+        profession2Spec = false,
+        profession2Recipes = {},
+        cookingLevel = 0,
+        cookingRecipes = {},
+        fishingLevel = 0,
+        firstAidLevel = 0,
+        firstAidRecipes = {},
+        talents = {},
+        glyphs = {},
+        inventory = {
+            current = {},
+        },
+        paperDollStats = {
+            current = {},
+        },
+        resistances = {
+            current = {},
+        },
+        auras = {
+            current = {},
+        },
+        containers = {},
+        lockouts = {},
+    }
+    return Mixin({data = character}, self)
+end
+
+function Character:SetData(data)
+    self.data = data;
+end
 
 function Character:ResetData()
 
@@ -842,11 +944,10 @@ function Character:ResetData()
     self.data.firstAidLevel = 0
     self.data.firstAidRecipes = {}
     self.data.talents = {}
-    --Glyphs = glyphs,
+    self.data.glyphs = {}
     self.data.inventory = {
         current = {},
     }
-    --CurrentInventory = currentInventory,
     self.data.paperDollStats = {
         current = {},
     }
@@ -857,7 +958,7 @@ function Character:ResetData()
         current = {},
     }
     self.data.containers = {}
-    --CurrentPaperdollStats = currentPaperdollStats or {},
+    self.data.lockouts = {}
     addon:TriggerEvent("Character_OnDataChanged", self)
 end
 

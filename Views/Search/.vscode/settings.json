@@ -1,0 +1,14 @@
+{
+    "Lua.diagnostics.globals": [
+        "CreateDataProvider",
+        "Item",
+        "ipairs",
+        "pairs",
+        "string",
+        "table",
+        "GameTooltip_SetDefaultAnchor",
+        "HandleModifiedItemClick",
+        "type",
+        "DressUpItemLink"
+    ]
+}

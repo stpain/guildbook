@@ -235,7 +235,11 @@ function GuildbookChatMixin:SetChatHistory(history, player)
 end
 
 function GuildbookChatMixin:Chat_OnMessageReceived(data)
-    
+
+    if not self.chats then --db not sorted yet
+        return;
+    end
+
     if type(data) == "table" then
 
         local now = time();

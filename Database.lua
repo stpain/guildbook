@@ -23,6 +23,16 @@ local configUpdates = {
     modBlizzRoster = false,
 }
 
+local dbUpdates = {
+    calendar = {
+        birthdays = {},
+        events = {},
+    }
+}
+local dbToRemove = {
+    "worldEvents",
+}
+
 function Database:Init()
 
     local version = tonumber(GetAddOnMetadata(name, "Version"));
@@ -36,7 +46,6 @@ function Database:Init()
             minimapButton = {},
             calendarButton = {},
             guilds = {},
-            worldEvents = {},
             myCharacters = {},
             characterDirectory = {},
             chats = {
@@ -44,10 +53,23 @@ function Database:Init()
             },
             debug = false,
             version = version,
+            calendar = {
+                birthdays = {},
+                events = {},
+            },
         }
     end
 
     self.db = GUILDBOOK_GLOBAL;
+
+    for k, v in pairs(dbUpdates) do
+        if not self.db[k] then
+            self.db[k] = v;
+        end
+    end
+    for k, v in ipairs(dbToRemove) do
+        self.db[v] = nil;
+    end
 
     for k, v in pairs(configUpdates) do
         if not self.db.config[k] then
@@ -61,33 +83,18 @@ end
 
 function Database:Reset()
 
-    local version = tonumber(GetAddOnMetadata(name, "Version"));
-
-    GUILDBOOK_GLOBAL = {
-        config = {
-            chatGuildHistoryLimit = 50,
-            chatWhisperHistoryLimit = 50,
-        },
-        minimapButton = {},
-        calendarButton = {},
-        guilds = {},
-        worldEvents = {},
-        myCharacters = {},
-        characterDirectory = {},
-        chats = {
-            guild = {},
-        },
-        debug = false,
-        version = version,
-    }
-
-    self.db = GUILDBOOK_GLOBAL;
+    GUILDBOOK_GLOBAL = nil;
 
     addon.guilds = {}
     addon.characters = {}
 
-    addon:TriggerEvent("StatusText_OnChanged", "[Database:Reset]")
-    addon:TriggerEvent("Database_OnInitialised")
+    self:Init()
+end
+
+function Database:ResetKey(key, newVal)
+    if self.db[key] then
+        self.db[key] = newVal;
+    end
 end
 
 function Database:ImportData(data)
@@ -103,6 +110,18 @@ function Database:InsertCharacter(character)
     if self.db then
         self.db.characterDirectory[character.name] = character;
         addon:TriggerEvent("StatusText_OnChanged", string.format("[InsertCharacter] %s", character.name))
+    end
+end
+
+function Database:DeleteCharacter(nameRealm)
+    if self.db then
+         if self.db.characterDirectory[nameRealm] then
+            self.db.characterDirectory[nameRealm] = nil;
+                if addon.characters[nameRealm] then
+                    addon.Characters[nameRealm] = nil;
+                end
+            addon:TriggerEvent("Database_OnCharacterRemoved", nameRealm)
+         end
     end
 end
 

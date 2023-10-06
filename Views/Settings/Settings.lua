@@ -242,7 +242,11 @@ function GuildbookSettingsMixin:PreparePanels()
         end)
     end
 
-
+    self.content.chat.deleteAllChats:SetScript("OnClick", function()
+        Database:ResetKey("chats", {
+            guild = {},
+        })
+    end)
 
 
 
@@ -286,11 +290,11 @@ function GuildbookSettingsMixin:PreparePanels()
     for k, v in ipairs(recipeCheckboxes) do
         self.content.tradeskills.scrollFrame.scrollChild.tradeskillItems[v]:SetChecked(Database.db.config[v])
         self.content.tradeskills.scrollFrame.scrollChild.tradeskillItems[v]:SetScript("OnClick", function(cb)
-            for k, v in ipairs(recipeCheckboxes) do
-                self.content.tradeskills.scrollFrame.scrollChild.tradeskillItems[v]:SetChecked(false)
-                Database.db.config[v] = false
-            end
-            cb:SetChecked(true)
+            -- for k, v in ipairs(recipeCheckboxes) do
+            --     self.content.tradeskills.scrollFrame.scrollChild.tradeskillItems[v]:SetChecked(false)
+            --     Database.db.config[v] = false
+            -- end
+            -- cb:SetChecked(true)
             Database.db.config[v] = cb:GetChecked()
         end)
     end
@@ -302,11 +306,11 @@ function GuildbookSettingsMixin:PreparePanels()
     for k, v in ipairs(reagentCheckboxes) do
         self.content.tradeskills.scrollFrame.scrollChild.reagentItems[v]:SetChecked(Database.db.config[v])
         self.content.tradeskills.scrollFrame.scrollChild.reagentItems[v]:SetScript("OnClick", function(cb)
-            for k, v in ipairs(reagentCheckboxes) do
-                self.content.tradeskills.scrollFrame.scrollChild.reagentItems[v]:SetChecked(false)
-                Database.db.config[v] = false
-            end
-            cb:SetChecked(true)
+            -- for k, v in ipairs(reagentCheckboxes) do
+            --     self.content.tradeskills.scrollFrame.scrollChild.reagentItems[v]:SetChecked(false)
+            --     Database.db.config[v] = false
+            -- end
+            -- cb:SetChecked(true)
             Database.db.config[v] = cb:GetChecked()
         end)
     end
@@ -372,7 +376,7 @@ function GuildbookSettingsMixin:PreparePanels()
                         end
                     end
                 else
-                    if Database.db.config.tradeskillsShowMyRecipesUsingTooltip == true then
+                    if Database.db.config.tradeskillsShowMyRecipesUsingTooltip == true and addon.characters[addon.thisCharacter] then
                         local recipesUsingItem = addon.api.getTradeskillItemsUsingReagentItemID(itemID, addon.characters[addon.thisCharacter].data.profession1, addon.characters[addon.thisCharacter].data.profession2)
                         if next(recipesUsingItem) then
                             tt:AddLine(" ")

@@ -2,20 +2,33 @@
     <Frame name="GuildbookSearch" mixin="GuildbookSearchMixin">
         <Layers>
             <Layer level="BACKGROUND">
-                <!-- <Texture atlas="communities-widebackground" setAllPoints="true"> -->
+                <Texture atlas="communities-widebackground" setAllPoints="true"/>
                 <!-- <Texture atlas="glueannouncementpopup-background" setAllPoints="true"> -->
             </Layer>
             <Layer level="OVERLAY">
-                <FontString parentKey="header" inherits="GameFontWhite" text="Search">
+                <!-- <FontString parentKey="header" inherits="GameFontWhite">
                     <Anchors>
                         <Anchor point="TOP" x="0" y="0"/>
                     </Anchors>
+                    <Size y="30"/>
+                </FontString> -->
+                <FontString parentKey="headerLeft" inherits="GameFontWhite" text="">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="12" y="0"/>
+                    </Anchors>
+                    <Size y="30"/>
+                </FontString>
+                <FontString parentKey="headerRight" inherits="GameFontWhite" text="Source/Location">
+                    <Anchors>
+                        <Anchor point="TOPRIGHT" x="-12" y="0"/>
+                    </Anchors>
+                    <Size y="30"/>
                 </FontString>
             </Layer>
         </Layers>
 
         <Frames>
-            <Frame parentKey="resultsListview" inherits = "GuildbookWrathEraWidgetsListviewTemplate">
+            <Frame parentKey="resultsListview" inherits="GuildbookWrathEraWidgetsListviewTemplate">
                 <Anchors>
                     <Anchor point="TOPLEFT" x="0" y="-30"/>
                     <Anchor point="BOTTOMRIGHT" x="0" y="0"/>

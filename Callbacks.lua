@@ -4,7 +4,8 @@ local name, addon = ...;
 Mixin(addon, CallbackRegistryMixin)
 addon:GenerateCallbackEvents({
     "Database_OnInitialised",
-    "Database_OnCharacterAdded",
+    "Database_OnCharacterAdded", 
+    "Database_OnCharacterRemoved", 
     "Database_OnConfigChanged",
 
     "Character_OnProfileSelected",
@@ -22,6 +23,8 @@ addon:GenerateCallbackEvents({
     "Guildbank_DataRequest",
     "Guildbank_OnDataReceived",
     "Guildbank_StatusInfo",
+
+    "Calendar_OnDayItemAdded",
     
     --"Blizzard_OnTradeskillUpdate",
     "Blizzard_OnGuildRosterUpdate",

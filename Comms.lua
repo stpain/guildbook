@@ -18,6 +18,8 @@ local name, addon = ...;
 local AceComm = LibStub:GetLibrary("AceComm-3.0")
 local LibDeflate = LibStub:GetLibrary("LibDeflate")
 local LibSerialize = LibStub:GetLibrary("LibSerialize")
+local Database = addon.Database;
+local Character = addon.Character;
 
 local Comms = {
     prefix = "Guildbook", --name var was to long
@@ -232,14 +234,15 @@ function Comms:TransmitToTarget(event, data, method, subKey, target)
     Comms:QueueMessage(msg.event, msg, "WHISPER", target)
 end
 
-function Comms:TransmitToGuild(event, data, method, subKey)
+function Comms:TransmitToGuild(event, data, method, subKey, nameRealm)
     local msg = {
         event = event,
         version = Comms.version,
         payload = {
-            method = method, --these could likely be coded into a lookup table?
+            method = method,
             subKey = subKey,
             data = data,
+            nameRealm = nameRealm,
         },
     }
     Comms:QueueMessage(msg.event, msg, "GUILD", nil)
@@ -287,12 +290,24 @@ end
 
 function Comms:Character_OnDataReceived(sender, message)
 
-    if not sender:find("-") then
-        local realm = GetNormalizedRealmName()
-        sender = string.format("%s-%s", sender, realm)
+    local nameRealm;
+    if message.payload.nameRealm and message.payload.nameRealm:find("Player-") then
+        nameRealm = message.payload.nameRealm
+    else
+        if not sender:find("-") then
+            local realm = GetNormalizedRealmName()
+            sender = string.format("%s-%s", sender, realm)
+        end
+        nameRealm = sender;
     end
 
-    local character = addon.characters[sender]
+    if not addon.characters[nameRealm] then
+        if Database.db.characterDirectory[nameRealm] then
+            addon.characters[nameRealm] = Character:CreateFromData(Database.db.characterDirectory[nameRealm])
+        end
+    end
+    local character = addon.characters[nameRealm]
+
     if character and character[message.payload.method] then
         if message.subKey then
             character[message.payload.method](character, message.payload.subKey, message.payload.data)
@@ -343,7 +358,7 @@ function Comms:Character_BroadcastChange(character, ...)
             end
 
             if data then
-                self:TransmitToGuild(self.characterKeyToEventName[key], data, method, subKey)
+                self:TransmitToGuild(self.characterKeyToEventName[key], data, method, subKey, character.data.name)
             else
                 addon.LogDebugMessage("comms", string.format("no data found in character.data[%s]", key))
             end

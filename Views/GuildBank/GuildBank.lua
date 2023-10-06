@@ -276,6 +276,9 @@ function GuildbookGuildBankMixin:LoadCharacterContainers(name, containers)
     end
 
     if #t > 0 then
+        table.sort(t, function(a, b)
+            return a.id < b.id
+        end)
         self.containerInfo.itemsListview.DataProvider:InsertTable(t)
     end
 

@@ -289,7 +289,7 @@ end
 
 function GuildbookMixin:SetStatausText(text)
     self.statusText:SetText(text)
-    --self:LogDebugMessage("info", text)
+    addon.LogDebugMessage("info", text)
 end
 
 function GuildbookMixin:OnUpdate()
@@ -449,7 +449,7 @@ function GuildbookMixin:CreateMinimapButtons()
 
     if not _G['LibDBIcon10_GuildbookMinimapCalendarIcon'] then
         self.MinimapCalendarButton = ldb:NewDataObject('GuildbookMinimapCalendarIcon', {
-            type = "data source",
+            type = "launcher",
             icon = 134068,
             OnClick = function(_, button)
                 self:SetShown(not self:IsVisible())

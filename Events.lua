@@ -203,19 +203,19 @@ end
 
 
 function e:CHAT_MSG_SYSTEM(...)
-    local msg = ...
-    if msg:find(ERR_GUILD_DEMOTE_SSS:gsub("%%s", "(.*)")) then
-        local who, _, _, member, _, rank = strsplit(" ", msg)
-        print("guild demote", who, member, rank)
+    -- local msg = ...
+    -- if msg:find(ERR_GUILD_DEMOTE_SSS:gsub("%%s", "(.*)")) then
+    --     local who, _, _, member, _, rank = strsplit(" ", msg)
+    --     print("guild demote", who, member, rank)
 
-    elseif msg:find(ERR_GUILD_PROMOTE_SSS:gsub("%%s", "(.*)")) then
-        local who, _, _, member, _, rank = strsplit(" ", msg)
-        print("guild promote", who, member, rank)
+    -- elseif msg:find(ERR_GUILD_PROMOTE_SSS:gsub("%%s", "(.*)")) then
+    --     local who, _, _, member, _, rank = strsplit(" ", msg)
+    --     print("guild promote", who, member, rank)
 
-    elseif msg:find(ERR_GUILD_JOIN_S:gsub("%%s", "(.*)")) then
-        local who = strsplit(" ", msg)
-        print("guild join", who)
-    end
+    -- elseif msg:find(ERR_GUILD_JOIN_S:gsub("%%s", "(.*)")) then
+    --     local who = strsplit(" ", msg)
+    --     print("guild join", who)
+    -- end
 end
 
 function e:GUILD_RANKS_UPDATE()
@@ -229,7 +229,7 @@ end
 ]]
 local bankScanned = false
 function e:BANKFRAME_CLOSED()
-    if bankScanned == false then
+    --if bankScanned == false then
         if addon.characters[addon.thisCharacter] then
             local bags = addon.api.scanPlayerContainers(true)
     
@@ -249,8 +249,8 @@ function e:BANKFRAME_CLOSED()
             end
             addon.characters[addon.thisCharacter]:SetContainers(bags)
         end
-    end
-    bankScanned = not bankScanned;
+    --end
+    --bankScanned = not bankScanned;
 end
 function e:BANKFRAME_OPENED()
     if addon.characters[addon.thisCharacter] then
@@ -269,7 +269,7 @@ function e:BANKFRAME_OPENED()
                 print("No rules exist for this Guild Bank, items scanned but not shared, go to settings to select rules")
             end
 
-            addon.characters[addon.thisCharacter]:SetContainers(bags)
+            --addon.characters[addon.thisCharacter]:SetContainers(bags)
         end
         addon.characters[addon.thisCharacter]:SetContainers(bags)
     end
@@ -293,35 +293,38 @@ function e:UNIT_AURA()
 end
 
 function e:EQUIPMENT_SWAP_FINISHED(...)
-	local _, setID = ...;
-	C_Timer.After(1.0, function()
 
-        local equipmentSetName = "";
-        local sets = C_EquipmentSet.GetEquipmentSetIDs();
-        for k, v in ipairs(sets) do
-            local name, iconFileID, _setID, isEquipped, numItems, numEquipped, numInInventory, numLost, numIgnored = C_EquipmentSet.GetEquipmentSetInfo(v)
-            if _setID == setID then
-                equipmentSetName = name;
+    if addon.characters and addon.characters[addon.thisCharacter] then
+        local _, setID = ...;
+        C_Timer.After(1.0, function()
+
+            local equipmentSetName = "";
+            local sets = C_EquipmentSet.GetEquipmentSetIDs();
+            for k, v in ipairs(sets) do
+                local name, iconFileID, _setID, isEquipped, numItems, numEquipped, numInInventory, numLost, numIgnored = C_EquipmentSet.GetEquipmentSetInfo(v)
+                if _setID == setID then
+                    equipmentSetName = name;
+                end
             end
-        end
 
-        local stats = addon.api.wrath.getPaperDollStats()
-        local resistances = addon.api.getPlayerResistances(UnitLevel("player"))
-        local auras = addon.api.getPlayerAuras()
+            local stats = addon.api.wrath.getPaperDollStats()
+            local resistances = addon.api.getPlayerResistances(UnitLevel("player"))
+            local auras = addon.api.getPlayerAuras()
 
-        if equipmentSetName == "" then
-            addon.characters[addon.thisCharacter]:SetPaperdollStats("current", stats, true)
-            addon.characters[addon.thisCharacter]:SetResistances("current", resistances, true)
-            addon.characters[addon.thisCharacter]:SetAuras("current", auras, true)
+            if equipmentSetName == "" then
+                addon.characters[addon.thisCharacter]:SetPaperdollStats("current", stats, true)
+                addon.characters[addon.thisCharacter]:SetResistances("current", resistances, true)
+                addon.characters[addon.thisCharacter]:SetAuras("current", auras, true)
 
-        else
-            addon.characters[addon.thisCharacter]:SetPaperdollStats(equipmentSetName, stats, true)
-            addon.characters[addon.thisCharacter]:SetResistances(equipmentSetName, resistances, true)
-            addon.characters[addon.thisCharacter]:SetAuras(equipmentSetName, auras, true)
+            else
+                addon.characters[addon.thisCharacter]:SetPaperdollStats(equipmentSetName, stats, true)
+                addon.characters[addon.thisCharacter]:SetResistances(equipmentSetName, resistances, true)
+                addon.characters[addon.thisCharacter]:SetAuras(equipmentSetName, auras, true)
 
-        end
+            end
 
-	end)
+        end)
+    end
 end
 
 function e:PLAYER_EQUIPMENT_CHANGED()
@@ -515,7 +518,6 @@ function e:GUILD_ROSTER_UPDATE()
                     },
                     alts = {},
                     mainCharacter = false,
-                    --rankName = rankName,
                     publicNote = publicNote,
                     mainSpec = false,
                     offSpec = false,
@@ -540,7 +542,6 @@ function e:GUILD_ROSTER_UPDATE()
                     inventory = {
                         current = {},
                     },
-                    --CurrentInventory = currentInventory,
                     paperDollStats = {
                         current = {},
                     },
@@ -551,7 +552,7 @@ function e:GUILD_ROSTER_UPDATE()
                         current = {},
                     },
                     containers = {},
-                    --CurrentPaperdollStats = currentPaperdollStats or {},
+                    lockouts = {},
                 }
                 Database:InsertCharacter(character)
                 
@@ -614,6 +615,11 @@ function e:GUILD_ROSTER_UPDATE()
                     addon.initialGuildRosterScanned = true;
                 end
             end
+        end
+
+        if addon.characters[addon.thisCharacter] then
+            local lockouts = addon.api.getLockouts()
+            addon.characters[addon.thisCharacter]:SetLockouts(lockouts)
         end
     end
 end
@@ -795,6 +801,9 @@ end
 local function setPlayerTalentsAndGlyphs(...)
 
     local spec, tabs, talents, glyphs = addon.api.wrath.getPlayerTalents(...)
+
+    -- DevTools_Dump(tabs)
+    -- print(spec)
 
     --convert the keys to named keys to use as a lookup
     if spec == 1 then

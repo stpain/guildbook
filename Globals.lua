@@ -1,6 +1,7 @@
 local addonName, addon = ...;
 
 local Database = addon.Database;
+local Character = addon.Character;
 local Talents = addon.Talents;
 local Tradeskills = addon.Tradeskills;
 
@@ -9,6 +10,7 @@ addon.thisCharacter = "";
 addon.thisGuild = false;
 addon.guilds = {}
 addon.characters = {}
+addon.contextMenu = CreateFrame("Frame", "GuildbookContextMenu", UIParent, "UIDropDownMenuTemplate")
 
 addon.api = {
     classic = {},
@@ -789,7 +791,36 @@ function addon.api.classic.getPlayerEquipment()
 end
 
 
+function addon.api.getLockouts()
+    local t = {}
+    local numSavedInstances = GetNumSavedInstances()
+    if numSavedInstances > 0 then
+        for i = 1, numSavedInstances do
+            --t[i] = {GetSavedInstanceInfo(i)}
+            local name, id, reset, difficulty, locked, extended, instanceIDMostSig, isRaid, maxPlayers, difficultyName, numEncounters, encounterProgress = GetSavedInstanceInfo(i)
 
+            reset = (GetServerTime() + reset);
+
+            t[i] = {
+                name = name,
+                id = id,
+                reset = reset,
+                difficulty = difficulty,
+                locked = locked,
+                extended = extended,
+                instanceIDMostSig = instanceIDMostSig,
+                isRaid = isRaid,
+                maxPlayers = maxPlayers,
+                difficultyName = difficultyName,
+                numEncounters = numEncounters,
+                encounterProgress = encounterProgress,
+            }
+            --local msg = string.format("name=%s, id=%s, reset=%s, difficulty=%s, locked=%s, numEncounters=%s", tostring(name), tostring(id), tostring(reset), tostring(difficulty), tostring(locked), tostring(numEncounters))
+            --print(msg)
+        end
+    end
+    return t
+end
 
 
 
@@ -881,4 +912,40 @@ addon.data.inventorySlots = {
     -- },
 }
 
---Guildbook = {}
+
+
+
+
+
+
+-- Guildbook = {
+--     enabled = false,
+-- }
+
+-- addon:RegisterCallback("Database_OnInitialised", Guildbook.SetEnabled, Guildbook)
+
+-- function Guildbook:SetEnabled()
+--     self.enabled = true;
+-- end
+
+-- function Guildbook:GetCharacterNamesFromDirectory()
+--     if self.enabled then
+--         local t = {}
+--         for k, v in pairs(Database.db.characterDirectory) do
+--             table.insert(t, k)
+--         end
+--         return t;
+--     end
+-- end
+
+-- function Guildbook:GetCharacterData(nameRealm)
+--     if self.enabled then
+--         if Database.db.characterDirectory[nameRealm] then
+--             return Database.db.characterDirectory[nameRealm];
+--         end
+--     end
+-- end
+
+-- function Guildbook:CreateCharacterObject()
+--     return Character:CreateEmpty()
+-- end

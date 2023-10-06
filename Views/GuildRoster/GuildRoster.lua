@@ -14,7 +14,7 @@ function GuildbookGuildRosterMixin:OnLoad()
 
     local classMenu = {}
     for i = 1, GetNumClasses() do
-        if i ~= 6 and i ~= 10 then
+        if i ~= 10 then
             local locale, eng, id = GetClassInfo(i)
             table.insert(classMenu, {
                 text = locale,
@@ -52,11 +52,6 @@ function GuildbookGuildRosterMixin:OnLoad()
 
         self[slider]:SetScript("OnMouseWheel", function(s, delta)
             s:SetValue(s:GetValue() + delta)
-        end)
-
-        self[slider]:SetScript("OnValueChanged", function(s)
-            s.value:SetText(math.ceil(s:GetValue()))
-
         end)
     end
 

@@ -11,20 +11,22 @@
                 
                 </Texture>
             </Layer>
-            <Layer level="BORDER">
-                <Texture parentKey="worldEventTexture" setAllPoints="true" alpha="0.6">
+            <!-- <Layer level="BORDER">
+                <Texture parentKey="worldEventTexture" setAllPoints="true" alpha="0.8">
                 
                 </Texture>
-            </Layer>
+            </Layer> -->
             <Layer level="OVERLAY">
                 <FontString parentKey="dateLabel" inherits="GameFontNormal" text="23">
                     <Color r="1" g="1" b="1" a="1"/>
                     <Anchors>
-                        <Anchor point="TOPLEFT" x="2" y="-2"/>
+                        <Anchor point="TOPLEFT" x="4" y="-8"/>
                     </Anchors>
                 </FontString>
-                <Texture parentKey="overlay" setAllPoints="true" hidden="true">
-                    <Color r="0.6" g="0.6" b="0.6" a="0.6"/>
+                <Texture parentKey="otherMonthOverlay" setAllPoints="true" hidden="true">
+                    <Color r="0.6" g="0.6" b="0.6" a="0.65"/>
+                </Texture>
+                <Texture parentKey="eventTexture" setAllPoints="true" hidden="true">
                 </Texture>
                 <Texture parentKey="currentDayTexture" hidden="true">
                     <Anchors>
@@ -37,38 +39,29 @@
             
             </Layer>
         </Layers>
-        <Frames>
+        <!-- <Frames>
             <Button parentKey="event1" >
-                <Size y="14"/>
                 <Anchors>
-                    <Anchor point="BOTTOMLEFT" x="0" y="0"/>
-                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                    <Anchor point="BOTTOMLEFT" x="2" y="2"/>
+                    <Anchor point="BOTTOMRIGHT" x="-2" y="2"/>
                 </Anchors>
-                <NormalTexture atlas="groupfinder-button-cover"/>
-                <PushedTexture atlas="groupfinder-button-cover-down"/>
-                <HighlightTexture atlas="PetList-ButtonHighlight"/>
+                <HighlightTexture atlas="auctionhouse-nav-button-secondary-select"/>
             </Button>
             <Button parentKey="event2" >
-                <Size y="14"/>
                 <Anchors>
-                    <Anchor point="BOTTOMLEFT" x="0" y="14"/>
-                    <Anchor point="BOTTOMRIGHT" x="0" y="14"/>
+                    <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" relativeKey="$parent.event1" x="0" y="0"/>
+                    <Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT" relativeKey="$parent.event1" x="0" y="0"/>
                 </Anchors>
-                <NormalTexture atlas="groupfinder-button-cover"/>
-                <PushedTexture atlas="groupfinder-button-cover-down"/>
-                <HighlightTexture atlas="PetList-ButtonHighlight"/>
+                <HighlightTexture atlas="auctionhouse-nav-button-secondary-select"/>
             </Button>
             <Button parentKey="event3" >
-                <Size y="14"/>
                 <Anchors>
-                    <Anchor point="BOTTOMLEFT" x="0" y="28"/>
-                    <Anchor point="BOTTOMRIGHT" x="0" y="28"/>
+                    <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" relativeKey="$parent.event2" x="0" y="0"/>
+                    <Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT" relativeKey="$parent.event2" x="0" y="0"/>
                 </Anchors>
-                <NormalTexture atlas="groupfinder-button-cover"/>
-                <PushedTexture atlas="groupfinder-button-cover-down"/>
-                <HighlightTexture atlas="PetList-ButtonHighlight"/>
+                <HighlightTexture atlas="auctionhouse-nav-button-secondary-select"/>
             </Button>
-        </Frames>
+        </Frames> -->
         <Scripts>
             <OnLoad method="OnLoad"/>
         </Scripts>
@@ -119,12 +112,23 @@
                             <Anchor point="TOPRIGHT" x="0" y="0"/>
                         </Anchors>
                     </Button>
+                    <Frame parentKey="lockouts" inherits="GuildbookWrathEraWidgetsListviewTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" x="0" y="-40"/>
+                            <Anchor point="BOTTOMRIGHT" x="0" y="40"/>
+                        </Anchors>
+                        <KeyValues>
+                            <KeyValue key="frameType" value="FRAME" type="string"/>
+                            <KeyValue key="itemTemplate" value="GuildbookWrathEraSimpleIconLabelFrame" type="string"/>
+                            <KeyValue key="elementHeight" value="36" type="number"/>
+                        </KeyValues>
+                    </Frame>
                 </Frames>
                 <Layers>
                     <Layer level="OVERLAY">
                         <FontString parentKey="monthName" inherits="GameFontWhite">
                             <Anchors>
-                                <Anchor point="TOP" x="0" y="0"/>
+                                <Anchor point="TOP" x="0" y="-10"/>
                             </Anchors>
                         </FontString>
                     </Layer>
