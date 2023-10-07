@@ -282,18 +282,29 @@
                     <Button parentKey="importData" inherits="UIPanelButtonTemplate" text="Import">
                         <Size x="260" y="22"/>
                         <Anchors>
-                            <Anchor point="TOPLEFT" x="20" y="-60"/>
+                            <Anchor point="TOPLEFT" x="20" y="-12"/>
                         </Anchors>
                     </Button>
 
                     <ScrollFrame parentKey="importExportEditbox" inherits="InputScrollFrameTemplate">
                         <Anchors>
                             <Anchor point="LEFT" x="300"/>
-                            <Anchor point="TOPRIGHT" x="-12" y="-60"/>
+                            <Anchor point="TOPRIGHT" x="-12" y="-12"/>
                             <Anchor point="BOTTOMRIGHT" x="-12" y="12"/>
                         </Anchors>
                     </ScrollFrame>
                 </Frames>
+
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <FontString parentKey="importInfo" inherits="GameFontWhite" justifyH="LEFT" justifyV="TOP">
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="20" y="-50"/>
+                                <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMLEFT" x="280" y="12"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
             </Frame>
 
             <Frame parentKey="debug" hidden="true" parentArray="specialFrames">

@@ -1056,32 +1056,100 @@ function GuildbookAltsListviewTemplateMixin:Update()
         })
     end
 
+    local deleteEquipMenu, exportEquipMenu = {}, {}
+    for setname, info in pairs(self.character.data.inventory) do
+        table.insert(deleteEquipMenu, {
+            text = setname,
+            notCheckable = true,
+            func = function()
+                self.character.data.inventory[setname] = nil;
+                addon:TriggerEvent("Character_OnDataChanged", self.character)
+            end,
+        })
+        table.insert(exportEquipMenu, {
+            text = setname,
+            notCheckable = true,
+        })
+    end
+
+    local sep = {
+		hasArrow = false;
+		dist = 0;
+        text = "",
+		isTitle = true;
+		isUninteractable = true;
+		notCheckable = true;
+		iconOnly = true;
+		icon = "Interface\\Common\\UI-TooltipDivider-Transparent";
+		tCoordLeft = 0;
+		tCoordRight = 1;
+		tCoordTop = 0;
+		tCoordBottom = 1;
+		tSizeX = 0;
+		tSizeY = 8;
+		tFitDropDownSizeX = true;
+		iconInfo = {
+			tCoordLeft = 0,
+			tCoordRight = 1,
+			tCoordTop = 0,
+			tCoordBottom = 1,
+			tSizeX = 0,
+			tSizeY = 8,
+			tFitDropDownSizeX = true
+		}}
+
     self.contextMenu = {
         {
             text = self.character:GetName(true),
             isTitle = true,
             notCheckable = true,
-        },
-        {
-            text = "Primary Specialization",
-            hasArrow = true,
-            menuList = specMenu1,
-            notCheckable = true,
-        },
-        {
-            text = "Secondary Specialization",
-            hasArrow = true,
-            menuList = specMenu2,
-            notCheckable = true,
-        },
-        {
-            text = DELETE,
-            notCheckable = true,
-            func = function()
-                StaticPopup_Show("GuildbookDeleteCharacter", self.character.data.name, nil, self.character.data.name)
-            end,
         }
     }
+    table.insert(self.contextMenu, sep)
+    table.insert(self.contextMenu, {
+        text = "Specializations",
+        isTitle = true,
+        notCheckable = true,
+    })
+    table.insert(self.contextMenu, {
+        text = "Primary",
+        hasArrow = true,
+        menuList = specMenu1,
+        notCheckable = true,
+    })
+    table.insert(self.contextMenu, {
+        text = "Secondary",
+        hasArrow = true,
+        menuList = specMenu2,
+        notCheckable = true,
+    })
+    table.insert(self.contextMenu, sep)
+    table.insert(self.contextMenu, {
+        text = "Equipment",
+        isTitle = true,
+        notCheckable = true,
+    })
+    table.insert(self.contextMenu, {
+        text = "Export",
+        hasArrow = true,
+        menuList = exportEquipMenu,
+        notCheckable = true,
+    })
+    table.insert(self.contextMenu, {
+        text = "Delete",
+        hasArrow = true,
+        menuList = deleteEquipMenu,
+        notCheckable = true,
+    })
+    table.insert(self.contextMenu, sep)
+    table.insert(self.contextMenu, {
+        text = DELETE,
+        notCheckable = true,
+        func = function()
+            StaticPopup_Show("GuildbookDeleteCharacter", self.character.data.name, nil, self.character.data.name)
+        end,
+    })
+
 
 end
 
@@ -1758,7 +1826,9 @@ function GuildbookSearchListviewItemMixin:SetDataBinding(binding)
         GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
     end)
 
-    self:SetScript("OnMouseDown", function()
-
-    end)
+    if binding.onMouseDown then
+        self:SetScript("OnMouseDown", binding.onMouseDown)
+    else
+        self:SetScript("OnMouseDown", nil)
+    end
 end

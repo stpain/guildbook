@@ -26,12 +26,38 @@ local debugTypeIcons = {
     bank = "ShipMissionIcon-Treasure-Mission",
 }
 
-function addon.LogDebugMessage(debugType, debugMessage)
+function addon.LogDebugMessage(debugType, debugMessage, debugTooltip)
     if GuildbookUI and Database.db.debug then
-        GuildbookUI.debug.messageLogListview.DataProvider:Insert({
-            label = string.format("[%s] %s", date("%T"), debugMessage),
-            atlas = debugTypeIcons[debugType],
-        })
+        if debugTooltip then
+            GuildbookUI.debug.messageLogListview.DataProvider:Insert({
+                label = string.format("[%s] %s", date("%T"), debugMessage),
+                atlas = debugTypeIcons[debugType],
+                onMouseEnter = function()
+                    GameTooltip:SetOwner(GuildbookUI, "ANCHOR_TOPLEFT")
+                    GameTooltip:AddDoubleLine("Version", debugTooltip.version)
+                    -- for k, v in ipairs(debugTooltip.payload) do
+                    --     GameTooltip:AddDoubleLine(k, v)
+                    -- end
+                    for k, v in pairs(debugTooltip.payload) do
+                        GameTooltip:AddDoubleLine(k, v)
+                    end
+                    if type(debugTooltip.payload.data) == "table" then
+                        -- for k, v in ipairs(debugTooltip.payload.data) do
+                        --     GameTooltip:AddDoubleLine(k, v)
+                        -- end
+                        for k, v in pairs(debugTooltip.payload.data) do
+                            GameTooltip:AddDoubleLine(k, v)
+                        end
+                    end
+                    GameTooltip:Show()
+                end,
+            })
+        else
+            GuildbookUI.debug.messageLogListview.DataProvider:Insert({
+                label = string.format("[%s] %s", date("%T"), debugMessage),
+                atlas = debugTypeIcons[debugType],
+            })
+        end
         GuildbookUI.debug.messageLogListview.scrollBox:ScrollToEnd()
     end
 end

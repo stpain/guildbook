@@ -33,7 +33,6 @@ e:RegisterEvent("PLAYER_REGEN_DISABLED")
 e:RegisterEvent("PLAYER_REGEN_ENABLED")
 e:RegisterEvent("SKILL_LINES_CHANGED")
 e:RegisterEvent("EQUIPMENT_SWAP_FINISHED")
-e:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
 
 e:SetScript("OnEvent", function(self, event, ...)
     if self[event] then

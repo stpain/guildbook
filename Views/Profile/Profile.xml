@@ -271,7 +271,7 @@
                         <Layers>
                             <Layer level="BACKGROUND">
                                 <Texture parentKey="background" setAllPoints="true">
-                                    <Texcoords left="0" right="0.5546875" top="0" bottom="0.611328125"/>
+                                    <!-- <Texcoords left="0" right="0.5546875" top="0" bottom="0.611328125"/> -->
                                 </Texture>
                             </Layer>
                         </Layers>
@@ -292,7 +292,7 @@
                         <Layers>
                             <Layer level="BACKGROUND">
                                 <Texture parentKey="background" setAllPoints="true">
-                                    <Texcoords left="0" right="0.5546875" top="0" bottom="0.611328125"/>
+                                    <!-- <Texcoords left="0" right="0.5546875" top="0" bottom="0.611328125"/> -->
                                 </Texture>
                             </Layer>
                         </Layers>
@@ -314,7 +314,7 @@
                         <Layers>
                             <Layer level="BACKGROUND">
                                 <Texture parentKey="background" setAllPoints="true">
-                                    <Texcoords left="0" right="0.5546875" top="0" bottom="0.611328125"/>
+                                    <!-- <Texcoords left="0" right="0.5546875" top="0" bottom="0.611328125"/> -->
                                 </Texture>
                             </Layer>
                         </Layers>

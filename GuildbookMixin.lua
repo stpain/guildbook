@@ -253,29 +253,45 @@ function GuildbookMixin:ToggleHelptips()
     end
 end
 
+
 function GuildbookMixin:SetupImportExport()
 
     self.import.importExportEditbox.EditBox:SetMaxLetters(1000000000)
+    self.import.importExportEditbox.ScrollBar:ClearAllPoints()
+    self.import.importExportEditbox.ScrollBar:SetPoint("TOPLEFT", self.import.importExportEditbox, "TOPRIGHT", -24, 0)
+    self.import.importExportEditbox.ScrollBar:SetPoint("BOTTOMLEFT", self.import.importExportEditbox, "BOTTOMRIGHT", -24, 0)
 
-    local testData = {
-        name = "calendar",
-        data = {
-            {
-                foo = 1,
-                bar = false,
-            }
-        },
-        version = 0.1,
-    }
-    self.import.importExportEditbox.EditBox:SetText(json.encode(testData))
+    -- local testData = {
+    --     name = "calendar",
+    --     data = {
+    --         {
+    --             foo = 1,
+    --             bar = false,
+    --         }
+    --     },
+    --     version = 0.1,
+    -- }
+    -- self.import.importExportEditbox.EditBox:SetText(json.encode(testData))
+
+    self.import.importExportEditbox.EditBox:SetScript("OnTextChanged", function(eb)
+        -- local text = self.import.importExportEditbox.EditBox:GetText()
+        -- if text and (text ~= " ") and (#text > 0) then
+        --     local import = json.decode(text)
+        -- end
+    end)
     
     self.import.importData:SetScript("OnClick", function()
-        local data = self.import.importExportEditbox.EditBox:GetText()
-        if data and (data ~= "") and (data ~= " ") then
-            Database:ImportData(data);
+        
+        local text = self.import.importExportEditbox.EditBox:GetText()
+        local import = json.decode(text)
+        
+        if import and import.links and import.links.set then
+            self:ImportEightyUpgrades(import)
         end
+
     end)
 end
+
 
 function GuildbookMixin:ShowSpecialFrame(frame)
     for k, v in ipairs(self.specialFrames) do
@@ -383,19 +399,6 @@ function GuildbookMixin:Database_OnInitialised()
     if addon.characters[addon.thisCharacter] then
         self.ribbon.myProfile.background:SetAtlas(addon.characters[addon.thisCharacter]:GetProfileAvatar())
     end
---minortalents-icon-book socialqueuing-icon-eye
-
-    --experimental
-    -- local hbd = LibStub("HereBeDragons-2.0")
-    -- local currentMapID = C_Map.GetBestMapForUnit('player')
-    -- if not currentMapID then
-    --     return
-    -- else
-    --     local currentMapPosition = C_Map.GetPlayerMapPosition(currentMapID, 'player')
-    --     local x, y, instance = hbd:GetWorldCoordinatesFromZone(currentMapPosition.x, currentMapPosition.y, currentMapID)
-
-    --     print(x, y)
-    -- end
 end
 
 function GuildbookMixin:CreateSlashCommands()
@@ -532,6 +535,47 @@ end
 function GuildbookMixin:Search(text)
     addon:TriggerEvent("Guildbook_OnSearch", text)
 end
+
+
+
+
+
+
+
+
+
+
+function GuildbookMixin:ImportEightyUpgrades(import)
+    if import and import.links and import.links.set then
+        if import.links.set:find("https://eightyupgrades.com/set") then
+            self.import.importInfo:SetText(string.format("EightUpgrades\n\n%s\n%s\n%s", import.name, import.phase, import.character.name))
+        end
+
+        for k, v in ipairs(import.items) do
+            
+            local itemString = "|cffffffff|Hitem:%d:%s:%s:%s:%s:::::::::::::::|h[%s]|h|r"
+
+            local enchantID = ""
+            local gems = {"", "", ""}
+            
+            if v.enchant then
+                enchantID = v.enchant.id;
+            end
+
+            if v.gems then
+                for a, b in ipairs(v.gems) do
+                    gems[a] = b.id
+                end
+            end
+
+            local linkPayload = string.format(itemString, v.id, enchantID, gems[1], gems[2], gems[3], v.name)
+
+            print(linkPayload)
+
+        end
+    end
+end
+
 
 
 

@@ -280,7 +280,7 @@ function Comms:OnCommReceived(prefix, message, distribution, sender)
         if Comms.events[data.event] then
             addon:TriggerEvent("StatusText_OnChanged", string.format("received [|cffE7B007%s|r] from %s", data.event, sender))
             Comms.events[data.event](Comms, sender, data)
-            addon.LogDebugMessage("comms_in", string.format("[|cffE7B007%s|r] data incoming from %s", data.event, sender))
+            addon.LogDebugMessage("comms_in", string.format("[|cffE7B007%s|r] data incoming from %s", data.event, sender), data)
         end
     else
         --DevTools_Dump(data)
@@ -289,6 +289,10 @@ end
 
 
 function Comms:Character_OnDataReceived(sender, message)
+
+    -- if message.event == "INVENTORY_TRANSMIT" then
+    --     DevTools_Dump(message)
+    -- end
 
     local nameRealm;
     if message.payload.nameRealm and message.payload.nameRealm:find("Player-") then
@@ -309,7 +313,7 @@ function Comms:Character_OnDataReceived(sender, message)
     local character = addon.characters[nameRealm]
 
     if character and character[message.payload.method] then
-        if message.subKey then
+        if message.payload.subKey then
             character[message.payload.method](character, message.payload.subKey, message.payload.data)
         else
             character[message.payload.method](character, message.payload.data)
@@ -471,8 +475,31 @@ function Comms:Guildbank_OnDataReceived(sender, message)
 end
 
 
+
+
+function Comms:RequestCharacterData(nameRealm)
+    
+    if addon.characters[nameRealm] then
+        if addon.characters[nameRealm].data.onlineStatus.isOnline then
+            local msg = {
+                event = "CHARACTER_DATA_REQUEST",
+                version = self.version,
+            }
+            self:Transmit_NoQueue(msg, "WHISPER", nameRealm)
+        end
+    end
+end
+
+function Comms:Character_OnDataRequest(sender)
+
+end
+
+
+
 --when a comms is received check the event type and pass to the relavent function
 Comms.events = {
+
+    CHARACTER_DATA_REQUEST = Comms.Character_OnDataRequest,
 
     --character events
     --CONTAINERS_TRANSMIT = Comms.Character_OnDataReceived,

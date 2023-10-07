@@ -8,6 +8,11 @@ Talents.ClassTalentTreeIndexToFileName = {
         [2] = "DeathKnightFrost",
         [3] = "DeathKnightUnholy",
     },
+    ["DEATH KNIGHT"] = {
+        [1] = "DeathKnightBlood",
+        [2] = "DeathKnightFrost",
+        [3] = "DeathKnightUnholy",
+    },
 	DRUID = {
         [1] = "DruidBalance",
         [2] = "DruidFeralCombat",
@@ -108,8 +113,8 @@ function Talents:GetClassTalentTreeArtwork(classID)
         local art = {}
         local fileNames = self.ClassTalentTreeIndexToFileName[class];
         for k, v in ipairs(fileNames) do
-            art[k] = self.TalentBackgrounds[v]
-            --art[k] = string.format("interface/talentframe/%s-topleft.blp", v)
+            --art[k] = self.TalentBackgrounds[v]
+            art[k] = string.format("interface/talentframe/%s-topleft.blp", v)
         end
         return art;
     end

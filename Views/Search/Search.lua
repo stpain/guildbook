@@ -56,6 +56,9 @@ function GuildbookSearchMixin:UpdateResults()
         end
 
         if v.type == "character" then
+            v.onMouseDown = function()
+                addon:TriggerEvent("Character_OnProfileSelected", addon.characters[v.data.data.name])
+            end
             table.insert(out, v)
         end
 

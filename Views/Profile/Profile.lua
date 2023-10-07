@@ -510,6 +510,7 @@ function GuildbookProfileMixin:Update()
 									})
 								end
 							end
+
 						else
 
 							for i = 1, 19 do
