@@ -4,6 +4,7 @@ local L = addon.Locales
 local Talents = addon.Talents;
 local Tradeskills = addon.Tradeskills;
 local Character = addon.Character;
+local Comms = addon.Comms;
 
 
 local statsSchema = {
@@ -174,6 +175,9 @@ function GuildbookProfileMixin:LoadCharacter(character)
     self.inventory:SetAlpha(0)
     self.inventory.anim:Play()
 	self:LoadTalentsAndGlyphs("primary")
+
+	--request an update, this uses WHISPER channel comms and only if the player is online
+	Comms:RequestCharacterData(character.data.name, "inventory")
 end
 
 function GuildbookProfileMixin:UpdateLayout()

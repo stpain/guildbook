@@ -269,7 +269,8 @@ function addon:ModBlizzUI()
             end                
             --change class text colour
             if class and classDisplayName then
-                _G['GuildFrameButton'..i..'Class']:SetText(string.format('%s%s|r', self.Data.Class[class].FontColour, classDisplayName))
+                --_G['GuildFrameButton'..i..'Class']:SetText(string.format('%s%s|r', self.Data.Class[class].FontColour, classDisplayName))
+                _G['GuildFrameButton'..i..'Class']:SetText(RAID_CLASS_COLORS[class]:WrapTextInColorCode(classDisplayName))
             end
             -- set known columns
             button.GuildbookColumnRank:SetText(rankName)    

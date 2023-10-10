@@ -477,30 +477,58 @@ end
 
 
 
-function Comms:RequestCharacterData(nameRealm)
+function Comms:RequestCharacterData(nameRealm, data)
     
     if addon.characters[nameRealm] then
         if addon.characters[nameRealm].data.onlineStatus.isOnline then
             local msg = {
                 event = "CHARACTER_DATA_REQUEST",
                 version = self.version,
+                payload = {
+                    requestData = data,
+                    target = nameRealm,
+                }
             }
             self:Transmit_NoQueue(msg, "WHISPER", nameRealm)
         end
     end
 end
 
-function Comms:Character_OnDataRequest(sender)
+function Comms:Character_OnDataRequest(sender, message)
 
-    
+    if message and message.payload then
+        if addon.characters[addon.thisCharacter].data[message.payload.requestData] then
+            
+            local msg = {
+                event = "CHARACTER_DATA_RESPONSE",
+                version = self.version,
+                payload = {
+                    target = message.payload.target,
+                    request = message.payload.requestData,
+                    data = addon.characters[addon.thisCharacter].data[message.payload.requestData];
+                }
+            }
+            self:Transmit_NoQueue(msg, "WHISPER", sender)
+        end
+    end
 end
 
+function Comms:Character_OnDataResponse(sender, message)
 
+    if message.payload.target and message.payload.request and message.payload.data then
+        if addon.characters[message.payload.target] then
+            addon.characters[message.payload.target].data[message.payload.request] = message.payload.data;
+            addon:TriggerEvent("Character_OnDataChanged", addon.characters[message.payload.target])
+        end
+    end
+
+end
 
 --when a comms is received check the event type and pass to the relavent function
 Comms.events = {
 
     CHARACTER_DATA_REQUEST = Comms.Character_OnDataRequest,
+    CHARACTER_DATA_RESPONSE = Comms.Character_OnDataResponse,
 
     --character events
     --CONTAINERS_TRANSMIT = Comms.Character_OnDataReceived,

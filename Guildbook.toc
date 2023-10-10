@@ -1,6 +1,6 @@
 ## Interface: 30401
 ## Author: TheBoringDad
-## Version: 6.4
+## Version: 6.41
 ## Title: Guildbook
 ## Notes: An addon for guilds
 ## SavedVariables: GUILDBOOK_GLOBAL
@@ -46,6 +46,7 @@ Dialogs.lua
 
 Globals.lua
 Callbacks.lua
+Comms.lua
 
 Templates.lua
 Templates.xml
@@ -82,9 +83,6 @@ Views\Search\Search.xml
 
 Views\Alts\Alts.lua
 Views\Alts\Alts.xml
-
-
-Comms.lua
 
 Events.lua
 
