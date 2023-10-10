@@ -906,7 +906,7 @@
                     <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.firstAid" x="40" y="0"/>
                 </Anchors>
             </Frame>
-
+<!-- 
             <Frame parentKey="inviteToGroup" inherits = "GuildbookWrathEraSmallHighlightButton" enableMouse="true">
                 <Size x="26" y="26"/>
                 <Anchors>
@@ -925,11 +925,12 @@
                 <KeyValues>
                     <KeyValue key="tooltipText" value="INVITE_TO_GROUP" type="string"/>
                 </KeyValues>
-            </Frame>
+            </Frame> -->
             <Frame parentKey="openProfile" inherits = "GuildbookWrathEraSmallHighlightButton" enableMouse="true">
                 <Size x="26" y="26"/>
                 <Anchors>
-                    <Anchor point="RIGHT" relativeKey="$parent.inviteToGroup" relativePoint="LEFT" x="-4" y="0"/>
+                    <!-- <Anchor point="RIGHT" relativeKey="$parent.inviteToGroup" relativePoint="LEFT" x="-4" y="0"/> -->
+                    <Anchor point="RIGHT" x="0" y="0"/>
                 </Anchors>
                 <Layers>
                     <Layer level="BACKGROUND">

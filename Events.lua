@@ -25,7 +25,7 @@ e:RegisterEvent('CHAT_MSG_WHISPER')
 e:RegisterEvent('CHAT_MSG_WHISPER_INFORM')
 e:RegisterEvent('CHAT_MSG_SYSTEM')
 e:RegisterEvent('UPDATE_MOUSEOVER_UNIT')
-e:RegisterEvent('PLAYER_EQUIPMENT_CHANGED')
+--e:RegisterEvent('PLAYER_EQUIPMENT_CHANGED')
 e:RegisterEvent('ZONE_CHANGED_NEW_AREA')
 e:RegisterEvent('CHARACTER_POINTS_CHANGED')
 e:RegisterEvent('UNIT_AURA')
@@ -33,6 +33,7 @@ e:RegisterEvent("PLAYER_REGEN_DISABLED")
 e:RegisterEvent("PLAYER_REGEN_ENABLED")
 e:RegisterEvent("SKILL_LINES_CHANGED")
 e:RegisterEvent("EQUIPMENT_SWAP_FINISHED")
+e:RegisterEvent("EQUIPMENT_SETS_CHANGED")
 
 e:SetScript("OnEvent", function(self, event, ...)
     if self[event] then
@@ -291,38 +292,69 @@ function e:UNIT_AURA()
     -- end
 end
 
+function e:EQUIPMENT_SETS_CHANGED()
+    C_Timer.After(1.0, function()
+    
+        local sets = C_EquipmentSet.GetEquipmentSetIDs();
+        for k, v in ipairs(sets) do
+            local name, iconFileID, _setID, isEquipped, numItems, numEquipped, numInInventory, numLost, numIgnored = C_EquipmentSet.GetEquipmentSetInfo(v)
+            if isEquipped then
+                
+                local equipment = addon.api.wrath.getPlayerEquipmentCurrent()
+                local stats = addon.api.wrath.getPaperDollStats()
+                local resistances = addon.api.getPlayerResistances(UnitLevel("player"))
+                local auras = addon.api.getPlayerAuras()
+
+                addon.characters[addon.thisCharacter]:SetPaperdollStats(name, stats, true)
+                addon.characters[addon.thisCharacter]:SetResistances(name, resistances, true)
+                addon.characters[addon.thisCharacter]:SetAuras(name, auras, true)
+                addon.characters[addon.thisCharacter]:SetInventory(name, equipment, true)
+
+            end
+        end
+
+    end)
+end
+
 function e:EQUIPMENT_SWAP_FINISHED(...)
 
     if addon.characters and addon.characters[addon.thisCharacter] then
-        local _, setID = ...;
-        C_Timer.After(1.0, function()
+        local res, setID = ...;
 
-            local equipmentSetName = "";
-            local sets = C_EquipmentSet.GetEquipmentSetIDs();
-            for k, v in ipairs(sets) do
-                local name, iconFileID, _setID, isEquipped, numItems, numEquipped, numInInventory, numLost, numIgnored = C_EquipmentSet.GetEquipmentSetInfo(v)
-                if _setID == setID then
-                    equipmentSetName = name;
+        if res then
+            C_Timer.After(1.0, function()
+
+                local equipmentSetName = "";
+                local sets = C_EquipmentSet.GetEquipmentSetIDs();
+                for k, v in ipairs(sets) do
+                    local name, iconFileID, _setID, isEquipped, numItems, numEquipped, numInInventory, numLost, numIgnored = C_EquipmentSet.GetEquipmentSetInfo(v)
+                    if _setID == setID then
+                        equipmentSetName = name;
+                    end
                 end
-            end
 
-            local stats = addon.api.wrath.getPaperDollStats()
-            local resistances = addon.api.getPlayerResistances(UnitLevel("player"))
-            local auras = addon.api.getPlayerAuras()
+                local equipment = addon.api.wrath.getPlayerEquipmentCurrent()
 
-            if equipmentSetName == "" then
-                addon.characters[addon.thisCharacter]:SetPaperdollStats("current", stats, true)
-                addon.characters[addon.thisCharacter]:SetResistances("current", resistances, true)
-                addon.characters[addon.thisCharacter]:SetAuras("current", auras, true)
+                local stats = addon.api.wrath.getPaperDollStats()
+                local resistances = addon.api.getPlayerResistances(UnitLevel("player"))
+                local auras = addon.api.getPlayerAuras()
 
-            else
-                addon.characters[addon.thisCharacter]:SetPaperdollStats(equipmentSetName, stats, true)
-                addon.characters[addon.thisCharacter]:SetResistances(equipmentSetName, resistances, true)
-                addon.characters[addon.thisCharacter]:SetAuras(equipmentSetName, auras, true)
+                if equipmentSetName == "" then
+                    addon.characters[addon.thisCharacter]:SetPaperdollStats("current", stats, true)
+                    addon.characters[addon.thisCharacter]:SetResistances("current", resistances, true)
+                    addon.characters[addon.thisCharacter]:SetAuras("current", auras, true)
+                    addon.characters[addon.thisCharacter]:SetInventory("current", equipment, true)
 
-            end
+                else
+                    addon.characters[addon.thisCharacter]:SetPaperdollStats(equipmentSetName, stats, true)
+                    addon.characters[addon.thisCharacter]:SetResistances(equipmentSetName, resistances, true)
+                    addon.characters[addon.thisCharacter]:SetAuras(equipmentSetName, auras, true)
+                    addon.characters[addon.thisCharacter]:SetInventory(equipmentSetName, equipment, true)
 
-        end)
+                end
+
+            end)
+        end
     end
 end
 
@@ -861,12 +893,12 @@ function e:Database_OnInitialised()
         --self:GetCharacterStats()
     end)
 
-	hooksecurefunc(C_EquipmentSet, "CreateEquipmentSet", function()
-		setPlayerEquipmentSets()
-	end)
-	hooksecurefunc(C_EquipmentSet, "DeleteEquipmentSet", function()
-		setPlayerEquipmentSets()
-	end)
+	-- hooksecurefunc(C_EquipmentSet, "CreateEquipmentSet", function()
+	-- 	setPlayerEquipmentSets()
+	-- end)
+	-- hooksecurefunc(C_EquipmentSet, "DeleteEquipmentSet", function()
+	-- 	setPlayerEquipmentSets()
+	-- end)
 
 end
 

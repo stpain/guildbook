@@ -43,6 +43,12 @@
                     <KeyValue key="elementHeight" value="26" type="number"/>
                 </KeyValues>
             </Frame>
+            <Frame parentKey="rosterHelptip" frameLevel="7" inherits = "GuildbookWrathEraHelpTipTemplate_RightArrow">
+                <Size x="200" y="100"/>
+                <Anchors>
+                    <Anchor point="RIGHT" relativeKey="$parent.rosterListview" relativePoint="LEFT" x="-20" y="60"/>
+                </Anchors>
+            </Frame>
         </Frames>
         <Scripts>
             <OnLoad method="OnLoad"/>

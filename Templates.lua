@@ -779,6 +779,12 @@ function GuildbookRosterListviewItemMixin:OnLoad()
             addon:TriggerEvent("Chat_OnChatOpened", self.character.data.name)
         end
     end)
+
+    self:SetScript("OnMouseDown", function(f, b)
+        if b == "RightButton" then
+            EasyMenu(self.contextMenu, addon.contextMenu, "cursor", 0, 0, "MENU", 1)
+        end
+    end)
     
     addon:RegisterCallback("UI_OnSizeChanged", self.UpdateLayout, self)
     addon:RegisterCallback("Character_OnDataChanged", self.Character_OnDataChanged, self)
@@ -788,7 +794,8 @@ function GuildbookRosterListviewItemMixin:SetDataBinding(binding, height)
 
     self.character = binding;
 
-    self.classIcon:SetAtlas(self.character:GetClassSpecAtlasName())
+    local atlas, _ = self.character:GetClassSpecAtlasName()
+    self.classIcon:SetAtlas(atlas)
     self.name:SetText(Ambiguate(self.character.data.name, "short"))
 
     self:Update()
@@ -842,27 +849,20 @@ function GuildbookRosterListviewItemMixin:Update()
     self.rank:SetText(GuildControlGetRankName(self.character.data.rank + 1))
 
     self.prof1.icon:SetAtlas(self.character:GetTradeskillIcon(1))
-    --self.prof1.label:SetText(self.character.data.profession1Level)
 
     self.prof2.icon:SetAtlas(self.character:GetTradeskillIcon(2))
-    --self.prof2.label:SetText(self.character.data.profession2Level)
 
-    -- self.cooking.label:SetText(self.character.data.cookingLevel)
-    -- self.firstAid.label:SetText(self.character.data.firstAidLevel)
-    -- self.fishing.label:SetText(self.character.data.fishingLevel)
     
     if self.character.data.mainSpec == false then
         self.mainSpecIcon:Hide()
         self.mainSpec:SetText("|cff7f7f7f".."No Spec")
     else
-        self.mainSpecIcon:SetAtlas(self.character:GetClassSpecAtlasName("primary"))
+        local atlas, _ = self.character:GetClassSpecAtlasName("primary")
+        self.mainSpecIcon:SetAtlas(atlas)
         self.mainSpecIcon:Show()
         local localeName, engName, Id = self.character:GetSpec("primary")
         self.mainSpec:SetText(engName)
     end
-
-    -- self.mainSpec.icon:SetAtlas(self.character:GetClassSpecAtlasName("primary"))
-    -- self.offSpec.icon:SetAtlas(self.character:GetClassSpecAtlasName("secondary"))
 
 
     self.publicNote:SetText(self.character.data.publicNote)
@@ -882,6 +882,75 @@ function GuildbookRosterListviewItemMixin:Update()
         self.zone:SetTextColor(0.5,0.5,0.5)
         self.rank:SetTextColor(0.5,0.5,0.5)
         self.publicNote:SetTextColor(0.5,0.5,0.5)
+    end
+
+    local specInfo = self.character:GetSpecInfo()
+
+    if specInfo then
+
+        local primarySpec, secondarySpec = specInfo.primary[1].id, specInfo.secondary[1].id
+
+        local exportEquipMenu1 = {{
+            text = "Select Gear",
+            isTitle = true,
+            notCheckable = true,
+        },}
+        local exportEquipMenu2 = {{
+            text = "Select Gear",
+            isTitle = true,
+            notCheckable = true,
+        },}
+        for setname, info in pairs(self.character.data.inventory) do
+            table.insert(exportEquipMenu1, {
+                text = setname,
+                notCheckable = true,
+                func = function()
+                    addon:TriggerEvent("Character_ExportEquipment", self.character, setname, "primary")
+                end,
+            })
+            table.insert(exportEquipMenu2, {
+                text = setname,
+                notCheckable = true,
+                func = function()
+                    addon:TriggerEvent("Character_ExportEquipment", self.character, setname, "secondary")
+                end,
+            })
+        end
+    
+        self.contextMenu = {
+            {
+                text = self.character:GetName(true),
+                isTitle = true,
+                notCheckable = true,
+            }
+        }
+        table.insert(self.contextMenu, addon.contextMenuSeparator)
+        table.insert(self.contextMenu, {
+            text = "Export",
+            isTitle = true,
+            notCheckable = true,
+        })
+        if self.character.data.mainSpec then
+            local atlas, spec = self.character:GetClassSpecAtlasName(primarySpec)
+            table.insert(self.contextMenu, {
+                text = string.format("%s %s", CreateAtlasMarkup(atlas, 16, 16), spec),
+                notCheckable = true,
+                hasArrow = true,
+                menuList = exportEquipMenu1,
+    
+            })
+        end
+        if self.character.data.offSpec then
+            local atlas, spec = self.character:GetClassSpecAtlasName(secondarySpec)
+            table.insert(self.contextMenu, {
+                text = string.format("%s %s", CreateAtlasMarkup(atlas, 16, 16), spec),
+                notCheckable = true,
+                hasArrow = true,
+                menuList = exportEquipMenu2,
+    
+            })
+        end
+
     end
 
 end
@@ -984,7 +1053,7 @@ function GuildbookAltsListviewTemplateMixin:OnLoad()
 
     self:SetScript("OnMouseDown", function(f, b)
         if b == "RightButton" then
-            EasyMenu(self.contextMenu, addon.contextMenu, "cursor", 0, 0, "MENU")
+            EasyMenu(self.contextMenu, addon.contextMenu, "cursor", 0, 0, "MENU", 1)
         end
     end)
 
@@ -1003,7 +1072,8 @@ function GuildbookAltsListviewTemplateMixin:SetDataBinding(character)
     
     self.character = character;
 
-    self.classIcon:SetAtlas(self.character:GetClassSpecAtlasName())
+    local atlas, _ = self.character:GetClassSpecAtlasName("primary")
+    self.classIcon:SetAtlas(atlas)
     self.name:SetText(Ambiguate(self.character.data.name, "short"))
 
     self:Update()
@@ -1027,8 +1097,11 @@ function GuildbookAltsListviewTemplateMixin:Update()
     self.firstAid.label:SetText(self.character.data.firstAidLevel)
     self.fishing.label:SetText(self.character.data.fishingLevel)
     
-    self.mainSpec.icon:SetAtlas(self.character:GetClassSpecAtlasName("primary"))
-    self.offSpec.icon:SetAtlas(self.character:GetClassSpecAtlasName("secondary"))
+    local atlas, _ = self.character:GetClassSpecAtlasName("primary")
+    self.mainSpec.icon:SetAtlas(atlas)
+
+    local atlas, _ = self.character:GetClassSpecAtlasName("secondary")
+    self.offSpec.icon:SetAtlas(atlas)
 
     self.openProfile.background:SetAtlas(self.character:GetProfileAvatar())
 
@@ -1062,41 +1135,18 @@ function GuildbookAltsListviewTemplateMixin:Update()
             text = setname,
             notCheckable = true,
             func = function()
-                self.character.data.inventory[setname] = nil;
+                self.character.data.inventory[setname] = {};
                 addon:TriggerEvent("Character_OnDataChanged", self.character)
             end,
         })
         table.insert(exportEquipMenu, {
             text = setname,
             notCheckable = true,
+            func = function()
+                addon:TriggerEvent("Character_ExportEquipment", self.character, setname)
+            end,
         })
     end
-
-    local sep = {
-		hasArrow = false;
-		dist = 0;
-        text = "",
-		isTitle = true;
-		isUninteractable = true;
-		notCheckable = true;
-		iconOnly = true;
-		icon = "Interface\\Common\\UI-TooltipDivider-Transparent";
-		tCoordLeft = 0;
-		tCoordRight = 1;
-		tCoordTop = 0;
-		tCoordBottom = 1;
-		tSizeX = 0;
-		tSizeY = 8;
-		tFitDropDownSizeX = true;
-		iconInfo = {
-			tCoordLeft = 0,
-			tCoordRight = 1,
-			tCoordTop = 0,
-			tCoordBottom = 1,
-			tSizeX = 0,
-			tSizeY = 8,
-			tFitDropDownSizeX = true
-		}}
 
     self.contextMenu = {
         {
@@ -1105,7 +1155,7 @@ function GuildbookAltsListviewTemplateMixin:Update()
             notCheckable = true,
         }
     }
-    table.insert(self.contextMenu, sep)
+    table.insert(self.contextMenu, addon.contextMenuSeparator)
     table.insert(self.contextMenu, {
         text = "Specializations",
         isTitle = true,
@@ -1123,25 +1173,25 @@ function GuildbookAltsListviewTemplateMixin:Update()
         menuList = specMenu2,
         notCheckable = true,
     })
-    table.insert(self.contextMenu, sep)
+    table.insert(self.contextMenu, addon.contextMenuSeparator)
     table.insert(self.contextMenu, {
         text = "Equipment",
         isTitle = true,
         notCheckable = true,
     })
-    table.insert(self.contextMenu, {
-        text = "Export",
-        hasArrow = true,
-        menuList = exportEquipMenu,
-        notCheckable = true,
-    })
+    -- table.insert(self.contextMenu, {
+    --     text = "Export",
+    --     hasArrow = true,
+    --     menuList = exportEquipMenu,
+    --     notCheckable = true,
+    -- })
     table.insert(self.contextMenu, {
         text = "Delete",
         hasArrow = true,
         menuList = deleteEquipMenu,
         notCheckable = true,
     })
-    table.insert(self.contextMenu, sep)
+    table.insert(self.contextMenu, addon.contextMenuSeparator)
     table.insert(self.contextMenu, {
         text = DELETE,
         notCheckable = true,

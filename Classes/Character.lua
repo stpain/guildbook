@@ -756,6 +756,8 @@ function Character:GetClassSpecAtlasName(spec)
                 s = classData[class].specializations[self.data.mainSpec]
             elseif spec == "secondary" then
                 s = classData[class].specializations[self.data.offSpec]
+
+
             elseif type(spec) == "number" then
                 s = classData[class].specializations[spec]
             end
@@ -774,12 +776,12 @@ function Character:GetClassSpecAtlasName(spec)
             end
 
             if s then
-                return string.format("GarrMission_ClassIcon-%s-%s", class, s)
+                return string.format("GarrMission_ClassIcon-%s-%s", class, s), s;
             else
-                return string.format("classicon-%s", class):lower()
+                return string.format("classicon-%s", class):lower(), "";
             end
         else
-            return string.format("classicon-%s", class):lower()
+            return string.format("classicon-%s", class):lower(), "";
         end
     end
 

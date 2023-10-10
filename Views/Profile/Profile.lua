@@ -130,7 +130,6 @@ function GuildbookProfileMixin:OnLoad()
     for i = 1, 3 do
         self.talents["tree"..i].talentsGridview:InitFramePool("FRAME", "GuildbookWrathEraTalentIconFrame")
         self.talents["tree"..i].talentsGridview:SetFixedColumnCount(4)
-        self.talents["tree"..i].talentsGridview.ScrollBar:Hide()
 
         C_Timer.After(0.1, function()
             for row = 1, 11 do
@@ -423,7 +422,7 @@ function GuildbookProfileMixin:Update()
 			if addon.characters[name] then
 				self.sidePane.listview.DataProvider:Insert({
 					atlas = addon.characters[name]:GetProfileAvatar(),
-					label = name, 
+					label = Ambiguate(name, "short"), 
 					onMouseDown = function()
 						self:LoadCharacter(addon.characters[name])
 					end,
@@ -444,7 +443,7 @@ function GuildbookProfileMixin:Update()
 
 		local t = {}
 		for k, v in ipairs(addon.data.inventorySlots) do
-			if self.character.data.inventory.current[v.slot] then
+			if self.character.data.inventory.current and self.character.data.inventory.current[v.slot] then
 				self.inventory.equipmentListview.DataProvider:Insert({
 					label = self.character.data.inventory.current[v.slot],
 					icon = v.icon,
@@ -487,6 +486,37 @@ function GuildbookProfileMixin:Update()
 
 						self.inventory.equipmentListview.DataProvider:Flush() --getItemInfoFromID
 
+						for k, v in ipairs(addon.data.inventorySlots) do
+							if self.character.data.inventory[name] and self.character.data.inventory[name][v.slot] then
+								self.inventory.equipmentListview.DataProvider:Insert({
+									label = self.character.data.inventory[name][v.slot],
+									icon = v.icon,
+									link = self.character.data.inventory[name][v.slot],
+									--backgroundAlpha = 0.6,
+									onMouseDown = function()
+										if IsControlKeyDown() then
+											DressUpItemLink(self.character.data.inventory[name][v.slot])
+										elseif IsShiftKeyDown() then
+											HandleModifiedItemClick(self.character.data.inventory[name][v.slot])
+										end
+									end,
+								})
+							else
+								self.inventory.equipmentListview.DataProvider:Insert({
+									label = "-",
+									icon = v.icon,
+								})
+							end
+						end
+
+						--[[
+							with a change to wrath including the gear manager the initial method here was to just grab itemIDs via Bliz api
+							however this does not allow for item links so enchant data is missing
+
+							a change was made to the equipment scan that means the addon now grabs item links just after an equipment set was changed/swapped
+						]]
+
+						--[[
 						if name == "current" then
 							for k, v in ipairs(addon.data.inventorySlots) do
 								if self.character.data.inventory.current[v.slot] then
@@ -556,7 +586,7 @@ function GuildbookProfileMixin:Update()
 							end
 
 						end
-
+						]]
 
 					end,
 				})
@@ -617,6 +647,7 @@ function GuildbookProfileMixin:LoadTalentsAndGlyphs(spec)
 	}
 
 	for i = 1, 3 do
+		self.talents["tree"..i].talentsGridview.ScrollBar:Hide()
 		for k, frame in ipairs(self.talents["tree"..i].talentsGridview:GetFrames()) do
 			frame:ClearTalent()
 		end

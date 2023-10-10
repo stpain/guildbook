@@ -1,4 +1,5 @@
 local name, addon = ...;
+local L = addon.Locales;
 
 GuildbookGuildRosterMixin = {
     name = "GuildRoster",
@@ -6,11 +7,15 @@ GuildbookGuildRosterMixin = {
     selectedClass = false,
     selectedMinLevel = 1,
     selectedMaxLevel = 80,
+    helptips = {},
 }
 
 function GuildbookGuildRosterMixin:OnLoad()
 
     addon:RegisterCallback("Blizzard_OnGuildRosterUpdate", self.Blizzard_OnGuildRosterUpdate, self)
+
+    self.rosterHelptip:SetText(L.ROSTER_LISTVIEW_HT)
+    table.insert(self.helptips, self.rosterHelptip)
 
     local classMenu = {}
     for i = 1, GetNumClasses() do
@@ -109,6 +114,9 @@ function GuildbookGuildRosterMixin:Update()
 
     local t = {}
     for nameRealm, character in pairs(addon.characters) do
+
+        --if Database.db.guilds[addon.thisGuild].members[nameRealm] then
+
         local match = false;
         -- for k, filter in ipairs(filters) do
         --     if not filter(character) then

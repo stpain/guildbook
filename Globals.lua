@@ -5,6 +5,32 @@ local Character = addon.Character;
 local Talents = addon.Talents;
 local Tradeskills = addon.Tradeskills;
 
+addon.contextMenuSeparator = {
+    hasArrow = false;
+    dist = 0;
+    text = "",
+    isTitle = true;
+    isUninteractable = true;
+    notCheckable = true;
+    iconOnly = true;
+    icon = "Interface\\Common\\UI-TooltipDivider-Transparent";
+    tCoordLeft = 0;
+    tCoordRight = 1;
+    tCoordTop = 0;
+    tCoordBottom = 1;
+    tSizeX = 0;
+    tSizeY = 8;
+    tFitDropDownSizeX = true;
+    iconInfo = {
+        tCoordLeft = 0,
+        tCoordRight = 1,
+        tCoordTop = 0,
+        tCoordBottom = 1,
+        tSizeX = 0,
+        tSizeY = 8,
+        tFitDropDownSizeX = true
+    }}
+
 --create these at addon level
 addon.thisCharacter = "";
 addon.thisGuild = false;
@@ -188,6 +214,18 @@ function addon.api.wrath.getPlayerEquipment()
     equipment.current = t;
 
     return equipment;
+end
+
+function addon.api.wrath.getPlayerEquipmentCurrent()
+    local t = {}
+    for k, v in ipairs(addon.data.inventorySlots) do
+        local link = GetInventoryItemLink('player', GetInventorySlotInfo(v.slot)) or false
+        if link ~= nil then
+            t[v.slot] = link;
+        end
+    end
+
+    return t;
 end
 
 function addon.api.getPlayerItemLevel()
@@ -439,6 +477,7 @@ function addon.api.wrath.getPlayerTalents(...)
         local enabled, glyphType, glyphSpellID, icon = GetGlyphSocketInfo(i);
         if enabled and glyphSpellID then
             local name = GetSpellInfo(glyphSpellID) --check its a valid spell ID
+
             if name then
                 if addon.glyphData.spellIdToItemId[glyphSpellID] then
                     local itemID = addon.glyphData.spellIdToItemId[glyphSpellID].itemID

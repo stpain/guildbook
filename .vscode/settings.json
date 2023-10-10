@@ -81,6 +81,7 @@
         "SPECIALIZATION",
         "FOR_OR_SPECIALIZATIONS",
         "CLUB_FINDER_SPECIALIZATIONS",
-        "CHARACTER"
+        "CHARACTER",
+        "Talents"
     ]
 }

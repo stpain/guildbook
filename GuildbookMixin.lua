@@ -153,6 +153,7 @@ Guildbook.ContextMenu_Separator_Wide = "|TInterface/COMMON/UI-TooltipDivider:8:2
 local Database = addon.Database;
 local L = addon.Locales;
 local Character = addon.Character;
+local Talents = addon.Talents;
 local json = LibStub('JsonLua-1.0');
 
 GuildbookMixin = {
@@ -201,6 +202,7 @@ function GuildbookMixin:OnLoad()
     addon:RegisterCallback("Player_Regen_Enabled", self.Player_Regen_Enabled, self)
     addon:RegisterCallback("Player_Regen_Disabled", self.Player_Regen_Disabled, self)
     addon:RegisterCallback("Blizzard_OnInitialGuildRosterScan", self.Blizzard_OnInitialGuildRosterScan, self)
+    addon:RegisterCallback("Character_ExportEquipment", self.Character_ExportEquipment, self)
 
     self.ribbon.searchBox:SetScript("OnEnterPressed", function(searchBox)
         self:SelectView("Search")
@@ -274,20 +276,22 @@ function GuildbookMixin:SetupImportExport()
     -- self.import.importExportEditbox.EditBox:SetText(json.encode(testData))
 
     self.import.importExportEditbox.EditBox:SetScript("OnTextChanged", function(eb)
-        -- local text = self.import.importExportEditbox.EditBox:GetText()
-        -- if text and (text ~= " ") and (#text > 0) then
-        --     local import = json.decode(text)
-        -- end
+
+        local str = eb:GetText()
+        local ok, ret = pcall(json.decode, str)
+        if ok then
+            self:ImportEightyUpgrades(ret)
+        end
     end)
     
     self.import.importData:SetScript("OnClick", function()
         
-        local text = self.import.importExportEditbox.EditBox:GetText()
-        local import = json.decode(text)
+        -- local text = self.import.importExportEditbox.EditBox:GetText()
+        -- local import = json.decode(text)
         
-        if import and import.links and import.links.set then
-            self:ImportEightyUpgrades(import)
-        end
+        -- if import and import.links and import.links.set then
+        --     self:ImportEightyUpgrades(import)
+        -- end
 
     end)
 end
@@ -372,11 +376,11 @@ function GuildbookMixin:Blizzard_OnInitialGuildRosterScan(guildName)
 
         --atm this will re set the data which is used o trigger the braodcast
         --TODO: update this to check for data and then broadcast, save the extra fun calls
-        local equipment = addon.api.classic.getPlayerEquipment()
-        local currentStats = addon.api.classic.getPaperDollStats()
+        local equipment = addon.api.wrath.getPlayerEquipmentCurrent()
+        local currentStats = addon.api.wrath.getPaperDollStats()
         local resistances = addon.api.getPlayerResistances(UnitLevel("player"))
         local auras = addon.api.getPlayerAuras()
-        local talents = addon.api.classic.getPlayerTalents()
+        local talents = addon.api.wrath.getPlayerTalents()
 
         if addon.characters[addon.thisCharacter] then
             addon.characters[addon.thisCharacter]:SetTalents("current", talents, true)
@@ -542,18 +546,157 @@ end
 
 
 
+local eightySlotMapping = {
+    ["RANGEDSLOT"] = "RANGED",
+    ["SHIRTSLOT"] = "SHIRT",
+    ["MAINHANDSLOT"] = "MAIN_HAND",
+    ["HANDSSLOT"] = "HANDS",
+    ["TRINKET0SLOT"] = "TRINKET_1",
+    ["WAISTSLOT"] = "WAIST",
+    ["FEETSLOT"] = "FEET",
+    ["TABARDSLOT"] = "TABARD",
+    ["NECKSLOT"] = "NECK",
+    ["WRISTSLOT"] = "WRISTS",
+    ["LEGSSLOT"] = "LEGS",
+    ["TRINKET1SLOT"] = "TRINKET_2",
+    ["SECONDARYHANDSLOT"] = "OFF_HAND",
+    ["BACKSLOT"] = "BACK",
+    ["FINGER0SLOT"] = "FINGER_1",
+    ["CHESTSLOT"] = "CHEST",
+    ["FINGER1SLOT"] = "FINGER_2",
+    ["HEADSLOT"] = "HEAD",
+    ["SHOULDERSLOT"] = "SHOULDERS",
+}
+
+function GuildbookMixin:Character_ExportEquipment(character, setName, spec)
+    
+    if character.data and character.data.inventory[setName] then
+        
+        if type(character.data.inventory[setName][1]) == "number" then
+
+            print(string.format("Unable to export %s as this set only contains itemID info not item links"))
+            
+        else
+
+            local export = {
+                name = setName,
+                character = {
+                    name = character.data.name,
+                    level = character.data.level,
+                    gameClass = select(2, GetClassInfo(character.data.class)),
+                    race = character:GetRace().raceName:upper(),
+                },
+                items = {},
+                talents = {},
+                glyphs = {},
+            }
+
+            local breakLink = function(link)
+                return string.match(link, [[|H([^:]*):([^|]*)|h(.*)|h]])
+            end
+
+            for slotName, itemLink in pairs(character.data.inventory[setName]) do
+
+                if itemLink then
+                    local gems = {}
+                    local x, payload = breakLink(itemLink)
+
+                    local itemID, enchantID, gem1, gem2, gem3 = strsplit(":", payload)
+                    gems[1] = gem1
+                    gems[2] = gem2
+                    gems[3] = gem3
+
+--                    print(itemID, enchantID, gem1, gem2, gem3)
+
+                    if x == "item" then
+                        
+                        local item = {
+                            id = itemID,
+                            slot = eightySlotMapping[slotName],
+                        }
+
+                        if enchantID and (enchantID ~= "") then
+                            item.enchant = {
+                                id = enchantID,
+                            }
+                        end
+
+                        for i = 1, 3 do
+                            if gems[i] and (gems[i] ~= "") then
+                                if not item.gems then
+                                    item.gems = {}
+                                end
+                                table.insert(item.gems, {
+                                    id = gems[i],
+                                })
+                            end
+                        end
+
+                        table.insert(export.items, item)
+
+                    end
+
+                end
+                
+            end
+
+            if not spec then
+                spec = "primary";
+                print("Using primary spec as none provided")
+            end
+
+            if character.data.talents[spec] then
+                for k, talent in ipairs(character.data.talents[spec]) do                    
+                    if talent.rank > 0 then
+                        local talentID = Talents:GetTalentID(talent.spellId)
+                        if type(talentID) == "number" then
+                            table.insert(export.talents, {
+                                id = talentID,
+                                rank = talent.rank,
+                            })
+                        end
+                    end
+                end
+            end
+
+            if character.data.glyphs[spec] then
+                for k, glyph in ipairs(character.data.glyphs[spec]) do
+                    if glyph.itemID and glyph.glyphType then
+                        table.insert(export.glyphs, {
+                            id = glyph.itemID,
+                            type = (glyph.glyphType == 1) and "MINOR" or "MAJOR";
+                        })
+                    end
+                end
+            end
+
+            export = json.encode(export)
+
+            self.import.importExportEditbox.EditBox:SetText(export)
+
+            self:ShowSpecialFrame("import")
+
+        end
+    end
+end
+
+
+
+
 
 
 
 function GuildbookMixin:ImportEightyUpgrades(import)
     if import and import.links and import.links.set then
-        if import.links.set:find("https://eightyupgrades.com/set") then
-            self.import.importInfo:SetText(string.format("EightUpgrades\n\n%s\n%s\n%s", import.name, import.phase, import.character.name))
-        end
+        -- if import.links.set:find("https://eightyupgrades.com/set") then
+        --     self.import.importInfo:SetText(string.format("EightUpgrades\n\n%s\n%s\n%s", import.name, import.phase, import.character.name))
+        -- end
+
+        local outString = string.format("Eighty Upgrades\n\nCharacter: %s\nSet Name: %s\n\nItems:", import.character.name, import.name)
 
         for k, v in ipairs(import.items) do
             
-            local itemString = "|cffffffff|Hitem:%d:%s:%s:%s:%s:::::::::::::::|h[%s]|h|r"
+            local itemString = "%s|Hitem:%d:%s:%s:%s:%s:::::::::::::::|h[%s]|h|r"
 
             local enchantID = ""
             local gems = {"", "", ""}
@@ -568,9 +711,20 @@ function GuildbookMixin:ImportEightyUpgrades(import)
                 end
             end
 
-            local linkPayload = string.format(itemString, v.id, enchantID, gems[1], gems[2], gems[3], v.name)
+            local item = Item:CreateFromItemID(v.id)
+            if not item:IsItemEmpty() then
+                item:ContinueOnItemLoad(function()
+                    
+                    local quality = item:GetItemQualityColor().hex;
 
-            print(linkPayload)
+                    local link = string.format(itemString, quality, v.id, enchantID, gems[1], gems[2], gems[3], v.name)
+
+                    outString = string.format("%s\n%s", outString, link)
+
+                    self.import.importInfo:SetText(outString)
+
+                end)
+            end
 
         end
     end

@@ -492,6 +492,7 @@ end
 
 function Comms:Character_OnDataRequest(sender)
 
+    
 end
 
 

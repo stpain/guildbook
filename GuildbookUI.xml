@@ -272,7 +272,7 @@
                 </Anchors>
             </Frame>
 
-            <Frame parentKey="import" hidden="true" parentArray="specialFrames">
+            <Frame parentKey="import" hidden="true" hyperlinksEnabled="true" parentArray="specialFrames">
                 <Anchors>
                     <Anchor point="TOPLEFT" relativeKey="$parent.ribbon" relativePoint="BOTTOMLEFT" x="2" y="0"/>
                     <Anchor point="BOTTOMRIGHT" x="-6" y="16"/>
