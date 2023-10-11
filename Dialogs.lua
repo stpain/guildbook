@@ -54,6 +54,23 @@ StaticPopupDialogs['GuildbookDeleteCharacter'] = {
     showAlert = 1,
 }
 
+StaticPopupDialogs['GuildbookReminder'] = {
+    text = '%s',
+    button1 = "OK",
+    button2 = "Ignore",
+    OnAccept = function()
+        GuildbookUI:SelectView("Settings")
+    end,
+    OnCancel = function()
+
+    end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = false,
+    preferredIndex = 3,
+    showAlert = 1,
+}
+
 StaticPopupDialogs['GuildbookUpdated'] = {
     text = "WARNING !!!\n\n|cffC41F3BGuildbook has changed and if you proceed with this update you will lose all current data|r.\n\nGuildbook 6.0 is a rework of an older version that was updated for classic era, it is NOT compatabile with the current wrath version\n\nBUT\n\nit does include missing recipes and will have th best chance of getting any updates.\n\nDo you want to continue...",
     button1 = YES,

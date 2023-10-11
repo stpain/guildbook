@@ -77,6 +77,9 @@ function addon.LogDebugMessage(debugType, debugMessage, debugTooltip)
                     end
                     GameTooltip:Show()
                 end,
+                onMouseDown = function()
+                    DevTools_Dump(debugTooltip)
+                end,
             })
         else
             GuildbookUI.debug.messageLogListview.DataProvider:Insert({

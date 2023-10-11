@@ -576,9 +576,9 @@
         <Layers>
             <Layer level="BACKGROUND">
                 <Texture parentKey="icon">
-                    <Size x="26" y="26"/>
+                    <Size x="24" y="24"/>
                     <Anchors>
-                        <Anchor point="CENTER"/>
+                        <Anchor point="LEFT"/>
                     </Anchors>
                 </Texture>
             </Layer>
@@ -823,18 +823,25 @@
 					</Anchors>
 					<Color r="1" g="1" b="1"/>
 				</FontString>
+				<FontString parentArray="fontstrings" parentKey="gold" inherits="GameFontNormal" justifyH="RIGHT">
+                    <Size x="200" y="26"/>
+					<Anchors>
+						<Anchor point="RIGHT" x="-30" y="0"/>
+					</Anchors>
+					<Color r="1" g="1" b="1"/>
+				</FontString>
             </Layer>
         </Layers>
         <Frames>
             <Frame parentKey="mainSpec" inherits = "GuildbookWrathEraSmallHighlightButton" enableMouse="true">
-                <Size x="26" y="26"/>
+                <Size x="24" y="24"/>
                 <Anchors>
                     <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.level" x="5" y="0"/>
                 </Anchors>
                 <Layers>
                     <Layer level="BACKGROUND">
                         <Texture parentKey="icon">
-                            <Size x="26" y="26"/>
+                            <Size x="24" y="24"/>
                             <Anchors>
                                 <Anchor point="CENTER"/>
                             </Anchors>
@@ -843,14 +850,14 @@
                 </Layers>
             </Frame>
             <Frame parentKey="offSpec" inherits = "GuildbookWrathEraSmallHighlightButton" enableMouse="true">
-                <Size x="26" y="26"/>
+                <Size x="24" y="24"/>
                 <Anchors>
                     <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.mainSpec" x="5" y="0"/>
                 </Anchors>
                 <Layers>
                     <Layer level="BACKGROUND">
                         <Texture parentKey="icon">
-                            <Size x="26" y="26"/>
+                            <Size x="24" y="24"/>
                             <Anchors>
                                 <Anchor point="CENTER"/>
                             </Anchors>
@@ -859,14 +866,14 @@
                 </Layers>
             </Frame>
             <Frame parentKey="equipment" inherits = "GuildbookWrathEraSmallHighlightButton" enableMouse="true">
-                <Size x="26" y="26"/>
+                <Size x="24" y="24"/>
                 <Anchors>
                     <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.offSpec" x="5" y="0"/>
                 </Anchors>
                 <Layers>
                     <Layer level="BACKGROUND">
                         <Texture parentKey="icon">
-                            <Size x="26" y="26"/>
+                            <Size x="24" y="24"/>
                             <Anchors>
                                 <Anchor point="CENTER"/>
                             </Anchors>
@@ -876,32 +883,32 @@
             </Frame>
 
             <Frame parentKey="prof1" inherits = "GuildbookProfileIconLabel" enableMouse="true">
-                <Size x="26" y="26"/>
+                <Size x="24" y="24"/>
                 <Anchors>
                     <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.equipment" x="5" y="0"/>
                 </Anchors>
             </Frame>
             <Frame parentKey="prof2" inherits = "GuildbookProfileIconLabel" enableMouse="true">
-                <Size x="26" y="26"/>
+                <Size x="24" y="24"/>
                 <Anchors>
                     <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.prof1" x="40" y="0"/>
                 </Anchors>
             </Frame>
             <Frame parentKey="cooking" inherits = "GuildbookProfileIconLabel" enableMouse="true">
-                <Size x="26" y="26"/>
+                <Size x="24" y="24"/>
                 <Anchors>
                     <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.prof2" x="40" y="0"/>
                 </Anchors>
 
             </Frame>
             <Frame parentKey="firstAid" inherits = "GuildbookProfileIconLabel" enableMouse="true">
-                <Size x="26" y="26"/>
+                <Size x="24" y="24"/>
                 <Anchors>
                     <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.cooking" x="40" y="0"/>
                 </Anchors>
             </Frame>
             <Frame parentKey="fishing" inherits = "GuildbookProfileIconLabel" enableMouse="true">
-                <Size x="26" y="26"/>
+                <Size x="24" y="24"/>
                 <Anchors>
                     <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.firstAid" x="40" y="0"/>
                 </Anchors>

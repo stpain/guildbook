@@ -619,6 +619,11 @@ end
 GuildbookRecipeListviewItemMixin = {}
 
 function GuildbookRecipeListviewItemMixin:OnLoad()
+
+    for k = 1, 8 do
+        self.reagentIcons[k]:Raise()
+    end
+
     addon:RegisterCallback("UI_OnSizeChanged", self.UpdateLayout, self)
     addon:RegisterCallback("Database_OnConfigChanged", self.Database_OnConfigChanged, self)
 end
@@ -729,6 +734,14 @@ function GuildbookRecipeListviewItemMixin:SetDataBinding(binding, height)
         else
             if binding.func then
                 binding.func()
+            end
+        end
+
+        if self.item then
+            if IsControlKeyDown() then
+                DressUpItemLink(self.item:GetItemLink())
+            elseif IsShiftKeyDown() then
+                HandleModifiedItemClick(self.item:GetItemLink())
             end
         end
     end)
@@ -884,6 +897,20 @@ function GuildbookRosterListviewItemMixin:Update()
         self.publicNote:SetTextColor(0.5,0.5,0.5)
     end
 
+    self.contextMenu = {
+        {
+            text = self.character:GetName(true),
+            isTitle = true,
+            notCheckable = true,
+        }
+    }
+    table.insert(self.contextMenu, addon.contextMenuSeparator)
+    table.insert(self.contextMenu, {
+        text = "Export",
+        isTitle = true,
+        notCheckable = true,
+    })
+
     local specInfo = self.character:GetSpecInfo()
 
     if specInfo then
@@ -917,20 +944,7 @@ function GuildbookRosterListviewItemMixin:Update()
             })
         end
     
-        self.contextMenu = {
-            {
-                text = self.character:GetName(true),
-                isTitle = true,
-                notCheckable = true,
-            }
-        }
-        table.insert(self.contextMenu, addon.contextMenuSeparator)
-        table.insert(self.contextMenu, {
-            text = "Export",
-            isTitle = true,
-            notCheckable = true,
-        })
-        if self.character.data.mainSpec then
+        if primarySpec then
             local atlas, spec = self.character:GetClassSpecAtlasName(primarySpec)
             table.insert(self.contextMenu, {
                 text = string.format("%s %s", CreateAtlasMarkup(atlas, 16, 16), spec),
@@ -940,7 +954,7 @@ function GuildbookRosterListviewItemMixin:Update()
     
             })
         end
-        if self.character.data.offSpec then
+        if secondarySpec then
             local atlas, spec = self.character:GetClassSpecAtlasName(secondarySpec)
             table.insert(self.contextMenu, {
                 text = string.format("%s %s", CreateAtlasMarkup(atlas, 16, 16), spec),
@@ -1028,7 +1042,7 @@ function GuildbookAltsListviewTemplateMixin:OnLoad()
             end
         end)
     end
-    if self.firstaid then
+    if self.firstAid then
         self.firstAid.icon:SetAtlas("Mobile-FirstAid")
         self.firstAid:SetScript("OnMouseDown", function()
             if self.character then
@@ -1044,6 +1058,7 @@ function GuildbookAltsListviewTemplateMixin:OnLoad()
             end
         end)
     end
+
 
     self.openProfile:SetScript("OnMouseDown", function()
         if self.character then
@@ -1072,8 +1087,9 @@ function GuildbookAltsListviewTemplateMixin:SetDataBinding(character)
     
     self.character = character;
 
-    local atlas, _ = self.character:GetClassSpecAtlasName("primary")
-    self.classIcon:SetAtlas(atlas)
+    local _, class = GetClassInfo(self.character.data.class)
+
+    self.classIcon:SetAtlas(string.format("classicon-%s", class):lower())
     self.name:SetText(Ambiguate(self.character.data.name, "short"))
 
     self:Update()
@@ -1096,6 +1112,9 @@ function GuildbookAltsListviewTemplateMixin:Update()
     self.cooking.label:SetText(self.character.data.cookingLevel)
     self.firstAid.label:SetText(self.character.data.firstAidLevel)
     self.fishing.label:SetText(self.character.data.fishingLevel)
+
+    local copper = self.character.data.containers.copper or 0
+    self.gold:SetText(GetCoinTextureString(copper))
     
     local atlas, _ = self.character:GetClassSpecAtlasName("primary")
     self.mainSpec.icon:SetAtlas(atlas)
@@ -1171,6 +1190,15 @@ function GuildbookAltsListviewTemplateMixin:Update()
         text = "Secondary",
         hasArrow = true,
         menuList = specMenu2,
+        notCheckable = true,
+    })
+    table.insert(self.contextMenu, {
+        text = "Reset All",
+        func = function()
+            self.character:SetSpec("primary", false)
+            self.character:SetSpec("secondary", false)
+            addon:TriggerEvent("Character_OnDataChanged", self.character)
+        end,
         notCheckable = true,
     })
     table.insert(self.contextMenu, addon.contextMenuSeparator)

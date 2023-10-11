@@ -1076,6 +1076,9 @@ local talentTabCSV = {
     {381,"Retribution","PaladinCombat",2,511,2},
     {382,"Holy","PaladinHoly",0,511,2},
     {383,"Protection","PaladinProtection",1,511,2},
+    {398,"Blood","DeathKnightBlood",1,511,2},
+    {399,"Frost","DeathKnightFrost",1,511,2},
+    {400,"Unholy","DeathKnightUnholy",1,511,2},
 }
 
 function Talents:GetTalentID(spellID)

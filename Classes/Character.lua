@@ -12,7 +12,10 @@ local L = addon.Locales;
 --for display the name value can be used to grab the locale
 local classData = {
     DEATHKNIGHT = { 
-        specializations={'Frost','Blood','Unholy'} 
+        specializations={'Blood','Frost','Unholy'} 
+    },
+    ["DEATH KNIGHT"] = { 
+        specializations={'Blood','Frost','Unholy'} 
     },
     DRUID = { 
         specializations={'Balance', 'Cat' ,'Bear', 'Restoration',}
@@ -688,6 +691,12 @@ function Character:GetProfileAvatar()
     return "questlegendaryturnin"
 end
 
+
+--this will return spec info as it exists in the game ui
+--mainSpec will be whatever primary spec is
+--unlike the character profile which can be any spec as main as per the players choice
+--use this when getign character data specific to a spec
+--use the .data.mainSpec for display only
 function Character:GetSpecInfo()
 
     local t = {

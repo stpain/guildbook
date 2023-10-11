@@ -91,14 +91,14 @@
                                                         </Texture> -->
                                                     </Layer>
                                                     <Layer level="OVERLAY">
-                                                        <FontString parentKey="header" inherits="GameFontNormal" text="Spec 1">
+                                                        <FontString parentKey="header" inherits="GameFontNormal" text="Primary">
                                                             <Size y="20"/>
                                                             <Anchors>
                                                                 <Anchor point="TOPLEFT" x="0" y="0"/>
                                                                 <Anchor point="TOPRIGHT" x="0" y="0"/>
                                                             </Anchors>
                                                         </FontString>
-                                                        <FontString parentKey="header" inherits="GameFontNormal" text="Spec 2">
+                                                        <FontString parentKey="header" inherits="GameFontNormal" text="Secondary">
                                                             <Size y="20"/>
                                                             <Anchors>
                                                                 <Anchor point="TOPLEFT" x="0" y="-160"/>

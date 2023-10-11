@@ -263,6 +263,10 @@ function GuildbookMixin:SetupImportExport()
     self.import.importExportEditbox.ScrollBar:SetPoint("TOPLEFT", self.import.importExportEditbox, "TOPRIGHT", -24, 0)
     self.import.importExportEditbox.ScrollBar:SetPoint("BOTTOMLEFT", self.import.importExportEditbox, "BOTTOMRIGHT", -24, 0)
 
+    self.import.importExportEditbox:SetScript("OnMouseDown", function(eb)
+        eb.EditBox:HighlightText()
+    end)
+
     -- local testData = {
     --     name = "calendar",
     --     data = {
@@ -345,6 +349,7 @@ function GuildbookMixin:SelectView(view)
         table.insert(self.viewHistory, view)
 --        DevTools_Dump(self.viewHistory)
     end
+    self:Show()
 end
 
 function GuildbookMixin:AddView(view)
@@ -389,12 +394,26 @@ function GuildbookMixin:Blizzard_OnInitialGuildRosterScan(guildName)
             addon.characters[addon.thisCharacter]:SetResistances("current", resistances, true)
             addon.characters[addon.thisCharacter]:SetAuras("current", auras, true)
 
-            if addon.characters[addon.thisCharacter].data.mainSpec then
-                addon:TriggerEvent("Character_BroadcastChange", addon.characters[addon.thisCharacter], "SetSpec", "mainSpec")
-            end
+
+            -- local specInfo = addon.characters[addon.thisCharacter]:GetSpecInfo()
+            -- if specInfo and (addon.characters[addon.thisCharacter].data.level == 80) then        
+            --     local primarySpec, secondarySpec = specInfo.primary[1].id, specInfo.secondary[1].id
+            --     addon.characters[addon.thisCharacter]:SetSpec("primary", primarySpec, true)
+            --     addon.characters[addon.thisCharacter]:SetSpec("secondary", secondarySpec, true)
+            -- end
+
         end
     end)
 
+
+    C_Timer.After(5.0, function()
+        
+        if addon.characters[addon.thisCharacter] then
+            if not addon.characters[addon.thisCharacter].data.mainSpec then
+                StaticPopup_Show("GuildbookReminder", "Guildbook\n\nYou have no main spec set, go to Guildbook > Settings > Character.")
+            end
+        end
+    end)
 end
 
 function GuildbookMixin:Database_OnInitialised()
@@ -574,7 +593,9 @@ function GuildbookMixin:Character_ExportEquipment(character, setName, spec)
         
         if type(character.data.inventory[setName][1]) == "number" then
 
-            print(string.format("Unable to export %s as this set only contains itemID info not item links"))
+            self.import.importExportEditbox.EditBox:SetText(string.format("Unable to export [%s] as this set only contains itemID info not item links", setName))
+
+            self:ShowSpecialFrame("import")
             
         else
 
