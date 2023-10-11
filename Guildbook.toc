@@ -1,4 +1,4 @@
-## Interface: 30401
+## Interface: 30403
 ## Author: TheBoringDad
 ## Version: 6.42
 ## Title: Guildbook
