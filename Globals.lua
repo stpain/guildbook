@@ -501,7 +501,7 @@ function addon.api.wrath.getPlayerTalents(...)
                         print(string.format("[%s] unable to find glyph data for %s with GlyphSpellID of %d", addonName, name, glyphSpellID))
                     end
                 else
-                    print(string.format("[%s] unable to find glyph data for %s with GlyphSpellID of %d", addonName, name, glyphSpellID))
+                    print(string.format("[%s] glyph data for %s with GlyphSpellID of %d missing from lookup table", addonName, name, glyphSpellID))
                 end
             end
         end
