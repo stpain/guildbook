@@ -498,10 +498,12 @@ function addon.api.wrath.getPlayerTalents(...)
                         end
                     end
                     if not found then
-                        print(string.format("[%s] unable to find glyph data for %s with GlyphSpellID of %d", addonName, name, glyphSpellID))
+                        local s = string.format("[%s] unable to find glyph itemID for %s with GlyphSpellID of %d", addonName, name, glyphSpellID)
+                        StaticPopup_Show("GuildbookReport", s)
                     end
                 else
-                    print(string.format("[%s] glyph data for %s with GlyphSpellID of %d missing from lookup table", addonName, name, glyphSpellID))
+                    local s = string.format("[%s] glyph data for %s with GlyphSpellID of %d missing from lookup table", addonName, name, glyphSpellID)
+                    StaticPopup_Show("GuildbookReport", s)
                 end
             end
         end

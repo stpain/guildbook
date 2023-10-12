@@ -91,14 +91,14 @@
                                                         </Texture> -->
                                                     </Layer>
                                                     <Layer level="OVERLAY">
-                                                        <FontString parentKey="header" inherits="GameFontNormal" text="Primary">
+                                                        <FontString parentKey="header" inherits="GameFontNormal" text="Main Spec">
                                                             <Size y="20"/>
                                                             <Anchors>
                                                                 <Anchor point="TOPLEFT" x="0" y="0"/>
                                                                 <Anchor point="TOPRIGHT" x="0" y="0"/>
                                                             </Anchors>
                                                         </FontString>
-                                                        <FontString parentKey="header" inherits="GameFontNormal" text="Secondary">
+                                                        <FontString parentKey="header" inherits="GameFontNormal" text="Off Spec">
                                                             <Size y="20"/>
                                                             <Anchors>
                                                                 <Anchor point="TOPLEFT" x="0" y="-160"/>
@@ -494,9 +494,27 @@
                             <CheckButton parentKey="debug" inherits = "GuildbookWrathEraWidgetsCheckButton">
                                 <Size x="24" y="24"/>
                                 <Anchors>
-                                    <Anchor point="TOPLEFT" x="16" y="-100"/>
+                                    <Anchor point="TOPLEFT" x="16" y="-105"/>
                                 </Anchors>
                             </CheckButton>
+
+                            <EditBox parentKey="discord" inherits="InputBoxTemplate" autoFocus="false">
+                                <Size x="200" y="20"/>
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" relativeKey="$parent.debug" relativePoint="BOTTOMLEFT" x="10" y="-30"/>
+                                </Anchors>
+                                <Layers>
+                                    <Layer level="OVERLAY">
+                                        <FontString parentKey="general" inherits="GameFontNormalSmall" text="Discord" justifyH="LEFT">
+                                            <Size x="200" y="20"/>
+                                            <Anchors>
+                                                <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="0" y="0"/>
+                                            </Anchors>
+                                        </FontString>
+                                    </Layer>
+                                </Layers>
+                            </EditBox>
+
                         </Frames>                     
                     </Frame>
 

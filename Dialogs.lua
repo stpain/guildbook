@@ -40,6 +40,24 @@ StaticPopupDialogs['Reload'] = {
     showAlert = 1,
 }
 
+StaticPopupDialogs['GuildbookReport'] = {
+    text = 'Oops, something went wrong, is it Tuesday?\n\n%s',
+    button1 = "OK",
+    --button2 = 'Cancel',
+    OnAccept = function(self)
+
+    end,
+    OnShow = function(self)
+        self.editBox:SetText("https://discord.gg/st5uDAX5Cn")
+    end,
+    hasEditBox = true,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = false,
+    preferredIndex = 3,
+    showAlert = 1,
+}
+
 StaticPopupDialogs['GuildbookDeleteCharacter'] = {
     text = 'Delete %s',
     button1 = YES,

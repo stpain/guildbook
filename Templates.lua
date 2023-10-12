@@ -1181,13 +1181,13 @@ function GuildbookAltsListviewTemplateMixin:Update()
         notCheckable = true,
     })
     table.insert(self.contextMenu, {
-        text = "Primary",
+        text = "Main",
         hasArrow = true,
         menuList = specMenu1,
         notCheckable = true,
     })
     table.insert(self.contextMenu, {
-        text = "Secondary",
+        text = "Off",
         hasArrow = true,
         menuList = specMenu2,
         notCheckable = true,
@@ -1219,6 +1219,24 @@ function GuildbookAltsListviewTemplateMixin:Update()
         menuList = deleteEquipMenu,
         notCheckable = true,
     })
+    if Database.db.debug then
+        table.insert(self.contextMenu, addon.contextMenuSeparator)
+        table.insert(self.contextMenu, {
+            text = "Debug",
+            isTitle = true,
+            notCheckable = true,
+        })
+        for k, v in pairs(self.character.data) do
+            table.insert(self.contextMenu, {
+                text = k,
+                notCheckable = true,
+                func = function()
+                    DevTools_Dump(v)
+                end,
+            })
+        end
+
+    end
     table.insert(self.contextMenu, addon.contextMenuSeparator)
     table.insert(self.contextMenu, {
         text = DELETE,
