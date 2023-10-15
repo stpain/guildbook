@@ -1,0 +1,100 @@
+<Ui>
+    <Frame name="GuildbookWrathDailiesListviewItemTemplate" mixin="GuildbookWrathDailiesListviewItemMixin" enableMouse="true" virtual="true">
+        <Frames>
+            <CheckButton parentKey="completed" inherits="GuildbookWrathEraWidgetsCheckButton" hidden="true" enableMouse="false">
+                <Anchors>
+                    <Anchor point="LEFT" x="0" y="0"/>
+                </Anchors>
+            </CheckButton>
+        </Frames>
+        <Layers>
+            <Layer level="HIGHLIGHT">
+                <Texture parentKey="highlight">
+                    <Color r="0.6" g="0.6" b="0.6" a="0.1"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="0" y="0"/>
+                        <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="background" hidden="true">
+                    <Color r="0.22" g="0.43" b="0.64" a="0.5"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="0" y="0"/>
+                        <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <FontString parentKey="header" inherits="GameFontNormal" hidden="true">
+                    <Color r="1" g="1" b="1"/>
+                    <Anchors>
+                        <Anchor point="LEFT" x="0" y="0"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="info" inherits="GameFontNormal" hidden="true">
+                    <Color r="1" g="1" b="1"/>
+                    <Anchors>
+                        <Anchor point="RIGHT" x="0" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnEnter method="OnEnter"/>
+        </Scripts>
+    </Frame>
+
+    <Frame name="GuildbookDailies" mixin="GuildbookWrathDailiesMixin">
+        <Frames>
+            <Frame parentKey="charactersListview" inherits="GuildbookWrathEraWidgetsListviewTemplate">
+                <Size x="160"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="0" y="0"/>
+                    <Anchor point="BOTTOMLEFT" x="0" y="0"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="background">
+                            <Color r="0.085" g="0.09" b="0.075" a="0.85"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="0" y="0"/>
+                                <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <KeyValues>
+                    <KeyValue key="itemTemplate" value="GuildbookWrathEraSimpleIconLabelFrame" type="string"/>
+                    <KeyValue key="elementHeight" value="32" type="number"/>
+                </KeyValues>
+            </Frame>
+            <Frame parentKey="questsListview" inherits="GuildbookWrathEraWidgetsListviewTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.charactersListview" relativePoint="TOPRIGHT" x="0" y="0"/>
+                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="background">
+                            <Color r="0.16" g="0.15" b="0.125" a="0.85"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="0" y="0"/>
+                                <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <KeyValues>
+                    <KeyValue key="itemTemplate" value="GuildbookWrathDailiesListviewItemTemplate" type="string"/>
+                    <KeyValue key="elementHeight" value="26" type="number"/>
+                </KeyValues>
+            </Frame>
+        </Frames>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+        </Scripts>
+    </Frame>
+</Ui>

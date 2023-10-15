@@ -60361,7 +60361,7 @@ addon.glyphData.spellIdToItemId = {
 	[68164] = { itemID = 49084, spellID = 13642, },
 	[70937] = { itemID = 50045, spellID = 70938, },
 	[71013] = { itemID = 50125, spellID = 71014, },
-	[70947] = { itemID = 50777, spellID = 13890, },
+	[70947] = { itemID = 50077, spellID = 13890, },
 	[405004] = { itemID = 204385, spellID = 6476, },
 	[413895] = { itemID = 206580, spellID = 413898, },
 	[414812] = { itemID = 206953, spellID = 414813, },
@@ -60369,4 +60369,5 @@ addon.glyphData.spellIdToItemId = {
 	--glyph spellID to itemID missing  glyphs need to be added here
 	[55456] = { itemID = 41533, spellID = false, },
 	[55451] = { itemID = 41532, spellID = false, },
+	[54754] = { itemID = 40913, spellID = false, },
 }

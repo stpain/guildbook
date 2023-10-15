@@ -209,6 +209,24 @@
                             <KeyValue key="tooltipText" value="Alts" type="string"/>
                         </KeyValues>
                     </Frame>
+                    <Frame parentKey="dailies" inherits = "GuildbookWrathEraSmallHighlightButton" hidden="false">
+                        <Anchors>
+                            <Anchor point="LEFT" relativeKey="$parent.alts" relativePoint="RIGHT" x="4" y="0"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture atlas="QuestRepeatableTurnin">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="0" y="0"/>
+                                        <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                        <KeyValues>
+                            <KeyValue key="tooltipText" value="Dailies" type="string"/>
+                        </KeyValues>
+                    </Frame>
 
                     <!-- <Frame parentKey="privacy" inherits = "GuildbookWrathEraSmallHighlightButton" enableMouse="true">
                         <Size x="30" y="30"/>
@@ -257,7 +275,7 @@
                     <EditBox parentKey="searchBox" inherits="InputBoxTemplate" autoFocus="false">
                         <Size x="200" y="20"/>
                         <Anchors>
-                            <Anchor point="LEFT" relativeKey="$parent.alts" relativePoint="RIGHT" x="15" y="0"/>
+                            <Anchor point="LEFT" relativeKey="$parent.dailies" relativePoint="RIGHT" x="15" y="0"/>
                             <Anchor point="RIGHT" x="-10" y="0"/>
                         </Anchors>
 

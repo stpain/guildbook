@@ -27,7 +27,11 @@ local dbUpdates = {
     calendar = {
         birthdays = {},
         events = {},
-    }
+    },
+    dailies = {
+        quests = {},
+        characters = {},
+    },
 }
 local dbToRemove = {
     "worldEvents",

@@ -166,7 +166,9 @@ end
 
 
 
-GuildbookChatCharacterListviewItemMixin = {}
+GuildbookChatCharacterListviewItemMixin = {
+    contextMenu = {},
+}
 function GuildbookChatCharacterListviewItemMixin:OnLoad()
     addon:RegisterCallback("Chat_OnMessageReceived", self.UpdateInfo, self)
 
@@ -206,11 +208,33 @@ function GuildbookChatCharacterListviewItemMixin:SetDataBinding(info, height)
         self.mask:Show()
     end
 
-    self:SetScript("OnMouseDown", function()
-        self:AdjustPointsOffset(-1,-1)
-        if info.func then
-            info.func()
-            self.info:SetText("")
+    self.contextMenu = {
+        {
+            text = self.characterName,
+            isTitle = true,
+            notCheckable = true,
+        },
+
+    }
+    table.insert(self.contextMenu, addon.contextMenuSeparator)
+    table.insert(self.contextMenu, {
+        text = "Invite",
+        notCheckable = true,
+        func = function()
+            InviteUnit(info.characterName)
+            print(info.characterName)
+        end,
+    })
+
+    self:SetScript("OnMouseDown", function(_, button)
+        if button == "RightButton" then
+            EasyMenu(self.contextMenu, addon.contextMenu, "cursor", 0, 0, "MENU", 1)
+        else
+            self:AdjustPointsOffset(-1,-1)
+            if info.func then
+                info.func()
+                self.info:SetText("")
+            end
         end
     end)
 end
@@ -1823,7 +1847,7 @@ function GuildbookChatBubbleMixin:OnLoad()
 end
 function GuildbookChatBubbleMixin:SetDataBinding(binding)
 
-    if binding.sender == addon.thisCharacter then
+    if Database.db.myCharacters[binding.sender] == true or Database.db.myCharacters[binding.sender] == false then
         self.message:SetJustifyH("RIGHT")
 
         if Database.db.characterDirectory[binding.sender] then

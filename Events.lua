@@ -34,12 +34,22 @@ e:RegisterEvent("PLAYER_REGEN_ENABLED")
 e:RegisterEvent("SKILL_LINES_CHANGED")
 e:RegisterEvent("EQUIPMENT_SWAP_FINISHED")
 e:RegisterEvent("EQUIPMENT_SETS_CHANGED")
+e:RegisterEvent("QUEST_TURNED_IN")
+e:RegisterEvent("QUEST_ACCEPTED")
 
 e:SetScript("OnEvent", function(self, event, ...)
     if self[event] then
         self[event](self, ...)
     end
 end)
+
+function e:QUEST_TURNED_IN(...)
+    addon:TriggerEvent("Quest_OnTurnIn", ...)
+end
+
+function e:QUEST_ACCEPTED(...)
+    addon:TriggerEvent("Quest_OnAccepted", ...)
+end
 
 function e:PLAYER_REGEN_DISABLED()
     addon:TriggerEvent("Player_Regen_Disabled")

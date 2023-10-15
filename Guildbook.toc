@@ -84,6 +84,9 @@ Views\Search\Search.xml
 Views\Alts\Alts.lua
 Views\Alts\Alts.xml
 
+Views\Dailies\Dailies.lua
+Views\Dailies\Dailies.xml
+
 Events.lua
 
 ModBlizzUI.lua

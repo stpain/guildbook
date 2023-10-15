@@ -840,3 +840,51 @@ for row = 0, 4 do
 end
 
 ]]
+
+
+
+
+
+-- -- create the available tags array
+-- local tags = { "Sell", "Auction", "Vendor", }
+
+-- -- saved variables table
+-- local savedVariableTable = {}
+
+-- -- modify the bag buttons, adding a new property with the key 'tagID'
+-- for i = 1, 40 do
+--     local bagSlotButton = _G["foo"];
+
+--     bagSlotButton.tagID = 0;
+
+--     -- hook the mouse down event
+--     bagSlotButton:HookScript("OnMouseDown", function(self, button)
+    
+--         -- use alt and right button to avoid game ploay interactions
+--         if (button == "RightButton") and IsAltKeyDown() then
+
+--             -- increment the new property
+--             self.tagID = self.tagID + 1
+--         end
+
+--         -- if the tagID goes beyond tags length return it 0 (0 will create a nil effect as tables start at 1)
+--         if self.tagID > #tags then
+--             self.tagID = 0;
+--         end
+
+--         -- update the saved variables table for this item, can get item data from bag/slot api
+--         savedVariableTable[itemName] = self.tagID
+
+--     end)
+-- end
+
+-- -- sudo tooltip update
+-- function UpdateTooltip(tt)
+
+--     -- check if saved variable table has this item and it the tags table has a matching index
+--     if savedVariableTable[itemName] and tags[savedVariableTable[itemName]] then
+
+--         -- add a line to the tooltip
+--         tt:AddLine(tags[savedVariableTable[itemName]])
+--     end
+-- end

@@ -7,6 +7,7 @@ addon:GenerateCallbackEvents({
     "Database_OnCharacterAdded", 
     "Database_OnCharacterRemoved", 
     "Database_OnConfigChanged",
+    "Database_OnDailyQuestCompleted",
 
     "Character_OnProfileSelected",
     "Character_OnDataChanged",
@@ -44,5 +45,8 @@ addon:GenerateCallbackEvents({
     "Comms_OnMessageReceived",
 
     "Guildbook_OnSearch",
+
+    "Quest_OnTurnIn",
+    "Quest_OnAccepted",
 })
 CallbackRegistryMixin.OnLoad(addon);

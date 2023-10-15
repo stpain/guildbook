@@ -99,6 +99,7 @@ local magicResistances = {
 GuildbookProfileMixin = {
     name = "Profile",
 	helptips = {},
+	selectedTalentSpec = 1;
 }
 
 function GuildbookProfileMixin:OnLoad()
@@ -122,10 +123,12 @@ function GuildbookProfileMixin:OnLoad()
 
 	self.talents.primarySpec:SetScript("OnClick", function()
 		self:LoadTalentsAndGlyphs("primary")
+		self.selectedTalentSpec = 1;
 	end)
 
 	self.talents.secondarySpec:SetScript("OnClick", function()
 		self:LoadTalentsAndGlyphs("secondary")
+		self.selectedTalentSpec = 2;
 	end)
 
     for i = 1, 3 do
@@ -479,6 +482,7 @@ function GuildbookProfileMixin:Update()
 
 	self:LoadEquipmentSetInfo("current")
 	self:UpdateItemLevel()
+	self:LoadTalentsAndGlyphs()
 
 	self.currentEquipmentSet = nil
 	--equipment sets
@@ -642,6 +646,12 @@ function GuildbookProfileMixin:LoadTalentsAndGlyphs(spec)
 
 		end
 
+	end
+
+	if self.selectedTalentSpec == 1 then
+		spec = "primary"
+	else
+		spec = "secondary"
 	end
 
 
