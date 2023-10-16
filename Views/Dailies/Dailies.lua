@@ -2,6 +2,8 @@ local name, addon = ...;
 
 local Database = addon.Database;
 
+local selectedCharacter = "";
+
 GuildbookWrathDailiesMixin = {
     name = "Dailies",
     selectedCharacter = "",
@@ -23,34 +25,26 @@ function GuildbookWrathDailiesMixin:UpdateLayout()
     self.charactersListview:SetWidth(x * 0.25)
 end
 
-function GuildbookWrathDailiesMixin:Database_OnInitialised()
-
-    if not Database.db.dailies.characters[addon.thisCharacter] then
-        Database.db.dailies.characters[addon.thisCharacter] = {}
-    end
-
-    self.selectedCharacter = addon.thisCharacter;
-
-    self:LoadQuests()
-    self:LoadCharacters()
-
-end
 
 function GuildbookWrathDailiesMixin:Quest_OnTurnIn(questID, xpReward, moneyReward)
 
-    local now = time()
-    local resetTime = now + C_DateAndTime.GetSecondsUntilDailyReset()
+    if Database.db.dailies.quests[questID] then
 
-    local info  = {
-        turnedIn = now,
-        resets = resetTime,
-        gold = moneyReward,
-        xp = xpReward,
-    }
+        local now = time()
+        local resetTime = now + C_DateAndTime.GetSecondsUntilDailyReset()
 
-    Database.db.dailies.characters[addon.thisCharacter][questID] = info
+        local info  = {
+            turnedIn = now,
+            resets = resetTime,
+            gold = moneyReward,
+            xp = xpReward,
+        }
 
-    addon:TriggerEvent("Database_OnDailyQuestCompleted", questID)
+        Database.db.dailies.characters[addon.thisCharacter][questID] = info
+
+        addon:TriggerEvent("Database_OnDailyQuestCompleted", questID)
+
+    end
 
 end
 
@@ -95,6 +89,14 @@ end
 
 function GuildbookWrathDailiesMixin:Blizzard_OnInitialGuildRosterScan()
 
+    if not Database.db.dailies.characters[addon.thisCharacter] then
+        Database.db.dailies.characters[addon.thisCharacter] = {}
+    end
+
+    selectedCharacter = addon.thisCharacter;
+
+    self:LoadQuests()
+
     local t = {}
 
     for name, isMain in pairs(Database.db.myCharacters) do
@@ -122,7 +124,7 @@ function GuildbookWrathDailiesMixin:Blizzard_OnInitialGuildRosterScan()
             showMask = true,
             backgroundAlpha = 0.15,
             onMouseDown = function(listviewItem)
-                self.selectedCharacter = v.name;
+                selectedCharacter = v.name;
 
                 self.charactersListview.scrollView:ForEachFrame(function(f, d)
                     f.background:SetColorTexture(0,0,0)
@@ -142,10 +144,10 @@ function GuildbookWrathDailiesMixin:LoadQuests()
     local t = {}
 
     for questId, info in pairs(Database.db.dailies.quests) do
-        if Database.db.dailies.characters[self.selectedCharacter] and Database.db.dailies.characters[self.selectedCharacter][questId] then
+        if Database.db.dailies.characters[selectedCharacter] and Database.db.dailies.characters[selectedCharacter][questId] then
             table.insert(t, {
                 info = info,
-                turnIn = Database.db.dailies.characters[self.selectedCharacter][questId],
+                turnIn = Database.db.dailies.characters[selectedCharacter][questId],
             })
         else
             table.insert(t, {
@@ -239,12 +241,16 @@ end
 
 function GuildbookWrathDailiesListviewItemMixin:Database_OnDailyQuestCompleted(questId)
 
-    local turnIn = Database.db.dailies.characters[self.selectedCharacter][questId]
+    if Database.db.dailies.characters[selectedCharacter] and Database.db.dailies.characters[selectedCharacter][questId] then
 
-    if self.daily and self.daily.info and (self.daily.info.questId == questId) and (time() < turnIn.resets) then
-        self.completed:SetChecked(true)
-        self.info:SetText(string.format("[%s] %s %s XP", date('%Y-%m-%d %H:%M:%S', turnIn.turnedIn), GetCoinTextureString(turnIn.gold), (turnIn.xp or 0)))
-        self.info:Show()
+        local turnIn = Database.db.dailies.characters[selectedCharacter][questId]
+
+        if self.daily and self.daily.info and (self.daily.info.questId == questId) and (time() < turnIn.resets) then
+            self.completed:SetChecked(true)
+            self.info:SetText(string.format("[%s] %s %s XP", date('%Y-%m-%d %H:%M:%S', turnIn.turnedIn), GetCoinTextureString(turnIn.gold), (turnIn.xp or 0)))
+            self.info:Show()
+        end
+
     end
 end
 

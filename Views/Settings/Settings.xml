@@ -7,7 +7,7 @@
                 
                 </Texture>
             </Layer>
-            <Layer level="OVERLAY">
+            <!-- <Layer level="OVERLAY">
                 <FontString parentKey="header" inherits="GameFontNormalLarge" text="Settings">
                     <Color r="1" g="1" b="1"/>
                     <Size y="30"/>
@@ -16,20 +16,34 @@
                         <Anchor point="TOPRIGHT" x="0" y="0"/>
                     </Anchors>
                 </FontString>
-            </Layer>
+            </Layer> -->
         </Layers>
 
         <Frames>
             <Frame parentKey="categoryListview" inherits = "GuildbookWrathEraWidgetsListviewTemplate">
                 <Size x="170"/>
                 <Anchors>
-                    <Anchor point="TOPLEFT" x="0" y="-30"/>
+                    <Anchor point="TOPLEFT" x="0" y="0"/>
                     <Anchor point="BOTTOMLEFT" x="0" y="0"/>
                 </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="background">
+                            <Color r="0.085" g="0.09" b="0.075" a="0.35"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="0" y="0"/>
+                                <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
                 <KeyValues>
                     <KeyValue key="frameType" value="BUTTON" type="string"/>
-                    <KeyValue key="itemTemplate" value="GuildbookWrathEraListviewItem" type="string"/>
-                    <KeyValue key="elementHeight" value="36" type="number"/>
+                    <!-- <KeyValue key="itemTemplate" value="GuildbookWrathEraListviewItem" type="string"/>
+                    <KeyValue key="elementHeight" value="36" type="number"/> -->
+
+                    <KeyValue key="itemTemplate" value="GuildbookWrathEraSimpleIconLabelFrame" type="string"/>
+                    <KeyValue key="elementHeight" value="32" type="number"/>
                 </KeyValues>
             </Frame>
 

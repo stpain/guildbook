@@ -16,47 +16,63 @@ GuildbookSettingsMixin = {
 
 function GuildbookSettingsMixin:OnLoad()
 
+    local function setSelected(item, category)
+        self.categoryListview.scrollView:ForEachFrame(function(f, d)
+            f.background:SetColorTexture(0,0,0)
+        end)
+        self:SelectCategory(category)
+        item.background:SetColorTexture(0.6, 0.6, 0.6)
+    end
+
     local categories = {
         {
             label = "Character",
             atlas = "GarrMission_MissionIcon-Recruit",
-            func = function ()
-                self:SelectCategory("character")
+            backgroundAlpha = 0.15,
+            onMouseDown = function (item)
+                --self:SelectCategory("character")
+                setSelected(item, "character")
             end,
         },
         {
             label = "Guild",
             atlas = "GarrMission_MissionIcon-Logistics",
-            func = function ()
-                self:SelectCategory("guild")
+            backgroundAlpha = 0.15,
+            onMouseDown = function (item)
+                --self:SelectCategory("guild")
+                setSelected(item, "guild")
             end,
         },
         {
             label = "Tradeskills",
             atlas = "GarrMission_MissionIcon-Blacksmithing",
-            func = function ()
-                self:SelectCategory("tradeskills")
+            backgroundAlpha = 0.15,
+            onMouseDown = function (item)
+                setSelected(item, "tradeskills")
             end,
         },
         {
             label = "Chat",
             atlas = "socialqueuing-icon-group",
-            func = function ()
-                self:SelectCategory("chat")
+            backgroundAlpha = 0.15,
+            onMouseDown = function (item)
+                setSelected(item, "chat")
             end,
         },
         {
             label = "Guild Bank",
             atlas = "ShipMissionIcon-Treasure-Mission",
-            func = function ()
-                self:SelectCategory("guildBank")
+            backgroundAlpha = 0.15,
+            onMouseDown = function (item)
+                setSelected(item, "guildBank")
             end,
         },
         {
             label = "Addon",
             atlas = "GarrMission_MissionIcon-Engineering",
-            func = function ()
-                self:SelectCategory("addon")
+            backgroundAlpha = 0.15,
+            onMouseDown = function (item)
+                setSelected(item, "addon")
             end,
         },
     }
