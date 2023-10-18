@@ -122,13 +122,13 @@ function GuildbookProfileMixin:OnLoad()
     self.inventory.auraGridview.ScrollBar:Hide()
 
 	self.talents.primarySpec:SetScript("OnClick", function()
-		self:LoadTalentsAndGlyphs("primary")
 		self.selectedTalentSpec = 1;
+		self:LoadTalentsAndGlyphs()
 	end)
 
 	self.talents.secondarySpec:SetScript("OnClick", function()
-		self:LoadTalentsAndGlyphs("secondary")
 		self.selectedTalentSpec = 2;
+		self:LoadTalentsAndGlyphs()
 	end)
 
     for i = 1, 3 do
@@ -177,7 +177,7 @@ function GuildbookProfileMixin:LoadCharacter(character)
     GuildbookUI:SelectView(self.name)
     self.inventory:SetAlpha(0)
     self.inventory.anim:Play()
-	self:LoadTalentsAndGlyphs("primary")
+	self:LoadTalentsAndGlyphs()
 
 	--request an update, this uses WHISPER channel comms and only if the player is online
 	Comms:RequestCharacterData(character.data.name, "inventory")
@@ -278,12 +278,30 @@ function GuildbookProfileMixin:UpdateItemLevel()
 	self.inventory.gearScore:SetText("-")
 	
 	if self.currentEquipmentSet then
-		local set = self.character.data.inventory[self.currentEquipmentSet]
-		if set then
+
+		-- local set = self.character.data.inventory[self.currentEquipmentSet]
+		-- if set then
+		-- 	local numItems, totalItemlevel = 0, 0;
+		-- 	for i = 1, 19 do
+		-- 		if (i ~= 4) and (i ~= 19) and type(set[i]) == "number" then
+		-- 			local n, l, q, ilvl = GetItemInfo(set[i])
+
+		-- 			if ilvl then
+		-- 				numItems = numItems + 1;
+		-- 				totalItemlevel = totalItemlevel + ilvl;
+
+		-- 			end
+		-- 		end
+		-- 	end
+		-- 	---print(numItems, totalItemlevel, (totalItemlevel / numItems))
+
+		-- 	self.inventory.gearScore:SetText(string.format("Item Level: %0.2f", (totalItemlevel / numItems)))
+		-- end
+
+		for slot, link in pairs(self.character.data.inventory[self.currentEquipmentSet]) do
 			local numItems, totalItemlevel = 0, 0;
-			for i = 1, 19 do
-				if (i ~= 4) and (i ~= 19) and type(set[i]) == "number" then
-					local n, l, q, ilvl = GetItemInfo(set[i])
+				if type(link) == "string" then
+					local n, l, q, ilvl = GetItemInfo(link)
 
 					if ilvl then
 						numItems = numItems + 1;
@@ -291,10 +309,10 @@ function GuildbookProfileMixin:UpdateItemLevel()
 
 					end
 				end
-			end
+
 			---print(numItems, totalItemlevel, (totalItemlevel / numItems))
 
-			self.inventory.gearScore:SetText(string.format("Item Level: %0.2f", (totalItemlevel / numItems)))
+			self.inventory.gearScore:SetText(string.format("ilvl: %0.2f (set: %s)", (totalItemlevel / numItems), self.currentEquipmentSet))
 		end
 
 	else
@@ -313,7 +331,7 @@ function GuildbookProfileMixin:UpdateItemLevel()
 
 				---print(numItems, totalItemlevel, (totalItemlevel / numItems))
 	
-				self.inventory.gearScore:SetText(string.format("Item Level: %0.2f", (totalItemlevel / numItems)))
+				self.inventory.gearScore:SetText(string.format("ilvl: %0.2f (set: current)", (totalItemlevel / numItems)))
 			end
 		end
 	end
@@ -436,7 +454,7 @@ function GuildbookProfileMixin:Update()
 			if addon.characters[name] then
 				self.sidePane.listview.DataProvider:Insert({
 					atlas = addon.characters[name]:GetProfileAvatar(),
-					label = Ambiguate(name, "short"), 
+					label = Ambiguate(addon.characters[name]:GetName(true), "short"), 
 					onMouseDown = function()
 						self:LoadCharacter(addon.characters[name])
 					end,
@@ -614,7 +632,7 @@ function GuildbookProfileMixin:Update()
 	self:UpdateLayout()
 end
 
-function GuildbookProfileMixin:LoadTalentsAndGlyphs(spec)
+function GuildbookProfileMixin:LoadTalentsAndGlyphs()
 
 	-- local mainSpec = self.character:GetClassSpecAtlasName("primary")
 	-- if mainSpec then
@@ -648,6 +666,7 @@ function GuildbookProfileMixin:LoadTalentsAndGlyphs(spec)
 
 	end
 
+	local spec;
 	if self.selectedTalentSpec == 1 then
 		spec = "primary"
 	else

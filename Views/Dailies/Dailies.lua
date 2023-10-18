@@ -3,6 +3,7 @@ local name, addon = ...;
 local Database = addon.Database;
 
 local selectedCharacter = "";
+local currentQuestLog = {}
 
 GuildbookWrathDailiesMixin = {
     name = "Dailies",
@@ -48,7 +49,9 @@ function GuildbookWrathDailiesMixin:Quest_OnTurnIn(questID, xpReward, moneyRewar
 
 end
 
-function GuildbookWrathDailiesMixin:Quest_OnAccepted(_questLogIndex, _questId)
+function GuildbookWrathDailiesMixin:Quest_OnAccepted()
+
+    currentQuestLog = {}
 
     ExpandQuestHeader(0)
 
@@ -57,9 +60,13 @@ function GuildbookWrathDailiesMixin:Quest_OnAccepted(_questLogIndex, _questId)
 
         local title, level, suggestedGroup, isHeader, isCollapsed, isComplete, frequency, questId = GetQuestLogTitle(i)
 
-        if title:find("Die!") then
-            print(frequency)
+        if not isHeader then
+            currentQuestLog[questId] = true;
         end
+
+        -- if title:find("Die!") then
+        --     print(frequency)
+        -- end
 
         if isHeader then
             header = title;
@@ -95,7 +102,8 @@ function GuildbookWrathDailiesMixin:Blizzard_OnInitialGuildRosterScan()
 
     selectedCharacter = addon.thisCharacter;
 
-    self:LoadQuests()
+    -- scan the log and load quests
+    self:Quest_OnAccepted()
 
     local t = {}
 
@@ -222,9 +230,12 @@ function GuildbookWrathDailiesListviewItemMixin:SetDataBinding(binding, height)
 
     --if this is a quest do fancy stuff
     else
+
+        local hex = currentQuestLog[binding.info.questId] == true and "|cff6bb324" or "|cffffffff";
+
         self:EnableMouse(true)
         self.completed:Show()
-        self.completed.label:SetText(string.format("[%s]", binding.info.title))
+        self.completed.label:SetText(string.format("%s[%s]", hex, binding.info.title))
         self.header:Hide()
         self.background:Hide()
 

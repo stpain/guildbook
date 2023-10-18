@@ -83,6 +83,7 @@
         "CLUB_FINDER_SPECIALIZATIONS",
         "CHARACTER",
         "Talents",
-        "ACCEPT"
+        "ACCEPT",
+        "XP"
     ]
 }

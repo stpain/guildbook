@@ -60370,4 +60370,6 @@ addon.glyphData.spellIdToItemId = {
 	[55456] = { itemID = 41533, spellID = false, },
 	[55451] = { itemID = 41532, spellID = false, },
 	[54754] = { itemID = 40913, spellID = false, },
+	[54810] = { itemID = 40896, spellID = false, },
+	[54815] = { itemID = 40901, spellID = false, },
 }

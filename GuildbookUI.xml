@@ -1,5 +1,53 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 
+    <Frame name="GuildbookUpdatesUI" mixin="GuildbookUpdatesMixin" parent="UIParent" inherits="TooltipBorderedFrameTemplate" frameStrata="HIGH" hidden="true">
+        <Size x="400" y="300"/>
+        <Anchors>
+            <Anchor point="CENTER" x="0" y="0"/>
+        </Anchors>
+        <Layers>
+            <Layer level="OVERLAY">
+                <FontString inherits="GameFontNormalLarge" justifyH="LEFT" text="Guildbook">
+                    <Size y="26"/>
+                    <Anchors>
+                        <Anchor point="TOP" x="0" y="-4"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Frame parentKey="text" inherits="ScrollingFontTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="12" y="-100"/>
+                    <Anchor point="BOTTOMRIGHT" x="-12" y="40"/>
+                </Anchors>
+                <KeyValues>
+                    <KeyValue key="fontName" value="GameFontWhite"/>
+                </KeyValues>
+            </Frame>
+            <Button parentKey="accept" inherits="UIPanelButtonTemplate" text="OK">
+                <Size x="260" y="22"/>
+                <Anchors>
+                    <Anchor point="BOTTOM" x="0" y="12"/>
+                </Anchors>
+            </Button>
+        </Frames>
+        <Layers>
+            <Layer level="OVERLAY">
+                <FontString parentKey="versionHeader" inherits="GameFontNormal" justifyH="LEFT">
+                    <Size y="26"/>
+                    <Anchors>
+                        <Anchor point="BOTTOMLEFT" relativeKey="$parent.text" relativePoint="TOPLEFT" x="0" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+        </Scripts>
+    </Frame>
+
+
     <Frame name="GuildbookUI" mixin="GuildbookMixin" hidden="true" parent="UIParent" inherits="PortraitFrameTemplate" frameStrata="HIGH" enableMouse="true" resizable="true" movable="true">
         <Size x="920" y="510"/>
         <Anchors>

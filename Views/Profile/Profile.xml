@@ -145,7 +145,7 @@
                     <Layer textureSubLevel="7" level="OVERLAY">
                         <FontString parentKey="gearScore" inherits="GameFontNormal" text="GearScore">
                             <Color r="1" g="1" b="1" a="1"/>
-                            <Size x="120" y="32"/>
+                            <Size x="160" y="32"/>
                             <Anchors>
                                 <Anchor point="LEFT" relativeKey="$parent.equipmentMenu" relativePoint="RIGHT" x="10" y="0"/>
                             </Anchors>

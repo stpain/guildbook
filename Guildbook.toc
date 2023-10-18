@@ -1,6 +1,6 @@
 ## Interface: 30403
 ## Author: TheBoringDad
-## Version: 6.44
+## Version: 6.45
 ## Title: Guildbook
 ## Notes: An addon for guilds
 ## SavedVariables: GUILDBOOK_GLOBAL
@@ -32,6 +32,8 @@ Widgets\ScrollFrame.xml
 Widgets\Slider.xml
 Widgets\Helptips.lua
 Widgets\Helptips.xml
+
+ChangeLog.lua
 
 Locales.lua
 ItemData.lua

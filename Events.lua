@@ -24,6 +24,8 @@ e:RegisterEvent('CHAT_MSG_GUILD')
 e:RegisterEvent('CHAT_MSG_WHISPER')
 e:RegisterEvent('CHAT_MSG_WHISPER_INFORM')
 e:RegisterEvent('CHAT_MSG_SYSTEM')
+e:RegisterEvent('CHAT_MSG_BN_WHISPER_INFORM')
+e:RegisterEvent('CHAT_MSG_BN_WHISPER')
 e:RegisterEvent('UPDATE_MOUSEOVER_UNIT')
 --e:RegisterEvent('PLAYER_EQUIPMENT_CHANGED')
 e:RegisterEvent('ZONE_CHANGED_NEW_AREA')
@@ -59,7 +61,7 @@ function e:PLAYER_REGEN_ENABLED()
     addon:TriggerEvent("Player_Regen_Enabled")
 end
 
-function e:CHAT_MSG_WHISPER_INFORM(...)
+function e:OnChatMessageSent(...)
     local msg, target = ...;
     local guid = select(12, ...)
     addon:TriggerEvent("Chat_OnMessageSent", {
@@ -70,7 +72,7 @@ function e:CHAT_MSG_WHISPER_INFORM(...)
     })
 end
 
-function e:CHAT_MSG_WHISPER(...)
+function e:OnChatMessageRecieved(...)
     local msg, sender = ...;
     local guid = select(12, ...)
     addon:TriggerEvent("Chat_OnMessageReceived", {
@@ -79,6 +81,22 @@ function e:CHAT_MSG_WHISPER(...)
         guid = guid,
         channel = "whisper",
     })
+end
+
+function e:CHAT_MSG_BN_WHISPER_INFORM(...)
+    self:OnChatMessageSent(...)
+end
+
+function e:CHAT_MSG_BN_WHISPER(...)
+    self:OnChatMessageRecieved(...)
+end
+
+function e:CHAT_MSG_WHISPER_INFORM(...)
+    self:OnChatMessageSent(...)
+end
+
+function e:CHAT_MSG_WHISPER(...)
+    self:OnChatMessageRecieved(...)
 end
 
 function e:CHAT_MSG_GUILD(...)
@@ -239,7 +257,7 @@ end
 ]]
 local bankScanned = false
 function e:BANKFRAME_CLOSED()
-    --if bankScanned == false then
+    if bankScanned == false then
         if addon.characters[addon.thisCharacter] then
             local bags = addon.api.scanPlayerContainers(true)
     
@@ -259,8 +277,8 @@ function e:BANKFRAME_CLOSED()
             end
             addon.characters[addon.thisCharacter]:SetContainers(bags)
         end
-    --end
-    --bankScanned = not bankScanned;
+        bankScanned = true;
+    end
 end
 function e:BANKFRAME_OPENED()
     if addon.characters[addon.thisCharacter] then
@@ -283,6 +301,7 @@ function e:BANKFRAME_OPENED()
         end
         addon.characters[addon.thisCharacter]:SetContainers(bags)
     end
+    bankScanned = false;
 end
 
 --this means you can view your alts items

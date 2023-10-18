@@ -888,3 +888,34 @@ end
 --         tt:AddLine(tags[savedVariableTable[itemName]])
 --     end
 -- end
+
+
+
+
+
+
+GuildbookUpdatesMixin = {}
+
+function GuildbookUpdatesMixin:OnLoad()
+    addon:RegisterCallback("Blizzard_OnInitialGuildRosterScan", self.SayHello, self)
+end
+
+
+function GuildbookUpdatesMixin:SayHello()
+    
+    local version = tonumber(GetAddOnMetadata(name, "Version"));
+
+    if version > Database.db.version then
+
+        self.versionHeader:SetText(addon.changeLog[1].version)
+        self.text:SetText(addon.changeLog[1].notes)
+
+        self.accept:SetScript("OnClick", function()
+            Database.db.version = version;
+            self:Hide()
+        end)
+
+        self:Show()
+
+    end
+end
