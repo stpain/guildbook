@@ -10,16 +10,11 @@ function GuildbookWrathEraWidgetsListviewMixin:OnLoad()
     local height = self.elementHeight;
     self.scrollView:SetElementExtent(height);
 
-    local version, build, _date, tocversion, localizedVersion, buildType = GetBuildInfo()
-    if tocversion == 11403 then
-        self.scrollView:SetElementInitializer(self.frameType, self.itemTemplate, GenerateClosure(self.OnElementInitialize, self));
-    elseif tocversion > 11403 then
-        self.scrollView:SetElementInitializer(self.itemTemplate, GenerateClosure(self.OnElementInitialize, self));
-    end
+    self.scrollView:SetElementInitializer(self.itemTemplate, GenerateClosure(self.OnElementInitialize, self));
 
     self.scrollView:SetElementResetter(GenerateClosure(self.OnElementReset, self));
 
-    self.selectionBehavior = ScrollUtil.AddSelectionBehavior(self.scrollView);
+    --self.selectionBehavior = ScrollUtil.AddSelectionBehavior(self.scrollView);
 
     self.scrollView:SetPadding(1, 1, 1, 1, 1);
 
@@ -43,6 +38,17 @@ function GuildbookWrathEraWidgetsListviewMixin:OnElementInitialize(element, elem
     local height = self.elementHeight;
     element:SetDataBinding(elementData, height);
     element:Show()
+
+    if self.enableSelection then
+        if element.selected then
+            element:HookScript("OnMouseDown", function()
+                self.scrollView:ForEachFrame(function(f, d)
+                    f.selected:Hide()
+                end)
+                element.selected:Show()
+            end)
+        end
+    end
 end
 
 function GuildbookWrathEraWidgetsListviewMixin:OnElementReset(element)

@@ -3,15 +3,8 @@
         <Layers>
             <Layer level="BACKGROUND">
                 <Texture atlas="communities-widebackground" setAllPoints="true"/>
-                <!-- <Texture atlas="glueannouncementpopup-background" setAllPoints="true"> -->
             </Layer>
             <Layer level="OVERLAY">
-                <!-- <FontString parentKey="header" inherits="GameFontWhite">
-                    <Anchors>
-                        <Anchor point="TOP" x="0" y="0"/>
-                    </Anchors>
-                    <Size y="30"/>
-                </FontString> -->
                 <FontString parentKey="headerLeft" inherits="GameFontWhite" text="">
                     <Anchors>
                         <Anchor point="TOPLEFT" x="12" y="0"/>

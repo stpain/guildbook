@@ -84,6 +84,10 @@
         "CHARACTER",
         "Talents",
         "ACCEPT",
-        "XP"
+        "XP",
+        "MountJournal_UpdateMountDisplay",
+        "MountJournal",
+        "MountJournalLore",
+        "MountJournalSource"
     ]
 }

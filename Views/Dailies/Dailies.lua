@@ -8,6 +8,7 @@ local currentQuestLog = {}
 GuildbookWrathDailiesMixin = {
     name = "Dailies",
     selectedCharacter = "",
+    filterFavoriteQuests = false,
 };
 
 function GuildbookWrathDailiesMixin:OnLoad()
@@ -15,10 +16,44 @@ function GuildbookWrathDailiesMixin:OnLoad()
     addon:RegisterCallback("Blizzard_OnInitialGuildRosterScan", self.Blizzard_OnInitialGuildRosterScan, self)
     addon:RegisterCallback("Quest_OnTurnIn", self.Quest_OnTurnIn, self)
     addon:RegisterCallback("Quest_OnAccepted", self.Quest_OnAccepted, self)
+    addon:RegisterCallback("Database_OnDailyQuestCompleted", self.UpdateHeaderInfo, self)
+
+    self.filterFavorites:SetScript("OnClick", function()
+        self.filterFavoriteQuests = not self.filterFavoriteQuests
+
+        local atlas = self.filterFavoriteQuests == true and "auctionhouse-icon-favorite" or "auctionhouse-icon-favorite-off";
+
+        self.filterFavorites:SetNormalAtlas(atlas)
+
+        self:LoadQuests()
+
+    end)
 
     addon.AddView(self)
 
 end
+
+function GuildbookWrathDailiesMixin:UpdateHeaderInfo()
+
+    local quests, copper, xp = 0, 0, 0;
+
+    if Database.db.dailies.characters[selectedCharacter] then
+
+        for questID, info in pairs(Database.db.dailies.characters[selectedCharacter]) do
+
+            if (time() < info.resets) then
+                copper = copper + info.gold;
+                xp = xp + info.xp;
+
+                quests = quests + 1;
+            end
+        end
+
+    end
+
+    self.info:SetText(string.format("[%s] %s quests %s %s XP", selectedCharacter, quests, GetCoinTextureString(copper), xp))
+end
+
 
 function GuildbookWrathDailiesMixin:UpdateLayout()
     local x, y = self:GetSize()
@@ -46,10 +81,10 @@ function GuildbookWrathDailiesMixin:Quest_OnTurnIn(questID, xpReward, moneyRewar
         addon:TriggerEvent("Database_OnDailyQuestCompleted", questID)
 
     end
-
+    self:ScanQuestLog()
 end
 
-function GuildbookWrathDailiesMixin:Quest_OnAccepted()
+function GuildbookWrathDailiesMixin:ScanQuestLog()
 
     currentQuestLog = {}
 
@@ -89,8 +124,11 @@ function GuildbookWrathDailiesMixin:Quest_OnAccepted()
         end
     end
 
-    CollapseQuestHeader(0)
+    CollapseQuestHeader(0)    
+end
 
+function GuildbookWrathDailiesMixin:Quest_OnAccepted()
+    self:ScanQuestLog()
     self:LoadQuests()
 end
 
@@ -134,12 +172,13 @@ function GuildbookWrathDailiesMixin:Blizzard_OnInitialGuildRosterScan()
             onMouseDown = function(listviewItem)
                 selectedCharacter = v.name;
 
-                self.charactersListview.scrollView:ForEachFrame(function(f, d)
-                    f.background:SetColorTexture(0,0,0)
-                end)
+                -- self.charactersListview.scrollView:ForEachFrame(function(f, d)
+                --     f.selected:Hide()
+                -- end)
 
-                listviewItem.background:SetColorTexture(0.6, 0.6, 0.6)
-
+                --listviewItem.background:SetColorTexture(0.6, 0.6, 0.6)
+                --listviewItem.selected:Show()
+                self:ScanQuestLog()
                 self:LoadQuests()
             end,
         })
@@ -152,36 +191,51 @@ function GuildbookWrathDailiesMixin:LoadQuests()
     local t = {}
 
     for questId, info in pairs(Database.db.dailies.quests) do
-        if Database.db.dailies.characters[selectedCharacter] and Database.db.dailies.characters[selectedCharacter][questId] then
-            table.insert(t, {
-                info = info,
-                turnIn = Database.db.dailies.characters[selectedCharacter][questId],
-            })
+        if not Database.db.dailies.characters[selectedCharacter] then
+            Database.db.dailies.characters[selectedCharacter] = {}
+        end
+        if not Database.db.dailies.characters[selectedCharacter][questId] then
+            Database.db.dailies.characters[selectedCharacter][questId] = {
+                isFavorite = false,
+                gold = 0,
+                resets = 0,
+                xp = 0,
+                turnedIn = 0,
+            }
+        end
+        if self.filterFavoriteQuests then
+            if Database.db.dailies.characters[selectedCharacter][questId].isFavorite then
+                table.insert(t, {
+                    quest = info,
+                    characterQuestInfo = Database.db.dailies.characters[selectedCharacter][questId],
+                })
+            end
         else
             table.insert(t, {
-                info = info,
-                turnIn = false,
+                quest = info,
+                characterQuestInfo = Database.db.dailies.characters[selectedCharacter][questId],
             })
         end
     end
     table.sort(t, function(a, b)
-        return a.info.header < b.info.header;
+        return a.quest.header < b.quest.header;
     end)
 
     self.questsListview.DataProvider:Flush()
 
     local headers = {}
-    for k, quest in ipairs(t) do
-        if not headers[quest.info.header] then
+    for k, v in ipairs(t) do
+        if not headers[v.quest.header] then
             self.questsListview.DataProvider:Insert({
                 isHeader = true,
-                header = quest.info.header,
+                header = v.quest.header,
             })
-            headers[quest.info.header] = true
+            headers[v.quest.header] = true
         end
-        self.questsListview.DataProvider:Insert(quest)
+        self.questsListview.DataProvider:Insert(v)
     end
 
+    self:UpdateHeaderInfo()
 end
 
 
@@ -208,42 +262,61 @@ end
 
 function GuildbookWrathDailiesListviewItemMixin:SetDataBinding(binding, height)
 
+    self.daily = binding;
+
     self.completed.label:SetText("")
     self.info:Hide()
     self.completed:SetChecked(false)
 
     self:SetHeight(height)
 
-    self.daily = binding;
-
     self:SetScript("OnLeave", function()
         GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
     end)
 
     --if this is a header line just set text
-    if binding.isHeader then
+    if self.daily.isHeader then
         self:EnableMouse(false)
         self.completed:Hide()
         self.header:Show()
-        self.header:SetText(binding.header)
+        self.header:SetText(self.daily.header)
         self.background:Show()
+        self.favorite:Hide()
 
     --if this is a quest do fancy stuff
     else
 
-        local hex = currentQuestLog[binding.info.questId] == true and "|cff6bb324" or "|cffffffff";
+        if type(self.daily.characterQuestInfo) == "table" then
+            local atlas = self.daily.characterQuestInfo.isFavorite == true and "auctionhouse-icon-favorite" or "auctionhouse-icon-favorite-off";
+            self.favorite:SetNormalAtlas(atlas)
+        
+            self.favorite:SetScript("OnClick", function()
+                self.daily.characterQuestInfo.isFavorite = not self.daily.characterQuestInfo.isFavorite;
+                local atlas = self.daily.characterQuestInfo.isFavorite == true and "auctionhouse-icon-favorite" or "auctionhouse-icon-favorite-off";
+                self.favorite:SetNormalAtlas(atlas)
+            end)
+        end
 
+        local hex = (currentQuestLog[self.daily.quest.questId] == true and addon.thisCharacter == selectedCharacter) and "|cff6bb324" or "|cffffffff";
+        self.favorite:Show()
         self:EnableMouse(true)
         self.completed:Show()
-        self.completed.label:SetText(string.format("%s[%s]", hex, binding.info.title))
         self.header:Hide()
         self.background:Hide()
-
-        if type(binding.turnIn) == "table" then
-            if time() < binding.turnIn.resets then
-                self.info:SetText(string.format("[%s] %s %s XP", date('%Y-%m-%d %H:%M:%S', binding.turnIn.turnedIn), GetCoinTextureString(binding.turnIn.gold), (binding.turnIn.xp or 0)))
+        self.completed.label:SetText(string.format("%s[%s]", hex, self.daily.quest.title))
+        if type(self.daily.characterQuestInfo) == "table" then
+            if self.daily.characterQuestInfo.turnedIn == 0 then
+                self.info:SetText("-")
                 self.info:Show()
-                self.completed:SetChecked(true)
+            else
+                if time() < self.daily.characterQuestInfo.resets then
+                    self.info:SetText(string.format("[%s] %s %s XP", date('%Y-%m-%d %H:%M:%S', self.daily.characterQuestInfo.turnedIn), GetCoinTextureString(self.daily.characterQuestInfo.gold), (self.daily.characterQuestInfo.xp or 0)))
+                    self.info:Show()
+                    self.completed:SetChecked(true)
+                else
+                    self.info:SetText(string.format("|cff7F7F7F[%s] %s %s XP", date('%Y-%m-%d %H:%M:%S', self.daily.characterQuestInfo.turnedIn), GetCoinTextureString(self.daily.characterQuestInfo.gold), (self.daily.characterQuestInfo.xp or 0)))
+                    self.info:Show()
+                end
             end
         end
     end
@@ -254,11 +327,11 @@ function GuildbookWrathDailiesListviewItemMixin:Database_OnDailyQuestCompleted(q
 
     if Database.db.dailies.characters[selectedCharacter] and Database.db.dailies.characters[selectedCharacter][questId] then
 
-        local turnIn = Database.db.dailies.characters[selectedCharacter][questId]
+        local characterQuestInfo = Database.db.dailies.characters[selectedCharacter][questId]
 
-        if self.daily and self.daily.info and (self.daily.info.questId == questId) and (time() < turnIn.resets) then
+        if self.daily and self.daily.quest and (self.daily.quest.questId == questId) and (time() < characterQuestInfo.resets) then
             self.completed:SetChecked(true)
-            self.info:SetText(string.format("[%s] %s %s XP", date('%Y-%m-%d %H:%M:%S', turnIn.turnedIn), GetCoinTextureString(turnIn.gold), (turnIn.xp or 0)))
+            self.info:SetText(string.format("[%s] %s %s XP", date('%Y-%m-%d %H:%M:%S', characterQuestInfo.turnedIn), GetCoinTextureString(characterQuestInfo.gold), (characterQuestInfo.xp or 0)))
             self.info:Show()
         end
 
@@ -267,10 +340,13 @@ end
 
 function GuildbookWrathDailiesListviewItemMixin:OnEnter()
     GameTooltip:SetOwner(self, "ANCHOR_LEFT")
-    GameTooltip:SetHyperlink(self.daily.info.link)
+    GameTooltip:SetHyperlink(self.daily.quest.link)
     GameTooltip:Show()
 end
 
 function GuildbookWrathDailiesListviewItemMixin:ResetDataBinding()
     self.info:SetText("-")
+    self.daily = nil;
+    self.favorite:SetScript("OnClick", nil)
+    self.favorite:SetNormalAtlas("auctionhouse-icon-favorite-off")
 end

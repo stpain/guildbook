@@ -36,7 +36,8 @@ function GuildbookTradskillsMixin:OnLoad()
         self.tradeskillsListview.DataProvider:Insert({
             atlas = atlas,
             label = name,
-            func = function()
+            backgroundAlpha = 0.15,
+            onMouseDown = function()
                 self:LoadtradeskillRecipes(id)
             end,
         })

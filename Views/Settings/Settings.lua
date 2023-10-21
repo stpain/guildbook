@@ -16,63 +16,62 @@ GuildbookSettingsMixin = {
 
 function GuildbookSettingsMixin:OnLoad()
 
-    local function setSelected(item, category)
-        self.categoryListview.scrollView:ForEachFrame(function(f, d)
-            f.background:SetColorTexture(0,0,0)
-        end)
-        self:SelectCategory(category)
-        item.background:SetColorTexture(0.6, 0.6, 0.6)
-    end
 
     local categories = {
         {
             label = "Character",
-            atlas = "GarrMission_MissionIcon-Recruit",
+            --atlas = "GarrMission_MissionIcon-Recruit",
             backgroundAlpha = 0.15,
-            onMouseDown = function (item)
-                --self:SelectCategory("character")
-                setSelected(item, "character")
+            onMouseDown = function ()
+                self:SelectCategory("character")
             end,
         },
         {
             label = "Guild",
-            atlas = "GarrMission_MissionIcon-Logistics",
+            --atlas = "GarrMission_MissionIcon-Logistics",
             backgroundAlpha = 0.15,
-            onMouseDown = function (item)
-                --self:SelectCategory("guild")
-                setSelected(item, "guild")
+            onMouseDown = function ()
+                self:SelectCategory("guild")
             end,
         },
         {
             label = "Tradeskills",
-            atlas = "GarrMission_MissionIcon-Blacksmithing",
+            --atlas = "GarrMission_MissionIcon-Blacksmithing",
             backgroundAlpha = 0.15,
-            onMouseDown = function (item)
-                setSelected(item, "tradeskills")
+            onMouseDown = function ()
+                self:SelectCategory("tradeskills")
             end,
         },
         {
             label = "Chat",
-            atlas = "socialqueuing-icon-group",
+            --atlas = "socialqueuing-icon-group",
             backgroundAlpha = 0.15,
-            onMouseDown = function (item)
-                setSelected(item, "chat")
+            onMouseDown = function ()
+                self:SelectCategory("chat")
             end,
         },
         {
             label = "Guild Bank",
-            atlas = "ShipMissionIcon-Treasure-Mission",
+            --atlas = "ShipMissionIcon-Treasure-Mission",
             backgroundAlpha = 0.15,
-            onMouseDown = function (item)
-                setSelected(item, "guildBank")
+            onMouseDown = function ()
+                self:SelectCategory("guildBank")
             end,
         },
         {
             label = "Addon",
-            atlas = "GarrMission_MissionIcon-Engineering",
+            --atlas = "GarrMission_MissionIcon-Engineering",
             backgroundAlpha = 0.15,
-            onMouseDown = function (item)
-                setSelected(item, "addon")
+            onMouseDown = function ()
+                self:SelectCategory("addon")
+            end,
+        },
+        {
+            label = "Help",
+            --atlas = "GarrMission_MissionIcon-Engineering",
+            backgroundAlpha = 0.15,
+            onMouseDown = function ()
+                self:SelectCategory("help")
             end,
         },
     }
@@ -122,6 +121,14 @@ function GuildbookSettingsMixin:OnLoad()
     self.content.addon.debug:SetScript("OnClick", function(cb)
         Database.db.debug = cb:GetChecked()
     end)
+
+
+    self.content.help.text:SetText(string.format("%s\n\n\n\n%s\n\n\n\n%s\n\n\n\n%s",
+        L.SETTINGS_HELP_TEXT_GENERAL,
+        L.SETTINGS_HELP_TEXT_TALENTS,
+        L.SETTINGS_HELP_TEXT_TRADESKILLS,
+        L.SETTINGS_HELP_TEXT_DAILIES
+    ))
 
     addon.AddView(self)
 end

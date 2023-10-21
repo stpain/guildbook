@@ -38,12 +38,9 @@
                     </Layer>
                 </Layers>
                 <KeyValues>
-                    <KeyValue key="frameType" value="BUTTON" type="string"/>
-                    <!-- <KeyValue key="itemTemplate" value="GuildbookWrathEraListviewItem" type="string"/>
-                    <KeyValue key="elementHeight" value="36" type="number"/> -->
-
                     <KeyValue key="itemTemplate" value="GuildbookWrathEraSimpleIconLabelFrame" type="string"/>
                     <KeyValue key="elementHeight" value="32" type="number"/>
+                    <KeyValue key="enableSelection" value="true" type="boolean"/>
                 </KeyValues>
             </Frame>
 
@@ -52,7 +49,6 @@
                     <Anchor point="TOPLEFT" relativeKey="$parent.categoryListview" relativePoint="TOPRIGHT" x="0" y="0"/>
                     <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
                 </Anchors>
-
 
                 <Frames>
                     <Frame parentKey="character" parentArray="panels" hidden="true" inherits="InsetFrameTemplate3">
@@ -222,7 +218,6 @@
                             </ScrollFrame>                        
                         </Frames>
                     </Frame>
-
 
                     <Frame parentKey="guild" parentArray="panels" hidden="true" inherits="InsetFrameTemplate3">
                         <Anchors>
@@ -532,6 +527,42 @@
                         </Frames>                     
                     </Frame>
 
+                    <Frame parentKey="help" parentArray="panels" hidden="true" inherits="InsetFrameTemplate3">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" x="0" y="0"/>
+                            <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <FontString parentKey="header" inherits="GameFontNormalLarge" text="Help">
+                                    <Size y="30"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="0" y="0"/>
+                                        <Anchor point="TOPRIGHT" x="0" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="general" inherits="GameFontNormal">
+                                    <Size y="30"/>
+                                    <Color r="1" g="1" b="1"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="0" y="-30"/>
+                                        <Anchor point="TOPRIGHT" x="0" y="-30"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                        <Frames>
+                            <Frame parentKey="text" inherits="ScrollingFontTemplate">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="12" y="-60"/>
+                                    <Anchor point="BOTTOMRIGHT" x="-12" y="12"/>
+                                </Anchors>
+                                <KeyValues>
+                                    <KeyValue key="fontName" value="GameFontWhite"/>
+                                </KeyValues>
+                            </Frame>
+                        </Frames>
+                    </Frame>
                 </Frames>
             </Frame>
         </Frames>

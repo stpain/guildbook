@@ -54,7 +54,6 @@
                             <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
                         </Anchors>
                         <KeyValues>
-                            <KeyValue key="frameType" value="FRAME" type="string"/>
                             <KeyValue key="itemTemplate" value="GuildbookWrathEraSimpleIconLabelFrame" type="string"/>
                             <KeyValue key="elementHeight" value="32" type="number"/>
                         </KeyValues>

@@ -929,6 +929,7 @@ function e:Database_OnInitialised()
 	-- 	setPlayerEquipmentSets()
 	-- end)
 
+
 end
 
 addon:RegisterCallback("Database_OnInitialised", e.Database_OnInitialised, e)

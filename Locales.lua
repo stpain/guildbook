@@ -77,10 +77,17 @@ local L = {
 	CHAT = "Chat",
 	SETTINGS_CHAT_GENERAL = "Set the limits for your message history. Larger limits may cause issues on busy accounts.",
 
+	--addon
 	ADDON = "Addon",
 	SETTINGS_ADDON_GENERAL = "Addon config options, if something goes wrong you can enable debug or reset the addon completely.",
 	SETTINGS_ADDON_DEBUG_LABEL = "Debug",
 
+	--help
+	SETTINGS_HELP_TEXT_GENERAL = "Welcome to Guildbook. This addon aims to provide guilds and their members a way to see, share and help each other. Features provided include character equipment and talents, tradeskills and available recipes. You can also see your characters instance reset data, information about alts and track dailies.\n\n|cffFFC000Things to get you started;|r\nSet main spec (found in Settings > Character)\nOpen your professions (including cooking and first aid)\nOpen your talents.",
+	SETTINGS_HELP_TEXT_TRADESKILLS = string.format("%s |cffFFC000Tradeskills (Professions)|r\nIn order to share your recipes you'll need to open each of your professions, this will allow Guildbook to scan the available recipes and share with the other guild members (must be online)", CreateAtlasMarkup("Mobile-Blacksmithing", 26, 26, 0, 13)),
+	SETTINGS_HELP_TEXT_TALENTS = string.format("%s |cffFFC000Talents|r\nFor guild members to view your characters spec/talents you'll need to open the talents interface. Guildbook will be able to scan your currently active spec and share this.", CreateAtlasMarkup("minortalents-icon-book", 26, 26, 0, 13)),
+	SETTINGS_HELP_TEXT_DAILIES = string.format("%s |cffFFC000Dailies|r\nYou can track daily quest progress across your characters using Guildbook. The addon will learn daily quests as you find them, quests in green text are in your quest log, old hand in data is shown in grey, current quest turn in data is white.", CreateAtlasMarkup("QuestRepeatableTurnin", 26, 26, 0, 13)),
+	SETTINGS_HELP_TEXT_ALTS = string.format("%s |cffFFC000Alts|r\nIf you have alt characters you can view information about them such as tradeskills and gold.\nTo change data for an alt, right click and choose from the context menu options.", CreateAtlasMarkup("socialqueuing-icon-group", 26, 26, 0, 13)),
 
 	--====================================================================================
 	--paperdoll stuff
@@ -104,13 +111,6 @@ local L = {
 	--default blizz roster
 	--====================================================================================
 
-
-
-	--====================================================================================
-	--guide
-	--====================================================================================
-
-	GUIDE_DUNGEONS_RAGEFIRE_HISTORY = "",
 }
 
 

@@ -38,9 +38,9 @@
                     </Layer>
                 </Layers>
                 <KeyValues>
-                    <KeyValue key="frameType" value="FRAME" type="string"/>
-                    <KeyValue key="itemTemplate" value="GuildbookWrathEraListviewItem" type="string"/>
+                    <KeyValue key="itemTemplate" value="GuildbookWrathEraSimpleIconLabelFrame" type="string"/>
                     <KeyValue key="elementHeight" value="40" type="number"/>
+                    <KeyValue key="enableSelection" value="true" type="boolean"/>
                 </KeyValues>
             </Frame>
             <Frame parentKey="tradeskillsHelptip" inherits = "GuildbookWrathEraHelpTipTemplate_RightArrow">

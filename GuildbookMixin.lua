@@ -919,3 +919,31 @@ function GuildbookUpdatesMixin:SayHello()
 
     end
 end
+
+
+
+local t = {}
+
+for i = 1, 10 do
+    t[i] = {
+        name = string.format("Text Item %d", i),
+    }
+end
+
+
+local FooMixin = {}
+function FooMixin:SetVar(var)
+    self.bar = var;
+end
+
+function FooMixin:GetVar()
+    return self.bar;
+end
+
+function FooMixin:GetName(i)
+    return self[i].name;
+end
+
+local x = Mixin(t, FooMixin)
+
+print(x:GetName(3))

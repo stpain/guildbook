@@ -1284,11 +1284,14 @@
     <Frame name="GuildbookWrathEraSimpleIconLabelFrame" mixin="GuildbookSimpleIconLabelMixin" virtual="true">
         <Layers>
             <Layer level="HIGHLIGHT">
-                <Texture parentKey="highlight" atlas="search-select" setAllPoints="true">
+                <Texture parentKey="highlight" atlas="search-highlight" setAllPoints="true">
 
                 </Texture>
             </Layer>
             <Layer level="BACKGROUND">
+                <Texture parentKey="selected" atlas="search-select" hidden="true" setAllPoints="true">
+
+                </Texture>
 				<Texture parentKey="background" alpha="0.0">	
                     <Color r="0" g="0" b="0"/>			
 					<Anchors>

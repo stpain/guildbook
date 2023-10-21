@@ -67,8 +67,6 @@ function GuildbookSearchMixin:UpdateResults()
         end
     end
 
-    self.resultsListview.DataProvider:Flush()
-
     self.resultsListview.scrollView:SetDataProvider(CreateDataProvider(out))
 
     self.headerLeft:SetText(string.format("%d results found for '%s'", #out, self.serachTerm))
