@@ -907,8 +907,8 @@ function GuildbookUpdatesMixin:SayHello()
 
     if version > Database.db.version then
 
-        self.versionHeader:SetText(addon.changeLog[1].version)
-        self.text:SetText(addon.changeLog[1].notes)
+        self.versionHeader:SetText("version: "..addon.changeLog[1].version)
+        self.text:SetText("|cffffffff"..addon.changeLog[1].notes)
 
         self.accept:SetScript("OnClick", function()
             Database.db.version = version;
@@ -922,28 +922,27 @@ end
 
 
 
-local t = {}
+-- local t = {}
 
-for i = 1, 10 do
-    t[i] = {
-        name = string.format("Text Item %d", i),
-    }
-end
+-- for i = 1, 10 do
+--     t[i] = {
+--         name = string.format("Text Item %d", i),
+--     }
+-- end
 
+-- local FooMixin = {}
+-- function FooMixin:SetVar(var)
+--     self.bar = var;
+-- end
 
-local FooMixin = {}
-function FooMixin:SetVar(var)
-    self.bar = var;
-end
+-- function FooMixin:GetVar()
+--     return self.bar;
+-- end
 
-function FooMixin:GetVar()
-    return self.bar;
-end
+-- function FooMixin:GetName(i)
+--     return self[i].name;
+-- end
 
-function FooMixin:GetName(i)
-    return self[i].name;
-end
+-- local x = Mixin(t, FooMixin)
 
-local x = Mixin(t, FooMixin)
-
-print(x:GetName(3))
+-- print(x:GetName(3)) --Text Item 3 prints

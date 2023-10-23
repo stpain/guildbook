@@ -60374,4 +60374,10 @@ addon.glyphData.spellIdToItemId = {
 	[54815] = { itemID = 40901, spellID = false, },
 	[58094] = { itemID = 43394, spellID = false, },
 	[63095] = { itemID = 45740, spellID = false, },
+	[62132] = { itemID = 44923, spellID = false, },
+
+	[54845] = { itemID = 40916, spellID = false, }, --starfire
+	[58038] = { itemID = 43380, spellID = false, }, --vanish
+	[58671] = { itemID = 43547, spellID = false, }, --obliterate
+	[63333] = { itemID = 45804, spellID = false, }, --dark death
 }

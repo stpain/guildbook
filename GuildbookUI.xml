@@ -3,7 +3,7 @@
     <Frame name="GuildbookUpdatesUI" mixin="GuildbookUpdatesMixin" parent="UIParent" inherits="TooltipBorderedFrameTemplate" frameStrata="HIGH" hidden="true">
         <Size x="400" y="300"/>
         <Anchors>
-            <Anchor point="CENTER" x="0" y="0"/>
+            <Anchor point="CENTER" x="0" y="90"/>
         </Anchors>
         <Layers>
             <Layer level="OVERLAY">
@@ -14,6 +14,11 @@
                     </Anchors>
                 </FontString>
             </Layer>
+            <!-- <Layer level="BACKGROUND">
+                <Texture atlas="accountupgradebanner-wotlk" alpha="0.375">
+
+                </Texture>
+            </Layer> -->
         </Layers>
         <Frames>
             <Frame parentKey="text" inherits="ScrollingFontTemplate">
@@ -24,6 +29,13 @@
                 <KeyValues>
                     <KeyValue key="fontName" value="GameFontWhite"/>
                 </KeyValues>
+                <!-- <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture alpha="0.5">
+                            <Color r="0" g="0" b="0"/>
+                        </Texture>
+                    </Layer>
+                </Layers> -->
             </Frame>
             <Button parentKey="accept" inherits="UIPanelButtonTemplate" text="OK">
                 <Size x="260" y="22"/>
@@ -326,7 +338,6 @@
                             <Anchor point="LEFT" relativeKey="$parent.dailies" relativePoint="RIGHT" x="15" y="0"/>
                             <Anchor point="RIGHT" x="-10" y="0"/>
                         </Anchors>
-
                     </EditBox>
                 </Frames>
             </Frame>

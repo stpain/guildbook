@@ -58,7 +58,7 @@ end
 function GuildbookWrathDailiesMixin:UpdateLayout()
     local x, y = self:GetSize()
 
-    self.charactersListview:SetWidth(x * 0.25)
+    self.charactersListview:SetWidth(x * 0.18)
 end
 
 
