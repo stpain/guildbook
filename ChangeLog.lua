@@ -9,7 +9,21 @@ local name, addon = ...;
 ]]
 
 
+--[[
+
+    todo:
+        minimap button options
+        home view
+        lockout/events view
+        tradeskill scan link
+]]
+
+
 addon.changeLog = {
+    {
+        version = "6.51",
+        notes = "Quick fix to Dailies favourites bug",
+    },
     {
         version = "6.5",
         notes = "Dailies view now shows previous quest completion times in grey.\n\nUpdated more menu styling.\n\nStarted working on a help section, this is found under settings > help.\n\nAdded the ability to set favourites to daily quests and then filter the list so you can track specific daily quests per character.\n\nAdded more missing glyphs!",

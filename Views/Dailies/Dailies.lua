@@ -68,12 +68,13 @@ function GuildbookWrathDailiesMixin:Quest_OnTurnIn(questID, xpReward, moneyRewar
 
         local now = time()
         local resetTime = now + C_DateAndTime.GetSecondsUntilDailyReset()
-
+        local isFavorite = Database.db.dailies.characters[addon.thisCharacter][questID].isFavorite
         local info  = {
             turnedIn = now,
             resets = resetTime,
             gold = moneyReward,
             xp = xpReward,
+            isFavorite = isFavorite,
         }
 
         Database.db.dailies.characters[addon.thisCharacter][questID] = info

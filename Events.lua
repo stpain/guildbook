@@ -928,6 +928,11 @@ function e:Database_OnInitialised()
 	-- hooksecurefunc(C_EquipmentSet, "DeleteEquipmentSet", function()
 	-- 	setPlayerEquipmentSets()
 	-- end)
+	-- hooksecurefunc("SetItemRef", function(link, text)
+	-- 	local linkType, linkData = LinkUtil.SplitLinkData(link);
+    --     print(linkType)
+    --     DevTools_Dump({linkData})
+	-- end)
 
 
 end
