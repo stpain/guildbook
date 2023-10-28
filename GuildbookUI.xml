@@ -419,4 +419,13 @@
             </OnDragStop>
         </Scripts>
     </Frame>
+
+
+    <!-- <Frame name="GuildbookMailUI" mixin="GuildbookMailMixin" parent="MailFrame" inherits="BasicFrameTemplate">
+        <Anchors>
+            <Anchor point="TOPLEFT" relativeTo="MailFrame" relativePoint="TOPRIGHT" x="0" y="0"/>
+            <Anchor point="BOTTOMLEFT" relativeTo="MailFrame" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+        </Anchors>
+        <Size x="400"/>
+    </Frame> -->
 </Ui>

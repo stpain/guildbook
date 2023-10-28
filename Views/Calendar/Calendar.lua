@@ -156,7 +156,7 @@ GuildbookCalendarMixin = {
 function GuildbookCalendarMixin:UpdateLayout()
     local x, y = self:GetSize();
 
-    local sidePanelWidth = (x * 0.27);
+    local sidePanelWidth = (x * 0.3);
 
     local monthViewWidth = x - sidePanelWidth;
 
@@ -188,9 +188,64 @@ function GuildbookCalendarMixin:UpdateLayout()
 end
 
 function GuildbookCalendarMixin:OnShow()
-    self:UpdateLockouts()
     self:MonthChanged()
     self:UpdateLayout()
+end
+
+function GuildbookCalendarMixin:UpdateCalendarEvents()
+
+    local t = {}
+
+    local daysInMonth = self:GetDaysInMonth(self.date.month, self.date.year)
+
+    local from = {
+        day = 1,
+        month = self.date.month,
+        year = self.date.year,
+    }
+
+    local to = {
+        day = daysInMonth,
+        month = self.date.month,
+        year = self.date.year,
+    }
+
+    local events = Database:GetCalendarEventsBetween(from, to)
+
+    table.sort(events, function(a, b)
+        return a.timestamp < b.timestamp
+    end)
+
+    --DevTools_Dump(events)
+
+    for k, v in ipairs(events) do
+        if type(v) == "table" then
+            local label = string.format("|cffE5AC00%s|r\n%s", date("%Y-%m-%d %H:%M:%S", v.timestamp), v.text)
+            local contextMenu = {
+                {
+                    text = DELETE,
+                    notCheckable = true,
+                    func = function ()
+                        Database:DeleteCalendarEvent(v)
+                    end
+                },
+        
+            }
+            -- table.insert(contextMenu, addon.contextMenuSeparator)
+
+            table.insert(t, {
+                label = label,
+                onMouseDown = function(f, button)
+                    if button == "RightButton" then
+                        EasyMenu(contextMenu, addon.contextMenu, "cursor", 0, 0, "MENU", 1)
+                    end
+                end
+            })
+        end
+    end
+
+
+    self.sidePanel.lockouts.scrollView:SetDataProvider(CreateDataProvider(t))
 end
 
 
@@ -231,11 +286,17 @@ function GuildbookCalendarMixin:UpdateLockouts()
     end
 
     table.sort(sortTable, function(a, b)
+        local nameA = string.format("%s-%s", a.name, a.maxPlayers)
+        local nameB = string.format("%s-%s", b.name, b.maxPlayers)
         if a.reset == b.reset then
-            if a.name == b.name then
+            if nameA == nameB then
                 return a.player < b.player
             else
-                return a.name < b.name
+                if a.maxPlayers == b.maxPlayers then
+                    return a.maxPlayers > b.maxPlayers
+                else
+                    return nameA < nameB
+                end
             end
         else
             return a.reset < b.reset
@@ -258,7 +319,9 @@ function GuildbookCalendarMixin:UpdateLockouts()
                 iconPath = string.format("Interface/lfgframe/lfgicon-%s", instanceName)
             end
 
-            if not inserted[lockout.name] then
+            local header = string.format("%s-%s", lockout.name, lockout.difficultyName)
+
+            if not inserted[header] then
 
                 table.insert(t, {
                     label = string.format("%s\n|cffE5AC00%s|r", lockout.name, lockout.difficultyName),
@@ -267,7 +330,7 @@ function GuildbookCalendarMixin:UpdateLockouts()
                     icon = iconPath,
                     iconCoords = iconCoords,
                 })
-                inserted[lockout.name] = true;
+                inserted[header] = true;
             end
 
             table.insert(t, {
@@ -287,58 +350,35 @@ function GuildbookCalendarMixin:UpdateLockouts()
         end
     end
 
-    -- local inserted = {}
-    -- for name, lockouts in pairs(instances) do
-    --     for player, lockout in pairs(lockouts) do
-
-    --         if GetServerTime() < lockout.reset then
-
-    --             local instanceName = name:lower():gsub("[%c%p%s]", "")
-    --             local iconPath = "";
-    --             local iconCoords = {0,1,0,1}
-
-    --             --not ideal but dungeons and raids have different artwork
-    --             if lockout.isRaid then
-    --                 iconPath = string.format("Interface/encounterjournal/ui-ej-dungeonbutton-%s", instanceName)
-    --                 iconCoords = {0.17578125, 0.49609375, 0.03125, 0.71875}         
-    --             else
-    --                 iconPath = string.format("Interface/lfgframe/lfgicon-%s", instanceName)
-    --             end
-
-    --             if not inserted[name] then
-
-    --                 table.insert(t, {
-    --                     label = string.format("%s\n|cffE5AC00%s|r", name, lockout.difficultyName),
-    --                     backgroundRGB = {r = 0.4, g = 0.4, b = 0.4,},
-    --                     backgroundAlpha = 0.4,
-    --                     icon = iconPath,
-    --                     iconCoords = iconCoords,
-    --                 })
-    --                 inserted[name] = true;
-    --             end
-
-    --             table.insert(t, {
-    --                 label = string.format("%s\n|cffffffff%s|r", addon.characters[player]:GetName(true), date("%Y-%m-%d %H:%M:%S", lockout.reset)),
-    --                 -- atlas = addon.characters[player]:GetProfileAvatar(),
-    --                 -- showMask = true,
-    --                 onMouseEnter = function(f)
-    --                     GameTooltip:SetOwner(f, "ANCHOR_RIGHT")
-    --                     GameTooltip:AddLine(name)
-    --                     for k, v in pairs(lockout) do
-    --                         GameTooltip:AddDoubleLine("|cffffffff"..k.."|r", tostring(v))
-    --                     end
-    --                     GameTooltip:Show()
-    --                 end,
-    --             })
-
-    --         end
-    --     end
-    -- end
 
     self.sidePanel.lockouts.scrollView:SetDataProvider(CreateDataProvider(t))
 end
 
+function GuildbookCalendarMixin:OnTabSelected(tab, index)
+
+    if index == 1 then
+        self:UpdateLockouts()
+        
+    elseif index == 2 then
+        self:UpdateCalendarEvents()
+    end
+end
+
+function GuildbookCalendarMixin:Blizzard_OnInitialGuildRosterScan()
+    self.sidePanel.lockouts.background:SetAtlas("QuestLogBackground")
+    --self.sidePanel.lockouts.background:SetAtlas(string.format("transmog-background-race-%s", addon.characters[addon.thisCharacter]:GetRace().clientFileString:lower()))
+end
+
 function GuildbookCalendarMixin:OnLoad()
+
+    addon:RegisterCallback("Blizzard_OnInitialGuildRosterScan", self.Blizzard_OnInitialGuildRosterScan, self)
+    addon:RegisterCallback("Database_OnCalendarDataChanged", self.MonthChanged, self)
+
+    self.tabsGroup = CreateRadioButtonGroup();
+
+	self.tabsGroup:AddButtons({self.sidePanel.tab1, self.sidePanel.tab2});
+	self.tabsGroup:SelectAtIndex(1);
+	self.tabsGroup:RegisterCallback(ButtonGroupBaseMixin.Event.Selected, self.OnTabSelected, self);
 
     self.date = date("*t")
 
@@ -369,6 +409,8 @@ function GuildbookCalendarMixin:OnLoad()
         local f = self.monthView:CreateFontString(nil, "OVERLAY", "GameFontWhite")
         f:SetSize(self.dayTileWidth, 18)
         f:SetPoint("TOPLEFT", i * self.dayTileWidth, 0)
+        f:SetJustifyH("CENTER")
+        f:SetJustifyV("MIDDLE")
         f:SetText(self.weekdays[i+1])
 
         self.monthView.dayHeaders[i+1] = {
@@ -456,6 +498,12 @@ function GuildbookCalendarMixin:MonthChanged()
     local monthStart = self:GetMonthStart(self.date.month, self.date.year)
     local daysInMonth = self:GetDaysInMonth(self.date.month, self.date.year)
 
+    if self.sidePanel.tab1:IsSelected() then
+        self:UpdateLockouts()
+    else
+        self:UpdateCalendarEvents()
+    end
+
     local daysInLastMonth = 0
     if self.date.month == 1 then
         daysInLastMonth = self:GetDaysInMonth(12, self.date.year - 1)
@@ -520,7 +568,14 @@ function GuildbookCalendarMixin:MonthChanged()
                 end
                 subLayer = subLayer + 1;
             end
+            
+--[[
+    calendar event types
 
+    1 = birthday
+    2 = note
+
+]]
             local contextMenu = {
                 {
                     text = date("%d %B %Y", time(day.date)),
@@ -534,14 +589,30 @@ function GuildbookCalendarMixin:MonthChanged()
                     text = "Add Note",
                     notCheckable = true,
                     func = function()
-                        StaticPopup_Show("GuildbookCalendarAddNote", date("%d %B %Y", time(day.date)), nil, day.date)
+                        StaticPopup_Show(
+                            "GuildbookCalendarAddEvent", --popup name
+                            string.format("Add note for %s", date("%d %B %Y", time(day.date))),
+                            nil, --arg2 for %s
+                            {
+                                timestamp = time(day.date), --data
+                                calendarTypeEnum = 2,
+                            }
+                        )
                     end,
                 },
                 {
                     text = "Add Birthday",
                     notCheckable = true,
                     func = function()
-                        StaticPopup_Show("GuildbookCalendarAddBirthday", nil, nil, {day.date.month, day.date.day})
+                        StaticPopup_Show(
+                            "GuildbookCalendarAddEvent", --popup name
+                            string.format("Add Birthday %s\n\nEnter players name:", date("%d %B %Y", time(day.date))),
+                            nil, --arg2 for %s
+                            {
+                                timestamp = time(day.date), --data
+                                calendarTypeEnum = 1,
+                            }
+                        )            
                     end,
                 },
             }

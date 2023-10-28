@@ -8,6 +8,7 @@ addon:GenerateCallbackEvents({
     "Database_OnCharacterRemoved", 
     "Database_OnConfigChanged",
     "Database_OnDailyQuestCompleted",
+    "Database_OnCalendarDataChanged",
 
     "Character_OnProfileSelected",
     "Character_OnDataChanged",

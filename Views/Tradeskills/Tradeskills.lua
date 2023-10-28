@@ -360,19 +360,19 @@ function GuildbookTradskillsMixin:OnCharacterTradeskillSelected(tradeskillID, re
                 local name = GetSpellInfo(spellId)
                 --local desc = GetSpellDescription(v.spellID)
                 table.insert(items, {
-                    itemName = name,
+                    -- itemName = name,
                     -- itemLink = item.itemLink,
-                    -- spellID = item.spellID,
+                    spellID = item.spellID,
                     icon = item.icon,
                     itemID = item.itemID,
                     reagents = item.reagents,
                     -- inventorySlot = item.inventorySlot,
                     -- quality = item.quality,
-                    -- tradeskillID = item.tradeskillID,
+                    tradeskillID = item.tradeskillID,
                 })
             else
                 table.insert(items, {
-                    itemName = string.match(item.itemLink, "h%[(.*)%]|h"),
+                    -- itemName = string.match(item.itemLink, "h%[(.*)%]|h"),
                     -- itemLink = item.itemLink,
                     -- spellID = item.spellID,
                     icon = item.icon,
@@ -380,7 +380,7 @@ function GuildbookTradskillsMixin:OnCharacterTradeskillSelected(tradeskillID, re
                     reagents = item.reagents,
                     -- inventorySlot = item.inventorySlot,
                     -- quality = item.quality,
-                    -- tradeskillID = item.tradeskillID,
+                    tradeskillID = item.tradeskillID,
                 })
             end
         end

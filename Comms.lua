@@ -60,19 +60,19 @@ Comms.characterKeyToEventName = {
     -- offSpec = self.data.offSpec,
     -- mainSpecIsPvP = self.data.mainSpecIsPvP,
     -- offSpecIsPvP = self.data.offSpecIsPvP,
-    profession1 = "TRADESKILL_TRANSMIT",
-    profession1Level = "TRADESKILL_TRANSMIT",
-    profession1Spec = "TRADESKILL_TRANSMIT",
-    profession1Recipes = "TRADESKILL_TRANSMIT",
-    profession2 = "TRADESKILL_TRANSMIT",
-    profession2Level = "TRADESKILL_TRANSMIT",
-    profession2Spec = "TRADESKILL_TRANSMIT",
-    profession2Recipes = "TRADESKILL_TRANSMIT",
-    cookingLevel = "TRADESKILL_TRANSMIT",
-    cookingRecipes = "TRADESKILL_TRANSMIT",
-    fishingLevel = "TRADESKILL_TRANSMIT",
-    firstAidLevel = "TRADESKILL_TRANSMIT",
-    firstAidRecipes = "TRADESKILL_TRANSMIT",
+    profession1 = "TRADESKILL_TRANSMIT_PROF1",
+    profession1Level = "TRADESKILL_TRANSMIT_PROF1_LEVEL",
+    profession1Spec = "TRADESKILL_TRANSMIT_PROF1_SPEC",
+    profession1Recipes = "TRADESKILL_TRANSMIT_PROF1_RECIPES",
+    profession2 = "TRADESKILL_TRANSMIT_PROF2",
+    profession2Level = "TRADESKILL_TRANSMIT_PROF2_LEVEL",
+    profession2Spec = "TRADESKILL_TRANSMIT_PROF2_SPEC",
+    profession2Recipes = "TRADESKILL_TRANSMIT_PROF2_RECIPES",
+    cookingLevel = "TRADESKILL_TRANSMIT_COOKING_LEVEL",
+    cookingRecipes = "TRADESKILL_TRANSMIT_COOKING_RECIPES",
+    fishingLevel = "TRADESKILL_TRANSMIT_FISHING_LEVEL",
+    firstAidLevel = "TRADESKILL_TRANSMIT_FIRSTAID_LEVEL",
+    firstAidRecipes = "TRADESKILL_TRANSMIT_FIRSTAID_RECIPES",
 
     --CurrentInventory = self.data.currentInventory,
     --CurrentPaperdollStats = self.data.currentPaperdollStats or {},
@@ -352,8 +352,6 @@ function Comms:Character_BroadcastChange(character, ...)
 
         if self.characterKeyToEventName[key] then
 
-            addon.LogDebugMessage("comms", string.format("received %s", key))
-
             local data;
             if subKey then
                 data = character.data[key][subKey]
@@ -363,6 +361,7 @@ function Comms:Character_BroadcastChange(character, ...)
 
             if data then
                 self:TransmitToGuild(self.characterKeyToEventName[key], data, method, subKey, character.data.name)
+                addon.LogDebugMessage("comms", string.format("Character_OnDataChanged > %s has changed, sending to comms queue", key))
             else
                 addon.LogDebugMessage("comms", string.format("no data found in character.data[%s]", key))
             end
@@ -540,6 +539,19 @@ Comms.events = {
     GLYPH_TRANSMIT = Comms.Character_OnDataReceived,
     SPEC_TRANSMIT = Comms.Character_OnDataReceived,
     TRADESKILL_TRANSMIT = Comms.Character_OnDataReceived,
+    TRADESKILL_TRANSMIT_PROF1 = Comms.Character_OnDataReceived,
+    TRADESKILL_TRANSMIT_PROF1_LEVEL = Comms.Character_OnDataReceived,
+    TRADESKILL_TRANSMIT_PROF1_SPEC = Comms.Character_OnDataReceived,
+    TRADESKILL_TRANSMIT_PROF1_RECIPES = Comms.Character_OnDataReceived,
+    TRADESKILL_TRANSMIT_PROF2 = Comms.Character_OnDataReceived,
+    TRADESKILL_TRANSMIT_PROF2_LEVEL = Comms.Character_OnDataReceived,
+    TRADESKILL_TRANSMIT_PROF2_SPEC = Comms.Character_OnDataReceived,
+    TRADESKILL_TRANSMIT_PROF2_RECIPES = Comms.Character_OnDataReceived,
+    TRADESKILL_TRANSMIT_COOKING_LEVEL = Comms.Character_OnDataReceived,
+    TRADESKILL_TRANSMIT_COOKING_RECIPES = Comms.Character_OnDataReceived,
+    TRADESKILL_TRANSMIT_FISHING_LEVEL = Comms.Character_OnDataReceived,
+    TRADESKILL_TRANSMIT_FIRSTAID_LEVEL = Comms.Character_OnDataReceived,
+    TRADESKILL_TRANSMIT_FIRSTAID_RECIPES = Comms.Character_OnDataReceived,
 
     --calendar events
     CALENDAR_EVENT_TRANSMIT = "",

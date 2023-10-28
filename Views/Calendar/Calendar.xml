@@ -93,7 +93,7 @@
                     <Anchor point="BOTTOMLEFT" x="0" y="0"/>
                 </Anchors>
             </Frame>
-            <Frame parentKey="sidePanel">
+            <Frame name="$parentSidePanel" parentKey="sidePanel">
                 <Anchors>
                     <Anchor point="LEFT" relativeKey="$parent.monthView" relativePoint="RIGHT" x="0" y="0"/>
                     <Anchor point="TOPRIGHT" x="0" y="0"/>
@@ -112,11 +112,40 @@
                             <Anchor point="TOPRIGHT" x="0" y="0"/>
                         </Anchors>
                     </Button>
+                    <Button name="$parentTab1" id="1" parentKey="tab1" inherits="MinimalTabTemplate">
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="4" y="-60"/>
+                        </Anchors>
+                        <KeyValues>
+                            <KeyValue key="tabText" value="Lockouts" type="string"/>
+                            <KeyValue key="tabPanelkey" value="lockouts" type="string"/>
+                        </KeyValues>
+                    </Button>
+                    <Button name="$parentTab2" id="2" parentKey="tab2" inherits="MinimalTabTemplate">
+                        <Anchors>
+                            <Anchor point="LEFT" relativeKey="$parent.tab1" relativePoint="RIGHT" x="0" y="0"/>
+                        </Anchors>
+                        <KeyValues>
+                            <KeyValue key="tabText" value="Events" type="string"/>
+                            <KeyValue key="tabPanelkey" value="events" type="string"/>
+                        </KeyValues>
+                    </Button>
                     <Frame parentKey="lockouts" inherits="GuildbookWrathEraWidgetsListviewTemplate">
                         <Anchors>
-                            <Anchor point="TOPLEFT" x="0" y="-40"/>
-                            <Anchor point="BOTTOMRIGHT" x="0" y="40"/>
+                            <Anchor point="TOPLEFT" x="0" y="-60"/>
+                            <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
                         </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture parentKey="background" alpha="0.5">
+                                    <!-- <Color r="0.11" g="0.095" b="0.105" a="0.85"/> -->
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="0" y="0"/>
+                                        <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
                         <KeyValues>
                             <KeyValue key="frameType" value="FRAME" type="string"/>
                             <KeyValue key="itemTemplate" value="GuildbookWrathEraSimpleIconLabelFrame" type="string"/>

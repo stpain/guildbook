@@ -5,6 +5,57 @@ local Character = addon.Character;
 local Talents = addon.Talents;
 local Tradeskills = addon.Tradeskills;
 
+addon.characterDefaults = {
+    -- guid = "",
+    -- name = "",
+    -- class = 3,
+    -- gender = 1,
+    -- level = 1,
+    -- race = false,
+    -- rank = 1,
+    -- onlineStatus = {
+    --     isOnline = false,
+    --     zone = "",
+    -- },
+    alts = {},
+    mainCharacter = false,
+    publicNote = "",
+    mainSpec = false,
+    offSpec = false,
+    mainSpecIsPvP = false,
+    offSpecIsPvP = false,
+    profile = {},
+    profession1 = "-",
+    profession1Level = 0,
+    profession1Spec = false,
+    profession1Recipes = {},
+    profession2 = "-",
+    profession2Level = 0,
+    profession2Spec = false,
+    profession2Recipes = {},
+    cookingLevel = 0,
+    cookingRecipes = {},
+    fishingLevel = 0,
+    firstAidLevel = 0,
+    firstAidRecipes = {},
+    talents = {},
+    glyphs = {},
+    inventory = {
+        current = {},
+    },
+    paperDollStats = {
+        current = {},
+    },
+    resistances = {
+        current = {},
+    },
+    auras = {
+        current = {},
+    },
+    containers = {},
+    lockouts = {},
+}
+
 addon.contextMenuSeparator = {
     hasArrow = false;
     dist = 0;

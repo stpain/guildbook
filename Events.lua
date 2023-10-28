@@ -5,6 +5,7 @@ local Character = addon.Character;
 local Database = addon.Database;
 local Talents = addon.Talents;
 local Tradeskills = addon.Tradeskills;
+local Comms = addon.Comms;
 
 local e = CreateFrame("FRAME");
 e:RegisterEvent('GUILD_ROSTER_UPDATE')
@@ -14,7 +15,7 @@ e:RegisterEvent('PLAYER_ENTERING_WORLD')
 e:RegisterEvent('PLAYER_LEVEL_UP')
 e:RegisterEvent('TRADE_SKILL_UPDATE')
 e:RegisterEvent('TRADE_SKILL_SHOW')
-e:RegisterEvent('CRAFT_UPDATE')
+--e:RegisterEvent('CRAFT_UPDATE')
 e:RegisterEvent('RAID_ROSTER_UPDATE')
 e:RegisterEvent('BANKFRAME_OPENED')
 e:RegisterEvent('BANKFRAME_CLOSED')
@@ -744,18 +745,6 @@ local function processSkillLines(skills)
     end
 end
 
-function e:SKILL_LINES_CHANGED()
-    local skills = addon.api.getPlayerSkillLevels()
-    processSkillLines(skills)
-end
-
-function e:TRADE_SKILL_SHOW()
-    local skills = addon.api.getPlayerSkillLevels()
-    processSkillLines(skills)
-end
-
---rather than have this method on all character objs when only the players character needs it
---i just made it a local func here
 local function setCharacterTradeskill(prof, recipes)
 
     if addon.characters and addon.characters[addon.thisCharacter] then
@@ -774,6 +763,14 @@ local function setCharacterTradeskill(prof, recipes)
             
             return;
         end
+
+        if prof == nil then
+            return
+        end
+        if type(recipes) ~= "table" then
+            return
+        end
+--        print("setting data", prof)
 
         if addon.characters[addon.thisCharacter].data.profession1 == "-" then
             addon.characters[addon.thisCharacter]:SetTradeskill(1, prof, true);
@@ -797,6 +794,77 @@ local function setCharacterTradeskill(prof, recipes)
             end
         end
     end
+end
+
+local function scanTradeskills()
+    local recipes = {}
+    local prof;
+    local numTradeskills = GetNumTradeSkills()
+
+    --print("found "..numTradeskills.." recipes")
+
+    local tradeskillTitle = TradeSkillFrameTitleText:GetText()
+    if tradeskillTitle then
+        prof = Tradeskills:GetTradeskillIDFromLocale(tradeskill)
+    end
+
+    for i = 1, numTradeskills do
+        local name, _type, _, _, _ = GetTradeSkillInfo(i)
+        if name and (_type == "optimal" or _type == "medium" or _type == "easy" or _type == "trivial") then
+            local itemLink = GetTradeSkillItemLink(i)
+            if itemLink then
+                local id = GetItemInfoFromHyperlink(itemLink)
+                if id then
+                    --print(itemLink, id)
+                    for k, v in ipairs(addon.itemData) do
+                        if v.itemID == id then
+                            table.insert(recipes, v.spellID)
+                            --prof = v.tradeskillID;
+                            --print("Set prof value to ", prof, "using item data", itemLink)
+                        end
+                    end
+
+                    if id == 12655 then --enchanted thorium bar causes an issue
+                        prof = 333
+                    end
+                end
+
+            else
+                --print("no link", name)
+                for k, v in ipairs(addon.itemData) do
+                    if v.name == name then
+                        --print("found match", name, v.tradeskillID)
+                        table.insert(recipes, v.spellID)
+                        --prof = v.tradeskillID;
+                    end
+                end
+            end
+        end
+    end
+
+    return prof, recipes
+end
+
+function e:SKILL_LINES_CHANGED()
+    local skills = addon.api.getPlayerSkillLevels()
+    processSkillLines(skills)
+end
+
+local tradeskillIsPlayer = true;
+function e:TRADE_SKILL_SHOW()
+
+    if tradeskillIsPlayer == true then
+        local skills = addon.api.getPlayerSkillLevels()
+        processSkillLines(skills)
+
+        local prof, recipes = scanTradeskills()
+        --DevTools_Dump(recipes)
+        setCharacterTradeskill(prof, recipes)
+    else
+
+    end
+
+    tradeskillIsPlayer = true;
 end
 
 function e:CRAFT_UPDATE()
@@ -829,32 +897,10 @@ end
 
 function e:TRADE_SKILL_UPDATE()
 
-    local skills = addon.api.getPlayerSkillLevels()
-    processSkillLines(skills)
+    -- local skills = addon.api.getPlayerSkillLevels()
+    -- processSkillLines(skills)
 
-    local recipes = {}
-    local prof;
-    local numTradeskills = GetNumTradeSkills()
 
-    for i = 1, numTradeskills do
-        local name, _type, _, _, _ = GetTradeSkillInfo(i)
-        if name and (_type == "optimal" or _type == "medium" or _type == "easy" or _type == "trivial") then
-            local itemLink = GetTradeSkillItemLink(i)
-            if itemLink then
-                local id = GetItemInfoFromHyperlink(itemLink)
-                if id then
-                    for k, v in ipairs(addon.itemData) do
-                        if v.itemID == id then
-                            table.insert(recipes, v.spellID)
-                            prof = v.tradeskillID;
-                        end
-                    end
-                end
-            end
-        end
-    end
-
-    setCharacterTradeskill(prof, recipes)
     --addon:TriggerEvent("Blizzard_OnTradeskillUpdate", prof, recipes)
 end
 
@@ -899,6 +945,11 @@ local function setPlayerEquipmentSets()
 end
 --SetGlyphs(spec, glyphs, broadcast)
 
+
+
+
+
+
 function e:Database_OnInitialised()
     GuildRoster()
 
@@ -928,11 +979,47 @@ function e:Database_OnInitialised()
 	-- hooksecurefunc(C_EquipmentSet, "DeleteEquipmentSet", function()
 	-- 	setPlayerEquipmentSets()
 	-- end)
-	-- hooksecurefunc("SetItemRef", function(link, text)
-	-- 	local linkType, linkData = LinkUtil.SplitLinkData(link);
-    --     print(linkType)
-    --     DevTools_Dump({linkData})
-	-- end)
+
+
+    -- this will set the name on enchanting recipes to the client locale, the name is then used when scannign the enchant UI
+    Tradeskills:GenerateEnchantingData()
+
+
+    --somewhat experimental at the moment
+    --when you click a tradeskill link ask the other player for their data via direct request using WHISPER channel
+	hooksecurefunc("SetItemRef", function(link, text)
+		local linkType, linkData = LinkUtil.SplitLinkData(link);
+        if linkType == "trade" then
+          
+            local guid, spellID, tradeskillID = strsplit(":", linkData)
+
+            if guid:find("Player-") then
+
+                local name = Database:GetCharacterNameFromGUID(guid)
+                tradeskillIsPlayer = false;
+                if name and addon.characters[name] then
+
+                    Comms:RequestCharacterData(name, "profession1")
+                    C_Timer.After(1.0, function()
+                        Comms:RequestCharacterData(name, "profession1Recipes")
+                    end)
+                    C_Timer.After(2.0, function()
+                        Comms:RequestCharacterData(name, "profession1Level")
+                    end)
+                    C_Timer.After(3.0, function()
+                        Comms:RequestCharacterData(name, "profession2")
+                    end)
+                    C_Timer.After(4.0, function()
+                        Comms:RequestCharacterData(name, "profession2Recipes")
+                    end)
+                    C_Timer.After(5.0, function()
+                        Comms:RequestCharacterData(name, "profession2Level")
+                    end)
+                end
+            end
+
+        end
+	end)
 
 
 end

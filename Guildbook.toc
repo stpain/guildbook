@@ -1,6 +1,6 @@
 ## Interface: 30403
 ## Author: TheBoringDad
-## Version: 6.51
+## Version: 6.6
 ## Title: Guildbook
 ## Notes: An addon for guilds
 ## SavedVariables: GUILDBOOK_GLOBAL
@@ -37,6 +37,7 @@ ChangeLog.lua
 
 Locales.lua
 ItemData.lua
+#SpellData.lua
 Database.lua
 
 Classes\Tradeskills.lua

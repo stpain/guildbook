@@ -110,43 +110,20 @@ StaticPopupDialogs['GuildbookUpdated'] = {
     showAlert = 1,
 }
 
-StaticPopupDialogs['GuildbookCalendarAddBirthday'] = {
-    text = "Add birthday, enter character/player name.",
+
+StaticPopupDialogs['GuildbookCalendarAddEvent'] = {
+    text = "%s.",
     button1 = YES,
     button2 = NO,
     OnAccept = function(self, data)
         local str = self.editBox:GetText()
         if str and (#str > 0) and (str ~= " ") then
-            local ts = time(data)
-            if not Database.db.calendar.birthdays[ts] then
-                Database.db.calendar.birthdays[ts] = {}
-            end
-            table.insert(Database.db.calendar.birthdays[ts], str)
-        end
-    end,
-    OnCancel = function(self)
-
-    end,
-    timeout = 0,
-    hasEditBox = true,
-    whileDead = true,
-    hideOnEscape = false,
-    preferredIndex = 3,
-    showAlert = 1,
-}
-
-StaticPopupDialogs['GuildbookCalendarAddNote'] = {
-    text = "Add note for %s.",
-    button1 = YES,
-    button2 = NO,
-    OnAccept = function(self, data)
-        local str = self.editBox:GetText()
-        if str and (#str > 0) and (str ~= " ") then
-            local ts = time(data)
-            if not Database.db.calendar.events[ts] then
-                Database.db.calendar.events[ts] = {}
-            end
-            table.insert(Database.db.calendar.events[ts], str)
+            local event = {
+                calendarTypeEnum = data.calendarTypeEnum,
+                text = str,
+                timestamp = data.timestamp
+            }
+            Database:InsertCalendarEvent(event)
         end
     end,
     OnCancel = function(self)

@@ -3,6 +3,75 @@ local L = addon.Locales
 local Database = addon.Database;
 local Talents = addon.Talents;
 
+
+
+
+GuildbookMinimalTabMixin = {};
+
+function GuildbookMinimalTabMixin:OnLoad()
+	SelectableButtonMixin.OnLoad(self);
+
+	self.Text:SetText(self.tabText);
+	self:SetWidth(self.Text:GetStringWidth() + 40);
+
+	self:OnSelected(false);
+end
+
+function GuildbookMinimalTabMixin:GetAtlas()
+	if self:IsSelected() then
+		return self.selectedLeftTexture, self.selectedRightTexture, self.selectedMiddleTexture;
+	end
+
+	if self.over then
+		return self.overLeftTexture, self.overRightTexture, self.overMiddleTexture;
+	end
+	return self.upLeftTexture, self.upRightTexture, self.upMiddleTexture;
+end
+
+function GuildbookMinimalTabMixin:UpdateAtlas()
+	local leftAtlas, rightAtlas, middleAtlas = self:GetAtlas();
+	self.Left:SetAtlas(leftAtlas, TextureKitConstants.UseAtlasSize);
+	self.Right:SetAtlas(rightAtlas, TextureKitConstants.UseAtlasSize);
+	self.Middle:SetAtlas(middleAtlas, TextureKitConstants.UseAtlasSize);
+end
+
+function GuildbookMinimalTabMixin:OnSelected(newSelected)
+	self:UpdateAtlas();
+
+	if newSelected then
+		self.Text:SetPoint("BOTTOM", 0, 6);
+		self.Text:SetFontObject("GameFontHighlightSmall");
+	else
+		self.Text:SetPoint("BOTTOM", 0, 4);
+		self.Text:SetFontObject("GameFontNormalSmall");
+	end
+end
+
+function GuildbookMinimalTabMixin:OnEnter()
+	self:UpdateAtlas();
+end
+
+function GuildbookMinimalTabMixin:OnLeave()
+	self:UpdateAtlas();
+end
+
+function GuildbookMinimalTabMixin:OnEnable()
+	self:UpdateAtlas();
+end
+
+function GuildbookMinimalTabMixin:OnDisable()
+	self:UpdateAtlas();
+end
+
+
+
+
+
+
+
+
+
+
 --- basic button mixin
 GuildbookButtonMixin = {}
 
@@ -200,7 +269,7 @@ function GuildbookChatCharacterListviewItemMixin:SetDataBinding(info, height)
         self.delete:Hide()
     end
 
-    self.characterName = info.label
+    self.characterName = info.characterName
     self.icon:SetAtlas(info.atlas)
     self.text:SetText(Ambiguate(info.label, "short"))
     self.icon:SetSize(height-2, height-2)
@@ -768,6 +837,11 @@ function GuildbookRecipeListviewItemMixin:SetDataBinding(binding, height)
                 HandleModifiedItemClick(self.item:GetItemLink())
             end
         end
+        if self.spell then
+            if IsShiftKeyDown() then
+                HandleModifiedItemClick(GetSpellLink(self.spell:GetSpellID()))
+            end
+        end
     end)
 
 end
@@ -1251,12 +1325,30 @@ function GuildbookAltsListviewTemplateMixin:Update()
             notCheckable = true,
         })
         for k, v in pairs(self.character.data) do
+            local subMenu = {
+                {
+                    text = "Dump",
+                    notCheckable = true,
+                    func = function()
+                        DevTools_Dump(v)
+                    end,
+                },
+                {
+                    text = "Reset",
+                    notCheckable = true,
+                    func = function()
+                        if addon.characterDefaults[k] then
+                            self.character.data[k] = addon.characterDefaults[k] --WARNING - this will not trigger a data changed
+                        end
+                    end,
+                },
+
+            }
             table.insert(self.contextMenu, {
                 text = k,
                 notCheckable = true,
-                func = function()
-                    DevTools_Dump(v)
-                end,
+                hasArrow = true,
+                menuList = subMenu,
             })
         end
 

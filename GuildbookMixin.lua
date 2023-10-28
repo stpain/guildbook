@@ -435,124 +435,87 @@ function GuildbookMixin:CreateSlashCommands()
     end
 end
 
+function GuildbookMixin:UpdateMinimapTooltip()
+
+    GameTooltip:ClearLines()
+
+    GameTooltip:AddLine(tostring('|cff0070DE'..name))
+
+    local t = {} --addon.characters[name].data.onlineStatus
+    if addon.characters then
+        for name, obj in pairs(addon.characters) do
+            if obj.data.onlineStatus.isOnline then
+                table.insert(t, {
+                    name = name,
+                    classID = obj.data.class,
+                    level = obj.data.level,
+                    zone = obj.data.onlineStatus.zone,
+                })
+            end
+        end
+        table.sort(t, function(a, b)
+            if a.zone == b.zone then
+                if a.classID == b.classID then
+                    if a.level == b.level then
+                        return a.name < b.name;
+                    else
+                        return a.level > b.level;
+                    end
+                else
+                    return a.classID < b.classID;
+                end
+            else
+                return a.zone < b.zone;
+            end
+        end)
+
+        local formatName = function(t, r)
+            local _, class = GetClassInfo(t.classID)
+            local col = RAID_CLASS_COLORS[class].colorStr
+            return string.format("|cffffffff[%d]|r |c%s%s|r", t.level, col, Ambiguate(t.name, "short"))
+        end
+
+        GameTooltip:AddLine(" ")
+        GameTooltip:AddLine("Members online")
+        for i = 1, #t do
+            if i < 26 then
+                GameTooltip:AddDoubleLine(formatName(t[i]), "|cffffffff"..t[i].zone)
+            else
+
+            end
+        end
+    end
+
+    GameTooltip:Show()
+end
+
 function GuildbookMixin:CreateMinimapButtons()
 
     local ldb = LibStub("LibDataBroker-1.1")
-    --[[
-    self.MinimapButton = ldb:NewDataObject('GuildbookMinimapIcon', {
-        type = "launcher",
-        icon = 134068,
-        OnClick = function(_, button)
-            if button == "RightButton" then
-                if InterfaceOptionsFrame:IsVisible() then
-                    InterfaceOptionsFrame:Hide()
-                else
-                    InterfaceOptionsFrame_OpenToCategory(name)
-                    InterfaceOptionsFrame_OpenToCategory(name)
-                end
-            elseif button == 'MiddleButton' then
-                if IsShiftKeyDown() then
-                    FriendsFrame:Show()
-                else
-                    ToggleFriendsFrame(3)
-                end
-            elseif button == "LeftButton" then
-                self:SetShown(not self:IsVisible())
-            end
-        end,
-        OnTooltipShow = function(tooltip)
-            if not tooltip or not tooltip.AddLine then return end
-            tooltip:AddLine(tostring('|cff0070DE'..name))
-            tooltip:AddDoubleLine(L["MINIMAP_TOOLTIP_LEFTCLICK"])
-            tooltip:AddDoubleLine(L["MINIMAP_TOOLTIP_LEFTCLICK_SHIFT"])
-            tooltip:AddDoubleLine(L["MINIMAP_TOOLTIP_RIGHTCLICK"])
-            tooltip:AddDoubleLine(L["MINIMAP_TOOLTIP_MIDDLECLICK"])
-        end,
-    })
-    self.MinimapIcon = LibStub("LibDBIcon-1.0")
-    self.MinimapIcon:Register('GuildbookMinimapIcon', self.MinimapButton, GUILDBOOK_GLOBAL.minimapButton)
-    ]]
 
-    if not _G['LibDBIcon10_GuildbookMinimapCalendarIcon'] then
-        self.MinimapCalendarButton = ldb:NewDataObject('GuildbookMinimapCalendarIcon', {
+    if not _G['LibDBIcon10_GuildbookMinimapButton'] then
+        self.MinimapButtonDataObject = ldb:NewDataObject('GuildbookMinimapButton', {
             type = "launcher",
             icon = 134068,
             OnClick = function(_, button)
                 self:SetShown(not self:IsVisible())
             end,
-            OnTooltipShow = function(tooltip)
-                if not tooltip or not tooltip.AddLine then return end
-                tooltip:AddLine(tostring('|cff0070DE'..name))
-
-                local t = {} --addon.characters[name].data.onlineStatus
-                if addon.characters then
-                    for name, obj in pairs(addon.characters) do
-                        if obj.data.onlineStatus.isOnline then
-                            table.insert(t, {
-                                name = name,
-                                classID = obj.data.class,
-                                level = obj.data.level,
-                                zone = obj.data.onlineStatus.zone,
-                            })
-                        end
-                    end
-                    table.sort(t, function(a, b)
-                        if a.zone == b.zone then
-                            if a.classID == b.classID then
-                                if a.level == b.level then
-                                    return a.name < b.name;
-                                else
-                                    return a.level > b.level;
-                                end
-                            else
-                                return a.classID < b.classID;
-                            end
-                        else
-                            return a.zone < b.zone;
-                        end
-                    end)
-
-                    local formatName = function(t, r)
-                        local _, class = GetClassInfo(t.classID)
-                        local col = RAID_CLASS_COLORS[class].colorStr
-                        return string.format("|cffffffff[%d]|r |c%s%s|r", t.level, col, Ambiguate(t.name, "short"))
-                    end
-
-                    tooltip:AddLine(" ")
-                    tooltip:AddLine("Members online")
-                    for i = 1, #t do
-                        if i < 26 then
-                            tooltip:AddDoubleLine(formatName(t[i]), "|cffffffff"..t[i].zone)
-                        else
-
-                        end
-                    end
-                end
-            end,
         })
         self.MinimapCalendarIcon = LibStub("LibDBIcon-1.0")
-        self.MinimapCalendarIcon:Register('GuildbookMinimapCalendarIcon', self.MinimapCalendarButton, Database.db.calendarButton)
-        -- for i = 1, _G['LibDBIcon10_GuildbookMinimapCalendarIcon']:GetNumRegions() do
-        --     local region = select(i, _G['LibDBIcon10_GuildbookMinimapCalendarIcon']:GetRegions())
-        --     if (region:GetObjectType() == 'Texture') then
-        --         region:Hide()
-        --     end
-        -- end
-        -- modify the minimap icon to match the blizz calendar button
-        -- _G['LibDBIcon10_GuildbookMinimapCalendarIcon']:SetSize(44,44)
-        -- _G['LibDBIcon10_GuildbookMinimapCalendarIcon']:SetNormalTexture("Interface\\Calendar\\UI-Calendar-Button")
-        -- _G['LibDBIcon10_GuildbookMinimapCalendarIcon']:GetNormalTexture():SetTexCoord(0.0, 0.390625, 0.0, 0.78125)
-        -- _G['LibDBIcon10_GuildbookMinimapCalendarIcon']:SetPushedTexture("Interface\\Calendar\\UI-Calendar-Button")
-        -- _G['LibDBIcon10_GuildbookMinimapCalendarIcon']:GetPushedTexture():SetTexCoord(0.5, 0.890625, 0.0, 0.78125)
-        -- _G['LibDBIcon10_GuildbookMinimapCalendarIcon']:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight", "ADD")
-        -- _G['LibDBIcon10_GuildbookMinimapCalendarIcon'].Text = _G['LibDBIcon10_GuildbookMinimapCalendarIcon']:CreateFontString(nil, 'OVERLAY', 'GameFontBlack')
-        -- _G['LibDBIcon10_GuildbookMinimapCalendarIcon'].Text:SetPoint('CENTER', -1, -1)
-        -- _G['LibDBIcon10_GuildbookMinimapCalendarIcon'].Text:SetText(date('*t').day)
-        -- -- setup a ticker to update the date, kinda overkill maybe ?
-        -- C_Timer.NewTicker(1, function()
-        --     _G['LibDBIcon10_GuildbookMinimapCalendarIcon'].Text:SetText(date('*t').day)
-        -- end)
+        self.MinimapCalendarIcon:Register('GuildbookMinimapButton', self.MinimapButtonDataObject, Database.db.calendarButton)
     end
+
+    _G['LibDBIcon10_GuildbookMinimapButton'].UpdateTooltip = function()
+        self:UpdateMinimapTooltip()
+    end
+
+    _G['LibDBIcon10_GuildbookMinimapButton']:SetScript("OnEnter", function(s)
+        GameTooltip:SetOwner(s, "ANCHOR_RIGHT")
+        s:UpdateTooltip()
+    end)
+    _G['LibDBIcon10_GuildbookMinimapButton']:SetScript("OnLeave", function(s)
+        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+    end)
 end
 
 function GuildbookMixin:Search(text)
@@ -946,3 +909,23 @@ end
 -- local x = Mixin(t, FooMixin)
 
 -- print(x:GetName(3)) --Text Item 3 prints
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- GuildbookMailMixin = {}
+
+-- function GuildbookMailMixin:OnLoad()
+    
+-- end

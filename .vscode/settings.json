@@ -89,6 +89,14 @@
         "MountJournal",
         "MountJournalLore",
         "MountJournalSource",
-        "LinkUtil"
+        "LinkUtil",
+        "PanelTemplates_SetNumTabs",
+        "PanelTemplates_SetTab",
+        "SelectableButtonMixin",
+        "TextureKitConstants",
+        "CreateRadioButtonGroup",
+        "ButtonGroupBaseMixin",
+        "GameTooltip_ShowProgressBar",
+        "FriendsFrameTab3"
     ]
 }

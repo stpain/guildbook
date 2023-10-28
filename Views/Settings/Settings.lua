@@ -464,12 +464,14 @@ end
 
 function GuildbookSettingsMixin:SelectCategory(category)
 
+    self.content:SetAlpha(0)
     for k, v in ipairs(self.content.panels) do
         v:Hide()
     end
     if self.content[category] then
         self.content[category]:Show()
     end
+    self.content.fadeIn:Play()
 end
 
 

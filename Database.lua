@@ -25,16 +25,19 @@ local configUpdates = {
 
 local dbUpdates = {
     calendar = {
-        birthdays = {},
         events = {},
     },
     dailies = {
         quests = {},
         characters = {},
     },
+    chats = { --some errors about this causing a bug, maybe old version not getting update in the past
+        guild = {},
+    },
 }
 local dbToRemove = {
     "worldEvents",
+    "calendar.birthdays"
 }
 
 function Database:Init()
@@ -58,7 +61,6 @@ function Database:Init()
             debug = false,
             version = version,
             calendar = {
-                birthdays = {},
                 events = {},
             },
         }
@@ -72,7 +74,18 @@ function Database:Init()
         end
     end
     for k, v in ipairs(dbToRemove) do
-        self.db[v] = nil;
+        if v:find(".") then
+            local k1, k2 = strsplit(".", v)
+            if k1 and k2 then
+                if self.db[k1] and self.db[k1][k2] then
+                    self.db[k1][k2] = nil
+                    addon.LogDebugMessage("warning", string.format("removed %s from %s", k2, k1))
+                end
+            end
+        else
+            self.db[v] = nil;
+            addon.LogDebugMessage("warning", string.format("removed %s from db", v))
+        end
     end
 
     for k, v in pairs(configUpdates) do
@@ -133,6 +146,59 @@ function Database:GetCharacter(nameRealm)
     if self.db and self.db.characterDirectory[nameRealm] then
         return self.db.characterDirectory[nameRealm];
     end
+end
+
+function Database:GetCharacterNameFromGUID(guid)
+    if self.db and self.db.characterDirectory then
+        for nameRealm, data in pairs(self.db.characterDirectory) do
+            if data.guid and (data.guid == guid) then
+                return nameRealm;
+            end
+        end
+    end
+end
+
+function Database:InsertCalendarEvent(event)
+    if self.db and self.db.calendar then
+        if not self.db.calendar.events then
+            self.db.calendar.events = {}
+        end
+        event.guid = string.format("CalendarEvent-%s", time())
+        table.insert(self.db.calendar.events, event)
+        addon:TriggerEvent("Database_OnCalendarDataChanged")
+    end
+end
+
+function Database:DeleteCalendarEvent(event)
+    if self.db and self.db.calendar and self.db.calendar.events then
+        local keyToRemove;
+        for k, v in ipairs(self.db.calendar.events) do
+            if (v.guid == event.guid) then
+                keyToRemove = k
+            end
+        end
+        if keyToRemove then
+            table.remove(self.db.calendar.events, keyToRemove)
+            addon:TriggerEvent("Database_OnCalendarDataChanged")
+        end
+    end
+end
+
+function Database:GetCalendarEventsBetween(_from, _to)
+    local t = {}
+    if not _to then
+        _to = _from
+    end
+    local from = time(_from)
+    local to = time(_to)
+    if self.db and self.db.calendar and self.db.calendar.events then
+        for k, event in ipairs(self.db.calendar.events) do
+            if (event.timestamp >= from) and (event.timestamp <= to) then
+                table.insert(t, event)
+            end
+        end
+    end
+    return t;
 end
 
 function Database:SetConfig(conf, val)

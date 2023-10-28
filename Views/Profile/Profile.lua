@@ -171,6 +171,7 @@ end
 
 function GuildbookProfileMixin:LoadCharacter(character)
     self.character = character;
+	self.currentEquipmentSet = ""
     self.sidePane.background:SetAtlas(string.format("transmog-background-race-%s", self.character:GetRace().clientFileString:lower()))
 	self.ignoreCharacterUpdates = false
     self:Update()
@@ -193,7 +194,7 @@ end
 function GuildbookProfileMixin:UpdateLayout()
     local x, y = self:GetSize()
 
-    local sidePaneWidth = x * 0.21
+    local sidePaneWidth = x * 0.25
 
     self.sidePane:Show()
     self.sidePane:SetWidth(sidePaneWidth)
@@ -277,7 +278,7 @@ function GuildbookProfileMixin:UpdateItemLevel()
 
 	self.inventory.gearScore:SetText("-")
 	
-	if self.currentEquipmentSet then
+	if self.currentEquipmentSet and self.character.data.inventory[self.currentEquipmentSet] and (type(self.character.data.inventory[self.currentEquipmentSet]) == "table") then
 
 		-- local set = self.character.data.inventory[self.currentEquipmentSet]
 		-- if set then
@@ -299,39 +300,43 @@ function GuildbookProfileMixin:UpdateItemLevel()
 		-- end
 
 		for slot, link in pairs(self.character.data.inventory[self.currentEquipmentSet]) do
-			local numItems, totalItemlevel = 0, 0;
-				if type(link) == "string" then
-					local n, l, q, ilvl = GetItemInfo(link)
+			if slot ~= "TABARDSLOT" then
+				local numItems, totalItemlevel = 0, 0;
+					if type(link) == "string" then
+						local n, l, q, ilvl = GetItemInfo(link)
 
-					if ilvl then
-						numItems = numItems + 1;
-						totalItemlevel = totalItemlevel + ilvl;
+						if ilvl then
+							numItems = numItems + 1;
+							totalItemlevel = totalItemlevel + ilvl;
 
+						end
 					end
+
+				---print(numItems, totalItemlevel, (totalItemlevel / numItems))
+
+				self.inventory.gearScore:SetText(string.format("ilvl: %0.2f (set: %s)", (totalItemlevel / numItems), self.currentEquipmentSet))
 				end
-
-			---print(numItems, totalItemlevel, (totalItemlevel / numItems))
-
-			self.inventory.gearScore:SetText(string.format("ilvl: %0.2f (set: %s)", (totalItemlevel / numItems), self.currentEquipmentSet))
 		end
 
 	else
 		if self.character and self.character.data.inventory.current then
 			for slot, link in pairs(self.character.data.inventory.current) do
-				local numItems, totalItemlevel = 0, 0;
-					if type(link) == "string" then
-						local n, l, q, ilvl = GetItemInfo(link)
-	
-						if ilvl then
-							numItems = numItems + 1;
-							totalItemlevel = totalItemlevel + ilvl;
-	
+				if slot ~= "TABARDSLOT" then
+					local numItems, totalItemlevel = 0, 0;
+						if type(link) == "string" then
+							local n, l, q, ilvl = GetItemInfo(link)
+		
+							if ilvl then
+								numItems = numItems + 1;
+								totalItemlevel = totalItemlevel + ilvl;
+		
+							end
 						end
-					end
 
-				---print(numItems, totalItemlevel, (totalItemlevel / numItems))
-	
-				self.inventory.gearScore:SetText(string.format("ilvl: %0.2f (set: current)", (totalItemlevel / numItems)))
+					---print(numItems, totalItemlevel, (totalItemlevel / numItems))
+		
+					self.inventory.gearScore:SetText(string.format("ilvl: %0.2f (set: current)", (totalItemlevel / numItems)))
+				end
 			end
 		end
 	end
@@ -514,6 +519,8 @@ function GuildbookProfileMixin:Update()
 
 						self.ignoreCharacterUpdates = true;
 						self.currentEquipmentSet = name;
+
+						self:UpdateItemLevel()
 
 						self:LoadEquipmentSetInfo(name)
 
