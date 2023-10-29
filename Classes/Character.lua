@@ -927,7 +927,7 @@ function Character:CreateEmpty()
         containers = {},
         lockouts = {},
     }
-    return Mixin({data = character}, self)
+    return character;
 end
 
 function Character:SetData(data)

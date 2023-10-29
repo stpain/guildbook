@@ -13,7 +13,7 @@ GuildbookWrathDailiesMixin = {
 
 function GuildbookWrathDailiesMixin:OnLoad()
 
-    addon:RegisterCallback("Blizzard_OnInitialGuildRosterScan", self.Blizzard_OnInitialGuildRosterScan, self)
+    addon:RegisterCallback("Database_OnInitialised", self.Blizzard_OnInitialGuildRosterScan, self) --changed some logic and now testing reacting to db init
     addon:RegisterCallback("Quest_OnTurnIn", self.Quest_OnTurnIn, self)
     addon:RegisterCallback("Quest_OnAccepted", self.Quest_OnAccepted, self)
     addon:RegisterCallback("Database_OnDailyQuestCompleted", self.UpdateHeaderInfo, self)

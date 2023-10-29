@@ -324,23 +324,27 @@ end
 
 function e:EQUIPMENT_SETS_CHANGED()
     C_Timer.After(1.0, function()
+
+        if addon.characters and addon.characters[addon.thisCharacter] then
     
-        local sets = C_EquipmentSet.GetEquipmentSetIDs();
-        for k, v in ipairs(sets) do
-            local name, iconFileID, _setID, isEquipped, numItems, numEquipped, numInInventory, numLost, numIgnored = C_EquipmentSet.GetEquipmentSetInfo(v)
-            if isEquipped then
-                
-                local equipment = addon.api.wrath.getPlayerEquipmentCurrent()
-                local stats = addon.api.wrath.getPaperDollStats()
-                local resistances = addon.api.getPlayerResistances(UnitLevel("player"))
-                local auras = addon.api.getPlayerAuras()
+            local sets = C_EquipmentSet.GetEquipmentSetIDs();
+            for k, v in ipairs(sets) do
+                local name, iconFileID, _setID, isEquipped, numItems, numEquipped, numInInventory, numLost, numIgnored = C_EquipmentSet.GetEquipmentSetInfo(v)
+                if isEquipped then
+                    
+                    local equipment = addon.api.wrath.getPlayerEquipmentCurrent()
+                    local stats = addon.api.wrath.getPaperDollStats()
+                    local resistances = addon.api.getPlayerResistances(UnitLevel("player"))
+                    local auras = addon.api.getPlayerAuras()
 
-                addon.characters[addon.thisCharacter]:SetPaperdollStats(name, stats, true)
-                addon.characters[addon.thisCharacter]:SetResistances(name, resistances, true)
-                addon.characters[addon.thisCharacter]:SetAuras(name, auras, true)
-                addon.characters[addon.thisCharacter]:SetInventory(name, equipment, true)
+                    addon.characters[addon.thisCharacter]:SetPaperdollStats(name, stats, true)
+                    addon.characters[addon.thisCharacter]:SetResistances(name, resistances, true)
+                    addon.characters[addon.thisCharacter]:SetAuras(name, auras, true)
+                    addon.characters[addon.thisCharacter]:SetInventory(name, equipment, true)
 
+                end
             end
+
         end
 
     end)
@@ -621,16 +625,8 @@ function e:GUILD_ROSTER_UPDATE()
 
             if not addon.characters[name] then
                 addon.characters[name] = Character:CreateFromData(Database.db.characterDirectory[name])
-                --addon.characters[name]:RegisterCallbacks()
             end
 
-            -- addon.characters[name]:SetOnlineStatus({
-            --     isOnline = isOnline,
-            --     zone = zone,
-            -- })
-            -- addon.characters[name]:SetLevel(level)
-            -- addon.characters[name]:SetRank(rankIndex)
-            -- addon.characters[name]:SetPublicNote(publicNote)
             addon.characters[name].data.onlineStatus = {
                 isOnline = isOnline,
                 zone = zone,
@@ -932,6 +928,10 @@ end
 
 function e:CHARACTER_POINTS_CHANGED()
     setPlayerTalentsAndGlyphs({})
+
+    if addon.characters[addon.thisCharacter] then
+        addon.characters[addon.thisCharacter]:SetLevel(UnitLevel("player"))
+    end
 end
 
 local function setPlayerEquipmentSets()

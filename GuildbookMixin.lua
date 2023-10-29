@@ -202,7 +202,6 @@ function GuildbookMixin:OnLoad()
     addon:RegisterCallback("Player_Regen_Enabled", self.Player_Regen_Enabled, self)
     addon:RegisterCallback("Player_Regen_Disabled", self.Player_Regen_Disabled, self)
     addon:RegisterCallback("Blizzard_OnInitialGuildRosterScan", self.Blizzard_OnInitialGuildRosterScan, self)
-    addon:RegisterCallback("Character_ExportEquipment", self.Character_ExportEquipment, self)
 
     self.ribbon.searchBox:SetScript("OnEnterPressed", function(searchBox)
         self:SelectView("Search")
@@ -232,7 +231,6 @@ function GuildbookMixin:OnLoad()
         self:ToggleHelptips()
     end)
 
-    self:SetupImportExport()
 end
 
 function GuildbookMixin:Player_Regen_Disabled()
@@ -255,50 +253,6 @@ function GuildbookMixin:ToggleHelptips()
     end
 end
 
-
-function GuildbookMixin:SetupImportExport()
-
-    self.import.importExportEditbox.EditBox:SetMaxLetters(1000000000)
-    self.import.importExportEditbox.ScrollBar:ClearAllPoints()
-    self.import.importExportEditbox.ScrollBar:SetPoint("TOPLEFT", self.import.importExportEditbox, "TOPRIGHT", -24, 0)
-    self.import.importExportEditbox.ScrollBar:SetPoint("BOTTOMLEFT", self.import.importExportEditbox, "BOTTOMRIGHT", -24, 0)
-
-    self.import.importExportEditbox:SetScript("OnMouseDown", function(eb)
-        eb.EditBox:HighlightText()
-    end)
-
-    -- local testData = {
-    --     name = "calendar",
-    --     data = {
-    --         {
-    --             foo = 1,
-    --             bar = false,
-    --         }
-    --     },
-    --     version = 0.1,
-    -- }
-    -- self.import.importExportEditbox.EditBox:SetText(json.encode(testData))
-
-    self.import.importExportEditbox.EditBox:SetScript("OnTextChanged", function(eb)
-
-        local str = eb:GetText()
-        local ok, ret = pcall(json.decode, str)
-        if ok then
-            self:ImportEightyUpgrades(ret)
-        end
-    end)
-    
-    self.import.importData:SetScript("OnClick", function()
-        
-        -- local text = self.import.importExportEditbox.EditBox:GetText()
-        -- local import = json.decode(text)
-        
-        -- if import and import.links and import.links.set then
-        --     self:ImportEightyUpgrades(import)
-        -- end
-
-    end)
-end
 
 
 function GuildbookMixin:ShowSpecialFrame(frame)
@@ -353,6 +307,7 @@ function GuildbookMixin:SelectView(view)
 end
 
 function GuildbookMixin:AddView(view)
+    print(string.format("adding view [%s]", view.name))
     self.views[view.name] = view;
     view:SetParent(self.content)
     view:SetAllPoints()
@@ -365,6 +320,7 @@ function GuildbookMixin:AddView(view)
     end
 
     if self.ribbon[view.name:lower()] then
+        print(string.format("setting OnMouseDown script for [%s]", view.name))
         self.ribbon[view.name:lower()]:SetScript("OnMouseDown", function()
             self:SelectView(view.name)
         end)
@@ -393,15 +349,6 @@ function GuildbookMixin:Blizzard_OnInitialGuildRosterScan(guildName)
             addon.characters[addon.thisCharacter]:SetPaperdollStats("current", currentStats, true)
             addon.characters[addon.thisCharacter]:SetResistances("current", resistances, true)
             addon.characters[addon.thisCharacter]:SetAuras("current", auras, true)
-
-
-            -- local specInfo = addon.characters[addon.thisCharacter]:GetSpecInfo()
-            -- if specInfo and (addon.characters[addon.thisCharacter].data.level == 80) then        
-            --     local primarySpec, secondarySpec = specInfo.primary[1].id, specInfo.secondary[1].id
-            --     addon.characters[addon.thisCharacter]:SetSpec("primary", primarySpec, true)
-            --     addon.characters[addon.thisCharacter]:SetSpec("secondary", secondarySpec, true)
-            -- end
-
         end
     end)
 
@@ -419,8 +366,63 @@ end
 function GuildbookMixin:Database_OnInitialised()
     self:CreateMinimapButtons()
     self:CreateSlashCommands()
+
+    for nameRealm, _ in pairs(Database.db.myCharacters) do
+        local character = Database:GetCharacter(nameRealm)
+        if type(character) == "table" then
+            if not addon.characters then
+                return
+            end
+            if not addon.thisCharacter then
+                return
+            end
+            if not addon.characters[nameRealm] then
+                addon.characters[nameRealm] = Character:CreateFromData(character)
+            end
+        end 
+    end
+end
+
+function GuildbookMixin:AddCharacter()
+
+    if not addon.characters then
+        return;
+    end
+    if not addon.Character then
+        return;
+    end
+    if addon.characters[addon.Character] then
+        return;
+    end
+    local characterInDb = Database:GetCharacter(addon.thisCharacter)
+    if characterInDb then
+        return;
+    end
+
+    local character = Character:CreateEmpty()
+    character.guid = UnitGUID("player")
+    character.name = addon.thisCharacter
+    local _, _, classId = UnitClass("player")
+    character.class = classId
+
+    Database:InsertCharacter(character)
+
+    addon.characters[addon.thisCharacter] = Character:CreateFromData(Database:GetCharacter(addon.thisCharacter)) --Råvèn-PyrewoodVillage
+
+    --DevTools_Dump(addon.characters[addon.Character])
+
+    local equipment = addon.api.wrath.getPlayerEquipmentCurrent()
+    local currentStats = addon.api.wrath.getPaperDollStats()
+    local resistances = addon.api.getPlayerResistances(UnitLevel("player"))
+    local auras = addon.api.getPlayerAuras()
+    local talents = addon.api.wrath.getPlayerTalents()
+
     if addon.characters[addon.thisCharacter] then
-        self.ribbon.myProfile.background:SetAtlas(addon.characters[addon.thisCharacter]:GetProfileAvatar())
+        addon.characters[addon.thisCharacter]:SetTalents("current", talents, true)
+        addon.characters[addon.thisCharacter]:SetInventory("current", equipment, true)
+        addon.characters[addon.thisCharacter]:SetPaperdollStats("current", currentStats, true)
+        addon.characters[addon.thisCharacter]:SetResistances("current", resistances, true)
+        addon.characters[addon.thisCharacter]:SetAuras("current", auras, true)
     end
 end
 
@@ -431,6 +433,9 @@ function GuildbookMixin:CreateSlashCommands()
     SlashCmdList['GUILDBOOK'] = function(msg)
         if msg == "" then
             self:Show()
+
+        elseif msg == "addcharacter" then
+            self:AddCharacter()
         end
     end
 end
@@ -521,202 +526,6 @@ end
 function GuildbookMixin:Search(text)
     addon:TriggerEvent("Guildbook_OnSearch", text)
 end
-
-
-
-
-
-
-
-local eightySlotMapping = {
-    ["RANGEDSLOT"] = "RANGED",
-    ["SHIRTSLOT"] = "SHIRT",
-    ["MAINHANDSLOT"] = "MAIN_HAND",
-    ["HANDSSLOT"] = "HANDS",
-    ["TRINKET0SLOT"] = "TRINKET_1",
-    ["WAISTSLOT"] = "WAIST",
-    ["FEETSLOT"] = "FEET",
-    ["TABARDSLOT"] = "TABARD",
-    ["NECKSLOT"] = "NECK",
-    ["WRISTSLOT"] = "WRISTS",
-    ["LEGSSLOT"] = "LEGS",
-    ["TRINKET1SLOT"] = "TRINKET_2",
-    ["SECONDARYHANDSLOT"] = "OFF_HAND",
-    ["BACKSLOT"] = "BACK",
-    ["FINGER0SLOT"] = "FINGER_1",
-    ["CHESTSLOT"] = "CHEST",
-    ["FINGER1SLOT"] = "FINGER_2",
-    ["HEADSLOT"] = "HEAD",
-    ["SHOULDERSLOT"] = "SHOULDERS",
-}
-
-function GuildbookMixin:Character_ExportEquipment(character, setName, spec)
-    
-    if character.data and character.data.inventory[setName] then
-        
-        if type(character.data.inventory[setName][1]) == "number" then
-
-            self.import.importExportEditbox.EditBox:SetText(string.format("Unable to export [%s] as this set only contains itemID info not item links", setName))
-
-            self:ShowSpecialFrame("import")
-            
-        else
-
-            local export = {
-                name = setName,
-                character = {
-                    name = character.data.name,
-                    level = character.data.level,
-                    gameClass = select(2, GetClassInfo(character.data.class)),
-                    race = character:GetRace().raceName:upper(),
-                },
-                items = {},
-                talents = {},
-                glyphs = {},
-            }
-
-            local breakLink = function(link)
-                return string.match(link, [[|H([^:]*):([^|]*)|h(.*)|h]])
-            end
-
-            for slotName, itemLink in pairs(character.data.inventory[setName]) do
-
-                if itemLink then
-                    local gems = {}
-                    local x, payload = breakLink(itemLink)
-
-                    local itemID, enchantID, gem1, gem2, gem3 = strsplit(":", payload)
-                    gems[1] = gem1
-                    gems[2] = gem2
-                    gems[3] = gem3
-
---                    print(itemID, enchantID, gem1, gem2, gem3)
-
-                    if x == "item" then
-                        
-                        local item = {
-                            id = itemID,
-                            slot = eightySlotMapping[slotName],
-                        }
-
-                        if enchantID and (enchantID ~= "") then
-                            item.enchant = {
-                                id = enchantID,
-                            }
-                        end
-
-                        for i = 1, 3 do
-                            if gems[i] and (gems[i] ~= "") then
-                                if not item.gems then
-                                    item.gems = {}
-                                end
-                                table.insert(item.gems, {
-                                    id = gems[i],
-                                })
-                            end
-                        end
-
-                        table.insert(export.items, item)
-
-                    end
-
-                end
-                
-            end
-
-            if not spec then
-                spec = "primary";
-                print("Using primary spec as none provided")
-            end
-
-            if character.data.talents[spec] then
-                for k, talent in ipairs(character.data.talents[spec]) do                    
-                    if talent.rank > 0 then
-                        local talentID = Talents:GetTalentID(talent.spellId)
-                        if type(talentID) == "number" then
-                            table.insert(export.talents, {
-                                id = talentID,
-                                rank = talent.rank,
-                            })
-                        end
-                    end
-                end
-            end
-
-            if character.data.glyphs[spec] then
-                for k, glyph in ipairs(character.data.glyphs[spec]) do
-                    if glyph.itemID and glyph.glyphType then
-                        table.insert(export.glyphs, {
-                            id = glyph.itemID,
-                            type = (glyph.glyphType == 1) and "MINOR" or "MAJOR";
-                        })
-                    end
-                end
-            end
-
-            export = json.encode(export)
-
-            self.import.importExportEditbox.EditBox:SetText(export)
-
-            self:ShowSpecialFrame("import")
-
-        end
-    end
-end
-
-
-
-
-
-
-
-function GuildbookMixin:ImportEightyUpgrades(import)
-    if import and import.links and import.links.set then
-        -- if import.links.set:find("https://eightyupgrades.com/set") then
-        --     self.import.importInfo:SetText(string.format("EightUpgrades\n\n%s\n%s\n%s", import.name, import.phase, import.character.name))
-        -- end
-
-        local outString = string.format("Eighty Upgrades\n\nCharacter: %s\nSet Name: %s\n\nItems:", import.character.name, import.name)
-
-        for k, v in ipairs(import.items) do
-            
-            local itemString = "%s|Hitem:%d:%s:%s:%s:%s:::::::::::::::|h[%s]|h|r"
-
-            local enchantID = ""
-            local gems = {"", "", ""}
-            
-            if v.enchant then
-                enchantID = v.enchant.id;
-            end
-
-            if v.gems then
-                for a, b in ipairs(v.gems) do
-                    gems[a] = b.id
-                end
-            end
-
-            local item = Item:CreateFromItemID(v.id)
-            if not item:IsItemEmpty() then
-                item:ContinueOnItemLoad(function()
-                    
-                    local quality = item:GetItemQualityColor().hex;
-
-                    local link = string.format(itemString, quality, v.id, enchantID, gems[1], gems[2], gems[3], v.name)
-
-                    outString = string.format("%s\n%s", outString, link)
-
-                    self.import.importInfo:SetText(outString)
-
-                end)
-            end
-
-        end
-    end
-end
-
-
-
-
 
 
 

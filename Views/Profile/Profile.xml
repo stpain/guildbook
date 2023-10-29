@@ -139,14 +139,34 @@
                         </Anchors>
                         <Size x="120" y="32"/>
                     </Button>
+                    <Button parentKey="exportButton" inherits="GuildbookWrathEraSmallHighlightButton">
+                        <Anchors>
+                            <Anchor point="TOPRIGHT" relativeKey="$parent.resistanceGridview" relativePoint="TOPLEFT" x="0" y="0"/>
+                        </Anchors>
+                        <Size x="32" y="32"/>
+                        <KeyValues>
+                            <KeyValue key="tooltipText" value="Export" type="string"/>
+                        </KeyValues>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture parentKey="background" atlas="StreamCinematic-DownloadIcon">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="0" y="0"/>
+                                        <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                    </Button>
                 </Frames>
                 <Layers>
                     <Layer textureSubLevel="7" level="OVERLAY">
-                        <FontString parentKey="gearScore" inherits="GameFontNormal" text="GearScore">
+                        <FontString parentKey="gearScore" inherits="GameFontNormal" text="ilvl">
                             <Color r="1" g="1" b="1" a="1"/>
                             <Size x="160" y="32"/>
                             <Anchors>
                                 <Anchor point="LEFT" relativeKey="$parent.equipmentMenu" relativePoint="RIGHT" x="10" y="0"/>
+                                <Anchor point="RIGHT" relativeKey="$parent.exportButton" relativePoint="LEFT" x="-10" y="0"/>
                             </Anchors>
                         </FontString>
                     </Layer>

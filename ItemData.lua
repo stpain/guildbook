@@ -60380,4 +60380,7 @@ addon.glyphData.spellIdToItemId = {
 	[58038] = { itemID = 43380, spellID = false, }, --vanish
 	[58671] = { itemID = 43547, spellID = false, }, --obliterate
 	[63333] = { itemID = 45804, spellID = false, }, --dark death
+
+	[54811] = { itemID = 40897, spellID = false, }, --maul
+	[56804] = { itemID = 42963, spellID = false, }, --feint
 }

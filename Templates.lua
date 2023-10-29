@@ -1680,7 +1680,7 @@ function GuildbookTalentIconFrameMixin:SetDataBinding(binding)
     end
 
     self:SetScript("OnEnter", function()
-        if self.talent then
+        if self.talent and (type(self.talent.spellId) == "number") then
             GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
             GameTooltip:SetSpellByID(self.talent.spellId)
             GameTooltip:Show()

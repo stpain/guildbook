@@ -21,6 +21,10 @@ local name, addon = ...;
 
 addon.changeLog = {
     {
+        version = "",
+        notes = "Quick fix to instance lockout sorting\n\nAdded more glyphs (thanks for reports).\n\nAdded a check before glyph report pop, now checks if player is in instance/group.\n\nMoved import/export into its own view.\n\nExporting now shows the character info on the left.\n\nImporting is coming, this will create a gear set for your character with a prefix to the set name.\n\nWorking on feature to show all alts even those not in guild, only visible to you at the moment.",
+    },
+    {
         version = "6.6",
         notes = "Tradeskills bugs and fixes! There was a bug when scanning character tradeskills (Enchanting). The addon should now pick up your professions and recipes.\n\nWhen a profession is shared in game via the Blizzard chat link, clicking this will promt a data request with the link sender.\n\nFixed an issue with the Comms where addon data messages would overwrite themselves instead of using a unique payload event name.\n\nMinor change to the minimap button tooltip, this will now update itself as intended.\n\nFixed issue with tradeskill settings checkboxes, you can now select/deselect any or none.\n\nMinor fix to lockout sorting, lockouts now use both name and max players for sorting, (some 10/25 mix ups had happened).\n\nMinor fix to chats, these should now delete when clicking the delete button.\n\nCalendar updates, you can now add notes by right clicking on a day.\n\nAdded a tab view to the calendar side panel, toggle between lockouts and personal events/notes.",
     },

@@ -6,17 +6,17 @@ local Talents = addon.Talents;
 local Tradeskills = addon.Tradeskills;
 
 addon.characterDefaults = {
-    -- guid = "",
-    -- name = "",
-    -- class = 3,
-    -- gender = 1,
-    -- level = 1,
-    -- race = false,
-    -- rank = 1,
-    -- onlineStatus = {
-    --     isOnline = false,
-    --     zone = "",
-    -- },
+    guid = "",
+    name = "",
+    class = 3,
+    gender = 1,
+    level = 1,
+    race = false,
+    rank = 1,
+    onlineStatus = {
+        isOnline = false,
+        zone = "",
+    },
     alts = {},
     mainCharacter = false,
     publicNote = "",
@@ -526,6 +526,9 @@ function addon.api.wrath.getPlayerTalents(...)
         end
     end
 
+    local inGroup = IsInGroup()
+    local inInstance, instanceType = IsInInstance()
+
     local glyphs = {}
     for i = 1, 6 do
         local enabled, glyphType, glyphSpellID, icon = GetGlyphSocketInfo(i);
@@ -549,12 +552,16 @@ function addon.api.wrath.getPlayerTalents(...)
                         end
                     end
                     if not found then
-                        local s = string.format("[%s] unable to find glyph itemID for %s with GlyphSpellID of %d", addonName, name, glyphSpellID)
-                        StaticPopup_Show("GuildbookReport", s)
+                        if not inGroup and not inInstance then
+                            local s = string.format("[%s] unable to find glyph itemID for %s with GlyphSpellID of %d", addonName, name, glyphSpellID)
+                            StaticPopup_Show("GuildbookReport", s)
+                        end
                     end
                 else
-                    local s = string.format("[%s] glyph data for %s with GlyphSpellID of %d missing from lookup table", addonName, name, glyphSpellID)
-                    StaticPopup_Show("GuildbookReport", s)
+                    if not inGroup and not inInstance then
+                        local s = string.format("[%s] glyph data for %s with GlyphSpellID of %d missing from lookup table", addonName, name, glyphSpellID)
+                        StaticPopup_Show("GuildbookReport", s)
+                    end
                 end
             end
         end
@@ -922,7 +929,7 @@ function addon.api.getLockouts()
 
             reset = (GetServerTime() + reset);
 
-            t[i] = {
+            table.insert(t, {
                 name = name,
                 id = id,
                 reset = reset,
@@ -935,7 +942,7 @@ function addon.api.getLockouts()
                 difficultyName = difficultyName,
                 numEncounters = numEncounters,
                 encounterProgress = encounterProgress,
-            }
+            })
             --local msg = string.format("name=%s, id=%s, reset=%s, difficulty=%s, locked=%s, numEncounters=%s", tostring(name), tostring(id), tostring(reset), tostring(difficulty), tostring(locked), tostring(numEncounters))
             --print(msg)
         end
@@ -1045,28 +1052,3 @@ addon.data.inventorySlots = {
 
 -- addon:RegisterCallback("Database_OnInitialised", Guildbook.SetEnabled, Guildbook)
 
--- function Guildbook:SetEnabled()
---     self.enabled = true;
--- end
-
--- function Guildbook:GetCharacterNamesFromDirectory()
---     if self.enabled then
---         local t = {}
---         for k, v in pairs(Database.db.characterDirectory) do
---             table.insert(t, k)
---         end
---         return t;
---     end
--- end
-
--- function Guildbook:GetCharacterData(nameRealm)
---     if self.enabled then
---         if Database.db.characterDirectory[nameRealm] then
---             return Database.db.characterDirectory[nameRealm];
---         end
---     end
--- end
-
--- function Guildbook:CreateCharacterObject()
---     return Character:CreateEmpty()
--- end

@@ -208,26 +208,28 @@ function GuildbookSettingsMixin:PrepareCharacterPanel()
         if type(character.data.offSpec) == "number" then
             panel.specializations["offSpec"..character.data.offSpec]:SetChecked(true)
         end
-    end
+    
 
-    panel.myCharacters.listview.DataProvider:Flush()
-    local alts = {}
-    if Database.db.myCharacters then
-        for name, isMain in pairs(Database.db.myCharacters) do
-            if addon.characters[name] then
-                table.insert(alts, {
-                    character = addon.characters[name],
-                }) 
+        panel.myCharacters.listview.DataProvider:Flush()
+        local alts = {}
+        if Database.db.myCharacters then
+            for name, isMain in pairs(Database.db.myCharacters) do
+                if addon.characters[name] then
+                    table.insert(alts, {
+                        character = addon.characters[name],
+                    }) 
+                end
             end
         end
-    end
-    panel.myCharacters.listview.DataProvider:InsertTable(alts)
+        panel.myCharacters.listview.DataProvider:InsertTable(alts)
 
-    panel.reset:SetScript("OnClick", function()
-        if addon.characters and addon.characters[addon.thisCharacter] then
-            addon.characters[addon.thisCharacter]:ResetData()
-        end
-    end)
+        panel.reset:SetScript("OnClick", function()
+            if addon.characters and addon.characters[addon.thisCharacter] then
+                addon.characters[addon.thisCharacter]:ResetData()
+            end
+        end)
+
+    end
 end
 
 
@@ -426,6 +428,7 @@ function GuildbookSettingsMixin:CharacterPanel_OnShow()
     local x, y = self.content:GetSize()
     self.content.character.scrollFrame.scrollChild:SetSize(x-24, y)
 
+    self:PrepareCharacterPanel()
 end
 
 function GuildbookSettingsMixin:TradeskillPanel_OnShow()

@@ -530,6 +530,7 @@
 				<FontString parentKey="info" inherits="GameFontNormalSmall" justifyH="LEFT">
                     <Size x="150"/>
 					<Anchors>
+                        <Anchor point="BOTTOMLEFT" relativeKey="$parent.icon" relativePoint="BOTTOMRIGHT" x="2" y="7"/>
 						<Anchor point="BOTTOMRIGHT" x="-5" y="5"/>
 					</Anchors>
 				</FontString>

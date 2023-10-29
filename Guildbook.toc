@@ -90,6 +90,9 @@ Views\Alts\Alts.xml
 Views\Dailies\Dailies.lua
 Views\Dailies\Dailies.xml
 
+Views\ImportExport\ImportExport.lua
+Views\ImportExport\ImportExport.xml
+
 Events.lua
 
 ModBlizzUI.lua

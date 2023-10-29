@@ -18,7 +18,7 @@ function GuildbookAltsMixin:OnLoad()
 end
 
 function GuildbookAltsMixin:OnShow()
-    
+    self:LoadAlts()
 end
 
 function GuildbookAltsMixin:LoadAlts()
@@ -49,4 +49,6 @@ function GuildbookAltsMixin:LoadAlts()
     end)
 
     self.listview.scrollView:SetDataProvider(CreateDataProvider(self.alts))
+
+    collectgarbage()
 end
