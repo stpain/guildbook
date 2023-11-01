@@ -350,6 +350,10 @@ function Comms:Character_BroadcastChange(character, ...)
         --the addon will take the method sent if it exists rather than having to hard code message.event > character.method (although this could be better as time goes on)
         local method, key, subKey = ...;
 
+        -- if method == "SetTradeskill" then
+        --     print("setting tradeskill", key)
+        -- end
+
         if self.characterKeyToEventName[key] then
 
             local data;
@@ -361,6 +365,8 @@ function Comms:Character_BroadcastChange(character, ...)
 
             if data then
                 self:TransmitToGuild(self.characterKeyToEventName[key], data, method, subKey, character.data.name)
+                Database:SetCharacterSyncData(key, time())
+                --print("setting sync time for", key)
                 addon.LogDebugMessage("comms", string.format("Character_OnDataChanged > %s has changed, sending to comms queue", key))
             else
                 addon.LogDebugMessage("comms", string.format("no data found in character.data[%s]", key))

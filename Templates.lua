@@ -6,62 +6,6 @@ local Talents = addon.Talents;
 
 
 
-GuildbookMinimalTabMixin = {};
-
-function GuildbookMinimalTabMixin:OnLoad()
-	SelectableButtonMixin.OnLoad(self);
-
-	self.Text:SetText(self.tabText);
-	self:SetWidth(self.Text:GetStringWidth() + 40);
-
-	self:OnSelected(false);
-end
-
-function GuildbookMinimalTabMixin:GetAtlas()
-	if self:IsSelected() then
-		return self.selectedLeftTexture, self.selectedRightTexture, self.selectedMiddleTexture;
-	end
-
-	if self.over then
-		return self.overLeftTexture, self.overRightTexture, self.overMiddleTexture;
-	end
-	return self.upLeftTexture, self.upRightTexture, self.upMiddleTexture;
-end
-
-function GuildbookMinimalTabMixin:UpdateAtlas()
-	local leftAtlas, rightAtlas, middleAtlas = self:GetAtlas();
-	self.Left:SetAtlas(leftAtlas, TextureKitConstants.UseAtlasSize);
-	self.Right:SetAtlas(rightAtlas, TextureKitConstants.UseAtlasSize);
-	self.Middle:SetAtlas(middleAtlas, TextureKitConstants.UseAtlasSize);
-end
-
-function GuildbookMinimalTabMixin:OnSelected(newSelected)
-	self:UpdateAtlas();
-
-	if newSelected then
-		self.Text:SetPoint("BOTTOM", 0, 6);
-		self.Text:SetFontObject("GameFontHighlightSmall");
-	else
-		self.Text:SetPoint("BOTTOM", 0, 4);
-		self.Text:SetFontObject("GameFontNormalSmall");
-	end
-end
-
-function GuildbookMinimalTabMixin:OnEnter()
-	self:UpdateAtlas();
-end
-
-function GuildbookMinimalTabMixin:OnLeave()
-	self:UpdateAtlas();
-end
-
-function GuildbookMinimalTabMixin:OnEnable()
-	self:UpdateAtlas();
-end
-
-function GuildbookMinimalTabMixin:OnDisable()
-	self:UpdateAtlas();
-end
 
 
 
@@ -635,31 +579,52 @@ end
 
 
 
-GuildbookCircleLootItemTemplateMixin = {}
-function GuildbookCircleLootItemTemplateMixin:OnLoad()
+GuildbookCircleIconMixin = {}
+function GuildbookCircleIconMixin:OnLoad()
     
 end
-function GuildbookCircleLootItemTemplateMixin:UpdateLayout()
-    local x, y = self:GetSize()
-    self.icon:SetSize(x * 0.65, x * 0.65)
-    self.mask:SetSize(x * 0.52, x * 0.52)
-    self.border:SetSize(x * 0.85, x * 0.85)
-    self.label:SetSize(x, y*0.3)
+
+function GuildbookCircleIconMixin:SetDataBinding()
+
 end
-function GuildbookCircleLootItemTemplateMixin:SetDataBinding(binding)
-    self.label:SetText(binding.subClass)
-    self.icon:SetTexture(binding.icon)
-    self.border:SetVertexColor(binding.colour.color:GetRGB())
-    self:SetScript("OnEnter", function()
-        GameTooltip:SetOwner(self, "ANCHOR_LEFT")
-        GameTooltip:SetHyperlink(binding.link)
-        GameTooltip:Show()
-    end)
+
+--make this % based to be reusable
+function GuildbookCircleIconMixin:OnEnter()
+    self.selected:SetSize(120,120)
+    self.border:SetSize(120,120)
+    self.icon:SetSize(72,72)
+    self.mask:SetSize(60,60)
 end
-function GuildbookCircleLootItemTemplateMixin:OnLeave(item)
+function GuildbookCircleIconMixin:OnLeave()
+    self.selected:SetSize(100,100)
+    self.border:SetSize(100,100)
+    self.icon:SetSize(60,60)
+    self.mask:SetSize(50,50)
     GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
 end
 
+
+--alts template
+GuildbookSettingsCharacterAltMixin = {}
+function GuildbookSettingsCharacterAltMixin:SetDataBinding(binding)
+    self.character = binding;
+    self.icon:SetAtlas(self.character:GetProfileAvatar())
+    self.label:SetText("|cffffffff"..Ambiguate(self.character.data.name, "short"))
+
+    if self.character.data.name == self.character.data.mainCharacter then
+        self.selected:Show()
+    else
+        self.selected:Hide()
+    end
+
+    local _, class = GetClassInfo(self.character.data.class)
+    local colour = RAID_CLASS_COLORS[class]
+    self.border:SetVertexColor(colour:GetRGB())
+
+    self:SetScript("OnMouseDown", function()
+        self.character:SetMainCharacter(self.character.data.name, true)
+    end)
+end
 
 
 GuildbookProfileSummaryRowAvatarTemplateMixin = {}
@@ -1488,14 +1453,25 @@ function GuildbookSimpleIconLabelMixin:SetDataBinding(binding, height)
     else
         self.background:SetAlpha(0)
     end
-
-    if binding.backgroundRGB then
-       self.background:SetColorTexture(binding.backgroundRGB.r, binding.backgroundRGB.g, binding.backgroundRGB.b)
+    if binding.backgroundAtlas then
+        self.background:SetAtlas(binding.backgroundAtlas)
+        self.background:SetAlpha(1)
     else
-        self.background:SetColorTexture(0,0,0)
+        if binding.backgroundRGB then
+            self.background:SetColorTexture(binding.backgroundRGB.r, binding.backgroundRGB.g, binding.backgroundRGB.b)
+         else
+             self.background:SetColorTexture(0,0,0)
+         end
     end
 
-    self.label:SetText(binding.label)
+    if binding.label then
+        self.label:SetText(binding.label)
+    end
+    if binding.labelRight then
+        self.labelRight:SetText(binding.labelRight)
+    end
+
+
     if binding.atlas then
         self.icon:SetAtlas(binding.atlas)
     elseif binding.icon then

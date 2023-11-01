@@ -951,6 +951,79 @@ function addon.api.getLockouts()
 end
 
 
+function addon.api.generateExportMenu(character)
+
+    local menu = {
+        {
+            text = character:GetName(true),
+            isTitle = true,
+            notCheckable = true,
+        }
+    }
+    table.insert(menu, addon.contextMenuSeparator)
+    table.insert(menu, {
+        text = "Export",
+        isTitle = true,
+        notCheckable = true,
+    })
+
+    local specInfo = character:GetSpecInfo()
+
+    if specInfo then
+
+        local primarySpec, secondarySpec = specInfo.primary[1].id, specInfo.secondary[1].id
+
+        local exportEquipMenu1 = {{
+            text = "Select Gear",
+            isTitle = true,
+            notCheckable = true,
+        },}
+        local exportEquipMenu2 = {{
+            text = "Select Gear",
+            isTitle = true,
+            notCheckable = true,
+        },}
+        for setname, info in pairs(character.data.inventory) do
+            table.insert(exportEquipMenu1, {
+                text = setname,
+                notCheckable = true,
+                func = function()
+                    addon:TriggerEvent("Character_ExportEquipment", character, setname, "primary")
+                end,
+            })
+            table.insert(exportEquipMenu2, {
+                text = setname,
+                notCheckable = true,
+                func = function()
+                    addon:TriggerEvent("Character_ExportEquipment", character, setname, "secondary")
+                end,
+            })
+        end
+    
+        if primarySpec then
+            local atlas, spec = character:GetClassSpecAtlasName(primarySpec)
+            table.insert(menu, {
+                text = string.format("%s %s", CreateAtlasMarkup(atlas, 16, 16), spec),
+                notCheckable = true,
+                hasArrow = true,
+                menuList = exportEquipMenu1,
+    
+            })
+        end
+        if secondarySpec then
+            local atlas, spec = character:GetClassSpecAtlasName(secondarySpec)
+            table.insert(menu, {
+                text = string.format("%s %s", CreateAtlasMarkup(atlas, 16, 16), spec),
+                notCheckable = true,
+                hasArrow = true,
+                menuList = exportEquipMenu2,
+    
+            })
+        end
+
+    end
+    return menu;
+end
 
 
 

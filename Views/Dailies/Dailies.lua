@@ -1,6 +1,7 @@
 local name, addon = ...;
 
 local Database = addon.Database;
+local Character = addon.Character;
 
 local selectedCharacter = "";
 local currentQuestLog = {}
@@ -13,7 +14,7 @@ GuildbookWrathDailiesMixin = {
 
 function GuildbookWrathDailiesMixin:OnLoad()
 
-    addon:RegisterCallback("Database_OnInitialised", self.Blizzard_OnInitialGuildRosterScan, self) --changed some logic and now testing reacting to db init
+    addon:RegisterCallback("Blizzard_OnInitialGuildRosterScan", self.Blizzard_OnInitialGuildRosterScan, self) --changed some logic and now testing reacting to db init
     addon:RegisterCallback("Quest_OnTurnIn", self.Quest_OnTurnIn, self)
     addon:RegisterCallback("Quest_OnAccepted", self.Quest_OnAccepted, self)
     addon:RegisterCallback("Database_OnDailyQuestCompleted", self.UpdateHeaderInfo, self)
@@ -134,6 +135,10 @@ function GuildbookWrathDailiesMixin:Quest_OnAccepted()
 end
 
 function GuildbookWrathDailiesMixin:Blizzard_OnInitialGuildRosterScan()
+    self:LoadCharacters()
+end
+
+function GuildbookWrathDailiesMixin:LoadCharacters()
 
     if not Database.db.dailies.characters[addon.thisCharacter] then
         Database.db.dailies.characters[addon.thisCharacter] = {}
@@ -149,36 +154,35 @@ function GuildbookWrathDailiesMixin:Blizzard_OnInitialGuildRosterScan()
     for name, isMain in pairs(Database.db.myCharacters) do
 
         if addon.characters[name] then
-
-            table.insert(t, { name = name, level = addon.characters[name].data.level})
-            table.sort(t, function(a, b)
-                if a.level == b.level then
-                    return a.name < b.name
-                else
-                    return a.level > b.level;
-                end
-            end)
+            table.insert(t, addon.characters[name])
+        else
+            local altData = Database:GetCharacter(name)
+            if altData then
+                local alt = Character:CreateFromData(altData)
+                table.insert(t, alt)
+            end
 
         end
 
     end
 
-    for k, v in ipairs(t) do
+    table.sort(t, function(a, b)
+        if a.data.level == b.data.level then
+            return a.data.name < b.data.name
+        else
+            return a.data.level > b.data.level;
+        end
+    end)
+
+    for k, character in ipairs(t) do
         
         self.charactersListview.DataProvider:Insert({
-            label = Ambiguate(addon.characters[v.name]:GetName(true), "short"),
-            atlas = addon.characters[v.name]:GetProfileAvatar(),
+            label = Ambiguate(character:GetName(true), "short"),
+            atlas = character:GetProfileAvatar(),
             showMask = true,
             backgroundAlpha = 0.15,
             onMouseDown = function(listviewItem)
-                selectedCharacter = v.name;
-
-                -- self.charactersListview.scrollView:ForEachFrame(function(f, d)
-                --     f.selected:Hide()
-                -- end)
-
-                --listviewItem.background:SetColorTexture(0.6, 0.6, 0.6)
-                --listviewItem.selected:Show()
+                selectedCharacter = character.data.name;
                 self:ScanQuestLog()
                 self:LoadQuests()
             end,

@@ -1,59 +1,5 @@
 <UI>
 
-
-	<Button name="GuildbookMinimalTabTemplate" inherits="SelectableButtonTemplate" mixin="MinimalTabMixin" virtual="true">
-		<Size x="100" y="37"/>
-		<KeyValues>
-			<KeyValue key="upLeftTexture" value="Options_Tab_Left" type="string"/>
-			<KeyValue key="upMiddleTexture" value="Options_Tab_Middle" type="string"/>
-			<KeyValue key="upRightTexture" value="Options_Tab_Right" type="string"/>
-			<KeyValue key="overLeftTexture" value="Options_Tab_Left" type="string"/>
-			<KeyValue key="overMiddleTexture" value="Options_Tab_Middle" type="string"/>
-			<KeyValue key="overRightTexture" value="Options_Tab_Right" type="string"/>
-			<KeyValue key="selectedLeftTexture" value="Options_Tab_Active_Left" type="string"/>
-			<KeyValue key="selectedMiddleTexture" value="Options_Tab_Active_Middle" type="string"/>
-			<KeyValue key="selectedRightTexture" value="Options_Tab_Active_Right" type="string"/>
-		</KeyValues>
-		<Layers>
-			<Layer>
-				<Texture parentKey="Left">
-					<Anchors>
-						<Anchor point="BOTTOMLEFT"/>
-					</Anchors>
-				</Texture>
-				<Texture parentKey="Right">
-					<Anchors>
-						<Anchor point="BOTTOMRIGHT"/>
-					</Anchors>
-				</Texture>
-				<Texture parentKey="Middle">
-					<Anchors>
-						<Anchor point="TOPLEFT" relativeKey="$parent.Left" relativePoint="TOPRIGHT"/>
-						<Anchor point="TOPRIGHT" relativeKey="$parent.Right" relativePoint="TOPLEFT"/>
-					</Anchors>
-				</Texture>
-			</Layer>
-			<Layer>
-				<FontString parentKey="Text" inherits="GameFontNormal"/>
-			</Layer>
-		</Layers>
-		<Scripts>
-			<OnLoad method="OnLoad"/>
-			<OnEnter method="OnEnter"/>
-			<OnLeave method="OnLeave"/>
-			<OnEnable method="OnEnable"/>
-			<OnDisable method="OnDisable"/>
-		</Scripts>
-	</Button>
-
-
-
-
-
-
-
-
-
     <Frame name="GuildbookWrathEraProfilesRowTemplate" mixin="GuildbookProfilesRowMixin" virtual="true">
         <Layers>
             <Layer level="BACKGROUND">
@@ -133,10 +79,27 @@
         </Scripts>
     </Frame>
 
-    <Frame name="GuildbookWrathEraCircleLootItemTemplate" mixin="GuildbookCircleLootItemTemplateMixin" virtual="true" enableMouse="true">
+    <Frame name="GuildbookCircleIconTemplate" mixin="GuildbookCircleIconMixin" virtual="true" enableMouse="true">
         <Layers>
-            <Layer level="BACKGROUND">
-                <Texture parentKey="border" atlas="auctionhouse-itemicon-border-white">
+            <!-- <Layer level="HIGHLIGHT">
+                <Texture parentKey="border" atlas="Artifacts-PerkRing-Highlight">
+                    <Size x="80" y="80"/>
+                    <Anchors>
+                        <Anchor point="CENTER" x="0" y="10"/>
+                    </Anchors>
+                </Texture>
+            </Layer> -->
+            <Layer level="BORDER">
+                <Texture parentKey="selected" atlas="charactercreate-ring-select">
+                    <Size x="100" y="100"/>
+                    <Anchors>
+                        <Anchor point="CENTER" x="0" y="10"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="BORDER">
+                <Texture parentKey="border" atlas="charactercreate-ring-metallight">
+                    <Size x="100" y="100"/>
                     <Anchors>
                         <Anchor point="CENTER" x="0" y="10"/>
                     </Anchors>
@@ -144,10 +107,13 @@
             </Layer>
             <Layer level="ARTWORK">
 				<Texture parentKey="icon">
+                    <Size x="60" y="60"/>
                     <Anchors>
-                        <Anchor point="CENTER" x="0" y="10"/>					</Anchors>
+                        <Anchor point="CENTER" x="0" y="10"/>					
+                    </Anchors>
                 </Texture>
                 <MaskTexture parentKey="mask" file="Interface/CHARACTERFRAME/TempPortraitAlphaMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+                    <Size x="50" y="50"/>
                     <Anchors>
                         <Anchor point="CENTER" x="0" y="10"/>                    
                     </Anchors>
@@ -157,7 +123,7 @@
                 </MaskTexture>
             </Layer>
             <Layer level="OVERLAY">
-                <FontString parentKey="label" inherits="GameFontBlackSmall" wordwrap="true" justifyV="MIDDLE">
+                <FontString parentKey="label" inherits="GameFontWhite" wordwrap="true" justifyV="MIDDLE">
                     <Size y="26"/>
                     <Anchors>
                         <Anchor point="BOTTOMLEFT" x="0" y="0"/>
@@ -168,8 +134,13 @@
         </Layers>
         <Scripts>
             <OnLeave method="OnLeave"/>
+            <OnEnter method="OnEnter"/>
             <OnLoad method="OnLoad"/>
         </Scripts>
+    </Frame>
+
+    <Frame name="GuildbookSettingsCharacterAltTemplate" mixin="GuildbookSettingsCharacterAltMixin" inherits="GuildbookCircleIconTemplate" virtual="true">
+
     </Frame>
 
     <Frame name="GuildbookWrathEraProfileSummaryRowAvatarTemplate" mixin="GuildbookProfileSummaryRowAvatarTemplateMixin" virtual="true" enableMouse="true" useParentLevel="true">
@@ -1373,6 +1344,11 @@
                 <FontString parentKey="label" inherits="GameFontWhite" justifyH="LEFT">
                     <Anchors>
                         <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.icon" x="6" y="0"/>
+                        <Anchor point="RIGHT" x="-1" y="0"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="labelRight" inherits="GameFontWhite" justifyH="RIGHT">
+                    <Anchors>
                         <Anchor point="RIGHT" x="-1" y="0"/>
                     </Anchors>
                 </FontString>

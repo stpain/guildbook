@@ -207,8 +207,16 @@ function GuildbookImportExportMixin:Character_ExportEquipment(character, setName
             end
 
             --local normalYellowHex = "|cffFFD100"
+            local specInfo = character:GetSpecInfo()
+            local specName = ""
+            if specInfo[spec] then
+                local tabIndex = specInfo[spec][1].id;
+                if tabIndex then
+                    specName = Talents:GetSpecInfoFromClassTabIndex(character.data.class, tabIndex-1).name
+                end
+            end
 
-            self.importInfo:SetText(string.format("|cffFFD10080 Upgrades Export Data:\n\nCharacter:|r %s|r\n\n|cffFFD100Class:|r %s\n\n|cffFFD100Talents:|r %s\n\n|cffFFD100Equipment set:|r %s", character:GetName(true), export.character.gameClass, spec, setName))
+            self.importInfo:SetText(string.format("|cffFFD10080 Upgrades Export Data:\n\nCharacter:|r %s|r\n\n|cffFFD100Class:|r %s\n\n|cffFFD100Talents:|r %s [%s]\n\n|cffFFD100Equipment set:|r %s", character:GetName(true), export.character.gameClass, specName, spec, setName))
 
             export = json.encode(export)
             self.importExportEditbox.EditBox:SetText(export)

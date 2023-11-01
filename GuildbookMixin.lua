@@ -177,7 +177,7 @@ end
 function GuildbookMixin:OnLoad()
     
     self:RegisterForDrag("LeftButton")
-    self.resize:Init(self, 600, 450, 1100, 650)
+    self.resize:Init(self, 600, 525, 1100, 650)
 
     self.resize:HookScript("OnMouseDown", function()
         self.isRefreshEnabled = true;
@@ -278,12 +278,14 @@ function GuildbookMixin:OnUpdate()
         self:UpdateLayout()
     end
 
-    -- UpdateAddOnMemoryUsage()
-    -- local mem = GetAddOnMemoryUsage(name)
+    if Database.db.debug then
+        local mem = 0;
+        UpdateAddOnMemoryUsage()
+        mem = GetAddOnMemoryUsage(name)
 
-    local mem = 0.4
-    local fr = GetFramerate()
-    self.memoryUsage:SetText(string.format("fps: %d mem: %d", math.floor(fr), math.floor(mem)))
+        local fr = GetFramerate()
+        self.memoryUsage:SetText(string.format("fps: %d mem: %d", math.floor(fr), math.floor(mem)))
+    end
 end
 
 function GuildbookMixin:OnEvent()
@@ -335,15 +337,28 @@ function GuildbookMixin:Blizzard_OnInitialGuildRosterScan(guildName)
     --So the addon should now have the guild and characters tables set, but lets hold it 1 second
     C_Timer.After(1, function()
 
-        --atm this will re set the data which is used o trigger the braodcast
-        --TODO: update this to check for data and then broadcast, save the extra fun calls
-        local equipment = addon.api.wrath.getPlayerEquipmentCurrent()
-        local currentStats = addon.api.wrath.getPaperDollStats()
-        local resistances = addon.api.getPlayerResistances(UnitLevel("player"))
-        local auras = addon.api.getPlayerAuras()
-        local talents = addon.api.wrath.getPlayerTalents()
+        --load all player characters and alts
+        for nameRealm, _ in pairs(Database.db.myCharacters) do
+            local character = Database:GetCharacter(nameRealm)
+            if type(character) == "table" then
+                if not addon.characters then
+                    return
+                end
+                if not addon.characters[nameRealm] then
+                    addon.characters[nameRealm] = Character:CreateFromData(character)
+                end
+            end 
+        end
 
+        --get latest data and transmit to guild
         if addon.characters[addon.thisCharacter] then
+
+            local equipment = addon.api.wrath.getPlayerEquipmentCurrent()
+            local currentStats = addon.api.wrath.getPaperDollStats()
+            local resistances = addon.api.getPlayerResistances(UnitLevel("player"))
+            local auras = addon.api.getPlayerAuras()
+            local talents = addon.api.wrath.getPlayerTalents()
+
             addon.characters[addon.thisCharacter]:SetTalents("current", talents, true)
             addon.characters[addon.thisCharacter]:SetInventory("current", equipment, true)
             addon.characters[addon.thisCharacter]:SetPaperdollStats("current", currentStats, true)
@@ -366,21 +381,6 @@ end
 function GuildbookMixin:Database_OnInitialised()
     self:CreateMinimapButtons()
     self:CreateSlashCommands()
-
-    for nameRealm, _ in pairs(Database.db.myCharacters) do
-        local character = Database:GetCharacter(nameRealm)
-        if type(character) == "table" then
-            if not addon.characters then
-                return
-            end
-            if not addon.thisCharacter then
-                return
-            end
-            if not addon.characters[nameRealm] then
-                addon.characters[nameRealm] = Character:CreateFromData(character)
-            end
-        end 
-    end
 end
 
 function GuildbookMixin:AddCharacter()
@@ -521,6 +521,47 @@ function GuildbookMixin:CreateMinimapButtons()
     _G['LibDBIcon10_GuildbookMinimapButton']:SetScript("OnLeave", function(s)
         GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
     end)
+
+
+
+
+    --experimental
+    -- local repMinimapDataObj = ldb:NewDataObject("GuildbookRepMinimapButton", {
+    --     type = "launcher",
+    --     icon = 600202,
+    --     OnClick = function ()
+    --         local reps = {}
+    --         local repMenu = {}
+    --         local lastHeader;
+    --         for i = 1, GetNumFactions() do
+    --             local name, description, _, _, _, _, _, _, isHeader, _, _, isWatched, isChild, factionID, _, _ = GetFactionInfo(i)
+    --             if isHeader then
+    --                 if not reps[name] then
+    --                     reps[name] = {}
+    --                     lastHeader = name
+    --                     table.insert(repMenu, {
+    --                         text = name,
+    --                         notCheckable = true,
+    --                         hasArrow = true,
+    --                         menuList = reps[name],
+    --                     })
+    --                 end
+    --             else
+    --                 table.insert(reps[lastHeader], {
+    --                     text = name,
+    --                     checked = isWatched,
+    --                     func = function()
+    --                         SetWatchedFactionIndex(i)
+    --                     end,
+    --                 })
+    --             end
+    --         end
+    --         EasyMenu(repMenu, addon.contextMenu, "cursor", 0, 0, "MENU", 1)
+    --     end
+    -- })
+
+    -- local repMinimapButton = LibStub("LibDBIcon-1.0")
+    -- repMinimapButton:Register('GuildbookRepMinimapButton', repMinimapDataObj, {})
 end
 
 function GuildbookMixin:Search(text)

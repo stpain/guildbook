@@ -2,6 +2,52 @@ local name, addon = ...;
 
 local Talents = {}
 
+Talents.SpecInfo = {
+    { classID = 8, specID = 62, iconFileID = 135932, roleID = 2, description = 'Manipulate the arcane, destroying enemies with overwhelming power.', name = 'Arcane', tabIndex = 0, primaryStat = 0, }, 
+    { classID = 8, specID = 63, iconFileID = 135810, roleID = 2, description = 'Ignite enemies with balls of fire and combustive flames.', name = 'Fire', tabIndex = 1, primaryStat = 0, }, 
+    { classID = 8, specID = 64, iconFileID = 135846, roleID = 2, description = 'Freezes enemies in their tracks and shatters them with Frost magic.', name = 'Frost', tabIndex = 2, primaryStat = 0, }, 
+    { classID = 2, specID = 65, iconFileID = 135920, roleID = 1, description = 'Invokes the power of the Light to protect and to heal.', name = 'Holy', tabIndex = 0, primaryStat = 1, }, 
+    { classID = 2, specID = 66, iconFileID = 236264, roleID = 0, description = 'Uses Holy magic to shield themself and defend allies from attackers.', name = 'Protection', tabIndex = 1, primaryStat = 5, }, 
+    { classID = 2, specID = 70, iconFileID = 135873, roleID = 2, description = 'A righteous crusader who judges and punishes opponents with weapons and Holy magic.', name = 'Retribution', tabIndex = 2, primaryStat = 5, }, 
+    { classID = 1, specID = 71, iconFileID = 132355, roleID = 2, description = 'A battle-hardened master of two-handed weapons, using mobility and overpowering attacks to strike their opponents down.', name = 'Arms', tabIndex = 0, primaryStat = 5, }, 
+    { classID = 1, specID = 72, iconFileID = 132347, roleID = 2, description = 'A furious berserker wielding a weapon in each hand, unleashing a flurry of attacks to carve their opponents to pieces.', name = 'Fury', tabIndex = 1, primaryStat = 5, }, 
+    { classID = 1, specID = 73, iconFileID = 132341, roleID = 0, description = 'A stalwart protector who uses a shield to safeguard themself and their allies.', name = 'Protection', tabIndex = 2, primaryStat = 5, }, 
+    { classID = 0, specID = 74, iconFileID = 236159, roleID = 2, description = 'Driven by a frenzied persistence to pursue prey, these beasts stop at nothing to achieve victory; even death is temporary for these predators.', name = 'Ferocity', tabIndex = 0, primaryStat = 0, }, 
+    { classID = 0, specID = 79, iconFileID = 132150, roleID = 2, description = 'Guileful creatures capable of skillfully mitigating lethal blows dealt to themselves and their allies.', name = 'Cunning', tabIndex = 2, primaryStat = 0, }, 
+    { classID = 0, specID = 81, iconFileID = 132121, roleID = 0, description = 'Stalwart and veteran defenders who unquestionably place their thick hides and protective exteriors in harm\'s way for their allies.', name = 'Tenacity', tabIndex = 1, primaryStat = 0, }, 
+    { classID = 11, specID = 102, iconFileID = 136096, roleID = 2, description = 'Can take on the form of a powerful Moonkin, balancing the power of Arcane and Nature magic to destroy enemies at a distance.', name = 'Balance', tabIndex = 0, primaryStat = 0, }, 
+    { classID = 11, specID = 103, iconFileID = 132115, roleID = 2, description = 'Takes on the form of a great cat to deal damage with bleeds and bites.', name = 'Feral', tabIndex = 1, primaryStat = 3, }, 
+    { classID = 11, specID = 104, iconFileID = 132276, roleID = 0, description = 'Takes on the form of a mighty bear to absorb damage and protect allies.', name = 'Guardian', tabIndex = 2, primaryStat = 3, }, 
+    { classID = 11, specID = 105, iconFileID = 136041, roleID = 1, description = 'Uses heal-over-time Nature spells to keep allies alive.', name = 'Restoration', tabIndex = 3, primaryStat = 0, }, 
+    { classID = 6, specID = 250, iconFileID = 135770, roleID = 0, description = 'A dark guardian who manipulates and corrupts life energy to sustain themself in the face of an enemy onslaught.', name = 'Blood', tabIndex = 0, primaryStat = 5, }, 
+    { classID = 6, specID = 251, iconFileID = 135773, roleID = 2, description = 'An icy harbinger of doom, channeling runic power and delivering vicious weapon strikes.', name = 'Frost', tabIndex = 1, primaryStat = 5, }, 
+    { classID = 6, specID = 252, iconFileID = 135775, roleID = 2, description = 'A master of death and decay, spreading infection and controlling undead minions to do their bidding.', name = 'Unholy', tabIndex = 2, primaryStat = 5, }, 
+    { classID = 3, specID = 253, iconFileID = 461112, roleID = 2, description = 'A master of the wild who can tame a wide variety of beasts to assist them in combat.', name = 'Beast Mastery', tabIndex = 0, primaryStat = 2, }, 
+    { classID = 3, specID = 254, iconFileID = 236179, roleID = 2, description = 'A master archer or sharpshooter who excels in bringing down enemies from afar.', name = 'Marksmanship', tabIndex = 1, primaryStat = 2, }, 
+    { classID = 3, specID = 255, iconFileID = 461113, roleID = 2, description = 'A rugged tracker who favors using animal venom, explosives and traps as deadly weapons.', name = 'Survival', tabIndex = 2, primaryStat = 2, }, 
+    { classID = 5, specID = 256, iconFileID = 135940, roleID = 1, description = 'Uses magic to shield allies from taking damage as well as heal their wounds.', name = 'Discipline', tabIndex = 0, primaryStat = 0, }, 
+    { classID = 5, specID = 257, iconFileID = 237542, roleID = 1, description = 'A versatile healer who can reverse damage on individuals or groups and even heal from beyond the grave.', name = 'Holy', tabIndex = 1, primaryStat = 0, }, 
+    { classID = 5, specID = 258, iconFileID = 136207, roleID = 2, description = 'Uses sinister Shadow magic, especially damage-over-time spells, to eradicate enemies.', name = 'Shadow', tabIndex = 2, primaryStat = 0, }, 
+    { classID = 4, specID = 259, iconFileID = 236270, roleID = 2, description = 'A deadly master of poisons who dispatches victims with vicious dagger strikes.', name = 'Assassination', tabIndex = 0, primaryStat = 3, }, 
+    { classID = 4, specID = 260, iconFileID = 135340, roleID = 2, description = 'A ruthless fugitive who uses agility and guile to stand toe-to-toe with enemies.', name = 'Outlaw', tabIndex = 1, primaryStat = 3, }, 
+    { classID = 4, specID = 261, iconFileID = 132320, roleID = 2, description = 'A dark stalker who leaps from the shadows to ambush their unsuspecting prey.', name = 'Subtlety', tabIndex = 2, primaryStat = 3, }, 
+    { classID = 7, specID = 262, iconFileID = 136048, roleID = 2, description = 'A spellcaster who harnesses the destructive forces of nature and the elements.', name = 'Elemental', tabIndex = 0, primaryStat = 0, }, 
+    { classID = 7, specID = 263, iconFileID = 237581, roleID = 2, description = 'A totemic warrior who strikes foes with weapons imbued with elemental power.', name = 'Enhancement', tabIndex = 1, primaryStat = 2, }, 
+    { classID = 7, specID = 264, iconFileID = 136052, roleID = 1, description = 'A healer who calls upon ancestral spirits and the cleansing power of water to mend allies\' wounds.', name = 'Restoration', tabIndex = 2, primaryStat = 0, }, 
+    { classID = 9, specID = 265, iconFileID = 136145, roleID = 2, description = 'A master of shadow magic who specializes in drains and damage-over-time spells.', name = 'Affliction', tabIndex = 0, primaryStat = 0, }, 
+    { classID = 9, specID = 266, iconFileID = 136172, roleID = 2, description = 'A master of demons who compels demonic powers to aid them.', name = 'Demonology', tabIndex = 1, primaryStat = 0, }, 
+    { classID = 9, specID = 267, iconFileID = 136186, roleID = 2, description = 'A master of chaos who calls down fire to burn and demolish enemies.', name = 'Destruction', tabIndex = 2, primaryStat = 0, }, 
+    { classID = 10, specID = 268, iconFileID = 608951, roleID = 0, description = 'A sturdy brawler who uses liquid fortification and unpredictable movement to avoid damage and protect allies.', name = 'Brewmaster', tabIndex = 0, primaryStat = 2, }, 
+    { classID = 10, specID = 269, iconFileID = 608953, roleID = 2, description = 'A martial artist without peer who pummels foes with hands and fists.', name = 'Windwalker', tabIndex = 2, primaryStat = 2, }, 
+    { classID = 10, specID = 270, iconFileID = 608952, roleID = 1, description = 'A healer who masters the mysterious art of manipulating life energies, aided by the wisdom of the Jade Serpent and Pandaren medicinal techniques.', name = 'Mistweaver', tabIndex = 1, primaryStat = 0, }, 
+    { classID = 0, specID = 535, iconFileID = 236159, roleID = 2, description = 'Driven by a rabid persistence to pursue prey, these carnivorous beasts stop at nothing to achieve victory; even death is temporary for these predators.', name = 'Ferocity', tabIndex = 0, primaryStat = 0, }, 
+    { classID = 0, specID = 536, iconFileID = 132150, roleID = 2, description = 'Guileful creatures capable of skillfully mitigating lethal blows dealt to themselves and their allies.', name = 'Cunning', tabIndex = 2, primaryStat = 0, }, 
+    { classID = 0, specID = 537, iconFileID = 132121, roleID = 0, description = 'Stalwart and veteran defenders who unquestionably place their thick hides and protective exteriors in harm\'s way for their allies.', name = 'Tenacity', tabIndex = 1, primaryStat = 0, }, 
+    { classID = 12, specID = 577, iconFileID = 1247264, roleID = 2, description = 'A brooding master of warglaives and the destructive power of Fel magic.', name = 'Havoc', tabIndex = 0, primaryStat = 3, }, 
+    { classID = 12, specID = 581, iconFileID = 1247265, roleID = 0, description = 'Embraces the demon within to incinerate enemies and protect their allies.', name = 'Vengeance', tabIndex = 1, primaryStat = 3, }, 
+    
+}
+
 Talents.ClassTalentTreeIndexToFileName = {
     DEATHKNIGHT = {
         [1] = "DeathKnightBlood",
@@ -94,6 +140,35 @@ Talents.TalentBackgrounds = {
 	["WarriorProtection"] = "Interface\\Addons\\Guildbook\\Media\\Talents\\WARRIOR\\Protection", 
 }
 
+
+function Talents:GetSpecInfoFromID(specID)
+    for k, v in ipairs(self.SpecInfo) do
+        if v.specID == specID then
+            return v;
+        end
+    end
+end
+
+function Talents:GetSpecInfoFromClassTabIndex(classID, tabIndex)
+    for k, v in ipairs(self.SpecInfo) do
+        if (v.classID == classID) and (v.tabIndex == tabIndex) then
+            return v;
+        end
+    end
+end
+
+function Talents:GetClassSpecInfo(classID)
+    local t = {}
+    for k, v in ipairs(self.SpecInfo) do
+        if v.classID == classID then
+            table.insert(t, v)
+        end
+    end
+    table.sort(t, function(a, b)
+        return a.tabIndex < b.tabIndex
+    end)
+    return t;
+end
 
 function Talents:GetSpecIndex(class, fileName)
     if class and fileName then

@@ -94,6 +94,53 @@ function Database:Init()
         end
     end
 
+    --there might be old data so clear it out
+    if type(GUILDBOOK_CHARACTER) == "table" then
+        if not GUILDBOOK_CHARACTER.syncData then
+            GUILDBOOK_CHARACTER = nil;
+        end
+    end
+
+
+    --per character settings
+    if not GUILDBOOK_CHARACTER then
+        GUILDBOOK_CHARACTER = {
+            syncData = {
+                mainCharacter = 0,
+                publicNote = 0,
+                mainSpec = 0,
+                offSpec = 0,
+                mainSpecIsPvP = 0,
+                offSpecIsPvP = 0,
+                profile = 0,
+                profession1 = 0,
+                profession1Level = 0,
+                profession1Spec = 0,
+                profession1Recipes = 0,
+                profession2 = 0,
+                profession2Level = 0,
+                profession2Spec = 0,
+                profession2Recipes = 0,
+                cookingLevel = 0,
+                cookingRecipes = 0,
+                fishingLevel = 0,
+                firstAidLevel = 0,
+                firstAidRecipes = 0,
+                talents = 0,
+                glyphs = 0,
+                inventory = 0,
+                paperDollStats = 0,
+                resistances = 0,
+                auras = 0,
+                containers = 0,
+                lockouts = 0,
+            },
+        }
+    end
+
+    self.charDb = GUILDBOOK_CHARACTER;
+
+
     addon:TriggerEvent("StatusText_OnChanged", "[Database_OnInitialised]")
     addon:TriggerEvent("Database_OnInitialised")
 end
@@ -213,6 +260,21 @@ function Database:GetConfig(conf)
         return self.db.config[conf];
     end
     return false;
+end
+
+
+function Database:SetCharacterSyncData(key, val)
+    if self.charDb then
+        self.charDb.syncData[key] = val;
+    end
+end
+
+
+function Database:GetCharacterSyncData(key)
+    if self.charDb then
+        return self.charDb.syncData[key];
+    end
+    return 0;
 end
 
 addon.Database = Database;

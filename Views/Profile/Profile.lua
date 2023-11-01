@@ -156,13 +156,16 @@ function GuildbookProfileMixin:OnLoad()
 	self.inventory.equipmentHelptip:SetText(L.PROFILE_INVENTORY_HT)
 
 	self.inventory.exportButton:SetScript("OnMouseDown", function()
-		local spec;
-		if self.selectedTalentSpec == 1 then
-			spec = "primary"
-		else
-			spec = "secondary"
-		end
-		addon:TriggerEvent("Character_ExportEquipment", self.character, self.currentEquipmentSet, spec)
+		-- local spec;
+		-- if self.selectedTalentSpec == 1 then
+		-- 	spec = "primary"
+		-- else
+		-- 	spec = "secondary"
+		-- end
+		-- addon:TriggerEvent("Character_ExportEquipment", self.character, self.currentEquipmentSet, spec)
+
+		local menu = addon.api.generateExportMenu(self.character)
+		EasyMenu(menu, addon.contextMenu, "cursor", 0, 0, "MENU", 1)
 	end)
 
 	table.insert(self.helptips, self.sidePane.helptip)
@@ -457,7 +460,7 @@ function GuildbookProfileMixin:Update()
         end,
     })
 
-	local alts = addon.api.getPlayerAlts(self.character.data.mainCharacter)
+	local alts = self.character:GetAlts()
 	--DevTools_Dump(alts)
 	if alts and #alts > 0 then
 		for k, name in ipairs(alts) do

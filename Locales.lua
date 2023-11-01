@@ -51,6 +51,9 @@ local L = {
 	--character
 	CHARACTER = "Character",
 	SETTINGS_CHARACTER_GENERAL = "Set your characters specialization and if you have alts select which is your main.",
+	SETTINGS_CHARACTER_TRADESKILLS = "%s\n\n%d recipe(s)",
+	SETTINGS_CHARACTER_TRADESKILLS_MISSING_DATA = "No data found for profession.\n\nYou can either open your professions or right click for more options.",
+	SETTINGS_CHARACTER_TRADESKILLS_HEADER = "Profession data and last sync times are shown below, right click for more options.",
 
 
 	--guild

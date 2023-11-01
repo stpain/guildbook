@@ -2,6 +2,24 @@ local name, addon = ...;
 local L = addon.Locales
 local Database = addon.Database;
 local Tradeskills = addon.Tradeskills;
+local Talents = addon.Talents;
+
+local tradeskills = {
+    171,
+    164,
+    333,
+    202,
+    773,
+    755,
+    165,
+    197,
+    186,
+    182,
+    393,
+    --185,
+    --129,
+    --356,
+}
 
 GuildbookSettingsMixin = {
     name = "Settings",
@@ -78,6 +96,7 @@ function GuildbookSettingsMixin:OnLoad()
 
     self.content.character.header:SetText(L.CHARACTER)
     self.content.character.general:SetText(L.SETTINGS_CHARACTER_GENERAL)
+    self.content.character.tabContainer.tradeskills.header:SetText(L.SETTINGS_CHARACTER_TRADESKILLS_HEADER)
     self.content.chat.header:SetText(L.CHAT)
     self.content.chat.general:SetText(L.SETTINGS_CHAT_GENERAL)
     self.content.addon.header:SetText(L.ADDON)
@@ -87,7 +106,32 @@ function GuildbookSettingsMixin:OnLoad()
     self.content.guildBank.general:SetText(L.SETTINGS_GUILDBANK_GENERAL)
     self.content.tradeskills.header:SetText(L.TRADESKILLS)
     self.content.tradeskills.general:SetText(L.SETTINGS_TRADESKILLS_GENERAL)
+    
+    --character tab panels
+    local tabs = {
+        {
+            label = SPECIALIZATION,
+            width = 100,
+            panel = self.content.character.tabContainer.specializations,
+        },
+        {
+            label = "Professions",
+            width = 100,
+            panel = self.content.character.tabContainer.tradeskills,
+        },
+        {
+            label = "Alts",
+            width = 100,
+            panel = self.content.character.tabContainer.alts,
+        },
+    }
+    self.content.character.tabContainer:CreateTabButtons(tabs)
 
+    self.content.character.tabContainer.alts.gridview:InitFramePool("FRAME", "GuildbookSettingsCharacterAltTemplate")
+    --self.content.character.tabContainer.alts.gridview:SetFixedColumnCount(6)
+    self.content.character.tabContainer.alts.gridview:SetMinMaxSize(80,120)
+    self.content.character.tabContainer.alts.gridview:SetAnchorOffsets(10,10)
+    self.content.character.tabContainer.alts.gridview.ScrollBar:Hide()
     
 
     self.content.character:SetScript("OnShow", function()
@@ -111,6 +155,7 @@ function GuildbookSettingsMixin:OnLoad()
     addon:RegisterCallback("UI_OnSizeChanged", self.UpdateLayout, self)
     addon:RegisterCallback("Database_OnInitialised", self.Database_OnInitialised, self)
     addon:RegisterCallback("Blizzard_OnInitialGuildRosterScan", self.Blizzard_OnInitialGuildRosterScan, self)
+    addon:RegisterCallback("Character_OnDataChanged", self.Character_OnDataChanged, self)
 
 
     --quickly added for testing
@@ -137,26 +182,19 @@ end
 function GuildbookSettingsMixin:UpdateLayout()
     local x, y = self.content:GetSize()
 
-    local characterScroll = self.content.character.scrollFrame.scrollChild;
+    --local characterScroll = self.content.character.scrollFrame.scrollChild;
     local tradeskillsScroll = self.content.tradeskills.scrollFrame.scrollChild;
 
     if x < 680 then
-        
-        characterScroll.myCharacters:ClearAllPoints()
-        characterScroll.myCharacters:SetPoint("TOP", characterScroll.specializations, "BOTTOM", 0, -10)
-        
         tradeskillsScroll.reagentItems:ClearAllPoints()
         tradeskillsScroll.reagentItems:SetPoint("TOP", tradeskillsScroll.tradeskillItems, "BOTTOM", 0, -10)
 
-
     else
-
-        characterScroll.myCharacters:ClearAllPoints()
-        characterScroll.myCharacters:SetPoint("TOPLEFT", characterScroll.specializations, "TOPRIGHT", 20, 0)
-
         tradeskillsScroll.reagentItems:ClearAllPoints()
         tradeskillsScroll.reagentItems:SetPoint("TOPLEFT", tradeskillsScroll.tradeskillItems, "TOPRIGHT", 20, 0)
     end
+
+    self.content.character.tabContainer.alts.gridview:UpdateLayout()
 
 end
 
@@ -168,16 +206,21 @@ function GuildbookSettingsMixin:PrepareCharacterPanel()
     --so this gets called after the initial roster scan
     --=========================================
 
-    local panel = self.content.character.scrollFrame.scrollChild;
+    local panel = self.content.character.tabContainer;
 
     for i = 1, 4 do
         panel.specializations["mainSpec"..i]:Hide()
         panel.specializations["offSpec"..i]:Hide()
     end
 
+
     if addon.characters and addon.characters[addon.thisCharacter] then
         local character = addon.characters[addon.thisCharacter];
 
+        local _, class = GetClassInfo(character.data.class);
+        self.content.character.tabContainer.specializations.background:SetAtlas(string.format("legionmission-complete-background-%s", class:lower()))
+
+        --specializations
         local specs = character:GetSpecializations()
         local atlasNames = character:GetClassSpecAtlasInfo()
         for k, spec in ipairs(specs) do
@@ -190,6 +233,11 @@ function GuildbookSettingsMixin:PrepareCharacterPanel()
                     end
                     cb:SetChecked(true)
                     character:SetSpec("primary", k, true)
+
+                    local info = Talents:GetSpecInfoFromClassTabIndex(character.data.class, k-1)
+                    if info then
+                        panel.specializations.infoMainSpec:SetText(info.description)
+                    end
                 end)
                 panel.specializations["offSpec"..k].label:SetText(string.format("%s  %s", CreateAtlasMarkup(atlasNames[k], 22, 22), spec))
                 panel.specializations["offSpec"..k]:Show()
@@ -199,35 +247,326 @@ function GuildbookSettingsMixin:PrepareCharacterPanel()
                     end
                     cb:SetChecked(true)
                     character:SetSpec("secondary", k, true)
+
+                    local info = Talents:GetSpecInfoFromClassTabIndex(character.data.class, k-1)
+                    if info then
+                        panel.specializations.infoOffSpec:SetText(info.description)
+                    end
                 end)
             end
         end
         if type(character.data.mainSpec) == "number" then
             panel.specializations["mainSpec"..character.data.mainSpec]:SetChecked(true)
+            local info = Talents:GetSpecInfoFromClassTabIndex(character.data.class, character.data.mainSpec-1)
+            if info then
+                panel.specializations.infoMainSpec:SetText(info.description)
+            end
         end
         if type(character.data.offSpec) == "number" then
             panel.specializations["offSpec"..character.data.offSpec]:SetChecked(true)
+            local info = Talents:GetSpecInfoFromClassTabIndex(character.data.class, character.data.offSpec-1)
+            if info then
+                panel.specializations.infoOffSpec:SetText(info.description)
+            end
         end
     
+        --tradeskills
+        if type(character.data.profession1) == "number" then
+            local profName = Tradeskills:GetLocaleNameFromID(character.data.profession1)
+            panel.tradeskills.prof1:SetDataBinding({
+                atlas = Tradeskills:TradeskillIDToAtlas(character.data.profession1),
+                label = profName,
+                labelRight = date("%Y-%m-%d %H:%M:%S", Database:GetCharacterSyncData("profession1")),
+                onMouseDown = function(f, button)
+                    if button == "RightButton" then
+                        local menu = {
+                            {
+                                text = profName,
+                                isTitle = true,
+                                notCheckable = true,
+                            }
+                        }
+                        table.insert(menu, addon.contextMenuSeparator)
+                        table.insert(menu, {
+                            text = "Send data",
+                            notCheckable = true,
+                            func = function()
+                                addon:TriggerEvent("Character_BroadcastChange", character, "SetTradeskill", "profession1")
+                                addon:TriggerEvent("Character_BroadcastChange", character, "SetTradeskillRecipes", "profession1Recipes")
+                                addon:TriggerEvent("Character_BroadcastChange", character, "SetTradeskillLevel", "profession1Level")
+                            end,
+                        })
+                        table.insert(menu, {
+                            text = DELETE,
+                            notCheckable = true,
+                            func = function()
+                                character.data.profession1 = "-";
+                                character.data.profession1Level = 0;
+                                character.data.profession1Recipes = {};
+                                addon:TriggerEvent("Character_BroadcastChange", character, "SetTradeskill", "profession1")
+                                addon:TriggerEvent("Character_BroadcastChange", character, "SetTradeskillRecipes", "profession1Recipes")
+                                addon:TriggerEvent("Character_BroadcastChange", character, "SetTradeskillLevel", "profession1Level")
+                            end,
+                        })
 
-        panel.myCharacters.listview.DataProvider:Flush()
-        local alts = {}
-        if Database.db.myCharacters then
-            for name, isMain in pairs(Database.db.myCharacters) do
-                if addon.characters[name] then
-                    table.insert(alts, {
-                        character = addon.characters[name],
-                    }) 
-                end
+                        EasyMenu(menu, addon.contextMenu, "cursor", 0, 0, "MENU", 1)
+                    end
+
+                end,
+                onMouseEnter = function()
+                    GameTooltip:SetOwner(panel.tradeskills.prof1, "ANCHOR_RIGHT")
+                    GameTooltip:SetText(L.SETTINGS_CHARACTER_TRADESKILLS:format(profName, #character.data.profession1Recipes or 0), 1,1,1, true)
+                end,
+                backgroundAtlas = "transmog-set-iconrow-background"
+            }, 40)
+        else
+            panel.tradeskills.prof1:SetDataBinding({
+                atlas = "QuestTurnin",
+                label = "-",
+                onMouseDown = function(f, button)
+                    if button == "RightButton" then
+                        local menu = {
+                            {
+                                text = "Set profession",
+                                notCheckable = true,
+                                isTitle = true,
+                            }
+                        }
+                        table.insert(menu, addon.contextMenuSeparator)
+
+                        for k, tradeskillID in ipairs(tradeskills) do
+                            table.insert(menu, {
+                                text = Tradeskills:GetLocaleNameFromID(tradeskillID),
+                                notCheckable = true,
+                                func = function()
+                                    character:SetTradeskill(1, tradeskillID, true)
+                                end,
+                            })
+                        end
+
+                        EasyMenu(menu, addon.contextMenu, "cursor", 0, 0, "MENU", 1)
+                    end
+                end,
+                onMouseEnter = function()
+                    GameTooltip:SetOwner(panel.tradeskills.prof1, "ANCHOR_RIGHT")
+                    GameTooltip:SetText(L.SETTINGS_CHARACTER_TRADESKILLS_MISSING_DATA, 1,1,1, true)
+                end,
+                labelRight = "No Data"
+            }, 40)
+        end
+
+        if type(character.data.profession2) == "number" then
+            local profName = Tradeskills:GetLocaleNameFromID(character.data.profession2)
+            panel.tradeskills.prof2:SetDataBinding({
+                atlas = Tradeskills:TradeskillIDToAtlas(character.data.profession2),
+                label = profName,
+                labelRight =  date("%Y-%m-%d %H:%M:%S", Database:GetCharacterSyncData("profession2")),
+                onMouseDown = function(f, button)
+                    if button == "RightButton" then
+                        local menu = {
+                            {
+                                text = profName,
+                                isTitle = true,
+                                notCheckable = true,
+                            }
+                        }
+                        table.insert(menu, addon.contextMenuSeparator)
+                        table.insert(menu, {
+                            text = "Send data",
+                            notCheckable = true,
+                            func = function()
+                                addon:TriggerEvent("Character_BroadcastChange", character, "SetTradeskill", "profession2")
+                                addon:TriggerEvent("Character_BroadcastChange", character, "SetTradeskillRecipes", "profession2Recipes")
+                                addon:TriggerEvent("Character_BroadcastChange", character, "SetTradeskillLevel", "profession2Level")
+                            end,
+                        })
+                        table.insert(menu, {
+                            text = DELETE,
+                            notCheckable = true,
+                            func = function()
+                                character.data.profession2 = "-";
+                                character.data.profession2Level = 0;
+                                character.data.profession2Recipes = {};
+                                addon:TriggerEvent("Character_BroadcastChange", character, "SetTradeskill", "profession2")
+                                addon:TriggerEvent("Character_BroadcastChange", character, "SetTradeskillRecipes", "profession2Recipes")
+                                addon:TriggerEvent("Character_BroadcastChange", character, "SetTradeskillLevel", "profession2Level")
+                            end,
+                        })
+
+                        EasyMenu(menu, addon.contextMenu, "cursor", 0, 0, "MENU", 1)
+                    end
+                end,
+                onMouseEnter = function()
+                    GameTooltip:SetOwner(panel.tradeskills.prof2, "ANCHOR_RIGHT")
+                    GameTooltip:SetText(L.SETTINGS_CHARACTER_TRADESKILLS:format(profName, #character.data.profession2Recipes or 0), 1,1,1, true)
+                end,
+                backgroundAtlas = "transmog-set-iconrow-background"
+            }, 40)
+        else
+            panel.tradeskills.prof2:SetDataBinding({
+                atlas = "QuestTurnin",
+                label = "-",
+                onMouseDown = function(f, button)
+                    if button == "RightButton" then
+                        local menu = {
+                            {
+                                text = "Set profession",
+                                notCheckable = true,
+                                isTitle = true,
+                            }
+                        }
+                        table.insert(menu, addon.contextMenuSeparator)
+
+                        for k, tradeskillID in ipairs(tradeskills) do
+                            table.insert(menu, {
+                                text = Tradeskills:GetLocaleNameFromID(tradeskillID),
+                                notCheckable = true,
+                                func = function()
+                                    character:SetTradeskill(2, tradeskillID, true)
+                                end,
+                            })
+                        end
+
+                        EasyMenu(menu, addon.contextMenu, "cursor", 0, 0, "MENU", 1)
+                    end
+                end,
+                onMouseEnter = function()
+                    GameTooltip:SetOwner(panel.tradeskills.prof2, "ANCHOR_RIGHT")
+                    GameTooltip:SetText(L.SETTINGS_CHARACTER_TRADESKILLS_MISSING_DATA, 1,1,1, true)
+                end,
+                labelRight = "No Data"
+            }, 40)
+        end
+
+        if #character.data.cookingRecipes > 0 then
+            panel.tradeskills.cooking:SetDataBinding({
+                atlas = "Mobile-Cooking",
+                label = PROFESSIONS_COOKING,
+                labelRight =  date("%Y-%m-%d %H:%M:%S", Database:GetCharacterSyncData("cookingRecipes")),
+                onMouseDown = function(f, button)
+                    if button == "RightButton" then
+                        local menu = {
+                            {
+                                text = PROFESSIONS_COOKING,
+                                isTitle = true,
+                                notCheckable = true,
+                            }
+                        }
+                        table.insert(menu, addon.contextMenuSeparator)
+                        table.insert(menu, {
+                            text = "Send data",
+                            notCheckable = true,
+                            func = function()
+                                addon:TriggerEvent("Character_BroadcastChange", character, "SetTradeskill", "cooking")
+                                addon:TriggerEvent("Character_BroadcastChange", character, "SetTradeskillRecipes", "cookingRecipes")
+                                addon:TriggerEvent("Character_BroadcastChange", character, "SetTradeskillLevel", "cookingLevel")
+                            end,
+                        })
+
+                        EasyMenu(menu, addon.contextMenu, "cursor", 0, 0, "MENU", 1)
+                    end
+                end,
+                onMouseEnter = function()
+                    GameTooltip:SetOwner(panel.tradeskills.prof2, "ANCHOR_RIGHT")
+                    GameTooltip:SetText(L.SETTINGS_CHARACTER_TRADESKILLS:format(PROFESSIONS_COOKING, #character.data.cookingRecipes or 0), 1,1,1, true)
+                end,
+                backgroundAtlas = "transmog-set-iconrow-background"
+            }, 40)
+        else
+            panel.tradeskills.cooking:SetDataBinding({
+                atlas = "Mobile-Cooking",
+                labelRight = "No Data",
+                label = PROFESSIONS_COOKING,
+                onMouseEnter = function()
+                    GameTooltip:SetOwner(panel.tradeskills.prof1, "ANCHOR_RIGHT")
+                    GameTooltip:SetText(L.SETTINGS_CHARACTER_TRADESKILLS_MISSING_DATA, 1,1,1, true)
+                end,
+                backgroundAtlas = "transmog-set-iconrow-background"
+            }, 40)
+        end
+        if #character.data.firstAidRecipes > 0 then
+            panel.tradeskills.firstAid:SetDataBinding({
+                atlas = "Mobile-FirstAid",
+                label = PROFESSIONS_FIRST_AID,
+                labelRight =  date("%Y-%m-%d %H:%M:%S", Database:GetCharacterSyncData("firstAidRecipes")),
+                onMouseDown = function(f, button)
+                    if button == "RightButton" then
+                        local menu = {
+                            {
+                                text = PROFESSIONS_FIRST_AID,
+                                isTitle = true,
+                                notCheckable = true,
+                            }
+                        }
+                        table.insert(menu, addon.contextMenuSeparator)
+                        table.insert(menu, {
+                            text = "Send data",
+                            notCheckable = true,
+                            func = function()
+                                addon:TriggerEvent("Character_BroadcastChange", character, "SetTradeskill", "firstAid")
+                                addon:TriggerEvent("Character_BroadcastChange", character, "SetTradeskillRecipes", "firstAidRecipes")
+                                addon:TriggerEvent("Character_BroadcastChange", character, "SetTradeskillLevel", "firstAidLevel")
+                            end,
+                        })
+
+                        EasyMenu(menu, addon.contextMenu, "cursor", 0, 0, "MENU", 1)
+                    end
+                end,
+                onMouseEnter = function()
+                    GameTooltip:SetOwner(panel.tradeskills.prof2, "ANCHOR_RIGHT")
+                    GameTooltip:SetText(L.SETTINGS_CHARACTER_TRADESKILLS:format(PROFESSIONS_FIRST_AID, #character.data.firstAidRecipes or 0), 1,1,1, true)
+                end,
+                backgroundAtlas = "transmog-set-iconrow-background"
+            }, 40)
+        else
+            panel.tradeskills.firstAid:SetDataBinding({
+                atlas = "Mobile-FirstAid",
+                label = PROFESSIONS_FIRST_AID,
+                labelRight = "No Data",
+                onMouseEnter = function()
+                    GameTooltip:SetOwner(panel.tradeskills.prof1, "ANCHOR_RIGHT")
+                    GameTooltip:SetText(L.SETTINGS_CHARACTER_TRADESKILLS_MISSING_DATA, 1,1,1, true)
+                end,
+                backgroundAtlas = "transmog-set-iconrow-background"
+            }, 40)
+        end
+
+        panel.tradeskills.fishing:SetDataBinding({
+            atlas = "Mobile-Fishing",
+            label = PROFESSIONS_FISHING,
+            onMouseDown = function(f, button)
+    
+            end,
+            backgroundAtlas = "transmog-set-iconrow-background"
+        }, 40)
+
+
+
+        panel.alts.gridview:Flush()
+        
+        for nameRealm, _ in pairs(Database.db.myCharacters) do
+            if Database.db.guilds[addon.thisGuild].members[nameRealm] then
+                panel.alts.gridview:Insert(addon.characters[nameRealm])
             end
         end
-        panel.myCharacters.listview.DataProvider:InsertTable(alts)
+        -- panel.myCharacters.listview.DataProvider:Flush()
+        -- local alts = {}
+        -- if Database.db.myCharacters then
+        --     for name, isMain in pairs(Database.db.myCharacters) do
+        --         if addon.characters[name] then
+        --             table.insert(alts, {
+        --                 character = addon.characters[name],
+        --             }) 
+        --         end
+        --     end
+        -- end
+        -- panel.myCharacters.listview.DataProvider:InsertTable(alts)
 
-        panel.reset:SetScript("OnClick", function()
-            if addon.characters and addon.characters[addon.thisCharacter] then
-                addon.characters[addon.thisCharacter]:ResetData()
-            end
-        end)
+        -- panel.reset:SetScript("OnClick", function()
+        --     if addon.characters and addon.characters[addon.thisCharacter] then
+        --         addon.characters[addon.thisCharacter]:ResetData()
+        --     end
+        -- end)
 
     end
 end
@@ -286,8 +625,8 @@ function GuildbookSettingsMixin:PreparePanels()
     --=========================================
     --guild panel
     --=========================================
-    self.content.guild.scrollFrame.scrollChild.modBlizzRoster.label:SetText(L.SETTINGS_GUILD_MOD_BLIZZ_ROSTER)
-    self.content.guild.scrollFrame.scrollChild.modBlizzRoster:SetScript("OnClick", function(cb)
+    self.content.guild.modBlizzRoster.label:SetText(L.SETTINGS_GUILD_MOD_BLIZZ_ROSTER)
+    self.content.guild.modBlizzRoster:SetScript("OnClick", function(cb)
         Database.db.config["modBlizzRoster"] = cb:GetChecked()
 
         if Database.db.config["modBlizzRoster"] == false then
@@ -298,11 +637,26 @@ function GuildbookSettingsMixin:PreparePanels()
         end
     end)
 
-    self.content.guild.scrollFrame.scrollChild.modBlizzRoster:SetChecked(Database.db.config["modBlizzRoster"])
+    self.content.guild.modBlizzRoster:SetChecked(Database.db.config["modBlizzRoster"])
 
     if Database.db.config["modBlizzRoster"] then
         addon:ModBlizzUI()
     end
+
+
+
+    -- --tabs test
+    -- local tabs = {}
+    -- for i = 1, 4 do
+    --     table.insert(tabs, {
+    --         label = "tab"..i,
+    --         panel = self.content.guild.scrollFrame.scrollChild.testTabs["panel"..i]
+    --     })
+    -- end
+    -- self.content.guild.scrollFrame.scrollChild.testTabs:CreateTabButtons(tabs)
+
+
+
 
 
     --=========================================
@@ -424,10 +778,6 @@ function GuildbookSettingsMixin:PreparePanels()
 end
 
 function GuildbookSettingsMixin:CharacterPanel_OnShow()
-
-    local x, y = self.content:GetSize()
-    self.content.character.scrollFrame.scrollChild:SetSize(x-24, y)
-
     self:PrepareCharacterPanel()
 end
 
@@ -441,7 +791,7 @@ end
 function GuildbookSettingsMixin:GuildPanel_OnShow()
 
     local x, y = self.content:GetSize()
-    self.content.guild.scrollFrame.scrollChild:SetSize(x-24, y)
+    self.content.guild:SetSize(x-24, y)
 
 end
 
@@ -487,5 +837,9 @@ function GuildbookSettingsMixin:Database_OnInitialised()
 end
 
 function GuildbookSettingsMixin:Blizzard_OnInitialGuildRosterScan()
+    self:PrepareCharacterPanel()
+end
+
+function GuildbookSettingsMixin:Character_OnDataChanged()
     self:PrepareCharacterPanel()
 end

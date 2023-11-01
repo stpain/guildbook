@@ -29,6 +29,8 @@ function GuildbookWrathEraWidgetsGridviewMixin:OnLoad()
     self.rowIndex = 0
     self.numItemsPerRow = 1
     self.fixedColumnCount = false;
+    self.anchorOffsetX = 0
+    self.anchorOffsetY = 0
 end
 
 function GuildbookWrathEraWidgetsGridviewMixin:InitFramePool(type, template)
@@ -42,6 +44,15 @@ end
 
 function GuildbookWrathEraWidgetsGridviewMixin:SetFixedColumnCount(count)
     self.fixedColumnCount = count;
+end
+
+function GuildbookWrathEraWidgetsGridviewMixin:SetAnchorOffsets(x, y)
+    if type(x) == "number" then
+        self.anchorOffsetX = x;
+    end
+    if type(y) == "number" then
+        self.anchorOffsetY = y;
+    end
 end
 
 function GuildbookWrathEraWidgetsGridviewMixin:InsertCustomFrame(frame)
@@ -108,7 +119,7 @@ function GuildbookWrathEraWidgetsGridviewMixin:Flush()
 end
 
 function GuildbookWrathEraWidgetsGridviewMixin:GetItemSize()
-    local width = self:GetWidth()
+    local width = self:GetWidth() - (self.anchorOffsetX * 2);
 
     if type(self.fixedColumnCount) == "number" then
         self.itemSize = (width / self.fixedColumnCount)
@@ -154,7 +165,7 @@ function GuildbookWrathEraWidgetsGridviewMixin:UpdateLayout()
     for k, f in ipairs(self.frames) do
         f:ClearAllPoints()
         f:SetSize(self.itemSize, self.itemSize)
-        f:SetPoint("TOPLEFT", self.itemSize * self.colIndex, -(self.itemSize * self.rowIndex))
+        f:SetPoint("TOPLEFT", (self.itemSize * self.colIndex) + self.anchorOffsetX, -((self.itemSize * self.rowIndex) + self.anchorOffsetY))
         if k < (self.numItemsPerRow * (self.rowIndex + 1)) then
             self.colIndex = self.colIndex + 1
         else

@@ -22,7 +22,9 @@ end
 
 function GuildbookGuildTreeMixin:Update()
 
-    self.listview.DataProvider:Flush()
+    --self.listview.DataProvider:Flush()
+
+    local t = {}
 
     local ranks = {}
     local totalMembers, onlineMembers, _ = GetNumGuildMembers()
@@ -51,7 +53,7 @@ function GuildbookGuildTreeMixin:Update()
                 --print("NUM MEMBER PER RANK", rank.name, #rank.members)
 
                 if #rank.members <= numPerRow then
-                    self.listview.DataProvider:Insert({
+                    table.insert(t, {
                         showHeader = true,
                         header = rank.name,
                         characters = rank.members,
@@ -67,14 +69,14 @@ function GuildbookGuildTreeMixin:Update()
                             end
                         end
                         if not rankHeadersAdded[rank.name] then
-                            self.listview.DataProvider:Insert({
+                            table.insert(t, {
                                 showHeader = true,
                                 header = rank.name,
                                 characters = charactersThisRow,
                             })
                             rankHeadersAdded[rank.name] = true
                         else
-                            self.listview.DataProvider:Insert({
+                            table.insert(t, {
                                 showHeader = false,
                                 header = "",
                                 characters = charactersThisRow,
@@ -86,4 +88,5 @@ function GuildbookGuildTreeMixin:Update()
         end
     end
 
+    self.listview.scrollView:SetDataProvider(CreateDataProvider(t))
 end

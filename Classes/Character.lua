@@ -344,7 +344,7 @@ function Character:SetTradeskillRecipes(slot, recipes, broadcast)
     end
     addon:TriggerEvent("Character_OnDataChanged", self)
     if broadcast then
-        addon:TriggerEvent("Character_BroadcastChange", self,"SetTradeskillRecipes", k)
+        addon:TriggerEvent("Character_BroadcastChange", self, "SetTradeskillRecipes", k)
     end
     addon:TriggerEvent("StatusText_OnChanged", string.format(" set %s for %s", "tradeskill recipes", self.data.name))
 end
@@ -625,17 +625,37 @@ end
 
 function Character:SetMainCharacter(main, broadcast)
     self.data.mainCharacter = main;
-    if Database.db.myCharacters then
+
+    local alts = {}
+
+    --this should only apply when setting your own characters data
+    if Database.db.myCharacters and Database.db.myCharacters[main] then
         for name, val in pairs(Database.db.myCharacters) do
             val = false;
 
-            --do not call this func in here just set the data directly
-            if addon.characters and addon.characters[name] then
-                addon.characters[name].data.mainCharacter = self.data.mainCharacter
+            --check if this character exists in this guild before updated their main character
+            if addon.guilds and addon.guilds[addon.thisGuild] and addon.guilds[addon.thisGuild].members then
+                if addon.guilds[addon.thisGuild].members[name] then
+
+                    --do not call this func in here just set the data directly
+                    --addon.characters will be a table of this guild only
+                    if addon.characters and addon.characters[name] then
+                        addon.characters[name].data.mainCharacter = self.data.mainCharacter
+
+                        --if name ~= main then
+                            table.insert(alts, name)
+                        --end
+                    end
+
+                end
             end
+
         end
+        self:SetAlts(alts, broadcast)
         Database.db.myCharacters[self.data.name] = true;
     end
+
+
     addon:TriggerEvent("Character_OnDataChanged", self)
     if broadcast then
         addon:TriggerEvent("Character_BroadcastChange", self, "SetMainCharacter", "mainCharacter")
@@ -647,9 +667,20 @@ function Character:GetMainCharacter()
     return self.data.mainCharacter;
 end
 
-function Character:SetAlts(alts)
+function Character:SetAlts(alts, broadcast)
     self.data.alts = alts;
-    addon:TriggerEvent("Character_OnDataChanged", self, "alts")
+
+    --don't use the api here it'll cuase a cirle of sending data
+    for k, name in ipairs(alts) do
+        if addon.characters and addon.characters[name] then
+            addon.characters[name].data.alts = alts
+        end
+    end
+    addon:TriggerEvent("Character_OnDataChanged", self)
+    if broadcast then
+        addon:TriggerEvent("Character_OnDataChanged", self, "SetAlts", "alts")
+    end
+    addon:TriggerEvent("StatusText_OnChanged", string.format(" set alts for %s", self.data.name))
 end
 
 function Character:GetAlts()

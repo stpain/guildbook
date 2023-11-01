@@ -97,6 +97,12 @@
         "CreateRadioButtonGroup",
         "ButtonGroupBaseMixin",
         "GameTooltip_ShowProgressBar",
-        "FriendsFrameTab3"
+        "FriendsFrameTab3",
+        "TRADESKILLS",
+        "TRADE",
+        "Professions",
+        "PROFESSIONS_COOKING",
+        "PROFESSIONS_FIRST_AID",
+        "PROFESSIONS_FISHING"
     ]
 }

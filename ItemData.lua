@@ -8422,7 +8422,7 @@ addon.itemData = {
 	{
 		["itemLevel"] = 55,
 		["inventorySlot"] = 0,
-		["tradeskillID"] = 186,
+		["tradeskillID"] = 333,
 		["expansionID"] = 3,
 		["itemID"] = 12655,
 		["quality"] = 1,
@@ -60383,4 +60383,8 @@ addon.glyphData.spellIdToItemId = {
 
 	[54811] = { itemID = 40897, spellID = false, }, --maul
 	[56804] = { itemID = 42963, spellID = false, }, --feint
+
+	[63225] = { itemID = 45747, spellID = false, }, --salvation
+	[54943] = { itemID = 41110, spellID = false, }, --seal of light
+	[59309] = { itemID = 43672, spellID = false, }, --pestilence
 }

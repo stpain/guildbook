@@ -761,20 +761,30 @@ local function setCharacterTradeskill(prof, recipes)
         end
 
         if prof == nil then
+            --print("no prof value to set")
             return
         end
         if type(recipes) ~= "table" then
+            --print("no recipe table to set")
             return
         end
---        print("setting data", prof)
+        --print("setting prof data", prof)
 
         if addon.characters[addon.thisCharacter].data.profession1 == "-" then
             addon.characters[addon.thisCharacter]:SetTradeskill(1, prof, true);
             addon.characters[addon.thisCharacter]:SetTradeskillRecipes(1, recipes, true)
+
+            --print("updated prof 1 as new prof")
             return;
         else
             if addon.characters[addon.thisCharacter].data.profession1 == prof then
                 addon.characters[addon.thisCharacter]:SetTradeskillRecipes(1, recipes, true)
+
+                --although this client knows about the profession ID the data needs to be shared across the guild
+                --simply reset the data to trigger the data share
+                addon.characters[addon.thisCharacter]:SetTradeskill(1, prof, true);
+
+                --print("updated prof 1 as existign prof")
                 return;
             end
         end
@@ -782,10 +792,18 @@ local function setCharacterTradeskill(prof, recipes)
         if addon.characters[addon.thisCharacter].data.profession2 == "-" then
             addon.characters[addon.thisCharacter]:SetTradeskill(2, prof, true);
             addon.characters[addon.thisCharacter]:SetTradeskillRecipes(2, recipes, true)
+
+            --print("updated prof 2 as new prof")
             return;
         else
             if addon.characters[addon.thisCharacter].data.profession2 == prof then
                 addon.characters[addon.thisCharacter]:SetTradeskillRecipes(2, recipes, true)
+
+                --although this client knows about the profession ID the data needs to be shared across the guild
+                --simply reset the data to trigger the data share
+                addon.characters[addon.thisCharacter]:SetTradeskill(2, prof, true);
+
+                --print("updated prof 2 as existign prof")
                 return;
             end
         end
@@ -801,8 +819,10 @@ local function scanTradeskills()
 
     local tradeskillTitle = TradeSkillFrameTitleText:GetText()
     if tradeskillTitle then
-        prof = Tradeskills:GetTradeskillIDFromLocale(tradeskill)
+        prof = Tradeskills:GetTradeskillIDFromLocale(tradeskillTitle)
     end
+
+    --print(tradeskillTitle, prof)
 
     for i = 1, numTradeskills do
         local name, _type, _, _, _ = GetTradeSkillInfo(i)
@@ -820,9 +840,14 @@ local function scanTradeskills()
                         end
                     end
 
-                    if id == 12655 then --enchanted thorium bar causes an issue
-                        prof = 333
+                    if prof == 186 then --mining doesn't make enchanted bars
+                        
+                    else
+                        if id == 12655 then --enchanted thorium bar causes an issue
+                            prof = 333
+                        end
                     end
+
                 end
 
             else
