@@ -1471,6 +1471,13 @@ function GuildbookSimpleIconLabelMixin:SetDataBinding(binding, height)
         self.labelRight:SetText(binding.labelRight)
     end
 
+    if binding.fontObject then
+        self.label:SetFontObject(binding.fontObject)
+        self.labelRight:SetFontObject(binding.fontObject)
+    else
+        self.label:SetFontObject(GameFontWhite)
+        self.labelRight:SetFontObject(GameFontWhite)
+    end
 
     if binding.atlas then
         self.icon:SetAtlas(binding.atlas)

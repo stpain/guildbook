@@ -257,8 +257,35 @@ function Character:GetSpecIsPvp(spec)
     end
 end
 
+function Character:GetTradeskillCooldowns()
+    if self.data.tradeskillCooldowns then
+        return self.data.tradeskillCooldowns
+    else
+        return {}
+    end
+end
+
+function Character:UpdateTradeskillCooldowns(cooldowns, broadcast)
+
+    if not self.data.tradeskillCooldowns then
+        self.data.tradeskillCooldowns = {}
+    end
+
+    if type(cooldowns) == "table" then
+        for k, cd in ipairs(cooldowns) do
+            self.data.tradeskillCooldowns[cd.name] = cd
+        end
+    end
+
+    addon:TriggerEvent("Character_OnDataChanged", self)
+    if broadcast then
+        addon:TriggerEvent("Character_BroadcastChange", self, "UpdateTradeskillCooldowns", "tradeskillCooldowns")
+    end
+    addon:TriggerEvent("StatusText_OnChanged", string.format("updated tradeskill cooldowns for %s", self.data.name))
+end
 
 function Character:SetTradeskill(slot, id, broadcast)
+    --print("SetTradeskill called", slot, id, tostring(broadcast))
     local k;
     if slot == 1 then
         self.data.profession1 = id;
@@ -269,6 +296,7 @@ function Character:SetTradeskill(slot, id, broadcast)
     end
     addon:TriggerEvent("Character_OnDataChanged", self)
     if broadcast then
+        --print("Broadcasting update SetTradeskill")
         addon:TriggerEvent("Character_BroadcastChange", self, "SetTradeskill", k)
     end
     addon:TriggerEvent("StatusText_OnChanged", string.format(" set %s for %s", "tradeskill", self.data.name))
@@ -799,6 +827,13 @@ function Character:GetClassSpecAtlasName(spec)
 
 
             elseif type(spec) == "number" then
+
+                if class == "DRUID" then
+                    if spec == 3 then
+                        spec = 4;
+                    end
+                end
+
                 s = classData[class].specializations[spec]
             end
 

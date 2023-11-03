@@ -278,14 +278,14 @@ function GuildbookMixin:OnUpdate()
         self:UpdateLayout()
     end
 
-    if Database.db.debug then
-        local mem = 0;
-        UpdateAddOnMemoryUsage()
-        mem = GetAddOnMemoryUsage(name)
+    -- if Database.db.debug then
+    --     local mem = 0;
+    --     UpdateAddOnMemoryUsage()
+    --     mem = GetAddOnMemoryUsage(name)
 
-        local fr = GetFramerate()
-        self.memoryUsage:SetText(string.format("fps: %d mem: %d", math.floor(fr), math.floor(mem)))
-    end
+    --     local fr = GetFramerate()
+    --     self.memoryUsage:SetText(string.format("fps: %d mem: %d", math.floor(fr), math.floor(mem)))
+    -- end
 end
 
 function GuildbookMixin:OnEvent()
@@ -307,9 +307,12 @@ function GuildbookMixin:SelectView(view)
     end
     self:Show()
 end
+-- function addon.SelectView(view)
+--     GuildbookUI:SelectView(view)
+-- end
 
 function GuildbookMixin:AddView(view)
-    print(string.format("adding view [%s]", view.name))
+    --print(string.format("adding view [%s]", view.name))
     self.views[view.name] = view;
     view:SetParent(self.content)
     view:SetAllPoints()
@@ -322,7 +325,7 @@ function GuildbookMixin:AddView(view)
     end
 
     if self.ribbon[view.name:lower()] then
-        print(string.format("setting OnMouseDown script for [%s]", view.name))
+        --print(string.format("setting OnMouseDown script for [%s]", view.name))
         self.ribbon[view.name:lower()]:SetScript("OnMouseDown", function()
             self:SelectView(view.name)
         end)
@@ -364,6 +367,11 @@ function GuildbookMixin:Blizzard_OnInitialGuildRosterScan(guildName)
             addon.characters[addon.thisCharacter]:SetPaperdollStats("current", currentStats, true)
             addon.characters[addon.thisCharacter]:SetResistances("current", resistances, true)
             addon.characters[addon.thisCharacter]:SetAuras("current", auras, true)
+
+            if addon.characters[addon.thisCharacter] then
+                local lockouts = addon.api.getLockouts()
+                addon.characters[addon.thisCharacter]:SetLockouts(lockouts)
+            end
         end
     end)
 
@@ -449,12 +457,12 @@ function GuildbookMixin:UpdateMinimapTooltip()
     local t = {} --addon.characters[name].data.onlineStatus
     if addon.characters then
         for name, obj in pairs(addon.characters) do
-            if obj.data.onlineStatus.isOnline then
+            if (name ~= nil) and (obj.data.class ~= nil) and (obj.data.level ~= nil) and obj.data.onlineStatus.isOnline then
                 table.insert(t, {
                     name = name,
                     classID = obj.data.class,
                     level = obj.data.level,
-                    zone = obj.data.onlineStatus.zone,
+                    zone = obj.data.onlineStatus.zone or "-",
                 })
             end
         end
@@ -525,43 +533,6 @@ function GuildbookMixin:CreateMinimapButtons()
 
 
 
-    --experimental
-    -- local repMinimapDataObj = ldb:NewDataObject("GuildbookRepMinimapButton", {
-    --     type = "launcher",
-    --     icon = 600202,
-    --     OnClick = function ()
-    --         local reps = {}
-    --         local repMenu = {}
-    --         local lastHeader;
-    --         for i = 1, GetNumFactions() do
-    --             local name, description, _, _, _, _, _, _, isHeader, _, _, isWatched, isChild, factionID, _, _ = GetFactionInfo(i)
-    --             if isHeader then
-    --                 if not reps[name] then
-    --                     reps[name] = {}
-    --                     lastHeader = name
-    --                     table.insert(repMenu, {
-    --                         text = name,
-    --                         notCheckable = true,
-    --                         hasArrow = true,
-    --                         menuList = reps[name],
-    --                     })
-    --                 end
-    --             else
-    --                 table.insert(reps[lastHeader], {
-    --                     text = name,
-    --                     checked = isWatched,
-    --                     func = function()
-    --                         SetWatchedFactionIndex(i)
-    --                     end,
-    --                 })
-    --             end
-    --         end
-    --         EasyMenu(repMenu, addon.contextMenu, "cursor", 0, 0, "MENU", 1)
-    --     end
-    -- })
-
-    -- local repMinimapButton = LibStub("LibDBIcon-1.0")
-    -- repMinimapButton:Register('GuildbookRepMinimapButton', repMinimapDataObj, {})
 end
 
 function GuildbookMixin:Search(text)
@@ -727,6 +698,12 @@ function GuildbookUpdatesMixin:SayHello()
             Database.db.version = version;
             self:Hide()
         end)
+
+        if type(addon.changeLog[1].icon) == "string" then
+            self.icon:SetAtlas(addon.changeLog[1].icon)
+        elseif type(addon.changeLog[1].icon) == "number" then
+            self.icon:SetTexture(addon.changeLog[1].icon)
+        end
 
         self:Show()
 

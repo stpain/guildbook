@@ -21,6 +21,11 @@ local name, addon = ...;
 
 addon.changeLog = {
     {
+        version = "6.8",
+        notes = "Changes to the addon Comms, a bug was found with tradeskill data sharing, should now sync properly\n\nHome tab is currently work in progress but wanted to get comms issue fixed and updated.\n\nFix for Druid specs, not all 4 were covered properly.\n\nTradeskill cooldown tracking added (account only for now).\n\nAdded more glyphs.",
+        icon = "ClassHall-QuestIcon-Desaturated",
+    },
+    {
         version = "6.7",
         notes = "Improved character settings area. You can now set/delete and push profession data.\n\nUpdated alt/main character logic, should now update correctly.\n\nAdded tracking of data sync (UI coming soon).\n\nQuick fix to instance lockout sorting\n\nAdded more glyphs (thanks for reports).\n\nAdded a check before glyph report popup, now checks if player is in instance/group.\n\nMoved import/export into its own view.\n\nExporting now shows the character info on the left.\n\nImporting is coming, this will create a gear set for your character with a prefix to the set name.\n\nWorking on feature to show all alts even those not in guild, only visible to you at the moment.",
     },

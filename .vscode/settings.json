@@ -103,6 +103,12 @@
         "Professions",
         "PROFESSIONS_COOKING",
         "PROFESSIONS_FIRST_AID",
-        "PROFESSIONS_FISHING"
+        "PROFESSIONS_FISHING",
+        "BOOKTYPE_SPELL",
+        "GameFontWhite",
+        "NineSliceUtil",
+        "NineSliceLayouts",
+        "GameFontNormal",
+        "GameFontNormalLarge"
     ]
 }

@@ -1,5 +1,11 @@
 <UI>
 
+    <Frame name="GuildbookTextWidget" inherits="ScrollingFontTemplate" virtual="true">
+        <KeyValues>
+            <KeyValue key="fontName" value="GameFontWhite"/>
+        </KeyValues>
+    </Frame>
+
     <Frame name="GuildbookWrathEraProfilesRowTemplate" mixin="GuildbookProfilesRowMixin" virtual="true">
         <Layers>
             <Layer level="BACKGROUND">

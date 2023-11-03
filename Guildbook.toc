@@ -1,6 +1,6 @@
 ## Interface: 30403
 ## Author: TheBoringDad
-## Version: 6.7
+## Version: 6.8
 ## Title: Guildbook
 ## Notes: An addon for guilds
 ## SavedVariables: GUILDBOOK_GLOBAL
@@ -94,6 +94,9 @@ Views\Dailies\Dailies.xml
 
 Views\ImportExport\ImportExport.lua
 Views\ImportExport\ImportExport.xml
+
+Views\Home\Home.lua
+Views\Home\Home.xml
 
 Events.lua
 

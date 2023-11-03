@@ -14,11 +14,14 @@
                     </Anchors>
                 </FontString>
             </Layer>
-            <!-- <Layer level="BACKGROUND">
-                <Texture atlas="accountupgradebanner-wotlk" alpha="0.375">
-
+            <Layer level="ARTWORK">
+                <Texture parentKey="icon">
+                    <Size x="36" y="36"/>
+                    <Anchors>
+                        <Anchor point="TOP" x="0" y="-34"/>
+                    </Anchors>
                 </Texture>
-            </Layer> -->
+            </Layer>
         </Layers>
         <Frames>
             <Frame parentKey="text" inherits="ScrollingFontTemplate">
@@ -29,13 +32,6 @@
                 <KeyValues>
                     <KeyValue key="fontName" value="GameFontWhite"/>
                 </KeyValues>
-                <!-- <Layers>
-                    <Layer level="BACKGROUND">
-                        <Texture alpha="0.5">
-                            <Color r="0" g="0" b="0"/>
-                        </Texture>
-                    </Layer>
-                </Layers> -->
             </Frame>
             <Button parentKey="accept" inherits="UIPanelButtonTemplate" text="OK">
                 <Size x="260" y="22"/>
@@ -83,12 +79,12 @@
                         <Anchor point="BOTTOMLEFT" x="5" y="4"/>
                     </Anchors>
                 </FontString>
-                <FontString parentKey="memoryUsage" inherits="GameFontNormalSmall" justifyH="LEFT" text="mem">
+                <!-- <FontString parentKey="memoryUsage" inherits="GameFontNormalSmall" justifyH="LEFT" text="mem">
                     <Size x="180" y="10"/>
                     <Anchors>
                         <Anchor point="TOPRIGHT" x="-70" y="-6"/>
                     </Anchors>
-                </FontString>
+                </FontString> -->
             </Layer>
         </Layers>
 
@@ -155,9 +151,27 @@
                             <KeyValue key="tooltipText" value="RIBBON_VIEW_HISTORY_BACK_TT" type="string"/>
                         </KeyValues>
                     </Frame>
-                    <Frame parentKey="guildtree" inherits = "GuildbookWrathEraSmallHighlightButton" hidden="false">
+                    <Frame parentKey="home" inherits = "GuildbookWrathEraSmallHighlightButton" hidden="false">
                         <Anchors>
                             <Anchor point="LEFT" relativeKey="$parent.viewHistoryBack" relativePoint="RIGHT" x="4" y="0"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture atlas="Gamepad_Gen_System_64" setAllPoints="true">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="0" y="0"/>
+                                        <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                        <KeyValues>
+                            <KeyValue key="tooltipText" value="Home" type="string"/>
+                        </KeyValues>
+                    </Frame>
+                    <Frame parentKey="guildtree" inherits = "GuildbookWrathEraSmallHighlightButton" hidden="false">
+                        <Anchors>
+                            <Anchor point="LEFT" relativeKey="$parent.home" relativePoint="RIGHT" x="4" y="0"/>
                         </Anchors>
                         <Layers>
                             <Layer level="BACKGROUND">

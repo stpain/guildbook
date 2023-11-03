@@ -286,9 +286,6 @@ function GuildbookCalendarMixin:UpdateLockouts()
     end
 
     table.sort(sortTable, function(a, b)
-        -- local nameA = string.format("%s-%s", a.name, a.maxPlayers)
-        -- local nameB = string.format("%s-%s", b.name, b.maxPlayers)
-
         if a.difficulty == b.difficulty then
             if a.name == b.name then
                 return a.player < b.player

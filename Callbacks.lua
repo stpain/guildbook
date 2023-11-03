@@ -49,5 +49,6 @@ addon:GenerateCallbackEvents({
 
     "Quest_OnTurnIn",
     "Quest_OnAccepted",
+    --"Quest_OnDailyFavouriteChanged",
 })
 CallbackRegistryMixin.OnLoad(addon);

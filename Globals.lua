@@ -239,6 +239,38 @@ function addon.api.characterIsMine(name)
     return false;
 end
 
+function addon.api.wrath.scanSpellbook()
+    local t = {}
+    for i = 1, GetNumSpellTabs() do
+        local offset, numSlots = select(3, GetSpellTabInfo(i))
+        for j = offset+1, offset+numSlots do
+            local start, duration, enabled, modRate = GetSpellCooldown(j, BOOKTYPE_SPELL)
+            local spellLink = GetSpellLink(j, BOOKTYPE_SPELL)
+            print(spellLink, start, duration)
+            
+            --longer than an hour
+            if duration > 3600 then
+                local name, rank, icon, castTime, minRange, maxRange, spellID, originalIcon = GetSpellInfo(j, BOOKTYPE_SPELL)
+
+                --get finish time in utc
+                local now = GetTime()
+                local ends = (start + duration)
+                local finishesIn = (ends - now)
+
+                local utcFinish = time() + finishesIn
+
+                table.insert(t, {
+                    spellLink = spellLink,
+                    spellID = spellID,
+                    finishes = utcFinish,
+                })
+            end
+        end
+    end
+    --DevTools_Dump(t)
+end
+
+
 function addon.api.wrath.getPlayerEquipment()
     local sets = C_EquipmentSet.GetEquipmentSetIDs();
 
@@ -916,6 +948,24 @@ function addon.api.classic.getPlayerEquipment()
         equipment[v.slot] = link
     end
     return equipment;
+end
+
+function addon.api.getDaysInMonth(month, year)
+    local days_in_month = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 }
+    local d = days_in_month[month]
+    -- check for leap year
+    if (month == 2) then
+        if year % 4 == 0 then
+            if year % 100 == 0 then
+                if year % 400 == 0 then
+                    d = 29
+                end
+            else
+                d = 29
+            end
+        end
+    end
+    return d
 end
 
 

@@ -1,0 +1,67 @@
+<Ui>
+    <Frame name="GuildbookHome" mixin="GuildbookHomeMixin">
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="background" alpha="0.9" setAllPoints="true"/>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Frame parentKey="gmotd" inherits="GuildbookTextWidget">
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="40" y="-40"/>
+                    <Anchor point="TOPRIGHT" x="-40" y="-40"/>
+                </Anchors>
+                <Size y="30"/>
+            </Frame>
+            <Frame parentKey="agenda">
+                <Size x="300"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.gmotd" relativePoint="BOTTOMLEFT" x="-20" y="-40"/>
+                    <Anchor point="BOTTOMLEFT" x="20" y="20"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <FontString parentKey="header" inherits="GameFontNormal" justifyV="BOTTOM" text="Agenda">
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="0" y="-10"/>
+                                <Anchor point="TOPRIGHT" x="0" y="-10"/>
+                            </Anchors>
+                            <Size y="20"/>
+                        </FontString>
+                    </Layer>
+                </Layers>
+                <Frames>
+                    <!-- <Button parentKey="addTask">
+                        <Size x="20" y="20"/>
+                        <Anchors>
+                            <Anchor point="TOPRIGHT" x="-10" y="-10"/>
+                        </Anchors>
+                        <NormalTexture atlas="communities-icon-addchannelplus"/>
+                        <HighlightTexture atlas="communities-create-avatar-border-hover"/>
+                    </Button> -->
+                    <Frame parentKey="listview" inherits="GuildbookWrathEraWidgetsListviewTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" x="10" y="-30"/>
+                            <Anchor point="BOTTOMRIGHT" x="-11" y="10"/>
+                        </Anchors>
+                        <KeyValues>
+                            <KeyValue key="itemTemplate" value="GuildbookWrathEraSimpleIconLabelFrame" type="string"/>
+                            <KeyValue key="elementHeight" value="40" type="number"/>
+                        </KeyValues>
+                    </Frame>
+
+                    <!-- <Frame parentKey="newTaskDialog" hidden="false">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeKey="addTask" relativePoint="BOTTOMRIGHT" x="10" y="-10"/>
+                        </Anchors>
+                        <Size x="400" y="200"/>
+                    </Frame> -->
+                </Frames>
+            </Frame>
+        </Frames>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnShow method="OnShow"/>
+        </Scripts>
+    </Frame>
+</Ui>

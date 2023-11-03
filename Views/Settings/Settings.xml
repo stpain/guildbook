@@ -3,8 +3,7 @@
         <Layers>
             <Layer level="BACKGROUND">
                 <Texture atlas="ClassHall_InfoBoxMission-BackgroundTile" vertTile="true" horizTile="true" setAllPoints="true">
-                <!-- <Texture atlas="glueannouncementpopup-background" setAllPoints="true"> -->
-                
+
                 </Texture>
             </Layer>
             <!-- <Layer level="OVERLAY">

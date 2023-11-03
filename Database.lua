@@ -8,17 +8,15 @@ local configUpdates = {
 
     --tradeskills
     tradeskillsRecipesListviewShowItemID = false,
-
-
-    --settings
-    chatGuildHistoryLimit = 50,
-    chatWhisperHistoryLimit = 50,
-
+    tradeskillsShareCooldowns = false,
     tradeskillsShowAllRecipeInfoTooltip = false,
     tradeskillsShowMyRecipeInfoTooltip = false,
-
     tradeskillsShowAllRecipesUsingTooltip = false,
     tradeskillsShowMyRecipesUsingTooltip = false,
+
+    --settings
+    chatGuildHistoryLimit = 30,
+    chatWhisperHistoryLimit = 30,
 
     modBlizzRoster = false,
 }
@@ -34,6 +32,7 @@ local dbUpdates = {
     chats = { --some errors about this causing a bug, maybe old version not getting update in the past
         guild = {},
     },
+    --agenda = {},
 }
 local dbToRemove = {
     "worldEvents",
@@ -62,6 +61,10 @@ function Database:Init()
             version = version,
             calendar = {
                 events = {},
+            },
+            dailies = {
+                quests = {},
+                characters = {},
             },
         }
     end
@@ -143,6 +146,16 @@ function Database:Init()
 
     addon:TriggerEvent("StatusText_OnChanged", "[Database_OnInitialised]")
     addon:TriggerEvent("Database_OnInitialised")
+end
+
+function Database:CleanGuilds()
+    if self.db then
+        for guildName, guild in pairs(self.db.guilds) do
+            guild.info = nil
+            guild.logs = {}
+            guild.calendar = {}
+        end
+    end
 end
 
 function Database:Reset()
@@ -232,6 +245,7 @@ function Database:DeleteCalendarEvent(event)
 end
 
 function Database:GetCalendarEventsBetween(_from, _to)
+
     local t = {}
     if not _to then
         _to = _from
@@ -241,6 +255,22 @@ function Database:GetCalendarEventsBetween(_from, _to)
     if self.db and self.db.calendar and self.db.calendar.events then
         for k, event in ipairs(self.db.calendar.events) do
             if (event.timestamp >= from) and (event.timestamp <= to) then
+                table.insert(t, event)
+            end
+        end
+    end
+    return t;
+end
+
+function Database:GetCalendarEventsForPeriod(fromTimestamp, period)
+
+    local t = {}
+    period = period or 1
+    local to = fromTimestamp + (60*60*24*period)
+
+    if self.db and self.db.calendar and self.db.calendar.events then
+        for k, event in ipairs(self.db.calendar.events) do
+            if (event.timestamp >= fromTimestamp) and (event.timestamp <= to) then
                 table.insert(t, event)
             end
         end
@@ -262,6 +292,49 @@ function Database:GetConfig(conf)
     return false;
 end
 
+function Database:GetDailyQuestInfo(questID)
+    if self.db and self.db.dailies and self.db.dailies.quests[questID] then
+        return self.db.dailies.quests[questID]
+    end
+    return false;
+end
+
+function Database:GetDailyQuestIDsForCharacter(nameRealm, onlyFavourites)
+    local t = {}
+    if self.db and self.db.dailies and self.db.dailies.characters[nameRealm] then
+        for questID, turnInInfo in pairs(self.db.dailies.characters[nameRealm]) do
+            if onlyFavourites then
+                if onlyFavourites == turnInInfo.isFavorite then
+                    table.insert(t, questID)
+                end
+            else
+                table.insert(t, questID)
+            end
+        end
+    end
+    return t;
+end
+
+function Database:GetDailyQuestInfoForCharacter(nameRealm, onlyFavourites)
+    local t = {}
+    if self.db and self.db.dailies and self.db.dailies.characters[nameRealm] then
+        for questID, turnInInfo in pairs(self.db.dailies.characters[nameRealm]) do
+            local turnIn = {}
+            for k, v in pairs(turnInInfo) do
+                turnIn[k] = v;
+            end
+            turnIn.questID = questID;
+            if onlyFavourites then
+                if onlyFavourites == turnInInfo.isFavorite then
+                    table.insert(t, turnIn)
+                end
+            else
+                table.insert(t, turnIn)
+            end
+        end
+    end
+    return t;
+end
 
 function Database:SetCharacterSyncData(key, val)
     if self.charDb then

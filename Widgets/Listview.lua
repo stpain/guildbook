@@ -8,6 +8,9 @@ function GuildbookWrathEraWidgetsListviewMixin:OnLoad()
 
     ---height is defined in the xml keyValues
     local height = self.elementHeight;
+
+    --print(self:GetName(), height)
+
     self.scrollView:SetElementExtent(height);
 
     self.scrollView:SetElementInitializer(self.itemTemplate, GenerateClosure(self.OnElementInitialize, self));

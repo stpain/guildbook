@@ -60387,4 +60387,8 @@ addon.glyphData.spellIdToItemId = {
 	[63225] = { itemID = 45747, spellID = false, }, --salvation
 	[54943] = { itemID = 41110, spellID = false, }, --seal of light
 	[59309] = { itemID = 43672, spellID = false, }, --pestilence
+
+	[63302] = { itemID = 45779, spellID = false, }, --haunt
+	[62259] = { itemID = 43541, spellID = false, }, --death's grip
+	[54923] = { itemID = 41095, spellID = false, }, --hammer justice
 }

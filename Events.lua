@@ -320,6 +320,7 @@ function e:UNIT_AURA()
     -- if addon.characters[addon.thisCharacter] then
     --     addon.characters[addon.thisCharacter]:SetAuras("current", auras)
     -- end
+    --addon.api.wrath.scanSpellbook()
 end
 
 function e:EQUIPMENT_SETS_CHANGED()
@@ -618,6 +619,7 @@ function e:GUILD_ROSTER_UPDATE()
                     },
                     containers = {},
                     lockouts = {},
+                    tradeskillCooldowns = {},
                 }
                 Database:InsertCharacter(character)
                 
@@ -741,9 +743,13 @@ local function processSkillLines(skills)
     end
 end
 
-local function setCharacterTradeskill(prof, recipes)
+local function setCharacterTradeskill(prof, recipes, tradeskillCooldowns)
 
     if addon.characters and addon.characters[addon.thisCharacter] then
+
+        if tradeskillCooldowns then
+            addon.characters[addon.thisCharacter]:UpdateTradeskillCooldowns(tradeskillCooldowns)
+        end
         
         if prof == 185 then
             addon.characters[addon.thisCharacter]:SetCookingRecipes(recipes, true)
@@ -815,28 +821,48 @@ local function scanTradeskills()
     local prof;
     local numTradeskills = GetNumTradeSkills()
 
-    --print("found "..numTradeskills.." recipes")
+    local tradeskillCooldowns = {}
 
     local tradeskillTitle = TradeSkillFrameTitleText:GetText()
     if tradeskillTitle then
         prof = Tradeskills:GetTradeskillIDFromLocale(tradeskillTitle)
     end
 
-    --print(tradeskillTitle, prof)
+    local cooldownsAdded = {}
 
     for i = 1, numTradeskills do
         local name, _type, _, _, _ = GetTradeSkillInfo(i)
         if name and (_type == "optimal" or _type == "medium" or _type == "easy" or _type == "trivial") then
             local itemLink = GetTradeSkillItemLink(i)
+            local cooldown = GetTradeSkillCooldown(i)
+            if cooldown then
+
+                if name:find(":") then
+                    local skillPrefix, skill = strsplit(":", name)
+                    if not cooldownsAdded[skillPrefix] then
+                        cooldownsAdded[skillPrefix] = true
+                        table.insert(tradeskillCooldowns, {
+                            name = skillPrefix,
+                            finishes = time() + math.floor(cooldown),
+                            tradeskillID = prof,
+                        })
+                    end
+                else
+                    table.insert(tradeskillCooldowns, {
+                        name = name,
+                        finishes = time() + math.floor(cooldown),
+                        tradeskillID = prof,
+                    })
+                end
+
+            end
             if itemLink then
                 local id = GetItemInfoFromHyperlink(itemLink)
                 if id then
-                    --print(itemLink, id)
                     for k, v in ipairs(addon.itemData) do
                         if v.itemID == id then
                             table.insert(recipes, v.spellID)
-                            --prof = v.tradeskillID;
-                            --print("Set prof value to ", prof, "using item data", itemLink)
+
                         end
                     end
 
@@ -863,7 +889,7 @@ local function scanTradeskills()
         end
     end
 
-    return prof, recipes
+    return prof, recipes, tradeskillCooldowns
 end
 
 function e:SKILL_LINES_CHANGED()
@@ -878,9 +904,11 @@ function e:TRADE_SKILL_SHOW()
         local skills = addon.api.getPlayerSkillLevels()
         processSkillLines(skills)
 
-        local prof, recipes = scanTradeskills()
-        --DevTools_Dump(recipes)
-        setCharacterTradeskill(prof, recipes)
+        C_Timer.After(1.0, function()
+            local prof, recipes, tradeskillCooldowns = scanTradeskills()
+            setCharacterTradeskill(prof, recipes, tradeskillCooldowns)        
+        end)
+
     else
 
     end

@@ -299,6 +299,8 @@ function GuildbookWrathDailiesListviewItemMixin:SetDataBinding(binding, height)
                 self.daily.characterQuestInfo.isFavorite = not self.daily.characterQuestInfo.isFavorite;
                 local atlas = self.daily.characterQuestInfo.isFavorite == true and "auctionhouse-icon-favorite" or "auctionhouse-icon-favorite-off";
                 self.favorite:SetNormalAtlas(atlas)
+
+                --addon:TriggerCallback("Quest_OnDailyFavouriteChanged")
             end)
         end
 
