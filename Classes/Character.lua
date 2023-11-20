@@ -336,19 +336,29 @@ function Character:GetTradeskillLevel(slot)
 end
 
 
-function Character:SetTradeskillSpec(slot, spec, broadcast)
-    local k
-    if slot == 1 then
-        self.data.profession1Spec = spec;
-        k = "profession1Spec"
-    elseif slot == 2 then
-        self.data.profession2Spec = spec;
-        k = "profession2Spec"
+function Character:SetTradeskillSpecs(specs, broadcast)
+
+    if type(specs) == "table" then
+        for k, spec in ipairs(specs) do
+            if spec.tradeskillID == self.data.profession1 then
+                self.data.profession1Spec = spec.spellID
+
+                if broadcast then
+                    addon:TriggerEvent("Character_BroadcastChange", self, "SetTradeskillSpec", "profession1Spec")
+                end
+
+            end
+            if spec.tradeskillID == self.data.profession2 then
+                self.data.profession2Spec = spec.spellID
+
+                if broadcast then
+                    addon:TriggerEvent("Character_BroadcastChange", self, "SetTradeskillSpec", "profession2Spec")
+                end
+            end
+        end
     end
+
     addon:TriggerEvent("Character_OnDataChanged", self)
-    if broadcast then
-        addon:TriggerEvent("Character_BroadcastChange", self, "SetTradeskillSpec", k)
-    end
     addon:TriggerEvent("StatusText_OnChanged", string.format(" set %s for %s", "tradeskill spec", self.data.name))
 end
 
@@ -706,7 +716,7 @@ function Character:SetAlts(alts, broadcast)
     end
     addon:TriggerEvent("Character_OnDataChanged", self)
     if broadcast then
-        addon:TriggerEvent("Character_OnDataChanged", self, "SetAlts", "alts")
+        addon:TriggerEvent("Character_BroadcastChange", self, "SetAlts", "alts")
     end
     addon:TriggerEvent("StatusText_OnChanged", string.format(" set alts for %s", self.data.name))
 end
@@ -924,6 +934,14 @@ function Character:GetLockouts()
 end
 
 
+function Character:SetAchievementPoints(points, broadcast)
+    self.data.achievementPoints = points;
+    addon:TriggerEvent("Character_OnDataChanged", self)
+    if broadcast then
+        addon:TriggerEvent("Character_BroadcastChange", self, "SetAchievementPoints", "achievementPoints")
+    end
+end
+
 
 function Character:CreateFromData(data)
     if (data.race == false) or (data.gender == false) then
@@ -992,6 +1010,8 @@ function Character:CreateEmpty()
         },
         containers = {},
         lockouts = {},
+        tradeskillCooldowns = {},
+        achievementPoints = 0,
     }
     return character;
 end
@@ -1036,6 +1056,8 @@ function Character:ResetData()
     }
     self.data.containers = {}
     self.data.lockouts = {}
+    self.data.tradeskillCooldowns = {}
+    self.data.achievementPoints = 0
     addon:TriggerEvent("Character_OnDataChanged", self)
 end
 

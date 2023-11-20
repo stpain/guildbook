@@ -165,7 +165,7 @@ function GuildbookProfileMixin:OnLoad()
 		-- addon:TriggerEvent("Character_ExportEquipment", self.character, self.currentEquipmentSet, spec)
 
 		local menu = addon.api.generateExportMenu(self.character)
-		EasyMenu(menu, addon.contextMenu, "cursor", 0, 0, "MENU", 1)
+		EasyMenu(menu, addon.contextMenu, "cursor", 0, 0, "MENU", 0.2)
 	end)
 
 	table.insert(self.helptips, self.sidePane.helptip)
@@ -369,6 +369,14 @@ function GuildbookProfileMixin:Update()
 	else
 		self.sidePane.mainCharacter:SetText("")
 		self.sidePane.mainCharacter:SetHeight(1)
+	end
+
+	if self.character.data.achievementPoints then
+		self.sidePane.achievementPoints:SetHeight(16)
+		self.sidePane.achievementPoints:SetText(self.character.data.achievementPoints)
+	else
+		self.sidePane.achievementPoints:SetHeight(1)
+		self.sidePane.achievementPoints:SetText("")
 	end
 
 

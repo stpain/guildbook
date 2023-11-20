@@ -109,6 +109,10 @@
         "NineSliceUtil",
         "NineSliceLayouts",
         "GameFontNormal",
-        "GameFontNormalLarge"
+        "GameFontNormalLarge",
+        "SpellBookFrame",
+        "PRIMARY",
+        "SECONDARY",
+        "AchievementFrame"
     ]
 }

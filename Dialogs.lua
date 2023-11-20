@@ -58,6 +58,22 @@ StaticPopupDialogs['GuildbookReport'] = {
     showAlert = 1,
 }
 
+StaticPopupDialogs['GuildbookDeleteGeneric'] = {
+    text = 'Delete %s',
+    button1 = YES,
+    button2 = NO,
+    OnAccept = function(self, data)
+        if data.callback then
+            data.callback()
+        end
+    end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = false,
+    preferredIndex = 3,
+    showAlert = 1,
+}
+
 StaticPopupDialogs['GuildbookDeleteCharacter'] = {
     text = 'Delete %s',
     button1 = YES,

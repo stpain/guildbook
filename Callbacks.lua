@@ -8,6 +8,7 @@ addon:GenerateCallbackEvents({
     "Database_OnCharacterRemoved", 
     "Database_OnConfigChanged",
     "Database_OnDailyQuestCompleted",
+    "Database_OnDailyQuestDeleted",
     "Database_OnCalendarDataChanged",
 
     "Character_OnProfileSelected",
@@ -32,6 +33,8 @@ addon:GenerateCallbackEvents({
     --"Blizzard_OnTradeskillUpdate",
     "Blizzard_OnGuildRosterUpdate",
     "Blizzard_OnInitialGuildRosterScan",
+
+    "Roster_OnSelectionChanged",
 
     "UI_OnSizeChanged",
 

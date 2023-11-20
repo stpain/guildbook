@@ -239,35 +239,25 @@ function addon.api.characterIsMine(name)
     return false;
 end
 
-function addon.api.wrath.scanSpellbook()
+function addon.api.scanForTradeskillSpec()
     local t = {}
     for i = 1, GetNumSpellTabs() do
         local offset, numSlots = select(3, GetSpellTabInfo(i))
         for j = offset+1, offset+numSlots do
-            local start, duration, enabled, modRate = GetSpellCooldown(j, BOOKTYPE_SPELL)
-            local spellLink = GetSpellLink(j, BOOKTYPE_SPELL)
-            print(spellLink, start, duration)
-            
-            --longer than an hour
-            if duration > 3600 then
-                local name, rank, icon, castTime, minRange, maxRange, spellID, originalIcon = GetSpellInfo(j, BOOKTYPE_SPELL)
-
-                --get finish time in utc
-                local now = GetTime()
-                local ends = (start + duration)
-                local finishesIn = (ends - now)
-
-                local utcFinish = time() + finishesIn
-
+            --local start, duration, enabled, modRate = GetSpellCooldown(j, BOOKTYPE_SPELL)
+            --local spellLink, _ = GetSpellLink(j, BOOKTYPE_SPELL)
+            local _, spellID = GetSpellBookItemInfo(j, BOOKTYPE_SPELL)
+           
+            if Tradeskills.SpecializationSpellsIDs[spellID] then
                 table.insert(t, {
-                    spellLink = spellLink,
+                    tradeskillID = Tradeskills.SpecializationSpellsIDs[spellID],
                     spellID = spellID,
-                    finishes = utcFinish,
                 })
             end
+
         end
     end
-    --DevTools_Dump(t)
+    return t;
 end
 
 
@@ -526,6 +516,7 @@ function addon.api.classic.getPlayerTalents()
     }
 end
 
+local glyphsPopped = {}
 function addon.api.wrath.getPlayerTalents(...)
     local newSpec, previousSpec = ...;
 
@@ -585,14 +576,20 @@ function addon.api.wrath.getPlayerTalents(...)
                     end
                     if not found then
                         if not inGroup and not inInstance then
-                            local s = string.format("[%s] unable to find glyph itemID for %s with GlyphSpellID of %d", addonName, name, glyphSpellID)
-                            StaticPopup_Show("GuildbookReport", s)
+                            if not glyphsPopped[glyphSpellID] then
+                                local s = string.format("[%s] unable to find glyph itemID for %s with GlyphSpellID of %d", addonName, name, glyphSpellID)
+                                StaticPopup_Show("GuildbookReport", s)
+                                glyphsPopped[glyphSpellID] = true
+                            end
                         end
                     end
                 else
                     if not inGroup and not inInstance then
-                        local s = string.format("[%s] glyph data for %s with GlyphSpellID of %d missing from lookup table", addonName, name, glyphSpellID)
-                        StaticPopup_Show("GuildbookReport", s)
+                        if not glyphsPopped[glyphSpellID] then
+                            local s = string.format("[%s] glyph data for %s with GlyphSpellID of %d missing from lookup table", addonName, name, glyphSpellID)
+                            StaticPopup_Show("GuildbookReport", s)
+                            glyphsPopped[glyphSpellID] = true
+                        end
                     end
                 end
             end

@@ -13,6 +13,7 @@ GuildbookGuildRosterMixin = {
 function GuildbookGuildRosterMixin:OnLoad()
 
     addon:RegisterCallback("Blizzard_OnGuildRosterUpdate", self.Blizzard_OnGuildRosterUpdate, self)
+    addon:RegisterCallback("Roster_OnSelectionChanged", self.Update, self)
 
     self.rosterHelptip:SetText(L.ROSTER_LISTVIEW_HT)
     table.insert(self.helptips, self.rosterHelptip)
@@ -22,7 +23,8 @@ function GuildbookGuildRosterMixin:OnLoad()
         if i ~= 10 then
             local locale, eng, id = GetClassInfo(i)
             table.insert(classMenu, {
-                text = locale,
+                text = RAID_CLASS_COLORS[eng]:WrapTextInColorCode(locale),
+                sortID = locale,
                 icon = nil,
                 func = function()
                     self.selectedClass = id
@@ -31,7 +33,10 @@ function GuildbookGuildRosterMixin:OnLoad()
             })
         end
     end
-    table.insert(classMenu, {
+    table.sort(classMenu, function (a, b)
+        return a.sortID < b.sortID;
+    end)
+    table.insert(classMenu, 1, {
         text = ALL,
         icon = nil,
         func = function()
@@ -84,7 +89,7 @@ function GuildbookGuildRosterMixin:OnLoad()
     addon.AddView(self)
 end
 
-function GuildbookGuildRosterMixin:Update()
+function GuildbookGuildRosterMixin:Update(classID, minLevel, maxLevel)
 
     --these filters seemed to cause lag on the UI so just checking data directly instead
 
@@ -111,6 +116,16 @@ function GuildbookGuildRosterMixin:Update()
     --     generateClassFilter(),
     --     generateLevelFilter(),
     -- }
+
+    if classID then
+        self.selectedClass = classID
+    end
+    if minLevel then
+        self.selectedMinLevel = minLevel
+    end
+    if maxLevel then
+        self.selectedMaxLevel = maxLevel
+    end
 
     local t = {}
     for nameRealm, character in pairs(addon.characters) do
@@ -159,6 +174,7 @@ function GuildbookGuildRosterMixin:Update()
     
     local dp = CreateDataProvider(t)
     self.rosterListview.scrollView:SetDataProvider(dp)
+
 end
 
 function GuildbookGuildRosterMixin:Blizzard_OnGuildRosterUpdate()

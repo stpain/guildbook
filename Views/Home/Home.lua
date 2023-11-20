@@ -31,6 +31,7 @@ local gmotdNineSliceLayout =
 
 GuildbookHomeMixin = {
     name = "Home",
+    censusShowOffline = false,
 }
 
 function GuildbookHomeMixin:OnLoad()
@@ -39,13 +40,26 @@ function GuildbookHomeMixin:OnLoad()
     self.gmotd:GetFontString():SetJustifyH("CENTER")
     self.gmotd:GetFontString():SetJustifyV("MIDDLE")
 
+    self.census.bars = {}
+
+    self.census.toggleOffline:SetChecked(self.censusShowOffline)
+    self.census.toggleOffline.label:SetText("Include offline.")
+    self.census.toggleOffline:SetScript("OnClick", function(cb)
+        self.censusShowOffline = not self.censusShowOffline;
+        cb:SetChecked(self.censusShowOffline)
+        self:UpdateCensus()
+    end)
+
     NineSliceUtil.ApplyLayout(self.agenda, agendaNineSliceLayout)
+    NineSliceUtil.ApplyLayout(self.census, agendaNineSliceLayout)
     NineSliceUtil.ApplyLayout(self.gmotd, gmotdNineSliceLayout)
 
     addon:RegisterCallback("Blizzard_OnInitialGuildRosterScan", self.LoadData, self)
     addon:RegisterCallback("Database_OnDailyQuestCompleted", self.LoadData, self)
     addon:RegisterCallback("Character_OnDataChanged", self.LoadData, self)
     addon:RegisterCallback("Database_OnCalendarDataChanged", self.LoadData, self)
+    addon:RegisterCallback("UI_OnSizeChanged", self.UpdateLayout, self)
+    addon:RegisterCallback("Blizzard_OnGuildRosterUpdate", self.UpdateCensus, self)
 
     addon.AddView(self)
 end
@@ -56,6 +70,128 @@ function GuildbookHomeMixin:OnShow()
     self.agenda:ClearAllPoints()
     self.agenda:SetPoint("TOPLEFT", self.gmotd, "BOTTOMLEFT", -20, -40)
     self.agenda:SetPoint("BOTTOMLEFT", 20, 20)
+
+    self:UpdateLayout()
+end
+
+function GuildbookHomeMixin:UpdateLayout()
+
+    local x, y = self:GetSize()
+
+    --self.census:SetHeight(y - 130)
+    local maxCensusWidth = 380
+    local newCensusWidth = (x - 360)
+    self.census:SetWidth((newCensusWidth > maxCensusWidth) and maxCensusWidth or newCensusWidth) --agenda + 3x20 for padding
+
+    self:UpdateCensus()
+end
+
+function GuildbookHomeMixin:UpdateCensus()
+    if addon.characters then
+        local classes = {
+            [1] = 0,
+            [2] = 0,
+            [3] = 0,
+            [4] = 0,
+            [5] = 0,
+            [6] = 0,
+            [7] = 0,
+            [8] = 0,
+            [9] = 0,
+            --[10] = 0,
+            [11] = 0,
+            --[12] = 0,
+        }
+        local numTotalGuildMembers, numOnlineGuildMembers, numOnlineAndMobileMembers = GetNumGuildMembers()
+        self.census.info:SetText(string.format("%d total (%d online)", numTotalGuildMembers, numOnlineGuildMembers))
+        for _, info in pairs(addon.characters) do
+            if self.censusShowOffline then
+                if not classes[info.data.class] then
+                    classes[info.data.class] = 1
+                else
+                    classes[info.data.class] = classes[info.data.class] + 1
+                end
+            else
+                if info.data.onlineStatus.isOnline then
+                    if not classes[info.data.class] then
+                        classes[info.data.class] = 1
+                    else
+                        classes[info.data.class] = classes[info.data.class] + 1
+                    end
+                end
+            end
+        end
+
+        local classesSort = {}
+        local maxCount = 0;
+        for classID, count in pairs(classes) do
+            if count > maxCount then
+                maxCount = count;
+            end
+            table.insert(classesSort, {
+                classID = classID,
+                count = count,
+            })
+        end
+        table.sort(classesSort, function(a, b)
+            --return a.classID < b.classID
+            return a.count > b.count
+        end)
+
+        local censusWidth, censusHeight = self.census:GetWidth(), self.census:GetHeight()
+        --local barHeight = (censusHeight - 22) / #classesSort;
+
+        local barWidth = (censusWidth - 22) / #classesSort;
+
+        if type(self.census.bars) == "table" then
+            for k, bar in ipairs(self.census.bars) do
+                bar:Hide()
+            end
+        end
+
+        for k, class in ipairs(classesSort) do
+            local _, engClass = GetClassInfo(class.classID)
+            if engClass then
+                if not self.census.bars[k] then
+                    local bar = CreateFrame("StatusBar", nil, self.census)
+                    bar:SetOrientation("VERTICAL")
+                    bar:SetStatusBarTexture(137012)
+                    bar:SetFrameLevel(8000)
+
+                    bar.icon = bar:CreateTexture(nil, "ARTWORK")
+                    bar.icon:SetPoint("TOPLEFT", bar, "BOTTOMLEFT", 0, 0)
+                    bar.icon:SetPoint("TOPRIGHT", bar, "BOTTOMRIGHT", 0, 0)
+                    bar.icon:SetAtlas(string.format("classicon-%s", engClass):lower())
+                    bar.icon:SetAlpha(0.9)
+
+                    bar.label = bar:CreateFontString(nil, "OVERLAY", "GameFontWhite")
+                    bar.label:SetPoint("BOTTOM", 0, 4)
+
+                    self.census.bars[k] = bar;
+
+                end
+                local r, g, b = RAID_CLASS_COLORS[engClass]:GetRGB()
+                self.census.bars[k]:SetStatusBarColor(r, g, b, 0.9)
+                self.census.bars[k]:SetMinMaxValues(0, maxCount)
+                self.census.bars[k]:SetValue(class.count)
+                --self.census.bars[k]:SetSize((censusWidth - 22) - barHeight, barHeight - 1)
+                self.census.bars[k]:SetSize(barWidth - 1, censusHeight - barWidth - 43)
+                --self.census.bars[k]:SetPoint("BOTTOMLEFT", self.census, "BOTTOMLEFT", 11 + barHeight, ((k-1) * barHeight) + 11)
+                self.census.bars[k]:SetPoint("BOTTOMLEFT", self.census, "BOTTOMLEFT", ((k-1) * barWidth) + 11, 32 + barWidth)
+                --self.census.bars[k].icon:SetWidth(barHeight)
+                self.census.bars[k].icon:SetHeight(barWidth)
+                self.census.bars[k].icon:SetAtlas(string.format("classicon-%s", engClass):lower())
+                self.census.bars[k].label:SetText(class.count)
+
+                self.census.bars[k]:SetScript("onMouseDown", function()
+                    addon:TriggerEvent("Roster_OnSelectionChanged", class.classID)
+                    GuildbookUI:SelectView("GuildRoster")
+                end)
+                self.census.bars[k]:Show()
+            end
+
+        end
+    end
 end
 
 function GuildbookHomeMixin:LoadData()
@@ -63,6 +199,8 @@ function GuildbookHomeMixin:LoadData()
     if not self:IsVisible() then
         return;
     end
+
+    self:UpdateCensus()
 
     self.agenda.listview.DataProvider:Flush()
 

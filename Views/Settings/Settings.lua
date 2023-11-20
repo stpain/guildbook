@@ -309,7 +309,7 @@ function GuildbookSettingsMixin:PrepareCharacterPanel()
                             end,
                         })
 
-                        EasyMenu(menu, addon.contextMenu, "cursor", 0, 0, "MENU", 1)
+                        EasyMenu(menu, addon.contextMenu, "cursor", 0, 0, "MENU", 0.2)
                     end
 
                 end,
@@ -344,7 +344,7 @@ function GuildbookSettingsMixin:PrepareCharacterPanel()
                             })
                         end
 
-                        EasyMenu(menu, addon.contextMenu, "cursor", 0, 0, "MENU", 1)
+                        EasyMenu(menu, addon.contextMenu, "cursor", 0, 0, "MENU", 0.2)
                     end
                 end,
                 onMouseEnter = function()
@@ -393,7 +393,7 @@ function GuildbookSettingsMixin:PrepareCharacterPanel()
                             end,
                         })
 
-                        EasyMenu(menu, addon.contextMenu, "cursor", 0, 0, "MENU", 1)
+                        EasyMenu(menu, addon.contextMenu, "cursor", 0, 0, "MENU", 0.2)
                     end
                 end,
                 onMouseEnter = function()
@@ -427,7 +427,7 @@ function GuildbookSettingsMixin:PrepareCharacterPanel()
                             })
                         end
 
-                        EasyMenu(menu, addon.contextMenu, "cursor", 0, 0, "MENU", 1)
+                        EasyMenu(menu, addon.contextMenu, "cursor", 0, 0, "MENU", 0.2)
                     end
                 end,
                 onMouseEnter = function()
@@ -463,7 +463,7 @@ function GuildbookSettingsMixin:PrepareCharacterPanel()
                             end,
                         })
 
-                        EasyMenu(menu, addon.contextMenu, "cursor", 0, 0, "MENU", 1)
+                        EasyMenu(menu, addon.contextMenu, "cursor", 0, 0, "MENU", 0.2)
                     end
                 end,
                 onMouseEnter = function()
@@ -509,7 +509,7 @@ function GuildbookSettingsMixin:PrepareCharacterPanel()
                             end,
                         })
 
-                        EasyMenu(menu, addon.contextMenu, "cursor", 0, 0, "MENU", 1)
+                        EasyMenu(menu, addon.contextMenu, "cursor", 0, 0, "MENU", 0.2)
                     end
                 end,
                 onMouseEnter = function()
@@ -545,7 +545,7 @@ function GuildbookSettingsMixin:PrepareCharacterPanel()
         panel.alts.gridview:Flush()
         
         for nameRealm, _ in pairs(Database.db.myCharacters) do
-            if Database.db.guilds[addon.thisGuild].members[nameRealm] then
+            if Database and Database.db.guilds[addon.thisGuild] and Database.db.guilds[addon.thisGuild].members and Database.db.guilds[addon.thisGuild].members[nameRealm] then
                 panel.alts.gridview:Insert(addon.characters[nameRealm])
             end
         end

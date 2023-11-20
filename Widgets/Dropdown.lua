@@ -46,8 +46,6 @@ function GuildbookWrathEraWidgetsDropDownTemplateMixin:SetMenu(t)
         return;
     end
 
-    --self.flyout.listview.menu = t
-
     local menulength = #t;
     if menulength > 7 then
         self.flyout:SetHeight(182)
@@ -57,8 +55,8 @@ function GuildbookWrathEraWidgetsDropDownTemplateMixin:SetMenu(t)
 
     self.maxWidth = 0.0;
 
-    self.flyout.listview.DataProvider:Flush()
-    self.flyout.listview.DataProvider:InsertTable(t)
+    local dp = CreateDataProvider(t)
+    self.flyout.listview.scrollView:SetDataProvider(dp)
 end
 
 

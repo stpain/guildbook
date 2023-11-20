@@ -157,7 +157,7 @@
                         </Anchors>
                         <Layers>
                             <Layer level="BACKGROUND">
-                                <Texture atlas="Gamepad_Gen_System_64" setAllPoints="true">
+                                <Texture atlas="poi-town" setAllPoints="true">
                                     <Anchors>
                                         <Anchor point="TOPLEFT" x="0" y="0"/>
                                         <Anchor point="BOTTOMRIGHT" x="0" y="0"/>

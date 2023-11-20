@@ -536,21 +536,48 @@ function Comms:Character_OnDataRequest(sender, message)
     addon:TriggerEvent("StatusText_OnChanged", string.format("Data request from %s", sender))
 
     if message and message.payload then
-        if addon.characters[addon.thisCharacter].data[message.payload.requestData] then
 
-            local msg = {
-                event = "CHARACTER_DATA_RESPONSE",
-                version = self.version,
-                payload = {
-                    target = message.payload.target,
-                    request = message.payload.requestData,
-                    data = addon.characters[addon.thisCharacter].data[message.payload.requestData];
+        if message.payload.requestData and message.payload.requestData:find(".") then
+            
+            local key, subKey = strsplit(".", message.payload.requestData)
+            if type(key) == "string" and type(subKey) == "string" then
+                if addon.characters[addon.thisCharacter] and addon.characters[addon.thisCharacter].data[key] and addon.characters[addon.thisCharacter].data[key][subKey] then
+                    
+                    local msg = {
+                        event = "CHARACTER_DATA_RESPONSE",
+                        version = self.version,
+                        payload = {
+                            target = message.payload.target,
+                            request = message.payload.requestData,
+                            data = addon.characters[addon.thisCharacter].data[key][subKey];
+                        }
+                    }
+                    self:Transmit_NoQueue(msg, "WHISPER", sender)
+                    addon.LogDebugMessage("comms", string.format("Sent data response to %s", sender))
+                    addon:TriggerEvent("StatusText_OnChanged", string.format("Sent data response to %s", sender))
+
+                end
+            else
+                addon.LogDebugMessage("comms", string.format("Invalid keys from string split [%s]", sender))
+            end
+        else
+            if addon.characters[addon.thisCharacter] and addon.characters[addon.thisCharacter].data[message.payload.requestData] then
+
+                local msg = {
+                    event = "CHARACTER_DATA_RESPONSE",
+                    version = self.version,
+                    payload = {
+                        target = message.payload.target,
+                        request = message.payload.requestData,
+                        data = addon.characters[addon.thisCharacter].data[message.payload.requestData];
+                    }
                 }
-            }
-            self:Transmit_NoQueue(msg, "WHISPER", sender)
-            addon.LogDebugMessage("comms", string.format("Sent data response to %s", sender))
-            addon:TriggerEvent("StatusText_OnChanged", string.format("Sent data response to %s", sender))
+                self:Transmit_NoQueue(msg, "WHISPER", sender)
+                addon.LogDebugMessage("comms", string.format("Sent data response to %s", sender))
+                addon:TriggerEvent("StatusText_OnChanged", string.format("Sent data response to %s", sender))
+            end
         end
+
     end
 end
 
@@ -559,10 +586,24 @@ function Comms:Character_OnDataResponse(sender, message)
     addon.LogDebugMessage("comms", string.format("Data response from %s", sender))
     addon:TriggerEvent("StatusText_OnChanged", string.format("Data response from %s", sender))
 
-    if message.payload.target and message.payload.request and message.payload.data then
-        if addon.characters[message.payload.target] then
-            addon.characters[message.payload.target].data[message.payload.request] = message.payload.data;
-            addon:TriggerEvent("Character_OnDataChanged", addon.characters[message.payload.target])
+    if message.payload.request and message.payload.request:find(".") then
+        
+        local key, subKey = strsplit(".", message.payload.request)
+        if type(key) == "string" and type(subKey) == "string" then
+            if message.payload.target and message.payload.data then
+                if addon.characters and addon.characters[message.payload.target] then
+                    addon.characters[message.payload.target].data[key][subKey] = message.payload.data;
+                    addon:TriggerEvent("Character_OnDataChanged", addon.characters[message.payload.target])
+                end
+            end
+        end
+        
+    else
+        if message.payload.target and message.payload.request and message.payload.data then
+            if addon.characters and addon.characters[message.payload.target] then
+                addon.characters[message.payload.target].data[message.payload.request] = message.payload.data;
+                addon:TriggerEvent("Character_OnDataChanged", addon.characters[message.payload.target])
+            end
         end
     end
 

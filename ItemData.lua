@@ -60391,4 +60391,12 @@ addon.glyphData.spellIdToItemId = {
 	[63302] = { itemID = 45779, spellID = false, }, --haunt
 	[62259] = { itemID = 43541, spellID = false, }, --death's grip
 	[54923] = { itemID = 41095, spellID = false, }, --hammer justice
+
+	[58629] = { itemID = 43542, spellID = false, }, --death and decay
+	[58385] = { itemID = 43423, spellID = false, }, --rending
+
+	[55448] = { itemID = 41537, spellID = false, }, --lightning sheild
+	[56800] = { itemID = 42956, spellID = false, }, --backstab
+	
+	[58058] = { itemID = 43381, spellID = false, }, --astral recall
 }

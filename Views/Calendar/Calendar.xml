@@ -1,5 +1,11 @@
 <Ui>
     <Frame name="GuildbookCalendarDayTile" mixin="GuildbookCalendarDayTileMixin" enableMouse="true" virtual="true">
+        <Animations>
+            <AnimationGroup parentKey="anim" looping="REPEAT">
+                <Alpha childKey="flash" duration="0.3" fromAlpha="0" toAlpha="1"/>
+                <Alpha startDelay="0.3" childKey="flash" duration="0.3" fromAlpha="1" toAlpha="0"/>
+            </AnimationGroup>
+        </Animations>
         <Layers>
             <Layer level="BACKGROUND">
                 <Texture parentKey="background" setAllPoints="true">
@@ -11,11 +17,11 @@
                 
                 </Texture>
             </Layer>
-            <!-- <Layer level="BORDER">
-                <Texture parentKey="worldEventTexture" setAllPoints="true" alpha="0.8">
+            <Layer level="BORDER">
+                <Texture parentKey="flash" setAllPoints="true" alpha="0.0">
                 
                 </Texture>
-            </Layer> -->
+            </Layer>
             <Layer level="OVERLAY">
                 <FontString parentKey="dateLabel" inherits="GameFontNormal" text="23">
                     <Color r="1" g="1" b="1" a="1"/>

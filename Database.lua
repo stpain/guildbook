@@ -195,7 +195,7 @@ function Database:DeleteCharacter(nameRealm)
          if self.db.characterDirectory[nameRealm] then
             self.db.characterDirectory[nameRealm] = nil;
                 if addon.characters[nameRealm] then
-                    addon.Characters[nameRealm] = nil;
+                    addon.characters[nameRealm] = nil;
                 end
             addon:TriggerEvent("Database_OnCharacterRemoved", nameRealm)
          end
@@ -290,6 +290,19 @@ function Database:GetConfig(conf)
         return self.db.config[conf];
     end
     return false;
+end
+
+function Database:DeleteDailyQuest(questID)
+    if self.db and self.db.dailies and self.db.dailies.quests[questID] then
+        self.db.dailies.quests[questID] = nil
+
+        if self.db and self.db.dailies and self.db.dailies.characters then
+            for nameRealm, quests in pairs(self.db.dailies.characters) do
+                quests[questID] = nil
+            end
+        end
+        addon:TriggerEvent("Database_OnDailyQuestDeleted", questID)
+    end
 end
 
 function Database:GetDailyQuestInfo(questID)

@@ -2,14 +2,8 @@ local _, addon = ...
 local L = addon.Locales
 local Database = addon.Database;
 local Talents = addon.Talents;
-
-
-
-
-
-
-
-
+local Tradeskills = addon.Tradeskills;
+local Comms = addon.Comms;
 
 
 
@@ -241,7 +235,7 @@ function GuildbookChatCharacterListviewItemMixin:SetDataBinding(info, height)
 
     self:SetScript("OnMouseDown", function(_, button)
         if button == "RightButton" then
-            EasyMenu(self.contextMenu, addon.contextMenu, "cursor", 0, 0, "MENU", 1)
+            EasyMenu(self.contextMenu, addon.contextMenu, "cursor", 0, 0, "MENU", 0.2)
         else
             self:AdjustPointsOffset(-1,-1)
             if info.func then
@@ -839,6 +833,29 @@ function GuildbookRosterListviewItemMixin:OnLoad()
         end
     end)
 
+    self.prof1:SetScript("OnEnter", function()
+        if self.character and self.character.data.profession1Spec then
+            GameTooltip:SetOwner(self.prof1, "ANCHOR_RIGHT")
+            GameTooltip:SetSpellByID(self.character.data.profession1Spec)
+            GameTooltip:Show()
+        end
+    end)
+    self.prof2:SetScript("OnEnter", function()
+        if self.character and self.character.data.profession2Spec then
+            GameTooltip:SetOwner(self.prof1, "ANCHOR_RIGHT")
+            GameTooltip:SetSpellByID(self.character.data.profession2Spec)
+            GameTooltip:Show()
+        end
+    end)
+
+    self.prof1:SetScript("OnLeave", function()
+        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+    end)
+    self.prof2:SetScript("OnLeave", function()
+        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+    end)
+
+
 
     self.inviteToGroup:SetScript("OnMouseDown", function()
         if self.character then
@@ -858,7 +875,7 @@ function GuildbookRosterListviewItemMixin:OnLoad()
 
     self:SetScript("OnMouseDown", function(f, b)
         if b == "RightButton" then
-            EasyMenu(self.contextMenu, addon.contextMenu, "cursor", 0, 0, "MENU", 1)
+            EasyMenu(self.contextMenu, addon.contextMenu, "cursor", 0, 0, "MENU", 0.2)
         end
     end)
     
@@ -1030,6 +1047,122 @@ function GuildbookRosterListviewItemMixin:Update()
 
     end
 
+    table.insert(self.contextMenu, addon.contextMenuSeparator)
+    table.insert(self.contextMenu, {
+        text = "Reset",
+        isTitle = true,
+        notCheckable = true,
+    })
+    local profMenu = {
+        {
+            text = Tradeskills:GetLocaleNameFromID(self.character.data.profession1) or "Proferssion 1",
+            notCheckable = true,
+            func = function()
+                self.character.data.profession1 = "-"
+                self.character.data.profession1Recipes = {}
+                self.character.data.profession1Level = 0
+                addon:TriggerEvent("Character_OnDataChanged", self.character)
+            end,
+        },
+        {
+            text = Tradeskills:GetLocaleNameFromID(self.character.data.profession2) or "Proferssion 2",
+            notCheckable = true,
+            func = function()
+                self.character.data.profession2 = "-"
+                self.character.data.profession2Recipes = {}
+                self.character.data.profession2Level = 0
+                addon:TriggerEvent("Character_OnDataChanged", self.character)
+            end,
+        },
+    }
+    table.insert(self.contextMenu, {
+        text = TRADESKILLS,
+        notCheckable = true,
+        hasArrow = true,
+        menuList = profMenu,
+
+    })
+
+    table.insert(self.contextMenu, addon.contextMenuSeparator)
+    table.insert(self.contextMenu, {
+        text = "Request Data",
+        isTitle = true,
+        notCheckable = true,
+    })
+    local profMenu = {
+        {
+            text = Tradeskills:GetLocaleNameFromID(self.character.data.profession1) or "Proferssion 1",
+            notCheckable = true,
+            func = function()
+                Comms:RequestCharacterData(self.character.data.name, "profession1")
+                C_Timer.After(0.5, function()
+                    Comms:RequestCharacterData(self.character.data.name, "profession1Level")
+                end)
+                C_Timer.After(1.0, function()
+                    Comms:RequestCharacterData(self.character.data.name, "profession1Recipes")
+                end)
+                C_Timer.After(1.5, function()
+                    Comms:RequestCharacterData(self.character.data.name, "profession1Spec")
+                end)
+            end,
+        },
+        {
+            text = Tradeskills:GetLocaleNameFromID(self.character.data.profession2) or "Proferssion 2",
+            notCheckable = true,
+            func = function()
+                Comms:RequestCharacterData(self.character.data.name, "profession2")
+                C_Timer.After(0.5, function()
+                    Comms:RequestCharacterData(self.character.data.name, "profession2Level")
+                end)
+                C_Timer.After(1.0, function()
+                    Comms:RequestCharacterData(self.character.data.name, "profession2Recipes")
+                end)
+                C_Timer.After(1.5, function()
+                    Comms:RequestCharacterData(self.character.data.name, "profession2Spec")
+                end)
+            end,
+        },
+    }
+    table.insert(self.contextMenu, {
+        text = TRADESKILLS,
+        notCheckable = true,
+        hasArrow = true,
+        menuList = profMenu,
+    })
+    table.insert(self.contextMenu, {
+        text = SPECIALIZATION,
+        notCheckable = true,
+        hasArrow = true,
+        menuList = {
+            {
+                text = PRIMARY,
+                notCheckable = true,
+                func = function()
+                    Comms:RequestCharacterData(self.character.data.name, "mainSpec")
+                    C_Timer.After(0.5, function()
+                        Comms:RequestCharacterData(self.character.data.name, "talents.primary")
+                    end)
+                    C_Timer.After(1.0, function()
+                        Comms:RequestCharacterData(self.character.data.name, "glyphs.primary")
+                    end)
+                end,
+            },
+            {
+                text = SECONDARY,
+                notCheckable = true,
+                func = function()
+                    Comms:RequestCharacterData(self.character.data.name, "offSpec")
+                    C_Timer.After(0.5, function()
+                        Comms:RequestCharacterData(self.character.data.name, "talents.secondary")
+                    end)
+                    C_Timer.After(1.0, function()
+                        Comms:RequestCharacterData(self.character.data.name, "glyphs.secondary")
+                    end)
+                end,
+            },
+        },
+    })
+
 end
 
 function GuildbookRosterListviewItemMixin:Character_OnDataChanged(character)
@@ -1131,7 +1264,7 @@ function GuildbookAltsListviewTemplateMixin:OnLoad()
 
     self:SetScript("OnMouseDown", function(f, b)
         if b == "RightButton" then
-            EasyMenu(self.contextMenu, addon.contextMenu, "cursor", 0, 0, "MENU", 1)
+            EasyMenu(self.contextMenu, addon.contextMenu, "cursor", 0, 0, "MENU", 0.2)
         end
     end)
 
@@ -1518,9 +1651,14 @@ function GuildbookSimpleIconLabelMixin:SetDataBinding(binding, height)
         self:SetScript("OnEnter", binding.onMouseEnter)
         self:EnableMouse(true)
     end
-    self:SetScript("OnLeave", function()
-        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-    end)
+    if binding.onMouseLeave then
+        self:SetScript("OnLeave", binding.onMouseLeave)
+    else
+        self:SetScript("OnLeave", function()
+            GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+        end)
+    end
+
 
     if binding.link then
         self:SetScript("OnEnter", function()

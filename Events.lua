@@ -39,6 +39,7 @@ e:RegisterEvent("EQUIPMENT_SWAP_FINISHED")
 e:RegisterEvent("EQUIPMENT_SETS_CHANGED")
 e:RegisterEvent("QUEST_TURNED_IN")
 e:RegisterEvent("QUEST_ACCEPTED")
+e:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 
 e:SetScript("OnEvent", function(self, event, ...)
     if self[event] then
@@ -546,7 +547,7 @@ function e:GUILD_ROSTER_UPDATE()
         for i = 1, totalMembers do
             --local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, guid = GetGuildRosterInfo(i)
             local name, rankName, rankIndex, level, _, zone, publicNote, officerNote, isOnline, status, class, _, _, _, _, _, guid = GetGuildRosterInfo(i)
-        
+       
             if publicNote:lower():find("guildbank") then
 
                 --add the bank character if not exists
@@ -620,6 +621,7 @@ function e:GUILD_ROSTER_UPDATE()
                     containers = {},
                     lockouts = {},
                     tradeskillCooldowns = {},
+                    achievementPoints = 0,
                 }
                 Database:InsertCharacter(character)
                 
@@ -892,6 +894,15 @@ local function scanTradeskills()
     return prof, recipes, tradeskillCooldowns
 end
 
+function e:UNIT_SPELLCAST_SUCCEEDED(...)
+    if TradeSkillFrame and TradeSkillFrame:IsVisible() then
+        C_Timer.After(0.1, function()
+            local prof, recipes, tradeskillCooldowns = scanTradeskills()
+            setCharacterTradeskill(prof, recipes, tradeskillCooldowns)
+        end)
+    end
+end
+
 function e:SKILL_LINES_CHANGED()
     local skills = addon.api.getPlayerSkillLevels()
     processSkillLines(skills)
@@ -904,9 +915,17 @@ function e:TRADE_SKILL_SHOW()
         local skills = addon.api.getPlayerSkillLevels()
         processSkillLines(skills)
 
+        local specializations = addon.api.scanForTradeskillSpec()
+        if specializations then
+            if addon.characters and addon.characters[addon.thisCharacter] then
+                addon.characters[addon.thisCharacter]:SetTradeskillSpecs(specializations)
+            end
+        end
+
+
         C_Timer.After(1.0, function()
             local prof, recipes, tradeskillCooldowns = scanTradeskills()
-            setCharacterTradeskill(prof, recipes, tradeskillCooldowns)        
+            setCharacterTradeskill(prof, recipes, tradeskillCooldowns)
         end)
 
     else
@@ -1015,6 +1034,9 @@ function e:Database_OnInitialised()
     if not PlayerTalentFrame then
         UIParentLoadAddOn("Blizzard_TalentUI")
     end
+    if not AchievementFrame then
+        UIParentLoadAddOn("Blizzard_AchievementUI")
+    end
 
     PlayerTalentFrame:HookScript("OnHide", function()
         setPlayerTalentsAndGlyphs({})
@@ -1025,6 +1047,9 @@ function e:Database_OnInitialised()
     CharacterFrame:HookScript("OnHide", function()
         --self:GetCharacterStats()
     end)
+    -- SpellBookFrame:HookScript("OnShow", function()
+    --     addon.api.wrath.scanSpellbook()
+    -- end)
 
 	-- hooksecurefunc(C_EquipmentSet, "CreateEquipmentSet", function()
 	-- 	setPlayerEquipmentSets()
@@ -1032,6 +1057,18 @@ function e:Database_OnInitialised()
 	-- hooksecurefunc(C_EquipmentSet, "DeleteEquipmentSet", function()
 	-- 	setPlayerEquipmentSets()
 	-- end)
+
+    AchievementFrame:HookScript("OnHide", function()
+        local pointsText = AchievementFrameHeaderPoints:GetText()
+        if pointsText then
+            local points = tonumber(pointsText)
+            if points then
+                if addon.characters and addon.characters[addon.thisCharacter] then
+                    addon.characters[addon.thisCharacter]:SetAchievementPoints(points)
+                end
+            end
+        end
+    end)
 
 
     -- this will set the name on enchanting recipes to the client locale, the name is then used when scannign the enchant UI

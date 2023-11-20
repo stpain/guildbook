@@ -102,6 +102,9 @@ function GuildbookCalendarDayTileMixin:OnLoad()
     self.highlight:SetTexture(235438)
     self.highlight:SetTexCoord(0.0, 0.35, 0.0, 0.7)
 
+    self.flash:SetTexture(235438)
+    self.flash:SetTexCoord(0.0, 0.35, 0.0, 0.7)
+
     self.otherMonthOverlay:SetColorTexture(0,0,0,0.6)
     self.currentDayTexture:SetTexture(235433)
     self.currentDayTexture:SetTexCoord(0.05, 0.55, 0.05, 0.55)
@@ -237,7 +240,7 @@ function GuildbookCalendarMixin:UpdateCalendarEvents()
                 label = label,
                 onMouseDown = function(f, button)
                     if button == "RightButton" then
-                        EasyMenu(contextMenu, addon.contextMenu, "cursor", 0, 0, "MENU", 1)
+                        EasyMenu(contextMenu, addon.contextMenu, "cursor", 0, 0, "MENU", 0.2)
                     end
                 end
             })
@@ -305,6 +308,8 @@ function GuildbookCalendarMixin:UpdateLockouts()
             local iconPath = "";
             local iconCoords = {0,1,0,1}
 
+            local resetDate = date("*t", lockout.reset)
+
             --not ideal but dungeons and raids have different artwork
             if lockout.isRaid then
                 iconPath = string.format("Interface/encounterjournal/ui-ej-dungeonbutton-%s", instanceName)
@@ -338,7 +343,18 @@ function GuildbookCalendarMixin:UpdateLockouts()
                         GameTooltip:AddDoubleLine("|cffffffff"..k.."|r", tostring(v))
                     end
                     GameTooltip:Show()
+
+                    for i, day in ipairs(self.monthView.dayTiles) do
+                        if day.date and (day.date.month == resetDate.month) and (day.date.day == resetDate.day) then
+                            day.anim:Play()
+                        end
+                    end
                 end,
+                onMouseLeave = function()
+                    for i, day in ipairs(self.monthView.dayTiles) do
+                        day.anim:Stop()
+                    end
+                end
             })
 
         end
@@ -612,7 +628,7 @@ function GuildbookCalendarMixin:MonthChanged()
             }
             day:SetScript("OnMouseDown", function(f, b)
                 if b == "RightButton" then
-                    EasyMenu(contextMenu, addon.contextMenu, "cursor", 0, 0, "MENU")
+                    EasyMenu(contextMenu, addon.contextMenu, "cursor", 0, 0, "MENU", 0.2)
                 end
             end)
 

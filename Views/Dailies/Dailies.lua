@@ -18,6 +18,7 @@ function GuildbookWrathDailiesMixin:OnLoad()
     addon:RegisterCallback("Quest_OnTurnIn", self.Quest_OnTurnIn, self)
     addon:RegisterCallback("Quest_OnAccepted", self.Quest_OnAccepted, self)
     addon:RegisterCallback("Database_OnDailyQuestCompleted", self.UpdateHeaderInfo, self)
+    addon:RegisterCallback("Database_OnDailyQuestDeleted", self.LoadQuests, self)
 
     self.filterFavorites:SetScript("OnClick", function()
         self.filterFavoriteQuests = not self.filterFavoriteQuests
@@ -274,6 +275,18 @@ function GuildbookWrathDailiesListviewItemMixin:SetDataBinding(binding, height)
     self.completed:SetChecked(false)
 
     self:SetHeight(height)
+
+    self:SetScript("OnMouseDown", function(f, button)
+        if button == "RightButton" then
+            if self.daily then
+                StaticPopup_Show("GuildbookDeleteGeneric", self.daily.quest.title, nil, {
+                    callback = function()
+                        Database:DeleteDailyQuest(self.daily.quest.questId)
+                    end,
+                })
+            end
+        end
+    end)
 
     self:SetScript("OnLeave", function()
         GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
