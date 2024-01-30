@@ -92,11 +92,15 @@ StaticPopupDialogs['GuildbookReminder'] = {
     text = '%s',
     button1 = "OK",
     button2 = "Ignore",
+    button3 = "Default",
     OnAccept = function()
         GuildbookUI:SelectView("Settings")
     end,
-    OnCancel = function()
+    OnCancel = function(self, data)
 
+    end,
+    OnAlt = function(self, data)
+        data.character:SetMainSpec("primary", 1)
     end,
     timeout = 0,
     whileDead = true,

@@ -22,7 +22,7 @@ local name, addon = ...;
 addon.changeLog = {
     {
         version = "6.81",
-        notes = "Minor bug fix",
+        notes = "Minor bug fix.\n\nAdded default option to login reminder.",
         icon = "ClassHall-QuestIcon-Desaturated",
     },
     {

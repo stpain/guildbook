@@ -382,8 +382,7 @@ function GuildbookMixin:Blizzard_OnInitialGuildRosterScan(guildName)
         
         if addon.characters[addon.thisCharacter] then
             if not addon.characters[addon.thisCharacter].data.mainSpec then
-                StaticPopup_Show("GuildbookReminder", "Guildbook\n\nYou have no main spec set, go to Guildbook > Settings > Character.")
-            end
+                StaticPopup_Show("GuildbookReminder", "Guildbook\n\nYou have no main spec set, go to Guildbook > Settings > Character.", nil, { character = addon.characters[addon.thisCharacter], })            end
         end
     end)
 end
