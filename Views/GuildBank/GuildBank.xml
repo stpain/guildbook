@@ -99,7 +99,7 @@
                         </Anchors>
                         <KeyValues>
                             <KeyValue key="frameType" value="FRAME" type="string"/>
-                            <KeyValue key="itemTemplate" value="GuildbookWrathEraGuildBankListviewItem" type="string"/>
+                            <KeyValue key="itemTemplate" value="GuildbookWrathEraSimpleIconLabelFrame" type="string"/>
                             <KeyValue key="elementHeight" value="24" type="number"/>
                         </KeyValues>
                     </Frame>

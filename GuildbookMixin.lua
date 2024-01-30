@@ -340,6 +340,8 @@ function GuildbookMixin:Blizzard_OnInitialGuildRosterScan(guildName)
     --So the addon should now have the guild and characters tables set, but lets hold it 1 second
     C_Timer.After(1, function()
 
+        addon:AddMailAttachmentButton()
+
         --load all player characters and alts
         for nameRealm, _ in pairs(Database.db.myCharacters) do
             local character = Database:GetCharacter(nameRealm)
@@ -444,6 +446,15 @@ function GuildbookMixin:CreateSlashCommands()
 
         elseif msg == "addcharacter" then
             self:AddCharacter()
+
+        elseif msg == "testnews" then
+            local news = {
+                character = addon.thisCharacter,
+                event = "levelup",
+                newLevel = 1,
+                guild = addon.thisGuild
+            }
+            Database:InsertNewsEevnt(news)
         end
     end
 end

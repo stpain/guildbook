@@ -311,3 +311,159 @@ function addon:ModBlizzUI()
 
     isModified = true;
 end
+
+
+
+
+
+
+function addon:AddMailAttachmentButton()
+
+
+    local button = CreateFrame("Button", addonName.."MailAttachmentButton", SendMailFrame, "UIPanelButtonTemplate")
+    button:SetHeight(24)
+    button:SetPoint("BOTTOMRIGHT", SendMailCancelButton, "TOPRIGHT", 0, 3)
+    button:SetPoint("BOTTOMLEFT", SendMailCancelButton, "TOPLEFT", 0, 3)
+    button:SetText("Add")
+
+    button.getNumMailSlotsFree = function()
+        local s = 0
+        for i = 1, ATTACHMENTS_MAX_SEND do
+            local name, itemID, texture, count, quality = GetSendMailItem(i)
+            if name then
+                s = s + 1
+            end
+        end
+        return ATTACHMENTS_MAX_SEND - s
+    end
+
+    button:SetScript("OnClick", function(button, buttonPressed)
+    
+        local preMenu = {}
+        local classIDsAdded, subClassIDsAdded = {}, {}
+
+        local itemIdMap = {}
+        for bag = 0, 4 do
+            for slot = 1, C_Container.GetContainerNumSlots(bag) do
+                
+                local slotInfo = C_Container.GetContainerItemInfo(bag, slot)
+                if slotInfo then
+                    local _, _, _, _, _, classID, subClassID = GetItemInfoInstant(slotInfo.itemID)
+
+                    if classID and subClassID then
+
+                        if not itemIdMap[slotInfo.itemID] then
+                            itemIdMap[slotInfo.itemID] = {}
+                        end
+                        table.insert(itemIdMap[slotInfo.itemID], {
+                            bag = bag,
+                            slot = slot,
+                            link = slotInfo.hyperlink,
+                        })
+
+                        if not classIDsAdded[classID] then
+                            classIDsAdded[classID] = {}
+                        end
+                        table.insert(classIDsAdded[classID], slotInfo.itemID)
+
+                        if not subClassIDsAdded[classID] then
+                            subClassIDsAdded[classID] = {}
+                        end
+                        if not subClassIDsAdded[classID][subClassID] then
+                            subClassIDsAdded[classID][subClassID] = {}
+                        end
+                        --table.insert(subClassIDsAdded[classID][subClassID], slotInfo.itemID)
+                        subClassIDsAdded[classID][subClassID][slotInfo.itemID] = true
+                    end
+
+                end
+            end
+        end
+
+        --DevTools_Dump(subClassIDsAdded)
+        --DisplayTableInspectorWindow(subClassIDsAdded)
+
+        local menu = {}
+        for classID, data in pairs(subClassIDsAdded) do
+
+            local subMenu = {}
+            for subClassID, itemIds in pairs(data) do
+
+                local idMenu = {}
+
+                for itemID, _ in pairs(itemIds) do
+                    if itemIdMap[itemID] then
+                        table.insert(idMenu, {
+                            text = itemIdMap[itemID][1].link,
+                            notCheckable = true,
+                            func = function()
+                                local emptyMailSlots = button.getNumMailSlotsFree()
+                                if emptyMailSlots > 0 then
+                                    local i = 1
+                                    while (emptyMailSlots > 0) and (i < ATTACHMENTS_MAX_SEND) do
+                                        for k, v in ipairs(itemIdMap[itemID]) do
+                                            C_Container.UseContainerItem(v.bag, v.slot)
+                                            i = i + 1;
+                                            emptyMailSlots = button.getNumMailSlotsFree()
+                                        end
+                                    end
+                                end
+                            end,
+                        })
+                    end
+                end
+
+                table.insert(subMenu, {
+                    text = GetItemSubClassInfo(classID, subClassID),
+                    notCheckable = true,
+                    -- func = function()
+                    --     local emptyMailSlots = button.getNumMailSlotsFree()
+                    --     if emptyMailSlots > 0 then
+                    --         local i = 1
+                    --         while (emptyMailSlots > 0) and (i < ATTACHMENTS_MAX_SEND) do
+                    --             local itemID = subClassIDsAdded[classID][subClassID][i]
+                    --             if itemID and itemIdMap[itemID] then
+                    --                 for k, v in ipairs(itemIdMap[itemID]) do
+                    --                     C_Container.UseContainerItem(v.bag, v.slot)
+                    --                     i = i + 1;
+                    --                     emptyMailSlots = button.getNumMailSlotsFree()
+                    --                 end
+                    --             end
+                    --         end
+                    --     end
+                    -- end,
+                    hasArrow = true,
+                    menuList = idMenu,
+                })
+            end
+
+
+            table.insert(menu, {
+                text = GetItemClassInfo(classID),
+                notCheckable = true,
+                -- func = function()                        
+                --     local emptyMailSlots = button.getNumMailSlotsFree()
+                --     if emptyMailSlots > 0 then
+                --         local i = 1
+                --         while (emptyMailSlots > 0) and (i < ATTACHMENTS_MAX_SEND) do
+                --             local itemID = classIDsAdded[classID][i]
+                --             if itemID and itemIdMap[itemID] then
+                --                 for k, v in ipairs(itemIdMap[itemID]) do
+                --                     C_Container.UseContainerItem(v.bag, v.slot)
+                --                     i = i + 1;
+                --                     emptyMailSlots = button.getNumMailSlotsFree()
+                --                 end
+                --             end
+                --         end
+                --     end
+                -- end,
+                hasArrow = true,
+                menuList = subMenu,
+            })
+        end
+
+        EasyMenu(menu, addon.contextMenu, "cursor", 0, 0, "MENU", 0.6)
+    end)
+end
+
+

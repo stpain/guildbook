@@ -60399,4 +60399,6 @@ addon.glyphData.spellIdToItemId = {
 	[56800] = { itemID = 42956, spellID = false, }, --backstab
 	
 	[58058] = { itemID = 43381, spellID = false, }, --astral recall
+	[57902] = { itemID = 43356, spellID = false, }, --scare beast
+
 }

@@ -50,6 +50,7 @@ function GuildbookHomeMixin:OnLoad()
         self:UpdateCensus()
     end)
 
+    NineSliceUtil.ApplyLayout(self.news, agendaNineSliceLayout)
     NineSliceUtil.ApplyLayout(self.agenda, agendaNineSliceLayout)
     NineSliceUtil.ApplyLayout(self.census, agendaNineSliceLayout)
     NineSliceUtil.ApplyLayout(self.gmotd, gmotdNineSliceLayout)
@@ -60,6 +61,7 @@ function GuildbookHomeMixin:OnLoad()
     addon:RegisterCallback("Database_OnCalendarDataChanged", self.LoadData, self)
     addon:RegisterCallback("UI_OnSizeChanged", self.UpdateLayout, self)
     addon:RegisterCallback("Blizzard_OnGuildRosterUpdate", self.UpdateCensus, self)
+    addon:RegisterCallback("Character_OnNewsEvent", self.Character_OnNewsEvent, self)
 
     addon.AddView(self)
 end
@@ -200,13 +202,19 @@ function GuildbookHomeMixin:LoadData()
         return;
     end
 
+    self.gmotd:SetText(GetGuildRosterMOTD())
+
     self:UpdateCensus()
+
+    self:LoadAgenda()
+
+end
+
+function GuildbookHomeMixin:LoadAgenda()
 
     self.agenda.listview.DataProvider:Flush()
 
     local agenda = {}
-    
-    self.gmotd:SetText(GetGuildRosterMOTD())
 
     if addon.characters and addon.characters[addon.thisCharacter] then
 
@@ -237,7 +245,7 @@ function GuildbookHomeMixin:LoadData()
 
     end
 
-    local today = date("*t", time())
+    --local today = date("*t", time())
     local events = Database:GetCalendarEventsForPeriod(time(), 7)
 
      for k, event in ipairs(events) do
@@ -313,7 +321,6 @@ function GuildbookHomeMixin:LoadData()
 
 
     end
---GarrLanding-MinimapAlertBG
 
     table.sort(agenda, function(a, b)
         return a.timestamp < b.timestamp
@@ -330,5 +337,9 @@ function GuildbookHomeMixin:LoadData()
             })
         end
     end
+end
 
+function GuildbookHomeMixin:Character_OnNewsEvent(news)
+    DevTools_Dump(news)
+    Database:InsertNewsEevnt(news)
 end

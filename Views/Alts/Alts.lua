@@ -13,6 +13,27 @@ GuildbookAltsMixin = {
 function GuildbookAltsMixin:OnLoad()
     addon.AddView(self)
 
+    self.export:SetScript("OnClick", function()
+    
+        local export = {}
+
+        for k, alt in ipairs(self.alts) do
+            
+            local data = {
+                name = alt.data.name,
+                class = GetClassInfo(alt.data.class),
+                level = alt.data.level,
+                mainSpec = alt.data.mainSpec,
+                profession1 = alt.data.profession1,
+                profession2 = alt.data.profession2,
+            }
+
+            table.insert(export, data)
+        end
+
+        addon:TriggerEvent("Guildbook_OnExport", export)
+    end)
+
     addon:RegisterCallback("Database_OnInitialised", self.LoadAlts, self)
     addon:RegisterCallback("Database_OnCharacterRemoved", self.LoadAlts, self)
 end

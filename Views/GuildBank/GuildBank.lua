@@ -240,7 +240,7 @@ function GuildbookGuildBankMixin:Character_OnDataChanged(character)
     end
 end
 
-function GuildbookGuildBankMixin:LoadCharacterContainers(name, containers)
+function GuildbookGuildBankMixin:LoadCharacterContainers_Old(name, containers)
 
     self.containerInfo.itemsListview.DataProvider:Flush()
 
@@ -292,5 +292,126 @@ function GuildbookGuildBankMixin:LoadCharacterContainers(name, containers)
             bankInfo.totalSlotsFree,
             GetCoinTextureString(bankInfo.copper)
         ))
+    end
+end
+
+function GuildbookGuildBankMixin:LoadCharacterContainers(name, containers)
+
+    self.bankContainerItems = {}
+
+    local bankInfo = {
+        totalSlotsUsed = 0,
+        totalSlotsFree = 0,
+        copper = 0,
+    }
+    bankInfo.copper = containers.copper or 0;
+    if containers.bags then
+        bankInfo.totalSlotsFree = bankInfo.totalSlotsFree + (containers.bags.slotsFree or 0);
+        bankInfo.totalSlotsUsed = bankInfo.totalSlotsUsed + (containers.bags.slotsUsed or 0);
+    end
+    if containers.bank then
+        bankInfo.totalSlotsFree = bankInfo.totalSlotsFree + (containers.bank.slotsFree or 0);
+        bankInfo.totalSlotsUsed = bankInfo.totalSlotsUsed + (containers.bank.slotsUsed or 0);
+    end
+
+    local t, info = {}, "";
+    if containers.bags and containers.bags.items then
+        for k, v in ipairs(containers.bags.items) do
+            table.insert(t, v)
+        end
+    else
+        info = string.format("%s no bags data", info)
+    end
+    if containers.bank and containers.bank.items then
+        for k, v in ipairs(containers.bank.items) do
+            table.insert(t, v)
+        end    
+    else
+        info = string.format("%s no bank data", info)
+    end
+
+    local i = 1;
+    if #t > 0 then
+        for k, v in ipairs(t) do
+            local item = Item:CreateFromItemID(v.id)
+            if not item:IsItemEmpty() then
+                item:ContinueOnItemLoad(function()
+                    local name = item:GetItemName()
+                    local link = item:GetItemLink()
+                    local _, _, _, _, icon, classID, subClassID = GetItemInfoInstant(link)
+
+                    table.insert(self.bankContainerItems, {
+                        name = name,
+                        link = link,
+                        count = v.count,
+                        icon = icon,
+                        classID = classID,
+                        subClassID = subClassID,
+                    })
+
+                    i = i + 1;
+                    if i > #t then
+                        self:UpdateConatinerUI()
+                    end
+                end)
+            end
+        end
+    end
+
+    if (not containers.bags) and (not containers.bank) then
+        self.containerInfo.characterInfo:SetText(info)
+    else
+        self.containerInfo.characterInfo:SetText(string.format("[%s] %d slots (%d used %d free) Gold: |cffffffff%s|r",
+            name,
+            bankInfo.totalSlotsUsed + bankInfo.totalSlotsFree,
+            bankInfo.totalSlotsUsed,
+            bankInfo.totalSlotsFree,
+            GetCoinTextureString(bankInfo.copper)
+        ))
+    end
+end
+
+--this is a new function to take over the UI update from the above, this allows the UI to do sorting etc
+function GuildbookGuildBankMixin:UpdateConatinerUI()
+
+    self.containerInfo.itemsListview.DataProvider:Flush()
+    
+    local t = {}
+    local headersAdded = {}
+
+    table.sort(self.bankContainerItems, function(a, b)
+        if a.classID == b.classID then
+            if a.subClassID == b.subClassID then
+                if a.count == b.count then
+                    return a.name < b.name
+                else
+                    return a.count > b.count
+                end
+            else
+                return a.subClassID < b.subClassID
+            end
+        else
+            return a.classID > b.classID
+        end
+    end)
+    
+    for k, v in ipairs(self.bankContainerItems) do
+        
+        local classType = GetItemClassInfo(v.classID)
+        if not headersAdded[classType] then
+            headersAdded[classType] = true
+            self.containerInfo.itemsListview.DataProvider:Insert({
+                label = classType,
+                backgroundAlpha = 0.4,
+                backgroundRGB = { r = 0.1, g = 0.4, b = 0.4 }
+            })
+        end
+        self.containerInfo.itemsListview.DataProvider:Insert({
+            label = v.link,
+            labelRight = v.count,
+            icon = v.icon,
+            backgroundAlpha = 0.05,
+            backgroundRGB = { r = 0.4, g = 0.4, b = 0.4 }
+        })
     end
 end

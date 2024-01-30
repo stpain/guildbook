@@ -12,6 +12,29 @@
                     <KeyValue key="elementHeight" value="26" type="number"/>
                 </KeyValues>
             </Frame>
+
+            <Button parentKey="export" inherits="UIPanelButtonTemplate" text="Export">
+                <Anchors>
+                    <Anchor point="TOPRIGHT" x="-5" y="-5"/>
+                </Anchors>
+                <Size x="120" y="24"/>
+            </Button>
+
+
+            <Frame parentKey="tabContainer" inherits="GuildbookTabFrameTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="0" y="-32"/>
+                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                </Anchors>
+                <Frames>
+                    <Frame parentKey="summary" setAllPoints="true" hidden="false">
+
+                    </Frame>
+                    <Frame parentKey="containers" setAllPoints="true" hidden="false">
+
+                    </Frame>
+                </Frames>
+            </Frame>
         </Frames>
 
         <Scripts>

@@ -51,10 +51,22 @@ function GuildbookImportExportMixin:OnLoad()
 
     end)
 
+    addon:RegisterCallback("Guildbook_OnExport", self.Guildbook_OnExport, self)
     addon:RegisterCallback("Character_ExportEquipment", self.Character_ExportEquipment, self)
     addon:RegisterCallback("UI_OnSizeChanged", self.UpdateLayout, self)
 
     addon.AddView(self)
+end
+
+
+function GuildbookImportExportMixin:Guildbook_OnExport(data)
+
+    if type(data) == "table" then
+        local export = json.encode(data)
+        self.importExportEditbox.EditBox:SetText(export)
+
+        GuildbookUI:SelectView(self.name)
+    end
 end
 
 

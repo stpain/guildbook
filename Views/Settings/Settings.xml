@@ -89,7 +89,6 @@
                                 </Anchors>
                                 <Frames>
                                     <Frame parentKey="specializations" setAllPoints="true" hidden="false">
-                                        <Size x="300" y="320"/>
                                         <Layers>
                                             <Layer level="BACKGROUND">
                                                 <Texture parentKey="background" alpha="0.15" setAllPoints="true"/>
@@ -487,7 +486,7 @@
                                 </Anchors>
                                 <KeyValues>
                                     <KeyValue key="frameType" value="FRAME" type="string"/>
-                                    <KeyValue key="itemTemplate" value="GuildbookBankCharactersListviewItem" type="string"/>
+                                    <KeyValue key="itemTemplate" value="GuildbookWrathEraBankCharactersListviewItem" type="string"/>
                                     <KeyValue key="elementHeight" value="40" type="number"/>
                                 </KeyValues>
                             </Frame>

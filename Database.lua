@@ -33,6 +33,7 @@ local dbUpdates = {
         guild = {},
     },
     --agenda = {},
+    news = {},
 }
 local dbToRemove = {
     "worldEvents",
@@ -77,7 +78,7 @@ function Database:Init()
         end
     end
     for k, v in ipairs(dbToRemove) do
-        if v:find(".") then
+        if v:find(".", nil, true) then --if k:find(".", nil, true) then
             local k1, k2 = strsplit(".", v)
             if k1 and k2 then
                 if self.db[k1] and self.db[k1][k2] then
@@ -166,6 +167,13 @@ function Database:Reset()
     addon.characters = {}
 
     self:Init()
+end
+
+function Database:InsertNewsEevnt(event)
+    if self.db and self.db.news then
+        table.insert(self.db.news, event)
+        addon:TriggerEvent("Database_OnNewsEventAdded", event)
+    end
 end
 
 function Database:ResetKey(key, newVal)

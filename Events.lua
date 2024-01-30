@@ -47,6 +47,21 @@ e:SetScript("OnEvent", function(self, event, ...)
     end
 end)
 
+function e:PLAYER_LEVEL_UP(...)
+    --local curLevel = UnitLevel("player")
+    if addon.thisCharacter and addon.thisGuild then
+        local newLevel = ...;
+
+        local news = {
+            character = addon.thisCharacter,
+            event = "levelup",
+            newLevel = newLevel,
+            guild = addon.thisGuild
+        }
+        Comms:Character_BroadcastNewsEvent(news)
+    end
+end
+
 function e:QUEST_TURNED_IN(...)
     addon:TriggerEvent("Quest_OnTurnIn", ...)
 end

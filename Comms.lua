@@ -26,9 +26,9 @@ local Comms = {
     version = 1,
 
     --delay from transmit request to first dispatch attempt, this prevents spamming if a player opens/closes a panel that triggers a transmit
-    queueWaitingTime = 2.0,
+    queueWaitingTime = 8.0,
     --the time added to each message waiting in the queue, this limits how often a message can be dispatched
-    queueExtendTime = 2.0,
+    queueExtendTime = 5.0,
 
      --limiter effect for the dispatcher onUpdate func, limits the onUpdate to once per second
     dispatcherElapsedDelay = 1.0,
@@ -139,6 +139,7 @@ function Comms.DispatcherOnUpdate(self, elapsed)
         --if the message is due to go push it
         if message.dispatchTime < now then
 
+            --here message.payload is the msg table not the msg table .payload
             if not message.payload.version then
                 message.payload.version = Comms.version;
             end
@@ -261,6 +262,17 @@ function Comms:TransmitToGuild_New(nameRealm, method, key, subKey, data)
         },
     }
     Comms:QueueMessage(msg.event, msg, "GUILD", nil)
+end
+
+function Comms:Character_BroadcastNewsEvent(news)
+    if type(news) == "table" then
+        local msg = {
+            event = "CHARACTER_NEWS_BROADCAST",
+            version = Comms.version,
+            payload = news,
+        }
+        self:Transmit_NoQueue(msg, "GUILD", nil)
+    end
 end
 
 function Comms:Transmit_NoQueue(msg, channel, target)
@@ -537,7 +549,7 @@ function Comms:Character_OnDataRequest(sender, message)
 
     if message and message.payload then
 
-        if message.payload.requestData and message.payload.requestData:find(".") then
+        if message.payload.requestData and message.payload.requestData:find(".", nil, true) then
             
             local key, subKey = strsplit(".", message.payload.requestData)
             if type(key) == "string" and type(subKey) == "string" then
@@ -586,7 +598,7 @@ function Comms:Character_OnDataResponse(sender, message)
     addon.LogDebugMessage("comms", string.format("Data response from %s", sender))
     addon:TriggerEvent("StatusText_OnChanged", string.format("Data response from %s", sender))
 
-    if message.payload.request and message.payload.request:find(".") then
+    if message.payload.request and message.payload.request:find(".", nil, true) then
         
         local key, subKey = strsplit(".", message.payload.request)
         if type(key) == "string" and type(subKey) == "string" then
@@ -609,11 +621,17 @@ function Comms:Character_OnDataResponse(sender, message)
 
 end
 
+function Comms:Character_OnNewsBroadcast(sender, message)
+    addon:TriggerEvent("Character_OnNewsEvent", message.payload, sender)
+end
+
 --when a comms is received check the event type and pass to the relavent function
 Comms.events = {
 
     CHARACTER_DATA_REQUEST = Comms.Character_OnDataRequest,
     CHARACTER_DATA_RESPONSE = Comms.Character_OnDataResponse,
+
+    CHARACTER_NEWS_BROADCAST = Comms.Character_OnNewsBroadcast,
 
     --character events
     --CONTAINERS_TRANSMIT = Comms.Character_OnDataReceived,
@@ -653,5 +671,6 @@ addon:RegisterCallback("Guildbank_DataRequest", Comms.Guildbank_DataRequest, Com
 addon:RegisterCallback("Guildbank_TimeStampRequest", Comms.Guildbank_TimeStampRequest, Comms)
 addon:RegisterCallback("Character_BroadcastChange", Comms.Character_BroadcastChange, Comms)
 addon:RegisterCallback("Database_OnInitialised", Comms.Init, Comms)
+--addon:RegisterCallback("Database_OnNewsEventAdded", Comms.Character_BroadcastNewsEvent, Comms)
 
 addon.Comms = Comms;

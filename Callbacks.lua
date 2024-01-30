@@ -10,9 +10,11 @@ addon:GenerateCallbackEvents({
     "Database_OnDailyQuestCompleted",
     "Database_OnDailyQuestDeleted",
     "Database_OnCalendarDataChanged",
+    "Database_OnNewsEventAdded",
 
     "Character_OnProfileSelected",
     "Character_OnDataChanged",
+    "Character_OnNewsEvent",
     "Character_OnTradeskillSelected",
     "Character_BroadcastChange",
     "Character_ExportEquipment",
@@ -49,6 +51,7 @@ addon:GenerateCallbackEvents({
     "Comms_OnMessageReceived",
 
     "Guildbook_OnSearch",
+    "Guildbook_OnExport",
 
     "Quest_OnTurnIn",
     "Quest_OnAccepted",

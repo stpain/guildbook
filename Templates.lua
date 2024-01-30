@@ -1712,6 +1712,8 @@ function GuildbookSimpleIconLabelMixin:ResetDataBinding()
     self:SetScript("OnLeave", nil)
     self:EnableMouse(false)
     self.icon:SetTexture(nil)
+    self.label:SetText("")
+    self.labelRight:SetText("")
 end
 
 

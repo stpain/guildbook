@@ -21,6 +21,11 @@ local name, addon = ...;
 
 addon.changeLog = {
     {
+        version = "6.81",
+        notes = "Minor bug fix",
+        icon = "ClassHall-QuestIcon-Desaturated",
+    },
+    {
         version = "6.8",
         notes = "Changes to the addon Comms, a bug was found with tradeskill data sharing, should now sync properly\n\nHome tab is currently work in progress but wanted to get comms issue fixed and updated.\n\nFix for Druid specs, not all 4 were covered properly.\n\nTradeskill cooldown tracking added (account only for now).\n\nAdded more glyphs.",
         icon = "ClassHall-QuestIcon-Desaturated",
