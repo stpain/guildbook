@@ -43,7 +43,7 @@
 
                 <Layers>
                     <Layer level="BACKGROUND">
-                        <Texture parentKey="background" file="Interface\AddOns\PersonalStuff\Media\Tradeskills\ProfessionBackgroundArtAlchemy.png">
+                        <Texture parentKey="background" file="Interface\AddOns\Guildbook\Media\Tradeskills\ProfessionBackgroundArtAlchemy.png">
                             <TexCoords left="0" right="0.6601" top="0" bottom="0.5361"/>
                             <Anchors>
                                 <Anchor point="TOPLEFT" x="0" y="0"/>
@@ -189,38 +189,79 @@
                     </Frame>
 
                     <Frame parentKey="crafters" inherits="TBDListviewTemplate">
-                        <Size x="250"/>
                         <Anchors>
-                            <Anchor point="TOPRIGHT" x="-34" y="-240"/>
-                            <Anchor point="BOTTOMRIGHT" x="-34" y="34"/>
+                            <Anchor point="TOPRIGHT" x="-28" y="-244"/>
+                            <Anchor point="BOTTOMRIGHT" x="-28" y="38"/>
                         </Anchors>
                         <Layers>
                             <Layer level="OVERLAY">
                                 <FontString inherits="GameFontNormalSmall" text="Crafters">
                                     <Anchors>
-                                        <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="0" y="4"/>
+                                        <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="0" y="8"/>
                                     </Anchors>
                                 </FontString>
-
-                                <!-- 
-                                    middle = 0.69921875 0.826171875 0.03515625 0.0361328125
-                                    top = 0.14599609375 0.27294921875 0.734375 0.83203125
-                                    bottom = 0.14599609375 0.27294921875 0.5087890625 0.60546875
-                                -->
 
                                 <Texture parentKey="bgTop" file="Interface\AddOns\Guildbook\Media\Tradeskills\Professions.png">
                                     <Size y="80"/>
                                     <Anchors>
-                                        <Anchor point="TOPLEFT" y="4"/>
-                                        <Anchor point="TOPRIGHT" y="4"/>
+                                        <Anchor point="TOPLEFT" y="8"/>
+                                        <Anchor point="TOPRIGHT" y="8"/>
                                     </Anchors>
                                     <TexCoords left="0.14599609375" right="0.27294921875" top="0.734375" bottom="0.83203125"/>
                                 </Texture>
                                 <Texture parentKey="bgBottom" file="Interface\AddOns\Guildbook\Media\Tradeskills\Professions.png">
                                     <Size y="80"/>
                                     <Anchors>
-                                        <Anchor point="BOTTOMLEFT" y="-4"/>
-                                        <Anchor point="BOTTOMRIGHT" y="-4"/>
+                                        <Anchor point="BOTTOMLEFT" y="-8"/>
+                                        <Anchor point="BOTTOMRIGHT" y="-8"/>
+                                    </Anchors>
+                                    <TexCoords left="0.14599609375" right="0.27294921875" top="0.5087890625" bottom="0.60546875"/>
+                                </Texture>
+                                <Texture file="Interface\AddOns\Guildbook\Media\Tradeskills\Professions.png" verTile="true">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" relativeKey="$parent.bgTop" relativePoint="BOTTOMLEFT"/>
+                                        <Anchor point="TOPRIGHT" relativeKey="$parent.bgTop" relativePoint="BOTTOMRIGHT"/>
+                                        <Anchor point="BOTTOMLEFT" relativeKey="$parent.bgBottom" relativePoint="TOPLEFT"/>
+                                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.bgBottom" relativePoint="TOPRIGHT"/>
+                                    </Anchors>
+                                    <TexCoords left="0.69921875" right="0.826171875" top="0.03515625" bottom="0.0361328125"/>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                        <KeyValues>
+                            <KeyValue key="itemTemplate" value="TBDSimpleIconLabelFrame" type="string"/>
+                            <KeyValue key="elementHeight" value="20" type="number"/>
+                            <!-- <KeyValue key="enableSelection" value="true" type="boolean"/> -->
+                        </KeyValues>
+                    </Frame>
+
+                    <Frame parentKey="reagentForRecipes" inherits="TBDTreeviewTemplate">
+                        <Anchors>
+                            <Anchor point="TOPRIGHT" relativeKey="$parent.crafters" relativePoint="TOPLEFT" x="-34" y="0"/>
+                            <Anchor point="BOTTOMRIGHT" relativeKey="$parent.crafters" relativePoint="BOTTOMLEFT" x="-34" y="0"/>
+                            <Anchor point="LEFT" relativeKey="$parent.reagents" relativePoint="RIGHT" x="34" y="0"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <FontString inherits="GameFontNormalSmall" text="Reagent for">
+                                    <Anchors>
+                                        <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="0" y="8"/>
+                                    </Anchors>
+                                </FontString>
+
+                                <Texture parentKey="bgTop" file="Interface\AddOns\Guildbook\Media\Tradeskills\Professions.png">
+                                    <Size y="80"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" y="8"/>
+                                        <Anchor point="TOPRIGHT" y="8"/>
+                                    </Anchors>
+                                    <TexCoords left="0.14599609375" right="0.27294921875" top="0.734375" bottom="0.83203125"/>
+                                </Texture>
+                                <Texture parentKey="bgBottom" file="Interface\AddOns\Guildbook\Media\Tradeskills\Professions.png">
+                                    <Size y="80"/>
+                                    <Anchors>
+                                        <Anchor point="BOTTOMLEFT" y="-8"/>
+                                        <Anchor point="BOTTOMRIGHT" y="-8"/>
                                     </Anchors>
                                     <TexCoords left="0.14599609375" right="0.27294921875" top="0.5087890625" bottom="0.60546875"/>
                                 </Texture>
@@ -249,6 +290,7 @@
 
         <Scripts>
             <OnLoad method="OnLoad"/>
+            <OnShow method="OnShow"/>
         </Scripts>        
     </Frame>
 </Ui>

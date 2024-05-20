@@ -281,29 +281,169 @@ function Tradeskills:GetEnglishNameFromTradeskillName(tradeskillName)
 end
 
 
-function Tradeskills:GenerateEnchantingData()
 
-	for k, v in ipairs(addon.itemData) do
+local function getTradeskillSpellIDs(tradeskillID)
+    local t = {}
+    for spellId, tradeskillId in pairs(addon.tradeskillData.spellIdToTradeskillId) do
+        if tradeskillId == tradeskillID then
+            table.insert(t, spellId)
+        end
+    end
+    return t
+end
 
-		if v.tradeskillID == 333 then
+local function getReagentData(spellID)
+    local t = {}
+    if addon.tradeskillData.spellIdToReagents[spellID] then
+        for i = 1, 7 do
+            if addon.tradeskillData.spellIdToReagents[spellID][i] > 0 then
+                t[addon.tradeskillData.spellIdToReagents[spellID][i]] = addon.tradeskillData.spellIdToReagents[spellID][i+8]
+            end
+        end
+    end
+    return t;
+end
 
-			local spell = Spell:CreateFromSpellID(v.spellID)
-			if not spell:IsSpellEmpty() then
+Tradeskills.enchanterSpellNameToSpellID = {}
+function Tradeskills.BuildEnchanterNameToSpellID()
+    local spells = getTradeskillSpellIDs(333)
+    for k, spellID in ipairs(spells) do
+        local spell = Spell:CreateFromSpellID(spellID)
+        if not spell:IsSpellEmpty() then
+            spell:ContinueOnSpellLoad(function()
+                Tradeskills.enchanterSpellNameToSpellID[spell:GetSpellName()] = spellID
+            end)
+        end
+    end
+end
 
-				spell:ContinueOnSpellLoad(function()
-				
-					local name = spell:GetSpellName()
-					if name and v.name then
-						--print(string.format("updating name data for <%s> [%d] to <%s>", v.name, v.spellID, name))
-						v.name = name
+function Tradeskills.GetRecipeSpellIDFromItemID(itemID)
+    for spellID, _itemID in pairs(addon.tradeskillData.spellIdToItemCreated) do
+        if itemID == _itemID then
+            return spellID
+        end
+    end
+end
+
+function Tradeskills.GetAllRecipesThatUseItem(itemID, prof1, prof2)
+
+	local t = {}
+
+	for spellID, reagentInfo in pairs(addon.tradeskillData.spellIdToReagents) do
+		for i = 1, 7 do
+			if reagentInfo[i] == itemID then
+				local tradeskillID = addon.tradeskillData.spellIdToTradeskillId[spellID]
+				if tradeskillID then
+					if not prof1 and not prof2 then
+						if not t[tradeskillID] then
+							t[tradeskillID] = {}
+						end
+						table.insert(t[tradeskillID], spellID)
 					end
-				end)
-
+					if prof1 == tradeskillID then
+						if not t[tradeskillID] then
+							t[tradeskillID] = {}
+						end
+						table.insert(t[tradeskillID], spellID)
+					end
+					if prof2 == tradeskillID then
+						if not t[tradeskillID] then
+							t[tradeskillID] = {}
+						end
+						table.insert(t[tradeskillID], spellID)
+					end
+				end
 			end
-
 		end
+	end
 
+	return t;
+end
+
+function Tradeskills.GetItemRecipeInfo(itemID, itemName)
+
+	local spellID = Tradeskills.GetRecipeSpellIDFromItemID(itemID)
+	if spellID then
+		local reagents = getReagentData(spellID)
+		return {
+			itemID = itemID,
+			spellID = spellID,
+			reagents = reagents,
+		}
+	else
+		if Tradeskills.enchanterSpellNameToSpellID then
+			local spellID = Tradeskills.GetRecipeSpellIDFromItemID(Tradeskills.enchanterSpellNameToSpellID)
+			if spellID then
+				local reagents = getReagentData(spellID)
+				return {
+					itemID = itemID,
+					spellID = spellID,
+					reagents = reagents,
+				}
+			end
+		end
 	end
 end
+
+function Tradeskills.BuildTradeskillData(tradeskillID)
+
+    local tradeskillSpellIDs = getTradeskillSpellIDs(tradeskillID)
+
+    local t = {}
+    for k, spellId in ipairs(tradeskillSpellIDs) do
+        if addon.tradeskillData.spellIdToItemCreated[spellId] and addon.tradeskillData.spellIdToReagents[spellId] then
+            local reagents = getReagentData(spellId)
+            local itemID = addon.tradeskillData.spellIdToItemCreated[spellId]
+            local itemID, itemType, itemSubType, itemEquipLoc, icon, classID, subClassID = GetItemInfoInstant(itemID)
+            local recipe = {
+                spellID = spellId,
+                itemID = itemID,
+                classID = classID,
+                subClassID = subClassID,
+                icon = icon,
+                reagents = reagents,
+            }
+            table.insert(t, recipe)
+        
+        elseif addon.tradeskillData.spellIdToReagents[spellId] then
+            local reagents = getReagentData(spellId)
+            local recipe = {
+                spellID = spellId,
+                reagents = reagents,
+                classID = -1,
+                subClassID = -1,
+            }
+            table.insert(t, recipe)
+        end
+    end
+
+    -- table.sort(t, function(a,b)
+    --     if a.classID == b.classID then
+    --         return a.subClassID < b.subClassID
+    --     else
+    --         return a.classID < b.classID
+    --     end
+    -- end)
+
+    return t;
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 addon.Tradeskills = Tradeskills;

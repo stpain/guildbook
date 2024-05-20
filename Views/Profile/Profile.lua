@@ -247,6 +247,7 @@ function GuildbookProfileMixin:UpdateLayout()
         self.talents["tree"..i]:SetWidth((x-sidePaneWidth) / 3)
         self.talents["tree"..i].talentsGridview:SetSize((x-sidePaneWidth) / 3, y)
 
+		self.glyphs["prime"..i]:SetWidth((x-sidePaneWidth) / 3)
 		self.glyphs["major"..i]:SetWidth((x-sidePaneWidth) / 3)
 		self.glyphs["minor"..i]:SetWidth((x-sidePaneWidth) / 3)
     end
@@ -276,6 +277,7 @@ function GuildbookProfileMixin:UpdateLayout()
             self.talents["tree"..i]:SetWidth((x-1) / 3)
             self.talents["tree"..i].talentsGridview:SetSize((x-1) / 3, y)
 
+			self.glyphs["prime"..i]:SetWidth((x-1) / 3)
 			self.glyphs["major"..i]:SetWidth((x-1) / 3)
 			self.glyphs["minor"..i]:SetWidth((x-1) / 3)
         end
@@ -718,6 +720,7 @@ function GuildbookProfileMixin:LoadTalentsAndGlyphs()
 		for k, frame in ipairs(self.talents["tree"..i].talentsGridview:GetFrames()) do
 			frame:ClearTalent()
 		end
+		self.glyphs["prime"..i]:SetText("-")
 		self.glyphs["major"..i]:SetText("-")
 		self.glyphs["minor"..i]:SetText("-")
 	end
@@ -779,26 +782,25 @@ function GuildbookProfileMixin:LoadTalentsAndGlyphs()
 
 	if self.character.data.glyphs and (type(self.character.data.glyphs[spec]) == "table") then
 		
-		local major, minor = 1, 1;
+		--local major, minor, prime = 1, 1, 1;
 		for k, v in ipairs(self.character.data.glyphs[spec]) do
-			if v.glyphType == 2 then
-				local item = Item:CreateFromItemID(v.itemID)
-				if not item:IsItemEmpty() then
-					item:ContinueOnItemLoad(function()
-						self.glyphs["major"..major]:SetText(item:GetItemLink())
-						major = major + 1;
-					end)
-				end
 
-			elseif v.glyphType == 1 then
-				local item = Item:CreateFromItemID(v.itemID)
-				if not item:IsItemEmpty() then
-					item:ContinueOnItemLoad(function()
-						self.glyphs["minor"..minor]:SetText(item:GetItemLink())
-						minor = minor + 1;
-					end)
-				end
+			if v.spellID and v.glyphIndex and v.glyphType then
+				local glyph = GetSpellInfo(v.spellID)
 
+				if v.glyphType == 3 then
+					self.glyphs["prime"..v.glyphIndex+1]:SetText(glyph)
+					--prime = prime + 1;
+	
+				elseif v.glyphType == 2 then
+					self.glyphs["major"..v.glyphIndex+1]:SetText(glyph)
+					--major = major + 1;
+	
+				elseif v.glyphType == 1 then
+					self.glyphs["minor"..v.glyphIndex+1]:SetText(glyph)
+					--minor = minor + 1;
+	
+				end
 			end
 		end
 	end

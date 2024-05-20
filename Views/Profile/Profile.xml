@@ -190,50 +190,71 @@
                     <Anchor point="TOPLEFT" relativeKey="$parent.sidePane" relativePoint="TOPRIGHT" x="0" y="0"/>
                     <Anchor point="TOPRIGHT" x="0" y="0"/>
                 </Anchors>
-                <Size y="50"/>
+                <Size y="90"/>
                 <Layers>
                     <Layer level="BACKGROUND">
                         
                     </Layer>
                     <Layer level="OVERLAY">
-                        <FontString parentKey="major1" inherits="GameFontNormal">
+                        <FontString parentKey="prime1" inherits="GameFontNormal">
                             <Color r="1" g="1" b="1"/>
-                            <Size y="25"/>
+                            <Size y="30"/>
                             <Anchors>
                                 <Anchor point="TOPLEFT" x="0" y="0"/>
                             </Anchors>
                         </FontString>
+                        <FontString parentKey="prime2" inherits="GameFontNormal">
+                            <Color r="1" g="1" b="1"/>
+                            <Size y="30"/>
+                            <Anchors>
+                                <Anchor point="LEFT" relativeKey="$parent.prime1" relativePoint="RIGHT" x="0" y="0"/>
+                            </Anchors>
+                        </FontString>
+                        <FontString parentKey="prime3" inherits="GameFontNormal">
+                            <Color r="1" g="1" b="1"/>
+                            <Size y="30"/>
+                            <Anchors>
+                                <Anchor point="LEFT" relativeKey="$parent.prime2" relativePoint="RIGHT" x="0" y="0"/>
+                            </Anchors>
+                        </FontString>
+                        <FontString parentKey="major1" inherits="GameFontNormal">
+                            <Color r="1" g="1" b="1"/>
+                            <Size y="30"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="0" y="-25"/>
+                            </Anchors>
+                        </FontString>
                         <FontString parentKey="major2" inherits="GameFontNormal">
                             <Color r="1" g="1" b="1"/>
-                            <Size y="25"/>
+                            <Size y="30"/>
                             <Anchors>
                                 <Anchor point="LEFT" relativeKey="$parent.major1" relativePoint="RIGHT" x="0" y="0"/>
                             </Anchors>
                         </FontString>
                         <FontString parentKey="major3" inherits="GameFontNormal">
                             <Color r="1" g="1" b="1"/>
-                            <Size y="25"/>
+                            <Size y="30"/>
                             <Anchors>
                                 <Anchor point="LEFT" relativeKey="$parent.major2" relativePoint="RIGHT" x="0" y="0"/>
                             </Anchors>
                         </FontString>
                         <FontString parentKey="minor1" inherits="GameFontNormal">
                             <Color r="1" g="1" b="1"/>
-                            <Size y="25"/>
+                            <Size y="30"/>
                             <Anchors>
                                 <Anchor point="BOTTOMLEFT" x="0" y="0"/>
                             </Anchors>
                         </FontString>
                         <FontString parentKey="minor2" inherits="GameFontNormal">
                             <Color r="1" g="1" b="1"/>
-                            <Size y="25"/>
+                            <Size y="30"/>
                             <Anchors>
                                 <Anchor point="LEFT" relativeKey="$parent.minor1" relativePoint="RIGHT" x="0" y="0"/>
                             </Anchors>
                         </FontString>
                         <FontString parentKey="minor3" inherits="GameFontNormal">
                             <Color r="1" g="1" b="1"/>
-                            <Size y="25"/>
+                            <Size y="30"/>
                             <Anchors>
                                 <Anchor point="LEFT" relativeKey="$parent.minor2" relativePoint="RIGHT" x="0" y="0"/>
                             </Anchors>

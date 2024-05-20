@@ -649,7 +649,7 @@
 					</Anchors>
 				</Texture>
 				<FontString parentArray="fontstrings" parentKey="name" inherits="GameFontNormal" justifyH="LEFT">
-                    <Size x="120" y="26"/>
+                    <Size x="90" y="26"/>
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.classIcon" x="7" y="0"/>
 					</Anchors>
@@ -676,6 +676,14 @@
 					<Color r="1" g="1" b="1"/>
 				</FontString>
 
+                <FontString parentArray="fontstrings" parentKey="ilvl" inherits="GameFontNormal" justifyH="LEFT">
+                    <Size x="110" y="26"/>
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.mainSpec" x="5" y="0"/>
+					</Anchors>
+					<Color r="1" g="1" b="1"/>
+				</FontString>
+
 				<!-- <Texture parentKey="Prof1">
                     <Size x="25" y="25"/>
 					<Anchors>
@@ -692,21 +700,21 @@
 				<FontString parentArray="fontstrings" parentKey="zone" inherits="GameFontNormal" justifyH="LEFT">
                     <Size x="110" y="26"/>
 					<Anchors>
-						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.mainSpec" x="70" y="0"/>
+						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.ilvl" x="70" y="0"/>
 					</Anchors>
 					<Color r="1" g="1" b="1"/>
 				</FontString>
-				<FontString parentArray="fontstrings" parentKey="rank" inherits="GameFontNormal" justifyH="LEFT">
+				<!-- <FontString parentArray="fontstrings" parentKey="rank" inherits="GameFontNormal" justifyH="LEFT">
                     <Size x="110" y="26"/>
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.zone" x="5" y="0"/>
 					</Anchors>
 					<Color r="1" g="1" b="1"/>
-				</FontString>
+				</FontString> -->
 				<FontString parentArray="fontstrings" parentKey="publicNote" inherits="GameFontNormal" justifyH="LEFT">
                     <Size x="150" y="26"/>
 					<Anchors>
-						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.rank" x="5" y="0"/>
+						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.zone" x="5" y="0"/>
 					</Anchors>
 					<Color r="1" g="1" b="1"/>
 				</FontString>
@@ -716,7 +724,7 @@
             <Frame parentKey="prof1" inherits = "GuildbookWrathEraSmallHighlightButton" enableMouse="true">
                 <Size x="26" y="26"/>
                 <Anchors>
-                    <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.mainSpec" x="5" y="0"/>
+                    <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.ilvl" x="5" y="0"/>
                 </Anchors>
                 <Layers>
                     <Layer level="BACKGROUND">

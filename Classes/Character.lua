@@ -596,6 +596,37 @@ end
 --     end
 -- end
 
+function Character:GetItemLevel(set)
+
+    if not set then
+        set = "current"
+    end
+
+    local numItems, totalItemlevel = 0, 0;
+
+    if self.data.inventory[set] then
+        for slot, link in pairs(self.data.inventory[set]) do
+            if slot ~= "TABARDSLOT" then
+                if type(link) == "string" then
+                    --print(link)
+                    local n, l, q, ilvl = GetItemInfo(link)
+                    --print(ilvl)
+                    if ilvl then
+                        numItems = numItems + 1;
+                        totalItemlevel = totalItemlevel + ilvl;
+
+                    end
+                end
+            end
+        end
+
+        return totalItemlevel, numItems;
+
+    else
+        return 1, 1;
+    end
+end
+
 function Character:SetEquipmentSets(sets, broadcast)
     for name, itemIDs in pairs(sets) do
         self.data.inventory[name] = itemIDs;

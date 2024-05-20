@@ -889,7 +889,7 @@ local function scanTradeskills()
 
 
                     --cata
-                    local recipeSpellID = addon.getRecipeSpellIDFromItemID(id)
+                    local recipeSpellID = Tradeskills.GetRecipeSpellIDFromItemID(id)
                     if recipeSpellID then
                         table.insert(recipes, recipeSpellID)
                     end
@@ -1110,7 +1110,7 @@ function e:Database_OnInitialised()
 
 
     -- this will set the name on enchanting recipes to the client locale, the name is then used when scannign the enchant UI
-    Tradeskills:GenerateEnchantingData()
+    --Tradeskills:GenerateEnchantingData()
 
 
     --somewhat experimental at the moment

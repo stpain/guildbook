@@ -125,6 +125,10 @@
         "CANCEL",
         "ITEM_QUALITY_COLORS",
         "CreateTreeDataProvider",
-        "OTHER"
+        "OTHER",
+        "GameTooltip_AddColoredLine",
+        "BRIGHTBLUE_FONT_COLOR",
+        "GameTooltip_SetTitle",
+        "BLUE_FONT_COLOR"
     ]
 }

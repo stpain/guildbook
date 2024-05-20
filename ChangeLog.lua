@@ -21,6 +21,11 @@ local name, addon = ...;
 
 addon.changeLog = {
     {
+        version = "7.0",
+        notes = "Cataclysm.\n\nUpdated the tradeskills to show recipe and item information along with guild crafters.\n\nUpdated the profile view to show talents and Prime Glyphs (note it'll take time for player data to propagate).\n\nSlight change to the roster view, now shows ilvl (rank removed), you can also hover the ilvl area to see ilvl's for all equipment sets.",
+        icon = "ClassHall-QuestIcon-Desaturated",
+    },
+    {
         version = "6.81",
         notes = "Minor bug fix.\n\nAdded default option to login reminder.",
         icon = "ClassHall-QuestIcon-Desaturated",

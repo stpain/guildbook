@@ -696,11 +696,19 @@ function addon.api.cata.getPlayerTalents(...)
     local inInstance, instanceType = IsInInstance()
 
     local glyphs = {}
-    for i = 1, 6 do
-        local enabled, glyphType, glyphSpellID, icon = GetGlyphSocketInfo(i);
+    for i = 1, 9 do
+        --DevTools_Dump({GetGlyphSocketInfo(i)})
+        local enabled, glyphType, glyphIndex, glyphSpellID, icon = GetGlyphSocketInfo(i);
         if enabled and glyphSpellID then
-            local name = GetSpellInfo(glyphSpellID) --check its a valid spell ID
+            
+            table.insert(glyphs, {
+                spellID = glyphSpellID,
+                glyphType = glyphType,
+                glyphIndex = glyphIndex,
+            })
 
+            --[[
+            local name = GetSpellInfo(glyphSpellID) --check its a valid spell ID
             if name then
                 if addon.glyphData.spellIdToItemId[glyphSpellID] then
                     local itemID = addon.glyphData.spellIdToItemId[glyphSpellID].itemID
@@ -736,6 +744,7 @@ function addon.api.cata.getPlayerTalents(...)
                     end
                 end
             end
+            ]]
         end
     end
 

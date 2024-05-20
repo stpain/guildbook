@@ -899,8 +899,8 @@ function GuildbookRosterListviewItemMixin:UpdateLayout()
 
     if x > 850 then
         --self.name:SetWidth(160)
-        self.rank:SetWidth(110)
-        self.rank:Show()
+        -- self.rank:SetWidth(110)
+        -- self.rank:Show()
         self.zone:SetWidth(110)
         self.zone:Show()
         self.publicNote:SetWidth(250)
@@ -908,8 +908,8 @@ function GuildbookRosterListviewItemMixin:UpdateLayout()
 
     elseif x < 850 and x > 740 then
         --self.name:SetWidth(140)
-        self.rank:SetWidth(1)
-        self.rank:Hide()
+        -- self.rank:SetWidth(1)
+        -- self.rank:Hide()
         self.zone:SetWidth(110)
         self.zone:Show()
         self.publicNote:SetWidth(150)
@@ -917,8 +917,8 @@ function GuildbookRosterListviewItemMixin:UpdateLayout()
 
     elseif x < 741 and x > 630 then
         --self.name:SetWidth(120)
-        self.rank:SetWidth(1)
-        self.rank:Hide()
+        -- self.rank:SetWidth(1)
+        -- self.rank:Hide()
         self.zone:SetWidth(1)
         self.zone:Hide()
         self.publicNote:SetWidth(150)
@@ -928,8 +928,8 @@ function GuildbookRosterListviewItemMixin:UpdateLayout()
         --self.name:SetWidth(110)
         self.publicNote:SetWidth(1)
         self.publicNote:Hide()
-        self.rank:SetWidth(1)
-        self.rank:Hide()
+        -- self.rank:SetWidth(1)
+        -- self.rank:Hide()
         self.zone:SetWidth(1)
         self.zone:Hide()
     end
@@ -939,11 +939,31 @@ function GuildbookRosterListviewItemMixin:Update()
 
     self.level:SetText(self.character.data.level)
     self.zone:SetText(self.character.data.onlineStatus.zone)
-    self.rank:SetText(GuildControlGetRankName(self.character.data.rank + 1))
+    --self.rank:SetText(GuildControlGetRankName(self.character.data.rank + 1))
 
     self.prof1.icon:SetAtlas(self.character:GetTradeskillIcon(1))
 
     self.prof2.icon:SetAtlas(self.character:GetTradeskillIcon(2))
+
+    local totalItemlevel, numItems = self.character:GetItemLevel()
+    self.ilvl:SetText(string.format("ilvl: %0.2f", (totalItemlevel / numItems)))
+
+    self.ilvlData = {}
+    for name, _ in pairs(self.character.data.inventory) do
+        local totalItemlevel, numItems = self.character:GetItemLevel(name)
+        self.ilvlData[name] = (totalItemlevel / numItems)
+    end
+    self.ilvl:SetScript("OnLeave", function()
+        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+    end)
+    self.ilvl:SetScript("OnEnter", function()
+        GameTooltip:SetOwner(self, "ANCHOR_TOP")
+        GameTooltip_SetTitle(GameTooltip, "Equipment Sets")
+        for name, ilvl in pairs(self.ilvlData) do
+            GameTooltip_AddColoredLine(GameTooltip, string.format("%s ilvl: %0.2f", name, ilvl), BLUE_FONT_COLOR)
+        end
+        GameTooltip:Show()
+    end)
 
     
     if self.character.data.mainSpec == false then
@@ -966,14 +986,14 @@ function GuildbookRosterListviewItemMixin:Update()
         self.level:SetTextColor(1,1,1)
         self.mainSpec:SetTextColor(1,1,1)
         self.zone:SetTextColor(1,1,1)
-        self.rank:SetTextColor(1,1,1)
+        self.ilvl:SetTextColor(1,1,1)
         self.publicNote:SetTextColor(1,1,1)
     else
         self.name:SetTextColor(0.5,0.5,0.5)
         self.level:SetTextColor(0.5,0.5,0.5)
         self.mainSpec:SetTextColor(0.5,0.5,0.5)
         self.zone:SetTextColor(0.5,0.5,0.5)
-        self.rank:SetTextColor(0.5,0.5,0.5)
+        self.ilvl:SetTextColor(0.5,0.5,0.5)
         self.publicNote:SetTextColor(0.5,0.5,0.5)
     end
 
@@ -1191,24 +1211,27 @@ end
 
 function GuildbookRosterListviewItemMixin:OnEnter()
 
-    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 
-    -- i contacted the author of attune to check it was ok to add their addon data 
-    if Attune_DB and Attune_DB.toons[self.character.data.name] then
-        GameTooltip:AddLine(" ")
-        GameTooltip:AddLine(L["attunements"])
+        -- i contacted the author of attune to check it was ok to add their addon data 
+        if Attune_DB and Attune_DB.toons[self.character.data.name] then
 
-        local db = Attune_DB.toons[character.Name.."-"..GetRealmName()]
-
-        for _, instance in ipairs(Attune_Data.attunes) do
-            if db.attuned[instance.ID] and (instance.FACTION == "Both" or instance.FACTION == character.Faction) then
-                local formatPercent = db.attuned[instance.ID] < 100 and "|cffff0000"..db.attuned[instance.ID].."%" or "|cff00ff00"..db.attuned[instance.ID].."%"
-                GameTooltip:AddDoubleLine("|cffffffff"..instance.NAME, formatPercent)
+            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+            GameTooltip:AddLine(" ")
+            GameTooltip:AddLine(L["attunements"])
+    
+            local db = Attune_DB.toons[character.Name.."-"..GetRealmName()]
+    
+            for _, instance in ipairs(Attune_Data.attunes) do
+                if db.attuned[instance.ID] and (instance.FACTION == "Both" or instance.FACTION == character.Faction) then
+                    local formatPercent = db.attuned[instance.ID] < 100 and "|cffff0000"..db.attuned[instance.ID].."%" or "|cff00ff00"..db.attuned[instance.ID].."%"
+                    GameTooltip:AddDoubleLine("|cffffffff"..instance.NAME, formatPercent)
+                end
             end
-        end
-    end
 
-    GameTooltip:Show()
+            GameTooltip:Show()
+        end
+
+
 end
 
 

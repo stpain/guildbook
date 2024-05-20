@@ -153,6 +153,7 @@ Guildbook.ContextMenu_Separator_Wide = "|TInterface/COMMON/UI-TooltipDivider:8:2
 local Database = addon.Database;
 local L = addon.Locales;
 local Character = addon.Character;
+local Tradeskills = addon.Tradeskills;
 local Talents = addon.Talents;
 local json = LibStub('JsonLua-1.0');
 
@@ -396,7 +397,7 @@ function GuildbookMixin:Database_OnInitialised()
     self:CreateMinimapButtons()
     self:CreateSlashCommands()
 
-    addon.buildEnchanterNameToSpellID()
+    Tradeskills.BuildEnchanterNameToSpellID()
 end
 
 function GuildbookMixin:AddCharacter()

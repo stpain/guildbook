@@ -1,10 +1,11 @@
-## Interface: 30403
+## Interface: 40400
 ## Author: TheBoringDad
-## Version: 6.81
+## Version: 7.0
 ## Title: Guildbook
 ## Notes: An addon for guilds
 ## SavedVariables: GUILDBOOK_GLOBAL
 ## SavedVariablesPerCharacter: GUILDBOOK_CHARACTER
+## Dependencies: TbdWidgets
 
 
 Libs\LibStub\LibStub.lua
@@ -38,7 +39,7 @@ Widgets\TabFrame.xml
 ChangeLog.lua
 
 Locales.lua
-ItemData.lua
+#ItemData.lua
 #SpellData.lua
 TradeskillData.lua
 Database.lua

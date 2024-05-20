@@ -51,21 +51,44 @@ function GuildbookTradskillsMixin:OnLoad()
     self.details.itemButton.mask:SetSize(z*1.2, z*1.2)
 
     self.details.reagents.divider:SetTexCoord(0,1, 1,1, 0,0, 1,0)
-    self.details.crafters.scrollView:SetPadding(14, 4, 4, 4, 1);
+    self.details.crafters.scrollView:SetPadding(14, 14, 1, 1, 1);
+    self.details.reagentForRecipes.scrollView:SetPadding(14, 14, 1, 1, 1); --t,b,l,r
 
     addon.AddView(self)
 
 end
 
-function GuildbookTradskillsMixin:UpdateLayout()
-    -- self.details:GetSize()
-    -- self.details.itemButton:GetSize()
-    -- self.details.reagents:GetSize()
-    -- self.details.crafters:GetSize()
-
+function GuildbookTradskillsMixin:OnShow()
     self.details:ClearAllPoints()
     self.details:SetPoint("TOPLEFT", 270, -40)
     self.details:SetPoint("BOTTOMRIGHT", -4, 4)
+
+    self:UpdateLayout()
+end
+
+function GuildbookTradskillsMixin:UpdateLayout()
+
+    -- self.details:ClearAllPoints()
+    -- self.details:SetPoint("TOPLEFT", 270, -40)
+    -- self.details:SetPoint("BOTTOMRIGHT", -4, 4)
+    
+    local x, y = self.details:GetSize()
+
+    local infoBoxWidth = ((x - 240 - (3 * 28)) / 2)
+
+    --print(infoBoxWidth)
+
+    if infoBoxWidth < 190 then
+        self.details.crafters:SetWidth(infoBoxWidth)
+        self.details.reagentForRecipes:Hide()
+        self.details.crafters:SetWidth(260)
+    else
+
+        self.details.crafters:SetWidth(infoBoxWidth)
+        self.details.reagentForRecipes:Show()
+    end
+
+
 end
 
 function GuildbookTradskillsMixin:FindRecipeIndex(tradeskill, name)
@@ -131,6 +154,53 @@ function GuildbookTradskillsMixin:SetRecipe(recipe)
         return a.count > b.count;
     end
 
+    self.details.reagentForRecipes.DataProvider = CreateTreeDataProvider()
+    self.details.reagentForRecipes.scrollView:SetDataProvider(self.details.reagentForRecipes.DataProvider)
+    if recipe.itemID then
+        local t = {}
+        local nodes = {}
+        local recipesUsingItem = Tradeskills.GetAllRecipesThatUseItem(recipe.itemID)
+        if not next(recipesUsingItem) then
+            self.details.reagentForRecipes:Hide()
+
+        else
+            self.details.reagentForRecipes:Show()
+
+            for tradeskillID, recipes in pairs(recipesUsingItem) do
+    
+                if not nodes[tradeskillID] then
+                    nodes[tradeskillID] = self.details.reagentForRecipes.DataProvider:Insert({
+                        label = string.format("%s %s", CreateAtlasMarkup(Tradeskills:TradeskillIDToAtlas(tradeskillID), 20, 20), Tradeskills:GetLocaleNameFromID(tradeskillID)),
+                        isParent = true,
+                        atlas = "common-icon-forwardarrow",
+                        --backgroundAtlas = "OBJBonusBar-Top",
+                    })
+                end
+                
+                for k, v in ipairs(recipes) do
+                    local spellName = GetSpellInfo(v)
+                    nodes[tradeskillID]:Insert({
+                        label = spellName,
+                        onMouseEnter = function(f)
+                            GameTooltip:SetOwner(f, "ANCHOR_RIGHT")
+                            GameTooltip:SetSpellByID(v)
+                            GameTooltip:Show()
+                        end
+                    })
+                end
+    
+            end
+
+            for k, v in pairs(nodes) do
+                v:ToggleCollapsed()
+            end
+        end
+
+    else
+        self.details.reagentForRecipes:Hide()
+
+    end
+
 
     local reagents = {}
     local invoice = {
@@ -151,15 +221,14 @@ function GuildbookTradskillsMixin:SetRecipe(recipe)
 
                 table.insert(reagents, {
                     count = count,
+                    link = item:GetItemLink(),
                     init = function(f)
                         f.icon:SetTexture(item:GetItemIcon())
                         f.icon:SetSize(32,32)
         
                         f.label:SetSize(160, 32)
         
-                        local itemName, itemLink, itemQuality, itemLevel, itemMinLevel, _, _, _, _, _, sellPrice = GetItemInfo(itemID)
-        
-                        f.label:SetText(string.format("%d/%d %s", numOwned, count, itemName))
+                        f.label:SetText(string.format("%d/%d %s", numOwned, count, item:GetItemName()))
         
                         f:SetScript("OnMouseDown", function()
                             HandleModifiedItemClick(item:GetItemLink())
@@ -346,7 +415,7 @@ function GuildbookTradskillsMixin:LoadTradeskill(tadeskillName, tradeskillID, ar
 
     local treeviewNodes = {}
     
-    local tradeskillData = addon.buildTradeskillData(tradeskillID)
+    local tradeskillData = Tradeskills.BuildTradeskillData(tradeskillID)
 
     local function sortFunc(a, b)
         if a:GetData().name and a:GetData().quality and b:GetData().name and b:GetData().quality and b:GetData().level and b:GetData().level then

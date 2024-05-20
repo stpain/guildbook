@@ -775,69 +775,75 @@ function GuildbookSettingsMixin:PreparePanels()
 
     GameTooltip:HookScript("OnTooltipSetItem", function(tt)
 
-        local name, link = tt:GetItem()
+        local itemName, link = tt:GetItem()
         if link then
             local itemID = GetItemInfoInstant(link)
             if itemID then
-                local itemInfo = addon.api.getTradeskillItemDataFromID(itemID)
-                if Database.db.config.tradeskillsShowAllRecipeInfoTooltip == true then
-                    if itemInfo then
-                        tt:AddLine(" ")
-                        tt:AddLine(string.format("%s |cffffffff%s", CreateAtlasMarkup(Tradeskills:TradeskillIDToAtlas(itemInfo.tradeskillID), 20, 20), Tradeskills:GetLocaleNameFromID(itemInfo.tradeskillID)))
-                        tt:AddDoubleLine(L.REAGENT, L.COUNT)
-                        for id, count in pairs(itemInfo.reagents) do
-                            local item = Item:CreateFromItemID(id)
-                            if not item:IsItemEmpty() then
-                                item:ContinueOnItemLoad(function()
-                                    tt:AddDoubleLine(item:GetItemLink(), "|cffffffff"..count)
-                                end)
+                local itemInfo = Tradeskills.GetItemRecipeInfo(itemID, itemName)
+                if itemInfo then
+                    if Database.db.config.tradeskillsShowAllRecipeInfoTooltip == true then
+                        if itemInfo then
+                            tt:AddLine(" ")
+                            tt:AddLine(string.format("%s |cffffffff%s", CreateAtlasMarkup(Tradeskills:TradeskillIDToAtlas(itemInfo.tradeskillID), 20, 20), Tradeskills:GetLocaleNameFromID(itemInfo.tradeskillID)))
+                            tt:AddDoubleLine(L.REAGENT, L.COUNT)
+                            for id, count in pairs(itemInfo.reagents) do
+                                local item = Item:CreateFromItemID(id)
+                                if not item:IsItemEmpty() then
+                                    item:ContinueOnItemLoad(function()
+                                        tt:AddDoubleLine(item:GetItemLink(), "|cffffffff"..count)
+                                    end)
+                                end
                             end
                         end
-                    end
-                else
-                    if Database.db.config.tradeskillsShowMyRecipeInfoTooltip == true then
-                        if itemInfo and addon.characters[addon.thisCharacter] then
-                            if (itemInfo.tradeskillID == addon.characters[addon.thisCharacter].data.profession1) or (itemInfo.tradeskillID == addon.characters[addon.thisCharacter].data.profession2) then
-                                tt:AddLine(" ")
-                                tt:AddLine(string.format("%s |cffffffff%s", CreateAtlasMarkup(Tradeskills:TradeskillIDToAtlas(itemInfo.tradeskillID), 20, 20), Tradeskills:GetLocaleNameFromID(itemInfo.tradeskillID)))
-                                tt:AddDoubleLine(L.REAGENT, L.COUNT)
-                                for id, count in pairs(itemInfo.reagents) do
-                                    local item = Item:CreateFromItemID(id)
-                                    if not item:IsItemEmpty() then
-                                        item:ContinueOnItemLoad(function()
-                                            tt:AddDoubleLine(item:GetItemLink(), "|cffffffff"..count)
-                                        end)
+                    else
+                        if Database.db.config.tradeskillsShowMyRecipeInfoTooltip == true then
+                            if itemInfo and addon.characters[addon.thisCharacter] then
+                                if (itemInfo.tradeskillID == addon.characters[addon.thisCharacter].data.profession1) or (itemInfo.tradeskillID == addon.characters[addon.thisCharacter].data.profession2) then
+                                    tt:AddLine(" ")
+                                    tt:AddLine(string.format("%s |cffffffff%s", CreateAtlasMarkup(Tradeskills:TradeskillIDToAtlas(itemInfo.tradeskillID), 20, 20), Tradeskills:GetLocaleNameFromID(itemInfo.tradeskillID)))
+                                    tt:AddDoubleLine(L.REAGENT, L.COUNT)
+                                    for id, count in pairs(itemInfo.reagents) do
+                                        local item = Item:CreateFromItemID(id)
+                                        if not item:IsItemEmpty() then
+                                            item:ContinueOnItemLoad(function()
+                                                tt:AddDoubleLine(item:GetItemLink(), "|cffffffff"..count)
+                                            end)
+                                        end
                                     end
                                 end
                             end
                         end
                     end
-                end
 
-                if Database.db.config.tradeskillsShowAllRecipesUsingTooltip == true then
-                    local recipesUsingItem = addon.api.getTradeskillItemsUsingReagentItemID(itemID)
-                    if next(recipesUsingItem) then
-                        tt:AddLine(" ")
-                        tt:AddLine(L.SETTINGS_TRADESKILLS_TT_REAGENT_FOR_HEADER)
-                    end
-                    for tradeskillID, recipes in pairs(recipesUsingItem) do
-                        tt:AddLine(" ")
-                        tt:AddLine(string.format("%s %s", CreateAtlasMarkup(Tradeskills:TradeskillIDToAtlas(tradeskillID), 20, 20), Tradeskills:GetLocaleNameFromID(tradeskillID)))
-                        for k, v in ipairs(recipes) do
-                            tt:AddLine(v.itemLink)
-                        end
-                    end
-                else
-                    if Database.db.config.tradeskillsShowMyRecipesUsingTooltip == true and addon.characters[addon.thisCharacter] then
-                        local recipesUsingItem = addon.api.getTradeskillItemsUsingReagentItemID(itemID, addon.characters[addon.thisCharacter].data.profession1, addon.characters[addon.thisCharacter].data.profession2)
+                    if Database.db.config.tradeskillsShowAllRecipesUsingTooltip == true then
+                        --local recipesUsingItem = addon.api.getTradeskillItemsUsingReagentItemID(itemID)
+                        local recipesUsingItem = Tradeskills.GetAllRecipesThatUseItem(itemID)
                         if next(recipesUsingItem) then
                             tt:AddLine(" ")
                             tt:AddLine(L.SETTINGS_TRADESKILLS_TT_REAGENT_FOR_HEADER)
-                        end                        for tradeskillID, recipes in pairs(recipesUsingItem) do
+                        end
+                        for tradeskillID, recipes in pairs(recipesUsingItem) do
                             tt:AddLine(" ")
                             tt:AddLine(string.format("%s %s", CreateAtlasMarkup(Tradeskills:TradeskillIDToAtlas(tradeskillID), 20, 20), Tradeskills:GetLocaleNameFromID(tradeskillID)))
-                            for k, v in ipairs(recipes) do
-                                tt:AddLine(v.itemLink)
+                            for k, spellID in ipairs(recipes) do
+                                local spellName = GetSpellInfo(spellID)
+                                GameTooltip_AddColoredLine(tt, spellName, BLUE_FONT_COLOR)
+                            end
+                        end
+                    else
+                        if Database.db.config.tradeskillsShowMyRecipesUsingTooltip == true and addon.characters[addon.thisCharacter] then
+                            local recipesUsingItem = Tradeskills.GetAllRecipesThatUseItem(itemID, addon.characters[addon.thisCharacter].data.profession1, addon.characters[addon.thisCharacter].data.profession2)
+                            if next(recipesUsingItem) then
+                                tt:AddLine(" ")
+                                tt:AddLine(L.SETTINGS_TRADESKILLS_TT_REAGENT_FOR_HEADER)
+                            end                        
+                            for tradeskillID, recipes in pairs(recipesUsingItem) do
+                                tt:AddLine(" ")
+                                tt:AddLine(string.format("%s %s", CreateAtlasMarkup(Tradeskills:TradeskillIDToAtlas(tradeskillID), 20, 20), Tradeskills:GetLocaleNameFromID(tradeskillID)))
+                                for k, spellID in ipairs(recipes) do
+                                    local spellName = GetSpellInfo(spellID)
+                                    GameTooltip_AddColoredLine(tt, spellName, BLUE_FONT_COLOR)
+                                end
                             end
                         end
                     end

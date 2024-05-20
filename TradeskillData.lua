@@ -1,12 +1,13 @@
 
 local name, addon = ...;
 
+addon.tradeskillData = {}
 
 
 --[[
     [spellID] = {r1_ID, ..., r7_ID, r1_Count, ...}
 ]]
-local spellIdToReagents = {
+addon.tradeskillData.spellIdToReagents = {
     [16029] = {9280,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,},
     [17269] = {13157,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,},
     [17270] = {13157,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,},
@@ -5141,7 +5142,7 @@ local spellIdToReagents = {
     [388365] = {40199,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,},
 }
 
-local spellIdToItemCreated = {
+addon.tradeskillData.spellIdToItemCreated = {
     [73290] = 9718,
     [74623] = 5349,
     [74624] = 5514,
@@ -10280,21 +10281,7 @@ local spellIdToItemCreated = {
     [388350] = 199914,
 }
 
-local tradeskillInfo = {
-    [164] = { englishName = 'Blacksmithing', icon = 136241,},
-    [165] = { englishName = 'Leatherworking', icon = 136247,},
-    [171] = { englishName = 'Alchemy', icon = 136240,},
-    [182] = { englishName = 'Herbalism', icon = 136246,},
-    [186] = { englishName = 'Mining', icon = 134708,},
-    [197] = { englishName = 'Tailoring', icon = 136249,},
-    [202] = { englishName = 'Engineering', icon = 136243,},
-    [333] = { englishName = 'Enchanting', icon = 136244,},
-    [393] = { englishName = 'Skinning', icon = 134366,},
-    [755] = { englishName = 'Jewelcrafting', icon = 134071,},
-    [773] = { englishName = 'Inscription', icon = 237171,},    
-}
-
-local spellIdToTradeskillId = {
+addon.tradeskillData.spellIdToTradeskillId = {
     [116] = 6,
     [264] = 45,
     [196] = 44,
@@ -18719,91 +18706,3 @@ local spellIdToTradeskillId = {
     [423869] = 777,
     [440915] = 777,
 }
-
-
-
-local function getTradeskillSpellIDs(tradeskillID)
-    local t = {}
-    for spellId, tradeskillId in pairs(spellIdToTradeskillId) do
-        if tradeskillId == tradeskillID then
-            table.insert(t, spellId)
-        end
-    end
-    return t
-end
-
-local function getReagentData(spellID)
-    local t = {}
-    if spellIdToReagents[spellID] then
-        for i = 1, 7 do
-            if spellIdToReagents[spellID][i] > 0 then
-                t[spellIdToReagents[spellID][i]] = spellIdToReagents[spellID][i+8]
-            end
-        end
-    end
-    return t;
-end
-
-addon.enchanterSpellNameToSpellID = {}
-function addon.buildEnchanterNameToSpellID()
-    local spells = getTradeskillSpellIDs(333)
-    for k, spellID in ipairs(spells) do
-        local spell = Spell:CreateFromSpellID(spellID)
-        if not spell:IsSpellEmpty() then
-            spell:ContinueOnSpellLoad(function()
-                addon.enchanterSpellNameToSpellID[spell:GetSpellName()] = spellID
-            end)
-        end
-    end
-end
-
-function addon.getRecipeSpellIDFromItemID(itemID)
-    for spellID, _itemID in pairs(spellIdToItemCreated) do
-        if itemID == _itemID then
-            return spellID
-        end
-    end
-end
-
-function addon.buildTradeskillData(tradeskillID)
-
-    local tradeskillSpellIDs = getTradeskillSpellIDs(tradeskillID)
-
-    local t = {}
-    for k, spellId in ipairs(tradeskillSpellIDs) do
-        if spellIdToItemCreated[spellId] and spellIdToReagents[spellId] then
-            local reagents = getReagentData(spellId)
-            local itemID = spellIdToItemCreated[spellId]
-            local itemID, itemType, itemSubType, itemEquipLoc, icon, classID, subClassID = GetItemInfoInstant(itemID)
-            local recipe = {
-                spellID = spellId,
-                itemID = itemID,
-                classID = classID,
-                subClassID = subClassID,
-                icon = icon,
-                reagents = reagents,
-            }
-            table.insert(t, recipe)
-        
-        elseif spellIdToReagents[spellId] then
-            local reagents = getReagentData(spellId)
-            local recipe = {
-                spellID = spellId,
-                reagents = reagents,
-                classID = -1,
-                subClassID = -1,
-            }
-            table.insert(t, recipe)
-        end
-    end
-
-    -- table.sort(t, function(a,b)
-    --     if a.classID == b.classID then
-    --         return a.subClassID < b.subClassID
-    --     else
-    --         return a.classID < b.classID
-    --     end
-    -- end)
-
-    return t;
-end
