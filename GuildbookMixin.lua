@@ -177,7 +177,7 @@ end
 function GuildbookMixin:OnLoad()
     
     self:RegisterForDrag("LeftButton")
-    self.resize:Init(self, 600, 525, 1100, 650)
+    self.resize:Init(self, 850, 550, 1100, 700)
 
     self.resize:HookScript("OnMouseDown", function()
         self.isRefreshEnabled = true;
@@ -316,6 +316,11 @@ function GuildbookMixin:AddView(view)
     self.views[view.name] = view;
     view:SetParent(self.content)
     view:SetAllPoints()
+
+    if view.UpdateLayout then
+        view:UpdateLayout()
+    end
+
     view:Hide()
 
     if view.helptips then
@@ -362,7 +367,7 @@ function GuildbookMixin:Blizzard_OnInitialGuildRosterScan(guildName)
             local currentStats = addon.api.wrath.getPaperDollStats()
             local resistances = addon.api.getPlayerResistances(UnitLevel("player"))
             local auras = addon.api.getPlayerAuras()
-            local talents = addon.api.wrath.getPlayerTalents()
+            local talents = addon.api.cata.getPlayerTalents()
 
             addon.characters[addon.thisCharacter]:SetTalents("current", talents, true)
             addon.characters[addon.thisCharacter]:SetInventory("current", equipment, true)
@@ -390,6 +395,8 @@ end
 function GuildbookMixin:Database_OnInitialised()
     self:CreateMinimapButtons()
     self:CreateSlashCommands()
+
+    addon.buildEnchanterNameToSpellID()
 end
 
 function GuildbookMixin:AddCharacter()
@@ -424,7 +431,7 @@ function GuildbookMixin:AddCharacter()
     local currentStats = addon.api.wrath.getPaperDollStats()
     local resistances = addon.api.getPlayerResistances(UnitLevel("player"))
     local auras = addon.api.getPlayerAuras()
-    local talents = addon.api.wrath.getPlayerTalents()
+    local talents = addon.api.cata.getPlayerTalents()
 
     if addon.characters[addon.thisCharacter] then
         addon.characters[addon.thisCharacter]:SetTalents("current", talents, true)

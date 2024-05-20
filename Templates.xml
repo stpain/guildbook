@@ -374,7 +374,7 @@
                     <Anchor point="RIGHT" relativeKey="$parent.shareBags" relativePoint="LEFT" x="-60" y="0"/>
                 </Anchors>
             </CheckButton>
-            <Button parentKey="ranks" inherits = "GuildbookWrathEraWidgetsDropDownTemplate">
+            <Button parentKey="ranks" inherits = "TBDDropDownTemplate">
                 <Anchors>
                     <Anchor point="RIGHT" relativeKey="$parent.shareCopper" relativePoint="LEFT" x="-10" y="0"/>
                 </Anchors>

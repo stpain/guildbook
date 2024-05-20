@@ -117,8 +117,6 @@ function GuildbookWrathDailiesMixin:ScanQuestLog()
                 title = title,
                 header = header,
                 questId = questId,
-                -- description = questDescription,
-                -- objectives = questObjectives,
                 level = level,
                 frequency = frequency,
             }

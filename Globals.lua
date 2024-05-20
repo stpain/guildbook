@@ -92,6 +92,7 @@ addon.contextMenu = CreateFrame("Frame", "GuildbookContextMenu", UIParent, "UIDr
 addon.api = {
     classic = {},
     wrath = {},
+    cata = {},
 }
 
 local debugTypeIcons = {
@@ -337,6 +338,19 @@ function addon.api.getPlayerSkillLevels()
     return skills;
 end
 
+function addon.api.getGuildRosterIndex(nameOrGUID)
+    if IsInGuild() and GetGuildInfo("player") then
+        GuildRoster()
+        local totalMembers, onlineMember, _ = GetNumGuildMembers()
+        for i = 1, totalMembers do
+            local name, rankName, rankIndex, level, _, zone, publicNote, officerNote, isOnline, status, class, _, _, _, _, _, guid = GetGuildRosterInfo(i)
+            if nameOrGUID == name or nameOrGUID == guid then
+                return i
+            end
+        end
+    end
+end
+
 function addon.api.getPlayerAlts(main)
     if type(main) == "string" then
         local alts = {}
@@ -538,6 +552,135 @@ function addon.api.wrath.getPlayerTalents(...)
         for talentIndex = 1, GetNumTalents(tabIndex) do
             local name, iconTexture, row, column, rank, maxRank, isExceptional, available = GetTalentInfo(tabIndex, talentIndex)
             local spellId = Talents:GetTalentSpellId(fileName, row, column, rank)
+            table.insert(talents, {
+                tabID = tabIndex,
+                row = row,
+                col = column,
+                rank = rank,
+                maxRank = maxRank,
+                spellId = spellId,
+            })
+        end
+    end
+
+    local inGroup = IsInGroup()
+    local inInstance, instanceType = IsInInstance()
+
+    local glyphs = {}
+    for i = 1, 6 do
+        local enabled, glyphType, glyphSpellID, icon = GetGlyphSocketInfo(i);
+        if enabled and glyphSpellID then
+            local name = GetSpellInfo(glyphSpellID) --check its a valid spell ID
+
+            if name then
+                if addon.glyphData.spellIdToItemId[glyphSpellID] then
+                    local itemID = addon.glyphData.spellIdToItemId[glyphSpellID].itemID
+                    local found = false
+                    for k, glyph in ipairs(addon.glyphData.wrath) do
+                        if glyph.itemID == itemID then
+                            table.insert(glyphs, {
+                                socket = i,
+                                itemID = itemID,
+                                classID = glyph.classID,
+                                glyphType = glyph.glyphType,
+                                name = name,
+                            })
+                            found = true
+                        end
+                    end
+                    if not found then
+                        if not inGroup and not inInstance then
+                            if not glyphsPopped[glyphSpellID] then
+                                local s = string.format("[%s] unable to find glyph itemID for %s with GlyphSpellID of %d", addonName, name, glyphSpellID)
+                                StaticPopup_Show("GuildbookReport", s)
+                                glyphsPopped[glyphSpellID] = true
+                            end
+                        end
+                    end
+                else
+                    if not inGroup and not inInstance then
+                        if not glyphsPopped[glyphSpellID] then
+                            local s = string.format("[%s] glyph data for %s with GlyphSpellID of %d missing from lookup table", addonName, name, glyphSpellID)
+                            StaticPopup_Show("GuildbookReport", s)
+                            glyphsPopped[glyphSpellID] = true
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    return newSpec, tabs, talents, glyphs;
+
+    -- if newSpec == 1 then
+    --     self:TriggerEvent("OnPlayerTalentSpecChanged", "primary", talents, glyphs)
+    -- elseif newSpec == 2 then
+    --     self:TriggerEvent("OnPlayerTalentSpecChanged", "secondary", talents, glyphs)
+    -- end
+
+    --DevTools_Dump({glyphs})
+    --DisplayTableInspectorWindow({glyphs = glyphs});
+
+end
+
+
+--[[
+    ---Create a talent data string using the wowhead hyphen format
+function ModernTalentsMixin:SaveTalentPreviewLoadout()
+
+    local trees = {
+        [1] = "",
+        [2] = "",
+        [3] = "",
+    }
+    local treeIndex = 0
+    self:IterTalentTreesOrdered(function(f)
+        if f.rowId == 1 and f.colId == 1 then
+            treeIndex = treeIndex + 1
+        end
+        if f.talentIndex then
+            trees[treeIndex] = string.format("%s%s", trees[treeIndex], f.previewRank or 0)
+        end
+    end)
+    local s = string.format("%s-%s-%s", trees[1], trees[2], trees[3])
+
+    StaticPopup_Show("ModernTalentsSaveLoadoutDialog", "Name", nil, {
+        callback = function(name)
+            local _, _, class = UnitClass("player")
+            table.insert(self.db.account.talentLoadouts, {
+                name = name,
+                class = class,
+                loadout = s,
+            })
+            self:InitializeTalentTabDropdown()
+        end
+    })
+
+end
+]]
+
+function addon.api.cata.getPlayerTalents(...)
+    local newSpec, previousSpec = ...;
+
+	if type(newSpec) ~= "number" then
+		newSpec = GetActiveTalentGroup()
+	end
+	if type(newSpec) ~= "number" then
+		newSpec = 1
+	end
+
+    local tabs, talents = {}, {}
+    for tabIndex = 1, GetNumTalentTabs() do
+        local id, name, description, icon, pointsSpent, fileName, previewPointsSpent, isUnlocked = GetTalentTabInfo(tabIndex)
+        --print(id, name, fileName)
+        local engSpec = Talents.TalentBackgroundToSpec[fileName]
+        table.insert(tabs, {
+            fileName = fileName,
+            pointsSpent = pointsSpent,
+        })
+        for talentIndex = 1, GetNumTalents(tabIndex) do
+            local _name, iconTexture, row, column, rank, maxRank, isExceptional, available, unKnown, isActive, y, talentID = GetTalentInfo(tabIndex, talentIndex)
+            local spellId = Talents:GetTalentSpellId(fileName, row, column, rank, id)
             table.insert(talents, {
                 tabID = tabIndex,
                 row = row,

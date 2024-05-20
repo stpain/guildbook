@@ -851,6 +851,7 @@ local function scanTradeskills()
         local name, _type, _, _, _ = GetTradeSkillInfo(i)
         if name and (_type == "optimal" or _type == "medium" or _type == "easy" or _type == "trivial") then
             local itemLink = GetTradeSkillItemLink(i)
+
             local cooldown = GetTradeSkillCooldown(i)
             if cooldown then
 
@@ -876,11 +877,21 @@ local function scanTradeskills()
             if itemLink then
                 local id = GetItemInfoFromHyperlink(itemLink)
                 if id then
-                    for k, v in ipairs(addon.itemData) do
-                        if v.itemID == id then
-                            table.insert(recipes, v.spellID)
 
-                        end
+                    --old wrath system
+                    -- for k, v in ipairs(addon.itemData) do
+                    --     if v.itemID == id then
+                    --         table.insert(recipes, v.spellID)
+
+                    --     end
+                    -- end
+
+
+
+                    --cata
+                    local recipeSpellID = addon.getRecipeSpellIDFromItemID(id)
+                    if recipeSpellID then
+                        table.insert(recipes, recipeSpellID)
                     end
 
                     if prof == 186 then --mining doesn't make enchanted bars
@@ -894,6 +905,10 @@ local function scanTradeskills()
                 end
 
             else
+
+
+                --wrath
+                --[[
                 --print("no link", name)
                 for k, v in ipairs(addon.itemData) do
                     if v.name == name then
@@ -901,6 +916,14 @@ local function scanTradeskills()
                         table.insert(recipes, v.spellID)
                         --prof = v.tradeskillID;
                     end
+                end
+
+                ]]
+
+
+                --cata
+                if addon.enchanterSpellNameToSpellID[name] then
+                    table.insert(recipes, addon.enchanterSpellNameToSpellID[name])
                 end
             end
         end
@@ -989,7 +1012,7 @@ end
 
 local function setPlayerTalentsAndGlyphs(...)
 
-    local spec, tabs, talents, glyphs = addon.api.wrath.getPlayerTalents(...)
+    local spec, tabs, talents, glyphs = addon.api.cata.getPlayerTalents(...)
 
     -- DevTools_Dump(tabs)
     -- print(spec)

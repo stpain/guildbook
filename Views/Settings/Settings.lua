@@ -134,6 +134,7 @@ function GuildbookSettingsMixin:OnLoad()
     self.content.character.tabContainer.alts.gridview.ScrollBar:Hide()
     
 
+
     self.content.character:SetScript("OnShow", function()
         self:CharacterPanel_OnShow()
     end)
@@ -644,18 +645,89 @@ function GuildbookSettingsMixin:PreparePanels()
     end
 
 
+    --[[
+        guild tab container
+    ]]
+    self.content.guild.tabContainer:CreateTabButtons({
+        {
+            label = "Invites",
+            width = 100,
+            panel = self.content.guild.tabContainer.invites,
+        },
+        {
+            label = "CSV Input",
+            width = 100,
+            panel = self.content.guild.tabContainer.csvInput,
+        },
+    })
 
-    -- --tabs test
-    -- local tabs = {}
-    -- for i = 1, 4 do
-    --     table.insert(tabs, {
-    --         label = "tab"..i,
-    --         panel = self.content.guild.scrollFrame.scrollChild.testTabs["panel"..i]
-    --     })
-    -- end
-    -- self.content.guild.scrollFrame.scrollChild.testTabs:CreateTabButtons(tabs)
+    self.content.guild.tabContainer.csvInput.pasteBin.EditBox:SetMaxLetters(100000000)
+    self.content.guild.tabContainer.csvInput.pasteBin.CharCount:SetShown(true);
+    self.content.guild.tabContainer.csvInput.pasteBin.EditBox:ClearAllPoints()
+    self.content.guild.tabContainer.csvInput.pasteBin.EditBox:SetPoint("TOPLEFT", self.content.guild.tabContainer.csvInput.pasteBin, "TOPLEFT", 0, 0)
+    self.content.guild.tabContainer.csvInput.pasteBin.EditBox:SetPoint("BOTTOMRIGHT", self.content.guild.tabContainer.csvInput.pasteBin, "BOTTOMRIGHT", 0, 0)
+    self.content.guild.tabContainer.csvInput.pasteBin.ScrollBar:ClearAllPoints()
+    self.content.guild.tabContainer.csvInput.pasteBin.ScrollBar:SetPoint("TOPRIGHT", self.content.guild.tabContainer.csvInput.pasteBin, "TOPRIGHT", 4, 0)
+    self.content.guild.tabContainer.csvInput.pasteBin.ScrollBar:SetPoint("BOTTOMRIGHT", self.content.guild.tabContainer.csvInput.pasteBin, "BOTTOMRIGHT", 0, -4)
+
+    local slider = self.content.guild.tabContainer.csvInput.csvColumnCount;
+
+    slider.label:SetText("Column count")
+    slider.value:SetText(1)
+    slider:SetMinMaxValues(1, 10)
+    slider:SetValue(1)
+
+    _G[slider:GetName().."Low"]:SetText(" ")
+    _G[slider:GetName().."High"]:SetText(" ")
+    _G[slider:GetName().."Text"]:SetText(" ")
+
+    --TBDDropDownTemplate
+
+    local function csvSplit(inputstr, sep)
+        if sep == nil then
+            return
+        end
+        local t = {}
+        for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+            table.insert(t, str)
+        end
+        return t
+    end
+
+    local function preparePreview()
+        local columns = math.ceil(slider:GetValue())
+        local csv = csvSplit(self.content.guild.tabContainer.csvInput.pasteBin.EditBox:GetText(), ",")
+
+        local ret = ""
+        for i = 1, (10 * columns), columns do
+            for j = i, (i + columns - 1) do
+                if csv[j] then
+                    ret = string.format("%s%s,", ret, csv[j])
+                end
+            end
+            ret = string.format("%s\n", ret)
+        end
+
+        self.content.guild.tabContainer.csvInput.preview:SetText(ret)
+    end
+
+    self.content.guild.tabContainer.csvInput.pasteBin.EditBox:SetScript("OnTextChanged", preparePreview)
+
+    slider:SetScript("OnMouseWheel", function(s, delta)
+        s:SetValue(s:GetValue() + delta)
+    end)
+
+    slider:SetScript("OnValueChanged", function(s)
+        local val = math.ceil(s:GetValue())
+        s.value:SetText(val)
+         
+        preparePreview()
+    end)
 
 
+    self.content.guild.tabContainer.csvInput.import:SetScript("OnClick", function()
+        
+    end)
 
 
 

@@ -136,7 +136,7 @@ function GuildbookProfileMixin:OnLoad()
         self.talents["tree"..i].talentsGridview:SetFixedColumnCount(4)
 
         C_Timer.After(0.1, function()
-            for row = 1, 11 do
+            for row = 1, 7 do
                 for col = 1, 4 do
                     self.talents["tree"..i].talentsGridview:Insert({
                         rowId = row,
@@ -745,6 +745,35 @@ function GuildbookProfileMixin:LoadTalentsAndGlyphs()
 					end
 				end
 			end
+
+
+			--new cata talents strings
+		elseif type(self.character.data.talents[spec]) == "string" then
+
+			local tabs = {strsplit("-", self.character.data.talents[spec])}
+
+			local pointsSpent = {
+				{ id = 1, points = 0 },
+				{ id = 2, points = 0 },
+				{ id = 3, points = 0 },
+			}
+		
+			--loop the data and add the points spent per tree
+			--then apply a simple sort allowing us to access the tree in the correct order
+			for k, tab in ipairs(tabs) do
+				if tab and (#tab > 0) then
+					local tbl = {string.byte(tab, 1, #tab)}
+					for i = 1, #tbl do
+						local c = tonumber(string.char(tbl[i]))
+						if c then
+							pointsSpent[k].points = pointsSpent[k].points + c
+						end
+					end
+				end
+			end
+		
+			
+
 		end
 	end
 

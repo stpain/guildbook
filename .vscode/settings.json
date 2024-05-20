@@ -120,6 +120,11 @@
         "ATTACHMENTS_MAX",
         "ATTACHMENTS_MAX_SEND",
         "DisplayTableInspectorWindow",
-        "UnitAura"
+        "UnitAura",
+        "PUBLIC_NOTE",
+        "CANCEL",
+        "ITEM_QUALITY_COLORS",
+        "CreateTreeDataProvider",
+        "OTHER"
     ]
 }

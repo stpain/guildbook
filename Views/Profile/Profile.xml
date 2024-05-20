@@ -140,7 +140,7 @@
                             <KeyValue key="elementHeight" value="32" type="number"/>
                         </KeyValues>                        
                     </Frame>
-                    <Button parentKey="equipmentMenu" inherits="GuildbookWrathEraWidgetsDropDownTemplate">
+                    <Button parentKey="equipmentMenu" inherits="TBDDropDownTemplate">
                         <Anchors>
                             <Anchor point="BOTTOMLEFT" relativeKey="$parent.equipmentListview" relativePoint="TOPLEFT" x="0" y="0"/>
                         </Anchors>

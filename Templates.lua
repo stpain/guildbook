@@ -977,12 +977,25 @@ function GuildbookRosterListviewItemMixin:Update()
         self.publicNote:SetTextColor(0.5,0.5,0.5)
     end
 
+    local editPublicNote = CanEditPublicNote()
     self.contextMenu = {
         {
             text = self.character:GetName(true),
             isTitle = true,
             notCheckable = true,
-        }
+        },
+        {
+            text = PUBLIC_NOTE,
+            notCheckable = true,
+            func = function()
+                local rosterIndex = addon.api.getGuildRosterIndex(self.character.data.name)
+                if type(rosterIndex) == "number" then
+                    SetGuildRosterSelection(rosterIndex)
+                    StaticPopup_Show("SET_GUILDPLAYERNOTE");
+                end
+            end,
+            --disabled = not editPublicNote,
+        },
     }
     table.insert(self.contextMenu, addon.contextMenuSeparator)
     table.insert(self.contextMenu, {
@@ -1646,6 +1659,10 @@ function GuildbookSimpleIconLabelMixin:SetDataBinding(binding, height)
         self:SetScript("OnMouseDown", binding.onMouseDown)
         self:EnableMouse(true)
     end
+    if binding.onUpdate then
+        self:SetScript("OnUpdate", binding.onUpdate)
+        self:EnableMouse(true)
+    end
 
     if binding.onMouseEnter then
         self:SetScript("OnEnter", binding.onMouseEnter)
@@ -1710,6 +1727,7 @@ function GuildbookSimpleIconLabelMixin:ResetDataBinding()
     self:SetScript("OnMouseDown", nil)
     self:SetScript("OnEnter", nil)
     self:SetScript("OnLeave", nil)
+    self:SetScript("OnUpdate", nil)
     self:EnableMouse(false)
     self.icon:SetTexture(nil)
     self.label:SetText("")

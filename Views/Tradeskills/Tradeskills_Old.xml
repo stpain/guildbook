@@ -1,0 +1,135 @@
+<Ui>
+    <Frame name="GuildbookTradskills" mixin="GuildbookTradskillsMixin">
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture>
+                    <Color r="0.085" g="0.09" b="0.075" a="0.85"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="0" y="0"/>
+                        <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <!-- <Layer level="OVERLAY">
+                <FontString parentKey="tradeskillsHeader" inherits="GameFontNormal" text="GUILDBOOK_TRADESKILLS_TRADESKILLS_HEADER">
+                    <Size x="175" y="40"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="0" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer> -->
+        </Layers>
+        <Frames>
+            <Frame parentKey="tradeskillsListview" inherits = "GuildbookWrathEraWidgetsListviewTemplate">
+                <Size x="175"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="0" y="0"/>
+                    <Anchor point="BOTTOMLEFT" x="0" y="0"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="background">
+                            <Color r="0.085" g="0.09" b="0.075" a="0.85"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="0" y="0"/>
+                                <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <KeyValues>
+                    <KeyValue key="itemTemplate" value="GuildbookWrathEraSimpleIconLabelFrame" type="string"/>
+                    <KeyValue key="elementHeight" value="40" type="number"/>
+                    <KeyValue key="enableSelection" value="true" type="boolean"/>
+                </KeyValues>
+            </Frame>
+            <Frame parentKey="tradeskillsHelptip" inherits = "GuildbookWrathEraHelpTipTemplate_RightArrow">
+                <Size x="200" y="70"/>
+                <Anchors>
+                    <Anchor point="RIGHT" relativeKey="$parent.tradeskillsListview" relativePoint="LEFT" x="-20" y="0"/>
+                </Anchors>
+            </Frame>
+            <Frame parentKey="charactersListview" inherits = "GuildbookWrathEraWidgetsListviewTemplate">
+                <Size x="175"/>
+                <Anchors>
+                    <Anchor point="TOPRIGHT" x="0" y="0"/>
+                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="background">
+                            <Color r="0.11" g="0.095" b="0.105" a="0.85"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="0" y="0"/>
+                                <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <KeyValues>
+                    <KeyValue key="frameType" value="FRAME" type="string"/>
+                    <KeyValue key="itemTemplate" value="GuildbookWrathEraListviewItem" type="string"/>
+                    <KeyValue key="elementHeight" value="40" type="number"/>
+                </KeyValues>
+            </Frame>
+            <Frame parentKey="craftersHelptip" frameLevel="7" inherits = "GuildbookWrathEraHelpTipTemplate_RightArrow">
+                <Size x="200" y="70"/>
+                <Anchors>
+                    <Anchor point="TOPRIGHT" relativeKey="$parent.charactersListview" relativePoint="TOPLEFT" x="-20" y="-20"/>
+                </Anchors>
+            </Frame>
+            <Frame parentKey="recipesListview" inherits = "GuildbookWrathEraWidgetsListviewTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.tradeskillsListview" relativePoint="TOPRIGHT" x="0" y="-32"/>
+                    <Anchor point="BOTTOMRIGHT" relativeKey="$parent.charactersListview" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="background">
+                            <Color r="0.15" g="0.155" b="0.135" a="0.85"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="0" y="0"/>
+                                <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <KeyValues>
+                    <KeyValue key="frameType" value="FRAME" type="string"/>
+                    <KeyValue key="itemTemplate" value="GuildbookWrathEraRecipeListviewItem" type="string"/>
+                    <KeyValue key="elementHeight" value="22" type="number"/>
+                </KeyValues>
+            </Frame>
+            <Frame parentKey="recipesHelptip" frameLevel="7" inherits = "GuildbookWrathEraHelpTipTemplate_BottomArrow">
+                <Size x="200" y="90"/>
+                <Anchors>
+                    <Anchor point="BOTTOM" relativeKey="$parent.recipesListview" relativePoint="TOP" x="-90" y="-20"/>
+                </Anchors>
+            </Frame>
+
+            <Button parentKey="expansionFilter" inherits="TBDDropDownTemplate">
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT" relativeKey="$parent.recipesListview" relativePoint="TOPLEFT" x="0" y="0"/>
+                </Anchors>
+                <Size x="120" y="32"/>
+            </Button>
+            <Button parentKey="itemFilter" inherits="TBDDropDownTemplate">
+                <Anchors>
+                    <Anchor point="BOTTOMRIGHT" relativeKey="$parent.recipesListview" relativePoint="TOPRIGHT" x="0" y="0"/>
+                </Anchors>
+                <Size x="120" y="32"/>
+            </Button>
+
+            <CheckButton parentKey="showItemID" inherits = "GuildbookWrathEraWidgetsCheckButton">
+                <Size x="24" y="24"/>
+                <Anchors>
+                    <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.expansionFilter" x="10" y="0"/>
+                </Anchors>
+            </CheckButton>
+        </Frames>
+
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+        </Scripts>        
+    </Frame>
+</Ui>

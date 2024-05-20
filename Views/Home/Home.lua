@@ -281,6 +281,13 @@ function GuildbookHomeMixin:LoadAgenda()
                         timestamp = info.finishes,
                         displayText = string.format("%s|cff98DD1F%s\n|cffffffff%s\n%s", CreateAtlasMarkup("auctionhouse-icon-clock", 12, 12), date("%Y-%m-%d %H:%M:%S", info.finishes), info.name, character:GetName(true)),
                         --fontObject = GameFontNormalSmall,
+                        onUpdate = function(f)
+                            local remaining = SecondsToClock(info.finishes - time())
+                            --print(remaining)
+                            local displayText = string.format("%s|cff98DD1F%s |cffffffff- %s\n%s\n%s", CreateAtlasMarkup("auctionhouse-icon-clock", 12, 12), date("%Y-%m-%d %H:%M:%S", info.finishes), remaining, info.name, character:GetName(true))
+                            --print(displayText)
+                            f.label:SetText(displayText)
+                        end,
                     })
                 else
                     table.insert(agenda, {
@@ -334,6 +341,7 @@ function GuildbookHomeMixin:LoadAgenda()
                 onMouseDown = item.onMouseDown,
                 backgroundRGB ={r = 0.25, g = 0.25, b = 0.25}, --"transmog-set-iconrow-background", --Options_List_Hover
                 backgroundAlpha = 0.15,
+                onUpdate = item.onUpdate,
             })
         end
     end

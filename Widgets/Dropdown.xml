@@ -32,7 +32,7 @@
         </Scripts>
     </Frame>
 
-    <Button name = "GuildbookWrathEraWidgetsDropDownTemplate" mixin="GuildbookWrathEraWidgetsDropDownTemplateMixin" virtual="true">
+    <Button name = "TBDDropDownTemplate" mixin="TBDDropDownTemplateMixin" virtual="true">
         <NormalTexture atlas="charactercreate-customize-dropdownbox">
             <TexCoords left="0.025" right="0.975" top="0.05" bottom="0.95" />
         </NormalTexture>

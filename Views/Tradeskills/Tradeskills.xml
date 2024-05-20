@@ -1,5 +1,6 @@
 <Ui>
     <Frame name="GuildbookTradskills" mixin="GuildbookTradskillsMixin">
+
         <Layers>
             <Layer level="BACKGROUND">
                 <Texture>
@@ -10,55 +11,40 @@
                     </Anchors>
                 </Texture>
             </Layer>
-            <!-- <Layer level="OVERLAY">
-                <FontString parentKey="tradeskillsHeader" inherits="GameFontNormal" text="GUILDBOOK_TRADESKILLS_TRADESKILLS_HEADER">
-                    <Size x="175" y="40"/>
-                    <Anchors>
-                        <Anchor point="TOPLEFT" x="0" y="0"/>
-                    </Anchors>
-                </FontString>
-            </Layer> -->
         </Layers>
+        
         <Frames>
-            <Frame parentKey="tradeskillsListview" inherits = "GuildbookWrathEraWidgetsListviewTemplate">
-                <Size x="175"/>
+
+            <Button parentKey="tradeskillDropdown" inherits="TbdDropdownTemplate">
+                <Size x="180" y="40"/>
                 <Anchors>
                     <Anchor point="TOPLEFT" x="0" y="0"/>
-                    <Anchor point="BOTTOMLEFT" x="0" y="0"/>
                 </Anchors>
-                <Layers>
-                    <Layer level="BACKGROUND">
-                        <Texture parentKey="background">
-                            <Color r="0.085" g="0.09" b="0.075" a="0.85"/>
-                            <Anchors>
-                                <Anchor point="TOPLEFT" x="0" y="0"/>
-                                <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
-                            </Anchors>
-                        </Texture>
-                    </Layer>
-                </Layers>
+            </Button>
+
+            <Frame parentKey="listview" inherits="TBDTreeviewTemplate,InsetFrameTemplate">
+                <Size x="260"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="4" y="-40"/>
+                    <Anchor point="BOTTOMLEFT" x="4" y="6"/>
+                </Anchors>
                 <KeyValues>
-                    <KeyValue key="itemTemplate" value="GuildbookWrathEraSimpleIconLabelFrame" type="string"/>
-                    <KeyValue key="elementHeight" value="40" type="number"/>
+                    <KeyValue key="itemTemplate" value="TBDSimpleIconLabelFrame" type="string"/>
+                    <KeyValue key="elementHeight" value="24" type="number"/>
                     <KeyValue key="enableSelection" value="true" type="boolean"/>
                 </KeyValues>
             </Frame>
-            <Frame parentKey="tradeskillsHelptip" inherits = "GuildbookWrathEraHelpTipTemplate_RightArrow">
-                <Size x="200" y="70"/>
+
+            <Frame parentKey="details" inherits="InsetFrameTemplate">
                 <Anchors>
-                    <Anchor point="RIGHT" relativeKey="$parent.tradeskillsListview" relativePoint="LEFT" x="-20" y="0"/>
+                    <Anchor point="TOPLEFT" x="270" y="-40"/>
+                    <Anchor point="BOTTOMRIGHT" x="-4" y="4"/>
                 </Anchors>
-            </Frame>
-            <Frame parentKey="charactersListview" inherits = "GuildbookWrathEraWidgetsListviewTemplate">
-                <Size x="175"/>
-                <Anchors>
-                    <Anchor point="TOPRIGHT" x="0" y="0"/>
-                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
-                </Anchors>
+
                 <Layers>
                     <Layer level="BACKGROUND">
-                        <Texture parentKey="background">
-                            <Color r="0.11" g="0.095" b="0.105" a="0.85"/>
+                        <Texture parentKey="background" file="Interface\AddOns\PersonalStuff\Media\Tradeskills\ProfessionBackgroundArtAlchemy.png">
+                            <TexCoords left="0" right="0.6601" top="0" bottom="0.5361"/>
                             <Anchors>
                                 <Anchor point="TOPLEFT" x="0" y="0"/>
                                 <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
@@ -66,66 +52,199 @@
                         </Texture>
                     </Layer>
                 </Layers>
-                <KeyValues>
-                    <KeyValue key="frameType" value="FRAME" type="string"/>
-                    <KeyValue key="itemTemplate" value="GuildbookWrathEraListviewItem" type="string"/>
-                    <KeyValue key="elementHeight" value="40" type="number"/>
-                </KeyValues>
-            </Frame>
-            <Frame parentKey="craftersHelptip" frameLevel="7" inherits = "GuildbookWrathEraHelpTipTemplate_RightArrow">
-                <Size x="200" y="70"/>
-                <Anchors>
-                    <Anchor point="TOPRIGHT" relativeKey="$parent.charactersListview" relativePoint="TOPLEFT" x="-20" y="-20"/>
-                </Anchors>
-            </Frame>
-            <Frame parentKey="recipesListview" inherits = "GuildbookWrathEraWidgetsListviewTemplate">
-                <Anchors>
-                    <Anchor point="TOPLEFT" relativeKey="$parent.tradeskillsListview" relativePoint="TOPRIGHT" x="0" y="-32"/>
-                    <Anchor point="BOTTOMRIGHT" relativeKey="$parent.charactersListview" relativePoint="BOTTOMLEFT" x="0" y="0"/>
-                </Anchors>
-                <Layers>
-                    <Layer level="BACKGROUND">
-                        <Texture parentKey="background">
-                            <Color r="0.15" g="0.155" b="0.135" a="0.85"/>
-                            <Anchors>
-                                <Anchor point="TOPLEFT" x="0" y="0"/>
-                                <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
-                            </Anchors>
-                        </Texture>
-                    </Layer>
-                </Layers>
-                <KeyValues>
-                    <KeyValue key="frameType" value="FRAME" type="string"/>
-                    <KeyValue key="itemTemplate" value="GuildbookWrathEraRecipeListviewItem" type="string"/>
-                    <KeyValue key="elementHeight" value="22" type="number"/>
-                </KeyValues>
-            </Frame>
-            <Frame parentKey="recipesHelptip" frameLevel="7" inherits = "GuildbookWrathEraHelpTipTemplate_BottomArrow">
-                <Size x="200" y="90"/>
-                <Anchors>
-                    <Anchor point="BOTTOM" relativeKey="$parent.recipesListview" relativePoint="TOP" x="-90" y="-20"/>
-                </Anchors>
+
+                <Frames>
+
+                    <Button parentKey="itemButton" inherits="TBDCircleButtonTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" x="16" y="-16"/>
+                        </Anchors>
+                        <Size x="120" y="120"/>
+
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <FontString parentKey="link" inherits="GameFontNormalLarge">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="0" y="-16"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                    </Button>
+
+                    <EditBox parentKey="itemURL" inherits="TBDInputBoxTemplate" hidden="true" autoFocus="false">
+                        <Size x="280" y="20"/>
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT" relativeKey="$parent.itemButton" relativePoint="BOTTOMRIGHT" x="80" y="32"/>
+                        </Anchors>
+                        <KeyValues>
+                            <KeyValue key="disableButtons" value="true" type="boolean"/>
+                        </KeyValues>
+                        <layers>
+                            <Layer level="OVERLAY">
+                                <FontString inherits="GameFontNormalSmall" text="Item link">
+                                    <Anchors>
+                                        <Anchor point="LEFT" relativePoint="LEFT" x="-80" y="0"/>
+                                    </Anchors>w
+                                </FontString>
+                            </Layer>
+                        </layers>
+                    </EditBox>
+
+                    <EditBox parentKey="recipeURL" inherits="TBDInputBoxTemplate" autoFocus="false">
+                        <Size x="280" y="20"/>
+                        <Anchors>
+                            <Anchor point="BOTTOM" relativeKey="$parent.itemURL" relativePoint="TOP" x="0" y="0"/>
+                        </Anchors>
+                        <KeyValues>
+                            <KeyValue key="disableButtons" value="true" type="boolean"/>
+                        </KeyValues>
+                        <layers>
+                            <Layer level="OVERLAY">
+                                <FontString inherits="GameFontNormalSmall" text="Recipe link">
+                                    <Anchors>
+                                        <Anchor point="LEFT" relativePoint="LEFT" x="-80" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </layers>
+                    </EditBox>
+
+                    <Frame parentKey="auctionatorInfo" hidden="true">
+
+                        <Size y="60"/>
+
+                        <Anchors>
+                            <Anchor point="TOPLEFT" x="26" y="-142"/>
+                            <Anchor point="TOPRIGHT" x="-26" y="-142"/>
+                        </Anchors>
+
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <FontString inherits="GameFontNormalSmall" text="Auctionator data:">
+                                    <Anchors>
+                                        <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="0" y="4"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="baseCost" inherits="GameFontWhite" justifyH="LEFT">
+                                    <Size y="20"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="8" y="0"/>
+                                        <Anchor point="TOPRIGHT" x="0" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="craftCost" inherits="GameFontWhite" justifyH="LEFT">
+                                    <Size y="20"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="8" y="-20"/>
+                                        <Anchor point="TOPRIGHT" x="0" y="-20"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="saleValue" inherits="GameFontWhite" justifyH="LEFT">
+                                    <Size y="20"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="8" y="-40"/>
+                                        <Anchor point="TOPRIGHT" x="0" y="-40"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                    </Frame>
+
+                    <Frame parentKey="reagents" inherits="TBDListviewTemplate">
+                        <Size x="210"/>
+                        <Anchors>
+                            <Anchor point="TOPLEFT" x="26" y="-240"/>
+                            <Anchor point="BOTTOMLEFT" x="26" y="36"/>
+                        </Anchors>
+                        <KeyValues>
+                            <KeyValue key="itemTemplate" value="TBDSimpleIconLabelFrame" type="string"/>
+                            <KeyValue key="elementHeight" value="40" type="number"/>
+                            <!-- <KeyValue key="enableSelection" value="true" type="boolean"/> -->
+                        </KeyValues>
+
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <FontString inherits="GameFontNormalSmall" text="MINIMAP_TRACKING_VENDOR_REAGENT">
+                                    <Anchors>
+                                        <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="0" y="4"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="baseCost" justifyH="RIGHT" inherits="GameFontWhite">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+                                        <Anchor point="TOPRIGHT" relativePoint="BOTTOMRIGHT" x="-10" y="-4"/>
+                                    </Anchors>
+                                </FontString>
+
+                                <Texture parentKey="divider" atlas="Options_HorizontalDivider">
+                                    <Size x="1"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="0" y="0"/>
+                                        <Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                    </Frame>
+
+                    <Frame parentKey="crafters" inherits="TBDListviewTemplate">
+                        <Size x="250"/>
+                        <Anchors>
+                            <Anchor point="TOPRIGHT" x="-34" y="-240"/>
+                            <Anchor point="BOTTOMRIGHT" x="-34" y="34"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <FontString inherits="GameFontNormalSmall" text="Crafters">
+                                    <Anchors>
+                                        <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="0" y="4"/>
+                                    </Anchors>
+                                </FontString>
+
+                                <!-- 
+                                    middle = 0.69921875 0.826171875 0.03515625 0.0361328125
+                                    top = 0.14599609375 0.27294921875 0.734375 0.83203125
+                                    bottom = 0.14599609375 0.27294921875 0.5087890625 0.60546875
+                                -->
+
+                                <Texture parentKey="bgTop" file="Interface\AddOns\Guildbook\Media\Tradeskills\Professions.png">
+                                    <Size y="80"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" y="4"/>
+                                        <Anchor point="TOPRIGHT" y="4"/>
+                                    </Anchors>
+                                    <TexCoords left="0.14599609375" right="0.27294921875" top="0.734375" bottom="0.83203125"/>
+                                </Texture>
+                                <Texture parentKey="bgBottom" file="Interface\AddOns\Guildbook\Media\Tradeskills\Professions.png">
+                                    <Size y="80"/>
+                                    <Anchors>
+                                        <Anchor point="BOTTOMLEFT" y="-4"/>
+                                        <Anchor point="BOTTOMRIGHT" y="-4"/>
+                                    </Anchors>
+                                    <TexCoords left="0.14599609375" right="0.27294921875" top="0.5087890625" bottom="0.60546875"/>
+                                </Texture>
+                                <Texture file="Interface\AddOns\Guildbook\Media\Tradeskills\Professions.png" verTile="true">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" relativeKey="$parent.bgTop" relativePoint="BOTTOMLEFT"/>
+                                        <Anchor point="TOPRIGHT" relativeKey="$parent.bgTop" relativePoint="BOTTOMRIGHT"/>
+                                        <Anchor point="BOTTOMLEFT" relativeKey="$parent.bgBottom" relativePoint="TOPLEFT"/>
+                                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.bgBottom" relativePoint="TOPRIGHT"/>
+                                    </Anchors>
+                                    <TexCoords left="0.69921875" right="0.826171875" top="0.03515625" bottom="0.0361328125"/>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                        <KeyValues>
+                            <KeyValue key="itemTemplate" value="TBDSimpleIconLabelFrame" type="string"/>
+                            <KeyValue key="elementHeight" value="20" type="number"/>
+                            <!-- <KeyValue key="enableSelection" value="true" type="boolean"/> -->
+                        </KeyValues>
+                    </Frame>
+
+                </Frames>
             </Frame>
 
-            <Button parentKey="expansionFilter" inherits="GuildbookWrathEraWidgetsDropDownTemplate">
-                <Anchors>
-                    <Anchor point="BOTTOMLEFT" relativeKey="$parent.recipesListview" relativePoint="TOPLEFT" x="0" y="0"/>
-                </Anchors>
-                <Size x="120" y="32"/>
-            </Button>
-            <Button parentKey="itemFilter" inherits="GuildbookWrathEraWidgetsDropDownTemplate">
-                <Anchors>
-                    <Anchor point="BOTTOMRIGHT" relativeKey="$parent.recipesListview" relativePoint="TOPRIGHT" x="0" y="0"/>
-                </Anchors>
-                <Size x="120" y="32"/>
-            </Button>
-
-            <CheckButton parentKey="showItemID" inherits = "GuildbookWrathEraWidgetsCheckButton">
-                <Size x="24" y="24"/>
-                <Anchors>
-                    <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.expansionFilter" x="10" y="0"/>
-                </Anchors>
-            </CheckButton>
         </Frames>
 
         <Scripts>

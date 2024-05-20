@@ -1,8 +1,8 @@
 local name, addon = ...;
 
-GuildbookWrathEraWidgetsDropDownTemplateMixin = {}
+TBDDropDownTemplateMixin = {}
 
-function GuildbookWrathEraWidgetsDropDownTemplateMixin:OnLoad()
+function TBDDropDownTemplateMixin:OnLoad()
 
     if not addon.dropdownWidgets then
         addon.dropdownWidgets = {}
@@ -28,19 +28,19 @@ function GuildbookWrathEraWidgetsDropDownTemplateMixin:OnLoad()
 
 end
 
-function GuildbookWrathEraWidgetsDropDownTemplateMixin:SetWidth(width)
+function TBDDropDownTemplateMixin:SetWidth(width)
     --self.flyout:SetWidth(width)
 end
 
-function GuildbookWrathEraWidgetsDropDownTemplateMixin:SetText(text)
+function TBDDropDownTemplateMixin:SetText(text)
     self.label.text:SetText(text)
 end
 
-function GuildbookWrathEraWidgetsDropDownTemplateMixin:ClearMenu()
+function TBDDropDownTemplateMixin:ClearMenu()
     self.flyout.listview.DataProvider:Flush()
 end
 
-function GuildbookWrathEraWidgetsDropDownTemplateMixin:SetMenu(t)
+function TBDDropDownTemplateMixin:SetMenu(t)
 
     if type(t) ~= "table" then
         return;

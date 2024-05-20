@@ -9,7 +9,7 @@
             </Layer>
         </Layers>
         <Frames>
-            <Button parentKey="classFilter" inherits = "GuildbookWrathEraWidgetsDropDownTemplate">
+            <Button parentKey="classFilter" inherits = "TBDDropDownTemplate">
                 <Anchors>
                     <Anchor point="TOPLEFT" x="0" y="0"/>
                 </Anchors>

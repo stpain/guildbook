@@ -24,8 +24,8 @@ Widgets\Listview.lua
 Widgets\Listview.xml
 Widgets\Gridview.lua
 Widgets\Gridview.xml
-Widgets\Dropdown.lua
-Widgets\Dropdown.xml
+#Widgets\Dropdown.lua
+#Widgets\Dropdown.xml
 Widgets\Checkbox.xml
 Widgets\ScrollFrame.lua
 Widgets\ScrollFrame.xml
@@ -40,6 +40,7 @@ ChangeLog.lua
 Locales.lua
 ItemData.lua
 #SpellData.lua
+TradeskillData.lua
 Database.lua
 
 Classes\Tradeskills.lua
