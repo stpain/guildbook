@@ -367,7 +367,7 @@ function addon.api.cata.getProfessions()
             end
         end
     end
-    addon.LogDebugMessage("tradeskills", "function [addon.api.cata.getProfessions]", t)
+    addon.LogDebugMessage("tradeskills", "function [addon.api.cata.getProfessions]", {version = -1, payload = t})
     return t;
 end
 
