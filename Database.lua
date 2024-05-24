@@ -33,11 +33,12 @@ local dbUpdates = {
         guild = {},
     },
     --agenda = {},
-    news = {},
+    itemLists = {},
 }
 local dbToRemove = {
     "worldEvents",
-    "calendar.birthdays"
+    "calendar.birthdays",
+    "news",
 }
 
 function Database:Init()

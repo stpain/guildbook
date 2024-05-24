@@ -203,6 +203,7 @@ function GuildbookMixin:OnLoad()
     addon:RegisterCallback("Player_Regen_Enabled", self.Player_Regen_Enabled, self)
     addon:RegisterCallback("Player_Regen_Disabled", self.Player_Regen_Disabled, self)
     addon:RegisterCallback("Blizzard_OnInitialGuildRosterScan", self.Blizzard_OnInitialGuildRosterScan, self)
+    addon:RegisterCallback("LogDebugMessage", self.LogDebugMessage, self)
 
     self.ribbon.searchBox:SetScript("OnEnterPressed", function(searchBox)
         self:SelectView("Search")
@@ -231,6 +232,88 @@ function GuildbookMixin:OnLoad()
     self.help:SetScript("OnMouseDown", function()
         self:ToggleHelptips()
     end)
+
+    self:SetupDebugWindow()
+end
+
+function GuildbookMixin:LogDebugMessage()
+
+    local t = {}
+
+    if type(self.debug.debugTypeFilter) == "number" then
+        for k, v in ipairs(addon.debugMessages) do
+            if v.debugTypeID == self.debug.debugTypeFilter then
+                table.insert(t, v)
+            end
+        end
+        self.debug.messageLogListview.scrollView:SetDataProvider(CreateDataProvider(t))
+    else
+
+        self.debug.messageLogListview.scrollView:SetDataProvider(CreateDataProvider(addon.debugMessages))
+    end
+    
+end
+
+function GuildbookMixin:SetupDebugWindow()
+    self.debug.clearLog:SetScript("OnClick", function()
+        addon.debugMessages = {}
+    end)
+
+    self.debug.debugTypeFilter = false
+    self.debug.debugTypeDropdown:SetMenu({
+        {
+            text = "All",
+            func = function()
+                self.debug.debugTypeFilter = false;
+                self:LogDebugMessage()
+            end,
+        },
+        {
+            text = "Comms",
+            func = function()
+                self.debug.debugTypeFilter = 3;
+                self:LogDebugMessage()
+            end,
+        },
+        {
+            text = "Comms In",
+            func = function()
+                self.debug.debugTypeFilter = 4;
+                self:LogDebugMessage()
+            end,
+        },
+        {
+            text = "Comms Out",
+            func = function()
+                self.debug.debugTypeFilter = 5;
+                self:LogDebugMessage()
+            end,
+        },
+        {
+            text = "Info",
+            func = function()
+                self.debug.debugTypeFilter = 2;
+                self:LogDebugMessage()
+            end,
+        },
+        {
+            text = "Warnings",
+            func = function()
+                self.debug.debugTypeFilter = 1;
+                self:LogDebugMessage()
+            end,
+        },
+        {
+            text = "Tradeskills",
+            func = function()
+                self.debug.debugTypeFilter = 7;
+                self:LogDebugMessage()
+            end,
+        },
+    })
+
+
+
 
 end
 

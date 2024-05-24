@@ -1,4 +1,4 @@
-local name, addon = ...;
+local addonName, addon = ...;
 local L = addon.Locales
 local Database = addon.Database;
 local Tradeskills = addon.Tradeskills;
@@ -779,8 +779,16 @@ function GuildbookSettingsMixin:PreparePanels()
         if link then
             local itemID = GetItemInfoInstant(link)
             if itemID then
+
+                if addon.itemIDtoSource[itemID] then
+                    tt:AddLine(" ")
+                    GameTooltip_AddColoredLine(tt, addonName, BLUE_FONT_COLOR)
+                    tt:AddDoubleLine(addon.itemIDtoSource[itemID].instance, addon.itemIDtoSource[itemID].encounter)
+                end
+
+
                 local itemInfo = Tradeskills.GetItemRecipeInfo(itemID, itemName)
-                if itemInfo then
+                if type(itemInfo) == "table" and itemInfo.tradeskillID and itemInfo.reagents then
                     if Database.db.config.tradeskillsShowAllRecipeInfoTooltip == true then
                         if itemInfo then
                             tt:AddLine(" ")

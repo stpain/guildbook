@@ -12,6 +12,12 @@ addon:GenerateCallbackEvents({
     "Database_OnCalendarDataChanged",
     "Database_OnNewsEventAdded",
 
+    "Database_OnItemListChanged",
+    "Database_OnItemListItemAdded",
+    "Database_OnItemListItemRemoved",
+
+    "Tradeskill_OnItemAddedToList",
+
     "Character_OnProfileSelected",
     "Character_OnDataChanged",
     "Character_OnNewsEvent",
@@ -46,7 +52,7 @@ addon:GenerateCallbackEvents({
     "Chat_OnHistoryDeleted",
 
     "StatusText_OnChanged",
-    --"LogDebugMessage",
+    "LogDebugMessage",
     
     "Comms_OnMessageReceived",
 

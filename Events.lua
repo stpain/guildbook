@@ -12,7 +12,7 @@ e:RegisterEvent('GUILD_ROSTER_UPDATE')
 e:RegisterEvent('GUILD_RANKS_UPDATE')
 e:RegisterEvent('ADDON_LOADED')
 e:RegisterEvent('PLAYER_ENTERING_WORLD')
-e:RegisterEvent('PLAYER_LEVEL_UP')
+--e:RegisterEvent('PLAYER_LEVEL_UP')
 e:RegisterEvent('TRADE_SKILL_UPDATE')
 e:RegisterEvent('TRADE_SKILL_SHOW')
 --e:RegisterEvent('CRAFT_UPDATE')
@@ -760,12 +760,17 @@ local function processSkillLines(skills)
     end
 end
 
-local function setCharacterTradeskill(prof, recipes, tradeskillCooldowns)
+local function setCharacterTradeskill(prof, recipes, tradeskillCooldowns, onlyCooldowns)
 
     if addon.characters and addon.characters[addon.thisCharacter] then
 
         if tradeskillCooldowns then
-            addon.characters[addon.thisCharacter]:UpdateTradeskillCooldowns(tradeskillCooldowns)
+            if onlyCooldowns then
+                addon.characters[addon.thisCharacter]:UpdateTradeskillCooldowns(tradeskillCooldowns, true)
+                return
+            else
+                addon.characters[addon.thisCharacter]:UpdateTradeskillCooldowns(tradeskillCooldowns)
+            end
         end
         
         if prof == 185 then
@@ -785,10 +790,12 @@ local function setCharacterTradeskill(prof, recipes, tradeskillCooldowns)
 
         if prof == nil then
             --print("no prof value to set")
+            addon.LogDebugMessage("warning", "[setCharacterTradeskill] no prof [ID] value")
             return
         end
         if type(recipes) ~= "table" then
             --print("no recipe table to set")
+            addon.LogDebugMessage("warning", "[setCharacterTradeskill] recipes value not a table")
             return
         end
         --print("setting prof data", prof)
@@ -845,112 +852,127 @@ local function scanTradeskills()
         prof = Tradeskills:GetTradeskillIDFromLocale(tradeskillTitle)
     end
 
-    local cooldownsAdded = {}
+    if type(prof) == "number" then
+        addon.LogDebugMessage("tradeskills", string.format("function [scanTradeskills] prof = %s", prof))
 
-    for i = 1, numTradeskills do
-        local name, _type, _, _, _ = GetTradeSkillInfo(i)
-        if name and (_type == "optimal" or _type == "medium" or _type == "easy" or _type == "trivial") then
-            local itemLink = GetTradeSkillItemLink(i)
+            local cooldownsAdded = {}
 
-            local cooldown = GetTradeSkillCooldown(i)
-            if cooldown then
-
-                if name:find(":") then
-                    local skillPrefix, skill = strsplit(":", name)
-                    if not cooldownsAdded[skillPrefix] then
-                        cooldownsAdded[skillPrefix] = true
-                        table.insert(tradeskillCooldowns, {
-                            name = skillPrefix,
-                            finishes = time() + math.floor(cooldown),
-                            tradeskillID = prof,
-                        })
+            for i = 1, numTradeskills do
+                local name, _type, _, _, _ = GetTradeSkillInfo(i)
+                if name and (_type == "optimal" or _type == "medium" or _type == "easy" or _type == "trivial") then
+                    local itemLink = GetTradeSkillItemLink(i)
+        
+                    local cooldown = GetTradeSkillCooldown(i)
+                    if cooldown then
+        
+                        if name:find(":") then
+                            local skillPrefix, skill = strsplit(":", name)
+                            if not cooldownsAdded[skillPrefix] then
+                                cooldownsAdded[skillPrefix] = true
+                                table.insert(tradeskillCooldowns, {
+                                    name = skillPrefix,
+                                    finishes = time() + math.floor(cooldown),
+                                    tradeskillID = prof,
+                                })
+                            end
+                        else
+                            table.insert(tradeskillCooldowns, {
+                                name = name,
+                                finishes = time() + math.floor(cooldown),
+                                tradeskillID = prof,
+                            })
+                        end
+        
                     end
-                else
-                    table.insert(tradeskillCooldowns, {
-                        name = name,
-                        finishes = time() + math.floor(cooldown),
-                        tradeskillID = prof,
-                    })
-                end
-
-            end
-            if itemLink then
-                local id = GetItemInfoFromHyperlink(itemLink)
-                if id then
-
-                    --old wrath system
-                    -- for k, v in ipairs(addon.itemData) do
-                    --     if v.itemID == id then
-                    --         table.insert(recipes, v.spellID)
-
-                    --     end
-                    -- end
-
-
-
-                    --cata
-                    local recipeSpellID = Tradeskills.GetRecipeSpellIDFromItemID(id)
-                    if recipeSpellID then
-                        table.insert(recipes, recipeSpellID)
-                    end
-
-                    if prof == 186 then --mining doesn't make enchanted bars
-                        
+                    if itemLink then
+                        local id = GetItemInfoFromHyperlink(itemLink)
+                        if id then
+        
+                            --old wrath system
+                            -- for k, v in ipairs(addon.itemData) do
+                            --     if v.itemID == id then
+                            --         table.insert(recipes, v.spellID)
+        
+                            --     end
+                            -- end
+        
+                            --addon.LogDebugMessage("tradeskills", string.format("Found itemID [%d] for %s", id, itemLink))
+        
+                            --cata
+                            local recipeSpellID = Tradeskills.GetRecipeSpellIDFromItemID(id)
+                            if recipeSpellID then
+                                table.insert(recipes, recipeSpellID)
+                                --addon.LogDebugMessage("tradeskills", string.format("Added recipeSpellID [%d] for %s", recipeSpellID, itemLink))
+                            end
+        
+                            if prof == 186 then --mining doesn't make enchanted bars
+                                
+                            else
+                                if id == 12655 then --enchanted thorium bar causes an issue
+                                    prof = 333
+                                end
+                            end
+        
+                        end
+        
                     else
-                        if id == 12655 then --enchanted thorium bar causes an issue
-                            prof = 333
+        
+        
+                        --wrath
+                        --[[
+                        --print("no link", name)
+                        for k, v in ipairs(addon.itemData) do
+                            if v.name == name then
+                                --print("found match", name, v.tradeskillID)
+                                table.insert(recipes, v.spellID)
+                                --prof = v.tradeskillID;
+                            end
+                        end
+        
+                        ]]
+        
+        
+                        --cata
+                        if addon.enchanterSpellNameToSpellID and addon.enchanterSpellNameToSpellID[name] then
+                            table.insert(recipes, addon.enchanterSpellNameToSpellID[name])
                         end
                     end
-
-                end
-
-            else
-
-
-                --wrath
-                --[[
-                --print("no link", name)
-                for k, v in ipairs(addon.itemData) do
-                    if v.name == name then
-                        --print("found match", name, v.tradeskillID)
-                        table.insert(recipes, v.spellID)
-                        --prof = v.tradeskillID;
-                    end
-                end
-
-                ]]
-
-
-                --cata
-                if addon.enchanterSpellNameToSpellID[name] then
-                    table.insert(recipes, addon.enchanterSpellNameToSpellID[name])
                 end
             end
-        end
+        
+            addon.LogDebugMessage("tradeskills", string.format("recipes found for %s", prof), { version = -1, payload = recipes})
+            addon.LogDebugMessage("tradeskills", string.format("cooldowns found for %s", prof), { version = -1, payload = tradeskillCooldowns})
+            return prof, recipes, tradeskillCooldowns
+
+    else
+        addon.LogDebugMessage("tradeskills", string.format("function [scanTradeskills] prof = %s", "unknown or not number"))
     end
 
-    return prof, recipes, tradeskillCooldowns
 end
 
 function e:UNIT_SPELLCAST_SUCCEEDED(...)
     if TradeSkillFrame and TradeSkillFrame:IsVisible() then
         C_Timer.After(0.1, function()
             local prof, recipes, tradeskillCooldowns = scanTradeskills()
-            setCharacterTradeskill(prof, recipes, tradeskillCooldowns)
+            if prof and recipes and tradeskillCooldowns then
+                setCharacterTradeskill(prof, recipes, tradeskillCooldowns, true)
+            end
         end)
     end
 end
 
 function e:SKILL_LINES_CHANGED()
-    local skills = addon.api.getPlayerSkillLevels()
-    processSkillLines(skills)
+    -- local skills = addon.api.getPlayerSkillLevels()
+    -- processSkillLines(skills)
 end
 
 local tradeskillIsPlayer = true;
 function e:TRADE_SKILL_SHOW()
 
     if tradeskillIsPlayer == true then
-        local skills = addon.api.getPlayerSkillLevels()
+        --local skills = addon.api.getPlayerSkillLevels()
+
+        local skills = addon.api.cata.getProfessions()
         processSkillLines(skills)
 
         local specializations = addon.api.scanForTradeskillSpec()
@@ -963,7 +985,9 @@ function e:TRADE_SKILL_SHOW()
 
         C_Timer.After(1.0, function()
             local prof, recipes, tradeskillCooldowns = scanTradeskills()
-            setCharacterTradeskill(prof, recipes, tradeskillCooldowns)
+            if prof and recipes and tradeskillCooldowns then
+                setCharacterTradeskill(prof, recipes, tradeskillCooldowns, true)
+            end
         end)
 
     else
@@ -1108,6 +1132,40 @@ function e:Database_OnInitialised()
         end
     end)
 
+    local function myChatFilter(self, event, msg, author, ...)
+        -- if msg:find("buy gold") then
+        --   return true
+        -- end
+        -- if author == "Knownspammer" then
+        --   return true
+        -- end
+        -- if msg:find("lol") then
+        --   return false, gsub(msg, "lol", ""), author, ...
+        -- end
+
+        if (author ~= addon.thisCharacter) and addon.characters[author] then
+            local mainCharacter = addon.characters[author]:GetMainCharacter()
+            if mainCharacter then
+
+                if addon.characters[mainCharacter] then
+                    local _, class = GetClassInfo(addon.characters[mainCharacter].data.class)
+                    if class then
+                        return false, string.format("[%s] %s", RAID_CLASS_COLORS[class]:WrapTextInColorCode(Ambiguate(mainCharacter, "short")), msg), author, ...
+                    else
+                        return false, string.format("[%s] %s", Ambiguate(mainCharacter, "short"), msg), author, ...
+                    end
+                end
+            end
+
+        else
+            return false, msg, author, ...
+        end
+
+
+      end
+
+    ChatFrame_AddMessageEventFilter("CHAT_MSG_GUILD", myChatFilter)
+
 
     -- this will set the name on enchanting recipes to the client locale, the name is then used when scannign the enchant UI
     --Tradeskills:GenerateEnchantingData()
@@ -1117,6 +1175,7 @@ function e:Database_OnInitialised()
     --when you click a tradeskill link ask the other player for their data via direct request using WHISPER channel
 	hooksecurefunc("SetItemRef", function(link, text)
 		local linkType, linkData = LinkUtil.SplitLinkData(link);
+
         if linkType == "trade" then
           
             local guid, spellID, tradeskillID = strsplit(":", linkData)

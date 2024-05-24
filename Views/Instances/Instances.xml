@@ -1,0 +1,147 @@
+<Ui>
+    <Frame name="GuildbookInstances" mixin="GuildbookInstancesMixin">
+
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture>
+                    <Color r="0.085" g="0.09" b="0.075" a="0.88"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="0" y="0"/>
+                        <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+
+        <Frames>
+
+            <StatusBar parentKey="statusBar" inherits="" orientation="HORIZONTAL" defaultValue="0" minValue="0" maxValue="1">
+                <Size x="200" y="36"/>
+                <Anchors>
+                    <Anchor point="TOPRIGHT" x="0" y="0"/>
+                </Anchors>
+                <BarTexture atlas="nameplates-bar-background-white"/>
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <FontString parentKey="label" inherits="GameFontWhite" text="-">
+                            <Color r="1" g="1" b="1"/>
+                            <Size x="200" y="36"/>
+                            <Anchors>
+                                <Anchor point="CENTER" x="0" y="0"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+            </StatusBar>
+
+            <Frame parentKey="listview" inherits="TBDTreeviewTemplate,InsetFrameTemplate">
+                <Size x="510"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="4" y="-36"/>
+                    <Anchor point="BOTTOMLEFT" x="4" y="6"/>
+                </Anchors>
+                <KeyValues>
+                    <KeyValue key="itemTemplate" value="TBDSimpleIconLabelFrame" type="string"/>
+                    <KeyValue key="elementHeight" value="28" type="number"/>
+                    <KeyValue key="enableSelection" value="true" type="boolean"/>
+                </KeyValues>
+            </Frame>
+
+            <Button parentKey="sourceSelectionDropdown" inherits="TbdDropdownTemplate">
+                <Size x="160" y="36"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="0" y="0"/>
+                </Anchors>
+            </Button>
+            <Button parentKey="itemTypeFilterDropdown" inherits="TbdDropdownTemplate">
+                <Size x="160" y="36"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="160" y="0"/>
+                </Anchors>
+            </Button>
+            <Button parentKey="itemSubTypeFilterDropdown" inherits="TbdDropdownTemplate">
+                <Size x="160" y="36"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="320" y="0"/>
+                </Anchors>
+            </Button>
+            <Button parentKey="resetFilterDropdown" inherits="UIPanelButtonTemplate" text="RESET">
+                <Size x="80" y="24"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="480" y="-6"/>
+                </Anchors>
+            </Button>
+
+            <Frame parentKey="lists" inherits="InsetFrameTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.listview" relativePoint="TOPRIGHT" x="6" y="0"/>
+                    <Anchor point="BOTTOMRIGHT" x="-4" y="6"/>
+                </Anchors>
+                <!-- <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="background" atlas="AdventureMap_TileBg_Parchment" vertTile="true" horizTile="true" setAllPoints="true"/>
+                    </Layer>
+                    <Layer level="ARTWORK">
+                        <Texture parentKey="artwork">
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="0" y="0"/>
+                                <Anchor point="BOTTOMRIGHT" x="-4" y="6"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers> -->
+
+                <Frames>
+                    <Button parentKey="listDropdown" inherits="TbdDropdownTemplate">
+                        <Size x="160" y="32"/>
+                        <Anchors>
+                            <Anchor point="TOPLEFT" x="0" y="0"/>
+                        </Anchors>
+                    </Button>
+                    <EditBox parentKey="newList" inherits="TBDInputBoxTemplate">
+                        <Size y="24"/>
+                        <Anchors>
+                            <Anchor point="LEFT" relativeKey="$parent.listDropdown" relativePoint="RIGHT" x="4" y="0"/>
+                            <Anchor point="TOPRIGHT" x="-26" y="-4"/>
+                        </Anchors>
+                        <KeyValues>
+                            <KeyValue key="labelText" value="New list" type="string"/>
+                        </KeyValues>
+                    </EditBox>
+                    <Button parentKey="deleteList">
+                        <Size x="24" y="24"/>
+                        <NormalTexture atlas="common-icon-redx"/>
+                        <HighlightTexture atlas="WoWShare-Highlight"/>
+                        <Anchors>
+                            <Anchor point="LEFT" relativeKey="$parent.newList" relativePoint="RIGHT" x="1" y="0"/>
+                        </Anchors>
+                    </Button>
+
+                    <!-- <Frame parentKey="itemLists" inherits="TBDTreeviewTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" x="4" y="-30"/>
+                            <Anchor point="BOTTOMRIGHT" x="-4" y="4"/>
+                        </Anchors>
+                        <KeyValues>
+                            <KeyValue key="itemTemplate" value="TBDSimpleIconLabelFrame" type="string"/>
+                            <KeyValue key="elementHeight" value="22" type="number"/>
+                            <KeyValue key="enableSelection" value="true" type="boolean"/>
+                        </KeyValues>
+                    </Frame> -->
+
+                    <ScrollFrame parentKey="listItemsGridview" inherits="TBDGridviewTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" x="4" y="-30"/>
+                            <Anchor point="BOTTOMRIGHT" x="-4" y="4"/>
+                        </Anchors>
+                    </ScrollFrame>
+                </Frames>
+            </Frame>
+        </Frames>
+
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnShow method="OnShow"/>
+        </Scripts>
+    </Frame>
+</Ui>

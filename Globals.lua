@@ -102,12 +102,29 @@ local debugTypeIcons = {
     comms_in = "voicechat-channellist-icon-headphone-on",
     comms_out = "voicechat-icon-textchat-silenced",
     bank = "ShipMissionIcon-Treasure-Mission",
+    tradeskills = "Mobile-Alchemy",
+}
+
+local debugTypeIDs = {
+    warning = 1,
+    info = 2,
+    comms = 3,
+    comms_in = 4,
+    comms_out = 5,
+    bank = 6,
+    tradeskills = 7,
 }
 
 function addon.LogDebugMessage(debugType, debugMessage, debugTooltip)
+
+    if not addon.debugMessages then
+        addon.debugMessages = {}
+    end
+
     if GuildbookUI and Database.db.debug then
         if debugTooltip then
-            GuildbookUI.debug.messageLogListview.DataProvider:Insert({
+            table.insert(addon.debugMessages, {
+                debugTypeID = debugTypeIDs[debugType] or 1,
                 label = string.format("[%s] %s", date("%T"), debugMessage),
                 atlas = debugTypeIcons[debugType],
                 onMouseEnter = function()
@@ -134,12 +151,14 @@ function addon.LogDebugMessage(debugType, debugMessage, debugTooltip)
                 end,
             })
         else
-            GuildbookUI.debug.messageLogListview.DataProvider:Insert({
+            table.insert(addon.debugMessages, {
+                debugTypeID = debugTypeIDs[debugType] or 1,
                 label = string.format("[%s] %s", date("%T"), debugMessage),
                 atlas = debugTypeIcons[debugType],
             })
         end
-        GuildbookUI.debug.messageLogListview.scrollBox:ScrollToEnd()
+
+        addon:TriggerEvent("LogDebugMessage")
     end
 end
 
@@ -336,6 +355,20 @@ function addon.api.getPlayerSkillLevels()
         end
     end
     return skills;
+end
+
+function addon.api.cata.getProfessions()
+    local t = {}
+    for k, prof in pairs({GetProfessions()}) do
+        if type(prof) == "number" then
+            local name, icon, skillLevel, maxSkillLevel, numAbilities, spelloffset, skillLine = GetProfessionInfo(prof)
+            if Tradeskills:IsTradeskill(nil, skillLine) then
+                t[skillLine] = skillLevel;
+            end
+        end
+    end
+    addon.LogDebugMessage("tradeskills", "function [addon.api.cata.getProfessions]", t)
+    return t;
 end
 
 function addon.api.getGuildRosterIndex(nameOrGUID)

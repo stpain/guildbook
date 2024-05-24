@@ -42,6 +42,20 @@
                     <KeyValue key="itemTemplate" value="GuildbookWrathEraRosterListviewItem" type="string"/>
                     <KeyValue key="elementHeight" value="26" type="number"/>
                 </KeyValues>
+                <!-- <Frames>
+                    <Button parentKey="name" parentArray="sortButtons" inherits="UIPanelButtonTemplate" text="NAME">
+                        <Size x="140" y="22"/>
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="0" y="2"/>
+                        </Anchors>
+                    </Button>
+                    <Button parentKey="spec" parentArray="sortButtons" inherits="UIPanelButtonTemplate" text="Spec">
+                        <Size x="140" y="22"/>
+                        <Anchors>
+                            <Anchor point="LEFT" relativeKey="$parent.name" relativePoint="RIGHT" x="2" y="0"/>
+                        </Anchors>
+                    </Button>
+                </Frames> -->
             </Frame>
             <Frame parentKey="rosterHelptip" frameLevel="7" inherits = "GuildbookWrathEraHelpTipTemplate_RightArrow">
                 <Size x="200" y="100"/>

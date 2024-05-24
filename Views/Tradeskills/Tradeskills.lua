@@ -54,6 +54,8 @@ function GuildbookTradskillsMixin:OnLoad()
     self.details.crafters.scrollView:SetPadding(14, 14, 1, 1, 1);
     self.details.reagentForRecipes.scrollView:SetPadding(14, 14, 1, 1, 1); --t,b,l,r
 
+    self:InitAddToListButton()
+
     addon.AddView(self)
 
 end
@@ -68,25 +70,31 @@ end
 
 function GuildbookTradskillsMixin:UpdateLayout()
 
+    if self.details.reagentForRecipes:GetWidth() < 200 then
+        self.details.reagentForRecipes:Hide()
+        self.details.crafters:SetWidth(240)
+    else
+        self.details.reagentForRecipes:Show()
+        self.details.crafters:SetWidth(200)
+    end
+
     -- self.details:ClearAllPoints()
     -- self.details:SetPoint("TOPLEFT", 270, -40)
     -- self.details:SetPoint("BOTTOMRIGHT", -4, 4)
     
-    local x, y = self.details:GetSize()
+    -- local x, y = self.details:GetSize()
 
-    local infoBoxWidth = ((x - 240 - (3 * 28)) / 2)
+    -- local craftersBoxWidth = ((x - 240 - (3 * 28)) * 0.4)
 
-    --print(infoBoxWidth)
+    -- if craftersBoxWidth < 150 then
+    --     self.details.crafters:SetWidth(craftersBoxWidth)
+    --     self.details.reagentForRecipes:Hide()
+    --     self.details.crafters:SetWidth(150)
+    -- else
 
-    if infoBoxWidth < 190 then
-        self.details.crafters:SetWidth(infoBoxWidth)
-        self.details.reagentForRecipes:Hide()
-        self.details.crafters:SetWidth(260)
-    else
-
-        self.details.crafters:SetWidth(infoBoxWidth)
-        self.details.reagentForRecipes:Show()
-    end
+    --     self.details.crafters:SetWidth(craftersBoxWidth)
+    --     self.details.reagentForRecipes:Show()
+    -- end
 
 
 end
@@ -133,7 +141,7 @@ function GuildbookTradskillsMixin:SetRecipe(recipe)
         -- DevTools_Dump({character:GetTradeskillRecipes(2)})
         if character:CanCraftItem({ tradeskillID = self.selectedTradeskillID, spellID = recipe.spellID, }) then
             table.insert(crafters, {
-                label = character:GetName(true),
+                label = character:GetName(true, "short"),
                 -- atlas = character:GetProfileAvatar(),
                 -- showMask = true,
 
@@ -157,6 +165,11 @@ function GuildbookTradskillsMixin:SetRecipe(recipe)
     self.details.reagentForRecipes.DataProvider = CreateTreeDataProvider()
     self.details.reagentForRecipes.scrollView:SetDataProvider(self.details.reagentForRecipes.DataProvider)
     if recipe.itemID then
+
+        --adding to lists
+        self.details.addToList.itemID = recipe.itemID
+        self.details.addToList:Show()
+
         local t = {}
         local nodes = {}
         local recipesUsingItem = Tradeskills.GetAllRecipesThatUseItem(recipe.itemID)
@@ -198,6 +211,9 @@ function GuildbookTradskillsMixin:SetRecipe(recipe)
 
     else
         self.details.reagentForRecipes:Hide()
+
+        self.details.addToList.itemID = nil
+        self.details.addToList:Hide()
 
     end
 
@@ -394,6 +410,35 @@ function GuildbookTradskillsMixin:SetRecipe(recipe)
 
 
 
+end
+
+function GuildbookTradskillsMixin:InitAddToListButton()
+    self.details.addToList:SetScript("OnClick", function(f)
+
+        if f.itemID then
+            local t = {
+                {
+                    text = "Add to list",
+                    isTitle = true,
+                    notCheckable = true,
+                }
+            }
+            if Database.db and Database.db.itemLists then
+                for k, list in ipairs(Database.db.itemLists) do
+                    table.insert(t, {
+                        text = list.name,
+                        notCheckable = true,
+                        func = function()
+                            addon:TriggerEvent("Tradeskill_OnItemAddedToList", f.itemID, list)
+                        end,
+                    })
+                end
+            end
+            EasyMenu(t, addon.contextMenu, "cursor", 0, 0, "MENU", 0.2)
+        else
+
+        end
+    end)
 end
 
 function GuildbookTradskillsMixin:LoadTradeskill(tadeskillName, tradeskillID, art)

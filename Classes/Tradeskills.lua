@@ -47,12 +47,18 @@ Tradeskills.SpecializationSpellsIDs = {
 }
 function Tradeskills:TradeskillIDToAtlas(id)
 
-	if id == 202 then
-		return "Mobile-Enginnering";
-	elseif id == 129 then
-		return "Mobile-FirstAid";
+	if type(id) == "number" then
+		if id == 202 then
+			return "Mobile-Enginnering";
+		elseif id == 129 then
+			return "Mobile-FirstAid";
+		elseif self.TradeskillIDsToLocaleName.enUS[id] then
+			return string.format("Mobile-%s", self.TradeskillIDsToLocaleName.enUS[id])
+		else
+			return "services-icon-warning";
+		end
 	else
-		return string.format("Mobile-%s", self.TradeskillIDsToLocaleName.enUS[id])
+		return "services-icon-warning";
 	end
 end
 

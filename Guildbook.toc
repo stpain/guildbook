@@ -41,6 +41,8 @@ ChangeLog.lua
 Locales.lua
 #ItemData.lua
 #SpellData.lua
+InstanceData.lua
+ItemSetData.lua
 TradeskillData.lua
 Database.lua
 
@@ -70,8 +72,11 @@ Views\Tradeskills\Tradeskills.xml
 Views\GuildRoster\GuildRoster.lua
 Views\GuildRoster\GuildRoster.xml
 
-Views\GuildBank\GuildBank.lua
-Views\GuildBank\GuildBank.xml
+#Views\GuildBank\GuildBank.lua
+#Views\GuildBank\GuildBank.xml
+
+Views\Instances\Instances.lua
+Views\Instances\Instances.xml
 
 Views\Profile\Profile.lua
 Views\Profile\Profile.xml

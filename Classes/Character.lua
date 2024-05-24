@@ -91,11 +91,15 @@ function Character:SetName(name)
     self.data.name = name;
 end
 
-function Character:GetName(colourized)
+function Character:GetName(colourized, ambiguate)
     if colourized then
         if type(self.data.class) == "number" then
             local _, class = GetClassInfo(self.data.class);
-            return RAID_CLASS_COLORS[class]:WrapTextInColorCode(self.data.name);
+            if ambiguate then
+                return RAID_CLASS_COLORS[class]:WrapTextInColorCode(Ambiguate(self.data.name, ambiguate));
+            else
+                return RAID_CLASS_COLORS[class]:WrapTextInColorCode(self.data.name);
+            end
         end
     end
     return self.data.name;

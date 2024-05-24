@@ -129,6 +129,11 @@
         "GameTooltip_AddColoredLine",
         "BRIGHTBLUE_FONT_COLOR",
         "GameTooltip_SetTitle",
-        "BLUE_FONT_COLOR"
+        "BLUE_FONT_COLOR",
+        "ChatFrame_AddMessageEventFilter",
+        "NORMAL_FONT_COLOR",
+        "WHITE_FONT_COLOR",
+        "GREEN_FONT_COLOR",
+        "SOURCE"
     ]
 }

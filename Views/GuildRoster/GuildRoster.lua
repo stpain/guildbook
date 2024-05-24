@@ -6,7 +6,7 @@ GuildbookGuildRosterMixin = {
     showOffline = false,
     selectedClass = false,
     selectedMinLevel = 1,
-    selectedMaxLevel = 80,
+    selectedMaxLevel = 85,
     helptips = {},
 }
 

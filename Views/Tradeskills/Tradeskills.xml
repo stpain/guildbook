@@ -55,6 +55,15 @@
 
                 <Frames>
 
+                    <Button parentKey="addToList" hidden="true">
+                        <Anchors>
+                            <Anchor point="TOPRIGHT" x="-26" y="-26"/>
+                        </Anchors>
+                        <Size x="24" y="24"/>
+                        <NormalTexture atlas="bags-icon-addslots"/>
+                        <HighlightTexture atlas="WoWShare-Highlight"/>
+                    </Button>
+
                     <Button parentKey="itemButton" inherits="TBDCircleButtonTemplate">
                         <Anchors>
                             <Anchor point="TOPLEFT" x="16" y="-16"/>
@@ -189,6 +198,7 @@
                     </Frame>
 
                     <Frame parentKey="crafters" inherits="TBDListviewTemplate">
+                        <Size x="200"/>
                         <Anchors>
                             <Anchor point="TOPRIGHT" x="-28" y="-244"/>
                             <Anchor point="BOTTOMRIGHT" x="-28" y="38"/>

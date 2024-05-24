@@ -325,20 +325,51 @@ end
 
 function GuildbookItemIconFrameMixin:SetItem(itemID, count)
     local item = Item:CreateFromItemID(itemID)
-    local link = item:GetItemLink()
-    local icon = item:GetItemIcon()
-    if not link and not icon then
+
+    if item and item:GetItemID() and not item:IsItemEmpty() then
         item:ContinueOnItemLoad(function()
             self.link = item:GetItemLink()
             self.icon:SetTexture(item:GetItemIcon())
         end)
-    else
-        self.link = link
-        self.icon:SetTexture(icon)
     end
     self.count:SetText(count)
 end
 
+
+--[[
+    hijacked this template to use in the list gridview
+    the gridview uses SetDataBinding when items are :Insert'd 
+]]
+function GuildbookItemIconFrameMixin:SetDataBinding(itemID, count)
+    local item = Item:CreateFromItemID(itemID)
+    self.itemID = itemID
+    if item and item:GetItemID() and not item:IsItemEmpty() then
+        item:ContinueOnItemLoad(function()
+            self.link = item:GetItemLink()
+            self.icon:SetTexture(item:GetItemIcon())
+
+            local itemCount = GetItemCount(itemID)
+            if itemCount > 0 then
+                self.checkmark:Show()
+            else
+                self.checkmark:Hide()
+            end
+        end)
+    end
+
+    self:SetScript("OnMouseDown", function(f, button)
+        if button == "RightButton" then
+            addon:TriggerEvent("Database_OnItemListItemRemoved", self)
+        end
+    end)
+end
+
+function GuildbookItemIconFrameMixin:ResetDataBinding()
+    self.link = nil
+    self.icon:SetTexture(nil)
+    self.count:SetText("")
+    self.itemID = nil
+end
 
 
 GuildbookSearchResultMixin = {}
@@ -946,7 +977,7 @@ function GuildbookRosterListviewItemMixin:Update()
     self.prof2.icon:SetAtlas(self.character:GetTradeskillIcon(2))
 
     local totalItemlevel, numItems = self.character:GetItemLevel()
-    self.ilvl:SetText(string.format("ilvl: %0.2f", (totalItemlevel / numItems)))
+    self.ilvl:SetText(string.format("ilvl: %0.2f", (totalItemlevel / numItems) or 0))
 
     self.ilvlData = {}
     for name, _ in pairs(self.character.data.inventory) do
