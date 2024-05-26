@@ -4,6 +4,7 @@ local L = addon.Locales;
 GuildbookGuildRosterMixin = {
     name = "GuildRoster",
     showOffline = false,
+    showMyCharacters = false,
     selectedClass = false,
     selectedMinLevel = 1,
     selectedMaxLevel = 85,
@@ -20,7 +21,7 @@ function GuildbookGuildRosterMixin:OnLoad()
 
     local classMenu = {}
     for i = 1, GetNumClasses() do
-        if i ~= 10 then
+        --if i ~= 10 then
             local locale, eng, id = GetClassInfo(i)
             table.insert(classMenu, {
                 text = RAID_CLASS_COLORS[eng]:WrapTextInColorCode(locale),
@@ -31,7 +32,7 @@ function GuildbookGuildRosterMixin:OnLoad()
                     self:Update()
                 end,
             })
-        end
+        --end
     end
     table.sort(classMenu, function (a, b)
         return a.sortID < b.sortID;
@@ -83,6 +84,12 @@ function GuildbookGuildRosterMixin:OnLoad()
     self.showOfflineCheckbox.label:SetText("Show Offline")
     self.showOfflineCheckbox:SetScript("OnClick", function()
         self.showOffline = not self.showOffline;
+        self:Update()
+    end)
+
+    self.showMyCharactersCheckbox.label:SetText("My Characters")
+    self.showMyCharactersCheckbox:SetScript("OnClick", function()
+        self.showMyCharacters = not self.showMyCharacters;
         self:Update()
     end)
 
@@ -138,18 +145,25 @@ function GuildbookGuildRosterMixin:Update(classID, minLevel, maxLevel)
         --         match = false;
         --     end
         -- end
-        if (character.data.level >= self.selectedMinLevel) and (character.data.level <= self.selectedMaxLevel) then
-            if self.selectedClass and (character.data.class == self.selectedClass) then
-                if self.showOffline == false then
-                    match = character.data.onlineStatus.isOnline
-                else
-                    match = true
-                end
-            elseif self.selectedClass == false then
-                if self.showOffline == false then
-                    match = character.data.onlineStatus.isOnline
-                else
-                    match = true
+
+        if self.showMyCharacters then
+            if addon.api.characterIsMine(character.data.name) then
+                match = true;
+            end
+        else
+            if (character.data.level >= self.selectedMinLevel) and (character.data.level <= self.selectedMaxLevel) then
+                if self.selectedClass and (character.data.class == self.selectedClass) then
+                    if self.showOffline == false then
+                        match = character.data.onlineStatus.isOnline
+                    else
+                        match = true
+                    end
+                elseif self.selectedClass == false then
+                    if self.showOffline == false then
+                        match = character.data.onlineStatus.isOnline
+                    else
+                        match = true
+                    end
                 end
             end
         end

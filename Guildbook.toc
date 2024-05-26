@@ -1,11 +1,12 @@
 ## Interface: 40400
 ## Author: TheBoringDad
-## Version: 7.0
+## Version: 7.01
 ## Title: Guildbook
 ## Notes: An addon for guilds
 ## SavedVariables: GUILDBOOK_GLOBAL
 ## SavedVariablesPerCharacter: GUILDBOOK_CHARACTER
-## Dependencies: TbdWidgets
+## Dependencies: TbdWidgets, Blizzard_UIPanels_Game
+
 
 
 Libs\LibStub\LibStub.lua
@@ -43,6 +44,7 @@ Locales.lua
 #SpellData.lua
 InstanceData.lua
 ItemSetData.lua
+FactionData.lua
 TradeskillData.lua
 Database.lua
 

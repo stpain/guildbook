@@ -348,6 +348,6 @@ function GuildbookHomeMixin:LoadAgenda()
 end
 
 function GuildbookHomeMixin:Character_OnNewsEvent(news)
-    DevTools_Dump(news)
-    Database:InsertNewsEevnt(news)
+    --DevTools_Dump(news)
+    --Database:InsertNewsEevnt(news)
 end

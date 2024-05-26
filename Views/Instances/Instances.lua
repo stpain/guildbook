@@ -1,6 +1,6 @@
 
 
-local name, addon = ...;
+local addonName, addon = ...;
 local L = addon.Locales;
 local Database = addon.Database;
 
@@ -80,9 +80,10 @@ function GuildbookInstancesMixin:OnLoad()
     addon:RegisterCallback("UI_OnSizeChanged", self.UpdateLayout, self)
     addon:RegisterCallback("Tradeskill_OnItemAddedToList", self.Tradeskill_OnItemAddedToList, self)
     addon:RegisterCallback("Database_OnItemListItemRemoved", self.Database_OnItemListItemRemoved, self)
+    addon:RegisterCallback("Chat_OnLootMessage", self.Chat_OnLootMessage, self)
 
-    local instanceData = self:GetFilteredInstanceData()
-    self:BuildInstanceTreeview(instanceData)
+    -- local instanceData, numItems = self:GetFilteredInstanceData()
+    -- self:BuildInstanceTreeview(instanceData, numItems)
 
     self.lists:ClearAllPoints()
     self.lists:SetPoint("TOPLEFT", self.listview, "TOPRIGHT", 6, 0)
@@ -117,7 +118,7 @@ function GuildbookInstancesMixin:OnLoad()
         end
     end)
 
-    --GroupLootFrame1
+
 
     self.lists.deleteList:SetScript("OnClick", function()
         if self.selectedList then
@@ -135,6 +136,9 @@ function GuildbookInstancesMixin:OnLoad()
         end
     end)
 
+        
+    self.itemTypeFilterID = nil;
+    self.itemSubTypeFilterID = nil;
 
     self.sourceSelectionDropdown:SetMenu({
         {
@@ -142,7 +146,6 @@ function GuildbookInstancesMixin:OnLoad()
             func = function()
                 self.itemTypeFilterDropdown:Hide()
                 self.itemSubTypeFilterDropdown:Hide()
-
                 self:LoadItemSetsData()
             end,
         },
@@ -155,7 +158,14 @@ function GuildbookInstancesMixin:OnLoad()
                 self.itemTypeFilterID = nil;
                 self.itemSubTypeFilterID = nil;
         
-                self:BuildInstanceTreeview(self:GetFilteredInstanceData())
+                local instanceData, numItems = self:GetFilteredInstanceData()
+                self:BuildInstanceTreeview(instanceData, numItems)
+            end,
+        },
+        {
+            text = "Factions",
+            func = function()
+                self:LoadFactionItems()
             end,
         },
     })
@@ -173,7 +183,8 @@ function GuildbookInstancesMixin:OnLoad()
                 func = function()
                     self.itemTypeFilterID = id;
 
-                    self:BuildInstanceTreeview(self:GetFilteredInstanceData())
+                    local instanceData, numItems = self:GetFilteredInstanceData()
+                    self:BuildInstanceTreeview(instanceData, numItems)
 
                     local maxnumSubTypes = 20;
                     local t = {}
@@ -186,7 +197,8 @@ function GuildbookInstancesMixin:OnLoad()
                                     self.itemTypeFilterID = id;
                                     self.itemSubTypeFilterID = i;
 
-                                    self:BuildInstanceTreeview(self:GetFilteredInstanceData())
+                                    local instanceData, numItems = self:GetFilteredInstanceData()
+                                    self:BuildInstanceTreeview(instanceData, numItems)
                                 end,
                             })
                         end
@@ -202,8 +214,26 @@ function GuildbookInstancesMixin:OnLoad()
         self.itemTypeFilterID = nil;
         self.itemSubTypeFilterID = nil;
 
-        self:BuildInstanceTreeview(self:GetFilteredInstanceData())
+        local instanceData, numItems = self:GetFilteredInstanceData()
+        self:BuildInstanceTreeview(instanceData, numItems)
     end)
+
+
+    for i = 1, 5 do
+        if _G["GroupLootFrame"..i] then
+            _G["GroupLootFrame"..i]:HookScript("OnShow", function(f)
+                local texture, itemName, count, quality, bindOnPickUp, canNeed, canGreed, canDisenchant, reasonNeed, reasonGreed, reasonDisenchant, deSkillRequired, canTransmog = GetLootRollItemInfo(f.rollID);
+                --local isonList, listName = self:IsItemOnList(itemName)
+                --if isonList then
+                    --print(string.format("[%s] %s in on list [%s]", addonName, itemName, listName))
+
+                    --RollOnLoot(self:GetParent().rollID, self:GetID()); 1=need 2=greed
+                --end
+
+            end)
+        end
+    end
+
 
     addon.AddView(self)
 end
@@ -265,7 +295,90 @@ function GuildbookInstancesMixin:AddItemToList(itemID, list)
     end
 end
 
+function GuildbookInstancesMixin:Chat_OnLootMessage(msg)
+    
+    if Database.db and Database.db.itemLists then
+
+        -- Template string
+        local template = "|HlootHistory:%d|h[Loot]|h: %s"
+
+        -- Actual formatted string
+        local formattedString = msg;
+
+        -- Define the pattern to capture the part that corresponds to %s
+        -- We use %d for the number, then escape the fixed parts of the string
+        -- and capture everything after the ": " which represents the %s part
+        local pattern = "|HlootHistory:%d+|h%[Loot%]|h: (.+)"
+
+        -- Use string.match to find the part of the string that matches the pattern
+        local extractedLink = formattedString:match(pattern)
+
+        if extractedLink and extractedLink:find("item:", nil, true) then
+            local itemID = GetItemInfoInstant(extractedLink)
+            if type(itemID) == "number" then
+                for k, list in ipairs(Database.db.itemLists) do
+                    for k, id in ipairs(list.items) do
+                        if id == itemID then
+                            print("ROLL FOR IT", extractedLink)
+                        end
+                    end
+                end
+            end
+        end
+
+    end
+
+    -- Print the extracted part
+    --print(extractedPart)  -- Output: Epic Sword
+
+
+
+
+
+    -- print(msg)
+
+    -- local lootStarted = LOOT_ROLL_STARTED:gsub("%%d", "(.+)"):gsub("%%s", "(.+)");
+    -- local lootStarted2 = LOOT_ROLL_STARTED:gsub("%%s", "(.+)");
+
+    -- print(lootStarted)
+    -- print(lootStarted2)
+
+    -- local x, link = string.match(msg, lootStarted)
+    -- local x2, link2 = string.match(msg, lootStarted2)
+
+    -- print("found link", x, link)
+    -- print("found link", x2, link2)
+
+
+    -- local ret = false;
+    -- local ticker
+    -- if Database.db and Database.db.itemLists then
+    --     for k, list in ipairs(Database.db.itemLists) do
+    --         --print(list.name)
+    --         local index = 1;
+    --         ticker = C_Timer.NewTicker(0.01, function()
+    --             if ret == true then
+    --                 ticker:Cancel()
+    --             end
+    --             local item = Item:CreateFromItemID(list.items[index])
+    --             if item and item:GetItemID() and not item:IsItemEmpty() then
+    --                 item:ContinueOnItemLoad(function()
+    --                     --print(item:GetItemName())
+    --                     if itemName == item:GetItemName() then
+    --                         ret = true;
+    --                         return true, list.name
+    --                     end
+    --                 end)
+    --             end
+    --             index = index + 1;
+    --         end, #list.items)
+    --     end
+    -- end
+end
+
 function GuildbookInstancesMixin:LoadListItems(list)
+
+    self.lists.helptip:Hide()
 
     --[[
         make it a gridview
@@ -352,6 +465,7 @@ function GuildbookInstancesMixin:GetFilteredInstanceData()
 
     local t = {}
     local order = {}
+    local numItems = 0;
 
     for k, instanceID in ipairs(instances) do
         
@@ -384,7 +498,7 @@ function GuildbookInstancesMixin:GetFilteredInstanceData()
                         if not self.itemSubTypeFilterID or (self.itemSubTypeFilterID == subClassID) then
 
                             table.insert(t[i_name][e_name], v)
-
+                            numItems = numItems + 1;
                         end
                     end
                 end
@@ -435,10 +549,10 @@ function GuildbookInstancesMixin:GetFilteredInstanceData()
         end
     end
 
-    return t;
+    return t, numItems;
 end
 
-function GuildbookInstancesMixin:BuildInstanceTreeview(instanceData)
+function GuildbookInstancesMixin:BuildInstanceTreeview(instanceData, numItems)
 
     --:ToggleCollapsed()
     --self.infoText:SetText("loading items")
@@ -461,16 +575,27 @@ function GuildbookInstancesMixin:BuildInstanceTreeview(instanceData)
         end
     end
 
-    self.listview.DataProvider = CreateTreeDataProvider()
-    self.listview.scrollView:SetDataProvider(self.listview.DataProvider)
+    -- if self.instanceDataProvider then
+    --     self.listview.scrollView:SetDataProvider(self.instanceDataProvider)
+    --     return
+    -- else
+    --     self.instanceDataProvider = CreateTreeDataProvider()
+    --     self.listview.scrollView:SetDataProvider(self.instanceDataProvider)
+    -- end
+
+    self.instanceDataProvider = CreateTreeDataProvider()
+    self.listview.scrollView:SetDataProvider(self.instanceDataProvider)
+
 
     local treeviewNodes = {}
+
+    local itemsProcess = 1;
 
     for instanceName, encounters in pairs(instanceData) do
         
         --local i_name, description, bgImage, buttonImage1, loreImage, buttonImage2, dungeonAreaMapID, link, shouldDisplayDifficulty, mapID = EJ_GetInstanceInfo(instanceID)
 
-        treeviewNodes[instanceName] = self.listview.DataProvider:Insert({
+        treeviewNodes[instanceName] = self.instanceDataProvider:Insert({
             label = instanceName,
             atlas = "common-icon-forwardarrow",
             backgroundAtlas = "OBJBonusBar-Top",
@@ -494,9 +619,12 @@ function GuildbookInstancesMixin:BuildInstanceTreeview(instanceData)
 
             if #items > 0 then
                 local index = 1
-                local ticker = C_Timer.NewTicker(0.5, function()
+                local ticker = C_Timer.NewTicker(0.01, function()
                     local itemID = items[index][3]
-                    --self.statusBar:SetValue(index/#items)
+
+                    self.statusBar:SetValue(itemsProcess/numItems)
+                    self.statusBar.label:SetText(string.format("%.1f %%",(itemsProcess/numItems) * 100))
+
                     local difficulty = items[index][6]
                     if type(itemID) == "number" then
                         local item = Item:CreateFromItemID(itemID)
@@ -543,6 +671,8 @@ function GuildbookInstancesMixin:BuildInstanceTreeview(instanceData)
                                     subClassID = subClassID,
                                     difficulty = difficulty,
                                 })
+
+                                itemsProcess = itemsProcess + 1;
                             end)
                         end
                     end
@@ -591,81 +721,281 @@ function GuildbookInstancesMixin:GetItemsForEncounter(encounterID)
 end
 
 
-
+local binaryToClassID = {
+    [1] = 1, --                 0000000000 0000000001  
+    [2] = 2, --                 0000000000 0000000010
+    [4] = 3, --                 0000000000 0000000100
+    [8] = 4, --                 0000000000 0000001000
+    [16] = 5, --                0000000000 0000010000
+    [32] = 6, --                0000000000 0000100000
+    [64] = 7, --                0000000000 0001000000
+    [128] = 8, --               0000000000 0010000000
+    [256] = 9, --               0000000000 0100000000
+    [1024] = 11, --             0000000000 1000000000
+}
 
 function GuildbookInstancesMixin:LoadItemSetsData()
 
+    if self.itemSetsDataProvider then
+        self.listview.scrollView:SetDataProvider(self.itemSetsDataProvider)
+        return
+    else
+
+        self.itemSetsDataProvider = CreateTreeDataProvider()
+        self.listview.scrollView:SetDataProvider(self.itemSetsDataProvider)
+
+    end
+
+    local function sortFuncItemLevels(a, b)
+        if a:GetData().ilvl and b:GetData().ilvl then
+            return a:GetData().ilvl > b:GetData().ilvl;
+        end
+    end
+
+    local function sortFuncClassId(a, b)
+        if a:GetData().classID and b:GetData().classID then
+            return a:GetData().classID > b:GetData().classID;
+        end
+    end
+
     --self.infoText:SetText("loading items")
 
-    self.listview.DataProvider = CreateTreeDataProvider()
-    self.listview.scrollView:SetDataProvider(self.listview.DataProvider)
+    -- self.listview.DataProvider = CreateTreeDataProvider()
+    -- self.listview.scrollView:SetDataProvider(self.listview.DataProvider)
     
     local treeviewNodes = {}
 
-    local setIndex = #addon.itemSetsData;
-    local ticker = C_Timer.NewTicker(0.01, function()
-        local setData = addon.itemSetsData[setIndex]
+    --itemID, setID, ilvl, class, invType, quality
 
-        if setData then
 
-            local setName = C_Item.GetItemSetInfo(setData[1])
+    local setIndex = 1;
+    local ticker = C_Timer.NewTicker(0.001, function()
+        local info = addon.itemSetsData[setIndex]
 
-            treeviewNodes[setName] = self.listview.DataProvider:Insert({
-                label = setName,
-                atlas = "common-icon-forwardarrow",
-                backgroundAtlas = "OBJBonusBar-Top",
-                fontObject = GameFontNormal,
-                isParent = true,
-            })
+        if info then
 
-            local items = {}
+            self.statusBar:SetValue(setIndex/#addon.itemSetsData)
+            self.statusBar.label:SetText(string.format("%.1f %%", (setIndex/#addon.itemSetsData) * 100))
 
-            for i = 5, 21 do
-                if setData[i] ~= 0 then
-                    table.insert(items, setData[i])
+            local class, classString = "All Classes", nil
+            if info[4] > 0 then
+                class, classString = GetClassInfo(binaryToClassID[info[4]])
+                if RAID_CLASS_COLORS[classString] then
+                    class = RAID_CLASS_COLORS[classString]:WrapTextInColorCode(class)
+                end
+            end
+            
+            if not treeviewNodes[class] then
+                treeviewNodes[class] = self.itemSetsDataProvider:Insert({
+
+                    --sort
+                    classID = binaryToClassID[info[4]],
+
+                    label = class,
+                    atlas = "common-icon-forwardarrow",
+                    backgroundAtlas = "OBJBonusBar-Top",
+                    fontObject = GameFontNormal,
+                    isParent = true,
+                })
+                treeviewNodes[class]:ToggleCollapsed()
+                treeviewNodes[class]:SetSortComparator(sortFuncItemLevels, true, false)
+            end
+
+            local ilvl = ITEM_LEVEL:format(info[3]);
+
+            if not treeviewNodes[class][ilvl] then
+                treeviewNodes[class][ilvl] = treeviewNodes[class]:Insert({
+
+                    --sort
+                    ilvl = info[3],
+
+                    label = ilvl,
+                    atlas = "common-icon-forwardarrow",
+                    backgroundAtlas = "OBJBonusBar-Top",
+                    fontObject = GameFontNormal,
+                    isParent = true,
+                })
+                treeviewNodes[class][ilvl]:ToggleCollapsed()
+                treeviewNodes[class][ilvl]:SetSortComparator(sortFuncItemLevels, true, false)
+            end
+
+            local setName = C_Item.GetItemSetInfo(info[2])
+
+            if not treeviewNodes[class][ilvl][setName] then
+                treeviewNodes[class][ilvl][setName] = treeviewNodes[class][ilvl]:Insert({
+
+                    --sort
+                    classID = binaryToClassID[info[4]],
+
+                    label = setName,
+                    atlas = "common-icon-forwardarrow",
+                    backgroundAtlas = "OBJBonusBar-Top",
+                    fontObject = GameFontNormal,
+                    isParent = true,
+                })
+                treeviewNodes[class][ilvl][setName]:ToggleCollapsed()
+                treeviewNodes[class][ilvl][setName]:SetSortComparator(sortFuncClassId, true, false)
+            end
+
+
+
+            local itemID = info[1]
+            
+            if type(itemID) == "number" then
+                local item = Item:CreateFromItemID(itemID)
+                if item and item:GetItemID() and not item:IsItemEmpty() then
+                    item:ContinueOnItemLoad(function()
+
+                        local _, itemType, itemSubType, equipLoc, icon, classID, subClassID = GetItemInfoInstant(itemID)
+
+                        local rightLabel = ""
+                        if classID == 4 and subClassID == 0 then
+                            rightLabel = _G[equipLoc]
+                        else
+                            rightLabel = _G[equipLoc] and string.format("%s\n%s", _G[equipLoc], WHITE_FONT_COLOR:WrapTextInColorCode(itemSubType)) or itemSubType
+                        end
+
+                        treeviewNodes[class][ilvl][setName]:Insert({
+                            label = item:GetItemLink(),
+                            link = item:GetItemLink(),
+                            labelRight = rightLabel,
+
+                            init = function(f)
+                                f.labelRight:SetFontObject(GameFontNormalSmall)
+                                f:HookScript("OnMouseDown", function()
+                                    C_Item.PickupItem(itemID)
+                                end)
+                            end,
+                        })
+
+                    end)
                 end
             end
 
-            local index = 1;
-            local ticker = C_Timer.NewTicker(0.1, function()
-                local itemID = items[index]
-                --self.statusBar:SetValue(index/#items)
-                if type(itemID) == "number" then
-                    local item = Item:CreateFromItemID(itemID)
-                    if item and item:GetItemID() and not item:IsItemEmpty() then
-                        item:ContinueOnItemLoad(function()
-
-                            local _, itemType, itemSubType, equipLoc, icon, classID, subClassID = GetItemInfoInstant(itemID)
-
-                            local rightLabel = ""
-                            if classID == 4 and subClassID == 0 then
-                                rightLabel = _G[equipLoc]
-                            else
-                                rightLabel = _G[equipLoc] and string.format("%s\n%s", _G[equipLoc], WHITE_FONT_COLOR:WrapTextInColorCode(itemSubType)) or itemSubType
-                            end
-
-                            treeviewNodes[setName]:Insert({
-                                label = item:GetItemLink(),
-                                link = item:GetItemLink(),
-                                rightLabel = rightLabel,
-
-                                init = function(f)
-                                    f:HookScript("OnMouseDown", function()
-                                        C_Item.PickupItem(itemID)
-                                    end)
-                                end,
-                            })
-                        end)
-                    end
-                end
-                index = index + 1
-            end, #items)
-
-            setIndex = setIndex - 1;
-
-            treeviewNodes[setName]:ToggleCollapsed()
 
         end
+
+        setIndex = setIndex + 1
     end)
+
+end
+
+
+
+function GuildbookInstancesMixin:LoadFactionItems()
+
+    if self.factionItemDataProvider then
+        self.listview.scrollView:SetDataProvider(self.factionItemDataProvider)
+        return
+    else
+
+        self.factionItemDataProvider = CreateTreeDataProvider()
+        self.listview.scrollView:SetDataProvider(self.factionItemDataProvider)
+
+    end
+    
+
+    local treeviewNodes = {}
+
+    
+--itemID, rep, faction
+    local index = 1;
+    local ticker = C_Timer.NewTicker(0.01, function()
+        local info = addon.factionData[index]
+
+        self.statusBar:SetValue(index/#addon.factionData)
+        self.statusBar.label:SetText(string.format("%.1f %%", (index/#addon.factionData) * 100))
+
+        if type(info) == "table" then
+        
+            if (not treeviewNodes[info[3]]) then
+
+                local factionName = GetFactionInfoByID(info[3])
+
+                if factionName then
+
+                    treeviewNodes[info[3]] = self.factionItemDataProvider:Insert({
+                        label = factionName,
+                        atlas = "common-icon-forwardarrow",
+                        backgroundAtlas = "OBJBonusBar-Top",
+                        fontObject = GameFontNormal,
+                        isParent = true,
+
+                        -- init = function(f)
+                        --     f.label:SetText(GetFactionInfoByID(info[3]) or "-")
+                        -- end,
+
+                        --sort
+                        factionID = info[3] or -1,
+            
+                    }) 
+                    treeviewNodes[info[3]]:ToggleCollapsed()
+                    treeviewNodes[info[3]]:SetSortComparator(function(a, b)
+                        if a:GetData().rep and b:GetData().rep then
+                            return a:GetData().rep > b:GetData().rep;
+                        end
+                    end, true, true)
+                end
+            end
+
+            if treeviewNodes[info[3]] and not treeviewNodes[info[3]][info[2]] then
+                
+                treeviewNodes[info[3]][info[2]] = treeviewNodes[info[3]]:Insert({
+                    label = _G["FACTION_STANDING_LABEL"..info[2]],
+                    atlas = "common-icon-forwardarrow",
+                    backgroundAtlas = "OBJBonusBar-Top",
+                    fontObject = GameFontNormal,
+                    isParent = true,
+
+                    --sort
+                    rep = info[2],
+        
+                })
+
+                treeviewNodes[info[3]][info[2]]:ToggleCollapsed()
+            end
+
+            if treeviewNodes[info[3]] and treeviewNodes[info[3]][info[2]] then
+
+                local item = Item:CreateFromItemID(info[1])
+                if item and item:GetItemID() and not item:IsItemEmpty() then
+                    item:ContinueOnItemLoad(function()
+
+                        local _, itemType, itemSubType, equipLoc, icon, classID, subClassID = GetItemInfoInstant(info[1])
+
+                        local rightLabel = ""
+                        if classID == 4 and subClassID == 0 then
+                            rightLabel = _G[equipLoc]
+                        else
+                            rightLabel = _G[equipLoc] and string.format("%s\n%s", _G[equipLoc], WHITE_FONT_COLOR:WrapTextInColorCode(itemSubType)) or itemSubType
+                        end
+
+                       
+                        treeviewNodes[info[3]][info[2]]:Insert({
+                            label = item:GetItemLink(),
+                            link = item:GetItemLink(),
+                            labelRight = rightLabel,
+
+                            init = function(f)
+                                f.labelRight:SetFontObject(GameFontNormalSmall)
+                                f:HookScript("OnMouseDown", function()
+                                    C_Item.PickupItem(info[1])
+                                end)
+                            end,
+                        })
+                    end)
+                end
+            end
+
+
+
+            index = index + 1;
+
+        end
+
+
+    end, #addon.factionData)
+
+
 
 end

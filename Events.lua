@@ -21,6 +21,7 @@ e:RegisterEvent('BANKFRAME_OPENED')
 e:RegisterEvent('BANKFRAME_CLOSED')
 --e:RegisterEvent('BAG_UPDATE')
 e:RegisterEvent('BAG_UPDATE_DELAYED')
+e:RegisterEvent('CHAT_MSG_LOOT')
 e:RegisterEvent('CHAT_MSG_GUILD')
 e:RegisterEvent('CHAT_MSG_WHISPER')
 e:RegisterEvent('CHAT_MSG_WHISPER_INFORM')
@@ -46,6 +47,11 @@ e:SetScript("OnEvent", function(self, event, ...)
         self[event](self, ...)
     end
 end)
+
+function e:CHAT_MSG_LOOT(...)
+    local msg = ...;
+    addon:TriggerEvent("Chat_OnLootMessage", msg)
+end
 
 function e:PLAYER_LEVEL_UP(...)
     --local curLevel = UnitLevel("player")
@@ -1165,6 +1171,11 @@ function e:Database_OnInitialised()
       end
 
     ChatFrame_AddMessageEventFilter("CHAT_MSG_GUILD", myChatFilter)
+
+    -- hooksecurefunc("GroupLootFrame_OnShow", function(f)
+    --     local texture, name, count, quality, bindOnPickUp, canNeed, canGreed, canDisenchant, reasonNeed, reasonGreed, reasonDisenchant, deSkillRequired, canTransmog = GetLootRollItemInfo(f.rollID);
+    --     print(name)
+    -- end)
 
 
     -- this will set the name on enchanting recipes to the client locale, the name is then used when scannign the enchant UI

@@ -335,10 +335,14 @@ function Tradeskills.GetAllRecipesThatUseItem(itemID, prof1, prof2)
 
 	local t = {}
 
+	--print(itemID)
+
 	for spellID, reagentInfo in pairs(addon.tradeskillData.spellIdToReagents) do
 		for i = 1, 7 do
 			if reagentInfo[i] == itemID then
+				--print(spellID)
 				local tradeskillID = addon.tradeskillData.spellIdToTradeskillId[spellID]
+				--print(tradeskillID)
 				if tradeskillID then
 					if not prof1 and not prof2 then
 						if not t[tradeskillID] then
@@ -368,23 +372,28 @@ end
 
 function Tradeskills.GetItemRecipeInfo(itemID, itemName)
 
+
 	local spellID = Tradeskills.GetRecipeSpellIDFromItemID(itemID)
 	if spellID then
 		local reagents = getReagentData(spellID)
+		local tradeskillID = addon.tradeskillData.spellIdToTradeskillId[spellID]
 		return {
 			itemID = itemID,
 			spellID = spellID,
 			reagents = reagents,
+			tradeskillID = tradeskillID,
 		}
 	else
 		if Tradeskills.enchanterSpellNameToSpellID then
 			local spellID = Tradeskills.GetRecipeSpellIDFromItemID(Tradeskills.enchanterSpellNameToSpellID)
 			if spellID then
 				local reagents = getReagentData(spellID)
+				local tradeskillID = addon.tradeskillData.spellIdToTradeskillId[spellID]
 				return {
 					itemID = itemID,
 					spellID = spellID,
 					reagents = reagents,
+					tradeskillID = tradeskillID,
 				}
 			end
 		end

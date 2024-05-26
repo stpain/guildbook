@@ -134,6 +134,10 @@
         "NORMAL_FONT_COLOR",
         "WHITE_FONT_COLOR",
         "GREEN_FONT_COLOR",
-        "SOURCE"
+        "SOURCE",
+        "GroupLootFrame1",
+        "ITEM_LEVEL",
+        "LOOT_ROLL_STARTED",
+        "show"
     ]
 }

@@ -350,9 +350,11 @@ function GuildbookItemIconFrameMixin:SetDataBinding(itemID, count)
 
             local itemCount = GetItemCount(itemID)
             if itemCount > 0 then
+                self.blur:Show()
                 self.checkmark:Show()
             else
                 self.checkmark:Hide()
+                self.blur:Hide()
             end
         end)
     end
@@ -369,6 +371,8 @@ function GuildbookItemIconFrameMixin:ResetDataBinding()
     self.icon:SetTexture(nil)
     self.count:SetText("")
     self.itemID = nil
+    self.checkmark:Hide()
+    self.blur:Hide()
 end
 
 

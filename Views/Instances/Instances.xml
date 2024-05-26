@@ -20,14 +20,15 @@
                 <Anchors>
                     <Anchor point="TOPRIGHT" x="0" y="0"/>
                 </Anchors>
-                <BarTexture atlas="nameplates-bar-background-white"/>
+                <BarTexture atlas="nameplates-bar-background-white">
+                    <Color r="0.7" g="0.6" b="0.1"/>
+                </BarTexture>
                 <Layers>
                     <Layer level="OVERLAY">
-                        <FontString parentKey="label" inherits="GameFontWhite" text="-">
-                            <Color r="1" g="1" b="1"/>
-                            <Size x="200" y="36"/>
+                        <FontString parentKey="label" inherits="GameFontNormalHuge" text="-" justifyH="RIGHT">
+                            <Size x="100" y="36"/>
                             <Anchors>
-                                <Anchor point="CENTER" x="0" y="0"/>
+                                <Anchor point="RIGHT" relativePoint="LEFT" x="-10" y="0"/>
                             </Anchors>
                         </FontString>
                     </Layer>
@@ -77,19 +78,16 @@
                     <Anchor point="TOPLEFT" relativeKey="$parent.listview" relativePoint="TOPRIGHT" x="6" y="0"/>
                     <Anchor point="BOTTOMRIGHT" x="-4" y="6"/>
                 </Anchors>
-                <!-- <Layers>
-                    <Layer level="BACKGROUND">
-                        <Texture parentKey="background" atlas="AdventureMap_TileBg_Parchment" vertTile="true" horizTile="true" setAllPoints="true"/>
-                    </Layer>
-                    <Layer level="ARTWORK">
-                        <Texture parentKey="artwork">
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <FontString parentKey="helptip" inherits="GameFontNormalHuge" text="Drag and drop items here" >
+                            <Size x="140" y="80"/>
                             <Anchors>
-                                <Anchor point="TOPLEFT" x="0" y="0"/>
-                                <Anchor point="BOTTOMRIGHT" x="-4" y="6"/>
+                                <Anchor point="CENTER" x="0" y="0"/>
                             </Anchors>
-                        </Texture>
+                        </FontString>
                     </Layer>
-                </Layers> -->
+                </Layers>
 
                 <Frames>
                     <Button parentKey="listDropdown" inherits="TbdDropdownTemplate">
