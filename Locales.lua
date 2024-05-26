@@ -21,7 +21,7 @@ local L = {
 	--ribbon
 	--====================================================================================
 	RIBBON_VIEW_HISTORY_BACK_TT = "Go back",
-	GUIDE = "Guide (Instances)",
+	ITEM_LISTS = "Item Lists",
 
 	--====================================================================================
 	--profile (member details not guild treeview)
@@ -37,6 +37,13 @@ local L = {
 	TRADESKILLS_CRAFTERS_LISTVIEW_HT = "Players able to craft an item will be listed here.",
 
 	TRADESKILLS_RECIPES_SHOW_ITEMID_CB = "Show ItemID",
+
+	--====================================================================================
+	--item lists
+	--====================================================================================
+	ITEM_LISTS_SOURCE_HELPTIP = "Select the items source from the dropdowns.\n\nFaction and Item Sets data will persist after the initial load.\n\nInstance data will load on demand as per any filters.",
+	ITEM_LISTS_LISTS_HELPTIP = "Create, select and delete lists here.\n\nWhen you have a list you can simply drag and drop items into it.",
+
 
 	--====================================================================================
 	--guild bank

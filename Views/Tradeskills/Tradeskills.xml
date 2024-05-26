@@ -15,6 +15,26 @@
         
         <Frames>
 
+            <StatusBar parentKey="statusBar" inherits="" orientation="HORIZONTAL" defaultValue="0" minValue="0" maxValue="1">
+                <Size x="200" y="36"/>
+                <Anchors>
+                    <Anchor point="TOPRIGHT" x="0" y="0"/>
+                </Anchors>
+                <BarTexture atlas="nameplates-bar-background-white">
+                    <Color r="0.7" g="0.6" b="0.1"/>
+                </BarTexture>
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <FontString parentKey="label" inherits="GameFontNormalHuge" text="-" justifyH="RIGHT">
+                            <Size x="100" y="36"/>
+                            <Anchors>
+                                <Anchor point="RIGHT" relativePoint="LEFT" x="-10" y="0"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+            </StatusBar>
+
             <Button parentKey="tradeskillDropdown" inherits="TbdDropdownTemplate">
                 <Size x="180" y="40"/>
                 <Anchors>

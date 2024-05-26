@@ -773,7 +773,7 @@ local function setCharacterTradeskill(prof, recipes, tradeskillCooldowns, onlyCo
         if tradeskillCooldowns then
             if onlyCooldowns then
                 addon.characters[addon.thisCharacter]:UpdateTradeskillCooldowns(tradeskillCooldowns, true)
-                return
+                --return
             else
                 addon.characters[addon.thisCharacter]:UpdateTradeskillCooldowns(tradeskillCooldowns)
             end
@@ -860,12 +860,13 @@ local function scanTradeskills()
 
     if type(prof) == "number" then
         addon.LogDebugMessage("tradeskills", string.format("function [scanTradeskills] prof = %s", prof))
+        addon.LogDebugMessage("tradeskills", string.format("function [scanTradeskills] numTradeskills [%d]", numTradeskills))
 
             local cooldownsAdded = {}
 
             for i = 1, numTradeskills do
                 local name, _type, _, _, _ = GetTradeSkillInfo(i)
-                if name and (_type == "optimal" or _type == "medium" or _type == "easy" or _type == "trivial") then
+                --if name and (_type == "optimal" or _type == "medium" or _type == "easy" or _type == "trivial") then
                     local itemLink = GetTradeSkillItemLink(i)
         
                     local cooldown = GetTradeSkillCooldown(i)
@@ -892,7 +893,13 @@ local function scanTradeskills()
                     end
                     if itemLink then
                         local id = GetItemInfoFromHyperlink(itemLink)
+                        --print(itemLink)
                         if id then
+                            --print(id)
+
+                            if id == 75248 then
+                                --print("found deathsilt belt")
+                            end
         
                             --old wrath system
                             -- for k, v in ipairs(addon.itemData) do
@@ -936,14 +943,16 @@ local function scanTradeskills()
                         end
         
                         ]]
-        
+
+                       -- print(name)
+
         
                         --cata
-                        if addon.enchanterSpellNameToSpellID and addon.enchanterSpellNameToSpellID[name] then
-                            table.insert(recipes, addon.enchanterSpellNameToSpellID[name])
+                        if Tradeskills.enchanterSpellNameToSpellID and Tradeskills.enchanterSpellNameToSpellID[name] then
+                            table.insert(recipes, Tradeskills.enchanterSpellNameToSpellID[name])
                         end
                     end
-                end
+                --end
             end
         
             addon.LogDebugMessage("tradeskills", string.format("recipes found for %s", prof), { version = -1, payload = recipes})
@@ -1091,7 +1100,9 @@ end
 
 
 function e:Database_OnInitialised()
+
     GuildRoster()
+    self:GUILD_ROSTER_UPDATE()
 
     if not Database.db.myCharacters[addon.thisCharacter] then
         Database.db.myCharacters[addon.thisCharacter] = false;

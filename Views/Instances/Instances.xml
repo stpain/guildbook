@@ -48,6 +48,13 @@
                 </KeyValues>
             </Frame>
 
+            <Frame parentKey="helptipItemsSource" frameLevel="7" inherits = "GuildbookWrathEraHelpTipTemplate_RightArrow">
+                <Size x="200" y="170"/>
+                <Anchors>
+                    <Anchor point="RIGHT" relativeKey="$parent.listview" relativePoint="LEFT" x="-20" y="60"/>
+                </Anchors>
+            </Frame>
+
             <Button parentKey="sourceSelectionDropdown" inherits="TbdDropdownTemplate">
                 <Size x="160" y="36"/>
                 <Anchors>
@@ -134,6 +141,13 @@
                         </Anchors>
                     </ScrollFrame>
                 </Frames>
+            </Frame>
+
+            <Frame parentKey="helptipItemsLists" frameLevel="7" inherits = "GuildbookWrathEraHelpTipTemplate_BottomArrow">
+                <Size x="200" y="140"/>
+                <Anchors>
+                    <Anchor point="BOTTOM" relativeKey="$parent.lists" relativePoint="TOP" x="20" y="10"/>
+                </Anchors>
             </Frame>
         </Frames>
 

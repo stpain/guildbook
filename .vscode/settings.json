@@ -138,6 +138,7 @@
         "GroupLootFrame1",
         "ITEM_LEVEL",
         "LOOT_ROLL_STARTED",
-        "show"
+        "show",
+        "UIErrorsFrame"
     ]
 }

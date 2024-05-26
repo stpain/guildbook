@@ -21,6 +21,11 @@ local name, addon = ...;
 
 addon.changeLog = {
     {
+        version = "7.1",
+        notes = "Tradeskills fixed!\n\nNew feature! Item lists. You can browse item sets, dungeon, raid and faction items and build item lists for your characters.\nOn first use the addon will need to load the item data, once complete you can browse anytime. To start, enter a name for the list and then browse the items and drag them over.\nYou can also add items from the new tradeskill UI, click the green + button to see your lists.\nIf an item drops you'll get a notification its on a list.\n\nA checkbox was added the roster view to show your alts (the alts view will receive updates next).",
+        icon = "ShipMissionIcon-Combat-Mission",
+    },
+    {
         version = "7.0",
         notes = "Cataclysm.\n\nUpdated the tradeskills to show recipe and item information along with guild crafters.\n\nUpdated the profile view to show talents and Prime Glyphs (note it'll take time for player data to propagate).\n\nSlight change to the roster view, now shows ilvl (rank removed), you can also hover the ilvl area to see ilvl's for all equipment sets.",
         icon = "ClassHall-QuestIcon-Desaturated",

@@ -271,7 +271,7 @@
                         </Anchors>
                         <Layers>
                             <Layer level="BACKGROUND">
-                                <Texture atlas="ShipMissionIcon-Treasure-Map">
+                                <Texture atlas="ShipMissionIcon-Combat-Mission">
                                     <Anchors>
                                         <Anchor point="TOPLEFT" x="-4" y="4"/>
                                         <Anchor point="BOTTOMRIGHT" x="4" y="-4"/>
@@ -280,7 +280,7 @@
                             </Layer>
                         </Layers>
                         <KeyValues>
-                            <KeyValue key="tooltipText" value="GUILD_BANK" type="string"/>
+                            <KeyValue key="tooltipText" value="ITEM_LISTS" type="string"/>
                         </KeyValues>
                     </Frame>
                     <Frame parentKey="alts" inherits = "GuildbookWrathEraSmallHighlightButton" hidden="false">

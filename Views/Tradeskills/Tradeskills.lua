@@ -45,6 +45,7 @@ function GuildbookTradskillsMixin:OnLoad()
     end)
     self.tradeskillDropdown:SetMenu(menu)
 
+
     local x, y, z = 100, 60, 50
     self.details.itemButton.border:SetSize(x*1.2, x*1.2)
     self.details.itemButton.icon:SetSize(y*1.2, y*1.2)
@@ -443,22 +444,23 @@ end
 
 function GuildbookTradskillsMixin:LoadTradeskill(tadeskillName, tradeskillID, art)
 
-    if self.recipeTicker then
-        self.recipeTicker:Cancel()
-    end
-
     self.selectedTradeskill = tadeskillName;
     self.selectedTradeskillID = tradeskillID
 
-    --self:SetPortraitToAsset(tradeskillIcons[tradeskillID])
-    --self:SetTitle(name)
-
     self.details.background:SetTexture(art)
 
-    self.listview.DataProvider = CreateTreeDataProvider()
-    self.listview.scrollView:SetDataProvider(self.listview.DataProvider)
+    if not self.tradeskillDataProvider then
+        self.tradeskillDataProvider = {}
+    end
 
-    local treeviewNodes = {}
+    if self.tradeskillDataProvider[tradeskillID] then
+        self.listview.scrollView:SetDataProvider(self.tradeskillDataProvider[tradeskillID])
+        return
+    else
+        self.tradeskillDataProvider[tradeskillID] = CreateTreeDataProvider()
+        self.listview.scrollView:SetDataProvider(self.tradeskillDataProvider[tradeskillID])
+    end
+
     
     local tradeskillData = Tradeskills.BuildTradeskillData(tradeskillID)
 
@@ -476,15 +478,22 @@ function GuildbookTradskillsMixin:LoadTradeskill(tadeskillName, tradeskillID, ar
         end
     end
 
+    self.tradeskillDropdown:EnableMouse(false)
+
     local itemsAdded, spellsAdded = {}, {}
     local numItems = #tradeskillData
     local index = 1;
     self.recipeTicker = C_Timer.NewTicker(0.001, function()
+
+        self.statusBar:SetValue(index/#tradeskillData)
+        self.statusBar.label:SetText(string.format("%.1f %%", (index/#tradeskillData) * 100))
     
         if tradeskillData[index] then
             local itemID = tradeskillData[index].itemID
             local spellID = tradeskillData[index].spellID
             local reagentData = tradeskillData[index].reagents or {}
+
+            local showCraftDobutton = IsPlayerSpell(spellID) == true and true or false;
 
             if itemID then
                 local item = Item:CreateFromItemID(itemID)
@@ -492,8 +501,8 @@ function GuildbookTradskillsMixin:LoadTradeskill(tadeskillName, tradeskillID, ar
                     item:ContinueOnItemLoad(function()
                         local itemName, itemLink, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, sellPrice, classID, subclassID, bindType, expansionID, setID, isCraftingReagent = GetItemInfo(itemID)
 
-                        if not treeviewNodes[itemType] then
-                            treeviewNodes[itemType] = self.listview.DataProvider:Insert({
+                        if not self.tradeskillDataProvider[tradeskillID][itemType] then
+                            self.tradeskillDataProvider[tradeskillID][itemType] = self.tradeskillDataProvider[tradeskillID]:Insert({
                                 label = itemType,
                                 atlas = "common-icon-forwardarrow",
                                 backgroundAtlas = "OBJBonusBar-Top",
@@ -511,8 +520,8 @@ function GuildbookTradskillsMixin:LoadTradeskill(tadeskillName, tradeskillID, ar
                             })
                         end
 
-                        if not treeviewNodes[itemType][itemSubType] then
-                            treeviewNodes[itemType][itemSubType] = treeviewNodes[itemType]:Insert({
+                        if not self.tradeskillDataProvider[tradeskillID][itemType][itemSubType] then
+                            self.tradeskillDataProvider[tradeskillID][itemType][itemSubType] = self.tradeskillDataProvider[tradeskillID][itemType]:Insert({
                                 label = itemSubType,
                                 atlas = "common-icon-forwardarrow",
                                 backgroundAtlas = "OBJBonusBar-Top",
@@ -529,13 +538,14 @@ function GuildbookTradskillsMixin:LoadTradeskill(tadeskillName, tradeskillID, ar
                                 end,
                             })
                         
-                            treeviewNodes[itemType][itemSubType]:SetSortComparator(sortFunc, true, false)
+                            self.tradeskillDataProvider[tradeskillID][itemType][itemSubType]:SetSortComparator(sortFunc, true, false)
+                            self.tradeskillDataProvider[tradeskillID][itemType][itemSubType]:ToggleCollapsed()
                         end
 
                         if (_G[itemEquipLoc]) then
 
-                            if not treeviewNodes[itemType][itemSubType][itemEquipLoc] then
-                                treeviewNodes[itemType][itemSubType][itemEquipLoc] = treeviewNodes[itemType][itemSubType]:Insert({
+                            if not self.tradeskillDataProvider[tradeskillID][itemType][itemSubType][itemEquipLoc] then
+                                self.tradeskillDataProvider[tradeskillID][itemType][itemSubType][itemEquipLoc] = self.tradeskillDataProvider[tradeskillID][itemType][itemSubType]:Insert({
                                     label = _G[itemEquipLoc],
                                     atlas = "common-icon-forwardarrow",
                                     backgroundAtlas = "OBJBonusBar-Top",
@@ -552,11 +562,12 @@ function GuildbookTradskillsMixin:LoadTradeskill(tadeskillName, tradeskillID, ar
                                     end,
                                 })
                             
-                                treeviewNodes[itemType][itemSubType][itemEquipLoc]:SetSortComparator(sortFunc, true, false)
+                                self.tradeskillDataProvider[tradeskillID][itemType][itemSubType][itemEquipLoc]:SetSortComparator(sortFunc, true, false)
+                                self.tradeskillDataProvider[tradeskillID][itemType][itemSubType][itemEquipLoc]:ToggleCollapsed()
                             end
 
                             if not itemsAdded[itemName] then
-                                treeviewNodes[itemType][itemSubType][itemEquipLoc]:Insert({
+                                self.tradeskillDataProvider[tradeskillID][itemType][itemSubType][itemEquipLoc]:Insert({
 
                                     --sort data
                                     name = itemName,
@@ -583,14 +594,14 @@ function GuildbookTradskillsMixin:LoadTradeskill(tadeskillName, tradeskillID, ar
 
                                 itemsAdded[itemName] = true
 
-                                treeviewNodes[itemType][itemSubType][itemEquipLoc]:Sort()
+                                self.tradeskillDataProvider[tradeskillID][itemType][itemSubType][itemEquipLoc]:Sort()
 
                             end
 
                         else
 
                             if not itemsAdded[itemName] then
-                                treeviewNodes[itemType][itemSubType]:Insert({
+                                self.tradeskillDataProvider[tradeskillID][itemType][itemSubType]:Insert({
 
                                     --sort data
                                     name = itemName,
@@ -617,7 +628,7 @@ function GuildbookTradskillsMixin:LoadTradeskill(tadeskillName, tradeskillID, ar
 
                                 itemsAdded[itemName] = true
 
-                                treeviewNodes[itemType][itemSubType]:Sort()
+                                self.tradeskillDataProvider[tradeskillID][itemType][itemSubType]:Sort()
                             end
                         end
                     end)
@@ -640,14 +651,21 @@ function GuildbookTradskillsMixin:LoadTradeskill(tadeskillName, tradeskillID, ar
 
                             if tradeskillID == 333 then
                                 
-                                local prefix, enchantLocation = strsplit(" ", spellName)
+                                local prefix, enchantLocation, hyphenOrType, hyphenOrType2, enchantType = strsplit(" ", spellName)
 
-                                if not enchantLocation then
-                                    enchantLocation = OTHER;
+                                if hyphenOrType == "-" then
+                                    
+                                    --normal enchant
+
+                                elseif (hyphenOrType2 == "-") or (hyphenOrType2 and (#hyphenOrType2 == 1)) then
+
+                                    --2H enchant
+                                    enchantLocation = string.format("%s %s", enchantLocation, hyphenOrType)
                                 end
+
     
-                                if not treeviewNodes[prefix] then
-                                    treeviewNodes[prefix] = self.listview.DataProvider:Insert({
+                                if not self.tradeskillDataProvider[tradeskillID][prefix] then
+                                    self.tradeskillDataProvider[tradeskillID][prefix] = self.tradeskillDataProvider[tradeskillID]:Insert({
                                         label = prefix,
                                         atlas = "common-icon-forwardarrow",
                                         backgroundAtlas = "OBJBonusBar-Top",
@@ -664,10 +682,10 @@ function GuildbookTradskillsMixin:LoadTradeskill(tadeskillName, tradeskillID, ar
                                         end,
                                     })
     
-                                    --treeviewNodes[prefix]:SetSortComparator(sortFunc, true, false)
+                                    --self.tradeskillDataProvider[tradeskillID][prefix]:SetSortComparator(sortFunc, true, false)
                                 end
-                                if not treeviewNodes[prefix][enchantLocation] then
-                                    treeviewNodes[prefix][enchantLocation] = treeviewNodes[prefix]:Insert({
+                                if not self.tradeskillDataProvider[tradeskillID][prefix][enchantLocation] then
+                                    self.tradeskillDataProvider[tradeskillID][prefix][enchantLocation] = self.tradeskillDataProvider[tradeskillID][prefix]:Insert({
                                         label = enchantLocation,
                                         atlas = "common-icon-forwardarrow",
                                         backgroundAtlas = "OBJBonusBar-Top",
@@ -684,18 +702,23 @@ function GuildbookTradskillsMixin:LoadTradeskill(tadeskillName, tradeskillID, ar
                                         end,
                                     })
     
-                                    treeviewNodes[prefix][enchantLocation]:SetSortComparator(sortFunc, true, false)
+                                    self.tradeskillDataProvider[tradeskillID][prefix][enchantLocation]:SetSortComparator(sortFunc, true, false)
+                                    self.tradeskillDataProvider[tradeskillID][prefix][enchantLocation]:ToggleCollapsed()
                                 end
     
                                 if not spellsAdded[spellID] then
     
                                     local label = spellName;
                                     if spellName:find("-", nil, true) then
-                                        local _, _label = strsplit("-", spellName)
-                                        label = _label:sub(2, #_label)
+                                        local _, _label, bonus = strsplit("-", spellName)
+                                        if type(bonus) == "string" then
+                                            label = bonus:sub(2, #bonus)
+                                        else
+                                            label = _label:sub(2, #_label)
+                                        end
                                     end
     
-                                    treeviewNodes[prefix][enchantLocation]:Insert({
+                                    self.tradeskillDataProvider[tradeskillID][prefix][enchantLocation]:Insert({
                                         --sort data
                                         name = spellName,
                                         quality = 1,
@@ -720,7 +743,7 @@ function GuildbookTradskillsMixin:LoadTradeskill(tadeskillName, tradeskillID, ar
                                         end,
                                     })
     
-                                    treeviewNodes[prefix][enchantLocation]:Sort()
+                                    self.tradeskillDataProvider[tradeskillID][prefix][enchantLocation]:Sort()
     
                                     spellsAdded[spellID] = true;
                             
@@ -729,8 +752,8 @@ function GuildbookTradskillsMixin:LoadTradeskill(tadeskillName, tradeskillID, ar
                             else
 
 
-                                if not treeviewNodes[tadeskillName] then
-                                    treeviewNodes[tadeskillName] = self.listview.DataProvider:Insert({
+                                if not self.tradeskillDataProvider[tradeskillID][tadeskillName] then
+                                    self.tradeskillDataProvider[tradeskillID][tadeskillName] = self.listview.DataProvider:Insert({
                                         label = tadeskillName,
                                         atlas = "common-icon-forwardarrow",
                                         backgroundAtlas = "OBJBonusBar-Top",
@@ -747,13 +770,13 @@ function GuildbookTradskillsMixin:LoadTradeskill(tadeskillName, tradeskillID, ar
                                         end,
                                     })
 
-                                    treeviewNodes[tadeskillName]:SetSortComparator(sortFunc, true, false)
+                                    self.tradeskillDataProvider[tradeskillID][tadeskillName]:SetSortComparator(sortFunc, true, false)
     
                                 end
 
                                 if not spellsAdded[spellID] then
                                         
-                                    treeviewNodes[tadeskillName]:Insert({
+                                    self.tradeskillDataProvider[tradeskillID][tadeskillName]:Insert({
                                         --sort data
                                         name = spellName,
                                         quality = 1,
@@ -778,7 +801,7 @@ function GuildbookTradskillsMixin:LoadTradeskill(tadeskillName, tradeskillID, ar
                                         end,
                                     })
 
-                                    treeviewNodes[tadeskillName]:Sort()
+                                    self.tradeskillDataProvider[tradeskillID][tadeskillName]:Sort()
 
                                     spellsAdded[spellID] = true;
                                 end
@@ -793,8 +816,11 @@ function GuildbookTradskillsMixin:LoadTradeskill(tadeskillName, tradeskillID, ar
 
             end
 
-
             index = index + 1;
+
+            if index >= numItems then
+                self.tradeskillDropdown:EnableMouse(true)
+            end
 
         end
 
