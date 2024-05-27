@@ -167,21 +167,26 @@ function GuildbookInstancesMixin:OnLoad()
         self.itemSubTypeFilterDropdown:SetText("Sub Type")
     end
 
+    
     local function setItemSetClassMenu()
+        local classesAdded = {}
         local t = {}
-        for i = 1, 12 do
-            local class, _, classID = GetClassInfo(i)
-            if class and classID then
+        for i = 1, 11 do
+            local class, classString, classID = GetClassInfo(i)
+            if class and classID and not classesAdded[class] then
                 table.insert(t, {
-                    text = class,
+                    text = RAID_CLASS_COLORS[classString]:WrapTextInColorCode(class),
                     func = function()
                         self:LoadItemSetsData(classID)
                     end
                 })
+                classesAdded[class] = true
             end
         end
         self.itemTypeFilterDropdown:SetMenu(t)
+        classesAdded = nil
     end
+    
 
     self.sourceSelectionDropdown:SetMenu({
         {
@@ -868,7 +873,7 @@ function GuildbookInstancesMixin:LoadFactionItems()
             if treeviewNodes[info[3]] and not treeviewNodes[info[3]][info[2]] then
                 
                 treeviewNodes[info[3]][info[2]] = treeviewNodes[info[3]]:Insert({
-                    label = _G["FACTION_STANDING_LABEL"..info[2]],
+                    label = _G["FACTION_STANDING_LABEL"..info[2]+1],
                     atlas = "common-icon-forwardarrow",
                     backgroundAtlas = "OBJBonusBar-Top",
                     fontObject = GameFontNormal,

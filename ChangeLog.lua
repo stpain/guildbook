@@ -21,6 +21,11 @@ local name, addon = ...;
 
 addon.changeLog = {
     {
+        version = "7.11",
+        notes = "Minor fix to faction rep labels showing 1 below.\n\nRemoved duplicate Druid option from Item Sets class dropdown.",
+        icon = "ClassHall-QuestIcon-Desaturated",
+    },
+    {
         version = "7.1",
         notes = "Tradeskills fixed!\n\nNew feature! Item lists. You can browse item sets, dungeon, raid and faction items and build item lists for your characters.\nOn first use the addon will need to load the item data, once complete you can browse anytime. To start, enter a name for the list and then browse the items and drag them over.\nYou can also add items from the new tradeskill UI, click the green + button to see your lists.\nIf an item drops you'll get a notification its on a list.\n\nA checkbox was added the roster view to show your alts (the alts view will receive updates next).",
         icon = "ShipMissionIcon-Combat-Mission",
