@@ -21,6 +21,11 @@ local name, addon = ...;
 
 addon.changeLog = {
     {
+        version = "7.12",
+        notes = "Minor fix to character ilvl, updated to the new api from Blizzard for Cata (and retail).\n\nAdded a check on money changed to keep alts data correct",
+        icon = "ClassHall-QuestIcon-Desaturated",
+    },
+    {
         version = "7.11",
         notes = "Minor fix to faction rep labels showing 1 below.\n\nRemoved duplicate Druid option from Item Sets class dropdown.",
         icon = "ClassHall-QuestIcon-Desaturated",

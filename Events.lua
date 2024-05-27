@@ -12,6 +12,7 @@ e:RegisterEvent('GUILD_ROSTER_UPDATE')
 e:RegisterEvent('GUILD_RANKS_UPDATE')
 e:RegisterEvent('ADDON_LOADED')
 e:RegisterEvent('PLAYER_ENTERING_WORLD')
+e:RegisterEvent('PLAYER_MONEY')
 --e:RegisterEvent('PLAYER_LEVEL_UP')
 e:RegisterEvent('TRADE_SKILL_UPDATE')
 e:RegisterEvent('TRADE_SKILL_SHOW')
@@ -47,6 +48,18 @@ e:SetScript("OnEvent", function(self, event, ...)
         self[event](self, ...)
     end
 end)
+
+function e:PLAYER_MONEY()
+    local money = GetMoney()
+    if addon.characters and addon.characters[addon.thisCharacter] then
+
+        --probs dont need to get full bags update
+        --local bags = addon.api.scanPlayerContainers()
+
+        --as this is only for the player to know just update the field directly
+        addon.characters[addon.thisCharacter].data.containers.copper = money;
+    end
+end
 
 function e:CHAT_MSG_LOOT(...)
     local msg = ...;

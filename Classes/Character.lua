@@ -613,21 +613,26 @@ function Character:GetItemLevel(set)
             if slot ~= "TABARDSLOT" then
                 if type(link) == "string" then
                     --print(link)
-                    local n, l, q, ilvl = GetItemInfo(link)
+                    --local n, l, q, ilvl = GetItemInfo(link)
+                    local actualItemLevel, previewLevel, sparseItemLevel = C_Item.GetDetailedItemLevelInfo(link)
+                    --print(actualItemLevel, previewLevel, sparseItemLevel, link)
                     --print(ilvl)
-                    if ilvl then
+                    if type(actualItemLevel) == "number" then
                         numItems = numItems + 1;
-                        totalItemlevel = totalItemlevel + ilvl;
+                        totalItemlevel = totalItemlevel + actualItemLevel;
 
                     end
                 end
             end
         end
 
-        return totalItemlevel, numItems;
-
+        if numItems > 0 then
+            return (totalItemlevel/numItems)
+        else
+            return 1;
+        end
     else
-        return 1, 1;
+        return 1;
     end
 end
 

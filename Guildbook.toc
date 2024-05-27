@@ -1,6 +1,6 @@
 ## Interface: 40400
 ## Author: TheBoringDad
-## Version: 7.11
+## Version: 7.12
 ## Title: Guildbook
 ## Notes: An addon for guilds
 ## SavedVariables: GUILDBOOK_GLOBAL

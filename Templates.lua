@@ -980,13 +980,13 @@ function GuildbookRosterListviewItemMixin:Update()
 
     self.prof2.icon:SetAtlas(self.character:GetTradeskillIcon(2))
 
-    local totalItemlevel, numItems = self.character:GetItemLevel()
-    self.ilvl:SetText(string.format("ilvl: %0.2f", (totalItemlevel / numItems) or 0))
+    local ilvl = self.character:GetItemLevel()
+    self.ilvl:SetText(string.format("ilvl: %0.2f", ilvl or 0))
 
     self.ilvlData = {}
     for name, _ in pairs(self.character.data.inventory) do
-        local totalItemlevel, numItems = self.character:GetItemLevel(name)
-        self.ilvlData[name] = (totalItemlevel / numItems)
+        local ilvl = self.character:GetItemLevel(name)
+        self.ilvlData[name] = ilvl
     end
     self.ilvl:SetScript("OnLeave", function()
         GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
