@@ -55,7 +55,7 @@
                 </KeyValues>
             </Frame>
 
-            <Frame parentKey="details" inherits="InsetFrameTemplate">
+            <Frame parentKey="welcomePanel" inherits="InsetFrameTemplate">
                 <Anchors>
                     <Anchor point="TOPLEFT" x="270" y="-40"/>
                     <Anchor point="BOTTOMRIGHT" x="-4" y="4"/>
@@ -63,7 +63,34 @@
 
                 <Layers>
                     <Layer level="BACKGROUND">
-                        <Texture parentKey="background" file="Interface\AddOns\Guildbook\Media\Tradeskills\ProfessionBackgroundArtAlchemy.png">
+                        <Texture parentKey="background" file="Interface\AddOns\Guildbook\Media\Tradeskills\ProfessionBackgroundArt.png">
+                            <TexCoords left="0" right="0.6601" top="0" bottom="0.5361"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="0" y="0"/>
+                                <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                    <Layer level="OVERLAY">
+                        <FontString parentKey="welcomeText" inherits="GameFontNormalLarge" justifyH="CENTER" justifyV="MIDDLE" text="Select a profession from the dropdown to view recipes and more.">
+                            <Size x="200" y="100"/>
+                            <Anchors>
+                                <Anchor point="CENTER" x="0" y="0"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+            </Frame>
+
+            <Frame parentKey="details" inherits="InsetFrameTemplate" hidden="true">
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="270" y="-40"/>
+                    <Anchor point="BOTTOMRIGHT" x="-4" y="4"/>
+                </Anchors>
+
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="background" file="Interface\AddOns\Guildbook\Media\Tradeskills\ProfessionBackgroundArt.png">
                             <TexCoords left="0" right="0.6601" top="0" bottom="0.5361"/>
                             <Anchors>
                                 <Anchor point="TOPLEFT" x="0" y="0"/>
@@ -149,6 +176,11 @@
                         </Anchors>
 
                         <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture setAllPoints="true">
+                                    <Color r="0" g="0" b="0" a="0.15"/>
+                                </Texture>
+                            </Layer>
                             <Layer level="OVERLAY">
                                 <FontString inherits="GameFontNormalSmall" text="Auctionator data:">
                                     <Anchors>
@@ -178,6 +210,15 @@
                                 </FontString>
                             </Layer>
                         </Layers>
+
+                        <Frames>
+                            <Button parentKey="searchAH" inherits="UIPanelButtonTemplate" text="SEARCH">
+                                <Size x="100" y="22"/>
+                                <Anchors>
+                                    <Anchor point="TOPRIGHT" x="0" y="0"/>
+                                </Anchors>
+                            </Button>
+                        </Frames>
                     </Frame>
 
                     <Frame parentKey="reagents" inherits="TBDListviewTemplate">

@@ -314,9 +314,6 @@ Tradeskills.enchanterSpellNameToSpellID = {}
 function Tradeskills.BuildEnchanterNameToSpellID()
     local spells = getTradeskillSpellIDs(333)
     for k, spellID in ipairs(spells) do
-		if spellID == 20013 then
-			print("got encant")
-		end
         local spell = Spell:CreateFromSpellID(spellID)
         if not spell:IsSpellEmpty() then
             spell:ContinueOnSpellLoad(function()

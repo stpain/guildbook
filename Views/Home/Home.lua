@@ -32,6 +32,7 @@ local gmotdNineSliceLayout =
 GuildbookHomeMixin = {
     name = "Home",
     censusShowOffline = false,
+    censusShowMaxLevelOnly = false,
 }
 
 function GuildbookHomeMixin:OnLoad()
@@ -47,6 +48,14 @@ function GuildbookHomeMixin:OnLoad()
     self.census.toggleOffline:SetScript("OnClick", function(cb)
         self.censusShowOffline = not self.censusShowOffline;
         cb:SetChecked(self.censusShowOffline)
+        self:UpdateCensus()
+    end)
+
+    self.census.maxLevel:SetChecked(self.censusShowOffline)
+    self.census.maxLevel.label:SetText("Max level only.")
+    self.census.maxLevel:SetScript("OnClick", function(cb)
+        self.censusShowMaxLevelOnly = not self.censusShowMaxLevelOnly;
+        cb:SetChecked(self.censusShowMaxLevelOnly)
         self:UpdateCensus()
     end)
 
@@ -107,18 +116,28 @@ function GuildbookHomeMixin:UpdateCensus()
         local numTotalGuildMembers, numOnlineGuildMembers, numOnlineAndMobileMembers = GetNumGuildMembers()
         self.census.info:SetText(string.format("%d total (%d online)", numTotalGuildMembers, numOnlineGuildMembers))
         for _, info in pairs(addon.characters) do
-            if self.censusShowOffline then
-                if not classes[info.data.class] then
-                    classes[info.data.class] = 1
+            local useCharacter = true
+            if self.censusShowMaxLevelOnly then
+                if (info.data.level == 85) then
+                    useCharacter = true
                 else
-                    classes[info.data.class] = classes[info.data.class] + 1
+                    useCharacter = false
                 end
-            else
-                if info.data.onlineStatus.isOnline then
+            end
+            if useCharacter then
+                if self.censusShowOffline then
                     if not classes[info.data.class] then
                         classes[info.data.class] = 1
                     else
                         classes[info.data.class] = classes[info.data.class] + 1
+                    end
+                else
+                    if info.data.onlineStatus.isOnline then
+                        if not classes[info.data.class] then
+                            classes[info.data.class] = 1
+                        else
+                            classes[info.data.class] = classes[info.data.class] + 1
+                        end
                     end
                 end
             end
@@ -177,9 +196,9 @@ function GuildbookHomeMixin:UpdateCensus()
                 self.census.bars[k]:SetMinMaxValues(0, maxCount)
                 self.census.bars[k]:SetValue(class.count)
                 --self.census.bars[k]:SetSize((censusWidth - 22) - barHeight, barHeight - 1)
-                self.census.bars[k]:SetSize(barWidth - 1, censusHeight - barWidth - 43)
+                self.census.bars[k]:SetSize(barWidth - 1, censusHeight - barWidth - 69)
                 --self.census.bars[k]:SetPoint("BOTTOMLEFT", self.census, "BOTTOMLEFT", 11 + barHeight, ((k-1) * barHeight) + 11)
-                self.census.bars[k]:SetPoint("BOTTOMLEFT", self.census, "BOTTOMLEFT", ((k-1) * barWidth) + 11, 32 + barWidth)
+                self.census.bars[k]:SetPoint("BOTTOMLEFT", self.census, "BOTTOMLEFT", ((k-1) * barWidth) + 11, 58 + barWidth)
                 --self.census.bars[k].icon:SetWidth(barHeight)
                 self.census.bars[k].icon:SetHeight(barWidth)
                 self.census.bars[k].icon:SetAtlas(string.format("classicon-%s", engClass):lower())

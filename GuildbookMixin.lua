@@ -467,13 +467,13 @@ function GuildbookMixin:Blizzard_OnInitialGuildRosterScan(guildName)
     end)
 
 
-    C_Timer.After(5.0, function()
+    -- C_Timer.After(5.0, function()
         
-        if addon.characters[addon.thisCharacter] then
-            if not addon.characters[addon.thisCharacter].data.mainSpec then
-                StaticPopup_Show("GuildbookReminder", "Guildbook\n\nYou have no main spec set, go to Guildbook > Settings > Character.", nil, { character = addon.characters[addon.thisCharacter], })            end
-        end
-    end)
+    --     if addon.characters[addon.thisCharacter] then
+    --         if not addon.characters[addon.thisCharacter].data.mainSpec then
+    --             StaticPopup_Show("GuildbookReminder", "Guildbook\n\nYou have no main spec set, go to Guildbook > Settings > Character.", nil, { character = addon.characters[addon.thisCharacter], })            end
+    --     end
+    -- end)
 end
 
 function GuildbookMixin:Database_OnInitialised()

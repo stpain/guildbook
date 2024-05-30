@@ -34,7 +34,7 @@ function GuildbookTradskillsMixin:OnLoad()
     local menu = {}
     for name, id in pairs(tradeskillIDs) do
         table.insert(menu, {
-            text = name,
+            text = Tradeskills:GetLocaleNameFromID(id),
             func = function()
                 self:LoadTradeskill(name, id, (artworkFilePath..name..".png"))
             end,
@@ -117,6 +117,9 @@ local wowheadCataSpellURL = "https://www.wowhead.com/cata/spell=%d"
 local wowheadCataItemURL = "https://www.wowhead.com/cata/item=%d"
 
 function GuildbookTradskillsMixin:SetRecipe(recipe)
+
+    self.welcomePanel:Hide()
+    self.details:Show()
 
     local rgb = ITEM_QUALITY_COLORS[recipe.quality]
     
@@ -253,8 +256,12 @@ function GuildbookTradskillsMixin:SetRecipe(recipe)
         
         
                     end,
+
+                    --for AH search
+                    auctionHouseSearchTerm = item:GetItemName(),
                 })
 
+                --this should be doen after all items cached but with a max of 8 reagents its probably nto too bad
                 self.details.reagents.scrollView:SetDataProvider(CreateDataProvider(reagents))
                 self.details.reagents.scrollView:GetDataProvider():SetSortComparator(reagentSortFunc)
                 self.details.reagents.scrollView:GetDataProvider():Sort()
@@ -262,9 +269,18 @@ function GuildbookTradskillsMixin:SetRecipe(recipe)
         end
     end
 
-
+--searchAH
 
     if Auctionator then
+
+        self.details.auctionatorInfo.searchAH:SetScript("OnClick", function()
+            local t = {}
+            for k, item in ipairs(reagents) do
+                table.insert(t, item.auctionHouseSearchTerm)
+            end
+
+            Auctionator.API.v1.MultiSearch(addonName, t)
+        end)
 
         local baseCost = 0;
         local currentCost = 0;
@@ -528,7 +544,7 @@ function GuildbookTradskillsMixin:LoadTradeskill(tadeskillName, tradeskillID, ar
                                 fontObject = GameFontNormal,
                                 isParent = true,
                                 init = function(f)
-                                    f.icon:SetTexCoord(0,1, 1,1, 0,0, 1,0)
+                                    --f.icon:SetTexCoord(0,1, 1,1, 0,0, 1,0)
                     
                                     if f:GetElementData():IsCollapsed() then
                                         f.icon:SetTexCoord(0,1,0,1)
@@ -552,7 +568,7 @@ function GuildbookTradskillsMixin:LoadTradeskill(tadeskillName, tradeskillID, ar
                                     fontObject = GameFontNormal,
                                     isParent = true,
                                     init = function(f)
-                                        f.icon:SetTexCoord(0,1, 1,1, 0,0, 1,0)
+                                        --f.icon:SetTexCoord(0,1, 1,1, 0,0, 1,0)
                         
                                         if f:GetElementData():IsCollapsed() then
                                             f.icon:SetTexCoord(0,1,0,1)
@@ -692,7 +708,7 @@ function GuildbookTradskillsMixin:LoadTradeskill(tadeskillName, tradeskillID, ar
                                         fontObject = GameFontNormal,
                                         isParent = true,
                                         init = function(f)
-                                            f.icon:SetTexCoord(0,1, 1,1, 0,0, 1,0)
+                                            --f.icon:SetTexCoord(0,1, 1,1, 0,0, 1,0)
                             
                                             if f:GetElementData():IsCollapsed() then
                                                 f.icon:SetTexCoord(0,1,0,1)

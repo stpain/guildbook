@@ -45,12 +45,17 @@
             </Frame>
 
             <Frame parentKey="census">
-                <Size x="160" y="160"/>
+                <Size x="160" y="190"/>
                 <Anchors>
                     <Anchor point="TOPLEFT" relativeKey="$parent.agenda" relativePoint="TOPRIGHT" x="20" y="0"/>
                 </Anchors>
                 <Frames>
                     <CheckButton parentKey="toggleOffline" inherits="GuildbookWrathEraWidgetsCheckButton">
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT" x="11" y="30"/>
+                        </Anchors>
+                    </CheckButton>
+                    <CheckButton parentKey="maxLevel" inherits="GuildbookWrathEraWidgetsCheckButton">
                         <Anchors>
                             <Anchor point="BOTTOMLEFT" x="11" y="10"/>
                         </Anchors>
