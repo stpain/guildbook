@@ -11,12 +11,21 @@
                     </Anchors>
                 </Texture>
             </Layer>
+            <Layer levl="OVERLAY">
+                <FontString parentKey="welcomeText" inherits="GameFontNormalSmall" justifyH="CENTER" justifyV="MIDDLE" text="When viewing your own professions, Guildbook will open and scan recipe indexes. This is used by the game API to create items.">
+                    <Size y="40"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="285" y="0"/>
+                        <Anchor point="TOPRIGHT" x="-240" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
         </Layers>
         
         <Frames>
 
             <StatusBar parentKey="statusBar" inherits="" orientation="HORIZONTAL" defaultValue="0" minValue="0" maxValue="1">
-                <Size x="200" y="36"/>
+                <Size x="120" y="36"/>
                 <Anchors>
                     <Anchor point="TOPRIGHT" x="0" y="0"/>
                 </Anchors>
@@ -33,6 +42,14 @@
                         </FontString>
                     </Layer>
                 </Layers>
+                <Animations>
+                    <AnimationGroup parentKey="fadeOut" setToFinalAlpha="true">
+                        <Alpha duration="0.625" fromAlpha="1" toAlpha="0"/>
+                    </AnimationGroup>
+                    <AnimationGroup parentKey="fadeIn" setToFinalAlpha="true">
+                        <Alpha duration="0.05" fromAlpha="0" toAlpha="1"/>
+                    </AnimationGroup>
+                </Animations>
             </StatusBar>
 
             <Button parentKey="tradeskillDropdown" inherits="TbdDropdownTemplate">
@@ -40,6 +57,20 @@
                 <Anchors>
                     <Anchor point="TOPLEFT" x="0" y="0"/>
                 </Anchors>
+            </Button>
+
+            <Button parentKey="prof1" inherits="TBDCircleButtonTemplate">
+                <Anchors>
+                    <Anchor point="LEFT" relativeKey="$parent.tradeskillDropdown" relativePoint="RIGHT" x="6" y="-10"/>
+                </Anchors>
+                <Size x="40" y="40"/>
+            </Button>
+
+            <Button parentKey="prof2" inherits="TBDCircleButtonTemplate">
+                <Anchors>
+                    <Anchor point="LEFT" relativeKey="$parent.prof1" relativePoint="RIGHT" x="2" y="0"/>
+                </Anchors>
+                <Size x="40" y="40"/>
             </Button>
 
             <Frame parentKey="listview" inherits="TBDTreeviewTemplate,InsetFrameTemplate">
@@ -113,7 +144,7 @@
 
                     <Button parentKey="itemButton" inherits="TBDCircleButtonTemplate">
                         <Anchors>
-                            <Anchor point="TOPLEFT" x="16" y="-16"/>
+                            <Anchor point="TOPLEFT" x="14" y="-14"/>
                         </Anchors>
                         <Size x="120" y="120"/>
 
@@ -171,8 +202,8 @@
                         <Size y="60"/>
 
                         <Anchors>
-                            <Anchor point="TOPLEFT" x="26" y="-142"/>
-                            <Anchor point="TOPRIGHT" x="-26" y="-142"/>
+                            <Anchor point="TOPLEFT" x="26" y="-138"/>
+                            <Anchor point="TOPRIGHT" x="-26" y="-138"/>
                         </Anchors>
 
                         <Layers>
@@ -220,11 +251,56 @@
                             </Button>
                         </Frames>
                     </Frame>
+                    <Frame parentKey="craftingOptions">
+
+                        <Size y="25"/>
+
+                        <Anchors>
+                            <Anchor point="TOPLEFT" x="26" y="-224"/>
+                            <Anchor point="TOPRIGHT" x="-26" y="-224"/>
+                        </Anchors>
+
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture setAllPoints="true">
+                                    <Color r="0" g="0" b="0" a="0.15"/>
+                                </Texture>
+                            </Layer>
+                            <Layer level="OVERLAY">
+                                <FontString inherits="GameFontNormalSmall" text="Crafting options:">
+                                    <Anchors>
+                                        <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="0" y="4"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="label" inherits="GameFontWhite" justifyH="LEFT" text="Number to create:">
+                                    <Size y="20"/>
+                                    <Anchors>
+                                        <Anchor point="LEFT" x="8" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                        <Frames>
+                            <Slider parentKey="quantityToCraft" inherits="TBDSliderLeftLabel" defaultValue="1">
+                                <Size x="140" y="10"/>
+                                <Anchors>
+                                    <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.label" x="60" y="0"/>
+                                </Anchors>
+                            </Slider>
+        
+                            <Button parentKey="doTradeSkill" inherits="UIPanelButtonTemplate" text="CREATE">
+                                <Size x="100" y="22"/>
+                                <Anchors>
+                                    <Anchor point="RIGHT" x="0" y="0"/>
+                                </Anchors>
+                            </Button>
+                        </Frames>
+                    </Frame>
 
                     <Frame parentKey="reagents" inherits="TBDListviewTemplate">
                         <Size x="210"/>
                         <Anchors>
-                            <Anchor point="TOPLEFT" x="26" y="-240"/>
+                            <Anchor point="TOPLEFT" x="26" y="-284"/>
                             <Anchor point="BOTTOMLEFT" x="26" y="36"/>
                         </Anchors>
                         <KeyValues>
@@ -259,10 +335,10 @@
                     </Frame>
 
                     <Frame parentKey="crafters" inherits="TBDListviewTemplate">
-                        <Size x="200"/>
+                        <Size x="180"/>
                         <Anchors>
-                            <Anchor point="TOPRIGHT" x="-28" y="-244"/>
-                            <Anchor point="BOTTOMRIGHT" x="-28" y="38"/>
+                            <Anchor point="TOPRIGHT" x="-28" y="-288"/>
+                            <Anchor point="BOTTOMRIGHT" x="-28" y="28"/>
                         </Anchors>
                         <Layers>
                             <Layer level="OVERLAY">
@@ -271,9 +347,14 @@
                                         <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="0" y="8"/>
                                     </Anchors>
                                 </FontString>
+                                <FontString inherits="GameFontNormalSmall" text="Online" justifyH="RIGHT">
+                                    <Anchors>
+                                        <Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT" x="0" y="8"/>
+                                    </Anchors>
+                                </FontString>
 
                                 <Texture parentKey="bgTop" file="Interface\AddOns\Guildbook\Media\Tradeskills\Professions.png">
-                                    <Size y="80"/>
+                                    <Size y="62"/>
                                     <Anchors>
                                         <Anchor point="TOPLEFT" y="8"/>
                                         <Anchor point="TOPRIGHT" y="8"/>
@@ -281,7 +362,7 @@
                                     <TexCoords left="0.14599609375" right="0.27294921875" top="0.734375" bottom="0.83203125"/>
                                 </Texture>
                                 <Texture parentKey="bgBottom" file="Interface\AddOns\Guildbook\Media\Tradeskills\Professions.png">
-                                    <Size y="80"/>
+                                    <Size y="62"/>
                                     <Anchors>
                                         <Anchor point="BOTTOMLEFT" y="-8"/>
                                         <Anchor point="BOTTOMRIGHT" y="-8"/>
@@ -321,7 +402,7 @@
                                 </FontString>
 
                                 <Texture parentKey="bgTop" file="Interface\AddOns\Guildbook\Media\Tradeskills\Professions.png">
-                                    <Size y="80"/>
+                                    <Size y="62"/>
                                     <Anchors>
                                         <Anchor point="TOPLEFT" y="8"/>
                                         <Anchor point="TOPRIGHT" y="8"/>
@@ -329,7 +410,7 @@
                                     <TexCoords left="0.14599609375" right="0.27294921875" top="0.734375" bottom="0.83203125"/>
                                 </Texture>
                                 <Texture parentKey="bgBottom" file="Interface\AddOns\Guildbook\Media\Tradeskills\Professions.png">
-                                    <Size y="80"/>
+                                    <Size y="62"/>
                                     <Anchors>
                                         <Anchor point="BOTTOMLEFT" y="-8"/>
                                         <Anchor point="BOTTOMRIGHT" y="-8"/>
@@ -353,6 +434,7 @@
                             <!-- <KeyValue key="enableSelection" value="true" type="boolean"/> -->
                         </KeyValues>
                     </Frame>
+
 
                 </Frames>
             </Frame>

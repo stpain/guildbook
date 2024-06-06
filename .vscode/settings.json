@@ -139,6 +139,8 @@
         "ITEM_LEVEL",
         "LOOT_ROLL_STARTED",
         "show",
-        "UIErrorsFrame"
+        "UIErrorsFrame",
+        "DULL_RED_FONT_COLOR",
+        "ChatFrame_RemoveMessageEventFilter"
     ]
 }

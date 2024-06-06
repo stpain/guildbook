@@ -73,7 +73,7 @@
                 </Layers>
             </Frame>
 
-            <Frame parentKey="news">
+            <Frame parentKey="challenges">
                 <Size x="160" y="160"/>
                 <Anchors>
                     <Anchor point="TOPLEFT" relativeKey="$parent.census" relativePoint="BOTTOMLEFT" x="0" y="-20"/>
@@ -82,7 +82,7 @@
                 </Anchors>
                 <Layers>
                     <Layer level="OVERLAY">
-                        <FontString parentKey="header" inherits="GameFontNormal" justifyV="BOTTOM" text="News">
+                        <FontString parentKey="header" inherits="GameFontNormal" justifyV="BOTTOM" text="GUILD_FRAME_CHALLENGES">
                             <Anchors>
                                 <Anchor point="TOPLEFT" x="0" y="-10"/>
                                 <Anchor point="TOPRIGHT" x="0" y="-10"/>
@@ -98,7 +98,7 @@
                             <Anchor point="BOTTOMRIGHT" x="-11" y="10"/>
                         </Anchors>
                         <KeyValues>
-                            <KeyValue key="itemTemplate" value="GuildbookWrathEraSimpleIconLabelFrame" type="string"/>
+                            <KeyValue key="itemTemplate" value="TBDSimpleIconLabelFrame" type="string"/>
                             <KeyValue key="elementHeight" value="26" type="number"/>
                         </KeyValues>
                     </Frame>

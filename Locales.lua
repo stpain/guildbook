@@ -85,6 +85,8 @@ local L = {
 
 	--chat
 	CHAT = "Chat",
+	SETTINGS_CHAT_SHOW_MAIN = "Show main character in guild chat",
+	SETTINGS_CHAT_SHOW_MAIN_SPEC = "Add main character spec icon in guild chat",
 	SETTINGS_CHAT_GENERAL = "Set the limits for your message history. Larger limits may cause issues on busy accounts.",
 
 	--addon

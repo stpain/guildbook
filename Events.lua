@@ -925,7 +925,7 @@ local function scanTradeskills()
                             --addon.LogDebugMessage("tradeskills", string.format("Found itemID [%d] for %s", id, itemLink))
         
                             --cata
-                            local recipeSpellID = Tradeskills.GetRecipeSpellIDFromItemID(id)
+                            local recipeSpellID = Tradeskills:GetRecipeSpellIDFromItemID(id)
                             if recipeSpellID then
                                 table.insert(recipes, recipeSpellID)
                                 --addon.LogDebugMessage("tradeskills", string.format("Added recipeSpellID [%d] for %s", recipeSpellID, itemLink))
@@ -1162,39 +1162,6 @@ function e:Database_OnInitialised()
         end
     end)
 
-    local function myChatFilter(self, event, msg, author, ...)
-        -- if msg:find("buy gold") then
-        --   return true
-        -- end
-        -- if author == "Knownspammer" then
-        --   return true
-        -- end
-        -- if msg:find("lol") then
-        --   return false, gsub(msg, "lol", ""), author, ...
-        -- end
-
-        if (author ~= addon.thisCharacter) and addon.characters[author] then
-            local mainCharacter = addon.characters[author]:GetMainCharacter()
-            if mainCharacter then
-
-                if addon.characters[mainCharacter] then
-                    local _, class = GetClassInfo(addon.characters[mainCharacter].data.class)
-                    if class then
-                        return false, string.format("[%s] %s", RAID_CLASS_COLORS[class]:WrapTextInColorCode(Ambiguate(mainCharacter, "short")), msg), author, ...
-                    else
-                        return false, string.format("[%s] %s", Ambiguate(mainCharacter, "short"), msg), author, ...
-                    end
-                end
-            end
-
-        else
-            return false, msg, author, ...
-        end
-
-
-      end
-
-    ChatFrame_AddMessageEventFilter("CHAT_MSG_GUILD", myChatFilter)
 
     -- hooksecurefunc("GroupLootFrame_OnShow", function(f)
     --     local texture, name, count, quality, bindOnPickUp, canNeed, canGreed, canDisenchant, reasonNeed, reasonGreed, reasonDisenchant, deSkillRequired, canTransmog = GetLootRollItemInfo(f.rollID);

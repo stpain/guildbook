@@ -21,6 +21,11 @@ local name, addon = ...;
 
 addon.changeLog = {
     {
+        version = "7.2",
+        notes = "Added option to show main character in guild chat, go to Settings > Chat to enable/disable.\n\nAdded some QoL features to the tradeskills view including being able to craft directly from the recipe details.\n\nAdded ability to delete daily quests via the quest header/section, this will remove all quests under that header for all characters.\n\nAdded guild challenges info the home view. Also added optional filters for the class chart.\n\nAdded the default shift and ctrl key press combos to various item links in various UIs.",
+        icon = "ClassHall-QuestIcon-Desaturated",
+    },
+    {
         version = "7.12",
         notes = "Minor fix to character ilvl, updated to the new api from Blizzard for Cata (and retail).\n\nAdded a check on money changed to keep alts data correct",
         icon = "ClassHall-QuestIcon-Desaturated",

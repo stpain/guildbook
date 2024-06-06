@@ -276,7 +276,7 @@ function GuildbookWrathDailiesListviewItemMixin:SetDataBinding(binding, height)
 
     self:SetScript("OnMouseDown", function(f, button)
         if button == "RightButton" then
-            if self.daily then
+            if self.daily and self.daily.quest and self.daily.quest.questId then
                 StaticPopup_Show("GuildbookDeleteGeneric", self.daily.quest.title, nil, {
                     callback = function()
                         Database:DeleteDailyQuest(self.daily.quest.questId)
@@ -286,13 +286,46 @@ function GuildbookWrathDailiesListviewItemMixin:SetDataBinding(binding, height)
         end
     end)
 
+
     self:SetScript("OnLeave", function()
         GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
     end)
 
     --if this is a header line just set text
     if self.daily.isHeader then
-        self:EnableMouse(false)
+
+        self.favoriteHeaderAll:Show()
+        self.favoriteHeaderAll:SetScript("OnClick", function()
+            --Database.db.dailies.characters[selectedCharacter]
+            for questID, info in pairs(Database.db.dailies.quests) do
+                if info.header and (info.header == self.daily.header) then
+                    Database.db.dailies.characters[selectedCharacter][questID].isFavorite = not Database.db.dailies.characters[selectedCharacter][questID].isFavorite
+                end
+            end
+            addon:TriggerEvent("Database_OnDailyQuestDeleted")
+        end)
+
+        --self:EnableMouse(false)
+        self.deleteHeaderAll:Show()
+        self.deleteHeaderAll:SetScript("OnClick", function()
+            if self.daily.isHeader then
+                StaticPopup_Show("GuildbookDeleteGeneric", string.format("%s %s", ALL, self.daily.header), nil, {
+                    callback = function()
+                        local questIDsToDelete = {}
+                        for questID, info in pairs(Database.db.dailies.quests) do
+                            if info.header and (info.header == self.daily.header) then
+                                table.insert(questIDsToDelete, questID)
+                            end
+                        end
+                        for k, questID in ipairs(questIDsToDelete) do
+                            Database.db.dailies.quests[questID] = nil
+                        end
+                        addon:TriggerEvent("Database_OnDailyQuestDeleted")
+                    end,
+                })
+            end
+        end)
+
         self.completed:Hide()
         self.header:Show()
         self.header:SetText(self.daily.header)
@@ -301,6 +334,8 @@ function GuildbookWrathDailiesListviewItemMixin:SetDataBinding(binding, height)
 
     --if this is a quest do fancy stuff
     else
+        self.favoriteHeaderAll:Hide()
+        self.deleteHeaderAll:Hide()
 
         if type(self.daily.characterQuestInfo) == "table" then
             local atlas = self.daily.characterQuestInfo.isFavorite == true and "auctionhouse-icon-favorite" or "auctionhouse-icon-favorite-off";
@@ -357,9 +392,11 @@ function GuildbookWrathDailiesListviewItemMixin:Database_OnDailyQuestCompleted(q
 end
 
 function GuildbookWrathDailiesListviewItemMixin:OnEnter()
-    GameTooltip:SetOwner(self, "ANCHOR_LEFT")
-    GameTooltip:SetHyperlink(self.daily.quest.link)
-    GameTooltip:Show()
+    if self.daily and self.daily.quest and self.daily.quest.link then
+        GameTooltip:SetOwner(self, "ANCHOR_LEFT")
+        GameTooltip:SetHyperlink(self.daily.quest.link)
+        GameTooltip:Show()
+    end
 end
 
 function GuildbookWrathDailiesListviewItemMixin:ResetDataBinding()

@@ -115,6 +115,12 @@ local debugTypeIDs = {
     tradeskills = 7,
 }
 
+function addon.api.getcolourGradientFromPercent(percent)
+    local r = (percent > 50 and 1 - 2 * (percent - 50) / 100.0 or 1.0);
+    local g = (percent > 50 and 1.0 or 2 * percent / 100.0);
+    local b = 0.0;
+end
+
 function addon.LogDebugMessage(debugType, debugMessage, debugTooltip)
 
     if not addon.debugMessages then
@@ -367,7 +373,7 @@ function addon.api.cata.getProfessions()
             end
         end
     end
-    addon.LogDebugMessage("tradeskills", "function [addon.api.cata.getProfessions]", {version = -1, payload = t})
+    --addon.LogDebugMessage("tradeskills", "function [addon.api.cata.getProfessions]", {version = -1, payload = t})
     return t;
 end
 

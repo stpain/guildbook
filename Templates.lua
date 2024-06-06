@@ -1421,7 +1421,7 @@ function GuildbookAltsListviewTemplateMixin:Update()
             text = setname,
             notCheckable = true,
             func = function()
-                self.character.data.inventory[setname] = {};
+                self.character.data.inventory[setname] = nil;
                 addon:TriggerEvent("Character_OnDataChanged", self.character)
             end,
         })
@@ -2138,6 +2138,14 @@ function GuildbookChatBubbleMixin:OnLoad()
 end
 function GuildbookChatBubbleMixin:SetDataBinding(binding)
 
+    --date("%T", binding.timestamp)
+
+    local dateString = ""
+    if binding.timestamp then
+        dateString = tostring(date("%c", binding.timestamp))
+        dateString = dateString:sub(1, (#dateString - 5))
+    end
+
     if Database.db.myCharacters[binding.sender] == true or Database.db.myCharacters[binding.sender] == false then
         self.message:SetJustifyH("RIGHT")
 
@@ -2145,12 +2153,12 @@ function GuildbookChatBubbleMixin:SetDataBinding(binding)
             local _, class = GetClassInfo(Database.db.characterDirectory[binding.sender].class)
             if class then
                 local r, g, b, hex = GetClassColor(class)
-                self.message:SetText(string.format("|c%s%s|r [%s]\n%s", hex, binding.sender, date("%T", binding.timestamp), binding.message))
+                self.message:SetText(string.format("|c%s%s|r [%s]\n%s", hex, binding.sender, dateString, binding.message))
             else
-                self.message:SetText(string.format("%s [%s]\n%s", binding.sender, date("%T", binding.timestamp), binding.message))
+                self.message:SetText(string.format("%s [%s]\n%s", binding.sender, dateString, binding.message))
             end
         else
-            self.message:SetText(string.format("%s [%s]\n%s", binding.sender, date("%T", binding.timestamp), binding.message))
+            self.message:SetText(string.format("%s [%s]\n%s", binding.sender, dateString, binding.message))
         end
 
     else
@@ -2160,12 +2168,12 @@ function GuildbookChatBubbleMixin:SetDataBinding(binding)
             local _, class = GetClassInfo(Database.db.characterDirectory[binding.sender].class)
             if class then
                 local r, g, b, hex = GetClassColor(class)
-                self.message:SetText(string.format("[%s] |c%s%s|r\n%s", date("%T", binding.timestamp), hex, binding.sender, binding.message))
+                self.message:SetText(string.format("[%s] |c%s%s|r\n%s", dateString, hex, binding.sender, binding.message))
             else
-                self.message:SetText(string.format("[%s] %s\n%s", date("%T", binding.timestamp), binding.sender, binding.message))
+                self.message:SetText(string.format("[%s] %s\n%s", dateString, binding.sender, binding.message))
             end
         else
-            self.message:SetText(string.format("[%s] %s\n%s", date("%T", binding.timestamp), binding.sender, binding.message))
+            self.message:SetText(string.format("[%s] %s\n%s", dateString, binding.sender, binding.message))
         end
     end
 end

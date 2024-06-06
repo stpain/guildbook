@@ -59,7 +59,7 @@ function GuildbookHomeMixin:OnLoad()
         self:UpdateCensus()
     end)
 
-    NineSliceUtil.ApplyLayout(self.news, agendaNineSliceLayout)
+    NineSliceUtil.ApplyLayout(self.challenges, agendaNineSliceLayout)
     NineSliceUtil.ApplyLayout(self.agenda, agendaNineSliceLayout)
     NineSliceUtil.ApplyLayout(self.census, agendaNineSliceLayout)
     NineSliceUtil.ApplyLayout(self.gmotd, gmotdNineSliceLayout)
@@ -227,6 +227,8 @@ function GuildbookHomeMixin:LoadData()
 
     self:LoadAgenda()
 
+    self:LoadChallenges()
+
 end
 
 function GuildbookHomeMixin:LoadAgenda()
@@ -369,4 +371,24 @@ end
 function GuildbookHomeMixin:Character_OnNewsEvent(news)
     --DevTools_Dump(news)
     --Database:InsertNewsEevnt(news)
+end
+
+function GuildbookHomeMixin:LoadChallenges()
+    
+    RequestGuildChallengeInfo()
+
+    local dp = CreateDataProvider()
+
+    for i = 1, GetNumGuildChallenges() do
+        
+        local index, numComplete, totalComplete, x, gold = GetGuildChallengeInfo(i)
+        local text = _G["GUILD_CHALLENGE_TYPE"..i]
+
+        dp:Insert({
+            label = text,
+            labelRight = string.format("%d / %d  ", numComplete, totalComplete)
+        })
+    end
+
+    self.challenges.listview.scrollView:SetDataProvider(dp)
 end

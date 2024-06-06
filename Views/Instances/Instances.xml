@@ -16,7 +16,7 @@
         <Frames>
 
             <StatusBar parentKey="statusBar" inherits="" orientation="HORIZONTAL" defaultValue="0" minValue="0" maxValue="1">
-                <Size x="200" y="36"/>
+                <Size x="120" y="36"/>
                 <Anchors>
                     <Anchor point="TOPRIGHT" x="0" y="0"/>
                 </Anchors>

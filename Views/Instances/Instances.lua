@@ -251,7 +251,7 @@ end
 
 function GuildbookInstancesMixin:Tradeskill_OnItemAddedToList(itemID, list)
     self:AddItemToList(itemID, list)
-    if list.id == self.selectedList.id then
+    if self.selectedList and (list.id == self.selectedList.id) then
         self.lists.listItemsGridview:Insert(itemID)
     end
 end
@@ -271,7 +271,6 @@ function GuildbookInstancesMixin:LoadListDropdown()
             table.insert(t, {
                 text = list.name,
                 func = function()
-                    self.selectedList = list;
                     self:LoadListItems(list)
                 end,
             })
@@ -388,6 +387,8 @@ function GuildbookInstancesMixin:LoadListItems(list)
     self.lists.helptip:Hide()
 
     self.lists.listItemsGridview:Flush()
+
+    self.selectedList = list;
 
     for k, v in ipairs(list.items) do
         self.lists.listItemsGridview:Insert(v)
@@ -563,6 +564,8 @@ function GuildbookInstancesMixin:BuildInstanceTreeview(instanceData, numItems)
                                         f:HookScript("OnMouseDown", function(_, but)
                                             if IsShiftKeyDown() then
                                                 HandleModifiedItemClick(item:GetItemLink())
+                                            elseif IsControlKeyDown() then
+                                                DressUpItemLink(item:GetItemLink())
                                             else
                                                 C_Item.PickupItem(itemID)
                                             end
@@ -780,6 +783,8 @@ function GuildbookInstancesMixin:LoadItemSetsData(classID)
                                     f:HookScript("OnMouseDown", function(_, but)
                                         if IsShiftKeyDown() then
                                             HandleModifiedItemClick(item:GetItemLink())
+                                        elseif IsControlKeyDown() then
+                                            DressUpItemLink(item:GetItemLink())
                                         else
                                             C_Item.PickupItem(itemID)
                                         end
@@ -913,6 +918,8 @@ function GuildbookInstancesMixin:LoadFactionItems()
                                 f:HookScript("OnMouseDown", function(_, but)
                                     if IsShiftKeyDown() then
                                         HandleModifiedItemClick(item:GetItemLink())
+                                    elseif IsControlKeyDown() then
+                                        DressUpItemLink(item:GetItemLink())
                                     else
                                         C_Item.PickupItem(itemID)
                                     end

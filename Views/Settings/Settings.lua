@@ -615,6 +615,72 @@ function GuildbookSettingsMixin:PreparePanels()
     end)
 
 
+    local function myChatFilter(_, event, msg, author, ...)
+        if addon.thisCharacter and addon.characters and addon.characters[author] then
+            local mainCharacter = addon.characters[author]:GetMainCharacter()
+            if mainCharacter then
+
+                if addon.characters[mainCharacter] then
+
+                    local _, class = GetClassInfo(addon.characters[mainCharacter].data.class)
+                    if class then
+                        local specAtlas = ""
+                        if Database:GetConfig("showMainCharacterSpecInChat") then
+                            if addon.characters[mainCharacter].data.mainSpec ~= false then
+                                specAtlas = CreateAtlasMarkup(addon.characters[mainCharacter]:GetClassSpecAtlasName("primary"))
+                            end
+                        end
+                        return false, string.format("[%s%s] %s", specAtlas, RAID_CLASS_COLORS[class]:WrapTextInColorCode(Ambiguate(mainCharacter, "short")), msg), author, ...
+                    else
+                        return false, string.format("[%s] %s", Ambiguate(mainCharacter, "short"), msg), author, ...
+                    end
+                end
+            end
+        else
+            return false, msg, author, ...
+        end
+    end
+
+    --could probably just accept the boolean val from the db here but this is maybe more readable
+    local showMain = Database:GetConfig("showMainCharacterInChat")
+    if showMain then
+        self.content.chat.showMainCharacterInChat:SetChecked(true)
+        ChatFrame_AddMessageEventFilter("CHAT_MSG_GUILD", myChatFilter)
+    else
+        self.content.chat.showMainCharacterInChat:SetChecked(false)
+        ChatFrame_RemoveMessageEventFilter("CHAT_MSG_GUILD", myChatFilter)
+    end
+
+    self.content.chat.showMainCharacterInChat.label:SetText(L.SETTINGS_CHAT_SHOW_MAIN)
+    self.content.chat.showMainCharacterInChat:SetScript("OnClick", function(cb)
+        
+        local showMain = cb:GetChecked()
+        if showMain then
+            self.content.chat.showMainCharacterInChat:SetChecked(true)
+            Database:SetConfig("showMainCharacterInChat", true)
+            ChatFrame_AddMessageEventFilter("CHAT_MSG_GUILD", myChatFilter)
+        else
+            self.content.chat.showMainCharacterInChat:SetChecked(false)
+            Database:SetConfig("showMainCharacterInChat", false)
+            ChatFrame_RemoveMessageEventFilter("CHAT_MSG_GUILD", myChatFilter)
+        end
+    end)
+
+
+    self.content.chat.showMainCharacterSpecInChat.label:SetText(L.SETTINGS_CHAT_SHOW_MAIN_SPEC)
+    self.content.chat.showMainCharacterSpecInChat:SetChecked(Database:GetConfig("showMainCharacterSpecInChat"))
+    self.content.chat.showMainCharacterSpecInChat:SetScript("OnClick", function(cb)
+        
+        local showMainSpec = cb:GetChecked()
+        if showMainSpec then
+            self.content.chat.showMainCharacterSpecInChat:SetChecked(true)
+            Database:SetConfig("showMainCharacterSpecInChat", true)
+        else
+            self.content.chat.showMainCharacterSpecInChat:SetChecked(false)
+            Database:SetConfig("showMainCharacterSpecInChat", false)
+        end
+    end)
+
 
     --=========================================
     --addon panel
@@ -791,7 +857,7 @@ function GuildbookSettingsMixin:PreparePanels()
 
 
                 if Database.db.config.tradeskillsShowAllRecipeInfoTooltip == true then
-                    local itemInfo = Tradeskills.GetItemRecipeInfo(itemID, itemName)
+                    local itemInfo = Tradeskills:GetItemRecipeInfo(itemID, itemName)
                     if type(itemInfo) == "table" and itemInfo.tradeskillID and itemInfo.reagents then
                         if itemInfo then
                             tt:AddLine(" ")
@@ -809,7 +875,7 @@ function GuildbookSettingsMixin:PreparePanels()
                     end
                 else
                     if Database.db.config.tradeskillsShowMyRecipeInfoTooltip == true then
-                        local itemInfo = Tradeskills.GetItemRecipeInfo(itemID, itemName)
+                        local itemInfo = Tradeskills:GetItemRecipeInfo(itemID, itemName)
                         if type(itemInfo) == "table" and itemInfo.tradeskillID and itemInfo.reagents then
                             if itemInfo and addon.characters[addon.thisCharacter] then
                                 if (itemInfo.tradeskillID == addon.characters[addon.thisCharacter].data.profession1) or (itemInfo.tradeskillID == addon.characters[addon.thisCharacter].data.profession2) then

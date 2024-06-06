@@ -17,6 +17,8 @@ local configUpdates = {
     --settings
     chatGuildHistoryLimit = 30,
     chatWhisperHistoryLimit = 30,
+    showMainCharacterInChat = true,
+    showMainCharacterSpecInChat = true,
 
     modBlizzRoster = false,
 }

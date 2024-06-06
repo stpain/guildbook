@@ -27,6 +27,14 @@ GuildbookTradskillsMixin = {
     selectedTradeskillID = 171,
 }
 
+local function getArtworkForTradeskillID(id)
+    for name, _id in pairs(tradeskillIDs) do
+        if _id == id then
+            return artworkFilePath..name..".png"
+        end
+    end
+end
+
 function GuildbookTradskillsMixin:OnLoad()
 
     --NineSliceUtil.ApplyLayout(self.details.crafters, NineSliceLayouts.ChatBubble)
@@ -36,7 +44,12 @@ function GuildbookTradskillsMixin:OnLoad()
         table.insert(menu, {
             text = Tradeskills:GetLocaleNameFromID(id),
             func = function()
-                self:LoadTradeskill(name, id, (artworkFilePath..name..".png"))
+                local recipes = Tradeskills:BuildTradeskillData(id)
+                self.selectedTradeskillID = id
+                local dataProvider = self:SetOrCreateDataProvider(id)
+                if dataProvider then
+                    self:LoadTradeskillRecipes(id, recipes, dataProvider)
+                end
             end,
         })
     end
@@ -45,6 +58,11 @@ function GuildbookTradskillsMixin:OnLoad()
     end)
     self.tradeskillDropdown:SetMenu(menu)
 
+    self.statusBar:SetScript("OnValueChanged", function(bar)
+        if bar:GetValue() == 1 then
+            bar.fadeOut:Play()
+        end
+    end)
 
     local x, y, z = 100, 60, 50
     self.details.itemButton.border:SetSize(x*1.2, x*1.2)
@@ -55,10 +73,68 @@ function GuildbookTradskillsMixin:OnLoad()
     self.details.crafters.scrollView:SetPadding(14, 14, 1, 1, 1);
     self.details.reagentForRecipes.scrollView:SetPadding(14, 14, 1, 1, 1); --t,b,l,r
 
+    self.prof1.border:SetSize(50,50)
+    self.prof1.icon:SetSize(30,30)
+    self.prof1.mask:SetSize(25,25)
+    self.prof2.border:SetSize(50,50)
+    self.prof2.icon:SetSize(30,30)
+    self.prof2.mask:SetSize(25,25)
+
+    self.details.craftingOptions.quantityToCraft:SetMinMaxValues(1,100)
+
     self:InitAddToListButton()
+
+    addon:RegisterCallback("Character_OnTradeskillSelected", self.OnCharacterTradeskillSelected, self)
+
+    if Auctionator then
+        Auctionator.API.v1.RegisterForDBUpdate(addonName, function()
+            if self.selectedRecipe then
+                self:UpdateAuctionatorPanel(self.selectedRecipe)
+            end
+        end)
+    end
 
     addon.AddView(self)
 
+end
+
+function GuildbookTradskillsMixin:UpdatePlayerTradeskillButtons()
+    if addon.characters and addon.characters[addon.thisCharacter] and addon.characters[addon.thisCharacter].data.profession1 then
+
+        if not Tradeskills:IsGathering(addon.characters[addon.thisCharacter].data.profession1) then
+
+            self.prof1:Init({
+                atlas = Tradeskills:TradeskillIDToAtlas(addon.characters[addon.thisCharacter].data.profession1),
+                onClick = function()
+                    self:CacheRecipeIndexes(addon.characters[addon.thisCharacter].data.profession1)
+                    addon:TriggerEvent("Character_OnTradeskillSelected", addon.characters[addon.thisCharacter].data.profession1, addon.characters[addon.thisCharacter].data.profession1Recipes)
+                end,
+            })
+            self.prof1:Show()
+        else
+
+            self.prof1:Hide()
+        end
+
+    end
+
+    if addon.characters and addon.characters[addon.thisCharacter] and addon.characters[addon.thisCharacter].data.profession2 then
+        
+        if not Tradeskills:IsGathering(addon.characters[addon.thisCharacter].data.profession2) then
+
+            self.prof2:Init({
+                atlas = Tradeskills:TradeskillIDToAtlas(addon.characters[addon.thisCharacter].data.profession2),
+                onClick = function()
+                    self:CacheRecipeIndexes(addon.characters[addon.thisCharacter].data.profession2)
+                    addon:TriggerEvent("Character_OnTradeskillSelected", addon.characters[addon.thisCharacter].data.profession2, addon.characters[addon.thisCharacter].data.profession2Recipes)
+                end,
+            })
+            self.prof2:Show()
+        else
+
+            self.prof2:Hide()
+        end
+    end
 end
 
 function GuildbookTradskillsMixin:OnShow()
@@ -66,12 +142,14 @@ function GuildbookTradskillsMixin:OnShow()
     self.details:SetPoint("TOPLEFT", 270, -40)
     self.details:SetPoint("BOTTOMRIGHT", -4, 4)
 
+    --ocal currentVolume = tonumber(GetCVar("Sound_MasterVolume"));
+    self:UpdatePlayerTradeskillButtons()
     self:UpdateLayout()
 end
 
 function GuildbookTradskillsMixin:UpdateLayout()
 
-    if self.details.reagentForRecipes:GetWidth() < 200 then
+    if self.details.reagentForRecipes:GetWidth() < 190 then
         self.details.reagentForRecipes:Hide()
         self.details.crafters:SetWidth(240)
     else
@@ -100,29 +178,104 @@ function GuildbookTradskillsMixin:UpdateLayout()
 
 end
 
-function GuildbookTradskillsMixin:FindRecipeIndex(tradeskill, name)
-    CastSpellByName(tradeskill)
-    for i = 1, GetNumTradeSkills() do
-        local _name = GetTradeSkillInfo(i)
-        if _name == name then
-            HideUIPanel(TradeSkillFrame)
-            return i;
-        end
+function GuildbookTradskillsMixin:CacheRecipeIndexes(tradeskill)
+
+    if not self.recipeIndexes then
+        self.recipeIndexes = {}
     end
-    HideUIPanel(TradeSkillFrame)
+
+    local prof = Tradeskills:GetLocaleNameFromID(tradeskill)
+    if prof then
+        CastSpellByName(prof)
+        for i = 1, GetNumTradeSkills() do
+            --local name, _type = GetTradeSkillInfo(i)
+            local link = GetTradeSkillItemLink(i)
+            -- if name and (_type == "optimal" or _type == "medium" or _type == "easy" or _type == "trivial") then
+            --     self.recipeIndexes[tradeskill][name] = i
+            -- end
+            if link then
+                local id = GetItemInfoFromHyperlink(link)
+                local recipeSpellID = Tradeskills:GetRecipeSpellIDFromItemID(id)
+                if recipeSpellID then
+                    self.recipeIndexes[recipeSpellID] = i
+                end
+            end
+        end
+        HideUIPanel(TradeSkillFrame)
+    end
+end
+
+function GuildbookTradskillsMixin:FindRecipeIndex(recipeSpellID)
+    if self.recipeIndexes  then
+        return self.recipeIndexes[recipeSpellID]
+    end
 end
 
 
 local wowheadCataSpellURL = "https://www.wowhead.com/cata/spell=%d"
 local wowheadCataItemURL = "https://www.wowhead.com/cata/item=%d"
 
+function GuildbookTradskillsMixin:ClearRecipe()
+    self.welcomePanel:Show()
+    self.details:Hide()
+end
+
+function GuildbookTradskillsMixin:UpdateAuctionatorPanel(recipe)
+
+    local baseCost = 0;
+    local currentCost = 0;
+    
+    self.details.auctionatorInfo:Show()
+    
+    for itemID, count in pairs(recipe.reagents) do
+
+        local numOwned = GetItemCount(itemID)
+        local numRequired = (count * math.floor(self.details.craftingOptions.quantityToCraft:GetValue())) - numOwned
+        if numRequired < 0 then
+            numRequired = 0;
+        end
+
+        local vendorPrice = Auctionator.API.v1.GetVendorPriceByItemID(addonName, itemID)
+        if not vendorPrice then
+            local ahPrice = Auctionator.API.v1.GetAuctionPriceByItemID(addonName, itemID) or 0;
+
+            baseCost = baseCost + (count * ahPrice)
+            currentCost = currentCost + (numRequired * ahPrice)
+
+        else
+
+            baseCost = baseCost + (count * vendorPrice)
+            currentCost = currentCost + (numRequired * vendorPrice)
+
+
+        end
+    end
+
+    if recipe.itemID then
+        local saleValue = Auctionator.API.v1.GetAuctionPriceByItemID(addonName, recipe.itemID) or 0;
+        self.details.auctionatorInfo.saleValue:SetText(string.format("Auction house value: %s", GetCoinTextureString(saleValue)))
+        self.details.auctionatorInfo.saleValue:Show()
+
+    else
+        self.details.auctionatorInfo.saleValue:Hide()
+    end
+
+
+    self.details.auctionatorInfo.baseCost:SetText(string.format("Base crafting cost: %s", GetCoinTextureString(baseCost)))
+    self.details.auctionatorInfo.craftCost:SetText(string.format("With current reagents: %s", GetCoinTextureString(currentCost)))
+
+end
+
 function GuildbookTradskillsMixin:SetRecipe(recipe)
+
+    self.selectedRecipe = recipe;
 
     self.welcomePanel:Hide()
     self.details:Show()
 
     local rgb = ITEM_QUALITY_COLORS[recipe.quality]
     
+    self.details.itemButton:Show()
     self.details.itemButton:Init({
         icon = recipe.icon,
         onClick = function()
@@ -149,6 +302,9 @@ function GuildbookTradskillsMixin:SetRecipe(recipe)
                 -- atlas = character:GetProfileAvatar(),
                 -- showMask = true,
 
+                atlasRight = (character:GetOnlineStatus().isOnline == true) and "MonsterFriend" or "MonsterEnemy",
+                iconSizeRight = {20, 20},
+
                 onMouseDown = function()
                     addon:TriggerEvent("Character_OnProfileSelected", character)
                 end,
@@ -156,11 +312,12 @@ function GuildbookTradskillsMixin:SetRecipe(recipe)
         end
     end
 
-    self.details.crafters.scrollView:SetDataProvider(CreateDataProvider(crafters))
+    table.sort(crafters, function(a, b)
+        return a.atlasRight > b.atlasRight;
+    end)
 
-    -- if IsPlayerSpell(recipe.spellID) then
-    --     local recipeIndex = self:FindRecipeIndex(self.selectedTradeskill, recipe.name)
-    -- end
+    self.details.crafters.scrollView:SetDataProvider(CreateDataProvider(crafters))
+    self.details.crafters:Show()
 
     local reagentSortFunc = function(a, b)
         return a.count > b.count;
@@ -230,47 +387,81 @@ function GuildbookTradskillsMixin:SetRecipe(recipe)
         quantity = 1,
     }
 
+    local function updateReagents()
 
-    for itemID, count in pairs(recipe.reagents) do
+        reagents = {}
 
-        local numOwned = GetItemCount(itemID)
+        for itemID, count in pairs(recipe.reagents) do
 
-        local item = Item:CreateFromItemID(itemID)
-        if not item:IsItemEmpty() then
-            item:ContinueOnItemLoad(function()
+            local numOwned = GetItemCount(itemID)
+            local numRequired = count * math.floor(self.details.craftingOptions.quantityToCraft:GetValue())
+    
+            local item = Item:CreateFromItemID(itemID)
+            if not item:IsItemEmpty() then
+                item:ContinueOnItemLoad(function()
+    
+                    table.insert(reagents, {
+                        count = numRequired,
+                        link = item:GetItemLink(),
+                        init = function(f)
+                            f.icon:SetTexture(item:GetItemIcon())
+                            f.icon:SetSize(32,32)
+            
+                            f.label:SetSize(160, 32)
 
-                table.insert(reagents, {
-                    count = count,
-                    link = item:GetItemLink(),
-                    init = function(f)
-                        f.icon:SetTexture(item:GetItemIcon())
-                        f.icon:SetSize(32,32)
-        
-                        f.label:SetSize(160, 32)
-        
-                        f.label:SetText(string.format("%d/%d %s", numOwned, count, item:GetItemName()))
-        
-                        f:SetScript("OnMouseDown", function()
-                            HandleModifiedItemClick(item:GetItemLink())
-                        end)
-        
-        
-                    end,
-
-                    --for AH search
-                    auctionHouseSearchTerm = item:GetItemName(),
-                })
-
-                --this should be doen after all items cached but with a max of 8 reagents its probably nto too bad
-                self.details.reagents.scrollView:SetDataProvider(CreateDataProvider(reagents))
-                self.details.reagents.scrollView:GetDataProvider():SetSortComparator(reagentSortFunc)
-                self.details.reagents.scrollView:GetDataProvider():Sort()
-            end)
+                            if numOwned < numRequired then
+                                f.label:SetText(DULL_RED_FONT_COLOR:WrapTextInColorCode(string.format("%d/%d %s", numOwned, numRequired, item:GetItemName())))
+                            else
+                                f.label:SetText(string.format("%d/%d %s", numOwned, numRequired, item:GetItemName()))
+                            end
+            
+                            f:SetScript("OnMouseDown", function()
+                                HandleModifiedItemClick(item:GetItemLink())
+                            end)
+            
+            
+                        end,
+    
+                        --for AH search
+                        auctionHouseSearchTerm = item:GetItemName(),
+                    })
+    
+                    --this should be doen after all items cached but with a max of 8 reagents its probably nto too bad
+                    self.details.reagents.scrollView:SetDataProvider(CreateDataProvider(reagents))
+                    self.details.reagents.scrollView:GetDataProvider():SetSortComparator(reagentSortFunc)
+                    self.details.reagents.scrollView:GetDataProvider():Sort()
+                end)
+            end
         end
     end
 
---searchAH
 
+    self.details.craftingOptions.quantityToCraft:SetValueStep(1)
+    self.details.craftingOptions.quantityToCraft:SetValue(1)
+    self.details.craftingOptions.quantityToCraft:SetScript("OnMouseWheel", function(slider, delta)
+        slider:SetValue(math.floor(slider:GetValue() + delta))
+    end)
+    self.details.craftingOptions.quantityToCraft:SetScript("OnValueChanged", function(slider)
+        slider.label:SetText(string.format("%.0f", slider:GetValue()))
+        
+        updateReagents()
+
+        if Auctionator then
+
+            self.details.auctionatorInfo.searchAH:SetScript("OnClick", function()
+                local t = {}
+                for k, item in ipairs(reagents) do
+                    table.insert(t, item.auctionHouseSearchTerm)
+                end
+        
+                Auctionator.API.v1.MultiSearch(addonName, t)
+            end)
+
+            self:UpdateAuctionatorPanel(recipe)
+        end
+    end)
+
+    updateReagents()
     if Auctionator then
 
         self.details.auctionatorInfo.searchAH:SetScript("OnClick", function()
@@ -278,154 +469,27 @@ function GuildbookTradskillsMixin:SetRecipe(recipe)
             for k, item in ipairs(reagents) do
                 table.insert(t, item.auctionHouseSearchTerm)
             end
-
+    
             Auctionator.API.v1.MultiSearch(addonName, t)
         end)
 
-        local baseCost = 0;
-        local currentCost = 0;
-        
-        self.details.auctionatorInfo:Show()
-        
-        for itemID, count in pairs(recipe.reagents) do
-
-            local numOwned = GetItemCount(itemID)
-            local numRequired = (count - numOwned)
-            if numRequired < 0 then
-                numRequired = 0;
-            end
-
-            local vendorPrice = Auctionator.API.v1.GetVendorPriceByItemID(addonName, itemID)
-            if not vendorPrice then
-                local ahPrice = Auctionator.API.v1.GetAuctionPriceByItemID(addonName, itemID) or 0;
-
-                baseCost = baseCost + (count * ahPrice)
-                currentCost = currentCost + (numRequired * ahPrice)
-
-            else
-
-                baseCost = baseCost + (count * vendorPrice)
-                currentCost = currentCost + (numRequired * vendorPrice)
-
-
-            end
-        end
-
-        if recipe.itemID then
-            local saleValue = Auctionator.API.v1.GetAuctionPriceByItemID(addonName, recipe.itemID) or 0;
-            self.details.auctionatorInfo.saleValue:SetText(string.format("Auction house value: %s", GetCoinTextureString(saleValue)))
-            self.details.auctionatorInfo.saleValue:Show()
-
-        else
-            self.details.auctionatorInfo.saleValue:Hide()
-        end
-
-
-        self.details.auctionatorInfo.baseCost:SetText(string.format("Base crafting cost: %s", GetCoinTextureString(baseCost)))
-        self.details.auctionatorInfo.craftCost:SetText(string.format("With current reagents: %s", GetCoinTextureString(currentCost)))
-
+        self:UpdateAuctionatorPanel(recipe)
     end
 
-
-
-    --[[
-
-
-    middle = 0.69921875 0.826171875 0.03515625 0.0361328125
-    top = 0.14599609375 0.27294921875 0.734375 0.83203125
-    bottom = 0.14599609375 0.27294921875 0.5087890625 0.60546875
-
-
-
-    local sortFunc = function(a, b)
-        if a.sort == b.sort then
-            return a.cost > b.cost
-        else
-            return a.sort < b.sort
+    self.details.craftingOptions:Hide()
+    if IsPlayerSpell(recipe.spellID) then
+        local recipeIndex = self:FindRecipeIndex(recipe.spellID)
+        --print(recipeIndex, type(recipeIndex))
+        if type(recipeIndex) == "number" then
+            --print("inside the if")
+            self.details.craftingOptions:Show()
+            self.details.craftingOptions.doTradeSkill:SetScript("OnClick", function()
+                DoTradeSkill(recipeIndex, math.floor(self.details.craftingOptions.quantityToCraft:GetValue()))
+            end)
         end
     end
 
-            if Auctionator then
-            local vendorPrice = Auctionator.API.v1.GetVendorPriceByItemID(addonName, itemID)
-            if not vendorPrice then
-                local ahPrice = Auctionator.API.v1.GetAuctionPriceByItemID(addonName, itemID) or 0;
-
-                local cost = (ahPrice * count) or 0
-                
-                table.insert(invoice.items, {
-                    sort = 1,
-                    cost = cost,
-                    itemID = itemID,
-                    label = string.format("x%d %s", count, itemName),
-                    labelRight = GetCoinTextureString(cost),
-                })
-
-                invoice.baseCost = invoice.baseCost + (ahPrice * count)
-
-                local numRequired = invoice.quantity * count;
-                if (numOwned >= numRequired) then
-                    invoice.currentCost = invoice.currentCost + 0
-                else
-                    invoice.currentCost = invoice.currentCost + (ahPrice * (numRequired - numOwned))
-                end
-
-            else
-
-                local cost = (vendorPrice * count) or 0
-                
-                table.insert(invoice.items, {
-                    sort = 2,
-                    cost = cost,
-                    itemID = itemID,
-                    label = string.format("x%d %s", count, itemName),
-                    labelRight = GetCoinTextureString(cost),
-                })
-
-                invoice.baseCost = invoice.baseCost + (vendorPrice * count)
-
-                local numRequired = invoice.quantity * count;
-                if (numOwned >= numRequired) then
-                    invoice.currentCost = invoice.currentCost + 0
-                else
-                    invoice.currentCost = invoice.currentCost + (vendorPrice * (numRequired - numOwned))
-                end
-            end
-        end
-
-
-
-
-
-                                if i == numReagents then
-                            table.insert(invoice.items, {
-                                label = "-------",
-                                labelRight = "",
-                                sort = 3,
-                            })
-                            table.insert(invoice.items, {
-                                sort = 4,
-                                label = "Base Cost",
-                                labelRight = GetCoinTextureString(invoice.baseCost),
-                            })
-                            table.insert(invoice.items, {
-                                sort = 5,
-                                label = "Current Cost",
-                                labelRight = GetCoinTextureString(invoice.currentCost),
-                            })
-        
-                            self.details.mixer.invoice.scrollView:SetDataProvider(CreateDataProvider(invoice.items))
-                            self.details.mixer.invoice.scrollView:GetDataProvider():SetSortComparator(sortFunc)
-                            self.details.mixer.invoice.scrollView:GetDataProvider():Sort()
-        
-        
-                            self.details.reagents.baseCost:SetText(GetCoinTextureString(invoice.baseCost))
-        
-                            self.details.itemButton.meta:SetText(string.format(""))
-                        end
-    ]]
-
-
-
+    self:UpdateLayout()
 
 end
 
@@ -458,27 +522,56 @@ function GuildbookTradskillsMixin:InitAddToListButton()
     end)
 end
 
-function GuildbookTradskillsMixin:LoadTradeskill(tadeskillName, tradeskillID, art)
+function GuildbookTradskillsMixin:SetOrCreateDataProvider(tradeskillID, onDemand)
 
-    self.selectedTradeskill = tadeskillName;
-    self.selectedTradeskillID = tradeskillID
+    if onDemand then
+        local dataProvider = CreateTreeDataProvider()
+        self.listview.scrollView:SetDataProvider(dataProvider)
+        return dataProvider;
 
-    self.details.background:SetTexture(art)
-
-    if not self.tradeskillDataProvider then
-        self.tradeskillDataProvider = {}
-    end
-
-    if self.tradeskillDataProvider[tradeskillID] then
-        self.listview.scrollView:SetDataProvider(self.tradeskillDataProvider[tradeskillID])
-        return
     else
-        self.tradeskillDataProvider[tradeskillID] = CreateTreeDataProvider()
-        self.listview.scrollView:SetDataProvider(self.tradeskillDataProvider[tradeskillID])
-    end
 
+        if not self.tradeskillDataProvider then
+            self.tradeskillDataProvider = {}
+        end
+
+        if not self.tradeskillDataProvider[tradeskillID] then
+            self.tradeskillDataProvider[tradeskillID] = CreateTreeDataProvider()
+            self.listview.scrollView:SetDataProvider(self.tradeskillDataProvider[tradeskillID])
+            return self.tradeskillDataProvider[tradeskillID]
+        else
+            self.listview.scrollView:SetDataProvider(self.tradeskillDataProvider[tradeskillID])
+        end
+
+    end
     
-    local tradeskillData = Tradeskills.BuildTradeskillData(tradeskillID)
+end
+
+function GuildbookTradskillsMixin:OnCharacterTradeskillSelected(tradeskillID, recipes)
+
+    self.tradeskillDropdown:SetText(Tradeskills:GetLocaleNameFromID(tradeskillID))
+
+    local tradeskillData = Tradeskills:BuildTradeskillDataFromRecipes(recipes)
+
+    --DevTools_Dump(tradeskillData)
+
+    if type(tradeskillData) == "table" and #tradeskillData > 0 then
+    
+        local dataProvider = self:SetOrCreateDataProvider(nil, true)
+        self:LoadTradeskillRecipes(tradeskillID, tradeskillData, dataProvider)
+        
+        
+        --this will cause the recipe index cache to be updated
+        GuildbookUI:SelectView(self.name)
+
+    else
+
+    end
+end
+
+function GuildbookTradskillsMixin:LoadTradeskillRecipes(tradeskillID, tradeskillData, dataProvider)
+
+    self.details.background:SetTexture(getArtworkForTradeskillID(tradeskillID))
 
     local function sortFunc(a, b)
         if a:GetData().name and a:GetData().quality and b:GetData().name and b:GetData().quality and b:GetData().level and b:GetData().level then
@@ -495,7 +588,8 @@ function GuildbookTradskillsMixin:LoadTradeskill(tadeskillName, tradeskillID, ar
     end
 
     self.tradeskillDropdown:EnableMouse(false)
-
+    self.statusBar.fadeIn:Play()
+    --local headers = {}
     local itemsAdded, spellsAdded = {}, {}
     local numItems = #tradeskillData
     local index = 1;
@@ -517,34 +611,38 @@ function GuildbookTradskillsMixin:LoadTradeskill(tadeskillName, tradeskillID, ar
                     item:ContinueOnItemLoad(function()
                         local itemName, itemLink, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, sellPrice, classID, subclassID, bindType, expansionID, setID, isCraftingReagent = GetItemInfo(itemID)
 
-                        if not self.tradeskillDataProvider[tradeskillID][itemType] then
-                            self.tradeskillDataProvider[tradeskillID][itemType] = self.tradeskillDataProvider[tradeskillID]:Insert({
+                        if not dataProvider[itemType] then
+                            dataProvider[itemType] = dataProvider:Insert({
                                 label = itemType,
                                 atlas = "common-icon-forwardarrow",
                                 backgroundAtlas = "OBJBonusBar-Top",
                                 fontObject = GameFontNormal,
                                 isParent = true,
                                 init = function(f)
-                                    f.icon:SetTexCoord(0,1, 1,1, 0,0, 1,0)
                     
                                     if f:GetElementData():IsCollapsed() then
                                         f.icon:SetTexCoord(0,1,0,1)
                                     else
                                         f.icon:SetTexCoord(0,1, 1,1, 0,0, 1,0)
                                     end
+
+                                    C_Timer.After(0.001, function()
+                                        f.icon:SetTexCoord(0,1,0,1)
+                                    end)
                                 end,
                             })
+                            dataProvider[itemType]:ToggleCollapsed()
                         end
 
-                        if not self.tradeskillDataProvider[tradeskillID][itemType][itemSubType] then
-                            self.tradeskillDataProvider[tradeskillID][itemType][itemSubType] = self.tradeskillDataProvider[tradeskillID][itemType]:Insert({
+                        if not dataProvider[itemType][itemSubType] then
+                            dataProvider[itemType][itemSubType] = dataProvider[itemType]:Insert({
                                 label = itemSubType,
                                 atlas = "common-icon-forwardarrow",
                                 backgroundAtlas = "OBJBonusBar-Top",
                                 fontObject = GameFontNormal,
                                 isParent = true,
                                 init = function(f)
-                                    --f.icon:SetTexCoord(0,1, 1,1, 0,0, 1,0)
+                                    f.icon:SetTexCoord(0,1,0,1)
                     
                                     if f:GetElementData():IsCollapsed() then
                                         f.icon:SetTexCoord(0,1,0,1)
@@ -554,21 +652,21 @@ function GuildbookTradskillsMixin:LoadTradeskill(tadeskillName, tradeskillID, ar
                                 end,
                             })
                         
-                            self.tradeskillDataProvider[tradeskillID][itemType][itemSubType]:SetSortComparator(sortFunc, true, false)
-                            self.tradeskillDataProvider[tradeskillID][itemType][itemSubType]:ToggleCollapsed()
+                            dataProvider[itemType][itemSubType]:SetSortComparator(sortFunc, true, false)
+                            dataProvider[itemType][itemSubType]:ToggleCollapsed()
                         end
 
                         if (_G[itemEquipLoc]) then
 
-                            if not self.tradeskillDataProvider[tradeskillID][itemType][itemSubType][itemEquipLoc] then
-                                self.tradeskillDataProvider[tradeskillID][itemType][itemSubType][itemEquipLoc] = self.tradeskillDataProvider[tradeskillID][itemType][itemSubType]:Insert({
+                            if not dataProvider[itemType][itemSubType][itemEquipLoc] then
+                                dataProvider[itemType][itemSubType][itemEquipLoc] = dataProvider[itemType][itemSubType]:Insert({
                                     label = _G[itemEquipLoc],
                                     atlas = "common-icon-forwardarrow",
                                     backgroundAtlas = "OBJBonusBar-Top",
                                     fontObject = GameFontNormal,
                                     isParent = true,
                                     init = function(f)
-                                        --f.icon:SetTexCoord(0,1, 1,1, 0,0, 1,0)
+                                        f.icon:SetTexCoord(0,1,0,1)
                         
                                         if f:GetElementData():IsCollapsed() then
                                             f.icon:SetTexCoord(0,1,0,1)
@@ -578,12 +676,12 @@ function GuildbookTradskillsMixin:LoadTradeskill(tadeskillName, tradeskillID, ar
                                     end,
                                 })
                             
-                                self.tradeskillDataProvider[tradeskillID][itemType][itemSubType][itemEquipLoc]:SetSortComparator(sortFunc, true, false)
-                                self.tradeskillDataProvider[tradeskillID][itemType][itemSubType][itemEquipLoc]:ToggleCollapsed()
+                                dataProvider[itemType][itemSubType][itemEquipLoc]:SetSortComparator(sortFunc, true, false)
+                                dataProvider[itemType][itemSubType][itemEquipLoc]:ToggleCollapsed()
                             end
 
                             if not itemsAdded[itemName] then
-                                self.tradeskillDataProvider[tradeskillID][itemType][itemSubType][itemEquipLoc]:Insert({
+                                dataProvider[itemType][itemSubType][itemEquipLoc]:Insert({
 
                                     --sort data
                                     name = itemName,
@@ -610,14 +708,14 @@ function GuildbookTradskillsMixin:LoadTradeskill(tadeskillName, tradeskillID, ar
 
                                 itemsAdded[itemName] = true
 
-                                self.tradeskillDataProvider[tradeskillID][itemType][itemSubType][itemEquipLoc]:Sort()
+                                dataProvider[itemType][itemSubType][itemEquipLoc]:Sort()
 
                             end
 
                         else
 
                             if not itemsAdded[itemName] then
-                                self.tradeskillDataProvider[tradeskillID][itemType][itemSubType]:Insert({
+                                dataProvider[itemType][itemSubType]:Insert({
 
                                     --sort data
                                     name = itemName,
@@ -644,7 +742,7 @@ function GuildbookTradskillsMixin:LoadTradeskill(tadeskillName, tradeskillID, ar
 
                                 itemsAdded[itemName] = true
 
-                                self.tradeskillDataProvider[tradeskillID][itemType][itemSubType]:Sort()
+                                dataProvider[itemType][itemSubType]:Sort()
                             end
                         end
                     end)
@@ -680,35 +778,39 @@ function GuildbookTradskillsMixin:LoadTradeskill(tadeskillName, tradeskillID, ar
                                 end
 
     
-                                if not self.tradeskillDataProvider[tradeskillID][prefix] then
-                                    self.tradeskillDataProvider[tradeskillID][prefix] = self.tradeskillDataProvider[tradeskillID]:Insert({
+                                if not dataProvider[prefix] then
+                                    dataProvider[prefix] = dataProvider:Insert({
                                         label = prefix,
                                         atlas = "common-icon-forwardarrow",
                                         backgroundAtlas = "OBJBonusBar-Top",
                                         fontObject = GameFontNormal,
                                         isParent = true,
                                         init = function(f)
-                                            f.icon:SetTexCoord(0,1, 1,1, 0,0, 1,0)
+                                            f.icon:SetTexCoord(0,1,0,1)
                             
                                             if f:GetElementData():IsCollapsed() then
                                                 f.icon:SetTexCoord(0,1,0,1)
                                             else
                                                 f.icon:SetTexCoord(0,1, 1,1, 0,0, 1,0)
                                             end
+
+                                            C_Timer.After(0.001, function()
+                                                f.icon:SetTexCoord(0,1,0,1)
+                                            end)
                                         end,
                                     })
     
-                                    --self.tradeskillDataProvider[tradeskillID][prefix]:SetSortComparator(sortFunc, true, false)
+                                    --dataProvider[prefix]:SetSortComparator(sortFunc, true, false)
                                 end
-                                if not self.tradeskillDataProvider[tradeskillID][prefix][enchantLocation] then
-                                    self.tradeskillDataProvider[tradeskillID][prefix][enchantLocation] = self.tradeskillDataProvider[tradeskillID][prefix]:Insert({
+                                if not dataProvider[prefix][enchantLocation] then
+                                    dataProvider[prefix][enchantLocation] = dataProvider[prefix]:Insert({
                                         label = enchantLocation,
                                         atlas = "common-icon-forwardarrow",
                                         backgroundAtlas = "OBJBonusBar-Top",
                                         fontObject = GameFontNormal,
                                         isParent = true,
                                         init = function(f)
-                                            --f.icon:SetTexCoord(0,1, 1,1, 0,0, 1,0)
+                                            f.icon:SetTexCoord(0,1,0,1)
                             
                                             if f:GetElementData():IsCollapsed() then
                                                 f.icon:SetTexCoord(0,1,0,1)
@@ -718,8 +820,8 @@ function GuildbookTradskillsMixin:LoadTradeskill(tadeskillName, tradeskillID, ar
                                         end,
                                     })
     
-                                    self.tradeskillDataProvider[tradeskillID][prefix][enchantLocation]:SetSortComparator(sortFunc, true, false)
-                                    self.tradeskillDataProvider[tradeskillID][prefix][enchantLocation]:ToggleCollapsed()
+                                    dataProvider[prefix][enchantLocation]:SetSortComparator(sortFunc, true, false)
+                                    dataProvider[prefix][enchantLocation]:ToggleCollapsed()
                                 end
     
                                 if not spellsAdded[spellID] then
@@ -734,7 +836,7 @@ function GuildbookTradskillsMixin:LoadTradeskill(tadeskillName, tradeskillID, ar
                                         end
                                     end
     
-                                    self.tradeskillDataProvider[tradeskillID][prefix][enchantLocation]:Insert({
+                                    dataProvider[prefix][enchantLocation]:Insert({
                                         --sort data
                                         name = spellName,
                                         quality = 1,
@@ -759,7 +861,7 @@ function GuildbookTradskillsMixin:LoadTradeskill(tadeskillName, tradeskillID, ar
                                         end,
                                     })
     
-                                    self.tradeskillDataProvider[tradeskillID][prefix][enchantLocation]:Sort()
+                                    dataProvider[prefix][enchantLocation]:Sort()
     
                                     spellsAdded[spellID] = true;
                             
@@ -767,32 +869,41 @@ function GuildbookTradskillsMixin:LoadTradeskill(tadeskillName, tradeskillID, ar
 
                             else
 
+                                --[[
+                                    prof perks
+                                ]]
 
-                                if not self.tradeskillDataProvider[tradeskillID][tadeskillName] then
-                                    self.tradeskillDataProvider[tradeskillID][tadeskillName] = self.listview.DataProvider:Insert({
-                                        label = tadeskillName,
+                                local profName = Tradeskills:GetLocaleNameFromID(tradeskillID)
+
+                                if not dataProvider[profName] then
+                                    dataProvider[profName] = dataProvider:Insert({
+                                        label = profName,
                                         atlas = "common-icon-forwardarrow",
                                         backgroundAtlas = "OBJBonusBar-Top",
                                         fontObject = GameFontNormal,
                                         isParent = true,
                                         init = function(f)
-                                            f.icon:SetTexCoord(0,1, 1,1, 0,0, 1,0)
+                                            f.icon:SetTexCoord(0,1,0,1)
                             
                                             if f:GetElementData():IsCollapsed() then
                                                 f.icon:SetTexCoord(0,1,0,1)
                                             else
                                                 f.icon:SetTexCoord(0,1, 1,1, 0,0, 1,0)
                                             end
+
+                                            C_Timer.After(0.001, function()
+                                                f.icon:SetTexCoord(0,1,0,1)
+                                            end)
                                         end,
                                     })
 
-                                    self.tradeskillDataProvider[tradeskillID][tadeskillName]:SetSortComparator(sortFunc, true, false)
+                                    dataProvider[profName]:SetSortComparator(sortFunc, true, false)
     
                                 end
 
                                 if not spellsAdded[spellID] then
                                         
-                                    self.tradeskillDataProvider[tradeskillID][tadeskillName]:Insert({
+                                    dataProvider[profName]:Insert({
                                         --sort data
                                         name = spellName,
                                         quality = 1,
@@ -817,11 +928,12 @@ function GuildbookTradskillsMixin:LoadTradeskill(tadeskillName, tradeskillID, ar
                                         end,
                                     })
 
-                                    self.tradeskillDataProvider[tradeskillID][tadeskillName]:Sort()
+                                    dataProvider[profName]:Sort()
 
                                     spellsAdded[spellID] = true;
                                 end
 
+                                
                             end
 
 

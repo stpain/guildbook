@@ -419,6 +419,11 @@ function GuildbookMixin:AddView(view)
             self:SelectView(view.name)
         end)
     end
+
+    --make home visible
+    if view.name == "Home" then
+        self:SelectView(view.name)
+    end
 end
 function addon.AddView(view)
     GuildbookUI:AddView(view)

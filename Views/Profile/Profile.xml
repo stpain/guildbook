@@ -221,7 +221,7 @@
                             <Color r="1" g="1" b="1"/>
                             <Size y="30"/>
                             <Anchors>
-                                <Anchor point="TOPLEFT" x="0" y="-25"/>
+                                <Anchor point="TOPLEFT" x="0" y="-30"/>
                             </Anchors>
                         </FontString>
                         <FontString parentKey="major2" inherits="GameFontNormal">

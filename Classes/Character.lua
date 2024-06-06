@@ -984,7 +984,7 @@ end
 
 
 function Character:CreateFromData(data)
-    if (data.race == false) or (data.gender == false) then
+    --if (data.race == false) or (data.gender == false) then
         self.ticker = C_Timer.NewTicker(1, function()
             local _, _, _, englishRace, sex = GetPlayerInfoByGUID(data.guid)
             if englishRace and sex then
@@ -995,7 +995,7 @@ function Character:CreateFromData(data)
                 end
             end
         end)
-    end
+    --end
     return Mixin({data = data}, self)
 end
 
