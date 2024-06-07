@@ -346,6 +346,7 @@ function e:BAG_UPDATE_DELAYED()
         local bags = addon.api.scanPlayerContainers()
         addon.characters[addon.thisCharacter]:SetContainers(bags)
     end
+    addon:TriggerEvent("Character_Bags_Updated")
 end
 
 

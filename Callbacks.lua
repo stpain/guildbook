@@ -24,6 +24,8 @@ addon:GenerateCallbackEvents({
     "Character_OnTradeskillSelected",
     "Character_BroadcastChange",
     "Character_ExportEquipment",
+
+    "Character_Bags_Updated",
     
     "Profile_OnItemDataLoaded",
 

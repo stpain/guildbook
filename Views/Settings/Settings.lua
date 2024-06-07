@@ -616,7 +616,7 @@ function GuildbookSettingsMixin:PreparePanels()
 
 
     local function myChatFilter(_, event, msg, author, ...)
-        if addon.thisCharacter and addon.characters and addon.characters[author] then
+        if addon.thisCharacter and (addon.thisCharacter ~= author) and addon.characters and addon.characters[author] then
             local mainCharacter = addon.characters[author]:GetMainCharacter()
             if mainCharacter then
 

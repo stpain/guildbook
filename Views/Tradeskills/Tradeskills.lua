@@ -85,6 +85,7 @@ function GuildbookTradskillsMixin:OnLoad()
     self:InitAddToListButton()
 
     addon:RegisterCallback("Character_OnTradeskillSelected", self.OnCharacterTradeskillSelected, self)
+    addon:RegisterCallback("Character_Bags_Updated", self.OnCharacterBagsUpdated, self)
 
     if Auctionator then
         Auctionator.API.v1.RegisterForDBUpdate(addonName, function()
@@ -220,6 +221,78 @@ function GuildbookTradskillsMixin:ClearRecipe()
     self.details:Hide()
 end
 
+function GuildbookTradskillsMixin:OnCharacterBagsUpdated()
+    if self.selectedRecipe then
+        self:UpdateReagents(self.selectedRecipe)
+    end
+end
+
+function GuildbookTradskillsMixin:UpdateReagents(recipe)
+    local reagents = {}
+
+    local reagentSortFunc = function(a, b)
+        return a.count > b.count;
+    end
+
+    for itemID, count in pairs(recipe.reagents) do
+
+        local numOwned = GetItemCount(itemID)
+        local numRequired = count * math.floor(self.details.craftingOptions.quantityToCraft:GetValue())
+
+        local item = Item:CreateFromItemID(itemID)
+        if not item:IsItemEmpty() then
+            item:ContinueOnItemLoad(function()
+
+                table.insert(reagents, {
+                    count = numRequired,
+                    link = item:GetItemLink(),
+                    init = function(f)
+                        f.icon:SetTexture(item:GetItemIcon())
+                        f.icon:SetSize(32,32)
+        
+                        f.label:SetSize(160, 32)
+
+                        if numOwned < numRequired then
+                            f.label:SetText(DULL_RED_FONT_COLOR:WrapTextInColorCode(string.format("%d/%d %s", numOwned, numRequired, item:GetItemName())))
+                        else
+                            f.label:SetText(string.format("%d/%d %s", numOwned, numRequired, item:GetItemName()))
+                        end
+        
+                        f:SetScript("OnMouseDown", function()
+                            HandleModifiedItemClick(item:GetItemLink())
+                        end)
+        
+        
+                    end,
+
+                    --for AH search
+                    auctionHouseSearchTerm = item:GetItemName(),
+                })
+
+                --this should be doen after all items cached but with a max of 8 reagents its probably nto too bad
+                self.details.reagents.scrollView:SetDataProvider(CreateDataProvider(reagents))
+                self.details.reagents.scrollView:GetDataProvider():SetSortComparator(reagentSortFunc)
+                self.details.reagents.scrollView:GetDataProvider():Sort()
+            end)
+        end
+    end
+
+    if Auctionator then
+
+        self.details.auctionatorInfo.searchAH:SetScript("OnClick", function()
+            local t = {}
+            for k, item in ipairs(reagents) do
+                table.insert(t, item.auctionHouseSearchTerm)
+            end
+    
+            Auctionator.API.v1.MultiSearch(addonName, t)
+        end)
+
+        self:UpdateAuctionatorPanel(recipe)
+    end
+
+end
+
 function GuildbookTradskillsMixin:UpdateAuctionatorPanel(recipe)
 
     local baseCost = 0;
@@ -319,9 +392,6 @@ function GuildbookTradskillsMixin:SetRecipe(recipe)
     self.details.crafters.scrollView:SetDataProvider(CreateDataProvider(crafters))
     self.details.crafters:Show()
 
-    local reagentSortFunc = function(a, b)
-        return a.count > b.count;
-    end
 
     self.details.reagentForRecipes.DataProvider = CreateTreeDataProvider()
     self.details.reagentForRecipes.scrollView:SetDataProvider(self.details.reagentForRecipes.DataProvider)
@@ -379,62 +449,6 @@ function GuildbookTradskillsMixin:SetRecipe(recipe)
     end
 
 
-    local reagents = {}
-    local invoice = {
-        items = {},
-        baseCost = 0,
-        currentCost = 0,
-        quantity = 1,
-    }
-
-    local function updateReagents()
-
-        reagents = {}
-
-        for itemID, count in pairs(recipe.reagents) do
-
-            local numOwned = GetItemCount(itemID)
-            local numRequired = count * math.floor(self.details.craftingOptions.quantityToCraft:GetValue())
-    
-            local item = Item:CreateFromItemID(itemID)
-            if not item:IsItemEmpty() then
-                item:ContinueOnItemLoad(function()
-    
-                    table.insert(reagents, {
-                        count = numRequired,
-                        link = item:GetItemLink(),
-                        init = function(f)
-                            f.icon:SetTexture(item:GetItemIcon())
-                            f.icon:SetSize(32,32)
-            
-                            f.label:SetSize(160, 32)
-
-                            if numOwned < numRequired then
-                                f.label:SetText(DULL_RED_FONT_COLOR:WrapTextInColorCode(string.format("%d/%d %s", numOwned, numRequired, item:GetItemName())))
-                            else
-                                f.label:SetText(string.format("%d/%d %s", numOwned, numRequired, item:GetItemName()))
-                            end
-            
-                            f:SetScript("OnMouseDown", function()
-                                HandleModifiedItemClick(item:GetItemLink())
-                            end)
-            
-            
-                        end,
-    
-                        --for AH search
-                        auctionHouseSearchTerm = item:GetItemName(),
-                    })
-    
-                    --this should be doen after all items cached but with a max of 8 reagents its probably nto too bad
-                    self.details.reagents.scrollView:SetDataProvider(CreateDataProvider(reagents))
-                    self.details.reagents.scrollView:GetDataProvider():SetSortComparator(reagentSortFunc)
-                    self.details.reagents.scrollView:GetDataProvider():Sort()
-                end)
-            end
-        end
-    end
-
 
     self.details.craftingOptions.quantityToCraft:SetValueStep(1)
     self.details.craftingOptions.quantityToCraft:SetValue(1)
@@ -443,38 +457,10 @@ function GuildbookTradskillsMixin:SetRecipe(recipe)
     end)
     self.details.craftingOptions.quantityToCraft:SetScript("OnValueChanged", function(slider)
         slider.label:SetText(string.format("%.0f", slider:GetValue()))
-        
-        updateReagents()
-
-        if Auctionator then
-
-            self.details.auctionatorInfo.searchAH:SetScript("OnClick", function()
-                local t = {}
-                for k, item in ipairs(reagents) do
-                    table.insert(t, item.auctionHouseSearchTerm)
-                end
-        
-                Auctionator.API.v1.MultiSearch(addonName, t)
-            end)
-
-            self:UpdateAuctionatorPanel(recipe)
-        end
+        self:UpdateReagents(recipe)
     end)
 
-    updateReagents()
-    if Auctionator then
-
-        self.details.auctionatorInfo.searchAH:SetScript("OnClick", function()
-            local t = {}
-            for k, item in ipairs(reagents) do
-                table.insert(t, item.auctionHouseSearchTerm)
-            end
-    
-            Auctionator.API.v1.MultiSearch(addonName, t)
-        end)
-
-        self:UpdateAuctionatorPanel(recipe)
-    end
+    self:UpdateReagents(recipe)
 
     self.details.craftingOptions:Hide()
     if IsPlayerSpell(recipe.spellID) then
