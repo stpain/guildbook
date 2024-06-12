@@ -39,7 +39,8 @@ function GuildbookButtonMixin:OnMouseUp()
     end
     --self:AdjustPointsOffset(1,1)
     if self.func then
-        C_Timer.After(0, self.func)
+        --C_Timer.After(0, self.func)
+        self.func(self)
     end
 end
 
@@ -2250,4 +2251,256 @@ function GuildbookSearchListviewItemMixin:SetDataBinding(binding)
     else
         self:SetScript("OnMouseDown", nil)
     end
+end
+
+
+
+
+
+
+GuildbookClassicEraRecruitmentMixin = {}
+function GuildbookClassicEraRecruitmentMixin:OnLoad()
+    
+end
+
+function GuildbookClassicEraRecruitmentMixin:SetDataBinding(binding, height)
+    
+    if binding.backgroundAlpha then
+        self.background:SetAlpha(binding.backgroundAlpha)
+    else
+        self.background:SetAlpha(0)
+    end
+    if binding.backgroundAtlas then
+        self.background:SetAtlas(binding.backgroundAtlas)
+        self.background:SetAlpha(1)
+    else
+        if binding.backgroundRGB then
+            self.background:SetColorTexture(binding.backgroundRGB.r, binding.backgroundRGB.g, binding.backgroundRGB.b)
+         else
+             self.background:SetColorTexture(0,0,0)
+         end
+    end
+
+    self.character = binding.character
+
+    if type(self.character.class) == "number" then
+
+        local c, class, cid = GetClassInfo(self.character.class)
+
+        local specs;
+        if RAID_CLASS_COLORS[class] then
+            specs = addon.api.getClassSpecialization(class)
+
+            self.contextMenu = {
+                {
+                    text = RAID_CLASS_COLORS[class]:WrapTextInColorCode(self.character.name),
+                    isTitle = true,
+                    notCheckable = true,
+                },
+        
+            }
+            table.insert(self.contextMenu, addon.contextMenuSeparator)
+        end
+
+        if specs then
+            local specMenu = {}
+            for k, v in ipairs(specs) do
+                table.insert(specMenu, {
+                    text = L[v],
+                    func = function()
+                        self.character.spec = v;
+                        self:Update()
+                    end,
+                    notCheckable = true,
+                })
+            end
+            table.insert(self.contextMenu, {
+                text = "Set Spec",
+                notCheckable = true,
+                menuList = specMenu,
+                hasArrow = true,
+            })
+        end
+    else
+
+        self.contextMenu = {
+            {
+                text = self.character.name,
+                isTitle = true,
+                notCheckable = true,
+            },
+    
+        }
+        table.insert(self.contextMenu, addon.contextMenuSeparator)
+
+        local classMenu = {}
+        for i = 1, 12 do
+            local lc, gc, id = GetClassInfo(i)
+            if lc then
+                local specMenu = {}
+                local specs = addon.api.getClassSpecialization(gc)
+                if specs then
+                    for k, v in ipairs(specs) do
+                        table.insert(specMenu, {
+                            text = L[v],
+                            func = function()
+                                self.character.spec = v;
+                                self.character.class = id
+                                self:Update()
+                            end,
+                            notCheckable = true,
+                        })
+                    end
+                    table.insert(classMenu, {
+                        text = RAID_CLASS_COLORS[gc]:WrapTextInColorCode(lc),
+                        notCheckable = true,
+                        hasArrow = true,
+                        menuList = specMenu,
+                    })
+                end
+            end
+        end
+        table.insert(self.contextMenu, {
+            text = "Set Class",
+            notCheckable = true,
+            hasArrow = true,
+            menuList = classMenu,
+        })
+    end
+
+    local statusMenu = {}
+    for i = 0, #addon.recruitment.statusIDs do
+        table.insert(statusMenu, {
+            text = addon.recruitment.statusIDs[i],
+            func = function()
+                self.character.status = i;
+                table.insert(self.character.notes,
+                {
+                    user = addon.thisCharacter,
+                    note = string.format("Set status to %s", addon.recruitment.statusIDs[i]),
+                    timestamp = time(),
+                })
+                self:Update()
+            end,
+            notCheckable = true,
+        })
+    end
+    table.insert(self.contextMenu, {
+        text = "Set Status",
+        notCheckable = true,
+        menuList = statusMenu,
+        hasArrow = true,
+    })
+    table.insert(self.contextMenu, {
+        text = "Add note",
+        func = function()
+            StaticPopup_Show("GuildbookRecruitment_AddNote", self.character.name, nil, { character = self.character})
+        end,
+        notCheckable = true,
+    })
+
+    self:Update()
+
+    self:SetScript("OnMouseDown", function(f, b)
+        if b == "RightButton" then
+            EasyMenu(self.contextMenu, addon.contextMenu, "cursor", 0, 0, "MENU", 1)
+        end
+    end)
+
+    self.select:SetScript("OnClick", function()
+        self.character.isSelected = not self.character.isSelected;
+    end)
+
+    -- if binding.onUpdate then
+    --     self:SetScript("OnUpdate", binding.onUpdate)
+    -- end
+
+    -- if binding.onMouseDown then
+    --     self:SetScript("OnMouseDown", binding.onMouseDown)
+    -- end
+    -- if binding.onMouseUp then
+    --     self:SetScript("OnMouseUp", binding.onMouseUp)
+    -- end
+
+    -- if binding.onMouseEnter then
+    --     self:SetScript("OnEnter", binding.onMouseEnter)
+    -- end
+
+    -- if binding.onMouseLeave then
+    --     self:SetScript("OnLeave", binding.onMouseLeave)
+    -- end
+
+    self:SetScript("OnLeave", function()
+        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+    end)
+
+    if binding.init then
+        binding.init(self)
+    end
+end
+
+--addon.recruitment
+
+function GuildbookClassicEraRecruitmentMixin:Update()
+
+    if self.character.class then
+        local loClass, class, cid = GetClassInfo(self.character.class)
+
+        for k, v in pairs(self.character) do
+            if self[k] then
+                if k == "status" then
+                    self[k]:SetText(addon.recruitment.statusIDs[tonumber(v)])
+                else
+                    if k == "name" then
+                        if RAID_CLASS_COLORS[class] then
+                            self[k]:SetText(RAID_CLASS_COLORS[class]:WrapTextInColorCode(v))
+                        else
+                            self[k]:SetText(v)
+                        end
+                    elseif k == "class" then
+                        self[k]:SetText(loClass)
+                    else
+                        self[k]:SetText(v)
+                    end
+                end
+            end
+        end
+
+    else
+        for k, v in pairs(self.character) do
+            if self[k] then
+                if k == "status" then
+                    self[k]:SetText(addon.recruitment.statusIDs[tonumber(v)])
+                else
+                    self[k]:SetText(v)
+                end
+            end
+        end
+    end
+
+    self.select:SetChecked(self.character.isSelected)
+
+
+    self:SetScript("OnEnter", function()
+        if self.character then
+            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+            GameTooltip:AddLine(self.character.name)
+
+            if self.character.notes then
+                GameTooltip:AddLine("Notes")
+                GameTooltip:AddDoubleLine(self.character.notes[#self.character.notes].note, self.character.notes[#self.character.notes].user)
+            end
+
+            GameTooltip:Show()
+        end
+    end)
+end
+
+function GuildbookClassicEraRecruitmentMixin:ResetDataBinding()
+    self.name:SetText("")
+    self.class:SetText("")
+    self.spec:SetText("")
+    self.level:SetText("")
+    self.race:SetText("")
+    self.select:SetChecked(false)
 end

@@ -109,7 +109,7 @@ function Comms:Player_Regen_Disabled()
 end
 
 ---the purpose of this function is to check the queued mesages once per second and take action
----if there is a message and its dispatch time has been reached then push the message, then update remaining messages to dispatch at n secon intervals
+---if there is a message and its dispatch time has been reached then push the message, then update remaining messages to dispatch at n second intervals
 ---if the queue is empty remove the onUpdate script
 ---@param self frame the dispatch frame
 ---@param elapsed number elapsed since last OnUpdate
@@ -419,6 +419,12 @@ function Comms:Character_BroadcastChange(character, ...)
 end
 
 
+
+--[[
+
+feature removed as of cata
+
+
 function Comms:Guildbank_TimeStampRequest(bank)
     local msg = {
         event = "GUILDBANK_TIMESTAMPS_REQUEST",
@@ -518,7 +524,7 @@ end
 function Comms:Guildbank_OnDataReceived(sender, message)
     addon:TriggerEvent("Guildbank_OnDataReceived", sender, message)
 end
-
+]]
 
 
 
@@ -621,9 +627,9 @@ function Comms:Character_OnDataResponse(sender, message)
 
 end
 
-function Comms:Character_OnNewsBroadcast(sender, message)
-    addon:TriggerEvent("Character_OnNewsEvent", message.payload, sender)
-end
+-- function Comms:Character_OnNewsBroadcast(sender, message)
+--     addon:TriggerEvent("Character_OnNewsEvent", message.payload, sender)
+-- end
 
 --when a comms is received check the event type and pass to the relavent function
 Comms.events = {
@@ -631,7 +637,7 @@ Comms.events = {
     CHARACTER_DATA_REQUEST = Comms.Character_OnDataRequest,
     CHARACTER_DATA_RESPONSE = Comms.Character_OnDataResponse,
 
-    CHARACTER_NEWS_BROADCAST = Comms.Character_OnNewsBroadcast,
+    --CHARACTER_NEWS_BROADCAST = Comms.Character_OnNewsBroadcast,
 
     --character events
     --CONTAINERS_TRANSMIT = Comms.Character_OnDataReceived,
@@ -657,18 +663,22 @@ Comms.events = {
     TRADESKILL_TRANSMIT_FIRSTAID_LEVEL = Comms.Character_OnDataReceived,
     TRADESKILL_TRANSMIT_FIRSTAID_RECIPES = Comms.Character_OnDataReceived,
 
+
+    --[[
+        redundant features as of cata
+    ]]
     --calendar events
-    CALENDAR_EVENT_TRANSMIT = "",
+    --CALENDAR_EVENT_TRANSMIT = "",
 
     --guild bank events
-    GUILDBANK_TIMESTAMPS_REQUEST = Comms.Guildbank_OnTimestampsRequested,
-    GUILDBANK_DATA_REQUEST = Comms.Guildbank_OnDataRequested,
-    GUILDBANK_TIMESTAMPS_TRANSMIT = Comms.Guildbank_OnTimestampsReceived,
-    GUILDBANK_DATA_TRANSMIT = Comms.Guildbank_OnDataReceived,
+    -- GUILDBANK_TIMESTAMPS_REQUEST = Comms.Guildbank_OnTimestampsRequested,
+    -- GUILDBANK_DATA_REQUEST = Comms.Guildbank_OnDataRequested,
+    -- GUILDBANK_TIMESTAMPS_TRANSMIT = Comms.Guildbank_OnTimestampsReceived,
+    -- GUILDBANK_DATA_TRANSMIT = Comms.Guildbank_OnDataReceived,
 }
 
-addon:RegisterCallback("Guildbank_DataRequest", Comms.Guildbank_DataRequest, Comms)
-addon:RegisterCallback("Guildbank_TimeStampRequest", Comms.Guildbank_TimeStampRequest, Comms)
+-- addon:RegisterCallback("Guildbank_DataRequest", Comms.Guildbank_DataRequest, Comms)
+-- addon:RegisterCallback("Guildbank_TimeStampRequest", Comms.Guildbank_TimeStampRequest, Comms)
 addon:RegisterCallback("Character_BroadcastChange", Comms.Character_BroadcastChange, Comms)
 addon:RegisterCallback("Database_OnInitialised", Comms.Init, Comms)
 --addon:RegisterCallback("Database_OnNewsEventAdded", Comms.Character_BroadcastNewsEvent, Comms)

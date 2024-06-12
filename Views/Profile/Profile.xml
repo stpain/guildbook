@@ -136,7 +136,7 @@
                         </Layers>
                         <KeyValues>
                             <KeyValue key="frameType" value="FRAME" type="string"/>
-                            <KeyValue key="itemTemplate" value="GuildbookWrathEraSimpleIconLabelFrame" type="string"/>
+                            <KeyValue key="itemTemplate" value="TBDSimpleIconLabelFrame" type="string"/>
                             <KeyValue key="elementHeight" value="32" type="number"/>
                         </KeyValues>                        
                     </Frame>

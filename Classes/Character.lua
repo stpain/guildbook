@@ -704,10 +704,8 @@ end
 function Character:SetMainCharacter(main, broadcast)
     self.data.mainCharacter = main;
 
-    local alts = {}
-
     --this should only apply when setting your own characters data
-    if Database.db.myCharacters and Database.db.myCharacters[main] then
+    if Database.db.myCharacters then
         for name, val in pairs(Database.db.myCharacters) do
             val = false;
 
@@ -719,17 +717,14 @@ function Character:SetMainCharacter(main, broadcast)
                     --addon.characters will be a table of this guild only
                     if addon.characters and addon.characters[name] then
                         addon.characters[name].data.mainCharacter = self.data.mainCharacter
-
-                        --if name ~= main then
-                            table.insert(alts, name)
-                        --end
+                        addon.LogDebugMessage("character", string.format("Set %s as main character for %s", main, name))
                     end
 
                 end
             end
 
         end
-        self:SetAlts(alts, broadcast)
+
         Database.db.myCharacters[self.data.name] = true;
     end
 
@@ -745,48 +740,19 @@ function Character:GetMainCharacter()
     return self.data.mainCharacter;
 end
 
-function Character:SetAlts(alts, broadcast)
-    self.data.alts = alts;
-
-    --don't use the api here it'll cuase a cirle of sending data
-    for k, name in ipairs(alts) do
-        if addon.characters and addon.characters[name] then
-            addon.characters[name].data.alts = alts
-        end
-    end
-    addon:TriggerEvent("Character_OnDataChanged", self)
-    if broadcast then
-        addon:TriggerEvent("Character_BroadcastChange", self, "SetAlts", "alts")
-    end
-    addon:TriggerEvent("StatusText_OnChanged", string.format(" set alts for %s", self.data.name))
-end
-
-function Character:GetAlts()
-    return self.data.alts;
-end
-
-
-function Character:AddNewAlt(guid)
-    table.insert(self.data.alts, guid)
-end
-
-function Character:RemoveAlt(guid)
-    local i;
-    for k, _guid in ipairs(self.data.alts) do
-        if _guid == guid then
-            i = k;
-        end
-    end
-    if type(i) == "number" then
-        table.remove(self.data.alts, i)
-    end
-end
 
 function Character:GetTradeskillIcon(slot)
     if type(self.data["profession"..slot]) == "number" then
         return Tradeskills:TradeskillIDToAtlas(self.data["profession"..slot])
     end
     return "questlegendaryturnin";
+end
+
+function Character:GetTradeskillName(slot)
+    if type(self.data["profession"..slot]) == "number" then
+        return Tradeskills:GetLocaleNameFromID(self.data["profession"..slot])
+    end
+    return "-";
 end
 
 function Character:GetProfileAvatar()
@@ -984,6 +950,9 @@ end
 
 
 function Character:CreateFromData(data)
+    if data and data.alts then
+        data.alts = nil
+    end
     --if (data.race == false) or (data.gender == false) then
         self.ticker = C_Timer.NewTicker(1, function()
             local _, _, _, englishRace, sex = GetPlayerInfoByGUID(data.guid)
@@ -1013,7 +982,7 @@ function Character:CreateEmpty()
             isOnline = false,
             zone = "",
         },
-        alts = {},
+        --alts = {},
         mainCharacter = false,
         publicNote = "",
         mainSpec = false,

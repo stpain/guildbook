@@ -67,7 +67,7 @@ function GuildbookInstancesMixin:OnLoad()
     addon:RegisterCallback("UI_OnSizeChanged", self.UpdateLayout, self)
     addon:RegisterCallback("Tradeskill_OnItemAddedToList", self.Tradeskill_OnItemAddedToList, self)
     addon:RegisterCallback("Database_OnItemListItemRemoved", self.Database_OnItemListItemRemoved, self)
-    addon:RegisterCallback("Chat_OnLootMessage", self.Chat_OnLootMessage, self)
+    addon:RegisterCallback("Loot_OnItemAvailable", self.Loot_OnItemAvailable, self)
 
 
     self.lists:ClearAllPoints()
@@ -285,9 +285,40 @@ function GuildbookInstancesMixin:AddItemToList(itemID, list)
     end
 end
 
-
+local scaler = 0.6;
+local infoWarningIcon = CreateAtlasMarkup("QuestPortraitIcon-SandboxQuest", 33 * scaler, 55 * scaler)
 local lootItems = {}
-function GuildbookInstancesMixin:Chat_OnLootMessage(msg)
+function GuildbookInstancesMixin:Loot_OnItemAvailable()
+
+    local numItems = C_LootHistory.GetNumItems()
+
+    if numItems > 0 then
+        local lastItem = {C_LootHistory.GetItem(1)}
+        local itemID = GetItemInfoInstant(lastItem[2])
+
+        if type(itemID) == "number" then
+            for k, list in ipairs(Database.db.itemLists) do
+                if list.character == addon.thisCharacter then
+                    for k, id in ipairs(list.items) do
+                        if id == itemID then
+
+                            if not lootItems[itemID] then
+                                UIErrorsFrame:AddMessage(string.format("%s %s is on your list [%s] %s", infoWarningIcon, lastItem[2], list.name, infoWarningIcon))
+
+                                lootItems[itemID] = true
+                            end
+                            
+
+                            --make this show a frame or something
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+
+    --[[
     
     if Database.db and Database.db.itemLists then
 
@@ -314,7 +345,7 @@ function GuildbookInstancesMixin:Chat_OnLootMessage(msg)
                             if id == itemID then
 
                                 if not lootItems[itemID] then
-                                    UIErrorsFrame:AddMessage(string.format("%s is on your list [%s]", extractedLink, list.name))
+                                    UIErrorsFrame:AddMessage(string.format("%s %s is on your list [%s] %s", infoWarningIcon, extractedLink, list.name, infoWarningIcon))
 
                                     lootItems[itemID] = true
                                 end
@@ -337,7 +368,7 @@ function GuildbookInstancesMixin:Chat_OnLootMessage(msg)
     -- Print the extracted part
     --print(extractedPart)  -- Output: Epic Sword
 
-
+    ]]
 
 
 

@@ -68,14 +68,14 @@ function GuildbookSettingsMixin:OnLoad()
                 self:SelectCategory("chat")
             end,
         },
-        {
-            label = "Guild Bank",
-            --atlas = "ShipMissionIcon-Treasure-Mission",
-            backgroundAlpha = 0.15,
-            onMouseDown = function ()
-                self:SelectCategory("guildBank")
-            end,
-        },
+        -- {
+        --     label = "Guild Bank",
+        --     --atlas = "ShipMissionIcon-Treasure-Mission",
+        --     backgroundAlpha = 0.15,
+        --     onMouseDown = function ()
+        --         self:SelectCategory("guildBank")
+        --     end,
+        -- },
         {
             label = "Addon",
             --atlas = "GarrMission_MissionIcon-Engineering",
@@ -166,6 +166,18 @@ function GuildbookSettingsMixin:OnLoad()
     self.content.addon.debug.label:SetText(L.SETTINGS_ADDON_DEBUG_LABEL)
     self.content.addon.debug:SetScript("OnClick", function(cb)
         Database.db.debug = cb:GetChecked()
+    end)
+
+    self.content.addon.enhancedPaperDoll.label:SetText(L.SETTINGS_ADDON_ENHANCE_PAPERDOLL_LABEL)
+    self.content.addon.enhancedPaperDoll:SetScript("OnClick", function(cb)
+        Database:SetConfig("enhancedPaperDoll", cb:GetChecked())
+        addon.api.updatePaperdollOverlays()
+    end)
+
+    self.content.addon.wholeNineYards.label:SetSize(550, 80)
+    self.content.addon.wholeNineYards.label:SetText(L.SETTINGS_ADDON_WNY_LABEL)
+    self.content.addon.wholeNineYards:SetScript("OnClick", function(cb)
+        Database:SetConfig("wholeNineYards", cb:GetChecked())
     end)
 
 
@@ -687,7 +699,7 @@ function GuildbookSettingsMixin:PreparePanels()
     --=========================================
     self.content.addon.debug:SetChecked(Database.db.debug)
     
-
+    self.content.addon.enhancedPaperDoll:SetChecked(Database:GetConfig("enhancedPaperDoll"))
 
     --=========================================
     --guild panel
@@ -740,20 +752,23 @@ function GuildbookSettingsMixin:PreparePanels()
 
     slider.label:SetText("Column count")
     slider.value:SetText(1)
-    slider:SetMinMaxValues(1, 10)
+    slider:SetMinMaxValues(1, 5)
     slider:SetValue(1)
 
-    _G[slider:GetName().."Low"]:SetText(" ")
-    _G[slider:GetName().."High"]:SetText(" ")
-    _G[slider:GetName().."Text"]:SetText(" ")
+    -- _G[slider:GetName().."Low"]:SetText(" ")
+    -- _G[slider:GetName().."High"]:SetText(" ")
+    -- _G[slider:GetName().."Text"]:SetText(" ")
 
-    --TBDDropDownTemplate
+    --GuildbookClassicEraWidgetsDropDownTemplate
 
     local function csvSplit(inputstr, sep)
         if sep == nil then
             return
         end
         local t = {}
+
+        inputstr = string.gsub(inputstr, "\n", sep)
+
         for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
             table.insert(t, str)
         end
@@ -765,7 +780,7 @@ function GuildbookSettingsMixin:PreparePanels()
         local csv = csvSplit(self.content.guild.tabContainer.csvInput.pasteBin.EditBox:GetText(), ",")
 
         local ret = ""
-        for i = 1, (10 * columns), columns do
+        for i = 1, (8 * columns), columns do
             for j = i, (i + columns - 1) do
                 if csv[j] then
                     ret = string.format("%s%s,", ret, csv[j])
@@ -790,10 +805,235 @@ function GuildbookSettingsMixin:PreparePanels()
         preparePreview()
     end)
 
+    local colKeys = {
+        "Name",
+        "Class",
+        "Race",
+        "Spec",
+        "Level",
+        "IGNORE"
+    }
+
+    self.content.guild.tabContainer.csvInput.columnDataContainer.colKeys = {
+        name = 1,
+        class = false,
+        race = false,
+        spec = false,
+        level = false,
+    }
+    for i = 1, 5 do
+        local x = (i - 1) * 55
+        local y = -12
+        local b = CreateFrame("Button", nil, self.content.guild.tabContainer.csvInput.columnDataContainer, "TBDDropDownTemplate")
+        b:SetSize(55, 22)
+        b:SetPoint("TOPLEFT", x + 2, y)
+
+        local menu = {}
+        for k, v in ipairs(colKeys) do
+            if v == "IGNORE" then
+                table.insert(menu, {
+                    text = v,
+                    func = function()
+                        for k, v in pairs(self.content.guild.tabContainer.csvInput.columnDataContainer.colKeys) do
+                            if v == i then
+                                self.content.guild.tabContainer.csvInput.columnDataContainer.colKeys[k] = false
+                                --print(string.format("set %s as false", k))
+                            end
+                        end
+                    end,
+                })
+            else
+                table.insert(menu, {
+                    text = v,
+                    func = function()
+                        self.content.guild.tabContainer.csvInput.columnDataContainer.colKeys[v:lower()] = i;
+                    end,
+                })
+            end
+        end
+        
+
+        b:SetMenu(menu)
+
+        local fs = self.content.guild.tabContainer.csvInput.columnDataContainer:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+        fs:SetPoint("TOPLEFT", x, 0)
+        fs:SetSize(55, 12)
+        fs:SetText(i)
+    end
+
+    local classDataLookup = {}
+    for i = 1, 12 do
+        local lClass, gClass, id = GetClassInfo(i)
+        if lClass then
+            classDataLookup[lClass:lower()]  = i
+            classDataLookup[gClass:lower()]  = i
+        end
+    end
 
     self.content.guild.tabContainer.csvInput.import:SetScript("OnClick", function()
         
+        local data = {}
+
+        local columns = math.ceil(slider:GetValue())
+        local csv = csvSplit(self.content.guild.tabContainer.csvInput.pasteBin.EditBox:GetText(), ",")
+
+        local colKeys = {}
+        for k, v in pairs(self.content.guild.tabContainer.csvInput.columnDataContainer.colKeys) do
+            if type(v) == "number" then
+                colKeys[v] = k
+            end
+        end
+
+        for i = 1, #csv, columns do
+            local entry = {}
+            local k = 1;
+            for j = i, (i + columns - 1) do
+                if csv[j] and (csv[j] ~= " ") then
+                    if colKeys[k] then
+
+                        if colKeys[k] == "class" then
+                            
+                            if classDataLookup[csv[j]:lower()] then
+                                entry[colKeys[k]] = classDataLookup[csv[j]:lower()]
+                            end
+                        else
+                            entry[colKeys[k]] = csv[j];
+                        end
+
+                    end
+                end
+                k = k + 1;
+            end
+
+            entry.notes = {
+                {
+                    user = addon.thisCharacter,
+                    note = "Imported",
+                    timestamp = time(),
+                },
+            }
+            entry.status = 0
+
+            table.insert(data, entry)
+        end
+
+        --DevTools_Dump(data)
+
+
+        --Database:InsertRecruitmentCSV(data)
+
     end)
+
+    local classFilterID;
+    local statusFilter;
+
+    local function filterClass()
+        return function(character)
+            if not classFilterID then
+                return true
+            end
+            if character.class then
+                local class, classString, classID = GetClassInfo(classFilterID)
+                if character.class == classID then
+                    return true
+                end
+            end
+            return false;
+        end
+    end
+    local function filterStatus()
+        return function(character)
+            if not statusFilter then
+                return true
+            end
+            if character.status then
+                if character.status == statusFilter then
+                    return true
+                end
+            end
+            return false;
+        end
+    end
+
+    local function updateRecruitmentList()
+        local entries = Database:GetAllRecruitment() or {}
+        local t = {}
+
+        local filters = {
+            filterClass(),
+            filterStatus(),
+        }
+
+
+        for k, v in ipairs(entries) do
+            local match = true
+            for k, filter in ipairs(filters) do
+                if not filter(v) then
+                    match = false
+                end
+            end
+            if match then
+                table.insert(t, {
+                    character = v,
+                    backgroundRGB = (k % 2 == 0) and {r=1, g=1, b=1} or {r=0, b=0, g=0},
+                    backgroundAlpha = 0.08,
+                })
+            end
+        end
+        self.content.guild.tabContainer.invites.listview.scrollView:SetDataProvider(CreateDataProvider(t))
+    end
+
+    local classSelectMenu = {}
+    table.insert(classSelectMenu, {
+        text = "All",
+        func = function()
+            classFilterID = false;
+            updateRecruitmentList()
+        end,
+    })
+    for i = 1, 12 do
+        local class, classString, classID = GetClassInfo(i)
+        if class then
+            table.insert(classSelectMenu, {
+                text = class,
+                func = function()
+
+                    classFilterID = classID;
+                    updateRecruitmentList()
+                end,
+            })
+        end
+    end
+    self.content.guild.tabContainer.invites.classSelectDropdown:SetMenu(classSelectMenu)
+
+    local statusSelectMenu = {}
+    table.insert(statusSelectMenu, {
+        text = "None",
+        func = function()
+            statusFilter = false;
+            updateRecruitmentList()
+        end,
+    })
+    for i = 0, #addon.recruitment.statusIDs do
+        table.insert(statusSelectMenu, {
+            text = addon.recruitment.statusIDs[i],
+            func = function()
+                statusFilter = i;
+                updateRecruitmentList()
+            end,
+        })
+    end
+    self.content.guild.tabContainer.invites.statusSelectDropdown:SetMenu(statusSelectMenu)
+
+    self.content.guild.tabContainer.invites.deleteAll:SetScript("OnClick", function()
+        --Database:DeleteAllRecruit()
+        updateRecruitmentList()
+    end)
+
+    self.content.guild.tabContainer.invites:SetScript("OnShow", function()
+        updateRecruitmentList()
+    end)
+
 
 
 

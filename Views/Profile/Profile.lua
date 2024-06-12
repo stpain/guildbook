@@ -2,6 +2,7 @@ local name, addon = ...;
 
 local L = addon.Locales
 local Talents = addon.Talents;
+local Database = addon.Database;
 local Tradeskills = addon.Tradeskills;
 local Character = addon.Character;
 local Comms = addon.Comms;
@@ -473,7 +474,7 @@ function GuildbookProfileMixin:Update()
         end,
     })
 
-	local alts = self.character:GetAlts()
+	local alts = Database:GetCharacterAlts(self.character.data.mainCharacter)
 	--DevTools_Dump(alts)
 	if alts and #alts > 0 then
 		for k, name in ipairs(alts) do
@@ -507,6 +508,8 @@ function GuildbookProfileMixin:Update()
 					label = self.character.data.inventory.current[v.slot],
 					icon = v.icon,
 					link = self.character.data.inventory.current[v.slot],
+
+					labelRight = C_Item.GetDetailedItemLevelInfo(self.character.data.inventory.current[v.slot]),
 
 					onMouseDown = function()
 						if IsControlKeyDown() then
@@ -554,6 +557,7 @@ function GuildbookProfileMixin:Update()
 									label = self.character.data.inventory[name][v.slot],
 									icon = v.icon,
 									link = self.character.data.inventory[name][v.slot],
+									labelRight = C_Item.GetDetailedItemLevelInfo(self.character.data.inventory[name][v.slot]),
 									--backgroundAlpha = 0.6,
 									onMouseDown = function()
 										if IsControlKeyDown() then

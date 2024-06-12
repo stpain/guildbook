@@ -2151,4 +2151,80 @@
 		</Scripts>
     </Frame>
 
+
+    <Frame name="GuildbookClassicEraRecruitmentTemplate" mixin="GuildbookClassicEraRecruitmentMixin" virtual="true" enableMouse="true">
+        <Layers>
+            <Layer level="HIGHLIGHT">
+                <Texture parentKey="highlight" setAllPoints="true">
+                    <Color r="1" g="0.93" b="0.8" a="0.25"/>
+                </Texture>
+            </Layer>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="selected" atlas="search-select" hidden="true" setAllPoints="true">
+
+                </Texture>
+				<Texture parentKey="background" alpha="0.0">	
+                    <Color r="0" g="0" b="0"/>			
+					<Anchors>
+						<Anchor point="TOPLEFT" x="1" y="0"/>
+						<Anchor point="BOTTOMRIGHT" x="0" y="1"/>
+					</Anchors>
+				</Texture>
+                <FontString parentKey="name" inherits="GameFontWhite" justifyH="LEFT">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="32" y="0"/>
+                        <Anchor point="BOTTOMLEFT" x="32" y="0"/>
+                    </Anchors>
+                    <Size x="110"/>
+                </FontString>
+                <FontString parentKey="class" inherits="GameFontWhite" justifyH="LEFT">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.name" relativePoint="TOPRIGHT" x="2" y="0"/>
+                        <Anchor point="BOTTOMLEFT" relativeKey="$parent.name" relativePoint="BOTTOMRIGHT" x="2" y="0"/>
+                    </Anchors>
+                    <Size x="90"/>
+                </FontString>
+                <FontString parentKey="spec" inherits="GameFontWhite" justifyH="LEFT">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.class" relativePoint="TOPRIGHT" x="2" y="0"/>
+                        <Anchor point="BOTTOMLEFT" relativeKey="$parent.class" relativePoint="BOTTOMRIGHT" x="2" y="0"/>                    </Anchors>
+                    <Size x="110"/>
+                </FontString>
+                <FontString parentKey="level" inherits="GameFontWhite" justifyH="LEFT">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.spec" relativePoint="TOPRIGHT" x="2" y="0"/>
+                        <Anchor point="BOTTOMLEFT" relativeKey="$parent.spec" relativePoint="BOTTOMRIGHT" x="2" y="0"/>                    </Anchors>
+                    <Size x="30"/>
+                </FontString>
+                <FontString parentKey="race" inherits="GameFontWhite" justifyH="LEFT">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.level" relativePoint="TOPRIGHT" x="2" y="0"/>
+                        <Anchor point="BOTTOMLEFT" relativeKey="$parent.level" relativePoint="BOTTOMRIGHT" x="2" y="0"/>                    </Anchors>
+                    <Size x="90"/>
+                </FontString>
+                <FontString parentKey="status" inherits="GameFontWhite" justifyH="LEFT">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.race" relativePoint="TOPRIGHT" x="2" y="0"/>
+                        <Anchor point="BOTTOMLEFT" relativeKey="$parent.race" relativePoint="BOTTOMRIGHT" x="2" y="0"/>                    </Anchors>
+                    <Size x="120"/>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Frames>
+            <CheckButton parentKey="select" inherits="GuildbookClassicEraWidgetsCheckButton">
+                <Size x="20" y="20"/>
+                <Anchors>
+                    <Anchor point="LEFT" x="0" y="0"/>
+                </Anchors>
+            </CheckButton>
+        </Frames>
+        <Animations>
+            <AnimationGroup parentKey="anim" setToFinalAlpha="true">
+                <Alpha parentKey="fadeIn" duration="0.3" fromAlpha="0" toAlpha="1"/>
+            </AnimationGroup>
+        </Animations>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+        </Scripts>
+    </Frame>
 </UI>

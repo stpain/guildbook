@@ -98,7 +98,7 @@ function GuildbookHomeMixin:UpdateLayout()
 end
 
 function GuildbookHomeMixin:UpdateCensus()
-    if addon.characters then
+    if addon.characters and addon.thisGuild then
         local classes = {
             [1] = 0,
             [2] = 0,
@@ -113,30 +113,53 @@ function GuildbookHomeMixin:UpdateCensus()
             [11] = 0,
             --[12] = 0,
         }
+        local classMeta = {
+            [1] = {},
+            [2] = {},
+            [3] = {},
+            [4] = {},
+            [5] = {},
+            [6] = {},
+            [7] = {},
+            [8] = {},
+            [9] = {},
+            --[10] = {},
+            [11] = {},
+            --[12] = {},
+        }
         local numTotalGuildMembers, numOnlineGuildMembers, numOnlineAndMobileMembers = GetNumGuildMembers()
-        self.census.info:SetText(string.format("%d total (%d online)", numTotalGuildMembers, numOnlineGuildMembers))
-        for _, info in pairs(addon.characters) do
-            local useCharacter = true
-            if self.censusShowMaxLevelOnly then
-                if (info.data.level == 85) then
-                    useCharacter = true
-                else
-                    useCharacter = false
-                end
-            end
-            if useCharacter then
-                if self.censusShowOffline then
-                    if not classes[info.data.class] then
-                        classes[info.data.class] = 1
+--        self.census.info:SetText(string.format("%d total (%d online)", numTotalGuildMembers, numOnlineGuildMembers))
+        local numFiltered = 0
+        for nameRealm, info in pairs(addon.characters) do
+            if addon.guilds[addon.thisGuild] and addon.guilds[addon.thisGuild].members[nameRealm] then
+                local useCharacter = true
+                if self.censusShowMaxLevelOnly then
+                    if (info.data.level == 85) then
+                        useCharacter = true
                     else
-                        classes[info.data.class] = classes[info.data.class] + 1
+                        useCharacter = false
                     end
-                else
-                    if info.data.onlineStatus.isOnline then
+                end
+                if useCharacter then
+                    if self.censusShowOffline then
                         if not classes[info.data.class] then
                             classes[info.data.class] = 1
+                            table.insert(classMeta[info.data.class], info.data.name)
                         else
                             classes[info.data.class] = classes[info.data.class] + 1
+                            table.insert(classMeta[info.data.class], info.data.name)
+                        end
+                        numFiltered = numFiltered + 1
+                    else
+                        if info.data.onlineStatus.isOnline then
+                            if not classes[info.data.class] then
+                                classes[info.data.class] = 1
+                                table.insert(classMeta[info.data.class], info.data.name)
+                            else
+                                classes[info.data.class] = classes[info.data.class] + 1
+                                table.insert(classMeta[info.data.class], info.data.name)
+                            end
+                            numFiltered = numFiltered + 1
                         end
                     end
                 end
@@ -204,14 +227,28 @@ function GuildbookHomeMixin:UpdateCensus()
                 self.census.bars[k].icon:SetAtlas(string.format("classicon-%s", engClass):lower())
                 self.census.bars[k].label:SetText(class.count)
 
-                self.census.bars[k]:SetScript("onMouseDown", function()
+                self.census.bars[k]:SetScript("OnMouseDown", function()
                     addon:TriggerEvent("Roster_OnSelectionChanged", class.classID)
                     GuildbookUI:SelectView("GuildRoster")
+                end)
+
+                self.census.bars[k]:SetScript("OnLeave", function(sb)
+                    GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+                end)
+                self.census.bars[k]:SetScript("OnEnter", function(sb)
+                    GameTooltip:SetOwner(sb, "ANCHOR_TOPRIGHT")
+                    GameTooltip:AddLine("Players")
+                    for k, v in ipairs(classMeta[class.classID]) do
+                        GameTooltip:AddLine(Ambiguate(v, "short"), 1,1,1)
+                    end
+                    GameTooltip:Show()
                 end)
                 self.census.bars[k]:Show()
             end
 
         end
+
+        self.census.info:SetText(string.format("%d total (%d selected)", numTotalGuildMembers, numFiltered))
     end
 end
 

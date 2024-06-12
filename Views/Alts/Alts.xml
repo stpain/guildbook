@@ -1,37 +1,346 @@
 <Ui>
-    <Frame name="GuildbookAltCharacters" mixin="GuildbookAltsMixin">
+
+    <Frame name="GuildbookAltsTreeviewItemTemplate" mixin="GuildbookAltsTreeviewItemMixin" virtual="true">
+        <Layers>
+            <Layer level="HIGHLIGHT">
+                <Texture parentKey="highlight" atlas="search-highlight" setAllPoints="true">
+
+                </Texture>
+            </Layer>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="selected" atlas="search-select" hidden="true" setAllPoints="true">
+
+                </Texture>
+            </Layer>
+            <Layer level="BACKGROUND" textureSubLevel="-1">
+				<Texture parentKey="background" alpha="0.0">	
+                    <Color r="0" g="0" b="0"/>			
+					<Anchors>
+						<Anchor point="TOPLEFT" x="1" y="0"/>
+						<Anchor point="BOTTOMRIGHT" x="0" y="1"/>
+					</Anchors>
+				</Texture>
+            </Layer>
+            <Layer level="ARTWORK">
+				<Texture parentKey="icon">
+					<Anchors>
+						<Anchor point="LEFT" x="5" y="0"/>
+					</Anchors>
+				</Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <!--default labels-->
+                <FontString parentKey="name" inherits="GameFontWhite" justifyH="LEFT">
+                    <Size x="150"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.icon" x="6" y="0"/>
+                    </Anchors>
+                </FontString>
+
+                <!--summary labels-->
+                <FontString parentKey="level" parentArray="labels" inherits="GameFontWhite" justifyH="CENTER">
+                    <Size x="40"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.name" x="6" y="0"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="mainSpec" parentArray="labels" inherits="GameFontWhite" justifyH="LEFT">
+                    <Size x="160"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.level" x="6" y="0"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="zone" parentArray="labels" inherits="GameFontWhite" justifyH="LEFT">
+                    <Size x="260"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.mainSpec" x="6" y="0"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="copper" parentArray="labels" inherits="GameFontWhite" justifyH="RIGHT">
+                    <Size x="150"/>
+                    <Anchors>
+                        <Anchor point="RIGHT" x="-50" y="0"/>
+                    </Anchors>
+                </FontString>
+
+
+                <!--tradeskill labels-->
+                <FontString parentKey="prof1" parentArray="labels" inherits="GameFontWhite" justifyH="LEFT">
+                    <Anchors>
+                        <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.name" x="6" y="0"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="prof2" parentArray="labels" inherits="GameFontWhite" justifyH="LEFT">
+                    <Anchors>
+                        <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.prof1" x="6" y="0"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="cooking" parentArray="labels" inherits="GameFontWhite" justifyH="LEFT">
+                    <Anchors>
+                        <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.prof2" x="6" y="0"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="fishing" parentArray="labels" inherits="GameFontWhite" justifyH="LEFT">
+                    <Anchors>
+                        <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.cooking" x="6" y="0"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="firstAid" parentArray="labels" inherits="GameFontWhite" justifyH="LEFT">
+                    <Anchors>
+                        <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.fishing" x="6" y="0"/>
+                    </Anchors>
+                </FontString>
+
+
+
+            </Layer>
+        </Layers>
         <Frames>
-            <Frame parentKey="listview" inherits = "GuildbookWrathEraWidgetsListviewTemplate">
+            <CheckButton parentKey="checkbox" hidden="true" inherits="TBDCheckButton">
                 <Anchors>
-                    <Anchor point="TOPLEFT" x="0" y="-32"/>
-                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                    <Anchor point="RIGHT" x="-1" y="0"/>
                 </Anchors>
-                <KeyValues>
-                    <KeyValue key="frameType" value="FRAME" type="string"/>
-                    <KeyValue key="itemTemplate" value="GuildbookWrathEraRosterTwoListviewItem" type="string"/>
-                    <KeyValue key="elementHeight" value="26" type="number"/>
-                </KeyValues>
-            </Frame>
+            </CheckButton>
+        </Frames>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+        </Scripts>
+    </Frame>
 
-            <Button parentKey="export" inherits="UIPanelButtonTemplate" text="Export">
+
+    <Frame name="GuildbookAltsTreeviewItemEquipmentTemplate" mixin="GuildbookAltsTreeviewItemEquipmentMixin" virtual="true">
+        <Layers>
+            <Layer level="HIGHLIGHT">
+                <Texture parentKey="highlight" atlas="search-highlight" setAllPoints="true">
+
+                </Texture>
+            </Layer>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="selected" atlas="search-select" hidden="true" setAllPoints="true">
+
+                </Texture>
+            </Layer>
+            <Layer level="BACKGROUND" textureSubLevel="-1">
+				<Texture parentKey="background" alpha="0.0">	
+                    <Color r="0" g="0" b="0"/>			
+					<Anchors>
+						<Anchor point="TOPLEFT" x="1" y="0"/>
+						<Anchor point="BOTTOMRIGHT" x="0" y="1"/>
+					</Anchors>
+				</Texture>
+            </Layer>
+            <Layer level="ARTWORK">
+				<Texture parentKey="icon">
+					<Anchors>
+						<Anchor point="LEFT" x="5" y="0"/>
+					</Anchors>
+				</Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <!--default labels-->
+                <FontString parentKey="name" inherits="GameFontWhite" justifyH="LEFT">
+                    <Size x="150"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.icon" x="6" y="0"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="ilvl" inherits="GameFontWhite" justifyH="LEFT">
+                    <Size x="60"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.name" x="6" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Button parentKey="dropdown">
+                <Size x="22" y="22"/>
                 <Anchors>
-                    <Anchor point="TOPRIGHT" x="-5" y="-5"/>
+                    <Anchor point="LEFT" x="154" y="0"/>
                 </Anchors>
-                <Size x="120" y="24"/>
+                <NormalTexture atlas="auctionhouse-ui-dropdown-arrow-up"/>
+                <PushedTexture atlas="auctionhouse-ui-dropdown-arrow-down"/>
             </Button>
+        </Frames>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+        </Scripts>
+    </Frame>
 
 
-            <Frame parentKey="tabContainer" inherits="GuildbookTabFrameTemplate">
-                <Anchors>
-                    <Anchor point="TOPLEFT" x="0" y="-32"/>
-                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
-                </Anchors>
+
+
+
+
+    <Frame name="GuildbookAltCharacters" mixin="GuildbookAltsMixin">
+
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture>
+                    <Color r="0.085" g="0.08" b="0.075" a="0.88"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="0" y="0"/>
+                        <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+
+        <Frames>
+            <Frame parentKey="tabContainer" inherits="TBDTabFrameTemplate">
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture>
+                            <Color r="0.2" g="0.2" b="0.2" a="0.8"/>
+                            <Size y="24"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="0" y="0"/>
+                                <Anchor point="TOPRIGHT" x="0" y="0"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
                 <Frames>
-                    <Frame parentKey="summary" setAllPoints="true" hidden="false">
-
+                    <Frame parentKey="summary">
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <FontString parentKey="nameHeader" inherits="GameFontNormal" justifyH="LEFT" text="NAME">
+                                    <Size x="150" y="24"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="36" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="levelHeader" inherits="GameFontNormal" justifyH="CENTER" text="LEVEL">
+                                    <Size x="40" y="24"/>
+                                    <Anchors>
+                                        <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.nameHeader" x="6" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="mainSpecHeader" inherits="GameFontNormal" justifyH="LEFT" text="SPECIALIZATION">
+                                    <Size x="160" y="24"/>
+                                    <Anchors>
+                                        <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.levelHeader" x="6" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="zoneHeader" inherits="GameFontNormal" justifyH="LEFT" text="ZONE">
+                                    <Size x="260" y="24"/>
+                                    <Anchors>
+                                        <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.mainSpecHeader" x="6" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="moneyHeader" inherits="GameFontNormal" justifyH="RIGHT" text="Gold">
+                                    <Size x="150" y="24"/>
+                                    <Anchors>
+                                        <Anchor point="TOPRIGHT" x="-50" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="isMainHeader" inherits="GameFontNormal" justifyH="RIGHT" text="Main">
+                                    <Size x="150" y="24"/>
+                                    <Anchors>
+                                        <Anchor point="TOPRIGHT" x="0" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                        <Frames>
+                            <Frame parentKey="listview" inherits="TBDTreeviewTemplate">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="0" y="-24"/>
+                                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                                </Anchors>
+                                <KeyValues>
+                                    <KeyValue key="itemTemplate" value="GuildbookAltsTreeviewItemTemplate" type="string"/>
+                                    <KeyValue key="elementHeight" value="24" type="number"/>
+                                    <!-- <KeyValue key="enableSelection" value="true" type="boolean"/> -->
+                                </KeyValues>
+                            </Frame>
+                        </Frames>
                     </Frame>
-                    <Frame parentKey="containers" setAllPoints="true" hidden="false">
-
+                    <Frame parentKey="tradeskills" setAllPoints="true">
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <FontString parentKey="nameHeader" inherits="GameFontNormal" justifyH="LEFT" text="NAME">
+                                    <Size x="150" y="24"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="36" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="prof1Header" inherits="GameFontNormal" justifyH="LEFT" text="Profession 1">
+                                    <Anchors>
+                                        <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.nameHeader" x="6" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="prof2Header" inherits="GameFontNormal" justifyH="LEFT" text="Profession 2">
+                                    <Anchors>
+                                        <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.prof1Header" x="6" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="cookingHeader" inherits="GameFontNormal" justifyH="LEFT" text="Cooking">
+                                    <Anchors>
+                                        <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.prof2Header" x="6" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="fishingHeader" inherits="GameFontNormal" justifyH="LEFT" text="Fishing">
+                                    <Anchors>
+                                        <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.cookingHeader" x="6" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="firstAidHeader" inherits="GameFontNormal" justifyH="LEFT" text="First Aid">
+                                    <Anchors>
+                                        <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.fishingHeader" x="6" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                        <Frames>
+                            <Frame parentKey="listview" inherits="TBDTreeviewTemplate">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="0" y="-24"/>
+                                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                                </Anchors>
+                                <KeyValues>
+                                    <KeyValue key="itemTemplate" value="GuildbookAltsTreeviewItemTemplate" type="string"/>
+                                    <KeyValue key="elementHeight" value="24" type="number"/>
+                                    <!-- <KeyValue key="enableSelection" value="true" type="boolean"/> -->
+                                </KeyValues>
+                            </Frame>
+                        </Frames>
+                    </Frame>
+                    <Frame parentKey="equipment" setAllPoints="true">
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <FontString parentKey="nameHeader" inherits="GameFontNormal" justifyH="LEFT" text="NAME">
+                                    <Size x="160" y="24"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="36" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="ilvlHeader" inherits="GameFontNormal" justifyH="LEFT" text="ilvl">
+                                    <Size x="80" y="24"/>
+                                    <Anchors>
+                                        <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.nameHeader" x="6" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="prof1Header" inherits="GameFontNormal" justifyH="LEFT" text="Items">
+                                    <Anchors>
+                                        <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.ilvlHeader" x="6" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                        <Frames>
+                            <Frame parentKey="listview" inherits="TBDTreeviewTemplate">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="0" y="-24"/>
+                                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                                </Anchors>
+                                <KeyValues>
+                                    <KeyValue key="itemTemplate" value="GuildbookAltsTreeviewItemEquipmentTemplate" type="string"/>
+                                    <KeyValue key="elementHeight" value="24" type="number"/>
+                                    <!-- <KeyValue key="enableSelection" value="true" type="boolean"/> -->
+                                </KeyValues>
+                            </Frame>
+                        </Frames>
                     </Frame>
                 </Frames>
             </Frame>

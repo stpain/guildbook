@@ -21,6 +21,11 @@ local name, addon = ...;
 
 addon.changeLog = {
     {
+        version = "7.3",
+        notes = "Alts!\nUpgraded the alts view and added some extra info, more to come on that section. Right click on an alt for options.\n\nAdded some colour to the Character Paperdoll UI, you'll see the item quality colour and ilvl overlays, the ilvl is colourized to highlight lower level items. This can be toggled on/off in settings.",
+        icon = "ClassHall-QuestIcon-Desaturated",
+    },
+    {
         version = "7.21",
         notes = "Little bump as last update didn't get to curseforge.\n\nAdded option to show main character in guild chat, go to Settings > Chat to enable/disable.\n\nAdded some QoL features to the tradeskills view including being able to craft directly from the recipe details.\n\nAdded ability to delete daily quests via the quest header/section, this will remove all quests under that header for all characters.\n\nAdded guild challenges info the home view. Also added optional filters for the class chart.\n\nAdded the default shift and ctrl key press combos to various item links in various UIs.",
         icon = "ClassHall-QuestIcon-Desaturated",

@@ -37,7 +37,7 @@
                     </Layer>
                 </Layers>
                 <KeyValues>
-                    <KeyValue key="itemTemplate" value="GuildbookWrathEraSimpleIconLabelFrame" type="string"/>
+                    <KeyValue key="itemTemplate" value="TBDSimpleIconLabelFrame" type="string"/>
                     <KeyValue key="elementHeight" value="32" type="number"/>
                     <KeyValue key="enableSelection" value="true" type="boolean"/>
                 </KeyValues>
@@ -82,7 +82,7 @@
                             </Layer>
                         </Layers>
                         <Frames>
-                            <Frame parentKey="tabContainer" inherits="GuildbookTabFrameTemplate">
+                            <Frame parentKey="tabContainer" inherits="TBDTabFrameTemplate">
                                 <Anchors>
                                     <Anchor point="TOPLEFT" x="4" y="-100"/>
                                     <Anchor point="BOTTOMRIGHT" x="-4" y="4"/>
@@ -197,31 +197,31 @@
                                             </Layer>
                                         </Layers>
                                         <Frames>
-                                            <Frame parentKey="prof1" inherits="GuildbookWrathEraSimpleIconLabelFrame">
+                                            <Frame parentKey="prof1" inherits="TBDSimpleIconLabelFrame">
                                                 <Size x="390" y="40"/>
                                                 <Anchors>
                                                     <Anchor point="TOPLEFT" x="10" y="-48"/>
                                                 </Anchors>
                                             </Frame>
-                                            <Frame parentKey="prof2" inherits="GuildbookWrathEraSimpleIconLabelFrame">
+                                            <Frame parentKey="prof2" inherits="TBDSimpleIconLabelFrame">
                                                 <Size x="390" y="40"/>
                                                 <Anchors>
                                                     <Anchor point="TOPLEFT" relativeKey="$parent.prof1" relativePoint="BOTTOMLEFT" x="0" y="-16"/>
                                                 </Anchors>
                                             </Frame>
-                                            <Frame parentKey="cooking" inherits="GuildbookWrathEraSimpleIconLabelFrame">
+                                            <Frame parentKey="cooking" inherits="TBDSimpleIconLabelFrame">
                                                 <Size x="390" y="40"/>
                                                 <Anchors>
                                                     <Anchor point="TOPLEFT" relativeKey="$parent.prof2" relativePoint="BOTTOMLEFT" x="0" y="-16"/>
                                                 </Anchors>
                                             </Frame>
-                                            <Frame parentKey="firstAid" inherits="GuildbookWrathEraSimpleIconLabelFrame">
+                                            <Frame parentKey="firstAid" inherits="TBDSimpleIconLabelFrame">
                                                 <Size x="390" y="40"/>
                                                 <Anchors>
                                                     <Anchor point="TOPLEFT" relativeKey="$parent.cooking" relativePoint="BOTTOMLEFT" x="0" y="-16"/>
                                                 </Anchors>
                                             </Frame>
-                                            <Frame parentKey="fishing" inherits="GuildbookWrathEraSimpleIconLabelFrame">
+                                            <Frame parentKey="fishing" inherits="TBDSimpleIconLabelFrame">
                                                 <Size x="390" y="40"/>
                                                 <Anchors>
                                                     <Anchor point="TOPLEFT" relativeKey="$parent.firstAid" relativePoint="BOTTOMLEFT" x="0" y="-16"/>
@@ -292,14 +292,44 @@
                                     <Anchor point="TOPLEFT" x="16" y="-32"/>
                                 </Anchors>
                             </CheckButton>
-                            <Frame parentKey="tabContainer" inherits="GuildbookTabFrameTemplate">
+                            <Frame parentKey="tabContainer" inherits="TBDTabFrameTemplate">
                                 <Anchors>
                                     <Anchor point="TOPLEFT" x="4" y="-100"/>
                                     <Anchor point="BOTTOMRIGHT" x="-4" y="4"/>
                                 </Anchors>
                                 <Frames>
                                     <Frame parentKey="invites" setAllPoints="true" hidden="false">
-
+                                        <Frames>
+                                            <Button parentKey="deleteAll" inherits="UIPanelButtonTemplate" text="Delete All">
+                                                <Anchors>
+                                                    <Anchor point="TOPRIGHT" x="-4" y="-4"/>
+                                                </Anchors>
+                                                <Size x="100" y="22"/>
+                                            </Button>
+                                            <Button parentKey="classSelectDropdown" inherits="TBDDropDownTemplate">
+                                                <Anchors>
+                                                    <Anchor point="TOPLEFT" x="146" y="-50"/>
+                                                </Anchors>
+                                                <Size x="90" y="28"/>
+                                            </Button>
+                                            <Button parentKey="statusSelectDropdown" inherits="TBDDropDownTemplate">
+                                                <Anchors>
+                                                    <Anchor point="TOPLEFT" x="472" y="-50"/>
+                                                </Anchors>
+                                                <Size x="90" y="28"/>
+                                            </Button>
+                                            <Frame parentKey="listview" inherits = "TBDListviewTemplate">
+                                                <Anchors>
+                                                    <Anchor point="TOPLEFT" x="4" y="-80"/>
+                                                    <Anchor point="BOTTOMRIGHT" x="-4" y="4"/>
+                                                </Anchors>
+                                                <KeyValues>
+                                                    <KeyValue key="frameType" value="FRAME" type="string"/>
+                                                    <KeyValue key="itemTemplate" value="GuildbookClassicEraRecruitmentTemplate" type="string"/>
+                                                    <KeyValue key="elementHeight" value="20" type="number"/>
+                                                </KeyValues>
+                                            </Frame>
+                                        </Frames>
                                     </Frame>
                                     <Frame parentKey="csvInput" setAllPoints="true" hidden="true">
                                         <Frames>
@@ -318,7 +348,7 @@
                                                     </Layer>
                                                 </Layers>
                                             </ScrollFrame>
-                                            <Slider name="GuildbookSettingsCsvColumnSlider" parentKey="csvColumnCount" inherits="GuildbookWrathEraSlider">
+                                            <Slider name="GuildbookSettingsCsvColumnSlider" parentKey="csvColumnCount" inherits="TBDSliderLeftLabel">
                                                 <Anchors>
                                                     <Anchor point="TOPLEFT" relativeKey="$parent.pasteBin" relativePoint="TOPRIGHT" x="104" y="-4"/>
                                                 </Anchors>
@@ -329,7 +359,8 @@
                                                 <Anchors>
                                                     <Anchor point="TOPLEFT" relativeKey="$parent.pasteBin" relativePoint="TOPRIGHT" x="24" y="-34"/>
                                                 </Anchors>
-                                                <Size x="280" y="16"/>
+                                                <Size x="280" y="32"/>
+
                                             </Frame>
 
                                             <Button parentKey="import" inherits="UIPanelButtonTemplate" text="Import">
@@ -343,9 +374,14 @@
 
                                         <Layers>
                                             <Layer level="OVERLAY">
+                                                <FontString inherits="GameFontWhite" justifyH="LEFT" text="Preview">
+                                                    <Anchors>
+                                                        <Anchor point="TOPLEFT" relativeKey="$parent.import" relativePoint="BOTTOMLEFT" x="4" y="-14"/>
+                                                    </Anchors>
+                                                </FontString>
                                                 <FontString parentKey="preview" inherits="GameFontNormalSmall" justifyH="LEFT" justifyV="TOP">
                                                     <Anchors>
-                                                        <Anchor point="TOPLEFT" relativeKey="$parent.importCsv" relativePoint="BOTTOMLEFT" x="4" y="-14"/>
+                                                        <Anchor point="TOPLEFT" relativeKey="$parent.import" relativePoint="BOTTOMLEFT" x="4" y="-34"/>
                                                         <Anchor point="BOTTOMRIGHT" x="-14" y="14"/>
                                                     </Anchors>
                                                 </FontString>
@@ -595,7 +631,7 @@
 
                         <Frames>
                             <Button parentKey="factoryReset" inherits="UIPanelButtonTemplate" text="Reset">
-                                <Size x="100" y="22"/>
+                                <Size x="180" y="22"/>
                                 <Anchors>
                                     <Anchor point="TOPLEFT" x="16" y="-70"/>
                                 </Anchors>
@@ -605,6 +641,13 @@
                                 <Size x="24" y="24"/>
                                 <Anchors>
                                     <Anchor point="TOPLEFT" x="16" y="-105"/>
+                                </Anchors>
+                            </CheckButton>
+
+                            <CheckButton parentKey="enhancedPaperDoll" inherits = "GuildbookWrathEraWidgetsCheckButton">
+                                <Size x="24" y="24"/>
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="216" y="-105"/>
                                 </Anchors>
                             </CheckButton>
 
@@ -625,6 +668,12 @@
                                 </Layers>
                             </EditBox>
 
+                            <CheckButton parentKey="wholeNineYards" inherits = "GuildbookWrathEraWidgetsCheckButton" hidden="true">
+                                <Size x="24" y="24"/>
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="16" y="-305"/>
+                                </Anchors>
+                            </CheckButton>
                         </Frames>                     
                     </Frame>
 

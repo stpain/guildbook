@@ -310,6 +310,13 @@ function GuildbookMixin:SetupDebugWindow()
                 self:LogDebugMessage()
             end,
         },
+        {
+            text = "Character",
+            func = function()
+                self.debug.debugTypeFilter = 8;
+                self:LogDebugMessage()
+            end,
+        },
     })
 
 

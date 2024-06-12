@@ -89,6 +89,16 @@ addon.guilds = {}
 addon.characters = {}
 addon.contextMenu = CreateFrame("Frame", "GuildbookContextMenu", UIParent, "UIDropDownMenuTemplate")
 
+addon.recruitment = {
+    statusIDs = {
+        [0] = "Imported",
+        [1] = "Invite sent",
+        [2] = "Invite responded",
+        [3] = "",
+        [4] = "",
+    }
+}
+
 addon.api = {
     classic = {},
     wrath = {},
@@ -113,12 +123,139 @@ local debugTypeIDs = {
     comms_out = 5,
     bank = 6,
     tradeskills = 7,
+    character = 8,
 }
+
+addon.paperDollSlotNames = {    
+    ["CharacterHeadSlot"] = { allignment = "right", slotID = 1, },
+    ["CharacterNeckSlot"] = { allignment = "right", slotID = 2, },
+    ["CharacterShoulderSlot"] = { allignment = "right", slotID = 3, },
+    ["CharacterBackSlot"] = { allignment = "right", slotID = 15, },
+    ["CharacterChestSlot"] = { allignment = "right", slotID = 5, },
+    ["CharacterShirtSlot"] = { allignment = "right", slotID = 4, },
+    ["CharacterTabardSlot"] = { allignment = "right", slotID = 19, },
+    ["CharacterWristSlot"] = { allignment = "right", slotID = 9, },
+
+    ["CharacterHandsSlot"] = { allignment = "left", slotID = 10, },
+    ["CharacterWaistSlot"] = { allignment = "left", slotID = 6, },
+    ["CharacterLegsSlot"] = { allignment = "left", slotID = 7, },
+    ["CharacterFeetSlot"] = { allignment = "left", slotID = 8, },
+    ["CharacterFinger0Slot"] = { allignment = "left", slotID = 11, },
+    ["CharacterFinger1Slot"] = { allignment = "left", slotID = 12, },
+    ["CharacterTrinket0Slot"] = { allignment = "left", slotID = 13, },
+    ["CharacterTrinket1Slot"] = { allignment = "left", slotID = 14, },
+
+    ["CharacterMainHandSlot"] = { allignment = "top", slotID = 16, },
+    ["CharacterSecondaryHandSlot"] = { allignment = "top", slotID = 17, },
+    ["CharacterRangedSlot"] = { allignment = "top", slotID = 18, },
+}
+
+addon.itemQualityAtlas = {
+    [2] = "bags-glow-green",
+    [3] = "bags-glow-blue",
+    [4] = "bags-glow-purple",
+    [5] = "bags-glow-orange",
+
+    -- [2] = "loottab-set-itemborder-green",
+    -- [3] = "loottab-set-itemborder-blue",
+    -- [4] = "loottab-set-itemborder-purple",
+    -- [5] = "loottab-set-itemborder-orange",
+}
+
+local paperdollOverlays = {}
+function addon.api.updatePaperdollOverlays()
+
+    if Database:GetConfig("enhancedPaperDoll") == false then
+        addon.api.hidePaperdollOverlays()
+        return
+    end
+
+    local minItemLevel, maxItemLevel = 0, 0;
+
+    for frame, info in pairs(addon.paperDollSlotNames) do
+        if not paperdollOverlays[frame] then
+            local border = _G[frame]:CreateTexture(nil, "BORDER", nil, 7)
+            border:SetAllPoints()
+            border:SetAlpha(0.7)
+
+            local label = _G[frame]:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+            if info.allignment == "right" then
+                label:SetPoint("LEFT", _G[frame], "RIGHT", 10, 0)
+            elseif info.allignment == "left" then
+                label:SetPoint("RIGHT", _G[frame], "LEFT", -10, 0)
+            else
+                label:SetPoint("BOTTOM", _G[frame], "TOP", 0, 10)
+            end
+
+            paperdollOverlays[frame] = {
+                border = border,
+                label = label,
+            }
+        end
+
+        local link = GetInventoryItemLink("player", info.slotID)
+        if link then
+            local _, _, quality, itemLevel = GetItemInfo(link)
+
+            if minItemLevel == 0 then
+                minItemLevel = itemLevel
+            else
+                if itemLevel < minItemLevel then
+                    minItemLevel = itemLevel
+                end
+            end
+            if maxItemLevel == 0 then
+                maxItemLevel = itemLevel
+            else
+                if itemLevel > maxItemLevel then
+                    maxItemLevel = itemLevel
+                end
+            end
+
+            paperdollOverlays[frame].itemLevel = itemLevel;
+            paperdollOverlays[frame].itemQuality = quality;
+
+        else
+            paperdollOverlays[frame].itemLevel = false;
+            paperdollOverlays[frame].itemQuality = false;
+        end
+    end
+
+    local itemLevelGap = maxItemLevel - minItemLevel;
+
+    for f, info in pairs(paperdollOverlays) do
+
+        info.label:Hide()
+        info.border:Hide()
+
+        if type(info.itemLevel) == "number" then
+            local r, g, b = addon.api.getcolourGradientFromPercent(((info.itemLevel - minItemLevel) / itemLevelGap) * 100)
+            info.label:SetText(info.itemLevel)
+            info.label:SetTextColor(r,g,b,1)
+            info.label:Show()
+        end
+
+        if type(info.itemQuality) == "number" and info.itemQuality > 1 then
+            info.border:SetAtlas(addon.itemQualityAtlas[info.itemQuality])
+            info.border:Show()
+        end
+    end
+
+end
+
+function addon.api.hidePaperdollOverlays()
+    for f, info in pairs(paperdollOverlays) do
+        info.label:Hide()
+        info.border:Hide()
+    end
+end
 
 function addon.api.getcolourGradientFromPercent(percent)
     local r = (percent > 50 and 1 - 2 * (percent - 50) / 100.0 or 1.0);
     local g = (percent > 50 and 1.0 or 2 * percent / 100.0);
     local b = 0.0;
+
+    return r, g, b;
 end
 
 function addon.LogDebugMessage(debugType, debugMessage, debugTooltip)
@@ -391,7 +528,7 @@ function addon.api.getGuildRosterIndex(nameOrGUID)
 end
 
 function addon.api.getPlayerAlts(main)
-    if type(main) == "string" then
+    if type(main) == "string" and main ~= "" then
         local alts = {}
         if addon.characters and addon.characters then
             for name, character in pairs(addon.characters) do

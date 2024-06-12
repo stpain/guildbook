@@ -30,7 +30,6 @@ e:RegisterEvent('CHAT_MSG_SYSTEM')
 e:RegisterEvent('CHAT_MSG_BN_WHISPER_INFORM')
 e:RegisterEvent('CHAT_MSG_BN_WHISPER')
 e:RegisterEvent('UPDATE_MOUSEOVER_UNIT')
---e:RegisterEvent('PLAYER_EQUIPMENT_CHANGED')
 e:RegisterEvent('ZONE_CHANGED_NEW_AREA')
 e:RegisterEvent('CHARACTER_POINTS_CHANGED')
 e:RegisterEvent('UNIT_AURA')
@@ -39,15 +38,22 @@ e:RegisterEvent("PLAYER_REGEN_ENABLED")
 e:RegisterEvent("SKILL_LINES_CHANGED")
 e:RegisterEvent("EQUIPMENT_SWAP_FINISHED")
 e:RegisterEvent("EQUIPMENT_SETS_CHANGED")
+e:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
 e:RegisterEvent("QUEST_TURNED_IN")
 e:RegisterEvent("QUEST_ACCEPTED")
 e:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+e:RegisterEvent("LOOT_ITEM_AVAILABLE")
 
 e:SetScript("OnEvent", function(self, event, ...)
     if self[event] then
         self[event](self, ...)
     end
 end)
+
+function e:LOOT_ITEM_AVAILABLE(...)
+    local item, handle = ...;
+    addon:TriggerEvent("Loot_OnItemAvailable")
+end
 
 function e:PLAYER_MONEY()
     local money = GetMoney()
@@ -63,7 +69,7 @@ end
 
 function e:CHAT_MSG_LOOT(...)
     local msg = ...;
-    addon:TriggerEvent("Chat_OnLootMessage", msg)
+    addon:TriggerEvent("Loot_OnItemAvailable", msg)
 end
 
 function e:PLAYER_LEVEL_UP(...)
@@ -297,20 +303,26 @@ function e:BANKFRAME_CLOSED()
         if addon.characters[addon.thisCharacter] then
             local bags = addon.api.scanPlayerContainers(true)
     
-            if addon.guilds[addon.thisGuild] then
-                addon.guilds[addon.thisGuild].banks[addon.thisCharacter] = time();
-    
-                if not addon.guilds[addon.thisGuild].bankRules[addon.thisCharacter] then
-                    addon.guilds[addon.thisGuild].bankRules[addon.thisCharacter] = {
-                        shareBags = false,
-                        shareBank = false,
-                        shareCopper = false,
-                        shareRank = 0,
-                    }
-                    print("No rules exist for this Guild Bank, items scanned but not shared, go to settings to select rules")
-                end
 
-            end
+            --[[
+                redundant feature as of cata
+            ]]
+            -- if addon.guilds[addon.thisGuild] then
+            --     addon.guilds[addon.thisGuild].banks[addon.thisCharacter] = time();
+    
+            --     if not addon.guilds[addon.thisGuild].bankRules[addon.thisCharacter] then
+            --         addon.guilds[addon.thisGuild].bankRules[addon.thisCharacter] = {
+            --             shareBags = false,
+            --             shareBank = false,
+            --             shareCopper = false,
+            --             shareRank = 0,
+            --         }
+            --         print("No rules exist for this Guild Bank, items scanned but not shared, go to settings to select rules")
+            --     end
+
+            -- end
+
+
             addon.characters[addon.thisCharacter]:SetContainers(bags)
         end
         bankScanned = true;
@@ -319,22 +331,28 @@ end
 function e:BANKFRAME_OPENED()
     if addon.characters[addon.thisCharacter] then
         local bags = addon.api.scanPlayerContainers(true)
+
+            --[[
+                redundant feature as of cata
+            ]]
         --DevTools_Dump(bags)
-        if addon.guilds[addon.thisGuild] then
-            addon.guilds[addon.thisGuild].banks[addon.thisCharacter] = time();
+        -- if addon.guilds[addon.thisGuild] then
+        --     addon.guilds[addon.thisGuild].banks[addon.thisCharacter] = time();
 
-            if not addon.guilds[addon.thisGuild].bankRules[addon.thisCharacter] then
-                addon.guilds[addon.thisGuild].bankRules[addon.thisCharacter] = {
-                    shareBags = false,
-                    shareBank = false,
-                    shareCopper = false,
-                    shareRank = 0,
-                }
-                print("No rules exist for this Guild Bank, items scanned but not shared, go to settings to select rules")
-            end
+        --     if not addon.guilds[addon.thisGuild].bankRules[addon.thisCharacter] then
+        --         addon.guilds[addon.thisGuild].bankRules[addon.thisCharacter] = {
+        --             shareBags = false,
+        --             shareBank = false,
+        --             shareCopper = false,
+        --             shareRank = 0,
+        --         }
+        --         print("No rules exist for this Guild Bank, items scanned but not shared, go to settings to select rules")
+        --     end
 
-            --addon.characters[addon.thisCharacter]:SetContainers(bags)
-        end
+        --     --addon.characters[addon.thisCharacter]:SetContainers(bags)
+        -- end
+
+
         addon.characters[addon.thisCharacter]:SetContainers(bags)
     end
     bankScanned = false;
@@ -430,6 +448,8 @@ function e:EQUIPMENT_SWAP_FINISHED(...)
 end
 
 function e:PLAYER_EQUIPMENT_CHANGED()
+
+    addon.api.updatePaperdollOverlays()
 
     --[[
         Classic Era:
@@ -556,12 +576,12 @@ function e:GUILD_ROSTER_UPDATE()
         if not Database.db.guilds[guildName] then
             Database.db.guilds[guildName] = {
                 members = {},
-                calendar = {
-                    activeEvents = {},
-                    deletedEvents = {},
-                },
-                banks = {},
-                bankRules = {},
+                -- calendar = {
+                --     activeEvents = {},
+                --     deletedEvents = {},
+                -- },
+                -- banks = {},
+                -- bankRules = {},
                 logs = {
                     general = {},
                     members = {}, --use this for people joining/leaving the guild
@@ -583,25 +603,29 @@ function e:GUILD_ROSTER_UPDATE()
             --local name, rankName, rankIndex, level, classDisplayName, zone, publicNote, officerNote, isOnline, status, class, achievementPoints, achievementRank, isMobile, canSoR, repStanding, guid = GetGuildRosterInfo(i)
             local name, rankName, rankIndex, level, _, zone, publicNote, officerNote, isOnline, status, class, _, _, _, _, _, guid = GetGuildRosterInfo(i)
        
-            if publicNote:lower():find("guildbank") then
+            --[[
+                there is no need to keep this data running 
+            ]]
+            -- if publicNote:lower():find("guildbank") then
 
-                --add the bank character if not exists
-                if not addon.guilds[guildName].banks[name] then
-                    addon.guilds[guildName].banks[name] = 0;
-                    addon.guilds[guildName].bankRules[name] = {
-                        shareBanks = false,
-                        shareBags = false,
-                        shareRank = 0,
-                        shareCopper = false,
-                    }
-                end
-            else
+            --     --add the bank character if not exists
+            --     if not addon.guilds[guildName].banks[name] then
+            --         addon.guilds[guildName].banks[name] = 0;
+            --         addon.guilds[guildName].bankRules[name] = {
+            --             shareBanks = false,
+            --             shareBags = false,
+            --             shareRank = 0,
+            --             shareCopper = false,
+            --         }
+            --     end
+            -- else
 
-                --remove bank if no longer set
-                if Database.db.guilds[guildName].banks[name] then
-                    Database.db.guilds[guildName].banks[name] = nil
-                end
-            end
+            --     --remove bank if no longer set
+            --     if Database.db.guilds[guildName].banks[name] then
+            --         Database.db.guilds[guildName].banks[name] = nil
+            --     end
+            -- end
+
             members[name] = true;
 
             --the easiest way to do this is just access the saved variables rather than add calls just to be fancy
@@ -1134,11 +1158,19 @@ function e:Database_OnInitialised()
     PlayerTalentFrame:HookScript("OnHide", function()
         setPlayerTalentsAndGlyphs({})
 	end)
-	SkillFrame:HookScript("OnShow", function()
-		--self:ScanSkills()
-	end)
-    CharacterFrame:HookScript("OnHide", function()
+	-- SkillFrame:HookScript("OnShow", function()
+	-- 	--self:ScanSkills()
+	-- end)
+    -- CharacterFrame:HookScript("OnShow", function()
+    --     --self:GetCharacterStats()
+    -- end)
+    PaperDollFrame:HookScript("OnShow", function()
         --self:GetCharacterStats()
+        addon.api.updatePaperdollOverlays()
+
+        if not InCombatLockdown() then
+            CharacterFrameExpandButton:Click()
+        end
     end)
     -- SpellBookFrame:HookScript("OnShow", function()
     --     addon.api.wrath.scanSpellbook()

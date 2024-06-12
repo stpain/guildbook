@@ -141,6 +141,14 @@
         "show",
         "UIErrorsFrame",
         "DULL_RED_FONT_COLOR",
-        "ChatFrame_RemoveMessageEventFilter"
+        "ChatFrame_RemoveMessageEventFilter",
+        "PaperDollFrame",
+        "OFFICER",
+        "ERR_GUILD_NOT_ALLIED",
+        "ERR_MAIL_NOT_FRIEND_OR_GUILD",
+        "ERR_NO_GUILD_CHARTER",
+        "OPTIONS",
+        "EQUIPMENT_SETS",
+        "EQUIPMENT_SET_SETTINGS"
     ]
 }

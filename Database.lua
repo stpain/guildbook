@@ -19,6 +19,8 @@ local configUpdates = {
     chatWhisperHistoryLimit = 30,
     showMainCharacterInChat = true,
     showMainCharacterSpecInChat = true,
+    wholeNineYards = false,
+    enhancedPaperDoll = true,
 
     modBlizzRoster = false,
 }
@@ -36,6 +38,8 @@ local dbUpdates = {
     },
     --agenda = {},
     itemLists = {},
+
+    recruitment = {},
 }
 local dbToRemove = {
     "worldEvents",
@@ -147,17 +151,20 @@ function Database:Init()
 
     self.charDb = GUILDBOOK_CHARACTER;
 
+    self:RemoveRedundantGuildSavedVaariableFields()
+
 
     addon:TriggerEvent("StatusText_OnChanged", "[Database_OnInitialised]")
     addon:TriggerEvent("Database_OnInitialised")
 end
 
-function Database:CleanGuilds()
+function Database:RemoveRedundantGuildSavedVaariableFields()
     if self.db then
         for guildName, guild in pairs(self.db.guilds) do
             guild.info = nil
-            guild.logs = {}
-            guild.calendar = {}
+            guild.calendar = nil
+            guild.banks = nil
+            guild.bankRules = nil
         end
     end
 end
@@ -372,6 +379,63 @@ function Database:GetCharacterSyncData(key)
         return self.charDb.syncData[key];
     end
     return 0;
+end
+
+
+function Database:GetCharacterAlts(mainCharacter)
+
+    local alts = {}
+
+    if type(mainCharacter) == "string" then
+        if self.db then
+            for nameRealm, info in pairs(self.db.characterDirectory) do
+                if info.mainCharacter == mainCharacter then
+                    table.insert(alts, nameRealm)
+                end
+            end
+        end        
+    end
+
+    return alts;
+end
+
+
+
+function Database:InsertRecruitmentCSV(csv)
+    if self.db and self.db.recruitment then
+        
+        local existingEntries = {}
+        for k, v in ipairs(self.db.recruitment) do
+            existingEntries[v.name] = true;
+        end
+
+        for k, v in ipairs(csv) do
+            if not existingEntries[v.name] then
+                table.insert(self.db.recruitment, v)
+            end
+        end
+    end
+end
+
+function Database:DeleteAllRecruit()
+    if self.db and self.db.recruitment then
+        self.db.recruitment = {}
+    end
+end
+
+function Database:GetAllRecruitment()
+    if self.db and self.db.recruitment then
+        return self.db.recruitment;
+    end
+    return {};
+end
+
+function Database:CleanUpRecruitment()
+    if self.db and self.db.recruitment then
+        for k, v in ipairs(self.db.recruitment) do
+            v.isSelected = nil;
+        end
+    end
 end
 
 addon.Database = Database;
