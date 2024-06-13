@@ -1,0 +1,33 @@
+name: Prepare Release
+# on: push specifies that this workflow should trigger on every push to your repo, regardless of branch etc.
+on: push
+jobs:
+  build:
+  
+    # This is the "virtual machine" your steps will run on
+    runs-on: ubuntu-latest
+    
+    # Steps are just small little tasks. Like running a command, zipping a file or running a java compile.
+    steps:
+    
+    # Just checks out your code
+    - uses: actions/checkout@v3
+    
+    # Example use of copying some files around
+    - name: Collect Files
+      run: |
+        mkdir Guildbook && \
+        cp Guildbook.toc Guildbook/Guildbook.toc
+        
+    # Example of using th zip command
+    - name: Zip files
+      run: |
+        mkdir artefact && \
+        zip -q -r artefact/Guildbook.zip Guildbook
+    
+    # Example of publishing your zip to github so you can get it later
+    - name: Publish zip
+      uses: actions/upload-artifact@v3
+      with:
+        name: Package
+        path: artefact/*.zip
