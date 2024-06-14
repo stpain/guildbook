@@ -133,7 +133,7 @@ addon.paperDollSlotNames = {
     ["CharacterBackSlot"] = { allignment = "right", slotID = 15, },
     ["CharacterChestSlot"] = { allignment = "right", slotID = 5, },
     ["CharacterShirtSlot"] = { allignment = "right", slotID = 4, },
-    ["CharacterTabardSlot"] = { allignment = "right", slotID = 19, },
+    --["CharacterTabardSlot"] = { allignment = "right", slotID = 19, },
     ["CharacterWristSlot"] = { allignment = "right", slotID = 9, },
 
     ["CharacterHandsSlot"] = { allignment = "left", slotID = 10, },
@@ -162,6 +162,26 @@ addon.itemQualityAtlas = {
     -- [5] = "loottab-set-itemborder-orange",
 }
 
+local breakLink = function(link)
+    return string.match(link, [[|H([^:]*):([^|]*)|h(.*)|h]])
+end
+
+--local socketAtlas = "auctionhouse-icon-socket";
+local socketFileIDs = {
+    EMPTY_SOCKET_BLUE = 136256,
+    EMPTY_SOCKET_META = 136257,
+    EMPTY_SOCKET_RED = 136258,
+    EMPTY_SOCKET_YELLOW = 136259,
+    EMPTY_SOCKET_PRISMATIC = 458977,
+}
+local socketOrder = {
+    [1] = "EMPTY_SOCKET_META",
+    [2] = "EMPTY_SOCKET_RED",
+    [3] = "EMPTY_SOCKET_YELLOW",
+    [4] = "EMPTY_SOCKET_BLUE",
+    [5] = "EMPTY_SOCKET_PRISMATIC",
+}
+local socketIconSize = 14;
 local paperdollOverlays = {}
 function addon.api.updatePaperdollOverlays()
 
@@ -172,29 +192,128 @@ function addon.api.updatePaperdollOverlays()
 
     local minItemLevel, maxItemLevel = 0, 0;
 
+    local sockets = {}
+    local itemSocketsOrderd = {};
+
+    --[[
+
+    --blank socket string
+
+    local function formatSocketString(socketString)
+        if type(sockets.EMPTY_SOCKET_META) == "number" and (sockets.EMPTY_SOCKET_META > 0) then
+            socketString = string.format("%s %s", socketString, CreateSimpleTextureMarkup(socketFileIDs.EMPTY_SOCKET_META, 12, 12, 0, 0))
+            sockets.EMPTY_SOCKET_META = sockets.EMPTY_SOCKET_META - 1
+        end
+        if type(sockets.EMPTY_SOCKET_RED) == "number" and (sockets.EMPTY_SOCKET_RED > 0) then
+            socketString = string.format("%s %s", socketString, CreateSimpleTextureMarkup(socketFileIDs.EMPTY_SOCKET_RED, 12, 12, 0, 0))
+            sockets.EMPTY_SOCKET_RED = sockets.EMPTY_SOCKET_RED - 1
+        end
+        if type(sockets.EMPTY_SOCKET_YELLOW) == "number" and (sockets.EMPTY_SOCKET_YELLOW > 0) then
+            socketString = string.format("%s %s", socketString, CreateSimpleTextureMarkup(socketFileIDs.EMPTY_SOCKET_YELLOW, 12, 12, 0, 0))
+            sockets.EMPTY_SOCKET_YELLOW = sockets.EMPTY_SOCKET_YELLOW - 1
+        end
+        if type(sockets.EMPTY_SOCKET_BLUE) == "number" and (sockets.EMPTY_SOCKET_BLUE > 0) then
+            socketString = string.format("%s %s", socketString, CreateSimpleTextureMarkup(socketFileIDs.EMPTY_SOCKET_BLUE, 12, 12, 0, 0))
+            sockets.EMPTY_SOCKET_BLUE = sockets.EMPTY_SOCKET_BLUE - 1
+        end
+        return socketString
+    end
+    ]]
+
+    local function getSocketOrder()
+        for k, socketType in ipairs(socketOrder) do
+            if type(sockets[socketType]) == "number" and (sockets[socketType] > 0) then
+                for i = 1, sockets[socketType] do
+                    table.insert(itemSocketsOrderd, socketFileIDs[socketType])
+                end
+            end
+        end
+    end
+
     for frame, info in pairs(addon.paperDollSlotNames) do
         if not paperdollOverlays[frame] then
-            local border = _G[frame]:CreateTexture(nil, "BORDER", nil, 7)
-            border:SetAllPoints()
-            border:SetAlpha(0.7)
+            local qualityOverlay = _G[frame]:CreateTexture(nil, "BORDER", nil, 6)
+            qualityOverlay:SetAllPoints()
+            qualityOverlay:SetAlpha(0.7)
 
-            local label = _G[frame]:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+            local enchantBorder = _G[frame]:CreateTexture(nil, "BORDER", nil, 7)
+            enchantBorder:SetAtlas("Forge-ColorSwatchSelection")
+            enchantBorder:SetPoint("TOPLEFT", -2, 1)
+            enchantBorder:SetPoint("BOTTOMRIGHT", 1, -2)
+            enchantBorder:SetAlpha(0.9)
+
+            --[[
+                        enchantBorder:SetAtlas("GlyphIcon-Spellbook")
+            enchantBorder:SetPoint("TOPRIGHT", 2, 2)
+            enchantBorder:SetSize(21, 22)
+            -- enchantBorder:SetPoint("TOPLEFT", -3, 3)
+            -- enchantBorder:SetPoint("BOTTOMRIGHT", 3, -3)
+            -- enchantBorder:SetAllPoints()
+            enchantBorder:SetAlpha(0.9)
+            ]]
+
+            local itemLevelLabel = _G[frame]:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+            local empySocketLabel = _G[frame]:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
             if info.allignment == "right" then
-                label:SetPoint("LEFT", _G[frame], "RIGHT", 10, 0)
+                itemLevelLabel:SetPoint("TOPLEFT", _G[frame], "TOPRIGHT", 10, -8)
+                empySocketLabel:SetPoint("BOTTOMLEFT", _G[frame], "BOTTOMRIGHT", 8, 2)
             elseif info.allignment == "left" then
-                label:SetPoint("RIGHT", _G[frame], "LEFT", -10, 0)
+                itemLevelLabel:SetPoint("TOPRIGHT", _G[frame], "TOPLEFT", -10, -8)
+                empySocketLabel:SetPoint("BOTTOMRIGHT", _G[frame], "BOTTOMLEFT", -12, 2)
             else
-                label:SetPoint("BOTTOM", _G[frame], "TOP", 0, 10)
+                itemLevelLabel:SetPoint("BOTTOM", _G[frame], "TOP", 0, 22)
+                empySocketLabel:SetPoint("BOTTOM", _G[frame], "TOP", 0, 6)
             end
 
             paperdollOverlays[frame] = {
-                border = border,
-                label = label,
+                qualityOverlay = qualityOverlay,
+                itemLevelLabel = itemLevelLabel,
+                empySocketLabel = empySocketLabel,
+                enchantBorder = enchantBorder,
             }
         end
 
         local link = GetInventoryItemLink("player", info.slotID)
         if link then
+
+            local x, payload = breakLink(link)
+
+            local itemID, enchantID, gem1, gem2, gem3 = strsplit(":", payload)
+
+            enchantID = tonumber(enchantID)
+            gem1 = tonumber(gem1)
+            gem2 = tonumber(gem2)
+            gem3 = tonumber(gem3)
+
+            local gems = { gem1, gem2, gem3, }
+
+            sockets = {}
+            itemSocketsOrderd = {}
+            local stats = GetItemStats(link)
+            for k, v in pairs(stats) do
+                if k:find("SOCKET", nil, true) then
+                    if not sockets[k] then
+                        sockets[k] = 1;
+                    else
+                        sockets[k] = sockets[k] + 1;
+                    end
+                end
+            end
+
+            getSocketOrder()
+
+            --DevTools_Dump(itemSocketsOrderd)
+
+            local socketString2 = ""
+            for i = 1, 3 do
+                if type(gems[i]) == "number" then
+                    socketString2 = string.format("%s %s", socketString2, CreateSimpleTextureMarkup(select(5, GetItemInfoInstant(gems[i])), socketIconSize, socketIconSize, 0, 0))
+                elseif type(itemSocketsOrderd[i]) == "number" then
+                    socketString2 = string.format("%s %s", socketString2, CreateSimpleTextureMarkup(itemSocketsOrderd[i], socketIconSize+2, socketIconSize+2, 0, 0))
+                end
+            end
+
+
             local _, _, quality, itemLevel = GetItemInfo(link)
 
             if minItemLevel == 0 then
@@ -214,10 +333,14 @@ function addon.api.updatePaperdollOverlays()
 
             paperdollOverlays[frame].itemLevel = itemLevel;
             paperdollOverlays[frame].itemQuality = quality;
+            paperdollOverlays[frame].socketString = socketString2
+            paperdollOverlays[frame].enchanted = (type(enchantID) == "number") and true or false;
 
         else
             paperdollOverlays[frame].itemLevel = false;
             paperdollOverlays[frame].itemQuality = false;
+            paperdollOverlays[frame].socketString = false;
+            paperdollOverlays[frame].enchanted = false;
         end
     end
 
@@ -225,19 +348,30 @@ function addon.api.updatePaperdollOverlays()
 
     for f, info in pairs(paperdollOverlays) do
 
-        info.label:Hide()
-        info.border:Hide()
+        info.itemLevelLabel:Hide()
+        info.qualityOverlay:Hide()
+        info.empySocketLabel:Hide()
+        info.enchantBorder:Hide()
+
+        if info.enchanted == true then
+            info.enchantBorder:Show()
+        end
+
+        if type(info.socketString) == "string" then
+            info.empySocketLabel:SetText(info.socketString)
+            info.empySocketLabel:Show()
+        end
 
         if type(info.itemLevel) == "number" then
             local r, g, b = addon.api.getcolourGradientFromPercent(((info.itemLevel - minItemLevel) / itemLevelGap) * 100)
-            info.label:SetText(info.itemLevel)
-            info.label:SetTextColor(r,g,b,1)
-            info.label:Show()
+            info.itemLevelLabel:SetText(info.itemLevel)
+            info.itemLevelLabel:SetTextColor(r,g,b,1)
+            info.itemLevelLabel:Show()
         end
 
         if type(info.itemQuality) == "number" and info.itemQuality > 1 then
-            info.border:SetAtlas(addon.itemQualityAtlas[info.itemQuality])
-            info.border:Show()
+            info.qualityOverlay:SetAtlas(addon.itemQualityAtlas[info.itemQuality])
+            info.qualityOverlay:Show()
         end
     end
 
@@ -245,8 +379,9 @@ end
 
 function addon.api.hidePaperdollOverlays()
     for f, info in pairs(paperdollOverlays) do
-        info.label:Hide()
-        info.border:Hide()
+        info.itemLevelLabel:Hide()
+        info.qualityOverlay:Hide()
+        info.empySocketLabel:Hide()
     end
 end
 

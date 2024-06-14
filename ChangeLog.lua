@@ -21,6 +21,11 @@ local name, addon = ...;
 
 addon.changeLog = {
     {
+        version = "7.31",
+        notes = "Improved the Alts view Equipment tab, updates equipment changes better.\n\nAdded gem socket and enchant (border) to the Character Paperdoll overlay enhancements.",
+        icon = "ClassHall-QuestIcon-Desaturated",
+    },
+    {
         version = "7.3",
         notes = "Alts!\nUpgraded the alts view and added some extra info, more to come on that section. Right click on an alt for options.\n\nAdded some colour to the Character Paperdoll UI, you'll see the item quality colour and ilvl overlays, the ilvl is colourized to highlight lower level items. This can be toggled on/off in settings.",
         icon = "ClassHall-QuestIcon-Desaturated",

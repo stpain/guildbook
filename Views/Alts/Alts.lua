@@ -192,7 +192,10 @@ function GuildbookAltsTreeviewItemEquipmentMixin:SetDataBinding(binding, height)
         self.ilvl:SetText(string.format("%.2f", equipment.ilvl))
     end
 
-    if binding.equipment then
+    if binding.getAltInventory then
+
+        local itemSets = binding.getAltInventory()
+
         local menu = {
             {
                 text = "Equipment",
@@ -200,12 +203,13 @@ function GuildbookAltsTreeviewItemEquipmentMixin:SetDataBinding(binding, height)
                 notCheckable = true,
             },
         }
-        for name, items in pairs(binding.equipment) do
+        for name, items in pairs(itemSets) do
             table.insert(menu, {
                 text = name,
                 notCheckable = true,
                 func = function()
-                    updateSlots(items)
+                    local setinfo = binding.getAltInventory(name)
+                    updateSlots(setinfo)
                 end,
             })
         end
@@ -214,8 +218,9 @@ function GuildbookAltsTreeviewItemEquipmentMixin:SetDataBinding(binding, height)
             EasyMenu(menu, addon.contextMenu, self.dropdown, 4, 18, "MENU", 0.2)
         end)
 
-        if binding.equipment.current then
-            updateSlots(binding.equipment.current)
+        if itemSets.current then
+            local setinfo = binding.getAltInventory("current")
+            updateSlots(setinfo)
         end
 
     else
@@ -250,7 +255,7 @@ GuildbookAltsMixin = {
     name = "Alts",
     alts = {},
 
-    elementLabelFuncs = {
+    elementFuncs = {
         summary = {
             level = function(alt)
                 return alt.data.level;
@@ -288,25 +293,39 @@ GuildbookAltsMixin = {
         },
 
         equipment = function(alt)
-            local t = {}
-            for name, items in pairs(alt.data.inventory) do
-                t[name] = {
-                    ilvl = alt:GetItemLevel(name),
-                    items = items,
-                }
+            -- local t = {}
+            -- for name, items in pairs(alt.data.inventory) do
+            --     t[name] = {
+            --         ilvl = alt:GetItemLevel(name),
+            --         items = items,
+            --     }
+            -- end
+            -- return t;
+
+            return function(setName)
+                if not setName then
+                    local t = {}
+                    for name, items in pairs(alt.data.inventory) do
+                        t[name] = {
+                            ilvl = alt:GetItemLevel(name),
+                            items = items,
+                        }
+                    end
+                    return t;
+                else
+                    if alt.data.inventory[setName] then
+                        local t = {}
+                        t.ilvl = alt:GetItemLevel(setName)
+                        t.items = alt.data.inventory[setName]
+                        return t;
+                    end
+                end
             end
-            return t;
         end,
     }
 }
 
 function GuildbookAltsMixin:OnLoad()
-
-    local function setTreeviewPoints(view)
-        view:ClearAllPoints()
-        view:SetAllPoints()
-    end
-
 
     self.tabContainer:SetPoint("TOPLEFT", 4, -100)
     self.tabContainer:SetPoint("BOTTOMRIGHT", -4, 4)
@@ -337,13 +356,13 @@ function GuildbookAltsMixin:OnLoad()
     self.tabContainer:CreateTabButtons(tabs)
 
     self.tabContainer.summary:SetScript("OnShow", function()
-        self:LoadAlts("summary", self.tabContainer.summary.listview, self.elementLabelFuncs.summary, true)
+        self:LoadAlts("summary", self.tabContainer.summary.listview, self.elementFuncs.summary, true)
     end)
     self.tabContainer.tradeskills:SetScript("OnShow", function()
-        self:LoadAlts("tradeskills", self.tabContainer.tradeskills.listview, self.elementLabelFuncs.tradeskills, false)
+        self:LoadAlts("tradeskills", self.tabContainer.tradeskills.listview, self.elementFuncs.tradeskills, false)
     end)
     self.tabContainer.equipment:SetScript("OnShow", function()
-        self:LoadAlts("equipment", self.tabContainer.equipment.listview, self.elementLabelFuncs.equipment, false)
+        self:LoadAlts("equipment", self.tabContainer.equipment.listview, self.elementFuncs.equipment, false)
     end)
 
     addon:RegisterCallback("UI_OnSizeChanged", self.UpdateLayout, self)
@@ -371,6 +390,7 @@ end
 
 function GuildbookAltsMixin:OnShow()
     --self:LoadAlts()
+    self:UpdateLayout()
 end
 
 function GuildbookAltsMixin:CreateCharacterEntry(template, name, funcs, showCheckbox)
@@ -394,7 +414,7 @@ function GuildbookAltsMixin:CreateCharacterEntry(template, name, funcs, showChec
                         notCheckable = true,
                         func = function()
                             Database.db.myCharacters[name] = nil;
-                            self:LoadAlts("summary", self.tabContainer.summary.listview, self.elementLabelFuncs.summary, true)
+                            self:LoadAlts("summary", self.tabContainer.summary.listview, self.elementFuncs.summary, true)
                         end
                     }
                 }
@@ -417,7 +437,7 @@ function GuildbookAltsMixin:CreateCharacterEntry(template, name, funcs, showChec
         isChecked = (alt.data.name == alt.data.mainCharacter),
         checkbox_OnClick = function()
             alt:SetMainCharacter(alt.data.name, true)
-            self:LoadAlts("summary", self.tabContainer.summary.listview, self.elementLabelFuncs.summary, true)
+            self:LoadAlts("summary", self.tabContainer.summary.listview, self.elementFuncs.summary, true)
         end,
 
         onMouseDown = onMouseDown,
@@ -434,7 +454,7 @@ function GuildbookAltsMixin:CreateCharacterEntry(template, name, funcs, showChec
 
         --this uses frames/icons
     elseif template == "equipment" then
-        t.equipment = funcs(alt)
+        t.getAltInventory = funcs(alt)
     end
 
     return t;

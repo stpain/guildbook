@@ -149,6 +149,12 @@
         "ERR_NO_GUILD_CHARTER",
         "OPTIONS",
         "EQUIPMENT_SETS",
-        "EQUIPMENT_SET_SETTINGS"
+        "EQUIPMENT_SET_SETTINGS",
+        "CreateSimpleTextureMarkup",
+        "EMPTY_SOCKET_RED",
+        "EMPTY_SOCKET_YELLOW",
+        "EMPTY_SOCKET_BLUE",
+        "EMPTY_SOCKET_META",
+        "EMPTY_SOCKET_PRISMATIC"
     ]
 }
