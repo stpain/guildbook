@@ -471,9 +471,12 @@ function GuildbookMixin:Blizzard_OnInitialGuildRosterScan(guildName)
             addon.characters[addon.thisCharacter]:SetResistances("current", resistances, true)
             addon.characters[addon.thisCharacter]:SetAuras("current", auras, true)
 
-            if addon.characters[addon.thisCharacter] then
-                local lockouts = addon.api.getLockouts()
-                addon.characters[addon.thisCharacter]:SetLockouts(lockouts)
+            local lockouts = addon.api.getLockouts()
+            addon.characters[addon.thisCharacter]:SetLockouts(lockouts)
+
+            if addon.characters[addon.thisCharacter].data.mainCharacter == false then
+                addon.characters[addon.thisCharacter]:SetMainCharacter(addon.thisCharacter)
+                print(string.format("[Guildbook] no main character data found, set %s as default main.", addon.thisCharacter))
             end
         end
     end)
@@ -487,6 +490,16 @@ function GuildbookMixin:Blizzard_OnInitialGuildRosterScan(guildName)
     --     end
     -- end)
 end
+
+-- function GuildbookMixin:UpdateAltStatus()
+--     if Database.db and addon.characters and addon.thisCharacter then
+--         if addon.characters[addon.thisCharacter] then
+--             if addon.characters[addon.thisCharacter].data.mainCharacter == false then
+--                 addon.characters[addon.thisCharacter]:SetMainCharacter(addon.thisCharacter)
+--             end
+--         end
+--     end
+-- end
 
 function GuildbookMixin:Database_OnInitialised()
     self:CreateMinimapButtons()
@@ -549,14 +562,6 @@ function GuildbookMixin:CreateSlashCommands()
         elseif msg == "addcharacter" then
             self:AddCharacter()
 
-        elseif msg == "testnews" then
-            local news = {
-                character = addon.thisCharacter,
-                event = "levelup",
-                newLevel = 1,
-                guild = addon.thisGuild
-            }
-            Database:InsertNewsEevnt(news)
         end
     end
 end

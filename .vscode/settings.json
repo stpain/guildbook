@@ -155,6 +155,8 @@
         "EMPTY_SOCKET_YELLOW",
         "EMPTY_SOCKET_BLUE",
         "EMPTY_SOCKET_META",
-        "EMPTY_SOCKET_PRISMATIC"
+        "EMPTY_SOCKET_PRISMATIC",
+        "CreateTexturePool",
+        "AnimateTexCoords"
     ]
 }

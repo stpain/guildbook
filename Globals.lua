@@ -1,5 +1,7 @@
 local addonName, addon = ...;
 
+local libGlow = LibStub("LibCustomGlow-1.0")
+
 local Database = addon.Database;
 local Character = addon.Character;
 local Talents = addon.Talents;
@@ -132,7 +134,7 @@ addon.paperDollSlotNames = {
     ["CharacterShoulderSlot"] = { allignment = "right", slotID = 3, },
     ["CharacterBackSlot"] = { allignment = "right", slotID = 15, },
     ["CharacterChestSlot"] = { allignment = "right", slotID = 5, },
-    ["CharacterShirtSlot"] = { allignment = "right", slotID = 4, },
+    --["CharacterShirtSlot"] = { allignment = "right", slotID = 4, },
     --["CharacterTabardSlot"] = { allignment = "right", slotID = 19, },
     ["CharacterWristSlot"] = { allignment = "right", slotID = 9, },
 
@@ -148,6 +150,21 @@ addon.paperDollSlotNames = {
     ["CharacterMainHandSlot"] = { allignment = "top", slotID = 16, },
     ["CharacterSecondaryHandSlot"] = { allignment = "top", slotID = 17, },
     ["CharacterRangedSlot"] = { allignment = "top", slotID = 18, },
+}
+
+local ignoreEnchantSlotIDs = {
+    [true] = {
+        [2] = true,
+        [13] = true,
+        [14] = true,
+    },
+    [false] = {
+        [2] = true,
+        [11] = true,
+        [12] = true,
+        [13] = true,
+        [14] = true,
+    },
 }
 
 addon.itemQualityAtlas = {
@@ -183,6 +200,77 @@ local socketOrder = {
 }
 local socketIconSize = 14;
 local paperdollOverlays = {}
+
+local function GetItemSocketInfo(link)
+    
+    local x, payload = breakLink(link)
+
+    local itemID, enchantID, gem1, gem2, gem3 = strsplit(":", payload)
+
+    enchantID = tonumber(enchantID)
+    gem1 = tonumber(gem1)
+    gem2 = tonumber(gem2)
+    gem3 = tonumber(gem3)
+
+    local gems = { gem1, gem2, gem3, }
+
+    local ret = {
+        numSockets = 0,
+        numEmptySockets = 0,
+        actualSocketString = "",
+        missingSocketsString = "",
+    }
+
+    local sockets = {}
+    local itemSocketsOrderd = {}
+
+    local stats = GetItemStats(link)
+    for k, v in pairs(stats) do
+        if k:find("SOCKET", nil, true) then
+            if not sockets[k] then
+                sockets[k] = 1;
+            else
+                sockets[k] = sockets[k] + 1;
+            end
+            ret.numSockets = ret.numSockets + 1;
+        end
+    end
+
+    if ret.numSockets > 0 then
+
+        for k, socketType in ipairs(socketOrder) do
+            if type(sockets[socketType]) == "number" and (sockets[socketType] > 0) then
+                for i = 1, sockets[socketType] do
+                    table.insert(itemSocketsOrderd, socketFileIDs[socketType])
+                end
+            end
+        end
+
+        -- print(link)
+        -- DevTools_Dump(sockets)
+        -- DevTools_Dump(itemSocketsOrderd)
+        
+        for i = 1, 3 do
+
+            if type(gems[i]) == "number" then
+                
+                ret.actualSocketString = string.format("%s %s", ret.actualSocketString, CreateSimpleTextureMarkup(select(5, GetItemInfoInstant(gems[i])), socketIconSize, socketIconSize, 0, 0))
+            
+            elseif type(itemSocketsOrderd[i]) == "number" then
+                
+                ret.actualSocketString = string.format("%s %s", ret.actualSocketString, CreateSimpleTextureMarkup(itemSocketsOrderd[i], socketIconSize+2, socketIconSize+2, 0, 0))
+                ret.missingSocketsString = string.format("%s %s", ret.missingSocketsString, CreateSimpleTextureMarkup(itemSocketsOrderd[i], socketIconSize+2, socketIconSize+2, 0, 0))
+                
+                ret.numEmptySockets = ret.numEmptySockets + 1;
+            
+            end
+        end
+    end
+
+    return ret;
+end
+
+
 function addon.api.updatePaperdollOverlays()
 
     if Database:GetConfig("enhancedPaperDoll") == false then
@@ -192,65 +280,36 @@ function addon.api.updatePaperdollOverlays()
 
     local minItemLevel, maxItemLevel = 0, 0;
 
-    local sockets = {}
-    local itemSocketsOrderd = {};
+    local prof1, prof2 = GetProfessions()
+    local prof1Id = select(7, GetProfessionInfo(prof1))
+    local prof2Id = select(7, GetProfessionInfo(prof2))
 
-    --[[
+    local isEnchanter = (prof1Id == 333 or prof2Id == 333) and true or false;
 
-    --blank socket string
-
-    local function formatSocketString(socketString)
-        if type(sockets.EMPTY_SOCKET_META) == "number" and (sockets.EMPTY_SOCKET_META > 0) then
-            socketString = string.format("%s %s", socketString, CreateSimpleTextureMarkup(socketFileIDs.EMPTY_SOCKET_META, 12, 12, 0, 0))
-            sockets.EMPTY_SOCKET_META = sockets.EMPTY_SOCKET_META - 1
-        end
-        if type(sockets.EMPTY_SOCKET_RED) == "number" and (sockets.EMPTY_SOCKET_RED > 0) then
-            socketString = string.format("%s %s", socketString, CreateSimpleTextureMarkup(socketFileIDs.EMPTY_SOCKET_RED, 12, 12, 0, 0))
-            sockets.EMPTY_SOCKET_RED = sockets.EMPTY_SOCKET_RED - 1
-        end
-        if type(sockets.EMPTY_SOCKET_YELLOW) == "number" and (sockets.EMPTY_SOCKET_YELLOW > 0) then
-            socketString = string.format("%s %s", socketString, CreateSimpleTextureMarkup(socketFileIDs.EMPTY_SOCKET_YELLOW, 12, 12, 0, 0))
-            sockets.EMPTY_SOCKET_YELLOW = sockets.EMPTY_SOCKET_YELLOW - 1
-        end
-        if type(sockets.EMPTY_SOCKET_BLUE) == "number" and (sockets.EMPTY_SOCKET_BLUE > 0) then
-            socketString = string.format("%s %s", socketString, CreateSimpleTextureMarkup(socketFileIDs.EMPTY_SOCKET_BLUE, 12, 12, 0, 0))
-            sockets.EMPTY_SOCKET_BLUE = sockets.EMPTY_SOCKET_BLUE - 1
-        end
-        return socketString
-    end
-    ]]
-
-    local function getSocketOrder()
-        for k, socketType in ipairs(socketOrder) do
-            if type(sockets[socketType]) == "number" and (sockets[socketType] > 0) then
-                for i = 1, sockets[socketType] do
-                    table.insert(itemSocketsOrderd, socketFileIDs[socketType])
-                end
-            end
-        end
-    end
+    --print(isEnchanter)
 
     for frame, info in pairs(addon.paperDollSlotNames) do
         if not paperdollOverlays[frame] then
+
             local qualityOverlay = _G[frame]:CreateTexture(nil, "BORDER", nil, 6)
             qualityOverlay:SetAllPoints()
             qualityOverlay:SetAlpha(0.7)
 
-            local enchantBorder = _G[frame]:CreateTexture(nil, "BORDER", nil, 7)
-            enchantBorder:SetAtlas("Forge-ColorSwatchSelection")
-            enchantBorder:SetPoint("TOPLEFT", -2, 1)
-            enchantBorder:SetPoint("BOTTOMRIGHT", 1, -2)
-            enchantBorder:SetAlpha(0.9)
+            -- local enchantBorder = _G[frame]:CreateTexture(nil, "BORDER", nil, 7)
+            -- enchantBorder:SetAtlas("Forge-ColorSwatchSelection")
+            -- --enchantBorder:SetTexture(130744)
+            -- enchantBorder:SetPoint("TOPLEFT", -2, 1)
+            -- enchantBorder:SetPoint("BOTTOMRIGHT", 1, -2)
+            -- enchantBorder:SetAlpha(0.9)
+            -- _G[frame].enchantBorder = enchantBorder;
 
-            --[[
-                        enchantBorder:SetAtlas("GlyphIcon-Spellbook")
-            enchantBorder:SetPoint("TOPRIGHT", 2, 2)
-            enchantBorder:SetSize(21, 22)
-            -- enchantBorder:SetPoint("TOPLEFT", -3, 3)
-            -- enchantBorder:SetPoint("BOTTOMRIGHT", 3, -3)
-            -- enchantBorder:SetAllPoints()
-            enchantBorder:SetAlpha(0.9)
-            ]]
+            -- local enchantedAnimation = _G[frame]:CreateAnimationGroup()
+            -- enchantedAnimation:SetLooping("BOUNCE")
+            -- local fadeIn = enchantedAnimation:CreateAnimation("Alpha")
+            -- fadeIn:SetChildKey("enchantBorder")
+            -- fadeIn:SetDuration(0.5)
+            -- fadeIn:SetFromAlpha(0)
+            -- fadeIn:SetToAlpha(1)
 
             local itemLevelLabel = _G[frame]:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
             local empySocketLabel = _G[frame]:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -269,8 +328,10 @@ function addon.api.updatePaperdollOverlays()
                 qualityOverlay = qualityOverlay,
                 itemLevelLabel = itemLevelLabel,
                 empySocketLabel = empySocketLabel,
-                enchantBorder = enchantBorder,
+                --enchantBorder = enchantBorder,
+                --borderAnimation = enchantedAnimation,
             }
+
         end
 
         local link = GetInventoryItemLink("player", info.slotID)
@@ -280,39 +341,28 @@ function addon.api.updatePaperdollOverlays()
 
             local itemID, enchantID, gem1, gem2, gem3 = strsplit(":", payload)
 
-            enchantID = tonumber(enchantID)
-            gem1 = tonumber(gem1)
-            gem2 = tonumber(gem2)
-            gem3 = tonumber(gem3)
+            local shouldHaveEnchant
 
-            local gems = { gem1, gem2, gem3, }
+            if ignoreEnchantSlotIDs[isEnchanter][info.slotID] then
+                --print("ignore slot")
+                shouldHaveEnchant = false
+            else
+                enchantID = tonumber(enchantID)
+                shouldHaveEnchant = true
+                --print("converted to number")
+            end
 
-            sockets = {}
-            itemSocketsOrderd = {}
-            local stats = GetItemStats(link)
-            for k, v in pairs(stats) do
-                if k:find("SOCKET", nil, true) then
-                    if not sockets[k] then
-                        sockets[k] = 1;
-                    else
-                        sockets[k] = sockets[k] + 1;
-                    end
+            if info.slotID == 18 then
+                local _, _, classID = UnitClass("player")
+                if (classID == 2) or (classID == 7) or (classID == 11) then
+                    shouldHaveEnchant = false;
                 end
             end
 
-            getSocketOrder()
 
-            --DevTools_Dump(itemSocketsOrderd)
+            --print(info.slotID, type(enchantID))
 
-            local socketString2 = ""
-            for i = 1, 3 do
-                if type(gems[i]) == "number" then
-                    socketString2 = string.format("%s %s", socketString2, CreateSimpleTextureMarkup(select(5, GetItemInfoInstant(gems[i])), socketIconSize, socketIconSize, 0, 0))
-                elseif type(itemSocketsOrderd[i]) == "number" then
-                    socketString2 = string.format("%s %s", socketString2, CreateSimpleTextureMarkup(itemSocketsOrderd[i], socketIconSize+2, socketIconSize+2, 0, 0))
-                end
-            end
-
+            local socketInfo = GetItemSocketInfo(link)
 
             local _, _, quality, itemLevel = GetItemInfo(link)
 
@@ -333,8 +383,14 @@ function addon.api.updatePaperdollOverlays()
 
             paperdollOverlays[frame].itemLevel = itemLevel;
             paperdollOverlays[frame].itemQuality = quality;
-            paperdollOverlays[frame].socketString = socketString2
-            paperdollOverlays[frame].enchanted = (type(enchantID) == "number") and true or false;
+            paperdollOverlays[frame].socketString = socketInfo and socketInfo.missingSocketsString or "";
+            if type(enchantID) == "number" then
+                paperdollOverlays[frame].enchanted = true
+            else
+                if shouldHaveEnchant then
+                    paperdollOverlays[frame].enchanted = false
+                end
+            end
 
         else
             paperdollOverlays[frame].itemLevel = false;
@@ -351,10 +407,17 @@ function addon.api.updatePaperdollOverlays()
         info.itemLevelLabel:Hide()
         info.qualityOverlay:Hide()
         info.empySocketLabel:Hide()
-        info.enchantBorder:Hide()
+        -- info.enchantBorder:Hide()
+        -- info.borderAnimation:Stop()
+        libGlow.PixelGlow_Stop(_G[f])
 
-        if info.enchanted == true then
-            info.enchantBorder:Show()
+        if info.enchanted == false then
+        --     info.enchantBorder:Show()
+        --     info.borderAnimation:Play()
+
+        libGlow.PixelGlow_Start(_G[f])
+        --libGlow.AutoCastGlow_Start(_G[f])
+        --libGlow.ButtonGlow_Start(_G[f])
         end
 
         if type(info.socketString) == "string" then
@@ -382,6 +445,12 @@ function addon.api.hidePaperdollOverlays()
         info.itemLevelLabel:Hide()
         info.qualityOverlay:Hide()
         info.empySocketLabel:Hide()
+        -- info.enchantBorder:Hide()
+        -- info.borderAnimation:Stop()
+
+        libGlow.PixelGlow_Stop(_G[f])
+        --libGlow.AutoCastGlow_Stop(_G[f])
+        --libGlow.ButtonGlow_Stop(_G[f])
     end
 end
 

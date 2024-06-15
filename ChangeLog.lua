@@ -21,6 +21,11 @@ local name, addon = ...;
 
 addon.changeLog = {
     {
+        version = "7.32",
+        notes = "Adjusted the paperdoll enchancements, now shows misisng gems and adds a border glow effect for missing enchants.",
+        icon = "ClassHall-QuestIcon-Desaturated",
+    },
+    {
         version = "7.31",
         notes = "Improved the Alts view Equipment tab, updates equipment changes better.\n\nAdded gem socket and enchant (border) to the Character Paperdoll overlay enhancements.",
         icon = "ClassHall-QuestIcon-Desaturated",

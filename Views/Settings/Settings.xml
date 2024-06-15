@@ -611,7 +611,7 @@
                         </Anchors>
                         <Layers>
                             <Layer level="OVERLAY">
-                                <FontString parentKey="header" inherits="GameFontNormalLarge" text="Addon">
+                                <FontString parentKey="header" inherits="GameFontNormalHuge" text="Addon">
                                     <Size y="30"/>
                                     <Anchors>
                                         <Anchor point="TOPLEFT" x="0" y="0"/>
@@ -626,35 +626,20 @@
                                         <Anchor point="TOPRIGHT" x="0" y="-30"/>
                                     </Anchors>
                                 </FontString>
+                                <Texture atlas="Options_HorizontalDivider" useAtlasSize="true">
+                                    <Anchors>
+                                        <Anchor point="TOP" y="-160"/>
+                                    </Anchors>
+                                </Texture>
                             </Layer>
                         </Layers>   
 
                         <Frames>
-                            <Button parentKey="factoryReset" inherits="UIPanelButtonTemplate" text="Reset">
-                                <Size x="180" y="22"/>
-                                <Anchors>
-                                    <Anchor point="TOPLEFT" x="16" y="-70"/>
-                                </Anchors>
-                            </Button>
-
-                            <CheckButton parentKey="debug" inherits = "GuildbookWrathEraWidgetsCheckButton">
-                                <Size x="24" y="24"/>
-                                <Anchors>
-                                    <Anchor point="TOPLEFT" x="16" y="-105"/>
-                                </Anchors>
-                            </CheckButton>
-
-                            <CheckButton parentKey="enhancedPaperDoll" inherits = "GuildbookWrathEraWidgetsCheckButton">
-                                <Size x="24" y="24"/>
-                                <Anchors>
-                                    <Anchor point="TOPLEFT" x="216" y="-105"/>
-                                </Anchors>
-                            </CheckButton>
 
                             <EditBox parentKey="discord" inherits="InputBoxTemplate" autoFocus="false">
                                 <Size x="200" y="20"/>
                                 <Anchors>
-                                    <Anchor point="TOPLEFT" relativeKey="$parent.debug" relativePoint="BOTTOMLEFT" x="10" y="-30"/>
+                                    <Anchor point="TOPLEFT" x="16" y="-100"/>
                                 </Anchors>
                                 <Layers>
                                     <Layer level="OVERLAY">
@@ -667,6 +652,27 @@
                                     </Layer>
                                 </Layers>
                             </EditBox>
+
+                            <Button parentKey="factoryReset" inherits="UIPanelButtonTemplate" text="Reset">
+                                <Size x="180" y="22"/>
+                                <Anchors>
+                                    <Anchor point="TOPRIGHT" x="-16" y="-100"/>
+                                </Anchors>
+                            </Button>
+
+                            <CheckButton parentKey="debug" inherits = "GuildbookWrathEraWidgetsCheckButton">
+                                <Size x="24" y="24"/>
+                                <Anchors>
+                                    <Anchor point="LEFT" relativeKey="$parent.discord" relativePoint="RIGHT" x="60" y="0"/>
+                                </Anchors>
+                            </CheckButton>
+
+                            <CheckButton parentKey="enhancedPaperDoll" inherits = "GuildbookWrathEraWidgetsCheckButton">
+                                <Size x="24" y="24"/>
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="16" y="-180"/>
+                                </Anchors>
+                            </CheckButton>
 
                             <CheckButton parentKey="wholeNineYards" inherits = "GuildbookWrathEraWidgetsCheckButton" hidden="true">
                                 <Size x="24" y="24"/>

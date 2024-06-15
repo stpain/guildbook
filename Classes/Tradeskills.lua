@@ -337,6 +337,11 @@ function Tradeskills.BuildEnchanterNameToSpellID()
     end
 end
 
+
+--[[
+	to do:
+		update this to handle items like dreamcloth with different crafting methods
+]]
 function Tradeskills:GetRecipeSpellIDFromItemID(itemID)
     for spellID, _itemID in pairs(addon.tradeskillData.spellIdToItemCreated) do
         if itemID == _itemID then

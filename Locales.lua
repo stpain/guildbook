@@ -93,7 +93,7 @@ local L = {
 	ADDON = "Addon",
 	SETTINGS_ADDON_GENERAL = "Addon config options, if something goes wrong you can enable debug or reset the addon completely.",
 	SETTINGS_ADDON_DEBUG_LABEL = "Debug",
-	SETTINGS_ADDON_ENHANCE_PAPERDOLL_LABEL = "Enhance the Character Panel (item colours and ilvl).",
+	SETTINGS_ADDON_ENHANCE_PAPERDOLL_LABEL = "Enhanced Character Panel.",
 	SETTINGS_ADDON_WNY_LABEL = "Go big, load all data when you log in.\n\nWarning!\nThis will maybe cause some frame rate issues and potentially trigger a super massive black hole. But you do you.",
 
 
