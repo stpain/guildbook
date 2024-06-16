@@ -259,15 +259,11 @@ ERR_GUILD_WITHDRAW_LIMIT = "You cannot withdraw that much from the guild bank.";
 
 ]]
 
-function e:ADDON_LOADED()
-    
-    --hooks
-    -- GuildFramePromoteButton:HookScript("OnClick", function()
-    
-    -- end)
-    -- GuildFrameDemoteButton:HookScript("OnClick", function()
-    
-    -- end)
+function e:ADDON_LOADED(...)
+
+    if ... == "Guildbook_TSDB" then
+        addon.dataStoreEnabled = true
+    end
 
 end
 

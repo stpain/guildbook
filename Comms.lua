@@ -53,8 +53,8 @@ Comms.characterKeyToEventName = {
     glyphs = "GLYPH_TRANSMIT",
     resistances = "RESISTANCE_TRANSMIT",
     auras = "AURA_TRANSMIT",
-    -- alts = self.data.alts,
-    -- mainCharacter = self.data.mainCharacter,
+    alts = "ALTS_TRANSMIT",
+    -- mainCharacter = "MAIN_CHARACTER_TRANSMIT",
     -- publicNote = self.data.publicNote,
     mainSpec = "SPEC_TRANSMIT",
     -- offSpec = self.data.offSpec,
@@ -365,53 +365,41 @@ end
 --check its the clients character and proceed with sending data
 function Comms:Character_BroadcastChange(character, ...)
 
-    --DevTools_Dump({...})
+    --[[
+        the only time a character object is passed the broadcast bool is from this clients player character, or one of their alts
+        incoming comms from other guild members wont trigger the broadcast event
 
-    if addon.thisCharacter and (character.data.name == addon.thisCharacter) then
+        this system will update the character.data[key][subkey] fields as required and notify the object was updated
+    ]]
 
-        --[[
-            the character object comms is a little like an extension of the callback system btu works across the chat channels
-            example use:
+    local method, key, subKey = ...;
 
-                -the character object will fire this event with the following args (string method, string key, var subKey)
-                    addon:TriggerEvent("Character_BroadcastChange", self, "SetAuras", "auras", info)
+    if self.characterKeyToEventName[key] then
 
-                -comms will use those args on the receiving end with the correct character object
-                    Character[method](subKey, key, info)
-                    Character[method](key, info)
+        local data;
+        if subKey then
+            data = character.data[key][subKey]
+        else
+            data = character.data[key]
+        end
 
-                in this example 
-                SetAuras is a method of the character class/object
-                auras is the key (this is the object.data.auras)
-                info is the actual aura info
-        ]]
+        -- DevTools_Dump({
+        --     key = key,
+        --     subKey = subKey,
+        --     data = data,
+        -- })
 
-        --doing things this way adds addition text to the message but greatly simplifies the addon code required
-        --the addon will take the method sent if it exists rather than having to hard code message.event > character.method (although this could be better as time goes on)
-        local method, key, subKey = ...;
-
-        if self.characterKeyToEventName[key] then
-
-            local data;
-            if subKey then
-                data = character.data[key][subKey]
-            else
-                data = character.data[key]
+        if data then
+            if method == "SetTradeskill" then
+                --print("setting tradeskill", key, data)
             end
-
-            if data then
-                if method == "SetTradeskill" then
-                    --print("setting tradeskill", key, data)
-                end
-                --self:TransmitToGuild(self.characterKeyToEventName[key], data, method, subKey, character.data.name)
-                self:TransmitToGuild_New(character.data.name, method, key, subKey, data)
-                Database:SetCharacterSyncData(key, time())
-                --print("setting sync time for", key)
-                addon.LogDebugMessage("comms", string.format("Character_OnDataChanged > %s has changed, sending to comms queue", key))
-            else
-                addon.LogDebugMessage("comms", string.format("no data found in character.data[%s]", key))
-            end
-
+            --self:TransmitToGuild(self.characterKeyToEventName[key], data, method, subKey, character.data.name)
+            self:TransmitToGuild_New(character.data.name, method, key, subKey, data)
+            Database:SetCharacterSyncData(key, time())
+            --print("setting sync time for", key)
+            addon.LogDebugMessage("comms", string.format("Character_OnDataChanged > %s has changed, sending to comms queue", key))
+        else
+            addon.LogDebugMessage("comms", string.format("no data found in character.data[%s]", key))
         end
 
     end
@@ -662,6 +650,8 @@ Comms.events = {
     TRADESKILL_TRANSMIT_FISHING_LEVEL = Comms.Character_OnDataReceived,
     TRADESKILL_TRANSMIT_FIRSTAID_LEVEL = Comms.Character_OnDataReceived,
     TRADESKILL_TRANSMIT_FIRSTAID_RECIPES = Comms.Character_OnDataReceived,
+
+    ALTS_TRANSMIT = Comms.Character_OnDataReceived,
 
 
     --[[

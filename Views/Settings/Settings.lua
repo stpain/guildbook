@@ -119,21 +119,8 @@ function GuildbookSettingsMixin:OnLoad()
             width = 100,
             panel = self.content.character.tabContainer.tradeskills,
         },
-        {
-            label = "Alts",
-            width = 100,
-            panel = self.content.character.tabContainer.alts,
-        },
     }
     self.content.character.tabContainer:CreateTabButtons(tabs)
-
-    self.content.character.tabContainer.alts.gridview:InitFramePool("FRAME", "GuildbookSettingsCharacterAltTemplate")
-    --self.content.character.tabContainer.alts.gridview:SetFixedColumnCount(6)
-    self.content.character.tabContainer.alts.gridview:SetMinMaxSize(80,120)
-    self.content.character.tabContainer.alts.gridview:SetAnchorOffsets(10,10)
-    self.content.character.tabContainer.alts.gridview.ScrollBar:Hide()
-    
-
 
     self.content.character:SetScript("OnShow", function()
         self:CharacterPanel_OnShow()
@@ -170,7 +157,8 @@ function GuildbookSettingsMixin:OnLoad()
 
     self.content.addon.enhancedPaperDoll.label:SetText(L.SETTINGS_ADDON_ENHANCE_PAPERDOLL_LABEL)
     self.content.addon.enhancedPaperDoll:SetScript("OnClick", function(cb)
-        Database:SetConfig("enhancedPaperDoll", cb:GetChecked())
+        local isChecked = cb:GetChecked()
+        Database:SetConfig("enhancedPaperDoll", isChecked)
         addon.api.updatePaperdollOverlays()
     end)
 
@@ -206,8 +194,6 @@ function GuildbookSettingsMixin:UpdateLayout()
         tradeskillsScroll.reagentItems:ClearAllPoints()
         tradeskillsScroll.reagentItems:SetPoint("TOPLEFT", tradeskillsScroll.tradeskillItems, "TOPRIGHT", 20, 0)
     end
-
-    self.content.character.tabContainer.alts.gridview:UpdateLayout()
 
 end
 
@@ -552,34 +538,6 @@ function GuildbookSettingsMixin:PrepareCharacterPanel()
             end,
             backgroundAtlas = "transmog-set-iconrow-background"
         }, 40)
-
-
-
-        panel.alts.gridview:Flush()
-        
-        for nameRealm, _ in pairs(Database.db.myCharacters) do
-            if Database and Database.db.guilds[addon.thisGuild] and Database.db.guilds[addon.thisGuild].members and Database.db.guilds[addon.thisGuild].members[nameRealm] then
-                panel.alts.gridview:Insert(addon.characters[nameRealm])
-            end
-        end
-        -- panel.myCharacters.listview.DataProvider:Flush()
-        -- local alts = {}
-        -- if Database.db.myCharacters then
-        --     for name, isMain in pairs(Database.db.myCharacters) do
-        --         if addon.characters[name] then
-        --             table.insert(alts, {
-        --                 character = addon.characters[name],
-        --             }) 
-        --         end
-        --     end
-        -- end
-        -- panel.myCharacters.listview.DataProvider:InsertTable(alts)
-
-        -- panel.reset:SetScript("OnClick", function()
-        --     if addon.characters and addon.characters[addon.thisCharacter] then
-        --         addon.characters[addon.thisCharacter]:ResetData()
-        --     end
-        -- end)
 
     end
 end

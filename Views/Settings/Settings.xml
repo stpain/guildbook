@@ -230,30 +230,6 @@
 
                                         </Frames>
                                     </Frame>
-                                    <Frame parentKey="alts" setAllPoints="true" hidden="true">
-                                        <Layers>
-                                            <Layer level="BACKGROUND">
-                                                <Texture parentKey="background" setAllPoints="true"/>
-                                            </Layer>
-                                            <Layer level="OVERLAY">
-                                                <FontString parentKey="header" inherits="GameFontNormal" justifyH="LEFT" text="Set your main character for the current guild">
-                                                    <Size y="20"/>
-                                                    <Anchors>
-                                                        <Anchor point="TOPLEFT" x="10" y="-10"/>
-                                                        <Anchor point="TOPRIGHT" x="-10" y="-10"/>
-                                                    </Anchors>
-                                                </FontString>
-                                            </Layer>
-                                        </Layers>
-                                        <Frames>
-                                            <ScrollFrame parentKey="gridview" inherits = "GuildbookWrathEraWidgetsGridviewTemplate">
-                                                <Anchors>
-                                                    <Anchor point="TOPLEFT" x="0" y="-40"/>
-                                                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
-                                                </Anchors>
-                                            </ScrollFrame>
-                                        </Frames>
-                                    </Frame>
                                 </Frames>
                             </Frame>                       
                         </Frames>

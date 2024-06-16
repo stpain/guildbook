@@ -474,9 +474,11 @@ function GuildbookMixin:Blizzard_OnInitialGuildRosterScan(guildName)
             local lockouts = addon.api.getLockouts()
             addon.characters[addon.thisCharacter]:SetLockouts(lockouts)
 
+            --if there is no main character data then set this character as main
             if addon.characters[addon.thisCharacter].data.mainCharacter == false then
-                addon.characters[addon.thisCharacter]:SetMainCharacter(addon.thisCharacter)
-                print(string.format("[Guildbook] no main character data found, set %s as default main.", addon.thisCharacter))
+                --fetch your characters for the guild
+                local alts = Database:GetMyCharactersForGuild(addon.thisGuild)
+                addon.characters[addon.thisCharacter]:UpdateAlts(alts, true)
             end
         end
     end)
@@ -491,15 +493,6 @@ function GuildbookMixin:Blizzard_OnInitialGuildRosterScan(guildName)
     -- end)
 end
 
--- function GuildbookMixin:UpdateAltStatus()
---     if Database.db and addon.characters and addon.thisCharacter then
---         if addon.characters[addon.thisCharacter] then
---             if addon.characters[addon.thisCharacter].data.mainCharacter == false then
---                 addon.characters[addon.thisCharacter]:SetMainCharacter(addon.thisCharacter)
---             end
---         end
---     end
--- end
 
 function GuildbookMixin:Database_OnInitialised()
     self:CreateMinimapButtons()

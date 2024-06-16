@@ -436,7 +436,16 @@ function GuildbookAltsMixin:CreateCharacterEntry(template, name, funcs, showChec
         showCheckbox = showCheckbox,
         isChecked = (alt.data.name == alt.data.mainCharacter),
         checkbox_OnClick = function()
-            alt:SetMainCharacter(alt.data.name, true)
+
+            --fetch your characters for the guild
+            local alts = Database:GetMyCharactersForGuild(addon.thisGuild)
+            -- set the new main character
+            --Database:SetMainCharacterForAlts(addon.thisGuild, alt.data.name, alts)
+
+            --this will trigger a comms event from the alt object
+            --other guild members will receive the comms and it'll use the alt name
+            alt:UpdateAlts(alts, true)
+
             self:LoadAlts("summary", self.tabContainer.summary.listview, self.elementFuncs.summary, true)
         end,
 
@@ -466,6 +475,8 @@ function GuildbookAltsMixin:LoadAlts(template, treeview, funcs, showCheckbox)
     local added = {}
     local guilds = {}
 
+    local copper = 0;
+
     local sortFunc = function(a, b)
         if a:GetData().sortLevel and b:GetData().sortLevel then
             return a:GetData().sortLevel > b:GetData().sortLevel;
@@ -477,29 +488,56 @@ function GuildbookAltsMixin:LoadAlts(template, treeview, funcs, showCheckbox)
 
     for guildname, info in pairs(Database.db.guilds) do
 
-        guilds[guildname] = dataProvider:Insert({
-            name = guildname,
-            atlas = "common-icon-forwardarrow",
-            backgroundAtlas = "OBJBonusBar-Top",
-            fontObject = GameFontNormal,
-            isParent = true,
-        })
-        guilds[guildname]:SetSortComparator(sortFunc, true, true)
+        if template == "summary" then
+            copper = 0;
+        end
 
-
+        local t = {}
         for name, isMain in pairs(Database.db.myCharacters) do
 
             if info.members[name] and Database.db.characterDirectory[name] then
 
+                copper = copper + (Database.db.characterDirectory[name].containers.copper or 0);
+
                 local entry = self:CreateCharacterEntry(template, name, funcs, showCheckbox)
     
-                guilds[guildname]:Insert(entry)
+                table.insert(t, entry)
 
                 added[name] = true
     
             end
 
         end
+
+        --GetCoinTextureString(copper)
+
+        if template == "summary" then
+            guilds[guildname] = dataProvider:Insert({
+                name = guildname,
+                atlas = "common-icon-forwardarrow",
+                backgroundAtlas = "Talent-Background",
+                fontObject = GameFontNormal,
+                isParent = true,
+                labels = { copper = GetCoinTextureString(copper) },
+            })
+
+        else
+            guilds[guildname] = dataProvider:Insert({
+                name = guildname,
+                atlas = "common-icon-forwardarrow",
+                backgroundAtlas = "Talent-Background",
+                fontObject = GameFontNormal,
+                isParent = true,
+            })
+        end
+
+
+        guilds[guildname]:SetSortComparator(sortFunc, true, true)
+
+        for k, alt in ipairs(t) do
+            guilds[guildname]:Insert(alt)
+        end
+
 
         guilds[guildname]:Sort()
 
@@ -509,7 +547,7 @@ function GuildbookAltsMixin:LoadAlts(template, treeview, funcs, showCheckbox)
     guilds["other"] = dataProvider:Insert({
         name = OTHER,
         atlas = "common-icon-forwardarrow",
-        backgroundAtlas = "OBJBonusBar-Top",
+        backgroundAtlas = "Talent-Background",
         fontObject = GameFontNormal,
         isParent = true,
     })

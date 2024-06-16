@@ -145,10 +145,6 @@
         </Scripts>
     </Frame>
 
-    <Frame name="GuildbookSettingsCharacterAltTemplate" mixin="GuildbookSettingsCharacterAltMixin" inherits="GuildbookCircleIconTemplate" virtual="true">
-
-    </Frame>
-
     <Frame name="GuildbookWrathEraProfileSummaryRowAvatarTemplate" mixin="GuildbookProfileSummaryRowAvatarTemplateMixin" virtual="true" enableMouse="true" useParentLevel="true">
         <Animations>
             <AnimationGroup parentKey="anim" looping="REPEAT">
@@ -272,54 +268,6 @@
             <OnLoad method="OnLoad"/>
         </Scripts>
     </Frame>
-
-    <Frame name="GuildbookWrathEraMyCharactersListviewItem" mixin="GuildbookMyCharactersListviewItemMixin" virtual="true" enableMouse="true">
-        <Layers>
-			<Layer level="BACKGROUND">
-				<Texture parentKey="Background" atlas="ClickCastList-ButtonBackground" useAtlasSize="false" setAllPoints="true"/>
-			</Layer>
-			<Layer level="HIGHLIGHT">
-				<Texture parentKey="Highlight" atlas="ClickCastList-ButtonHighlight" useAtlasSize="false" setAllPoints="true"/>
-			</Layer>
-            <Layer level="OVERLAY">
-				<Texture parentKey="icon">
-					<!-- <TexCoords left="0.0" right="0.46875" top="0.0" bottom="0.96875" /> -->
-					<Size x="34" y="34"/>				
-					<Anchors>
-						<Anchor point="LEFT" x="3" y="0"/>
-					</Anchors>
-				</Texture>
-                <MaskTexture parentKey="mask" file="Interface/CHARACTERFRAME/TempPortraitAlphaMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE" >
-                    <Size x="30" y="30"/>	
-                    <Anchors>
-                        <Anchor point="LEFT" x="5" y="0"/>
-                    </Anchors>
-                    <MaskedTextures>
-                        <MaskedTexture childKey="icon"/>
-                    </MaskedTextures>
-                </MaskTexture>
-				<FontString parentKey="text" inherits="GameFontNormal" justifyH="LEFT">
-					<Anchors>
-						<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" relativeKey="$parent.icon" x="5" y="0"/>
-						<Anchor point="BOTTOMRIGHT" x="-5" y="0"/>
-					</Anchors>
-					<Color r="1" g="1" b="1"/>
-				</FontString>
-            </Layer>
-        </Layers>
-        <Frames>
-            <CheckButton parentKey="isMain" inherits = "GuildbookWrathEraWidgetsCheckButton">
-                <Size x="24" y="24"/>
-                <Anchors>
-                    <Anchor point="RIGHT" x="-8" y="0"/>
-                </Anchors>
-            </CheckButton>
-        </Frames>
-        <Scripts>
-            <OnLoad method="OnLoad"/>
-        </Scripts>
-    </Frame>
-
 
     <Frame name="GuildbookWrathEraBankCharactersListviewItem" mixin="GuildbookBankCharactersListviewItemMixin" virtual="true" enableMouse="true">
         <Layers>

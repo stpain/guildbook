@@ -207,6 +207,16 @@ local function GetItemSocketInfo(link)
 
     local itemID, enchantID, gem1, gem2, gem3 = strsplit(":", payload)
 
+    if itemID == "57268" then
+
+        DevTools_Dump({strsplit(":", payload)})
+
+        local stats = GetItemStats(link)
+        for k, v in pairs(stats) do
+            print(k, v)
+        end
+    end
+
     enchantID = tonumber(enchantID)
     gem1 = tonumber(gem1)
     gem2 = tonumber(gem2)
@@ -354,7 +364,7 @@ function addon.api.updatePaperdollOverlays()
 
             if info.slotID == 18 then
                 local _, _, classID = UnitClass("player")
-                if (classID == 2) or (classID == 7) or (classID == 11) then
+                if (classID == 2) or (classID == 5) or (classID == 7) or (classID == 8) or (classID == 9) or (classID == 11) then
                     shouldHaveEnchant = false;
                 end
             end
@@ -411,7 +421,7 @@ function addon.api.updatePaperdollOverlays()
         -- info.borderAnimation:Stop()
         libGlow.PixelGlow_Stop(_G[f])
 
-        if info.enchanted == false then
+        if (type(info.itemLevel) == "number") and (info.enchanted == false) then
         --     info.enchantBorder:Show()
         --     info.borderAnimation:Play()
 

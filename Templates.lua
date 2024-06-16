@@ -634,28 +634,6 @@ function GuildbookCircleIconMixin:OnLeave()
 end
 
 
---alts template
-GuildbookSettingsCharacterAltMixin = {}
-function GuildbookSettingsCharacterAltMixin:SetDataBinding(binding)
-    self.character = binding;
-    self.icon:SetAtlas(self.character:GetProfileAvatar())
-    self.label:SetText("|cffffffff"..Ambiguate(self.character.data.name, "short"))
-
-    if self.character.data.name == self.character.data.mainCharacter then
-        self.selected:Show()
-    else
-        self.selected:Hide()
-    end
-
-    local _, class = GetClassInfo(self.character.data.class)
-    local colour = RAID_CLASS_COLORS[class]
-    self.border:SetVertexColor(colour:GetRGB())
-
-    self:SetScript("OnMouseDown", function()
-        self.character:SetMainCharacter(self.character.data.name, true)
-    end)
-end
-
 
 GuildbookProfileSummaryRowAvatarTemplateMixin = {}
 
@@ -2003,41 +1981,6 @@ end
 
 
 
-
-
-
-
-GuildbookMyCharactersListviewItemMixin = {}
-function GuildbookMyCharactersListviewItemMixin:OnLoad()
-    addon:RegisterCallback("Character_OnDataChanged", self.Update, self)
-    -- self:SetScript("OnMouseDown", function()
-    --     if self.character then
-    --         addon:TriggerEvent("Character_OnProfileSelected", self.character)
-    --     end
-    -- end)
-end
-function GuildbookMyCharactersListviewItemMixin:SetDataBinding(binding, height)
-    self.character = binding.character
-    self:Update(self.character)
-    self.isMain:SetScript("OnClick", function()
-        self.character:SetMainCharacter(self.character.data.name)
-    end)
-end
-function GuildbookMyCharactersListviewItemMixin:ResetDataBinding()
-    
-end
-function GuildbookMyCharactersListviewItemMixin:Update(character)
-    if self.character.data.guid == character.data.guid then
-        self.text:SetText(self.character.data.name)
-        self.icon:SetAtlas(self.character:GetProfileAvatar())
-    end
-
-    if self.character.data.mainCharacter == self.character.data.name then
-        self.isMain:SetChecked(true)
-    else
-        self.isMain:SetChecked(false)
-    end
-end
 
 
 

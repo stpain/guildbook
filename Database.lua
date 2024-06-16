@@ -100,7 +100,7 @@ function Database:Init()
     end
 
     for k, v in pairs(configUpdates) do
-        if not self.db.config[k] then
+        if self.db.config[k] == nil then
             self.db.config[k] = v;
         end
     end
@@ -381,6 +381,30 @@ function Database:GetCharacterSyncData(key)
     return 0;
 end
 
+function Database:SetMainCharacterForAlts(guild, main, alts)
+    if addon.characters and addon.guilds and addon.guilds[guild] and addon.guilds[guild].members then
+        for k, name in ipairs(alts) do
+            if addon.characters[name] and addon.guilds[guild].members[main] then
+                addon.characters[name]:SetMainCharacter(main)
+            end
+        end
+    end
+end
+
+
+function Database:GetMyCharactersForGuild(guildName)
+    local alts = {}
+    if Database.db.myCharacters then
+        for name, val in pairs(Database.db.myCharacters) do
+            if addon.guilds and addon.guilds[guildName] and addon.guilds[guildName].members and addon.guilds[guildName].members[name] then
+                if addon.characters and addon.characters[name] then
+                    table.insert(alts, name)
+                end
+            end
+        end
+    end
+    return alts;
+end
 
 function Database:GetCharacterAlts(mainCharacter)
 

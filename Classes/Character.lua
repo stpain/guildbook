@@ -700,14 +700,25 @@ function Character:GetPaperdollStats(set)
     end
 end
 
+--sets the object called from as the main character for the alts passed in
+function Character:UpdateAlts(alts, broadcast)
+    self.data.alts = alts;
+    if addon.thisGuild then
+        Database:SetMainCharacterForAlts(addon.thisGuild, self.data.name, alts)
+    end
+    if broadcast then
+        addon:TriggerEvent("Character_BroadcastChange", self, "UpdateAlts", "alts")
+    end
+    addon:TriggerEvent("StatusText_OnChanged", string.format(" set %s for %s", "alts", self.data.name))
+end
 
 function Character:SetMainCharacter(main, broadcast)
     self.data.mainCharacter = main;
 
-    --this should only apply when setting your own characters data
+    --[[
     if Database.db.myCharacters then
         for name, val in pairs(Database.db.myCharacters) do
-            val = false;
+            --val = false;
 
             --check if this character exists in this guild before updated their main character
             if addon.guilds and addon.guilds[addon.thisGuild] and addon.guilds[addon.thisGuild].members then
@@ -727,13 +738,16 @@ function Character:SetMainCharacter(main, broadcast)
 
         Database.db.myCharacters[self.data.name] = true;
     end
+    ]]
 
 
-    addon:TriggerEvent("Character_OnDataChanged", self)
-    if broadcast then
-        addon:TriggerEvent("Character_BroadcastChange", self, "SetMainCharacter", "mainCharacter")
-    end
-    addon:TriggerEvent("StatusText_OnChanged", string.format(" set %s for %s", "main character", self.data.name))
+
+    -- addon:TriggerEvent("Character_OnDataChanged", self)
+    -- if broadcast then
+    --     addon:TriggerEvent("Character_BroadcastChange", self, "SetMainCharacter", "mainCharacter")
+    -- end
+    -- addon:TriggerEvent("StatusText_OnChanged", string.format(" set %s for %s", "main character", self.data.name))
+
 end
 
 function Character:GetMainCharacter()
@@ -950,9 +964,6 @@ end
 
 
 function Character:CreateFromData(data)
-    if data and data.alts then
-        data.alts = nil
-    end
     --if (data.race == false) or (data.gender == false) then
         self.ticker = C_Timer.NewTicker(1, function()
             local _, _, _, englishRace, sex = GetPlayerInfoByGUID(data.guid)
@@ -982,7 +993,7 @@ function Character:CreateEmpty()
             isOnline = false,
             zone = "",
         },
-        --alts = {},
+        alts = {},
         mainCharacter = false,
         publicNote = "",
         mainSpec = false,
