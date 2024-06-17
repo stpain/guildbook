@@ -201,6 +201,42 @@ local socketOrder = {
 local socketIconSize = 14;
 local paperdollOverlays = {}
 
+local function ScanTooltip(link)
+
+    local t = {}
+
+    GuildbookScanningTooltip:ClearLines()
+    GuildbookScanningTooltip:SetHyperlink(link)
+    local regions = {GuildbookScanningTooltip:GetRegions()}
+    for k, region in ipairs(regions) do
+        if region and region:GetObjectType() == "FontString" then
+            local text = region:GetText()
+            if type(text) == "string" then
+                table.insert(t, text)
+                -- local number = tonumber(text:match("%-?%d+"))
+                -- if number then
+                --     table.insert(t, {
+                --         attribute = text:gsub("%-?%d+", "%%d"),
+                --         value = number,
+                --         displayText = text,
+                --     })
+                -- else
+                --     for k, socket in ipairs(sockets) do
+                --         if text == _G[socket] then
+                --             table.insert(t, {
+                --                 attribute = text:gsub("%-?%d+", "%%d"),
+                --                 value = number or 1,
+                --                 displayText = text,
+                --             })
+                --         end
+                --     end
+                -- end
+            end
+        end
+    end
+    return t;
+end
+
 local function GetItemSocketInfo(link)
     
     local x, payload = breakLink(link)
@@ -209,12 +245,18 @@ local function GetItemSocketInfo(link)
 
     if itemID == "57268" then
 
-        DevTools_Dump({strsplit(":", payload)})
+        -- DevTools_Dump({strsplit(":", payload)})
 
-        local stats = GetItemStats(link)
-        for k, v in pairs(stats) do
-            print(k, v)
-        end
+        -- local stats = GetItemStats(link)
+        -- for k, v in pairs(stats) do
+        --     print(k, v)
+        -- end
+
+        -- local name, id = C_Item.GetItemSpell(link)
+        -- print(name, id)
+
+        -- local lines = ScanTooltip(link)
+        -- DevTools_Dump(lines)
     end
 
     enchantID = tonumber(enchantID)

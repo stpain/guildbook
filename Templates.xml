@@ -625,7 +625,7 @@
 				</FontString>
 
                 <FontString parentArray="fontstrings" parentKey="ilvl" inherits="GameFontNormal" justifyH="LEFT">
-                    <Size x="110" y="26"/>
+                    <Size x="90" y="26"/>
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.mainSpec" x="5" y="0"/>
 					</Anchors>
@@ -659,7 +659,7 @@
 					</Anchors>
 					<Color r="1" g="1" b="1"/>
 				</FontString> -->
-				<FontString parentArray="fontstrings" parentKey="publicNote" inherits="GameFontNormal" justifyH="LEFT">
+				<FontString parentArray="fontstrings" parentKey="publicNote" inherits="GameFontNormalSmall" justifyH="LEFT">
                     <Size x="150" y="26"/>
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.zone" x="5" y="0"/>

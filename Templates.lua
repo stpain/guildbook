@@ -903,7 +903,6 @@ function GuildbookRosterListviewItemMixin:SetDataBinding(binding, height)
 
     local atlas, _ = self.character:GetClassSpecAtlasName()
     self.classIcon:SetAtlas(atlas)
-    self.name:SetText(Ambiguate(self.character.data.name, "short"))
 
     self:Update()
 end
@@ -951,6 +950,16 @@ end
 
 function GuildbookRosterListviewItemMixin:Update()
 
+    local main = self.character:GetMainCharacter()
+    if type(main) == "string" then
+        self.name:SetFontObject("GameFontNormalSmall")
+        local name = self.character:GetName(true, "short")
+        self.name:SetText(string.format("%s\n[%s]", name, Ambiguate(main, "short")))
+    else
+        self.name:SetFontObject("GameFontNormal")
+        self.name:SetText(self.character:GetName(true, "short"))
+    end
+
     self.level:SetText(self.character.data.level)
     self.zone:SetText(self.character.data.onlineStatus.zone)
     --self.rank:SetText(GuildControlGetRankName(self.character.data.rank + 1))
@@ -991,7 +1000,7 @@ function GuildbookRosterListviewItemMixin:Update()
         self.mainSpec:SetText(engName)
     end
 
-
+    --self.publicNote:SetText(BLUE_FONT_COLOR:WrapTextInColorCode(self.character.data.publicNote))
     self.publicNote:SetText(self.character.data.publicNote)
     self.openProfile.background:SetAtlas(self.character:GetProfileAvatar())
 

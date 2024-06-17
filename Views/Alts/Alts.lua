@@ -531,6 +531,14 @@ function GuildbookAltsMixin:LoadAlts(template, treeview, funcs, showCheckbox)
             })
         end
 
+        -- guilds[guildname] = dataProvider:Insert({
+        --     name = guildname,
+        --     atlas = "common-icon-forwardarrow",
+        --     backgroundAtlas = "Talent-Background",
+        --     fontObject = GameFontNormal,
+        --     isParent = true,
+        -- })
+
 
         guilds[guildname]:SetSortComparator(sortFunc, true, true)
 
@@ -540,6 +548,16 @@ function GuildbookAltsMixin:LoadAlts(template, treeview, funcs, showCheckbox)
 
 
         guilds[guildname]:Sort()
+
+        -- if template == "summary" then
+        --     guilds[guildname]:Insert({
+        --         name = " ",
+        --         atlas = "ShipMissionIcon-Treasure-Map",
+        --         labels = { copper = GetCoinTextureString(copper), },
+
+        --         sortLevel = -1,
+        --     })
+        -- end
 
     end
 

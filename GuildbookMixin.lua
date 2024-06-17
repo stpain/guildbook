@@ -479,6 +479,16 @@ function GuildbookMixin:Blizzard_OnInitialGuildRosterScan(guildName)
                 --fetch your characters for the guild
                 local alts = Database:GetMyCharactersForGuild(addon.thisGuild)
                 addon.characters[addon.thisCharacter]:UpdateAlts(alts, true)
+            else
+
+                --if a main character has been set we need to call UpdateAlts on that character object for the correct name
+                local mainCharacter = addon.characters[addon.thisCharacter]:GetMainCharacter()
+                if type(mainCharacter) == "string" then
+                    if addon.characters[mainCharacter] then
+                        local alts = Database:GetMyCharactersForGuild(addon.thisGuild)
+                        addon.characters[mainCharacter]:UpdateAlts(alts, true)
+                    end
+                end
             end
         end
     end)

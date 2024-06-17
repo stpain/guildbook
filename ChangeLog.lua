@@ -21,6 +21,11 @@ local name, addon = ...;
 
 addon.changeLog = {
     {
+        version = "7.322",
+        notes = "Reworked the alt/main logic\n\nWorking on the paperdoll enhancement logic, it seems blacksmith and buckle sockets are hard to detect from an itemLink and also not easy from a tooltip scan. I will keep looking for a way to detect these though..",
+        icon = "ClassHall-QuestIcon-Desaturated",
+    },
+    {
         version = "7.32",
         notes = "Adjusted the paperdoll enchancements, now shows misisng gems and adds a border glow effect for missing enchants.",
         icon = "ClassHall-QuestIcon-Desaturated",

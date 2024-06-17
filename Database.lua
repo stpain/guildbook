@@ -394,9 +394,9 @@ end
 
 function Database:GetMyCharactersForGuild(guildName)
     local alts = {}
-    if Database.db.myCharacters then
+    if Database.db.myCharacters and addon.guilds and addon.guilds[guildName] and addon.guilds[guildName].members then
         for name, val in pairs(Database.db.myCharacters) do
-            if addon.guilds and addon.guilds[guildName] and addon.guilds[guildName].members and addon.guilds[guildName].members[name] then
+            if addon.guilds[guildName].members[name] then
                 if addon.characters and addon.characters[name] then
                     table.insert(alts, name)
                 end
