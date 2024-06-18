@@ -1,6 +1,6 @@
 ## Interface: 40400
 ## Author: TheBoringDad
-## Version: 7.322
+## Version: 7.323
 ## Title: Guildbook
 ## Notes: An addon for guilds
 ## SavedVariables: GUILDBOOK_GLOBAL
@@ -75,8 +75,8 @@ Views\Tradeskills\Tradeskills.xml
 Views\GuildRoster\GuildRoster.lua
 Views\GuildRoster\GuildRoster.xml
 
-#Views\GuildBank\GuildBank.lua
-#Views\GuildBank\GuildBank.xml
+Views\GuildManagement\GuildManagement.lua
+Views\GuildManagement\GuildManagement.xml
 
 Views\Instances\Instances.lua
 Views\Instances\Instances.xml

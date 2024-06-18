@@ -327,9 +327,27 @@
                             <KeyValue key="tooltipText" value="Dailies" type="string"/>
                         </KeyValues>
                     </Frame>
-                    <Frame parentKey="export" inherits="GuildbookWrathEraSmallHighlightButton" hidden="false">
+                    <Frame parentKey="guildmanagement" inherits = "GuildbookWrathEraSmallHighlightButton" hidden="false">
                         <Anchors>
                             <Anchor point="LEFT" relativeKey="$parent.dailies" relativePoint="RIGHT" x="4" y="0"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture atlas="communities-guildbanner-background">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="2" y="-2"/>
+                                        <Anchor point="BOTTOMRIGHT" x="-2" y="2"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                        <KeyValues>
+                            <KeyValue key="tooltipText" value="Guild Management" type="string"/>
+                        </KeyValues>
+                    </Frame>
+                    <Frame parentKey="export" inherits="GuildbookWrathEraSmallHighlightButton" hidden="false">
+                        <Anchors>
+                            <Anchor point="LEFT" relativeKey="$parent.guildmanagement" relativePoint="RIGHT" x="4" y="0"/>
                         </Anchors>
                         <KeyValues>
                             <KeyValue key="tooltipText" value="Export" type="string"/>

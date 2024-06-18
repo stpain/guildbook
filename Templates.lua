@@ -904,6 +904,15 @@ function GuildbookRosterListviewItemMixin:SetDataBinding(binding, height)
     local atlas, _ = self.character:GetClassSpecAtlasName()
     self.classIcon:SetAtlas(atlas)
 
+    -- local r, g, b = RAID_CLASS_COLORS[select(2, GetClassInfo(self.character.data.class))]:GetRGB()
+    -- self.background:SetColorTexture(r, g, b)
+
+    if binding.showBackground == true then
+        self.background:Show()
+    else
+        self.background:Hide()
+    end
+
     self:Update()
 end
 

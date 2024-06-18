@@ -201,12 +201,19 @@ local socketOrder = {
 local socketIconSize = 14;
 local paperdollOverlays = {}
 
-local function ScanTooltip(link)
+local function ScanTooltip(link, unit, slot)
 
     local t = {}
 
     GuildbookScanningTooltip:ClearLines()
-    GuildbookScanningTooltip:SetHyperlink(link)
+
+    if link then
+        GuildbookScanningTooltip:SetHyperlink(link)
+        
+    elseif unit and slot then
+        GuildbookScanningTooltip:SetInventoryItem(unit, slot)
+    end
+
     local regions = {GuildbookScanningTooltip:GetRegions()}
     for k, region in ipairs(regions) do
         if region and region:GetObjectType() == "FontString" then

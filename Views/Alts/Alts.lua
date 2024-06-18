@@ -437,6 +437,8 @@ function GuildbookAltsMixin:CreateCharacterEntry(template, name, funcs, showChec
         isChecked = (alt.data.name == alt.data.mainCharacter),
         checkbox_OnClick = function()
 
+            alt:SetMainCharacter(alt.data.name, true)
+
             --fetch your characters for the guild
             local alts = Database:GetMyCharactersForGuild(addon.thisGuild)
             -- set the new main character

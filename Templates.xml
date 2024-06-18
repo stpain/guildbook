@@ -583,7 +583,10 @@
         </Animations>
         <Layers>
 			<Layer level="BACKGROUND">
-				<Texture parentKey="Background" atlas="Talent-Background" useAtlasSize="false" setAllPoints="true"/>
+				<!-- <Texture parentKey="Background" atlas="Talent-Background" useAtlasSize="false" setAllPoints="true"/> -->
+				<Texture parentKey="background" alpha="0.1" setAllPoints="true" hidden="true">
+                    <Color r="0.5" g="0.5" b="0.5"/>
+                </Texture>
 			</Layer>
 			<Layer level="HIGHLIGHT">
 				<!-- <Texture parentKey="Highlight" atlas="GarrMission_ListGlow-Highlight" useAtlasSize="false" setAllPoints="true"/> -->

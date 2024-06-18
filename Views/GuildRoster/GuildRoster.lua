@@ -185,9 +185,28 @@ function GuildbookGuildRosterMixin:Update(classID, minLevel, maxLevel)
         end
     end)
 
+    local i = 0;
+    for k, v in ipairs(t) do
+        if (i % 2 == 0) then
+            v.showBackground = true
+        else
+            v.showBackground = false
+        end
+        i = i + 1;
+    end
     
     local dp = CreateDataProvider(t)
     self.rosterListview.scrollView:SetDataProvider(dp)
+
+    -- local i = 0;
+    -- self.rosterListview.scrollView:ForEachFrame(function(f, d)
+    --     if (i % 2 == 0) then
+    --         f.background:Show()
+    --     else
+    --         f.background:Hide()
+    --     end
+    --     i = i + 1;
+    -- end)
 
 end
 

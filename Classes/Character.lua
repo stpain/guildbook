@@ -742,10 +742,10 @@ function Character:SetMainCharacter(main, broadcast)
 
 
 
-    -- addon:TriggerEvent("Character_OnDataChanged", self)
-    -- if broadcast then
-    --     addon:TriggerEvent("Character_BroadcastChange", self, "SetMainCharacter", "mainCharacter")
-    -- end
+    addon:TriggerEvent("Character_OnDataChanged", self)
+    if broadcast then
+        addon:TriggerEvent("Character_BroadcastChange", self, "SetMainCharacter", "mainCharacter")
+    end
     -- addon:TriggerEvent("StatusText_OnChanged", string.format(" set %s for %s", "main character", self.data.name))
 
 end

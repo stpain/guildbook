@@ -197,7 +197,7 @@ function GuildbookProfileMixin:LoadCharacter(character)
 	--request an update, this uses WHISPER channel comms and only if the player is online
 	Comms:RequestCharacterData(character.data.name, "mainSpec")
 
-	-- C_Timer.After(1.0, function()
+	-- C_Timer.After(0.5, function()
 	-- 	Comms:RequestCharacterData(character.data.name, "mainCharacter")
 	-- end)
 	C_Timer.After(1.0, function()

@@ -1,0 +1,18 @@
+<Ui>
+    <Frame name="GuildbookGuildManagement" mixin="GuildbookGuildManagementMixin">
+        <Layers>
+            <Layer level="BACKGROUND">
+                <!-- <Texture parentKey="background" atlas="loottab-background"> -->
+                <Texture parentKey="background" atlas="ClassHall_StoneFrame-BackgroundTile" horizTile="true" vertTile="true">
+                
+                </Texture>
+            </Layer>
+        </Layers>
+
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+        </Scripts>
+
+    </Frame>
+
+</Ui>

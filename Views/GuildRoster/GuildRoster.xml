@@ -47,6 +47,14 @@
                     <KeyValue key="itemTemplate" value="GuildbookWrathEraRosterListviewItem" type="string"/>
                     <KeyValue key="elementHeight" value="26" type="number"/>
                 </KeyValues>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <!-- <Texture parentKey="background" atlas="loottab-background"> -->
+                        <Texture parentKey="background">
+                            <Color r="0.085" g="0.08" b="0.075" a="0.88"/>
+                        </Texture>
+                    </Layer>
+                </Layers>
                 <!-- <Frames>
                     <Button parentKey="name" parentArray="sortButtons" inherits="UIPanelButtonTemplate" text="NAME">
                         <Size x="140" y="22"/>

@@ -383,9 +383,9 @@ end
 
 function Database:SetMainCharacterForAlts(guild, main, alts)
     if addon.characters and addon.guilds and addon.guilds[guild] and addon.guilds[guild].members then
-        for k, name in ipairs(alts) do
-            if addon.characters[name] and addon.guilds[guild].members[main] then
-                addon.characters[name]:SetMainCharacter(main)
+        for k, nameRealm in ipairs(alts) do
+            if addon.characters[nameRealm] and addon.guilds[guild].members[main] then
+                addon.characters[nameRealm]:SetMainCharacter(main)
             end
         end
     end
