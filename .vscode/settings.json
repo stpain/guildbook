@@ -157,6 +157,9 @@
         "EMPTY_SOCKET_META",
         "EMPTY_SOCKET_PRISMATIC",
         "CreateTexturePool",
-        "AnimateTexCoords"
+        "AnimateTexCoords",
+        "GameTooltip_AddBlankLinesToTooltip",
+        "GameTooltip_AddStatusBar",
+        "GameTooltip_ShowStatusBar"
     ]
 }

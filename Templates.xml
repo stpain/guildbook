@@ -648,7 +648,7 @@
 					</Anchors>
 				</Texture> -->
 
-				<FontString parentArray="fontstrings" parentKey="zone" inherits="GameFontNormal" justifyH="LEFT">
+				<FontString parentArray="fontstrings" parentKey="zone" inherits="GameFontNormalSmall" justifyH="LEFT">
                     <Size x="110" y="26"/>
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.ilvl" x="70" y="0"/>

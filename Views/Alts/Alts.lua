@@ -6,11 +6,64 @@ local Database = addon.Database;
 local Character = addon.Character;
 local Tradeskills = addon.Tradeskills;
 
+--abusing Lua, this is a major local variable which will be used to determine column spacing
+local CURRENCY_ID_INDEXES = {}
+local REPUTATION_ID_INDEXES = {}
+local CURRENCY_HEADER_SELECTED;
+local REPUTATION_HEADER_SELECTED;
+
+local function setupRow(f, binding, height)
+    f:SetHeight(height)
+
+    if binding.backgroundAlpha then
+        f.background:SetAlpha(binding.backgroundAlpha)
+    else
+        f.background:SetAlpha(0)
+    end
+    if binding.highlightAtlas then
+        f.highlight:SetAtlas(binding.highlightAtlas)
+    end
+    if binding.backgroundAtlas then
+        f.background:SetAtlas(binding.backgroundAtlas)
+        if binding.backgroundAlpha then
+            f.background:SetAlpha(binding.backgroundAlpha)
+        else
+            f.background:SetAlpha(1)
+        end
+    else
+        if binding.backgroundRGB then
+            f.background:SetColorTexture(binding.backgroundRGB.r, binding.backgroundRGB.g, binding.backgroundRGB.b)
+        else
+            f.background:SetColorTexture(0,0,0)
+        end
+    end
+
+    if binding.atlas then
+        f.icon:SetAtlas(binding.atlas)
+    elseif binding.icon then
+        f.icon:SetTexture(binding.icon)
+    end
+    if not binding.icon and not binding.atlas then
+        f.icon:SetSize(1, height-4)
+    else
+        f.icon:SetSize(height-4, height-4)
+    end
+    if binding.name then
+        f.name:SetText(binding.name)
+    end
+end
 
 
+GuildbookAltsTreeviewItemBasicMixin = {}
+function GuildbookAltsTreeviewItemBasicMixin:OnLoad()
+    
+end
+function GuildbookAltsTreeviewItemBasicMixin:SetDataBinding(binding, height)
 
-
-
+end
+function GuildbookAltsTreeviewItemBasicMixin:ResetDataBinding()
+    
+end
 
 
 GuildbookAltsTreeviewItemMixin = {}
@@ -35,41 +88,8 @@ function GuildbookAltsTreeviewItemMixin:UpdateLayout()
     end
 end
 function GuildbookAltsTreeviewItemMixin:SetDataBinding(binding, height)
-    self:SetHeight(height)
 
-    if binding.backgroundAlpha then
-        self.background:SetAlpha(binding.backgroundAlpha)
-    else
-        self.background:SetAlpha(0)
-    end
-    if binding.highlightAtlas then
-        self.highlight:SetAtlas(binding.highlightAtlas)
-    end
-    if binding.backgroundAtlas then
-        self.background:SetAtlas(binding.backgroundAtlas)
-        if binding.backgroundAlpha then
-            self.background:SetAlpha(binding.backgroundAlpha)
-        else
-            self.background:SetAlpha(1)
-        end
-    else
-        if binding.backgroundRGB then
-            self.background:SetColorTexture(binding.backgroundRGB.r, binding.backgroundRGB.g, binding.backgroundRGB.b)
-        else
-            self.background:SetColorTexture(0,0,0)
-        end
-    end
-
-    if binding.atlas then
-        self.icon:SetAtlas(binding.atlas)
-    elseif binding.icon then
-        self.icon:SetTexture(binding.icon)
-    end
-    if not binding.icon and not binding.atlas then
-        self.icon:SetSize(1, height-4)
-    else
-        self.icon:SetSize(height-4, height-4)
-    end
+    setupRow(self, binding, height)
 
     if binding.showCheckbox and binding.checkbox_OnClick then
         self.checkbox:Show()
@@ -86,18 +106,6 @@ function GuildbookAltsTreeviewItemMixin:SetDataBinding(binding, height)
                 self[k]:Show()
             end
         end
-    end
-
-    if binding.equipment then
-        for slot, link in pairs(binding.equipment) do
-
-        end
-    end
-
-
-
-    if binding.name then
-        self.name:SetText(binding.name)
     end
 
     if binding.onMouseDown then
@@ -118,74 +126,62 @@ function GuildbookAltsTreeviewItemMixin:ResetDataBinding()
 end
 
 
-
-
 GuildbookAltsTreeviewItemEquipmentMixin = {}
 function GuildbookAltsTreeviewItemEquipmentMixin:OnLoad()
-    local height = 22
-    local lastFrame
-    for k, slotInfo in ipairs(addon.data.inventorySlots) do
-        if not self[slotInfo.slot] then
-            local f = CreateFrame("Frame", nil, self, "GuildbookWrathEraSmallHighlightButton")
-            f:SetSize(height, height)
-            
-            if k == 1 then
-                f:SetPoint("LEFT", 276, 0)
-                lastFrame = f
-            else
-                f:SetPoint("LEFT", lastFrame, "RIGHT", 4, 0)
-                lastFrame = f
-            end
 
-            f.icon = f:CreateTexture(nil, "ARTWORK")
-            f.icon:SetAllPoints()
-            self[slotInfo.slot] = f
-        end
-    end
 end
 function GuildbookAltsTreeviewItemEquipmentMixin:SetDataBinding(binding, height)
-    self:SetHeight(height)
-
-    if binding.backgroundAlpha then
-        self.background:SetAlpha(binding.backgroundAlpha)
-    else
-        self.background:SetAlpha(0)
-    end
-    if binding.highlightAtlas then
-        self.highlight:SetAtlas(binding.highlightAtlas)
-    end
-    if binding.backgroundAtlas then
-        self.background:SetAtlas(binding.backgroundAtlas)
-        if binding.backgroundAlpha then
-            self.background:SetAlpha(binding.backgroundAlpha)
-        else
-            self.background:SetAlpha(1)
-        end
-    else
-        if binding.backgroundRGB then
-            self.background:SetColorTexture(binding.backgroundRGB.r, binding.backgroundRGB.g, binding.backgroundRGB.b)
-        else
-            self.background:SetColorTexture(0,0,0)
-        end
-    end
-
-    if binding.atlas then
-        self.icon:SetAtlas(binding.atlas)
-    elseif binding.icon then
-        self.icon:SetTexture(binding.icon)
-    end
-    if not binding.icon and not binding.atlas then
-        self.icon:SetSize(1, height-4)
-    else
-        self.icon:SetSize(height-4, height-4)
-    end
+   
+    setupRow(self, binding, height)
 
     local function updateSlots(equipment)
+
+        local height = 24
+        local lastFrame
+        for k, slotInfo in ipairs(addon.data.inventorySlots) do
+            if not self[slotInfo.slot] then
+                local f = CreateFrame("Frame", nil, self, "GuildbookWrathEraSmallHighlightButton")
+                f:SetSize(height, height)
+                
+                if k == 1 then
+                    f:SetPoint("LEFT", 276, 0)
+                    lastFrame = f
+                else
+                    f:SetPoint("LEFT", lastFrame, "RIGHT", 4, 0)
+                    lastFrame = f
+                end
+    
+                f.border = f:CreateTexture(nil, "BORDER")
+                f.border:SetAllPoints()
+                -- f.border:SetPoint("TOPLEFT", -3, 3)
+                -- f.border:SetPoint("BOTTOMRIGHT", 2, -2)
+    
+                f.icon = f:CreateTexture(nil, "BACKGROUND")
+                f.icon:SetAllPoints()
+                -- f.icon:SetPoint("TOPLEFT", 0.5, -0.5)
+                -- f.icon:SetPoint("BOTTOMRIGHT", -1, 1)
+
+                self[slotInfo.slot] = f
+            end
+        end
+
+
         for k, slotInfo in ipairs(addon.data.inventorySlots) do
             self[slotInfo.slot].link = nil
             self[slotInfo.slot].icon:SetTexture(nil)
+            self[slotInfo.slot].border:Hide()
             if equipment.items[slotInfo.slot] then
                 self[slotInfo.slot].link = equipment.items[slotInfo.slot]
+                local _, hex = strsplit("|", equipment.items[slotInfo.slot])
+                if hex and (#hex == 9) then
+                    -- local r, g, b = CreateColorFromHexString(hex:sub(2,9)):GetRGB()
+                    -- self[slotInfo.slot].border:SetColorTexture(r, g, b)
+
+                    local atlas = addon.itemQualityAtlas_Borders[hex:sub(2,9)]
+                    self[slotInfo.slot].border:SetAtlas(atlas)
+
+                    self[slotInfo.slot].border:Show()
+                end
                 self[slotInfo.slot].icon:SetTexture(select(5, GetItemInfoInstant(equipment.items[slotInfo.slot])))
             end
         end
@@ -238,14 +234,239 @@ end
 
 
 
+GuildbookAltsTreeviewCurrencyMixin = {}
+function GuildbookAltsTreeviewCurrencyMixin:OnLoad()
+    self.currencyIcons = {}
+end
+function GuildbookAltsTreeviewCurrencyMixin:SetDataBinding(binding, height)
+
+    setupRow(self, binding, height)
+
+    if binding.getCurrencies then
+        self.updateCurrencies = function(header)
+
+            for k, v in ipairs(self.currencyIcons) do
+                v.icon:SetTexture(nil)
+                v.label:SetText(nil)
+            end
+
+            --pairs [id] = count
+            local selectedCurencies = binding.getCurrencies(header)
+
+            --use this CURRENCY_ID_INDEXES
+
+            table.sort(selectedCurencies, function(a, b)
+                if a.currencyID == b.currencyID then
+                    return a.count > b.count;
+                else
+                    return a.currencyID > b.currencyID;
+                end
+            end)
+
+            local currenciesForHeader = CURRENCY_ID_INDEXES[header]
+ 
+            local height = 24
+            local lastFrame
+            for k, currencyID in ipairs(currenciesForHeader) do
+                if not self.currencyIcons[k] then
+                    local f = CreateFrame("Frame", nil, self, "GuildbookWrathEraSmallHighlightButton")
+                    f:SetSize(height, height)
+                    
+                    if k == 1 then
+                        f:SetPoint("LEFT", 150, 0)
+                        lastFrame = f
+                    else
+                        f:SetPoint("LEFT", lastFrame, "RIGHT", 50, 0)
+                        lastFrame = f
+                    end
+        
+                    f.icon = f:CreateTexture(nil, "ARTWORK")
+                    f.icon:SetAllPoints()
+
+                    f.label = f:CreateFontString(nil, "OVERLAY", "GameFontWhite")
+                    f.label:SetPoint("LEFT", f, "RIGHT", 4, 0)
+
+                    self.currencyIcons[k] = f
+                end
+
+                lastFrame = self.currencyIcons[k]
+
+                self.currencyIcons[k].icon:SetTexture(nil)
+                self.currencyIcons[k].label:SetText(" ")
+                self.currencyIcons[k]:SetScript("OnEnter", nil)
+                self.currencyIcons[k]:SetScript("OnLeave", function()
+                    GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+                end)
+
+                if selectedCurencies[currencyID] and (currencyID > 0) then
+                    local name, currentAmount, texture, earnedThisWeek, weeklyMax, totalMax, isDiscovered, rarity = GetCurrencyInfo(currencyID)
+
+                    self.currencyIcons[k].icon:SetTexture(texture)
+                    self.currencyIcons[k].label:SetText(selectedCurencies[currencyID])
+                    self.currencyIcons[k]:SetScript("OnEnter", function(f)
+                        GameTooltip:SetOwner(f, "ANCHOR_TOP")
+                        GameTooltip:AddLine(name)
+                        --GameTooltip:SetHyperlink(string.format("|Hcurrency:%d:%d", currency.currencyID, currency.count))
+                        GameTooltip:Show()
+                    end)
+
+                end
+
+
+            end
+
+        end
+    end
+
+end
+function GuildbookAltsTreeviewCurrencyMixin:ResetDataBinding()
+    self.updateCurrencies = nil;
+    for k, v in ipairs(self.currencyIcons) do
+        if v.icon and v.label then
+            v.icon:SetTexture(nil)
+            v.label:SetText(nil)
+        end
+    end
+end
+
+
+local standingColours = {
+    [1] = CreateColorFromHexString("ffcc0000"),
+    [2] = CreateColorFromHexString("ffff0000"),
+    [3] = CreateColorFromHexString("fff26000"),
+    [4] = CreateColorFromHexString("ffe4e400"),
+    [5] = CreateColorFromHexString("ff33ff33"),
+    [6] = CreateColorFromHexString("ff5fe65d"),
+    [7] = CreateColorFromHexString("ff53e9bc"),
+    [8] = CreateColorFromHexString("ff2ee6e6"),
+}
 
 
 
+GuildbookAltsTreeviewReputationMixin = {}
+function GuildbookAltsTreeviewReputationMixin:OnLoad()
+    self.repFrames = {}
+    addon:RegisterCallback("UI_OnSizeChanged", self.UpdateLayout, self)
+end
+function GuildbookAltsTreeviewReputationMixin:SetDataBinding(binding, height)
 
+    setupRow(self, binding, height)
 
+    --DevTools_Dump(binding)
+    
+    if binding.getReputations then
+        self.updateReputations = function(header, uiOnly)
 
+            REPUTATION_HEADER_SELECTED = header
 
+            local altReps = binding.getReputations(header)
 
+            local repsForHeader = REPUTATION_ID_INDEXES[header]
+
+            local width = self:GetWidth() - 150 - (#repsForHeader * 4);
+
+            local repFrameWidth = math.floor(width / #repsForHeader)
+
+            local lastFrame;
+
+            for k, frame in ipairs(self.repFrames) do
+                frame.label:SetText("")
+            end
+
+            for k, repID in ipairs(repsForHeader) do
+                
+                if not self.repFrames[k] then
+                    
+                    --local f = CreateFrame("Frame", nil, self)
+                    local f = CreateFrame("StatusBar", nil, self)
+                    f:SetStatusBarTexture(137012)
+                    f:SetSize(repFrameWidth, height-6)
+
+                    f.label = f:CreateFontString(nil, "OVERLAY", "GameFontNormalTiny")
+                    f.label:SetPoint("TOPLEFT")
+                    f.label:SetPoint("BOTTOMRIGHT")
+                    f.label:SetTextColor(1,1,1)
+                    
+                    f.background = f:CreateTexture(nil, "BACKGROUND")
+                    f.background:SetAllPoints()
+                    f.background:SetColorTexture(0.12313, 0.132745, 0.14803, 0.85)
+
+                    if k == 1 then
+                        f:SetPoint("LEFT", 150, 0)
+                        lastFrame = f;
+                    else
+                        f:SetPoint("LEFT", lastFrame, "RIGHT", 4, 0)
+                        lastFrame = f;
+                    end
+
+                    f:SetScript("OnLeave", function()
+                        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+                    end)
+
+                    self.repFrames[k] = f
+
+                else
+
+                    lastFrame = self.repFrames[k]
+                end
+
+                local name = GetFactionInfoByID(repID)
+
+                self.repFrames[k].label:SetText(name)
+
+            end
+
+            if uiOnly then
+                for k, frame in ipairs(self.repFrames) do
+                    frame:SetWidth(repFrameWidth)
+                end
+                return;
+            else
+                for k, frame in ipairs(self.repFrames) do
+                    local repID = repsForHeader[k]
+                    if altReps[repID] and altReps[repID].topValue and altReps[repID].currentValue then
+                        frame:SetMinMaxValues(0, altReps[repID].topValue)
+                        frame:SetValue(altReps[repID].currentValue)
+                        local r, g, b = standingColours[altReps[repID].standingID]:GetRGB()
+                        frame:SetStatusBarColor(r, g, b)
+
+                        frame:SetScript("OnEnter", function()
+                            local name, desc = GetFactionInfoByID(repID)
+                            GameTooltip:SetOwner(frame, "ANCHOR_TOP")
+                            GameTooltip:AddLine(name)
+                            GameTooltip:AddLine(desc, 1,1,1,true)
+                            GameTooltip_AddBlankLinesToTooltip(GameTooltip, 1);
+                            GameTooltip:AddDoubleLine(
+                                standingColours[altReps[repID].standingID]:WrapTextInColorCode(_G["FACTION_STANDING_LABEL"..altReps[repID].standingID]),
+                                string.format("%d|cffffffff/|r%d", altReps[repID].currentValue, altReps[repID].topValue)
+                            )
+                            --GameTooltip_AddBlankLinesToTooltip(GameTooltip, 1);
+                            --GameTooltip_ShowStatusBar(GameTooltip, 0, altReps[repID].topValue, altReps[repID].currentValue, "")
+                            GameTooltip_ShowProgressBar(GameTooltip, 0, altReps[repID].topValue, altReps[repID].currentValue, "")
+                            GameTooltip:Show()
+                        end)
+                        frame:Show()
+                    else
+                        frame:Hide()
+                    end
+                end
+            end
+            self:UpdateLayout()
+        end
+    end
+end
+function GuildbookAltsTreeviewReputationMixin:ResetDataBinding()
+    self.updateReputations = nil;
+    for k, frame in ipairs(self.repFrames) do
+        frame.label:SetText("")
+        frame:Hide()
+    end
+end
+function GuildbookAltsTreeviewReputationMixin:UpdateLayout()
+    if self.updateReputations then
+        self.updateReputations(REPUTATION_HEADER_SELECTED, true)
+    end
+end
 
 
 
@@ -255,6 +476,7 @@ GuildbookAltsMixin = {
     name = "Alts",
     alts = {},
 
+    --these are passed/called by the treeview elements(items) and function to setup the row UI/data
     elementFuncs = {
         summary = {
             level = function(alt)
@@ -273,10 +495,11 @@ GuildbookAltsMixin = {
 
         tradeskills = {
             prof1 = function(alt)
-                return string.format("%s [%d]", alt:GetTradeskillName(1), alt:GetTradeskillLevel(1))
+                return string.format("%s [%d] %s", CreateAtlasMarkup(alt:GetTradeskillIcon(1), 20, 20), alt:GetTradeskillLevel(1), alt:GetTradeskillName(1))
             end,
             prof2 = function(alt)
-                return string.format("%s [%d]", alt:GetTradeskillName(2), alt:GetTradeskillLevel(2))
+                --return string.format("[%d] %s", alt:GetTradeskillLevel(2), alt:GetTradeskillName(2))
+                return string.format("%s [%d] %s", CreateAtlasMarkup(alt:GetTradeskillIcon(2), 20, 20), alt:GetTradeskillLevel(2), alt:GetTradeskillName(2))
             end,
             cooking = function(alt)
                 --return string.format("%s [%d]", Tradeskills:GetLocaleNameFromID(185), alt:GetCookingLevel())
@@ -322,19 +545,69 @@ GuildbookAltsMixin = {
                 end
             end
         end,
+
+        currency = function(alt)
+            return function(header)
+                local t = {}
+                if Database.db.myCharacters and Database.db.myCharacters[alt.data.name] and Database.db.myCharacters[alt.data.name].currencies and Database.db.myCharacters[alt.data.name].currencies[header] then
+                    for k, dataString in ipairs(Database.db.myCharacters[alt.data.name].currencies[header]) do
+                        local id, count = strsplit(":", dataString)
+
+                        t[tonumber(id)] = tonumber(count);
+                    end
+                end
+                return t;
+            end
+        end,
+
+        reputation = function(alt)
+            return function(header)
+                local t = {}
+                if Database.db.myCharacters and Database.db.myCharacters[alt.data.name] and Database.db.myCharacters[alt.data.name].reputations and Database.db.myCharacters[alt.data.name].reputations[header] then
+                    for k, dataString in ipairs(Database.db.myCharacters[alt.data.name].reputations[header]) do
+                        local factionID, standingId, currentValue, topValue = strsplit(":", dataString)
+
+                        t[tonumber(factionID)] = {
+                            standingID = tonumber(standingId),
+                            currentValue = tonumber(currentValue),
+                            topValue = tonumber(topValue),
+                        }
+                    end
+                end
+                return t;
+            end
+        end,
     }
 }
 
+--[[
+"1037:7:26844" alliance vanguard for starglows
+5844 through revered
+	local colorIndex = standingID;
+	local barColor = FACTION_BAR_COLORS[colorIndex];
+]]
+
+local repTotals = {
+    [0] = -21000,
+    [1] = -12000,
+    [2] = -6000,
+    [3] = -3000,
+    [4] = 0,
+    [5] = 3000,
+    [6] = 6000,
+    [7] = 12000,
+    [8] = 21000,
+}
+
+local tabFrameNames = {
+    "summary",
+    "tradeskills",
+    "equipment",
+    "currency",
+    "reputation",
+}
+
 function GuildbookAltsMixin:OnLoad()
-
-    self.tabContainer:SetPoint("TOPLEFT", 4, -100)
-    self.tabContainer:SetPoint("BOTTOMRIGHT", -4, 4)
-
-    self.tabContainer.summary:SetAllPoints()
-    self.tabContainer.tradeskills:SetAllPoints()
-    self.tabContainer.equipment:SetAllPoints()
-    self.tabContainer.tradeskills:Hide()
-    self.tabContainer.equipment:Hide()
 
     local tabs = {
         {
@@ -352,17 +625,132 @@ function GuildbookAltsMixin:OnLoad()
             width = 100,
             panel = self.tabContainer.equipment,
         },
+        {
+            label = "Currency",
+            width = 100,
+            panel = self.tabContainer.currency,
+        },
+        {
+            label = "Reputations",
+            width = 100,
+            panel = self.tabContainer.reputation,
+        },
     }
     self.tabContainer:CreateTabButtons(tabs)
 
-    self.tabContainer.summary:SetScript("OnShow", function()
-        self:LoadAlts("summary", self.tabContainer.summary.listview, self.elementFuncs.summary, true)
+    self.tabContainer:SetPoint("TOPLEFT", 4, -60)
+    self.tabContainer:SetPoint("BOTTOMRIGHT", -4, 4)
+
+    for _, name in ipairs(tabFrameNames) do
+        self.tabContainer[name]:SetAllPoints()
+        self.tabContainer[name]:Hide()
+        self.tabContainer[name]:SetScript("OnShow", function()
+            self:LoadAlts(name, self.tabContainer[name].listview, self.elementFuncs[name], (name == "summary"))
+        end)
+    end
+
+    self.tabContainer.summary:Show()
+
+    self.tabContainer.currency.currencyHeaderDropdown:SetText("Select Category")
+
+    self.tabContainer.currency.currencyHeaderDropdown:SetScript("OnShow", function()
+        
+        local currencyMenu = {}
+        local added = {}
+        CURRENCY_ID_INDEXES = {}
+        local currencyIDsAdded = {}
+        if Database.db.myCharacters then
+            for name, info in pairs(Database.db.myCharacters) do
+                if info.currencies and (next(info.currencies) ~= nil) then
+                    for header, dataStrings in pairs(info.currencies) do
+                        if not added[header] then
+                            table.insert(currencyMenu, {
+                                text = header,
+                                func = function()
+                                    self.tabContainer.currency.listview.scrollView:ForEachFrame(function(f)
+                                        if f.updateCurrencies then
+                                            f.updateCurrencies(header)
+                                        end
+                                    end)
+
+                                    CURRENCY_HEADER_SELECTED = header
+                                end,
+                            })
+                            CURRENCY_ID_INDEXES[header] = {}
+                            currencyIDsAdded[header] = {}
+                            added[header] = true
+                        end
+
+                        for k, v in ipairs(dataStrings) do
+                            local id, count = strsplit(":", v)
+                            if not currencyIDsAdded[header][id] then
+                                table.insert(CURRENCY_ID_INDEXES[header], tonumber(id))
+                                currencyIDsAdded[header][id] = true
+                            end
+                        end
+                    end
+
+                    for header, ids in pairs(CURRENCY_ID_INDEXES) do
+                        table.sort(CURRENCY_ID_INDEXES[header], function(a, b)
+                            return a > b;
+                        end)
+                    end
+                end
+            end
+        end
+
+        self.tabContainer.currency.currencyHeaderDropdown:SetMenu(currencyMenu)
     end)
-    self.tabContainer.tradeskills:SetScript("OnShow", function()
-        self:LoadAlts("tradeskills", self.tabContainer.tradeskills.listview, self.elementFuncs.tradeskills, false)
-    end)
-    self.tabContainer.equipment:SetScript("OnShow", function()
-        self:LoadAlts("equipment", self.tabContainer.equipment.listview, self.elementFuncs.equipment, false)
+
+    self.tabContainer.reputation.reputationHeaderDropdown:SetText("Select Category")
+
+    self.tabContainer.reputation.reputationHeaderDropdown:SetScript("OnShow", function()
+
+        local reputationMenu = {}
+        local added = {}
+        REPUTATION_ID_INDEXES = {}
+        local repIDsAdded = {}
+
+        if Database.db.myCharacters then
+            for name, info in pairs(Database.db.myCharacters) do
+                if info.reputations and (next(info.reputations) ~= nil) then
+                    for header, dataStrings in pairs(info.reputations) do
+                        if not added[header] then
+                            table.insert(reputationMenu, {
+                                text = header,
+                                func = function()
+                                    self.tabContainer.reputation.listview.scrollView:ForEachFrame(function(f)
+                                        if f.updateReputations then
+                                            f.updateReputations(header)
+                                        end
+                                    end)
+
+                                    REPUTATION_HEADER_SELECTED = header
+                                end,
+                            })
+                            REPUTATION_ID_INDEXES[header] = {}
+                            repIDsAdded[header] = {}
+                            added[header] = true
+                        end
+
+                        for k, v in ipairs(dataStrings) do
+                            local id, count = strsplit(":", v)
+                            if not repIDsAdded[header][id] then
+                                table.insert(REPUTATION_ID_INDEXES[header], tonumber(id))
+                                repIDsAdded[header][id] = true
+                            end
+                        end
+                    end
+
+                    for header, ids in pairs(REPUTATION_ID_INDEXES) do
+                        table.sort(REPUTATION_ID_INDEXES[header], function(a, b)
+                            return a > b;
+                        end)
+                    end
+                end
+            end
+        end
+        self.tabContainer.reputation.reputationHeaderDropdown:SetMenu(reputationMenu)
     end)
 
     addon:RegisterCallback("UI_OnSizeChanged", self.UpdateLayout, self)
@@ -389,13 +777,17 @@ function GuildbookAltsMixin:UpdateLayout()
 end
 
 function GuildbookAltsMixin:OnShow()
-    --self:LoadAlts()
     self:UpdateLayout()
 end
 
 function GuildbookAltsMixin:CreateCharacterEntry(template, name, funcs, showCheckbox)
 
-    local alt = Character:CreateFromData(Database.db.characterDirectory[name])
+    local alt;
+    if not addon.characters[name] then
+        alt = Character:CreateFromData(Database.db.characterDirectory[name])
+    else
+        alt = addon.characters[name]
+    end
     local r, g, b = RAID_CLASS_COLORS[select(2, GetClassInfo(alt.data.class))]:GetRGB()
     local isMain = (alt.data.name == alt.data.mainCharacter) and true or false;
 
@@ -410,13 +802,20 @@ function GuildbookAltsMixin:CreateCharacterEntry(template, name, funcs, showChec
                         notCheckable = true,
                     },
                     {
+                        text = "View Profile",
+                        notCheckable = true,
+                        func = function()
+                            addon:TriggerEvent("Character_OnProfileSelected", alt)
+                        end
+                    },
+                    {
                         text = DELETE,
                         notCheckable = true,
                         func = function()
-                            Database.db.myCharacters[name] = nil;
+                            StaticPopup_Show("GuildbookDeleteCharacter", name, nil, name)
                             self:LoadAlts("summary", self.tabContainer.summary.listview, self.elementFuncs.summary, true)
                         end
-                    }
+                    },
                 }
                 EasyMenu(menu, addon.contextMenu, "cursor", -2, 2, "MENU", 0.2)
             end
@@ -466,6 +865,16 @@ function GuildbookAltsMixin:CreateCharacterEntry(template, name, funcs, showChec
         --this uses frames/icons
     elseif template == "equipment" then
         t.getAltInventory = funcs(alt)
+
+        --this uses frames/icons
+    elseif template == "currency" then
+        t.getCurrencies = funcs(alt)
+
+        --this uses frames/icons
+    elseif template == "reputation" then
+        t.getReputations = funcs(alt)
+
+
     end
 
     return t;
@@ -488,105 +897,130 @@ function GuildbookAltsMixin:LoadAlts(template, treeview, funcs, showCheckbox)
     local dataProvider = CreateTreeDataProvider()
     treeview.scrollView:SetDataProvider(dataProvider)
 
-    for guildname, info in pairs(Database.db.guilds) do
+    if Database and Database.db then
 
-        if template == "summary" then
-            copper = 0;
-        end
+        for guildname, info in pairs(Database.db.guilds) do
 
-        local t = {}
-        for name, isMain in pairs(Database.db.myCharacters) do
-
-            if info.members[name] and Database.db.characterDirectory[name] then
-
-                copper = copper + (Database.db.characterDirectory[name].containers.copper or 0);
-
-                local entry = self:CreateCharacterEntry(template, name, funcs, showCheckbox)
-    
-                table.insert(t, entry)
-
-                added[name] = true
-    
+            if template == "summary" then
+                copper = 0;
             end
 
-        end
+            local t = {}
+            for name, characterData in pairs(Database.db.myCharacters) do
 
-        --GetCoinTextureString(copper)
+                if info.members[name] and Database.db.characterDirectory[name] then
 
-        if template == "summary" then
-            guilds[guildname] = dataProvider:Insert({
-                name = guildname,
-                atlas = "common-icon-forwardarrow",
-                backgroundAtlas = "Talent-Background",
-                fontObject = GameFontNormal,
-                isParent = true,
-                labels = { copper = GetCoinTextureString(copper) },
-            })
+                    copper = copper + (Database.db.characterDirectory[name].containers.copper or 0);
 
-        else
-            guilds[guildname] = dataProvider:Insert({
-                name = guildname,
-                atlas = "common-icon-forwardarrow",
-                backgroundAtlas = "Talent-Background",
-                fontObject = GameFontNormal,
-                isParent = true,
-            })
-        end
-
-        -- guilds[guildname] = dataProvider:Insert({
-        --     name = guildname,
-        --     atlas = "common-icon-forwardarrow",
-        --     backgroundAtlas = "Talent-Background",
-        --     fontObject = GameFontNormal,
-        --     isParent = true,
-        -- })
-
-
-        guilds[guildname]:SetSortComparator(sortFunc, true, true)
-
-        for k, alt in ipairs(t) do
-            guilds[guildname]:Insert(alt)
-        end
-
-
-        guilds[guildname]:Sort()
-
-        -- if template == "summary" then
-        --     guilds[guildname]:Insert({
-        --         name = " ",
-        --         atlas = "ShipMissionIcon-Treasure-Map",
-        --         labels = { copper = GetCoinTextureString(copper), },
-
-        --         sortLevel = -1,
-        --     })
-        -- end
-
-    end
-
-
-    guilds["other"] = dataProvider:Insert({
-        name = OTHER,
-        atlas = "common-icon-forwardarrow",
-        backgroundAtlas = "Talent-Background",
-        fontObject = GameFontNormal,
-        isParent = true,
-    })
-
-    for name, isMain in pairs(Database.db.myCharacters) do
-
-        if not added[name] and Database.db.characterDirectory[name] then
+                    local entry = self:CreateCharacterEntry(template, name, funcs, showCheckbox)
         
-            local entry = self:CreateCharacterEntry(template, name, funcs, showCheckbox)
-    
-            guilds["other"]:Insert(entry)
+                    table.insert(t, entry)
 
-            added[name] = true
+                    added[name] = true
+        
+                end
+
+            end
+
+            --GetCoinTextureString(copper)
+
+            if template == "summary" then
+                guilds[guildname] = dataProvider:Insert({
+                    name = guildname,
+                    atlas = "common-icon-forwardarrow",
+                    backgroundAtlas = "Talent-Background",
+                    fontObject = GameFontNormal,
+                    isParent = true,
+                    labels = { copper = GetCoinTextureString(copper) },
+                })
+
+            else
+                guilds[guildname] = dataProvider:Insert({
+                    name = guildname,
+                    atlas = "common-icon-forwardarrow",
+                    backgroundAtlas = "Talent-Background",
+                    fontObject = GameFontNormal,
+                    isParent = true,
+                })
+            end
+
+            -- guilds[guildname] = dataProvider:Insert({
+            --     name = guildname,
+            --     atlas = "common-icon-forwardarrow",
+            --     backgroundAtlas = "Talent-Background",
+            --     fontObject = GameFontNormal,
+            --     isParent = true,
+            -- })
+
+
+            guilds[guildname]:SetSortComparator(sortFunc, true, true)
+
+            for k, alt in ipairs(t) do
+                guilds[guildname]:Insert(alt)
+            end
+
+
+            guilds[guildname]:Sort()
+
+            -- if template == "summary" then
+            --     guilds[guildname]:Insert({
+            --         name = " ",
+            --         atlas = "ShipMissionIcon-Treasure-Map",
+            --         labels = { copper = GetCoinTextureString(copper), },
+
+            --         sortLevel = -1,
+            --     })
+            -- end
 
         end
+
+
+        guilds["other"] = dataProvider:Insert({
+            name = OTHER,
+            atlas = "common-icon-forwardarrow",
+            backgroundAtlas = "Talent-Background",
+            fontObject = GameFontNormal,
+            isParent = true,
+        })
+
+        guilds["other"]:SetSortComparator(sortFunc, true, true)
+
+        for name, info in pairs(Database.db.myCharacters) do
+
+            if not added[name] and Database.db.characterDirectory[name] then
+            
+                local entry = self:CreateCharacterEntry(template, name, funcs, showCheckbox)
+        
+                guilds["other"]:Insert(entry)
+
+                added[name] = true
+
+            end
+        end
+
+        guilds["other"]:Sort()
+
+        --apply any selected info
+        if template == "currency" then
+            if type(CURRENCY_HEADER_SELECTED) == "string" then
+                self.tabContainer.currency.listview.scrollView:ForEachFrame(function(f)
+                    if f.updateCurrencies then
+                        f.updateCurrencies(CURRENCY_HEADER_SELECTED)
+                    end
+                end)
+            end
+        end
+
+        if template == "reputation" then
+            if type(REPUTATION_HEADER_SELECTED) == "string" then
+                self.tabContainer.reputation.listview.scrollView:ForEachFrame(function(f)
+                    if f.updateReputations then
+                        f.updateReputations(REPUTATION_HEADER_SELECTED)
+                    end
+                end)
+            end
+        end
+
     end
 
-
-    --DevTools_Dump(alts)
-
-    --collectgarbage()
 end

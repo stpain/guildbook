@@ -43,12 +43,28 @@ e:RegisterEvent("QUEST_TURNED_IN")
 e:RegisterEvent("QUEST_ACCEPTED")
 e:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 e:RegisterEvent("LOOT_ITEM_AVAILABLE")
+e:RegisterEvent("CHAT_MSG_CURRENCY")
+e:RegisterEvent("CHAT_MSG_COMBAT_FACTION_CHANGE")
 
 e:SetScript("OnEvent", function(self, event, ...)
     if self[event] then
         self[event](self, ...)
     end
 end)
+
+function e:CHAT_MSG_COMBAT_FACTION_CHANGE(...)
+    if Database and Database.db and addon.thisCharacter and Database.db.myCharacters[addon.thisCharacter] then
+        local reps = addon.api.getCurrentReputations()
+        Database.db.myCharacters[addon.thisCharacter].reputations = reps;
+    end
+end
+
+function e:CHAT_MSG_CURRENCY(...)
+    if Database and Database.db and addon.thisCharacter and Database.db.myCharacters[addon.thisCharacter] then
+        local curr = addon.api.getCurrentCurrencies()
+        Database.db.myCharacters[addon.thisCharacter].currencies = curr;
+    end
+end
 
 function e:LOOT_ITEM_AVAILABLE(...)
     local item, handle = ...;
@@ -520,7 +536,7 @@ function e:PLAYER_ENTERING_WORLD()
 
     -- Talents:GetPlayerTalentInfo()
 
-    local version = tonumber(GetAddOnMetadata(addonName, "Version"));
+    --local version = tonumber(GetAddOnMetadata(addonName, "Version"));
 
     Database:Init()
 end
@@ -1138,9 +1154,19 @@ function e:Database_OnInitialised()
     GuildRoster()
     self:GUILD_ROSTER_UPDATE()
 
+    local reps = addon.api.getCurrentReputations()
+    local curr = addon.api.getCurrentCurrencies()
+
     if not Database.db.myCharacters[addon.thisCharacter] then
-        Database.db.myCharacters[addon.thisCharacter] = false;
+        Database.db.myCharacters[addon.thisCharacter] = {
+            reputations = {},
+            currencies = {},
+            containers = {},
+        };
     end
+
+    Database.db.myCharacters[addon.thisCharacter].reputations = reps;
+    Database.db.myCharacters[addon.thisCharacter].currencies = curr;
 
     UIParentLoadAddOn("Blizzard_DebugTools");
 

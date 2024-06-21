@@ -21,6 +21,11 @@ local name, addon = ...;
 
 addon.changeLog = {
     {
+        version = "7.33",
+        notes = "Added rep and currency to alts view",
+        icon = "ClassHall-QuestIcon-Desaturated",
+    },
+    {
         version = "7.323",
         notes = "Changed some styling, minor tweeks",
         icon = "ClassHall-QuestIcon-Desaturated",

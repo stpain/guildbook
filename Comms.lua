@@ -115,6 +115,10 @@ end
 ---@param elapsed number elapsed since last OnUpdate
 function Comms.DispatcherOnUpdate(self, elapsed)
 
+    if addon.api.isInGuild() == false then
+        return
+    end
+
     if Comms.paused then
         return;
     end

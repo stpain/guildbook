@@ -2108,7 +2108,7 @@ function GuildbookChatBubbleMixin:SetDataBinding(binding)
         dateString = dateString:sub(1, (#dateString - 5))
     end
 
-    if Database.db.myCharacters[binding.sender] == true or Database.db.myCharacters[binding.sender] == false then
+    if addon.api.characterIsMine(binding.sender) then
         self.message:SetJustifyH("RIGHT")
 
         if Database.db.characterDirectory[binding.sender] then

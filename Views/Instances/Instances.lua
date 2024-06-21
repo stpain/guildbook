@@ -114,6 +114,28 @@ function GuildbookInstancesMixin:OnLoad()
         end
     end)
 
+    self.lists.addItem.ok:SetScript("OnClick", function()
+        if self.selectedList then
+            local text = self.lists.addItem:GetText()
+            if type(tonumber(text)) == "number" then
+                self:AddItemToList(tonumber(text), self.selectedList)
+                self:LoadListItems(self.selectedList)
+                self.lists.addItem:SetText("")
+            else
+                if text:find("|Hitem:", nil, true) then
+                    local itemID = GetItemInfoInstant(text)
+                    if itemID then
+                        self:AddItemToList(itemID, self.selectedList)
+                        self:LoadListItems(self.selectedList)
+                        self.lists.addItem:SetText("")
+                    end
+                else
+                    self.lists.addItem:SetText("Error")
+                end
+            end
+        end
+    end)
+
         
     self.itemTypeFilterID = nil;
     self.itemSubTypeFilterID = nil;

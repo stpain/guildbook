@@ -715,32 +715,6 @@ end
 function Character:SetMainCharacter(main, broadcast)
     self.data.mainCharacter = main;
 
-    --[[
-    if Database.db.myCharacters then
-        for name, val in pairs(Database.db.myCharacters) do
-            --val = false;
-
-            --check if this character exists in this guild before updated their main character
-            if addon.guilds and addon.guilds[addon.thisGuild] and addon.guilds[addon.thisGuild].members then
-                if addon.guilds[addon.thisGuild].members[name] then
-
-                    --do not call this func in here just set the data directly
-                    --addon.characters will be a table of this guild only
-                    if addon.characters and addon.characters[name] then
-                        addon.characters[name].data.mainCharacter = self.data.mainCharacter
-                        addon.LogDebugMessage("character", string.format("Set %s as main character for %s", main, name))
-                    end
-
-                end
-            end
-
-        end
-
-        Database.db.myCharacters[self.data.name] = true;
-    end
-    ]]
-
-
 
     addon:TriggerEvent("Character_OnDataChanged", self)
     if broadcast then

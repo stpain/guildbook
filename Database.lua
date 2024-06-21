@@ -154,6 +154,18 @@ function Database:Init()
     self:RemoveRedundantGuildSavedVaariableFields()
 
 
+    --update myCharacters to tables
+    for nameRealm, x in pairs(self.db.myCharacters) do
+        if type(x) ~= "table" then
+            self.db.myCharacters[nameRealm] = {
+                reputations = {},
+                currencies = {},
+                containers = {},
+            }
+        end
+    end
+
+
     addon:TriggerEvent("StatusText_OnChanged", "[Database_OnInitialised]")
     addon:TriggerEvent("Database_OnInitialised")
 end
@@ -218,6 +230,10 @@ function Database:DeleteCharacter(nameRealm)
             addon:TriggerEvent("Database_OnCharacterRemoved", nameRealm)
          end
     end
+end
+
+function Database:GetMainForGuild(guild)
+    
 end
 
 function Database:GetCharacter(nameRealm)
@@ -395,7 +411,7 @@ end
 function Database:GetMyCharactersForGuild(guildName)
     local alts = {}
     if Database.db.myCharacters and addon.guilds and addon.guilds[guildName] and addon.guilds[guildName].members then
-        for name, val in pairs(Database.db.myCharacters) do
+        for name, info in pairs(Database.db.myCharacters) do
             if addon.guilds[guildName].members[name] then
                 if addon.characters and addon.characters[name] then
                     table.insert(alts, name)

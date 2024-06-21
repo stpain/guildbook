@@ -1,6 +1,10 @@
 <Ui>
 
-    <Frame name="GuildbookAltsTreeviewItemTemplate" mixin="GuildbookAltsTreeviewItemMixin" virtual="true">
+    <!-- 
+    tidy up these templates and inheritance
+    -->
+
+    <Frame name="GuildbookAltsTreeviewBasicTemplate" mixin="GuildbookAltsTreeviewItemBasicMixin" virtual="true">
         <Layers>
             <Layer level="HIGHLIGHT">
                 <Texture parentKey="highlight" atlas="search-highlight" setAllPoints="true">
@@ -36,6 +40,16 @@
                         <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.icon" x="6" y="0"/>
                     </Anchors>
                 </FontString>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+        </Scripts>
+    </Frame>
+
+    <Frame name="GuildbookAltsTreeviewItemTemplate" mixin="GuildbookAltsTreeviewItemMixin" inherits="GuildbookAltsTreeviewBasicTemplate" virtual="true">
+        <Layers>
+            <Layer level="OVERLAY">
 
                 <!--summary labels-->
                 <FontString parentKey="level" parentArray="labels" inherits="GameFontWhite" justifyH="CENTER">
@@ -63,7 +77,6 @@
                     </Anchors>
                 </FontString>
 
-
                 <!--tradeskill labels-->
                 <FontString parentKey="prof1" parentArray="labels" inherits="GameFontWhite" justifyH="LEFT">
                     <Anchors>
@@ -90,9 +103,6 @@
                         <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.fishing" x="6" y="0"/>
                     </Anchors>
                 </FontString>
-
-
-
             </Layer>
         </Layers>
         <Frames>
@@ -108,42 +118,10 @@
     </Frame>
 
 
-    <Frame name="GuildbookAltsTreeviewItemEquipmentTemplate" mixin="GuildbookAltsTreeviewItemEquipmentMixin" virtual="true">
+    <Frame name="GuildbookAltsTreeviewItemEquipmentTemplate" mixin="GuildbookAltsTreeviewItemEquipmentMixin" inherits="GuildbookAltsTreeviewBasicTemplate" virtual="true">
         <Layers>
-            <Layer level="HIGHLIGHT">
-                <Texture parentKey="highlight" atlas="search-highlight" setAllPoints="true">
-
-                </Texture>
-            </Layer>
-            <Layer level="BACKGROUND">
-                <Texture parentKey="selected" atlas="search-select" hidden="true" setAllPoints="true">
-
-                </Texture>
-            </Layer>
-            <Layer level="BACKGROUND" textureSubLevel="-1">
-				<Texture parentKey="background" alpha="0.0">	
-                    <Color r="0" g="0" b="0"/>			
-					<Anchors>
-						<Anchor point="TOPLEFT" x="1" y="0"/>
-						<Anchor point="BOTTOMRIGHT" x="0" y="1"/>
-					</Anchors>
-				</Texture>
-            </Layer>
-            <Layer level="ARTWORK">
-				<Texture parentKey="icon">
-					<Anchors>
-						<Anchor point="LEFT" x="5" y="0"/>
-					</Anchors>
-				</Texture>
-            </Layer>
             <Layer level="OVERLAY">
                 <!--default labels-->
-                <FontString parentKey="name" inherits="GameFontWhite" justifyH="LEFT">
-                    <Size x="150"/>
-                    <Anchors>
-                        <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.icon" x="6" y="0"/>
-                    </Anchors>
-                </FontString>
                 <FontString parentKey="ilvl" inherits="GameFontWhite" justifyH="LEFT">
                     <Size x="60"/>
                     <Anchors>
@@ -162,6 +140,19 @@
                 <PushedTexture atlas="auctionhouse-ui-dropdown-arrow-down"/>
             </Button>
         </Frames>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+        </Scripts>
+    </Frame>
+
+
+    <Frame name="GuildbookAltsTreeviewCurrencyTemplate" mixin="GuildbookAltsTreeviewCurrencyMixin" inherits="GuildbookAltsTreeviewBasicTemplate" virtual="true">
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+        </Scripts>
+    </Frame>
+
+    <Frame name="GuildbookAltsTreeviewReputationTemplate" mixin="GuildbookAltsTreeviewReputationMixin" inherits="GuildbookAltsTreeviewBasicTemplate" virtual="true">
         <Scripts>
             <OnLoad method="OnLoad"/>
         </Scripts>
@@ -250,7 +241,7 @@
                                 </Anchors>
                                 <KeyValues>
                                     <KeyValue key="itemTemplate" value="GuildbookAltsTreeviewItemTemplate" type="string"/>
-                                    <KeyValue key="elementHeight" value="24" type="number"/>
+                                    <KeyValue key="elementHeight" value="26" type="number"/>
                                     <!-- <KeyValue key="enableSelection" value="true" type="boolean"/> -->
                                 </KeyValues>
                             </Frame>
@@ -300,7 +291,7 @@
                                 </Anchors>
                                 <KeyValues>
                                     <KeyValue key="itemTemplate" value="GuildbookAltsTreeviewItemTemplate" type="string"/>
-                                    <KeyValue key="elementHeight" value="24" type="number"/>
+                                    <KeyValue key="elementHeight" value="26" type="number"/>
                                     <!-- <KeyValue key="enableSelection" value="true" type="boolean"/> -->
                                 </KeyValues>
                             </Frame>
@@ -336,7 +327,81 @@
                                 </Anchors>
                                 <KeyValues>
                                     <KeyValue key="itemTemplate" value="GuildbookAltsTreeviewItemEquipmentTemplate" type="string"/>
-                                    <KeyValue key="elementHeight" value="24" type="number"/>
+                                    <KeyValue key="elementHeight" value="26" type="number"/>
+                                    <!-- <KeyValue key="enableSelection" value="true" type="boolean"/> -->
+                                </KeyValues>
+                            </Frame>
+                        </Frames>
+                    </Frame>
+                    <Frame parentKey="currency" setAllPoints="true">
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <FontString parentKey="nameHeader" inherits="GameFontNormal" justifyH="LEFT" text="NAME">
+                                    <Size x="140" y="24"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="36" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="currencyHeader" inherits="GameFontNormal" justifyH="LEFT" text="Currencies">
+                                    <Size x="80" y="24"/>
+                                    <Anchors>
+                                        <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.nameHeader" x="6" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                        <Frames>
+                            <Button parentKey="currencyHeaderDropdown" inherits="TbdDropdownTemplate">
+                                <Size x="180" y="30"/>
+                                <Anchors>
+                                    <Anchor point="TOPRIGHT" x="0" y="2"/>
+                                </Anchors>
+                            </Button>
+                            <Frame parentKey="listview" inherits="TBDTreeviewTemplate">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="0" y="-24"/>
+                                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                                </Anchors>
+                                <KeyValues>
+                                    <KeyValue key="itemTemplate" value="GuildbookAltsTreeviewCurrencyTemplate" type="string"/>
+                                    <KeyValue key="elementHeight" value="26" type="number"/>
+                                    <!-- <KeyValue key="enableSelection" value="true" type="boolean"/> -->
+                                </KeyValues>
+                            </Frame>
+                        </Frames>
+                    </Frame>
+                    <Frame parentKey="reputation" setAllPoints="true">
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <FontString parentKey="nameHeader" inherits="GameFontNormal" justifyH="LEFT" text="NAME">
+                                    <Size x="140" y="24"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="36" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="reputationHeader" inherits="GameFontNormal" justifyH="LEFT" text="Reputations">
+                                    <Size x="80" y="24"/>
+                                    <Anchors>
+                                        <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.nameHeader" x="6" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                        <Frames>
+                            <Button parentKey="reputationHeaderDropdown" inherits="TbdDropdownTemplate">
+                                <Size x="180" y="30"/>
+                                <Anchors>
+                                    <Anchor point="TOPRIGHT" x="0" y="2"/>
+                                </Anchors>
+                            </Button>
+                            <Frame parentKey="listview" inherits="TBDTreeviewTemplate">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="0" y="-24"/>
+                                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                                </Anchors>
+                                <KeyValues>
+                                    <KeyValue key="itemTemplate" value="GuildbookAltsTreeviewReputationTemplate" type="string"/>
+                                    <KeyValue key="elementHeight" value="26" type="number"/>
                                     <!-- <KeyValue key="enableSelection" value="true" type="boolean"/> -->
                                 </KeyValues>
                             </Frame>

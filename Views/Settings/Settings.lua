@@ -616,9 +616,11 @@ function GuildbookSettingsMixin:PreparePanels()
     if showMain then
         self.content.chat.showMainCharacterInChat:SetChecked(true)
         ChatFrame_AddMessageEventFilter("CHAT_MSG_GUILD", myChatFilter)
+        ChatFrame_AddMessageEventFilter("CHAT_MSG_WHISPER", myChatFilter)
     else
         self.content.chat.showMainCharacterInChat:SetChecked(false)
         ChatFrame_RemoveMessageEventFilter("CHAT_MSG_GUILD", myChatFilter)
+        ChatFrame_RemoveMessageEventFilter("CHAT_MSG_WHISPER", myChatFilter)
     end
 
     self.content.chat.showMainCharacterInChat.label:SetText(L.SETTINGS_CHAT_SHOW_MAIN)

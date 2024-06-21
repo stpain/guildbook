@@ -441,21 +441,6 @@ function GuildbookMixin:Blizzard_OnInitialGuildRosterScan(guildName)
     --So the addon should now have the guild and characters tables set, but lets hold it 1 second
     C_Timer.After(1, function()
 
-        addon:AddMailAttachmentButton()
-
-        --load all player characters and alts
-        for nameRealm, _ in pairs(Database.db.myCharacters) do
-            local character = Database:GetCharacter(nameRealm)
-            if type(character) == "table" then
-                if not addon.characters then
-                    return
-                end
-                if not addon.characters[nameRealm] then
-                    addon.characters[nameRealm] = Character:CreateFromData(character)
-                end
-            end 
-        end
-
         --get latest data and transmit to guild
         if addon.characters[addon.thisCharacter] then
 
@@ -512,49 +497,30 @@ function GuildbookMixin:Database_OnInitialised()
     self:CreateSlashCommands()
 
     Tradeskills.BuildEnchanterNameToSpellID()
+
+    C_Timer.After(5, function()
+        addon:AddMailAttachmentButton()
+
+        --load all player characters and alts
+        for nameRealm, _ in pairs(Database.db.myCharacters) do
+            local character = Database:GetCharacter(nameRealm)
+            if type(character) == "table" then
+                if not addon.characters then
+                    return
+                end
+                if not addon.characters[nameRealm] then
+                    addon.characters[nameRealm] = Character:CreateFromData(character)
+                end
+            end 
+        end
+
+        --this will return out if the current character exists otherwise it'll add this to the db
+        addon.api.addThisCharacter()
+    end)
 end
 
 function GuildbookMixin:AddCharacter()
-
-    if not addon.characters then
-        return;
-    end
-    if not addon.Character then
-        return;
-    end
-    if addon.characters[addon.Character] then
-        return;
-    end
-    local characterInDb = Database:GetCharacter(addon.thisCharacter)
-    if characterInDb then
-        return;
-    end
-
-    local character = Character:CreateEmpty()
-    character.guid = UnitGUID("player")
-    character.name = addon.thisCharacter
-    local _, _, classId = UnitClass("player")
-    character.class = classId
-
-    Database:InsertCharacter(character)
-
-    addon.characters[addon.thisCharacter] = Character:CreateFromData(Database:GetCharacter(addon.thisCharacter)) --Råvèn-PyrewoodVillage
-
-    --DevTools_Dump(addon.characters[addon.Character])
-
-    local equipment = addon.api.wrath.getPlayerEquipmentCurrent()
-    local currentStats = addon.api.wrath.getPaperDollStats()
-    local resistances = addon.api.getPlayerResistances(UnitLevel("player"))
-    local auras = addon.api.getPlayerAuras()
-    local talents = addon.api.cata.getPlayerTalents()
-
-    if addon.characters[addon.thisCharacter] then
-        addon.characters[addon.thisCharacter]:SetTalents("current", talents, true)
-        addon.characters[addon.thisCharacter]:SetInventory("current", equipment, true)
-        addon.characters[addon.thisCharacter]:SetPaperdollStats("current", currentStats, true)
-        addon.characters[addon.thisCharacter]:SetResistances("current", resistances, true)
-        addon.characters[addon.thisCharacter]:SetAuras("current", auras, true)
-    end
+    addon.api.addThisCharacter()
 end
 
 function GuildbookMixin:CreateSlashCommands()

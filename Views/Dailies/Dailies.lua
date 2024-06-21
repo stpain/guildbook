@@ -150,7 +150,7 @@ function GuildbookWrathDailiesMixin:LoadCharacters()
 
     local t = {}
 
-    for name, isMain in pairs(Database.db.myCharacters) do
+    for name, info in pairs(Database.db.myCharacters) do
 
         if addon.characters[name] then
             table.insert(t, addon.characters[name])

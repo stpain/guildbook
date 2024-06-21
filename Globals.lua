@@ -167,7 +167,7 @@ local ignoreEnchantSlotIDs = {
     },
 }
 
-addon.itemQualityAtlas = {
+addon.itemQualityAtlas_Overlay = {
     [2] = "bags-glow-green",
     [3] = "bags-glow-blue",
     [4] = "bags-glow-purple",
@@ -177,6 +177,18 @@ addon.itemQualityAtlas = {
     -- [3] = "loottab-set-itemborder-blue",
     -- [4] = "loottab-set-itemborder-purple",
     -- [5] = "loottab-set-itemborder-orange",
+}
+
+addon.itemQualityAtlas_Borders = {
+    [2] = "loottab-set-itemborder-green",
+    [3] = "loottab-set-itemborder-blue",
+    [4] = "loottab-set-itemborder-purple",
+    [5] = "loottab-set-itemborder-orange",
+
+    ["ff1eff00"] = "loottoast-itemborder-green",
+    ["ff0070dd"] = "loottoast-itemborder-blue",
+    ["ffa335ee"] = "loottoast-itemborder-purple",
+    ["ffff8000"] = "loottoast-itemborder-orange",
 }
 
 local breakLink = function(link)
@@ -338,10 +350,14 @@ function addon.api.updatePaperdollOverlays()
     end
 
     local minItemLevel, maxItemLevel = 0, 0;
-
+    local prof1Id, prof2Id;
     local prof1, prof2 = GetProfessions()
-    local prof1Id = select(7, GetProfessionInfo(prof1))
-    local prof2Id = select(7, GetProfessionInfo(prof2))
+    if prof1 then
+        prof1Id = select(7, GetProfessionInfo(prof1))
+    end
+    if prof2 then
+        prof2Id = select(7, GetProfessionInfo(prof2))
+    end
 
     local isEnchanter = (prof1Id == 333 or prof2Id == 333) and true or false;
 
@@ -492,7 +508,7 @@ function addon.api.updatePaperdollOverlays()
         end
 
         if type(info.itemQuality) == "number" and info.itemQuality > 1 then
-            info.qualityOverlay:SetAtlas(addon.itemQualityAtlas[info.itemQuality])
+            info.qualityOverlay:SetAtlas(addon.itemQualityAtlas_Overlay[info.itemQuality])
             info.qualityOverlay:Show()
         end
     end
@@ -659,7 +675,7 @@ function addon.api.trimNumber(num)
 end
 
 function addon.api.characterIsMine(name)
-    if Database.db.myCharacters[name] == true or Database.db.myCharacters[name] == false then
+    if Database.db.myCharacters[name] ~= nil then
         return true;
     end
     return false;
@@ -775,6 +791,13 @@ function addon.api.cata.getProfessions()
     end
     --addon.LogDebugMessage("tradeskills", "function [addon.api.cata.getProfessions]", {version = -1, payload = t})
     return t;
+end
+
+function addon.api.isInGuild()
+    if IsInGuild() and GetGuildInfo("player") then
+        return true
+    end
+    return false
 end
 
 function addon.api.getGuildRosterIndex(nameOrGUID)
@@ -1682,6 +1705,10 @@ addon.data.inventorySlots = {
         icon = 136526,
     },
     {
+        slot = "BACKSLOT",
+        icon = 136521,
+    },
+    {
         slot = "SHIRTSLOT",
         icon = 136525,
     },
@@ -1726,10 +1753,6 @@ addon.data.inventorySlots = {
         icon = 136528,
     },
     {
-        slot = "BACKSLOT",
-        icon = 136521,
-    },
-    {
         slot = "MAINHANDSLOT",
         icon = 136518,
     },
@@ -1763,3 +1786,113 @@ addon.data.inventorySlots = {
 
 -- addon:RegisterCallback("Database_OnInitialised", Guildbook.SetEnabled, Guildbook)
 
+function addon.api.getCurrentCurrencies()
+    local currencies = {};
+    local preHeader;
+    for i = 1, GetCurrencyListSize() do
+        local name, isHeader, isExpanded, isUnused, isWatched, count, icon, maximum, hasWeeklyLimit, currentWeeklyAmount, unknown, itemID = GetCurrencyListInfo(i)
+        --local link = C_CurrencyInfo.GetCurrencyListLink(i)
+        --local currencyID = C_CurrencyInfo.GetCurrencyIDFromLink(link)
+
+        if isHeader then
+            preHeader = name;
+        end
+
+        if not currencies[preHeader] then
+            currencies[preHeader] = {}
+        end
+
+        local currencyStrinig = string.format("%d:%d", itemID, count)
+
+        table.insert(currencies[preHeader], currencyStrinig)
+    end
+
+    return currencies;
+end
+
+function addon.api.getCurrentReputations()
+    local reputations = {};
+
+    local numFactions = GetNumFactions()
+    local factionIndex = 1
+    local preHeader;
+    while (factionIndex <= numFactions) do
+        local name, description, standingId, bottomValue, topValue, earnedValue, atWarWith, canToggleAtWar, isHeader, isCollapsed, hasRep, isWatched, isChild, factionID, hasBonusRepGain, canBeLFGBonus = GetFactionInfo(factionIndex)
+        
+        if isHeader then
+
+            if name and (not reputations[name]) then
+                reputations[name] = {}
+            end
+
+            preHeader = name
+            if isCollapsed then
+                ExpandFactionHeader(factionIndex)
+                numFactions = GetNumFactions()
+            end
+        end
+        if name and (hasRep or not isHeader) then
+
+            -- if preHeader == GUILD then
+            --     name = GUILD
+            -- end
+
+            --print(name, bottomValue, topValue, earnedValue, (earnedValue - bottomValue), earnedValue - topValue)
+
+            local currentValue = (earnedValue-bottomValue)
+            local barMaxValue = (topValue-bottomValue)
+
+            local repData = string.format("%d:%d:%d:%d", factionID, standingId, currentValue, barMaxValue)
+
+            table.insert(reputations[preHeader], repData)
+
+        end
+        factionIndex = factionIndex + 1
+    end
+
+    return reputations;
+end
+
+
+function addon.api.addThisCharacter()
+
+    if not addon.characters then
+        return;
+    end
+    if not addon.Character then
+        return;
+    end
+    if addon.characters[addon.Character] then
+        return;
+    end
+    local characterInDb = Database:GetCharacter(addon.thisCharacter)
+    if characterInDb then
+        return;
+    end
+
+    local character = Character:CreateEmpty()
+    character.guid = UnitGUID("player")
+    character.name = addon.thisCharacter
+    local _, _, classId = UnitClass("player")
+    character.class = classId
+
+    Database:InsertCharacter(character)
+
+    addon.characters[addon.thisCharacter] = Character:CreateFromData(Database:GetCharacter(addon.thisCharacter))
+
+    --DevTools_Dump(addon.characters[addon.Character])
+
+    local equipment = addon.api.wrath.getPlayerEquipmentCurrent()
+    local currentStats = addon.api.wrath.getPaperDollStats()
+    local resistances = addon.api.getPlayerResistances(UnitLevel("player"))
+    local auras = addon.api.getPlayerAuras()
+    local talents = addon.api.cata.getPlayerTalents()
+
+    if addon.characters[addon.thisCharacter] then
+        addon.characters[addon.thisCharacter]:SetTalents("current", talents, true)
+        addon.characters[addon.thisCharacter]:SetInventory("current", equipment, true)
+        addon.characters[addon.thisCharacter]:SetPaperdollStats("current", currentStats, true)
+        addon.characters[addon.thisCharacter]:SetResistances("current", resistances, true)
+        addon.characters[addon.thisCharacter]:SetAuras("current", auras, true)
+    end
+end
