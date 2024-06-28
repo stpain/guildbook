@@ -462,7 +462,15 @@ function GuildbookMixin:Blizzard_OnInitialGuildRosterScan(guildName)
             --if there is no main character data then set this character as main
             if addon.characters[addon.thisCharacter].data.mainCharacter == false then
 
-                addon.characters[addon.thisCharacter]:SetMainCharacter(addon.characters[addon.thisCharacter].data.name)
+                --first check if another of the players alts exists with the main character data set
+                local mainCharacterNameOrFalse = Database:GetMainForGuild(addon.thisGuild)
+
+                --if the return is a strign it will be the name of the main, otherwise false
+                if type(mainCharacterNameOrFalse) == "string" then
+                    addon.characters[addon.thisCharacter]:SetMainCharacter(mainCharacterNameOrFalse)
+                else
+                    addon.characters[addon.thisCharacter]:SetMainCharacter(addon.characters[addon.thisCharacter].data.name)
+                end
 
                 --fetch your characters for the guild
                 local alts = Database:GetMyCharactersForGuild(addon.thisGuild)

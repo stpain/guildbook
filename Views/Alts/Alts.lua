@@ -128,7 +128,15 @@ end
 
 GuildbookAltsTreeviewItemEquipmentMixin = {}
 function GuildbookAltsTreeviewItemEquipmentMixin:OnLoad()
-
+    self.invSlotIcons = {}
+end
+function GuildbookAltsTreeviewItemEquipmentMixin:ClearInvSlotIcons()
+    for k, frame in pairs(self.invSlotIcons) do
+        frame.link = nil
+        frame.icon:SetTexture(nil)
+        frame.border:SetTexture(nil)
+        frame:Hide()
+    end
 end
 function GuildbookAltsTreeviewItemEquipmentMixin:SetDataBinding(binding, height)
    
@@ -136,10 +144,12 @@ function GuildbookAltsTreeviewItemEquipmentMixin:SetDataBinding(binding, height)
 
     local function updateSlots(equipment)
 
+        self:ClearInvSlotIcons()
+
         local height = 24
         local lastFrame
         for k, slotInfo in ipairs(addon.data.inventorySlots) do
-            if not self[slotInfo.slot] then
+            if not self.invSlotIcons[slotInfo.slot] then
                 local f = CreateFrame("Frame", nil, self, "GuildbookWrathEraSmallHighlightButton")
                 f:SetSize(height, height)
                 
@@ -161,28 +171,26 @@ function GuildbookAltsTreeviewItemEquipmentMixin:SetDataBinding(binding, height)
                 -- f.icon:SetPoint("TOPLEFT", 0.5, -0.5)
                 -- f.icon:SetPoint("BOTTOMRIGHT", -1, 1)
 
-                self[slotInfo.slot] = f
+                self.invSlotIcons[slotInfo.slot] = f
             end
         end
 
 
         for k, slotInfo in ipairs(addon.data.inventorySlots) do
-            self[slotInfo.slot].link = nil
-            self[slotInfo.slot].icon:SetTexture(nil)
-            self[slotInfo.slot].border:Hide()
             if equipment.items[slotInfo.slot] then
-                self[slotInfo.slot].link = equipment.items[slotInfo.slot]
+                self.invSlotIcons[slotInfo.slot].link = equipment.items[slotInfo.slot]
                 local _, hex = strsplit("|", equipment.items[slotInfo.slot])
                 if hex and (#hex == 9) then
                     -- local r, g, b = CreateColorFromHexString(hex:sub(2,9)):GetRGB()
-                    -- self[slotInfo.slot].border:SetColorTexture(r, g, b)
+                    -- self.invSlotIcons[slotInfo.slot].border:SetColorTexture(r, g, b)
 
                     local atlas = addon.itemQualityAtlas_Borders[hex:sub(2,9)]
-                    self[slotInfo.slot].border:SetAtlas(atlas)
+                    self.invSlotIcons[slotInfo.slot].border:SetAtlas(atlas)
 
-                    self[slotInfo.slot].border:Show()
+                    self.invSlotIcons[slotInfo.slot].border:Show()
                 end
-                self[slotInfo.slot].icon:SetTexture(select(5, GetItemInfoInstant(equipment.items[slotInfo.slot])))
+                self.invSlotIcons[slotInfo.slot].icon:SetTexture(select(5, GetItemInfoInstant(equipment.items[slotInfo.slot])))
+                self.invSlotIcons[slotInfo.slot]:Show()
             end
         end
         self.ilvl:SetText(string.format("%.2f", equipment.ilvl))
@@ -229,7 +237,7 @@ function GuildbookAltsTreeviewItemEquipmentMixin:SetDataBinding(binding, height)
 
 end
 function GuildbookAltsTreeviewItemEquipmentMixin:ResetDataBinding()
-    
+    self:ClearInvSlotIcons()
 end
 
 
@@ -357,6 +365,10 @@ function GuildbookAltsTreeviewReputationMixin:SetDataBinding(binding, height)
     if binding.getReputations then
         self.updateReputations = function(header, uiOnly)
 
+            if not header then
+                return
+            end
+
             REPUTATION_HEADER_SELECTED = header
 
             local altReps = binding.getReputations(header)
@@ -442,7 +454,8 @@ function GuildbookAltsTreeviewReputationMixin:SetDataBinding(binding, height)
                             )
                             --GameTooltip_AddBlankLinesToTooltip(GameTooltip, 1);
                             --GameTooltip_ShowStatusBar(GameTooltip, 0, altReps[repID].topValue, altReps[repID].currentValue, "")
-                            GameTooltip_ShowProgressBar(GameTooltip, 0, altReps[repID].topValue, altReps[repID].currentValue, "")
+
+                            GameTooltip_ShowProgressBar(GameTooltip, 0, altReps[repID].topValue, altReps[repID].currentValue, string.format("%.1f%%", (altReps[repID].currentValue / altReps[repID].topValue) * 100))
                             GameTooltip:Show()
                         end)
                         frame:Show()
@@ -609,6 +622,8 @@ local tabFrameNames = {
 
 function GuildbookAltsMixin:OnLoad()
 
+    addon:RegisterCallback("Database_OnCharacterRemoved", self.OnCharacterDeleted, self)
+
     local tabs = {
         {
             label = "Summary",
@@ -758,6 +773,10 @@ function GuildbookAltsMixin:OnLoad()
     addon.AddView(self)
 end
 
+function GuildbookAltsMixin:OnCharacterDeleted()
+    self:LoadAlts("summary", self.tabContainer.summary.listview, self.elementFuncs.summary, true)
+end
+
 function GuildbookAltsMixin:UpdateLayout()
     
     --set the tradeskill labels
@@ -813,7 +832,7 @@ function GuildbookAltsMixin:CreateCharacterEntry(template, name, funcs, showChec
                         notCheckable = true,
                         func = function()
                             StaticPopup_Show("GuildbookDeleteCharacter", name, nil, name)
-                            self:LoadAlts("summary", self.tabContainer.summary.listview, self.elementFuncs.summary, true)
+                            --self:LoadAlts("summary", self.tabContainer.summary.listview, self.elementFuncs.summary, true)
                         end
                     },
                 }
@@ -924,9 +943,11 @@ function GuildbookAltsMixin:LoadAlts(template, treeview, funcs, showCheckbox)
 
             --GetCoinTextureString(copper)
 
+            local guildNameLabel = string.format("[%d] %s", #t or 0, guildname)
+
             if template == "summary" then
                 guilds[guildname] = dataProvider:Insert({
-                    name = guildname,
+                    name = guildNameLabel,
                     atlas = "common-icon-forwardarrow",
                     backgroundAtlas = "Talent-Background",
                     fontObject = GameFontNormal,
@@ -936,7 +957,7 @@ function GuildbookAltsMixin:LoadAlts(template, treeview, funcs, showCheckbox)
 
             else
                 guilds[guildname] = dataProvider:Insert({
-                    name = guildname,
+                    name = guildNameLabel,
                     atlas = "common-icon-forwardarrow",
                     backgroundAtlas = "Talent-Background",
                     fontObject = GameFontNormal,

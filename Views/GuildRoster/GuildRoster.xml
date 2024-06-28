@@ -3,8 +3,15 @@
         <Layers>
             <Layer level="BACKGROUND">
                 <!-- <Texture parentKey="background" atlas="loottab-background"> -->
-                <Texture parentKey="background" atlas="ClassHall_StoneFrame-BackgroundTile" horizTile="true" vertTile="true">
+                <!-- <Texture parentKey="background" atlas="ClassHall_StoneFrame-BackgroundTile" horizTile="true" vertTile="true">
                 
+                </Texture> -->
+                <Texture>
+                    <Color r="0.085" g="0.091" b="0.075" a="0.88"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="0" y="0"/>
+                        <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                    </Anchors>
                 </Texture>
             </Layer>
         </Layers>
@@ -29,12 +36,12 @@
             </Slider>
             <CheckButton parentKey="showOfflineCheckbox" inherits = "GuildbookWrathEraWidgetsCheckButton">
                 <Anchors>
-                    <Anchor point="TOPRIGHT" x="-120" y="-8"/>
+                    <Anchor point="TOPRIGHT" x="-120" y="-4"/>
                 </Anchors>
             </CheckButton>
             <CheckButton parentKey="showMyCharactersCheckbox" inherits = "GuildbookWrathEraWidgetsCheckButton">
                 <Anchors>
-                    <Anchor point="TOPRIGHT" x="-270" y="-8"/>
+                    <Anchor point="TOPRIGHT" x="-270" y="-4"/>
                 </Anchors>
             </CheckButton>
             <Frame parentKey="rosterListview" inherits = "GuildbookWrathEraWidgetsListviewTemplate">

@@ -7,18 +7,18 @@ local Database = addon.Database;
 local artworkFilePath = [[Interface\AddOns\Guildbook\Media\Tradeskills\ProfessionBackgroundArt]]
 
 
-local tradeskillIDs = {
-    ["Alchemy"] = 171,
-    ["Blacksmithing"] = 164,
-    ["Enchanting"] = 333,
-    ["Engineering"] = 202,
-    ["Inscription"] = 773,
-    ["Jewelcrafting"] = 755,
-    ["Leatherworking"] = 165,
-    ["Tailoring"] = 197,
-    ["Mining"] = 186,
-    ["Cooking"] = 185,
-}
+-- local tradeskillIDs = {
+--     ["Alchemy"] = 171,
+--     ["Blacksmithing"] = 164,
+--     ["Enchanting"] = 333,
+--     ["Engineering"] = 202,
+--     ["Inscription"] = 773,
+--     ["Jewelcrafting"] = 755,
+--     ["Leatherworking"] = 165,
+--     ["Tailoring"] = 197,
+--     ["Mining"] = 186,
+--     ["Cooking"] = 185,
+-- }
 
 GuildbookTradskillsMixin = {
     name = "Tradeskills",
@@ -28,7 +28,7 @@ GuildbookTradskillsMixin = {
 }
 
 local function getArtworkForTradeskillID(id)
-    for name, _id in pairs(tradeskillIDs) do
+    for name, _id in pairs(Tradeskills.PrimaryTradeskills) do
         if _id == id then
             return artworkFilePath..name..".png"
         end
@@ -40,7 +40,7 @@ function GuildbookTradskillsMixin:OnLoad()
     --NineSliceUtil.ApplyLayout(self.details.crafters, NineSliceLayouts.ChatBubble)
 
     local menu = {}
-    for name, id in pairs(tradeskillIDs) do
+    for name, id in pairs(Tradeskills.PrimaryTradeskills) do
         table.insert(menu, {
             text = Tradeskills:GetLocaleNameFromID(id),
             func = function()
@@ -339,6 +339,29 @@ function GuildbookTradskillsMixin:UpdateAuctionatorPanel(recipe)
 
 end
 
+local goldAtlas = "auctionhouse-icon-coin-gold"
+local silverAtlas = "auctionhouse-icon-coin-silver"
+local copperAtlas = "auctionhouse-icon-coin-copper"
+
+local function makeCoinAtlas(money, textonly)
+
+    local gold = floor(money / (COPPER_PER_SILVER * SILVER_PER_GOLD));
+	local silver = floor((money - (gold * COPPER_PER_SILVER * SILVER_PER_GOLD)) / COPPER_PER_SILVER);
+	local copper = mod(money, COPPER_PER_SILVER);
+
+    if textonly then
+        return string.format("%d,%d,%d", gold, silver, copper)
+    end
+
+    return string.format("%d%s%d%s%d%s",
+        gold, CreateAtlasMarkup(goldAtlas, 12, 12),
+        silver, CreateAtlasMarkup(silverAtlas, 12, 12),
+        copper, CreateAtlasMarkup(copperAtlas, 12, 12)
+    )
+    
+end
+
+
 function GuildbookTradskillsMixin:SetRecipe(recipe)
 
     self.selectedRecipe = recipe;
@@ -351,10 +374,44 @@ function GuildbookTradskillsMixin:SetRecipe(recipe)
     self.details.itemButton:Show()
     self.details.itemButton:Init({
         icon = recipe.icon,
-        onClick = function()
-            HandleModifiedItemClick(recipe.link)
-        end,
+        -- onClick = function(f, button)
+        --     print(f, button)
+        --     HandleModifiedItemClick(recipe.link)
+        -- end,
     })
+    self.details.itemButton:RegisterForClicks("anyDown")
+    self.details.itemButton:SetScript("OnClick", function(f, button)
+        if button == "LeftButton" then
+            HandleModifiedItemClick(recipe.link)
+        else
+            local channel = "SAY"
+            local totalCost = 0;
+            SendChatMessage(string.format("[Guildbook] Reagents for %s", recipe.link), channel)
+            self.details.reagents.scrollView:ForEachFrame(function(frame)
+                --local icon = select(5, GetItemInfoInstant(frame:GetElementData().link))
+                --local t = CreateSimpleTextureMarkup(icon, 12, 12, 0, 0)
+
+                local itemID = GetItemInfoInstant(frame:GetElementData().link)
+                local cost = Auctionator.API.v1.GetAuctionPriceByItemID(addonName, itemID)
+                cost = cost * frame:GetElementData().count;
+                totalCost = totalCost + cost;
+                SendChatMessage(string.format("%s x%d", frame:GetElementData().link, frame:GetElementData().count), channel)
+            end)
+
+
+
+            SendChatMessage(string.format("Estimated cost: %s", makeCoinAtlas(totalCost, true)), channel)
+        end
+    end)
+    self.details.itemButton:SetScript("OnEnter", function(f)
+        GameTooltip:SetOwner(f, "ANCHOR_TOPRIGHT")
+        GameTooltip:AddLine(recipe.name)
+        GameTooltip:AddLine("Left click to paste link\nRight click to send reagents to guild chat.",1,1,1,true)
+        GameTooltip:Show()
+    end)
+    self.details.itemButton:SetScript("OnLeave", function()
+    
+    end)
     self.details.itemButton.border:SetVertexColor(rgb.r, rgb.g, rgb.b)
     self.details.itemButton.link:SetText(recipe.link)
     self.details.recipeURL:SetText(wowheadCataSpellURL:format(recipe.spellID))

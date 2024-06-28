@@ -42,6 +42,7 @@ addon:GenerateCallbackEvents({
     
     --"Blizzard_OnTradeskillUpdate",
     "Blizzard_OnGuildRosterUpdate",
+    "Blizzard_OnGuildRankUpdate",
     "Blizzard_OnInitialGuildRosterScan",
 
     "Roster_OnSelectionChanged",
@@ -62,6 +63,7 @@ addon:GenerateCallbackEvents({
 
     "Guildbook_OnSearch",
     "Guildbook_OnExport",
+    "SetExportString",
 
     "Quest_OnTurnIn",
     "Quest_OnAccepted",

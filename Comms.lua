@@ -27,8 +27,9 @@ local Comms = {
 
     --delay from transmit request to first dispatch attempt, this prevents spamming if a player opens/closes a panel that triggers a transmit
     queueWaitingTime = 8.0,
+
     --the time added to each message waiting in the queue, this limits how often a message can be dispatched
-    queueExtendTime = 5.0,
+    queueExtendTime = 4.0,
 
      --limiter effect for the dispatcher onUpdate func, limits the onUpdate to once per second
     dispatcherElapsedDelay = 1.0,
@@ -54,7 +55,7 @@ Comms.characterKeyToEventName = {
     resistances = "RESISTANCE_TRANSMIT",
     auras = "AURA_TRANSMIT",
     alts = "ALTS_TRANSMIT",
-    -- mainCharacter = "MAIN_CHARACTER_TRANSMIT",
+    mainCharacter = "MAIN_CHARACTER_TRANSMIT",
     -- publicNote = self.data.publicNote,
     mainSpec = "SPEC_TRANSMIT",
     -- offSpec = self.data.offSpec,
@@ -311,7 +312,7 @@ function Comms:OnCommReceived(prefix, message, distribution, sender)
         if Comms.events[data.event] then
             addon:TriggerEvent("StatusText_OnChanged", string.format("received [|cffE7B007%s|r] from %s", data.event, sender))
             Comms.events[data.event](Comms, sender, data)
-            addon.LogDebugMessage("comms_in", string.format("[|cffE7B007%s|r] data incoming from %s", data.event, sender), data)
+            --addon.LogDebugMessage("comms_in", string.format("[|cffE7B007%s|r] data incoming from %s", data.event, sender), data)
         end
     else
         --DevTools_Dump(data)
@@ -321,24 +322,35 @@ end
 
 function Comms:Character_OnDataReceived(sender, message)
 
-    local nameRealm;
-    if message.payload.nameRealm and message.payload.nameRealm:find("Player-") then
-        nameRealm = message.payload.nameRealm
-    else
-        if not sender:find("-") then
-            local realm = GetNormalizedRealmName()
-            sender = string.format("%s-%s", sender, realm)
+    addon.LogDebugMessage("comms_in", string.format("[|cffE7B007%s|r] data incoming from %s for character > %s", message.event, sender, message.payload.nameRealm))
+
+    -- local nameRealm;
+    -- if message.payload.nameRealm and message.payload.nameRealm:find("Player-") then
+    --     nameRealm = message.payload.nameRealm
+    -- else
+    --     if not sender:find("-") then
+    --         local realm = GetNormalizedRealmName()
+    --         sender = string.format("%s-%s", sender, realm)
+    --     end
+    --     nameRealm = sender;
+    -- end
+
+    --[[
+        dont force a character, check if it exists, if nto try to make the object
+        if still nothing then escape
+    ]]
+
+    if not addon.characters[message.payload.nameRealm] then
+        if Database.db.characterDirectory[message.payload.nameRealm] then
+            addon.characters[message.payload.nameRealm] = Character:CreateFromData(Database.db.characterDirectory[message.payload.nameRealm])
         end
-        nameRealm = sender;
     end
 
-
-    if not addon.characters[nameRealm] then
-        if Database.db.characterDirectory[nameRealm] then
-            addon.characters[nameRealm] = Character:CreateFromData(Database.db.characterDirectory[nameRealm])
-        end
+    if type(addon.characters[message.payload.nameRealm]) ~= "table" then
+        return
     end
-    local character = addon.characters[nameRealm]
+
+    local character = addon.characters[message.payload.nameRealm]
 
 
     -- if message.event == "TRADESKILL_TRANSMIT_PROF1" then
@@ -656,6 +668,7 @@ Comms.events = {
     TRADESKILL_TRANSMIT_FIRSTAID_RECIPES = Comms.Character_OnDataReceived,
 
     ALTS_TRANSMIT = Comms.Character_OnDataReceived,
+    MAIN_CHARACTER_TRANSMIT = Comms.Character_OnDataReceived,
 
 
     --[[

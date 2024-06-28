@@ -1,16 +1,136 @@
 <Ui>
     <Frame name="GuildbookGuildManagement" mixin="GuildbookGuildManagementMixin">
+
+
         <Layers>
             <Layer level="BACKGROUND">
-                <!-- <Texture parentKey="background" atlas="loottab-background"> -->
-                <Texture parentKey="background" atlas="ClassHall_StoneFrame-BackgroundTile" horizTile="true" vertTile="true">
-                
+                <Texture>
+                    <Color r="0.085" g="0.08" b="0.075" a="0.88"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="0" y="0"/>
+                        <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                    </Anchors>
                 </Texture>
             </Layer>
         </Layers>
 
+        <Frames>
+
+            <Frame parentKey="tabContainer" inherits="TBDTabFrameTemplate">
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture>
+                            <Color r="0.16" g="0.17" b="0.17" a="0.4"/>
+                            <Size y="24"/>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="0" y="-60"/>
+                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                </Anchors>
+
+                <Frames>
+                    <Frame parentKey="editCharacter" setAllPoints="true">
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <FontString parentKey="header" inherits="GameFontWhite" justifyH="LEFT" text="">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="210" y="-3"/>
+                                        <Anchor point="TOPRIGHT" x="-10" y="-3"/>
+                                    </Anchors>
+                                    <Size y="27"/>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                        <Frames>
+                            <Frame parentKey="characters" inherits="TBDListviewTemplate">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="0" y="0"/>
+                                    <Anchor point="BOTTOMLEFT" x="0" y="0"/>
+                                </Anchors>
+                                <Size x="200"/>
+                                <KeyValues>
+                                    <KeyValue key="itemTemplate" value="TBDSimpleIconLabelFrame" type="string"/>
+                                    <KeyValue key="elementHeight" value="28" type="number"/>
+                                    <KeyValue key="enableSelection" value="false" type="boolean"/>
+                                </KeyValues>
+                            </Frame>
+                            <Frame parentKey="alts" inherits="TBDListviewTemplate">
+                                <Size x="260" y="300"/>
+                                <Anchors>
+                                    <Anchor point="TOPRIGHT" x="-12" y="-64"/>
+                                </Anchors>
+                                <KeyValues>
+                                    <KeyValue key="itemTemplate" value="TBDSimpleIconLabelFrame" type="string"/>
+                                    <KeyValue key="elementHeight" value="28" type="number"/>
+                                    <KeyValue key="enableSelection" value="false" type="boolean"/>
+                                </KeyValues>
+                                <Layers>
+                                    <Layer level="OVERLAY">
+                                        <FontString parentKey="header" inherits="GameFontNormal" text="Alts" justifyH="LEFT">
+                                            <Anchors>
+                                                <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="6" y="2"/>
+                                            </Anchors>
+                                        </FontString>
+                                    </Layer>q
+                                </Layers>
+                            </Frame>
+                        </Frames>
+                    </Frame>
+                    <Frame parentKey="ranks" setAllPoints="true" hidden="true">
+                        
+                    </Frame>
+                    <Frame parentKey="log" setAllPoints="true" hidden="true">
+                        <Frames>
+                            <Button parentKey="filterType" inherits="TbdDropdownTemplate">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="0" y="0"/>
+                                </Anchors>
+                                <Size x="150" y="30"/>
+                            </Button>
+                            <EditBox parentKey="searchBox" inherits="InputBoxTemplate" autoFocus="false">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="200" y="0"/>
+                                </Anchors>
+                                <Size x="150" y="30"/>
+                            </EditBox>
+                            <Button parentKey="export" inherits="UIPanelButtonTemplate" text="Export">
+                                <Anchors>
+                                    <Anchor point="TOPRIGHT" x="-3" y="-3"/>
+                                </Anchors>
+                                <Size x="150" y="24"/>
+                            </Button>
+                            <Frame parentKey="listview" inherits="TBDListviewTemplate">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="0" y="-30"/>
+                                    <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                                </Anchors>
+                                <KeyValues>
+                                    <KeyValue key="itemTemplate" value="TBDSimpleIconLabelFrame" type="string"/>
+                                    <KeyValue key="elementHeight" value="22" type="number"/>
+                                    <KeyValue key="enableSelection" value="false" type="boolean"/>
+                                </KeyValues>
+                                <!-- <Layers>
+                                    <Layer level="OVERLAY">
+                                        <FontString parentKey="header" inherits="GameFontNormal" text="Alts" justifyH="LEFT">
+                                            <Anchors>
+                                                <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="6" y="2"/>
+                                            </Anchors>
+                                        </FontString>
+                                    </Layer>q
+                                </Layers> -->
+                            </Frame>
+                        </Frames>
+                    </Frame>
+                </Frames>
+            </Frame>
+        </Frames>
+
+
         <Scripts>
             <OnLoad method="OnLoad"/>
+            <OnShow method="OnShow"/>
         </Scripts>
 
     </Frame>

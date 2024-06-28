@@ -149,6 +149,9 @@ function Character:GetRace()
     return raceInfo;
 end
 
+function Character:GetFaction()
+    return C_CreatureInfo.GetFactionInfo(self.data.race)
+end
 
 function Character:SetClass(class)
     self.data.class = class;
@@ -700,6 +703,10 @@ function Character:GetPaperdollStats(set)
     end
 end
 
+function Character:GetAlts()
+    return self.data.alts or {}
+end
+
 --sets the object called from as the main character for the alts passed in
 function Character:UpdateAlts(alts, broadcast)
     self.data.alts = alts;
@@ -715,12 +722,11 @@ end
 function Character:SetMainCharacter(main, broadcast)
     self.data.mainCharacter = main;
 
-
     addon:TriggerEvent("Character_OnDataChanged", self)
     if broadcast then
         addon:TriggerEvent("Character_BroadcastChange", self, "SetMainCharacter", "mainCharacter")
     end
-    -- addon:TriggerEvent("StatusText_OnChanged", string.format(" set %s for %s", "main character", self.data.name))
+    addon:TriggerEvent("StatusText_OnChanged", string.format(" set %s for %s", "main character", self.data.name))
 
 end
 
@@ -927,6 +933,14 @@ function Character:GetLockouts()
     return self.data.lockouts or {};
 end
 
+function Character:SetDateJoined(timestamp)
+    self.data.joined = timestamp
+end
+
+function Character:GetDateJoined()
+    return self.data.joined or time()
+end
+
 
 function Character:SetAchievementPoints(points, broadcast)
     self.data.achievementPoints = points;
@@ -935,6 +949,7 @@ function Character:SetAchievementPoints(points, broadcast)
         addon:TriggerEvent("Character_BroadcastChange", self, "SetAchievementPoints", "achievementPoints")
     end
 end
+
 
 
 function Character:CreateFromData(data)

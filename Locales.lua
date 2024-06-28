@@ -52,6 +52,12 @@ local L = {
 	BANK_CHARACTER_REFRESH_HT = "Click here to refresh the Guild bank data.\n\nThere will be a delay as each bank character's data gets requested. Guildbook will use the latest data available from players online.",
 
 	--====================================================================================
+	--guild management
+	--====================================================================================
+
+	EDIT_CHARACTER_HEADER = "Edit guild members data, this feature is available to all guild members above the lowest 2 ranks. Changes will be shared to all online guild members using the addon.",
+
+	--====================================================================================
 	--settings
 	--====================================================================================
 

@@ -160,6 +160,18 @@
         "AnimateTexCoords",
         "GameTooltip_AddBlankLinesToTooltip",
         "GameTooltip_AddStatusBar",
-        "GameTooltip_ShowStatusBar"
+        "GameTooltip_ShowStatusBar",
+        "UNKNOWN",
+        "GUILDEVENT_TYPE_INVITE",
+        "GUILDEVENT_TYPE_JOIN",
+        "GUILDEVENT_TYPE_PROMOTE",
+        "GUILDEVENT_TYPE_DEMOTE",
+        "GUILDEVENT_TYPE_REMOVE",
+        "GUILDEVENT_TYPE_QUIT",
+        "CommunitiesGuildLogFrame_Update",
+        "CommunitiesFrame",
+        "COPPER_PER_SILVER",
+        "SILVER_PER_GOLD",
+        "EDIT"
     ]
 }

@@ -681,6 +681,19 @@ function addon.api.characterIsMine(name)
     return false;
 end
 
+function addon.api.getGuildRanks()
+    local ranks = {}
+    for i = 1, GuildControlGetNumRanks() do
+        local rankName = GuildControlGetRankName(i)
+        table.insert(ranks, {
+            rankName = rankName,
+            rankIndex = i-1,
+        })
+    end
+    return ranks
+end
+
+
 function addon.api.scanForTradeskillSpec()
     local t = {}
     for i = 1, GetNumSpellTabs() do
@@ -1134,6 +1147,8 @@ function addon.api.cata.getPlayerTalents(...)
     local tabs, talents = {}, {}
     for tabIndex = 1, GetNumTalentTabs() do
         local id, name, description, icon, pointsSpent, fileName, previewPointsSpent, isUnlocked = GetTalentTabInfo(tabIndex)
+        local role1, role2 = GetTalentTreeRoles(tabIndex, false, false); --inspect, pet
+
         --print(id, name, fileName)
         local engSpec = Talents.TalentBackgroundToSpec[fileName]
         table.insert(tabs, {
@@ -1154,12 +1169,11 @@ function addon.api.cata.getPlayerTalents(...)
         end
     end
 
-    local inGroup = IsInGroup()
-    local inInstance, instanceType = IsInInstance()
+    -- local inGroup = IsInGroup()
+    -- local inInstance, instanceType = IsInInstance()
 
     local glyphs = {}
     for i = 1, 9 do
-        --DevTools_Dump({GetGlyphSocketInfo(i)})
         local enabled, glyphType, glyphIndex, glyphSpellID, icon = GetGlyphSocketInfo(i);
         if enabled and glyphSpellID then
             
@@ -1168,58 +1182,10 @@ function addon.api.cata.getPlayerTalents(...)
                 glyphType = glyphType,
                 glyphIndex = glyphIndex,
             })
-
-            --[[
-            local name = GetSpellInfo(glyphSpellID) --check its a valid spell ID
-            if name then
-                if addon.glyphData.spellIdToItemId[glyphSpellID] then
-                    local itemID = addon.glyphData.spellIdToItemId[glyphSpellID].itemID
-                    local found = false
-                    for k, glyph in ipairs(addon.glyphData.wrath) do
-                        if glyph.itemID == itemID then
-                            table.insert(glyphs, {
-                                socket = i,
-                                itemID = itemID,
-                                classID = glyph.classID,
-                                glyphType = glyph.glyphType,
-                                name = name,
-                            })
-                            found = true
-                        end
-                    end
-                    if not found then
-                        if not inGroup and not inInstance then
-                            if not glyphsPopped[glyphSpellID] then
-                                local s = string.format("[%s] unable to find glyph itemID for %s with GlyphSpellID of %d", addonName, name, glyphSpellID)
-                                StaticPopup_Show("GuildbookReport", s)
-                                glyphsPopped[glyphSpellID] = true
-                            end
-                        end
-                    end
-                else
-                    if not inGroup and not inInstance then
-                        if not glyphsPopped[glyphSpellID] then
-                            local s = string.format("[%s] glyph data for %s with GlyphSpellID of %d missing from lookup table", addonName, name, glyphSpellID)
-                            StaticPopup_Show("GuildbookReport", s)
-                            glyphsPopped[glyphSpellID] = true
-                        end
-                    end
-                end
-            end
-            ]]
         end
     end
 
     return newSpec, tabs, talents, glyphs;
-
-    -- if newSpec == 1 then
-    --     self:TriggerEvent("OnPlayerTalentSpecChanged", "primary", talents, glyphs)
-    -- elseif newSpec == 2 then
-    --     self:TriggerEvent("OnPlayerTalentSpecChanged", "secondary", talents, glyphs)
-    -- end
-
-    --DevTools_Dump({glyphs})
-    --DisplayTableInspectorWindow({glyphs = glyphs});
 
 end
 

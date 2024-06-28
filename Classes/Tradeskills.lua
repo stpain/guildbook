@@ -22,6 +22,65 @@ Tradeskills.TradeskillNames = {
 	["First Aid"] = 129,
 	["Fishing"] = 356,
 }
+
+
+Tradeskills.PrimaryTradeskills = {
+	["Alchemy"] = 171,
+    ["Blacksmithing"] = 164,
+    ["Enchanting"] = 333,
+    ["Engineering"] = 202,
+    ["Inscription"] = 773,
+    ["Jewelcrafting"] = 755,
+    ["Leatherworking"] = 165,
+    ["Tailoring"] = 197,
+    ["Mining"] = 186,
+    ["Cooking"] = 185,
+}
+
+-- function Tradeskills:CreateDropdownMenu(includeAll)
+	
+-- 	if not includeAll then
+-- 		local menu = {}
+-- 		for name, id in pairs(self.PrimaryTradeskills) do
+-- 			table.insert(menu, {
+-- 				text = Tradeskills:GetLocaleNameFromID(id),
+-- 				func = function()
+-- 					local recipes = Tradeskills:BuildTradeskillData(id)
+-- 					self.selectedTradeskillID = id
+-- 					local dataProvider = self:SetOrCreateDataProvider(id)
+-- 					if dataProvider then
+-- 						self:LoadTradeskillRecipes(id, recipes, dataProvider)
+-- 					end
+-- 				end,
+-- 			})
+-- 		end
+-- 		table.sort(menu, function(a, b)
+-- 			return a.text < b.text
+-- 		end)
+-- 		return menu;
+
+-- 	else
+-- 		local menu = {}
+-- 		for name, id in pairs(self.TradeskillNames) do
+-- 			table.insert(menu, {
+-- 				text = Tradeskills:GetLocaleNameFromID(id),
+-- 				func = function()
+-- 					local recipes = Tradeskills:BuildTradeskillData(id)
+-- 					self.selectedTradeskillID = id
+-- 					local dataProvider = self:SetOrCreateDataProvider(id)
+-- 					if dataProvider then
+-- 						self:LoadTradeskillRecipes(id, recipes, dataProvider)
+-- 					end
+-- 				end,
+-- 			})
+-- 		end
+-- 		table.sort(menu, function(a, b)
+-- 			return a.text < b.text
+-- 		end)
+-- 		return menu;
+-- 	end
+-- end
+
 Tradeskills.SpecializationSpellsIDs = {
     --Alchemy:
     [28672] = 171,

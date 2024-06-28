@@ -51,6 +51,7 @@ function GuildbookImportExportMixin:OnLoad()
 
     end)
 
+    addon:RegisterCallback("SetExportString", self.SetExportString, self)
     addon:RegisterCallback("Guildbook_OnExport", self.Guildbook_OnExport, self)
     addon:RegisterCallback("Character_ExportEquipment", self.Character_ExportEquipment, self)
     addon:RegisterCallback("UI_OnSizeChanged", self.UpdateLayout, self)
@@ -58,6 +59,11 @@ function GuildbookImportExportMixin:OnLoad()
     addon.AddView(self)
 end
 
+function GuildbookImportExportMixin:SetExportString(string)
+    self.importExportEditbox.EditBox:SetText(string)
+
+    GuildbookUI:SelectView(self.name)
+end
 
 function GuildbookImportExportMixin:Guildbook_OnExport(data)
 

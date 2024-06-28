@@ -222,18 +222,33 @@ end
 
 function Database:DeleteCharacter(nameRealm)
     if self.db then
-         if self.db.characterDirectory[nameRealm] then
+        if self.db.myCharacters[nameRealm] then
+            self.db.myCharacters[nameRealm] = nil
+        end
+        if self.db.characterDirectory[nameRealm] then
             self.db.characterDirectory[nameRealm] = nil;
-                if addon.characters[nameRealm] then
-                    addon.characters[nameRealm] = nil;
-                end
-            addon:TriggerEvent("Database_OnCharacterRemoved", nameRealm)
-         end
+        end
+        if addon.characters[nameRealm] then
+            addon.characters[nameRealm] = nil;
+        end
+        addon:TriggerEvent("Database_OnCharacterRemoved", nameRealm)
     end
 end
 
 function Database:GetMainForGuild(guild)
-    
+    if self.db and addon.characters then
+        if self.db.guilds[guild] and self.db.guilds[guild].members then
+            for nameRealm, _ in pairs(self.db.guilds[guild].members) do
+                if self.db.myCharacters[nameRealm] and addon.characters[nameRealm] then
+                    local main = addon.characters[nameRealm]:GetMainCharacter()
+                    if type(main) == "string" then
+                        return main
+                    end
+                end
+            end
+        end
+    end
+    return false;
 end
 
 function Database:GetCharacter(nameRealm)
@@ -402,6 +417,9 @@ function Database:SetMainCharacterForAlts(guild, main, alts)
         for k, nameRealm in ipairs(alts) do
             if addon.characters[nameRealm] and addon.guilds[guild].members[main] then
                 addon.characters[nameRealm]:SetMainCharacter(main)
+
+                --helpful to just add this here, don't use the method just set the data
+                addon.characters[nameRealm].data.alts = alts;
             end
         end
     end

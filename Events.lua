@@ -301,7 +301,8 @@ function e:CHAT_MSG_SYSTEM(...)
 end
 
 function e:GUILD_RANKS_UPDATE()
-    
+    QueryGuildEventLog()
+    addon:TriggerEvent("Blizzard_OnGuildRankUpdate")
 end
 
 --[[
@@ -1175,6 +1176,9 @@ function e:Database_OnInitialised()
     end
     if not AchievementFrame then
         UIParentLoadAddOn("Blizzard_AchievementUI")
+    end
+    if not CommunitiesFrame then
+        UIParentLoadAddOn("Blizzard_Communities")
     end
 
     PlayerTalentFrame:HookScript("OnHide", function()

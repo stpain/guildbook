@@ -21,6 +21,11 @@ local name, addon = ...;
 
 addon.changeLog = {
     {
+        version = "7.4",
+        notes = "Guild management!\n\nNew feature being added, so far the edit character and guild log tabs are working. The edit character tab has some restrictions. You can filter, search and export from an enhance guild log.\n\nAdded a small script to the circle icon in the profession recipe details, you can right click to send the item reagents to guild chat.\n\nMinor fixes and tweeks",
+        icon = "ClassHall-QuestIcon-Desaturated",
+    },
+    {
         version = "7.33",
         notes = "Added rep and currency to alts view",
         icon = "ClassHall-QuestIcon-Desaturated",

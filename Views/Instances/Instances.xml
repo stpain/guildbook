@@ -44,7 +44,7 @@
                 <KeyValues>
                     <KeyValue key="itemTemplate" value="TBDSimpleIconLabelFrame" type="string"/>
                     <KeyValue key="elementHeight" value="28" type="number"/>
-                    <KeyValue key="enableSelection" value="true" type="boolean"/>
+                    <!-- <KeyValue key="enableSelection" value="true" type="boolean"/> -->
                 </KeyValues>
             </Frame>
 
