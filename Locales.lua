@@ -56,6 +56,7 @@ local L = {
 	--====================================================================================
 
 	EDIT_CHARACTER_HEADER = "Edit guild members data, this feature is available to all guild members above the lowest 2 ranks. Changes will be shared to all online guild members using the addon.",
+	INVITES_HEADER = "Search using the in game /who, select a class you are looking for to see characters not currently in a guild. (/who restrictions apply)",
 
 	--====================================================================================
 	--settings

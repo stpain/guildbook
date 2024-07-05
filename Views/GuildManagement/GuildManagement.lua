@@ -7,21 +7,9 @@ local Character = addon.Character;
 local Tradeskills = addon.Tradeskills;
 local L = addon.Locales;
 
-local gmotdNineSliceLayout =
-{
-    ["TopRightCorner"] = { atlas = "Tooltip-NineSlice-CornerTopRight" },
-    ["TopLeftCorner"] = { atlas = "Tooltip-NineSlice-CornerTopLeft" },
-    ["BottomLeftCorner"] = { atlas = "Tooltip-NineSlice-CornerBottomLeft" },
-    ["BottomRightCorner"] = { atlas = "Tooltip-NineSlice-CornerBottomRight" },
-    ["TopEdge"] = { atlas = "_Tooltip-NineSlice-EdgeTop" },
-    ["BottomEdge"] = { atlas = "_Tooltip-NineSlice-EdgeBottom" },
-    ["LeftEdge"] = { atlas = "!Tooltip-NineSlice-EdgeLeft" },
-    ["RightEdge"] = { atlas = "!Tooltip-NineSlice-EdgeRight" },
-    ["Center"] = { layer = "BACKGROUND", atlas = "Tooltip-Glues-NineSlice-Center", x = -4, y = 4, x1 = 4, y1 = -4 },
-}
-
 
 local GUILD_MEMBERS = {}
+local GUILD_MEMBERS_IGNORE_REMOVE = {}
 
 GuildbookGuildManagementMixin = {
     name = "GuildManagement"
@@ -39,6 +27,16 @@ function GuildbookGuildManagementMixin:OnLoad()
             label = "Ranks",
             width = 120,
             panel = self.tabContainer.ranks,
+        },
+        {
+            label = "Invites",
+            width = 120,
+            panel = self.tabContainer.invites,
+        },
+        {
+            label = "Absent",
+            width = 120,
+            panel = self.tabContainer.absent,
         },
         {
             label = "Log",
@@ -125,6 +123,31 @@ function GuildbookGuildManagementMixin:OnLoad()
         addon:TriggerEvent("SetExportString", csv)
     end)
 
+    --self.tabContainer.absent.removeAfk
+    NineSliceUtil.ApplyLayout(self.tabContainer.editCharacter.alts, addon.api.getNineSliceTooltipBorder(0))
+    NineSliceUtil.ApplyLayout(self.tabContainer.absent.ignoreListview, addon.api.getNineSliceTooltipBorder(10))
+    NineSliceUtil.ApplyLayout(self.tabContainer.absent.macroText, addon.api.getNineSliceTooltipBorder(10))
+
+    self.tabContainer.absent.numDaysAfkSlider.label:SetText("Days absent")
+    self.tabContainer.absent.numDaysAfkSlider:SetMinMaxValues(7, 365)
+    self.tabContainer.absent.numDaysAfkSlider:SetScript("OnMouseWheel", function(slider, delta)
+        slider:SetValue(slider:GetValue() + delta)
+    end)
+    self.tabContainer.absent.numDaysAfkSlider:SetScript("OnValueChanged", function(slider)
+        slider.labelRight:SetText(math.floor(slider:GetValue()))
+        self:LoadAFK()
+    end)
+    self.tabContainer.absent.numDaysAfkSlider:SetValue(7)
+
+
+    self:SetScript("OnEvent", function(self, event , ...)
+        if event == "WHO_LIST_UPDATE" then
+            self:OnWhoUpdateEvent()
+        end
+    end)
+
+    self:SetupInvitesUI()
+
     addon.AddView(self)
 end
 
@@ -138,16 +161,25 @@ function GuildbookGuildManagementMixin:OnShow()
     self.tabContainer:SetPoint("BOTTOMRIGHT", 0, 0)
 
     self.tabContainer.editCharacter.characters:ClearAllPoints()
-    self.tabContainer.editCharacter.characters:SetPoint("TOPLEFT", 0, 0)
+    self.tabContainer.editCharacter.characters:SetPoint("TOPLEFT", 0, -30)
     self.tabContainer.editCharacter.characters:SetPoint("BOTTOMLEFT", 0, 0)
 
     self.tabContainer.log.listview:ClearAllPoints()
     self.tabContainer.log.listview:SetPoint("TOPLEFT", 0, -30)
     self.tabContainer.log.listview:SetPoint("BOTTOMRIGHT", 0, 0)
 
+    self.tabContainer.absent.listview:ClearAllPoints()
+    self.tabContainer.absent.listview:SetPoint("TOPLEFT", 0, -30)
+    self.tabContainer.absent.listview:SetPoint("BOTTOMLEFT", 0, 0)
+
+    self.tabContainer.invites.classListContainer:ClearAllPoints()
+    self.tabContainer.invites.classListContainer:SetPoint("TOPLEFT", 0, -60)
+    self.tabContainer.invites.classListContainer:SetPoint("BOTTOMLEFT", 0, 0)
+
     self:LoadCharacters(addon.thisGuild)
 
     self:LoadLog()
+    self:LoadAFK()
 end
 
 function GuildbookGuildManagementMixin:SetEditCharacterWidgetsLocked(locked)
@@ -415,8 +447,6 @@ function GuildbookGuildManagementMixin:SetupEditCharacterTab()
     -- altsList.itemTemplate = "TBDSimpleIconLabelFrame";
     -- altsList.elementHeight = 24;
 
-    NineSliceUtil.ApplyLayout(self.tabContainer.editCharacter.alts, gmotdNineSliceLayout)
-
     self.editCharacterControls["alts"] = self.tabContainer.editCharacter.alts;
     self.editCharacterControls["alts"].init = function(widget, character)
 
@@ -575,6 +605,15 @@ function GuildbookGuildManagementMixin:LoadLog()
         local isMatch = false;       
         local _type, player1, player2, rank, year, month, day, hour = GetGuildEventInfo(eventIndex);
 
+        if ( not player1 ) then
+            player1 = UNKNOWN;
+        end
+        if ( not player2 ) then
+            player2 = UNKNOWN;
+        end
+
+        local logEntry = string.format("%d:%d:%d:%d:%s:%s:%s:%s", year, month, day, hour, _type, player1, player2, rank)
+
         local difference_in_seconds, past_time = calculate_past_time(year, month, day, hour)
 
         if type(self.tabContainer.log.filterTypeValue) == "string" then
@@ -674,12 +713,6 @@ function GuildbookGuildManagementMixin:LoadLog()
             -- end
     
             --taken from blizz
-            if ( not player1 ) then
-                player1 = UNKNOWN;
-            end
-            if ( not player2 ) then
-                player2 = UNKNOWN;
-            end
             if ( _type == "invite" ) then
                 msg = format(GUILDEVENT_TYPE_INVITE, player1, player2);
             elseif ( _type == "join" ) then
@@ -712,4 +745,319 @@ function GuildbookGuildManagementMixin:LoadLog()
     end
 
     self.tabContainer.log.listview.scrollView:SetDataProvider(CreateDataProvider(t))
+end
+
+
+
+function GuildbookGuildManagementMixin:LoadAFK()
+    
+    GuildRoster()
+
+    local ranks = addon.api.getGuildRanks()
+    local rankMenu = {
+        {
+            text = ALL,
+            func = function()
+                self.tabContainer.absent.rankFilterIndex = "all";
+                self:LoadAFK()
+            end,
+        }
+    }
+    for k, rank in ipairs(ranks) do
+        table.insert(rankMenu, {
+            text = rank.rankName,
+            func = function()
+                self.tabContainer.absent.rankFilterIndex = rank.rankIndex;
+                self:LoadAFK()
+            end,
+        })
+    end
+    self.tabContainer.absent.rankDropdown:SetMenu(rankMenu)
+
+    if not self.tabContainer.absent.rankFilterIndex then
+        self.tabContainer.absent.rankFilterIndex = "all";
+    end
+
+    local numberSecondsAfk = math.floor(self.tabContainer.absent.numDaysAfkSlider:GetValue()) * 24 * 60 * 60;
+
+    self.tabContainer.absent.members = {}
+    local totalMembers, onlineMember, _ = GetNumGuildMembers()
+    for i = 1, totalMembers do
+
+        local yearsOffline, monthsOffline, daysOffline, hoursOffline = GetGuildRosterLastOnline(i)
+        local name, rankName, rankIndex, level, _, zone, publicNote, officerNote, isOnline, status, class, _, _, _, _, _, guid = GetGuildRosterInfo(i)
+
+
+        local difference_in_seconds, past_time = calculate_past_time(yearsOffline or 0, monthsOffline or 0, daysOffline or 0, hoursOffline or 0)
+
+        if (difference_in_seconds > numberSecondsAfk) then
+            if (self.tabContainer.absent.rankFilterIndex and (self.tabContainer.absent.rankFilterIndex == rankIndex)) then
+                table.insert(self.tabContainer.absent.members, {
+                    name = name,
+                    guid = guid,
+
+                    --sort
+                    loginAge = difference_in_seconds,
+                    loginTime = past_time,
+                })
+            elseif (self.tabContainer.absent.rankFilterIndex == "all") then
+                table.insert(self.tabContainer.absent.members, {
+                    name = name,
+                    guid = guid,
+
+                    --sort
+                    loginAge = difference_in_seconds,
+                    loginTime = past_time,
+                })
+            end
+        end
+    end
+    self:UpdateMacro()
+
+end
+
+function GuildbookGuildManagementMixin:UpdateMacro(overrideMacro)
+
+    local macro = (type(overrideMacro) == "string") and overrideMacro or ""
+
+    if #self.tabContainer.absent.members > 0 then
+
+        table.sort(self.tabContainer.absent.members, function(a, b)
+            return a.loginAge > b.loginAge;
+        end)
+
+        local oldestLogin = self.tabContainer.absent.members[1].loginAge
+        local newestLogin = self.tabContainer.absent.members[#self.tabContainer.absent.members].loginAge
+        local difference = oldestLogin - newestLogin;
+
+        local i = 0;
+        for _, player in ipairs(self.tabContainer.absent.members) do
+            local loginAge = ((player.loginAge - newestLogin) / difference) * 100
+            local r, g, b = addon.api.getcolourGradientFromPercent(loginAge, true)
+
+            player.label = Ambiguate(player.name, "short")
+            player.labelRight = SecondsToTime(player.loginAge, true, true)
+
+
+            player.onMouseDown = function()
+                self:UpdateIgnoreRemoveList(player.name)
+            end
+
+            player.init = function(f)
+                f.label:SetTextColor(r, g, b)
+                f.labelRight:SetTextColor(r, g, b)
+            end
+
+            player.backgroundRGB = {r = 0.5, g = 0.5, b = 0.5}
+
+            if i % 2 == 0 then
+                player.backgroundAlpha = 0.0;
+            else
+                player.backgroundAlpha = 0.08;
+            end
+
+            local isIgnored = false
+            for _, v in ipairs(GUILD_MEMBERS_IGNORE_REMOVE) do
+                if v.name == player.name then
+                    isIgnored = true
+                end
+            end
+            if isIgnored == false then
+                macro = string.format("%s/gremove %s\n", macro, Ambiguate(player.name, "short"))
+            end
+
+            i = i + 1;
+        end
+
+        -- /gremove
+        self.tabContainer.absent.macroData:SetText(string.format("Players in macro: %d\nMacro length: %d\nValid: %s", #self.tabContainer.absent.members, #macro, (#macro < 256) and "YES" or "NO"))
+
+        self.tabContainer.absent.removeAfk:SetAttribute("macrotext1", macro)
+
+        self.tabContainer.absent.listview.scrollView:SetDataProvider(CreateDataProvider(self.tabContainer.absent.members))
+
+    else
+        self.tabContainer.absent.macroData:SetText("")
+
+        self.tabContainer.absent.removeAfk:SetAttribute("macrotext1", macro)
+
+        self.tabContainer.absent.listview.scrollView:SetDataProvider(CreateDataProvider(self.tabContainer.absent.members))
+    end
+
+    self.tabContainer.absent.macroText:SetText(macro)
+
+    if type(overrideMacro) == "string" then
+        self.tabContainer.absent.listview.scrollView:SetDataProvider(CreateDataProvider({}))
+        self.tabContainer.absent.ignoreListview.scrollView:SetDataProvider(CreateDataProvider({}))
+    end
+
+    if (#macro < 256) then
+        self.tabContainer.absent.removeAfk:Enable()
+    else
+        self.tabContainer.absent.removeAfk:Disable()
+    end
+
+
+
+end
+
+
+function GuildbookGuildManagementMixin:UpdateIgnoreRemoveList(name)
+    
+    local exists = false;
+    local key;
+    for k, v in ipairs(GUILD_MEMBERS_IGNORE_REMOVE) do
+        if v.name == name then
+            exists = true;
+            key = k;
+        end
+    end
+
+    if exists and (type(key) == "number") then
+        table.remove(GUILD_MEMBERS_IGNORE_REMOVE, key)
+    
+    else
+        if exists == false then
+            table.insert(GUILD_MEMBERS_IGNORE_REMOVE, {
+                name = name,
+                label = Ambiguate(name, "short"),
+
+                onMouseDown = function()
+                    self:UpdateIgnoreRemoveList(name)
+                end,
+            })
+        end
+    end
+
+    self.tabContainer.absent.ignoreListview.scrollView:SetDataProvider(CreateDataProvider(GUILD_MEMBERS_IGNORE_REMOVE))
+
+    self:UpdateMacro()
+end
+
+
+
+
+
+function GuildbookGuildManagementMixin:SetupInvitesUI()
+
+    self.tabContainer.invites.header:SetText(L.INVITES_HEADER)
+
+    self.tabContainer.invites.inviteMessageInput.EditBox:SetFontObject("GameFontWhite")
+    self.tabContainer.invites.inviteMessageInput.EditBox:SetMaxLetters(255)
+    self.tabContainer.invites.inviteMessageInput.CharCount:SetShown(true);
+    self.tabContainer.invites.inviteMessageInput.EditBox:ClearAllPoints()
+    self.tabContainer.invites.inviteMessageInput.EditBox:SetPoint("TOPLEFT", self.tabContainer.invites.inviteMessageInput, "TOPLEFT", 0, 0)
+    self.tabContainer.invites.inviteMessageInput.EditBox:SetPoint("BOTTOMRIGHT", self.tabContainer.invites.inviteMessageInput, "BOTTOMRIGHT", 0, 0)
+    self.tabContainer.invites.inviteMessageInput.ScrollBar:ClearAllPoints()
+    self.tabContainer.invites.inviteMessageInput.ScrollBar:SetPoint("TOPRIGHT", self.tabContainer.invites.inviteMessageInput, "TOPRIGHT", 4, 0)
+    self.tabContainer.invites.inviteMessageInput.ScrollBar:SetPoint("BOTTOMRIGHT", self.tabContainer.invites.inviteMessageInput, "BOTTOMRIGHT", 0, -4)
+
+    self.tabContainer.invites.inviteMessageInput.EditBox:SetText("Enter your invite message here.")
+    
+    local rowIndex = 0;
+    local t = {}
+    for i = 1, 11 do
+        if i ~= 10 then
+            local class, global, id = GetClassInfo(i)
+            if class and id then
+                -- local checkbox = CreateFrame("CheckButton", nil, self.tabContainer.invites.classListContainer, "TBDCheckButton")
+                -- checkbox.label:SetText(class)
+                -- checkbox:SetPoint("TOPLEFT", 4, -(rowIndex * 24))
+
+                -- rowIndex = rowIndex + 1;
+
+                table.insert(t, {
+                    label = RAID_CLASS_COLORS[global]:WrapTextInColorCode(class),
+
+                    onMouseDown = function()
+                        self:SendWhoRequest(([[c-"%s"]]):format(class))
+                    end,
+                })
+            end
+        end
+    end
+
+    self.tabContainer.invites.classListContainer.scrollView:SetDataProvider(CreateDataProvider(t))
+end
+
+
+function GuildbookGuildManagementMixin:OnWhoUpdateEvent()
+
+    local numResults = C_FriendList.GetNumWhoResults()
+
+    local t = {}
+
+    for i = 1, numResults do
+
+        local character = C_FriendList.GetWhoInfo(i)
+
+        if character.fullGuildName == "" or character.fullGuildName == nil then
+            table.insert(t, {
+                label = character.fullName,
+                labelRight = string.format("%s %s %s", LEVEL, character.level, character.raceStr),
+
+                backgroundRGB = { r = 0.5, b = 0.5, g = 0.5, },
+
+                onMouseEnter = function(f)
+                    GameTooltip:SetOwner(f, "ANCHOR_TOPRIGHT")
+                    GameTooltip:AddLine(RAID_CLASS_COLORS[character.filename]:WrapTextInColorCode(character.fullName))
+                    GameTooltip:AddLine(character.raceStr, 1,1,1)
+                    GameTooltip:AddLine(character.classStr, 1,1,1)
+                    GameTooltip:AddLine(LEVEL.." "..character.level, 1,1,1)
+                    GameTooltip:AddLine(character.area, 1,1,1)
+                    --GameTooltip:AddLine(GUILD.. " "..character.fullGuildName, 1,1,1)
+                    GameTooltip:AddLine(" ")
+                    GameTooltip:AddLine("|cffffffffShift click to whisper your invite message.|r Be polite!")
+                    GameTooltip:Show()
+                end,
+
+                onMouseDown = function(f, button)
+                    if IsShiftKeyDown() then
+                        local msg = self.tabContainer.invites.inviteMessageInput.EditBox:GetText()
+                        if (#msg > 0) and (#msg < 255) then
+
+                            --as this is p2p messaging in a semi auto manner lets log it in case blizzard want to check things
+                            local isChatLogged = LoggingChat()
+                            LoggingChat(true)
+                            SendChatMessage(msg, "WHISPER", nil, character.fullName)
+                            LoggingChat(isChatLogged)
+                        end
+                    end
+                end,
+
+                --sort
+                sortLevel = character.level
+            })
+        end
+
+    end
+
+    table.sort(t, function(a, b)
+        return a.sortLevel > b.sortLevel;
+    end)
+
+    local i = 1;
+    for k, v in ipairs(t) do
+        if i % 2 == 0 then
+            v.backgroundAlpha = 0.0;
+        else
+            v.backgroundAlpha = 0.1;
+        end
+        i = i + 1;
+    end
+
+    self.tabContainer.invites.whoResultsListview.scrollView:SetDataProvider(CreateDataProvider(t))
+
+    FriendsFrame:RegisterEvent("WHO_LIST_UPDATE")
+    C_FriendList.SetWhoToUi(false)
+    self:UnregisterEvent("WHO_LIST_UPDATE")
+end
+
+
+
+function GuildbookGuildManagementMixin:SendWhoRequest(who)
+    FriendsFrame:UnregisterEvent("WHO_LIST_UPDATE")
+    self:RegisterEvent("WHO_LIST_UPDATE")
+    C_FriendList.SetWhoToUi(true)
+    C_FriendList.SendWho(who)
 end

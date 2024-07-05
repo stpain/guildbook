@@ -172,6 +172,14 @@
         "CommunitiesFrame",
         "COPPER_PER_SILVER",
         "SILVER_PER_GOLD",
-        "EDIT"
+        "EDIT",
+        "StaticPopup1",
+        "StaticPopup1Button2",
+        "SECOND_ONELETTER_ABBR",
+        "DAY_ONELETTER_ABBR",
+        "DAYS_ABBR",
+        "D_DAYS",
+        "StaticPopup1Button1",
+        "LEVEL"
     ]
 }

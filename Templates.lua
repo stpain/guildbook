@@ -1228,6 +1228,11 @@ function GuildbookRosterListviewItemMixin:Update()
         },
     })
 
+    -- self:SetScript("OnMouseDown", function()
+    --     local recipe = C_GuildInfo.QueryGuildMemberRecipes(self.character.data.guid, self.character.data.profession1)
+    --     DevTools_Dump(recipe)
+    -- end)
+
 end
 
 function GuildbookRosterListviewItemMixin:Character_OnDataChanged(character)

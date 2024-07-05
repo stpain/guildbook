@@ -529,12 +529,35 @@ function addon.api.hidePaperdollOverlays()
     end
 end
 
-function addon.api.getcolourGradientFromPercent(percent)
-    local r = (percent > 50 and 1 - 2 * (percent - 50) / 100.0 or 1.0);
-    local g = (percent > 50 and 1.0 or 2 * percent / 100.0);
-    local b = 0.0;
+function addon.api.getNineSliceTooltipBorder(borderOffset)
+    return {
+        ["TopRightCorner"] = { atlas = "Tooltip-NineSlice-CornerTopRight", x = borderOffset, y = borderOffset },
+        ["TopLeftCorner"] = { atlas = "Tooltip-NineSlice-CornerTopLeft", x = -borderOffset, y = borderOffset },
+        ["BottomLeftCorner"] = { atlas = "Tooltip-NineSlice-CornerBottomLeft", x = -borderOffset, y = -borderOffset },
+        ["BottomRightCorner"] = { atlas = "Tooltip-NineSlice-CornerBottomRight", x = borderOffset, y = -borderOffset },
+        ["TopEdge"] = { atlas = "_Tooltip-NineSlice-EdgeTop" },
+        ["BottomEdge"] = { atlas = "_Tooltip-NineSlice-EdgeBottom" },
+        ["LeftEdge"] = { atlas = "!Tooltip-NineSlice-EdgeLeft" },
+        ["RightEdge"] = { atlas = "!Tooltip-NineSlice-EdgeRight" },
+        ["Center"] = { layer = "BACKGROUND", atlas = "Tooltip-Glues-NineSlice-Center", x = -4, y = 4, x1 = 4, y1 = -4 },
+    }
+end
 
-    return r, g, b;
+function addon.api.getcolourGradientFromPercent(percent, reverse)
+
+    if reverse then
+        local g = (percent > 50 and 1 - 2 * (percent - 50) / 100.0 or 1.0);
+        local r = (percent > 50 and 1.0 or 2 * percent / 100.0);
+        local b = 0.0;
+    
+        return r, g, b;
+    else
+        local r = (percent > 50 and 1 - 2 * (percent - 50) / 100.0 or 1.0);
+        local g = (percent > 50 and 1.0 or 2 * percent / 100.0);
+        local b = 0.0;
+    
+        return r, g, b;
+    end
 end
 
 function addon.LogDebugMessage(debugType, debugMessage, debugTooltip)

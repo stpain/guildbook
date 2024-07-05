@@ -1,5 +1,12 @@
 <UI>
 
+    
+    <Button name="GuildbookMacroButton" inherits="SecureActionButtonTemplate" registerForClicks="AnyDown" virtual="true">
+        <Attributes>
+            <Attribute name="type1" value="macro" />
+          </Attributes>        
+    </Button>
+
     <Frame name="GuildbookTextWidget" inherits="ScrollingFontTemplate" virtual="true">
         <KeyValues>
             <KeyValue key="fontName" value="GameFontWhite"/>
