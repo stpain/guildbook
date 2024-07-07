@@ -151,7 +151,7 @@ function Database:Init()
 
     self.charDb = GUILDBOOK_CHARACTER;
 
-    self:RemoveRedundantGuildSavedVaariableFields()
+    self:TidyUpGuildTables()
 
 
     --update myCharacters to tables
@@ -170,13 +170,19 @@ function Database:Init()
     addon:TriggerEvent("Database_OnInitialised")
 end
 
-function Database:RemoveRedundantGuildSavedVaariableFields()
+function Database:TidyUpGuildTables()
     if self.db then
         for guildName, guild in pairs(self.db.guilds) do
             guild.info = nil
             guild.calendar = nil
             guild.banks = nil
             guild.bankRules = nil
+
+
+            --update the recruitment while here
+            if not guild.recruitment then
+                guild.recruitment = {}
+            end
         end
     end
 end
@@ -457,7 +463,18 @@ function Database:GetCharacterAlts(mainCharacter)
     return alts;
 end
 
+function Database:AddGuildRecruitmentMessage(guild, msg)
+    if self.db and self.db.guilds and self.db.guilds[guild] and self.db.guilds[guild].recruitment then
+        table.insert(self.db.guilds[guild].recruitment, msg)
+        addon:TriggerEvent("Database_OnGuildRecruitmentLogChanged")
+    end
+end
 
+function Database:GetGuildRecruitmentHistory(guild)
+    if self.db and self.db.guilds and self.db.guilds[guild] and self.db.guilds[guild].recruitment then
+        return self.db.guilds[guild].recruitment;
+    end
+end
 
 function Database:InsertRecruitmentCSV(csv)
     if self.db and self.db.recruitment then

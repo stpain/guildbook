@@ -11,6 +11,26 @@
         </Frames>
     </Frame>
 
+    <Frame name="GuildbookGuildManagementChatChannelListviewItemTemplate" mixin="GuildbookGuildManagementChatChannelListviewItemMixin" virtual="true">
+        <Layers>
+            <Layer level="OVERLAY">
+                <FontString parentKey="label" inherits="GameFontWhite" justifyH="LEFT">
+                    <Anchors>
+                        <Anchor point="LEFT" x="10" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Button parentKey="sendMessage" inherits="UIPanelButtonTemplate" text="Send message">
+                <Anchors>
+                    <Anchor point="RIGHT" x="-10" y="0"/>
+                </Anchors>
+                <Size x="120" y="24"/>
+            </Button>
+        </Frames>
+    </Frame>
+
     <Frame name="GuildbookGuildManagement" mixin="GuildbookGuildManagementMixin">
 
 
@@ -49,7 +69,7 @@
                     </Layer>
                 </Layers>
                 <Anchors>
-                    <Anchor point="TOPLEFT" x="0" y="-60"/>
+                    <Anchor point="TOPLEFT" x="0" y="-30"/>
                     <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
                 </Anchors>
 
@@ -181,10 +201,19 @@
                                     <KeyValue key="elementHeight" value="22" type="number"/>
                                     <KeyValue key="enableSelection" value="false" type="boolean"/>
                                 </KeyValues>
+                                <Layers>
+                                    <Layer level="OVERLAY">
+                                        <FontString parentKey="header" inherits="GameFontNormal" text="Click to ignore characters" justifyH="LEFT">
+                                            <Anchors>
+                                                <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="8" y="4"/>
+                                            </Anchors>
+                                        </FontString>
+                                    </Layer>
+                                </Layers>
                             </Frame>
                             <Frame parentKey="ignoreListview" inherits="TBDListviewTemplate">
                                 <Anchors>
-                                    <Anchor point="TOPLEFT" relativeKey="$parent.listview" relativePoint="TOPRIGHT" x="20" y="-40"/>
+                                    <Anchor point="TOPLEFT" relativeKey="$parent.listview" relativePoint="TOPRIGHT" x="20" y="-10"/>
                                     <Anchor point="BOTTOMLEFT" relativeKey="$parent.listview" relativePoint="BOTTOMRIGHT" x="20" y="20"/>
                                 </Anchors>
                                 <Size x="200"/>
@@ -217,14 +246,14 @@
                                         <Anchor point="BOTTOMRIGHT" x="-10" y="10"/>
                                     </Anchors>
                                 </FontString>
-                                <FontString parentKey="ignoreHeader" inherits="GameFontNormal" text="IGNORE">
+                                <FontString parentKey="ignoreHeader" inherits="GameFontNormal" text="Ignoring\nClick to remove characters" justifyH="LEFT">
                                     <Anchors>
-                                        <Anchor point="BOTTOMLEFT" relativeKey="$parent.ignoreListview" relativePoint="TOPLEFT" x="0" y="10"/>
+                                        <Anchor point="BOTTOMLEFT" relativeKey="$parent.ignoreListview" relativePoint="TOPLEFT" x="0" y="14"/>
                                     </Anchors>
                                 </FontString>
-                                <FontString parentKey="ignoreHeader" inherits="GameFontNormal" text="MACRO">
+                                <FontString parentKey="macroHeader" inherits="GameFontNormal" text="MACRO">
                                     <Anchors>
-                                        <Anchor point="BOTTOMLEFT" relativeKey="$parent.macroText" relativePoint="TOPLEFT" x="0" y="10"/>
+                                        <Anchor point="BOTTOMLEFT" relativeKey="$parent.macroText" relativePoint="TOPLEFT" x="0" y="14"/>
                                     </Anchors>
                                 </FontString>
                             </Layer>
@@ -243,8 +272,73 @@
                             </Layer>
                         </Layers>
                         <Frames>
+
+                            <ScrollFrame parentKey="inviteMessageInput" inherits="InputScrollFrameTemplate">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="20" y="-60"/>
+                                </Anchors>
+                                <Size x="360" y="40"/>
+                                <Layers>
+                                    <Layer level="OVERLAY">
+                                        <FontString parentKey="header" inherits="GameFontNormalLarge" text="Who and Whispers">
+                                            <Anchors>
+                                                <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="-12" y="8"/>
+                                            </Anchors>
+                                        </FontString>
+                                    </Layer>
+                                </Layers>
+                            </ScrollFrame>
+
+                            <ScrollFrame parentKey="recruitmentMessageInput" inherits="InputScrollFrameTemplate">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="435" y="-60"/>
+                                    <Anchor point="TOPRIGHT" x="-40" y="-60"/>
+                                </Anchors>
+                                <Size y="40"/>
+                                <Layers>
+                                    <Layer level="OVERLAY">
+                                        <FontString parentKey="header" inherits="GameFontNormalLarge" text="Chat Channels">
+                                            <Anchors>
+                                                <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="-12" y="8"/>
+                                            </Anchors>
+                                        </FontString>
+                                    </Layer>
+                                </Layers>
+                            </ScrollFrame>
+
+                            <Frame parentKey="chatChannels" inherits="TBDListviewTemplate">
+                                <Size y="110"/>
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" relativeKey="$parent.recruitmentMessageInput" relativePoint="BOTTOMLEFT" x="-8" y="-10"/>
+                                    <Anchor point="TOPRIGHT" relativeKey="$parent.recruitmentMessageInput" relativePoint="BOTTOMRIGHT" x="8" y="-10"/>
+                                </Anchors>
+                                <KeyValues>
+                                    <KeyValue key="itemTemplate" value="GuildbookGuildManagementChatChannelListviewItemTemplate" type="string"/>
+                                    <KeyValue key="elementHeight" value="24" type="number"/>
+                                    <KeyValue key="enableSelection" value="false" type="boolean"/>
+                                </KeyValues>
+                                <Layers>
+                                    <Layer level="OVERLAY">
+                                        <Texture parentKey="divider" atlas="Options_HorizontalDivider">
+                                            <Size y="1"/>
+                                            <Anchors>
+                                                <Anchor point="TOPLEFT" relativeKey="$parent.$parent.recruitmentMessageInput" relativePoint="BOTTOMLEFT" x="20" y="-120"/>
+                                                <Anchor point="TOPRIGHT" relativeKey="$parent.$parent.recruitmentMessageInput" relativePoint="BOTTOMRIGHT" x="-20" y="-120"/>
+                                            </Anchors>
+                                        </Texture>
+                                    </Layer>
+                                </Layers>
+                            </Frame>
+
+                            <Button parentKey="sendRecruitmentMessage" inherits="GuildbookMacroButton, UIPanelButtonTemplate" text="Send messages" hidden="true">
+                                <Anchors>
+                                    <Anchor point="TOPRIGHT" x="-40" y="-230"/>
+                                </Anchors>
+                                <Size x="120" y="24"/>
+                            </Button>
+
                             <Frame parentKey="classListContainer" inherits="TBDListviewTemplate">
-                                <Size x="200"/>
+                                <Size x="170"/>
                                 <KeyValues>
                                     <KeyValue key="itemTemplate" value="TBDSimpleIconLabelFrame" type="string"/>
                                     <KeyValue key="elementHeight" value="26" type="number"/>
@@ -252,43 +346,72 @@
                                 </KeyValues>
                                 <Layers>
                                     <Layer level="OVERLAY">
-                                        <FontString parentKey="header" inherits="GameFontNormal" text="Select Class (/who class)">
+                                        <FontString parentKey="header" inherits="GameFontNormalSmall" text="Select Class (/who class)">
                                             <Anchors>
-                                                <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="4" y="4"/>
+                                                <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="8" y="4"/>
                                             </Anchors>
                                         </FontString>
+                                        <Texture parentKey="divider" atlas="Options_HorizontalDivider">
+                                            <Size x="1"/>
+                                            <Anchors>
+                                                <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="0" y="-20"/>
+                                                <Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" x="0" y="20"/>
+                                            </Anchors>
+                                        </Texture>
                                     </Layer>
                                 </Layers>
                             </Frame>
                             <Frame parentKey="whoResultsListview" inherits="TBDListviewTemplate">
                                 <Anchors>
-                                    <Anchor point="TOPLEFT" x="220" y="-130"/>
-                                    <Anchor point="BOTTOMRIGHT" x="-20" y="20"/>
+                                    <Anchor point="TOPLEFT" relativeKey="$parent.classListContainer" relativePoint="TOPRIGHT" x="10" y="0"/>
+                                    <Anchor point="BOTTOMLEFT" relativeKey="$parent.classListContainer" relativePoint="BOTTOMRIGHT" x="10" y="0"/>
                                 </Anchors>
-                                <Size x="200"/>
+                                <Size x="220"/>
                                 <KeyValues>
                                     <KeyValue key="itemTemplate" value="TBDSimpleIconLabelFrame" type="string"/>
-                                    <KeyValue key="elementHeight" value="22" type="number"/>
+                                    <KeyValue key="elementHeight" value="20" type="number"/>
                                     <KeyValue key="enableSelection" value="false" type="boolean"/>
                                 </KeyValues>
                                 <Layers>
                                     <Layer level="OVERLAY">
-                                        <FontString parentKey="header" inherits="GameFontNormal" text="Characters not in a guild">
+                                        <FontString parentKey="header" inherits="GameFontNormalSmall" text="Characters not in a guild">
                                             <Anchors>
-                                                <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="4" y="4"/>
+                                                <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="8" y="4"/>
+                                            </Anchors>
+                                        </FontString>
+                                        <Texture parentKey="divider" atlas="Options_HorizontalDivider">
+                                            <Size x="1"/>
+                                            <Anchors>
+                                                <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="6" y="70"/>
+                                                <Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" x="6" y="20"/>
+                                            </Anchors>
+                                        </Texture>
+                                    </Layer>
+                                </Layers>
+                            </Frame>
+
+                            <Frame parentKey="recruitmentHistory" inherits="TBDTreeviewTemplate">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" relativeKey="$parent.chatChannels" relativePoint="BOTTOMLEFT" x="0" y="-30"/>
+                                    <Anchor point="BOTTOMRIGHT" x="-10" y="10"/>
+                                </Anchors>
+                                <Size x="220"/>
+                                <KeyValues>
+                                    <KeyValue key="itemTemplate" value="TBDSimpleIconLabelFrame" type="string"/>
+                                    <KeyValue key="elementHeight" value="20" type="number"/>
+                                    <KeyValue key="enableSelection" value="false" type="boolean"/>
+                                </KeyValues>
+                                <Layers>
+                                    <Layer level="OVERLAY">
+                                        <FontString parentKey="header" inherits="GameFontNormalLarge" text="History">
+                                            <Anchors>
+                                                <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="8" y="4"/>
                                             </Anchors>
                                         </FontString>
                                     </Layer>
                                 </Layers>
                             </Frame>
 
-                            <ScrollFrame parentKey="inviteMessageInput" inherits="InputScrollFrameTemplate">
-                                <Anchors>
-                                    <Anchor point="TOPLEFT" x="240" y="-50"/>
-                                    <Anchor point="TOPRIGHT" x="-40" y="-50"/>
-                                </Anchors>
-                                <Size y="40"/>
-                            </ScrollFrame>
                         </Frames>
                     </Frame>
                 </Frames>

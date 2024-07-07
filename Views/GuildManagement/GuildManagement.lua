@@ -10,6 +10,40 @@ local L = addon.Locales;
 
 local GUILD_MEMBERS = {}
 local GUILD_MEMBERS_IGNORE_REMOVE = {}
+local GUILD_RECRUITMENT_HISTORY = {}
+local GUILD_RECRUITMENT_MESSAGE_EVENTS = {
+    [1] = "whispered",
+    [2] = "invited",
+}
+
+
+GuildbookGuildManagementChatChannelListviewItemMixin = {}
+function GuildbookGuildManagementChatChannelListviewItemMixin:OnLoad()
+
+end
+function GuildbookGuildManagementChatChannelListviewItemMixin:SetDataBinding(binding, height)
+    self.label:SetText(binding.name)
+
+    if binding.disabled == true then
+        self.sendMessage:Disable()
+    else
+        self.sendMessage:Enable()
+        self.sendMessage:SetScript("OnClick", function()
+            local msg = binding.editbox:GetText()
+            if (#msg > 0) and (#msg < 255) then
+                SendChatMessage(msg, "CHANNEL", nil, binding.channelID)
+            end
+        end)
+    end
+    
+end
+function GuildbookGuildManagementChatChannelListviewItemMixin:ResetDataBinding()
+    self.sendMessage:SetScript("OnClick", nil)
+    self.sendMessage:Disable()
+end
+
+
+
 
 GuildbookGuildManagementMixin = {
     name = "GuildManagement"
@@ -52,6 +86,7 @@ function GuildbookGuildManagementMixin:OnLoad()
 
     --addon:RegisterCallback("Blizzard_OnGuildRankUpdate", self.LoadLog, self)
     addon:RegisterCallback("Blizzard_OnGuildRosterUpdate", self.LoadLog, self)
+    addon:RegisterCallback("Database_OnGuildRecruitmentLogChanged", self.OnGuildRecruitmentLogChanged, self)
 
     self.tabContainer.log.filterTypeValue = false
     self.tabContainer.log.searchBox:SetScript("OnTextChanged", function()
@@ -128,6 +163,9 @@ function GuildbookGuildManagementMixin:OnLoad()
     NineSliceUtil.ApplyLayout(self.tabContainer.absent.ignoreListview, addon.api.getNineSliceTooltipBorder(10))
     NineSliceUtil.ApplyLayout(self.tabContainer.absent.macroText, addon.api.getNineSliceTooltipBorder(10))
 
+    self.tabContainer.absent.ignoreHeader:SetText(string.format("%s\nClick to remove", IGNORE))
+    self.tabContainer.absent.listview.header:SetText(string.format("Absent\nClick to ignore"))
+
     self.tabContainer.absent.numDaysAfkSlider.label:SetText("Days absent")
     self.tabContainer.absent.numDaysAfkSlider:SetMinMaxValues(7, 365)
     self.tabContainer.absent.numDaysAfkSlider:SetScript("OnMouseWheel", function(slider, delta)
@@ -157,7 +195,7 @@ function GuildbookGuildManagementMixin:OnShow()
     -- self.characters:SetPoint("BOTTOMLEFT", 0, 0)
 
     self.tabContainer:ClearAllPoints()
-    self.tabContainer:SetPoint("TOPLEFT", 0, -60)
+    self.tabContainer:SetPoint("TOPLEFT", 0, -30)
     self.tabContainer:SetPoint("BOTTOMRIGHT", 0, 0)
 
     self.tabContainer.editCharacter.characters:ClearAllPoints()
@@ -169,12 +207,15 @@ function GuildbookGuildManagementMixin:OnShow()
     self.tabContainer.log.listview:SetPoint("BOTTOMRIGHT", 0, 0)
 
     self.tabContainer.absent.listview:ClearAllPoints()
-    self.tabContainer.absent.listview:SetPoint("TOPLEFT", 0, -30)
+    self.tabContainer.absent.listview:SetPoint("TOPLEFT", 0, -70)
     self.tabContainer.absent.listview:SetPoint("BOTTOMLEFT", 0, 0)
 
     self.tabContainer.invites.classListContainer:ClearAllPoints()
-    self.tabContainer.invites.classListContainer:SetPoint("TOPLEFT", 0, -60)
+    self.tabContainer.invites.classListContainer:SetPoint("TOPLEFT", 0, -140)
     self.tabContainer.invites.classListContainer:SetPoint("BOTTOMLEFT", 0, 0)
+
+    self.tabContainer.invites.classListContainer.divider:SetTexCoord(0,1, 1,1, 0,0, 1,0)
+    self.tabContainer.invites.whoResultsListview.divider:SetTexCoord(0,1, 1,1, 0,0, 1,0)
 
     self:LoadCharacters(addon.thisGuild)
 
@@ -935,24 +976,72 @@ function GuildbookGuildManagementMixin:UpdateIgnoreRemoveList(name)
 end
 
 
+function GuildbookGuildManagementMixin:GetCurrentChatChannels()
 
+    local t = {}
+    
+    local channels = {GetChannelList()}
+    for i = 1, #channels, 3 do
+        local id, name, disabled = channels[i], channels[i+1], channels[i+2]
+        --print(id, name, disabled)
+
+        table.insert(t, {
+            name = name,
+            channelID = id,
+            disabled = disabled,
+            editbox = self.tabContainer.invites.recruitmentMessageInput.EditBox,
+
+            onClick = function()
+                self:UpdateRecruitmentMacro()
+            end,
+        })
+
+        --ListChannelByName(channelID)
+        local name, header, collapsed, channelNumber, count, active, category, voiceEnabled, voiceActive = GetChannelDisplayInfo(id)
+        --print(name, channelNumber, count)
+    end
+
+    self.tabContainer.invites.chatChannels.scrollView:SetDataProvider(CreateDataProvider(t))
+
+    --chatChannelTrade
+
+    -- for i = 1, GetNumDisplayChannels() do
+    --     local name, header, collapsed, channelNumber, count, active, category, voiceEnabled, voiceActive = GetChannelDisplayInfo(i)
+
+    -- end
+
+    --chatChannels
+
+end
 
 
 function GuildbookGuildManagementMixin:SetupInvitesUI()
 
+    self.tabContainer.invites:SetScript("OnShow", function()
+        self:GetCurrentChatChannels()
+        self:OnGuildRecruitmentLogChanged()
+    end)
+
+    self.tabContainer.invites.sendRecruitmentMessage:SetScript("OnClick", function()
+        self:UpdateRecruitmentMacro()
+    end)
+
     self.tabContainer.invites.header:SetText(L.INVITES_HEADER)
 
-    self.tabContainer.invites.inviteMessageInput.EditBox:SetFontObject("GameFontWhite")
-    self.tabContainer.invites.inviteMessageInput.EditBox:SetMaxLetters(255)
-    self.tabContainer.invites.inviteMessageInput.CharCount:SetShown(true);
-    self.tabContainer.invites.inviteMessageInput.EditBox:ClearAllPoints()
-    self.tabContainer.invites.inviteMessageInput.EditBox:SetPoint("TOPLEFT", self.tabContainer.invites.inviteMessageInput, "TOPLEFT", 0, 0)
-    self.tabContainer.invites.inviteMessageInput.EditBox:SetPoint("BOTTOMRIGHT", self.tabContainer.invites.inviteMessageInput, "BOTTOMRIGHT", 0, 0)
-    self.tabContainer.invites.inviteMessageInput.ScrollBar:ClearAllPoints()
-    self.tabContainer.invites.inviteMessageInput.ScrollBar:SetPoint("TOPRIGHT", self.tabContainer.invites.inviteMessageInput, "TOPRIGHT", 4, 0)
-    self.tabContainer.invites.inviteMessageInput.ScrollBar:SetPoint("BOTTOMRIGHT", self.tabContainer.invites.inviteMessageInput, "BOTTOMRIGHT", 0, -4)
+    for _, editbox in pairs({"inviteMessageInput", "recruitmentMessageInput"}) do
+        self.tabContainer.invites[editbox].EditBox:SetFontObject("GameFontWhite")
+        self.tabContainer.invites[editbox].EditBox:SetMaxLetters(255)
+        self.tabContainer.invites[editbox].CharCount:SetShown(true);
+        self.tabContainer.invites[editbox].EditBox:ClearAllPoints()
+        self.tabContainer.invites[editbox].EditBox:SetPoint("TOPLEFT", self.tabContainer.invites[editbox], "TOPLEFT", 0, 0)
+        self.tabContainer.invites[editbox].EditBox:SetPoint("BOTTOMRIGHT", self.tabContainer.invites[editbox], "BOTTOMRIGHT", 0, 0)
+        self.tabContainer.invites[editbox].ScrollBar:ClearAllPoints()
+        self.tabContainer.invites[editbox].ScrollBar:SetPoint("TOPRIGHT", self.tabContainer.invites[editbox], "TOPRIGHT", 4, 0)
+        self.tabContainer.invites[editbox].ScrollBar:SetPoint("BOTTOMRIGHT", self.tabContainer.invites[editbox], "BOTTOMRIGHT", 0, -4) 
+    end
 
-    self.tabContainer.invites.inviteMessageInput.EditBox:SetText("Enter your invite message here.")
+    self.tabContainer.invites.inviteMessageInput.EditBox:SetText(L.ENTER_YOUR_MESSAGE_HERE)
+    self.tabContainer.invites.recruitmentMessageInput.EditBox:SetText(L.ENTER_YOUR_MESSAGE_HERE)
     
     local rowIndex = 0;
     local t = {}
@@ -994,7 +1083,15 @@ function GuildbookGuildManagementMixin:OnWhoUpdateEvent()
         if character.fullGuildName == "" or character.fullGuildName == nil then
             table.insert(t, {
                 label = character.fullName,
-                labelRight = string.format("%s %s %s", LEVEL, character.level, character.raceStr),
+                labelRight = string.format("%s %s", LEVEL, character.level),
+
+                -- rightButton = {
+                --     atlas = "transmog-icon-chat", --voicechat-icon-STT
+                --     size = {12, 12},
+                --     onClick = function()
+                --         print(character.fullName)
+                --     end,
+                -- },
 
                 backgroundRGB = { r = 0.5, b = 0.5, g = 0.5, },
 
@@ -1006,12 +1103,21 @@ function GuildbookGuildManagementMixin:OnWhoUpdateEvent()
                     GameTooltip:AddLine(LEVEL.." "..character.level, 1,1,1)
                     GameTooltip:AddLine(character.area, 1,1,1)
                     --GameTooltip:AddLine(GUILD.. " "..character.fullGuildName, 1,1,1)
+
+                    if GUILD_RECRUITMENT_HISTORY[character.fullName] then
+                        GameTooltip:AddLine(" ")
+                        GameTooltip:AddLine("You have interacted with this player before!")
+                    end
+
                     GameTooltip:AddLine(" ")
                     GameTooltip:AddLine("|cffffffffShift click to whisper your invite message.|r Be polite!")
                     GameTooltip:Show()
                 end,
 
                 onMouseDown = function(f, button)
+
+                    --Database:AddGuildRecruitmentMessage(addon.thisGuild, string.format("%s:%s:%s:%s:%s", character.fullName, character.filename, character.level, time(), 1))
+
                     if IsShiftKeyDown() then
                         local msg = self.tabContainer.invites.inviteMessageInput.EditBox:GetText()
                         if (#msg > 0) and (#msg < 255) then
@@ -1020,6 +1126,7 @@ function GuildbookGuildManagementMixin:OnWhoUpdateEvent()
                             local isChatLogged = LoggingChat()
                             LoggingChat(true)
                             SendChatMessage(msg, "WHISPER", nil, character.fullName)
+                            Database:AddGuildRecruitmentMessage(addon.thisGuild, string.format("%s:%s:%s:%s:%s", character.fullName, character.filename, character.level, time(), 1))
                             LoggingChat(isChatLogged)
                         end
                     end
@@ -1053,11 +1160,63 @@ function GuildbookGuildManagementMixin:OnWhoUpdateEvent()
     self:UnregisterEvent("WHO_LIST_UPDATE")
 end
 
-
+function GuildbookGuildManagementMixin:UpdateRecruitmentMacro()
+    local macro = "";
+    local msg = self.tabContainer.invites.recruitmentMessageInput.EditBox:GetText()
+    if (#msg > 0) and (#msg < 255) then
+        self.tabContainer.invites.chatChannels.scrollView:ForEachFrame(function(f)
+            local data = f:GetData()
+            --DevTools_Dump(data)
+            --DevTools_Dump(f)
+            if (data.disabled == false) and (type(data.channelID) == "number") and (f.checkbutton:GetChecked() == true) then
+                macro = string.format("%s/%d %s\n", macro, data.channelID, msg)
+            end
+        end)
+    end
+    --self.tabContainer.invites.sendRecruitmentMessage:SetAttribute("macrotext1", macro)
+    print(macro)
+end
 
 function GuildbookGuildManagementMixin:SendWhoRequest(who)
     FriendsFrame:UnregisterEvent("WHO_LIST_UPDATE")
     self:RegisterEvent("WHO_LIST_UPDATE")
     C_FriendList.SetWhoToUi(true)
     C_FriendList.SendWho(who)
+end
+
+
+
+function GuildbookGuildManagementMixin:OnGuildRecruitmentLogChanged()
+    
+    local log = Database:GetGuildRecruitmentHistory(addon.thisGuild)
+
+    self.recruitmentDataProvider = CreateTreeDataProvider()
+    self.tabContainer.invites.recruitmentHistory.scrollView:SetDataProvider(self.recruitmentDataProvider)
+
+    GUILD_RECRUITMENT_HISTORY = {}
+
+    for _, msg in ipairs(log) do
+        
+        local name, class, level, timestamp, event = strsplit(":", msg)
+        event = tonumber(event)
+
+        if not GUILD_RECRUITMENT_HISTORY[name] then
+            GUILD_RECRUITMENT_HISTORY[name] = self.recruitmentDataProvider:Insert({
+                label = RAID_CLASS_COLORS[class]:WrapTextInColorCode(name),
+                atlas = "common-icon-forwardarrow",
+                backgroundAtlas = "OBJBonusBar-Top",
+                isParent = true,
+            })
+        end
+
+        GUILD_RECRUITMENT_HISTORY[name]:Insert({
+            label = string.format("%s %s", date("%Y-%m-%d %H:%M:%S", timestamp), GUILD_RECRUITMENT_MESSAGE_EVENTS[event])
+        })
+
+
+        GUILD_RECRUITMENT_HISTORY[name]:ToggleCollapsed()
+
+    end
+
+
 end

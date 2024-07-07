@@ -180,6 +180,14 @@
         "DAYS_ABBR",
         "D_DAYS",
         "StaticPopup1Button1",
-        "LEVEL"
+        "LEVEL",
+        "IGNORE",
+        "WORLD",
+        "LOOKING",
+        "LOOKING_FOR",
+        "LOOKING_FOR_GROUP_TEXT",
+        "LOOKING_FOR_GROUP_LABEL",
+        "GENERAL",
+        "LOOKING_FOR_MORE"
     ]
 }

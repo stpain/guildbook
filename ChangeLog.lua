@@ -21,6 +21,11 @@ local name, addon = ...;
 
 addon.changeLog = {
     {
+        version = "7.42",
+        notes = "Guild management!\nImproved the invites tab, added general chat channel options and a history view for players contacted.",
+        icon = "ClassHall-QuestIcon-Desaturated",
+    },
+    {
         version = "7.41",
         notes = "Guild management!\n\nAdded absent tab, view characters absence, filter by rank and days absent. You can add and remove players to a temp ignore list to create the desired remove macro.\n\nAdded invite tab, select the class you want to look for. This uses the in game /who feature and is therefore bound by its restrictions as well. You'll see a list of guildless characters whom you can whisper your invite message.",
         icon = "ClassHall-QuestIcon-Desaturated",

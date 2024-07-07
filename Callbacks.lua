@@ -12,6 +12,8 @@ addon:GenerateCallbackEvents({
     "Database_OnCalendarDataChanged",
     "Database_OnNewsEventAdded",
 
+    "Database_OnGuildRecruitmentLogChanged",
+
     "Database_OnItemListChanged",
     "Database_OnItemListItemAdded",
     "Database_OnItemListItemRemoved",

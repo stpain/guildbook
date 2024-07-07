@@ -597,8 +597,8 @@ function e:GUILD_ROSTER_UPDATE()
                 -- bankRules = {},
                 logs = {
                     general = {},
-                    members = {}, --use this for people joining/leaving the guild
-                    promotions = {}, --use this for members being promoted/demoted
+                    --members = {}, --use this for people joining/leaving the guild
+                    --promotions = {}, --use this for members being promoted/demoted
                     --guildbank = {}, --use this for guild bank withdraw etc
                 },
                 info = {},

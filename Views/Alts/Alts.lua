@@ -653,8 +653,8 @@ function GuildbookAltsMixin:OnLoad()
     }
     self.tabContainer:CreateTabButtons(tabs)
 
-    self.tabContainer:SetPoint("TOPLEFT", 4, -60)
-    self.tabContainer:SetPoint("BOTTOMRIGHT", -4, 4)
+    self.tabContainer:SetPoint("TOPLEFT", 0, -30)
+    self.tabContainer:SetPoint("BOTTOMRIGHT", -0, 0)
 
     for _, name in ipairs(tabFrameNames) do
         self.tabContainer[name]:SetAllPoints()

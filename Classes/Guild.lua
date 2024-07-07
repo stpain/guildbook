@@ -1,4 +1,4 @@
-local name, addon = ...;
+local addonName, addon = ...;
 
 local Database = addon.Database;
 local Character = addon.Character;
@@ -14,7 +14,22 @@ function Guild:New(name)
         },
         banks = {},
     }
+
+    if Database and Database.db and Database.db.guilds[name] and Database.db.guilds[name].members and Database.db.characterDirectory then
+        for nameRealm, _ in pairs(Database.db.guilds[name].members) do
+            if Database.db.characterDirectory[nameRealm] then
+                guild.members[nameRealm] = Character:New(Database.db.characterDirectory[nameRealm])
+            end
+        end
+    end
+
+
+
     return Mixin(guild, self)
+end
+
+function Guild:LogRecruitment(msg)
+    
 end
 
 function Guild:GetMembers()
@@ -37,18 +52,6 @@ function Guild:SetCalendar(cal)
     self.calendar = cal;
 end
 
-function Guild:SetMembers(members)
-    self.members = members;
-end
 
-function Guild:LoadCharactersFromDirectory()
-
-    if self.members then
-        for nameRealm, bool in pairs(self.members) do
-            
-        end
-    end
-
-end
 
 addon.Guild = Guild;
