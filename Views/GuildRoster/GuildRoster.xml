@@ -41,7 +41,7 @@
             </CheckButton>
             <CheckButton parentKey="showMyCharactersCheckbox" inherits = "GuildbookWrathEraWidgetsCheckButton">
                 <Anchors>
-                    <Anchor point="TOPRIGHT" x="-270" y="-4"/>
+                    <Anchor point="TOPRIGHT" x="-250" y="-4"/>
                 </Anchors>
             </CheckButton>
             <Frame parentKey="rosterListview" inherits = "GuildbookWrathEraWidgetsListviewTemplate">

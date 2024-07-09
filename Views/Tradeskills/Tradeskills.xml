@@ -1,4 +1,25 @@
 <Ui>
+
+    <Button name="MillingMacroButton" mixin="MillingMacroButtonMixin" inherits="GuildbookMacroButton" virtual="true">
+        <Layers>
+            <Layer level="ARTWORK">
+                <Texture parentKey="icon">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="0" y="0"/>
+                        <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer levl="OVERLAY">
+                <FontString parentKey="text" inherits="GameFontHighlightLarge">
+                    <Anchors>
+                        <Anchor point="BOTTOMRIGHT" x="-4" y="4"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+    </Button>
+
     <Frame name="GuildbookTradskills" mixin="GuildbookTradskillsMixin">
 
         <Layers>
@@ -111,6 +132,98 @@
                         </FontString>
                     </Layer>
                 </Layers>
+            </Frame>
+
+            <Frame parentKey="milling" inherits="InsetFrameTemplate" hidden="true">
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="270" y="-40"/>
+                    <Anchor point="BOTTOMRIGHT" x="-4" y="4"/>
+                </Anchors>
+
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="background" file="Interface\AddOns\Guildbook\Media\Tradeskills\ProfessionBackgroundArtHerbalism.png">
+                            <TexCoords left="0" right="0.6601" top="0" bottom="0.5361"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="0" y="0"/>
+                                <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+
+                <Frames>
+                    <Button parentKey="itemButton" inherits="TBDCircleButtonTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" x="14" y="-14"/>
+                        </Anchors>
+                        <Size x="120" y="120"/>
+
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <FontString parentKey="link" inherits="GameFontNormalLarge">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="0" y="-16"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                    </Button>
+
+                    <Button parentKey="searchAH" inherits="UIPanelButtonTemplate" text="SEARCH">
+                        <Anchors>
+                            <Anchor point="TOPRIGHT" x="-14" y="-110"/>
+                        </Anchors>
+                        <Size x="120" y="24"/>
+                    </Button>
+
+                    <Frame parentKey="sources" inherits="TBDListviewTemplate">
+                        <Size x="260"/>
+                        <Anchors>
+                            <Anchor point="TOPLEFT" x="26" y="-154"/>
+                            <Anchor point="BOTTOMLEFT" x="26" y="36"/>
+                        </Anchors>
+                        <KeyValues>
+                            <KeyValue key="itemTemplate" value="TBDSimpleIconLabelFrame" type="string"/>
+                            <KeyValue key="elementHeight" value="40" type="number"/>
+                            <!-- <KeyValue key="enableSelection" value="true" type="boolean"/> -->
+                        </KeyValues>
+
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <FontString inherits="GameFontNormalSmall" text="Sources">
+                                    <Anchors>
+                                        <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="0" y="4"/>
+                                    </Anchors>
+                                </FontString>
+
+                                <Texture parentKey="divider" atlas="Options_HorizontalDivider">
+                                    <Size x="1"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="0" y="0"/>
+                                        <Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                    </Frame>
+
+                    <ScrollFrame parentKey="playerReagentsGridview" inherits="TBDGridviewTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeKey="$parent.sources" relativePoint="TOPRIGHT" x="40" y="0"/>
+                            <Anchor point="BOTTOMRIGHT" x="-40" y="40"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <FontString inherits="GameFontNormalSmall" text="Herbs available in bags (requires stacks of 5)">
+                                    <Anchors>
+                                        <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="0" y="4"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                    </ScrollFrame>
+                </Frames>
             </Frame>
 
             <Frame parentKey="details" inherits="InsetFrameTemplate" hidden="true">

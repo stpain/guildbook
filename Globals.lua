@@ -155,11 +155,13 @@ addon.paperDollSlotNames = {
 local ignoreEnchantSlotIDs = {
     [true] = {
         [2] = true,
+        [6] = true,
         [13] = true,
         [14] = true,
     },
     [false] = {
         [2] = true,
+        [6] = true,
         [11] = true,
         [12] = true,
         [13] = true,

@@ -188,6 +188,7 @@
         "LOOKING_FOR_GROUP_TEXT",
         "LOOKING_FOR_GROUP_LABEL",
         "GENERAL",
-        "LOOKING_FOR_MORE"
+        "LOOKING_FOR_MORE",
+        "SOURCES"
     ]
 }

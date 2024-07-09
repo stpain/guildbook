@@ -21,6 +21,11 @@ local name, addon = ...;
 
 addon.changeLog = {
     {
+        version = "7.43",
+        notes = "Milling\nAdding a milling option to the tradeskill view for all the scribes out there.",
+        icon = "ClassHall-QuestIcon-Desaturated",
+    },
+    {
         version = "7.42",
         notes = "Guild management!\nImproved the invites tab, added general chat channel options and a history view for players contacted.",
         icon = "ClassHall-QuestIcon-Desaturated",

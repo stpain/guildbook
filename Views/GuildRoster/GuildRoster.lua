@@ -98,31 +98,15 @@ end
 
 function GuildbookGuildRosterMixin:Update(classID, minLevel, maxLevel)
 
-    --these filters seemed to cause lag on the UI so just checking data directly instead
-
-    -- local function generateClassFilter()
+    -- local function filterRoster(key, val)
     --     return function(character)
-    --         if self.selectedClass then
-    --             if character.data.class == self.selectedClass then
-    --                 return true
+    --         if character.data[key] then
+    --             if character.data[key] == val then
+    --                 return true;
     --             end
-    --         else
-    --             return true
     --         end
     --     end
     -- end
-    -- local function generateLevelFilter()
-    --     return function(character)
-    --         if (character.data.level >= self.selectedMinLevel) and (character.data.level <= self.selectedMaxLevel) then
-    --             return true
-    --         end
-    --     end
-    -- end
-
-    -- local filters = {
-    --     generateClassFilter(),
-    --     generateLevelFilter(),
-    -- }
 
     if classID then
         self.selectedClass = classID
@@ -175,10 +159,10 @@ function GuildbookGuildRosterMixin:Update(classID, minLevel, maxLevel)
 
     table.sort(t, function(a, b)
         if a.data.level == b.data.level then
-            if a.data.class == b.data.class then
-                return a.data.name < b.data.name
-            else
+            if a.data.onlineStatus.zone == b.data.onlineStatus.zone then
                 return a.data.class < b.data.class
+            else
+                return a.data.onlineStatus.zone < b.data.onlineStatus.zone
             end
         else
             return a.data.level > b.data.level
@@ -198,16 +182,6 @@ function GuildbookGuildRosterMixin:Update(classID, minLevel, maxLevel)
     local dp = CreateDataProvider(t)
     self.rosterListview.scrollView:SetDataProvider(dp)
 
-    -- local i = 0;
-    -- self.rosterListview.scrollView:ForEachFrame(function(f, d)
-    --     if (i % 2 == 0) then
-    --         f.background:Show()
-    --     else
-    --         f.background:Hide()
-    --     end
-    --     i = i + 1;
-    -- end)
-
 end
 
 function GuildbookGuildRosterMixin:Blizzard_OnGuildRosterUpdate()
@@ -216,6 +190,4 @@ end
 
 function GuildbookGuildRosterMixin:OnShow()
     GuildRoster() --this will trigger a callback to self:Update
-
-    --self:Update()
 end

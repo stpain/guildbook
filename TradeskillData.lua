@@ -18706,3 +18706,809 @@ addon.tradeskillData.spellIdToTradeskillId = {
     [423869] = 777,
     [440915] = 777,
 }
+
+
+addon.tradeskillData.pigments = {
+    {
+        itemId = 39151,
+        name = "Alabaster Pigment",
+        sources = {
+            {
+                itemId = 765,
+                name = "Silverleaf",
+                chance = 1.0,
+            },
+            {
+                itemId = 2447,
+                name = "Peacebloom",
+                chance = 1.0,
+            },
+            {
+                itemId = 2449,
+                name = "Earthroot",
+                chance = 1.0,
+            },
+        }
+    },
+    {
+        itemId = 39334,
+        name = "Dusky Pigment",
+        sources = {
+            {
+                itemId = 2452,
+                name = "Swiftthistle",
+                chance = 1.0,
+            },
+            {
+                itemId = 3820,
+                name = "Stranglekelp",
+                chance = 1.0,
+            },
+            {
+                itemId = 785,
+                name = "Mageroyal",
+                chance = 1.0,
+            },
+            {
+                itemId = 2453,
+                name = "Bruiseweed",
+                chance = 1.0,
+            },
+            {
+                itemId = 2450,
+                name = "Briarthorn",
+                chance = 1.0,
+            },
+        }
+    },
+    {
+        itemId = 43103,
+        name = "Verdent Pigment",
+        sources = {
+            {
+                itemId = 2452,
+                name = "Swiftthistle",
+                chance = 0.25,
+            },
+            {
+                itemId = 3820,
+                name = "Stranglekelp",
+                chance = 0.50,
+            },
+            {
+                itemId = 785,
+                name = "Mageroyal",
+                chance = 0.25,
+            },
+            {
+                itemId = 2453,
+                name = "Bruiseweed",
+                chance = 0.50,
+            },
+            {
+                itemId = 2450,
+                name = "Briarthorn",
+                chance = 0.25,
+            },
+        }
+    },
+    {
+        itemId = 39338,
+        name = "Golden Pigment",
+        sources = {
+            {
+                itemId = 3355,
+                name = "Wild Steelbloom",
+                chance = 1.0,
+            },
+            {
+                itemId = 3357,
+                name = "Liferoot",
+                chance = 1.0,
+            },
+            {
+                itemId = 3356,
+                name = "Kingsblood",
+                chance = 1.0,
+            },
+            {
+                itemId = 3369,
+                name = "Grave Moss",
+                chance = 1.0,
+            },
+        }
+    },
+    {
+        itemId = 43104,
+        name = "Burnt Pigment",
+        sources = {
+            {
+                itemId = 3355,
+                name = "Wild Steelbloom",
+                chance = 0.25,
+            },
+            {
+                itemId = 3357,
+                name = "Liferoot",
+                chance = 0.50,
+            },
+            {
+                itemId = 3356,
+                name = "Kingsblood",
+                chance = 0.50,
+            },
+            {
+                itemId = 3369,
+                name = "Grave Moss",
+                chance = 0.25,
+            },
+        }
+    },
+    {
+        itemId = 39339,
+        name = "Emerald Pigment",
+        sources = {
+            {
+                itemId = 3819,
+                name = "Wintersbite",
+                chance = 1.0,
+            },
+            {
+                itemId = 3358,
+                name = [[Khadgar's Whisker]],
+                chance = 1.0,
+            },
+            {
+                itemId = 3821,
+                name = "Goldthorn",
+                chance = 1.0,
+            },
+            {
+                itemId = 3818,
+                name = "Fadeleaf",
+                chance = 1.0,
+            },
+        }
+    },
+    {
+        itemId = 43105,
+        name = "Indigo Pigment",
+        sources = {
+            {
+                itemId = 3819,
+                name = "Wintersbite",
+                chance = 0.50,
+            },
+            {
+                itemId = 3358,
+                name = [[Khadgar's Whisker]],
+                chance = 0.50,
+            },
+            {
+                itemId = 3821,
+                name = "Goldthorn",
+                chance = 0.25,
+            },
+            {
+                itemId = 3818,
+                name = "Fadeleaf",
+                chance = 0.25,
+            },
+        }
+    },
+    {
+        itemId = 39340,
+        name = "Violet Pigment",
+        sources = {
+            {
+                itemId = 8838,
+                name = "Sungrass",
+                chance = 1.0,
+            },
+            {
+                itemId = 8836,
+                name = [[Arthas' Tears]],
+                chance = 1.0,
+            },
+            {
+                itemId = 8831,
+                name = "Purple Lotus",
+                chance = 1.0,
+            },
+            {
+                itemId = 8846,
+                name = "Gromsblood",
+                chance = 1.0,
+            },
+            {
+                itemId = 8845,
+                name = "Ghost Mushroom",
+                chance = 1.0,
+            },
+            {
+                itemId = 4625,
+                name = "Firebloom",
+                chance = 1.0,
+            },
+            {
+                itemId = 8839,
+                name = "Blindweed",
+                chance = 1.0,
+            },
+        }
+    },
+    {
+        itemId = 43106,
+        name = "Ruby Pigment",
+        sources = {
+            {
+                itemId = 8838,
+                name = "Sungrass",
+                chance = 0.25,
+            },
+            {
+                itemId = 8836,
+                name = [[Arthas' Tears]],
+                chance = 0.25,
+            },
+            {
+                itemId = 8831,
+                name = "Purple Lotus",
+                chance = 0.25,
+            },
+            {
+                itemId = 8846,
+                name = "Gromsblood",
+                chance = 0.50,
+            },
+            {
+                itemId = 8845,
+                name = "Ghost Mushroom",
+                chance = 0.50,
+            },
+            {
+                itemId = 4625,
+                name = "Firebloom",
+                chance = 0.25,
+            },
+            {
+                itemId = 8839,
+                name = "Blindweed",
+                chance = 0.50,
+            },
+        }
+    },
+    {
+        itemId = 39341,
+        name = "Silvery Pigment",
+        sources = {
+            {
+                itemId = 13466,
+                name = "Plaguebloom",
+                chance = 1.0,
+            },
+            {
+                itemId = 13465,
+                name = "Mountain Silversage",
+                chance = 1.0,
+            },
+            {
+                itemId = 13467,
+                name = "Icecap",
+                chance = 1.0,
+            },
+            {
+                itemId = 13464,
+                name = "Golden Sansam",
+                chance = 1.0,
+            },
+            {
+                itemId = 13463,
+                name = "Dreamfoil",
+                chance = 1.0,
+            },
+        }
+    },
+    {
+        itemId = 43107,
+        name = "Sapphire Pigment",
+        sources = {
+            {
+                itemId = 13466,
+                name = "Plaguebloom",
+                chance = 0.50,
+            },
+            {
+                itemId = 13465,
+                name = "Mountain Silversage",
+                chance = 0.50,
+            },
+            {
+                itemId = 13467,
+                name = "Icecap",
+                chance = 0.50,
+            },
+            {
+                itemId = 13464,
+                name = "Golden Sansam",
+                chance = 0.25,
+            },
+            {
+                itemId = 13463,
+                name = "Dreamfoil",
+                chance = 0.25,
+            },
+        }
+    },
+    {
+        itemId = 39342,
+        name = "Nether Pigment",
+        sources = {
+            {
+                itemId = 22789,
+                name = "Terocone",
+                chance = 1.0,
+            },
+            {
+                itemId = 22787,
+                name = "Ragveil",
+                chance = 1.0,
+            },
+            {
+                itemId = 22792,
+                name = "Nightmare Vine",
+                chance = 1.0,
+            },
+            {
+                itemId = 22791,
+                name = "Netherbloom",
+                chance = 1.0,
+            },
+            {
+                itemId = 22793,
+                name = "Mana Thistle",
+                chance = 1.0,
+            },
+            {
+                itemId = 22785,
+                name = "Felweed",
+                chance = 1.0,
+            },
+            {
+                itemId = 22786,
+                name = "Dreaming Glory",
+                chance = 1.0,
+            },
+            {
+                itemId = 22790,
+                name = "Ancient Lichen",
+                chance = 1.0,
+            },
+        }
+    },
+    {
+        itemId = 43108,
+        name = "Ebon Pigment",
+        sources = {
+            {
+                itemId = 22789,
+                name = "Terocone",
+                chance = 0.25,
+            },
+            {
+                itemId = 22787,
+                name = "Ragveil",
+                chance = 0.25,
+            },
+            {
+                itemId = 22792,
+                name = "Nightmare Vine",
+                chance = 0.50,
+            },
+            {
+                itemId = 22791,
+                name = "Netherbloom",
+                chance = 0.50,
+            },
+            {
+                itemId = 22793,
+                name = "Mana Thistle",
+                chance = 0.50,
+            },
+            {
+                itemId = 22785,
+                name = "Felweed",
+                chance = 0.25,
+            },
+            {
+                itemId = 22786,
+                name = "Dreaming Glory",
+                chance = 0.25,
+            },
+            {
+                itemId = 22790,
+                name = "Ancient Lichen",
+                chance = 0.50,
+            },
+        }
+    },
+    {
+        itemId = 39343,
+        name = "Azure Pigment",
+        sources = {
+            {
+                itemId = 36904,
+                name = "Tiger Lily",
+                chance = 1.0,
+            },
+            {
+                itemId = 36907,
+                name = [[Talandra's Rose]],
+                chance = 1.0,
+            },
+            {
+                itemId = 36905,
+                name = "Lichbloom",
+                chance = 1.0,
+            },
+            {
+                itemId = 36906,
+                name = "Icethorn",
+                chance = 1.0,
+            },
+            {
+                itemId = 36901,
+                name = "Goldclover",
+                chance = 1.0,
+            },
+            {
+                itemId = 39969,
+                name = "Fire Seed",
+                chance = 1.0,
+            },
+            {
+                itemId = 39970,
+                name = "Fire Leaf",
+                chance = 1.0,
+            },
+            {
+                itemId = 37921,
+                name = "Deadnettle",
+                chance = 1.0,
+            },
+            {
+                itemId = 36903,
+                name = [[Adder's Tongue]],
+                chance = 1.0,
+            },
+        }
+    },
+    {
+        itemId = 43109,
+        name = "Icy Pigment",
+        sources = {
+            {
+                itemId = 36904,
+                name = "Tiger Lily",
+                chance = 0.25,
+            },
+            {
+                itemId = 36907,
+                name = [[Talandra's Rose]],
+                chance = 0.25,
+            },
+            {
+                itemId = 36905,
+                name = "Lichbloom",
+                chance = 0.50,
+            },
+            {
+                itemId = 36906,
+                name = "Icethorn",
+                chance = 0.50,
+            },
+            {
+                itemId = 36901,
+                name = "Goldclover",
+                chance = 0.25,
+            },
+            {
+                itemId = 39969,
+                name = "Fire Seed",
+                chance = 0.25,
+            },
+            {
+                itemId = 39970,
+                name = "Fire Leaf",
+                chance = 0.25,
+            },
+            {
+                itemId = 37921,
+                name = "Deadnettle",
+                chance = 0.25,
+            },
+            {
+                itemId = 36903,
+                name = [[Adder's Tongue]],
+                chance = 0.50,
+            },
+        }
+    },
+    {
+        itemId = 61979,
+        sources = {
+            {
+                itemId = 52985,
+                chance = 1,
+            },
+            {
+                itemId = 52983,
+                chance = 1,
+            },
+            {
+                itemId = 52986,
+                chance = 1,
+            },
+            {
+                itemId = 52984,
+                chance = 1,
+            },
+            {
+                itemId = 52987,
+                chance = 1,
+            },
+            {
+                itemId = 52988,
+                chance = 1,
+            },
+        }
+    },
+    {
+        itemId = 61980,
+        sources = {
+            {
+                itemId = 52985,
+                chance = 0.25,
+            },
+            {
+                itemId = 52983,
+                chance = 0.25,
+            },
+            {
+                itemId = 52986,
+                chance = 0.25,
+            },
+            {
+                itemId = 52984,
+                chance = 0.25,
+            },
+            {
+                itemId = 52987,
+                chance = 0.5,
+            },
+            {
+                itemId = 52988,
+                chance = 0.5,
+            },
+        }
+    },
+}
+
+addon.tradeskillData.inks = {
+    {
+        itemId = 37101,
+        name = "Ivory Ink",
+        pigments = {
+            {
+                itemId = 39151,
+                quantidy = 1.0,
+                name = "Alabaster Pigment",
+                tab = "pigments",
+            }
+        }
+    }, --1
+    {
+        itemId = 39469,
+        name = "Moonglow Ink",
+        pigments = {
+            {
+                itemId = 39151,
+                quantidy = 2.0,
+                name = "Alabaster Pigment",
+                tab = "pigments",
+            }
+        }
+    }, --2
+    {
+        itemId = 39774,
+        name = "Midnight Ink",
+        pigments = {
+            {
+                itemId = 39334,
+                quantidy = 2.0,
+                name = "Dusky Pigment",
+                tab = "pigments",
+            }
+        }
+    }, --3
+    {
+        itemId = 43115,
+        name = [[Hunter's Ink]],
+        pigments = {
+            {
+                itemId = 43103,
+                quantidy = 2.0,
+                name = "Verdent Pigment",
+                tab = "pigments",
+            }
+        }
+    }, --4
+    {
+        itemId = 43116,
+        name = [[Lion's Ink]],
+        pigments = {
+            {
+                itemId = 39338,
+                quantidy = 2.0,
+                name = "Golden Pigment",
+                tab = "pigments",
+            }
+        }
+    }, --5
+    {
+        itemId = 43117,
+        name = "Dawnstar Ink",
+        pigments = {
+            {
+                itemId = 43104,
+                quantidy = 1.0,
+                name = "Burnt Pigment",
+                tab = "pigments",
+            }
+        }
+    }, --6
+    {
+        itemId = 43118,
+        name = "Jadefire Ink",
+        pigments = {
+            {
+                itemId = 39339,
+                quantidy = 2.0,
+                name = "Emerald Pigment",
+                tab = "pigments",
+            }
+        }
+    }, --7
+    {
+        itemId = 43119,
+        name = "Royal Ink",
+        pigments = {
+            {
+                itemId = 43105,
+                quantidy = 1.0,
+                name = "Indigo Pigment",
+                tab = "pigments",
+            }
+        }
+    }, --8
+    {
+        itemId = 43120,
+        name = "Celestial Ink",
+        pigments = {
+            {
+                itemId = 39340,
+                quantidy = 2.0,
+                name = "Violet Pigment",
+                tab = "pigments",
+            }
+        }
+    }, --9
+    {
+        itemId = 43121,
+        name = "Firey Ink",
+        pigments = {
+            {
+                itemId = 43106,
+                quantidy = 1.0,
+                name = "Ruby Pigment",
+                tab = "pigments",
+            }
+        }
+    }, --10
+    {
+        itemId = 43122,
+        name = "Shimmering Ink",
+        pigments = {
+            {
+                itemId = 39341,
+                quantidy = 2.0,
+                name = "Silvery Pigment",
+                tab = "pigments",
+            }
+        }
+    }, --11
+    {
+        itemId = 43123,
+        name = "Ink of the Sky",
+        pigments = {
+            {
+                itemId = 43107,
+                quantidy = 1.0,
+                name = "Sapphire Pigment",
+                tab = "pigments",
+            }
+        }
+    }, --12
+    {
+        itemId = 43124,
+        name = "Ethereal Ink",
+        pigments = {
+            {
+                itemId = 39342,
+                quantidy = 2.0,
+                name = "Nether Pigment",
+                tab = "pigments",
+            }
+        }
+    }, --13
+    {
+        itemId = 43125,
+        name = "Darkflame Ink",
+        pigments = {
+            {
+                itemId = 43108,
+                quantidy = 1.0,
+                name = "Ebon Pigment",
+                tab = "pigments",
+            }
+        }
+    }, --14
+    {
+        itemId = 43126,
+        name = "Ink of the Sea",
+        pigments = {
+            {
+                itemId = 39343,
+                quantidy = 2.0,
+                name = "Azure Pigment",
+                tab = "pigments",
+            }
+        }
+    }, --15
+    {
+        itemId = 43127,
+        name = "Snowfall Ink",
+        pigments = {
+            {
+                itemId = 43109,
+                quantidy = 2.0,
+                name = "Icy Pigment",
+                tab = "pigments",
+            }
+        }
+    },
+    {
+        itemId = 61978,
+        name = "Blackfallow Ink",
+        pigments = {
+            {
+                itemId = 61979,
+                quantidy = 2.0,
+                name = "Ashen Pigment",
+                tab = "pigments",
+            }
+        }
+    },
+    {
+        itemId = 61981,
+        name = "Inferno Ink",
+        pigments = {
+            {
+                itemId = 61980,
+                quantidy = 2.0,
+                name = "Burning Embers",
+                tab = "pigments",
+            }
+        }
+    },
+}

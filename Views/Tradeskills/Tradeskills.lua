@@ -5,7 +5,36 @@ local Character = addon.Character;
 local Database = addon.Database;
 
 local artworkFilePath = [[Interface\AddOns\Guildbook\Media\Tradeskills\ProfessionBackgroundArt]]
+local MILLING_SPELL_NAME = ""
 
+MillingMacroButtonMixin = {}
+function MillingMacroButtonMixin:OnLoad()
+    
+end
+function MillingMacroButtonMixin:SetDataBinding(binding)   
+    if binding.itemIcon then
+        self.icon:SetTexture(binding.itemIcon)
+    end
+    if binding.itemID then
+        
+    end
+    if binding.stackCount then
+        self.text:SetText(binding.stackCount)
+    end
+    if binding.itemName then
+        local macro = 
+([[
+/cast %s
+/use %s
+]]):format(MILLING_SPELL_NAME, binding.itemName)
+
+    self:SetAttribute("macrotext1", macro)
+    end
+end
+function MillingMacroButtonMixin:ResetDataBinding()
+    self:SetAttribute("macrotext1", "")
+    self.text:SetText("")
+end
 
 -- local tradeskillIDs = {
 --     ["Alchemy"] = 171,
@@ -39,9 +68,9 @@ function GuildbookTradskillsMixin:OnLoad()
 
     --NineSliceUtil.ApplyLayout(self.details.crafters, NineSliceLayouts.ChatBubble)
 
-    local menu = {}
+    self.tradeskillMenu = {}
     for name, id in pairs(Tradeskills.PrimaryTradeskills) do
-        table.insert(menu, {
+        table.insert(self.tradeskillMenu, {
             text = Tradeskills:GetLocaleNameFromID(id),
             func = function()
                 local recipes = Tradeskills:BuildTradeskillData(id)
@@ -53,10 +82,11 @@ function GuildbookTradskillsMixin:OnLoad()
             end,
         })
     end
-    table.sort(menu, function(a, b)
+    table.sort(self.tradeskillMenu, function(a, b)
         return a.text < b.text
     end)
-    self.tradeskillDropdown:SetMenu(menu)
+
+    self.tradeskillDropdown:SetMenu(self.tradeskillMenu)
 
     self.statusBar:SetScript("OnValueChanged", function(bar)
         if bar:GetValue() == 1 then
@@ -69,7 +99,12 @@ function GuildbookTradskillsMixin:OnLoad()
     self.details.itemButton.icon:SetSize(y*1.2, y*1.2)
     self.details.itemButton.mask:SetSize(z*1.2, z*1.2)
 
+    self.milling.itemButton.border:SetSize(x*1.2, x*1.2)
+    self.milling.itemButton.icon:SetSize(y*1.2, y*1.2)
+    self.milling.itemButton.mask:SetSize(z*1.2, z*1.2)
+
     self.details.reagents.divider:SetTexCoord(0,1, 1,1, 0,0, 1,0)
+    self.milling.sources.divider:SetTexCoord(0,1, 1,1, 0,0, 1,0)
     self.details.crafters.scrollView:SetPadding(14, 14, 1, 1, 1);
     self.details.reagentForRecipes.scrollView:SetPadding(14, 14, 1, 1, 1); --t,b,l,r
 
@@ -79,6 +114,8 @@ function GuildbookTradskillsMixin:OnLoad()
     self.prof2.border:SetSize(50,50)
     self.prof2.icon:SetSize(30,30)
     self.prof2.mask:SetSize(25,25)
+
+    
 
     self.details.craftingOptions.quantityToCraft:SetMinMaxValues(1,100)
 
@@ -97,6 +134,123 @@ function GuildbookTradskillsMixin:OnLoad()
 
     addon.AddView(self)
 
+end
+
+function GuildbookTradskillsMixin:LoadMillingUI()
+    self:ClearPanels()
+
+    self.milling:Show()
+
+    local dataProvider = self:SetOrCreateDataProvider("milling")
+    if dataProvider then
+        for k, v in ipairs(addon.tradeskillData.inks) do
+            local item = Item:CreateFromItemID(v.itemId)
+            if not item:IsItemEmpty() then
+                item:ContinueOnItemLoad(function()
+
+                    local itemName = item:GetItemName()
+
+                    if not dataProvider[itemName] then
+                        dataProvider[itemName] = dataProvider:Insert({
+                            label = item:GetItemLink(),
+                            isParent = true,
+                            atlas = "common-icon-forwardarrow",
+                        })
+                    end
+
+                    for _, pigment in ipairs(v.pigments) do
+                        for _, source in ipairs(addon.tradeskillData.pigments) do
+                            if source.itemId == pigment.itemId then
+
+                                local item2 = Item:CreateFromItemID(pigment.itemId)
+                                if not item2:IsItemEmpty() then
+                                    item2:ContinueOnItemLoad(function()
+                                        dataProvider[itemName]:Insert({
+                                            label = item2:GetItemLink(),
+
+                                            onMouseDown = function()
+
+                                                self.milling.sourceHerbItemIDs = {}
+                                                for _, v2 in ipairs(source.sources) do
+                                                    self.milling.sourceHerbItemIDs[v2.itemId] = true
+                                                end
+
+                                                self:UpdateMillingReagentsInbags()
+
+                                                self.milling.itemButton:Show()
+                                                self.milling.itemButton.link:SetText(item2:GetItemLink())
+                                                self.milling.itemButton:Init({
+                                                    icon = item2:GetItemIcon(),
+                                                })
+                                                local rgb = ITEM_QUALITY_COLORS[item2:GetItemQuality()]
+                                                self.milling.itemButton.border:SetVertexColor(rgb.r, rgb.g, rgb.b)
+
+                                                local auctionatorSerachTerms = {}
+                                                local dp = CreateDataProvider({})
+                                                self.milling.sources.scrollView:SetDataProvider(dp)
+                                                for _, v2 in ipairs(source.sources) do
+                                                    local item3 = Item:CreateFromItemID(v2.itemId)
+                                                    if not item3:IsItemEmpty() then
+                                                        item3:ContinueOnItemLoad(function()
+                                                            local cost = Auctionator.API.v1.GetAuctionPriceByItemID(addonName, v2.itemId)
+                                                            table.insert(auctionatorSerachTerms, item3:GetItemName())
+                                                            dp:Insert({
+                                                                label = string.format("%s\n%s", item3:GetItemLink(), NORMAL_FONT_COLOR:WrapTextInColorCode(string.format("chance: %s", v2.chance))),
+                                                                icon = item3:GetItemIcon(),
+
+                                                                labelRight = string.format("\n%s  ", GetCoinTextureString((cost or 0), 11)),
+
+                                                                onMouseDown = function()
+                                                                    if IsAltKeyDown() then
+                                                                        --Auctiona
+                                                                    end
+                                                                end
+                                                            })
+                                                        end)
+                                                    end
+                                                end
+
+                                                self.milling.searchAH:SetScript("OnClick", function()
+                                                    if AuctionFrame:IsVisible() then
+                                                        Auctionator.API.v1.MultiSearch(addonName, auctionatorSerachTerms)
+                                                    end
+                                                end)
+                                            end,
+                                        })
+                                    end)
+                                end
+
+                            end
+                        end
+                    end
+
+                    dataProvider[itemName]:ToggleCollapsed()
+                end)
+            end
+        end
+    end
+
+end
+
+function GuildbookTradskillsMixin:UpdateMillingReagentsInbags()
+    self.milling.playerReagentsGridview:Flush()
+    for bag = 0, 4 do
+        for slot = 1, C_Container.GetContainerNumSlots(bag) do
+            local containerInfo = C_Container.GetContainerItemInfo(bag, slot)
+            if containerInfo then
+                if self.milling.sourceHerbItemIDs[containerInfo.itemID] then
+                    self.milling.playerReagentsGridview:Insert({
+                        bag = bag,
+                        slot = slot,
+                        stackCount = containerInfo.stackCount,
+                        itemIcon = containerInfo.iconFileID,
+                        itemName = containerInfo.itemName,
+                        itemID = containerInfo.itemID,
+                    })
+                end
+            end
+        end
+    end
 end
 
 function GuildbookTradskillsMixin:UpdatePlayerTradeskillButtons()
@@ -146,6 +300,23 @@ function GuildbookTradskillsMixin:OnShow()
     --ocal currentVolume = tonumber(GetCVar("Sound_MasterVolume"));
     self:UpdatePlayerTradeskillButtons()
     self:UpdateLayout()
+
+    if IsPlayerSpell(51005) then
+
+        self.milling.playerReagentsGridview:InitFramePool("BUTTON", "MillingMacroButton")
+        self.milling.playerReagentsGridview:SetMinMaxSize(40,50)
+        self.milling.playerReagentsGridview.ScrollBar:Hide()
+
+        local spell, _, icon = GetSpellInfo(51005)
+        MILLING_SPELL_NAME = spell
+        table.insert(self.tradeskillMenu, {
+            text = spell,
+            func = function()
+                self:LoadMillingUI()
+            end,
+        })
+        self.tradeskillDropdown:SetMenu(self.tradeskillMenu)
+    end
 end
 
 function GuildbookTradskillsMixin:UpdateLayout()
@@ -216,14 +387,19 @@ end
 local wowheadCataSpellURL = "https://www.wowhead.com/cata/spell=%d"
 local wowheadCataItemURL = "https://www.wowhead.com/cata/item=%d"
 
-function GuildbookTradskillsMixin:ClearRecipe()
-    self.welcomePanel:Show()
+function GuildbookTradskillsMixin:ClearPanels()
+    self.welcomePanel:Hide()
     self.details:Hide()
+    self.milling:Hide()
 end
 
 function GuildbookTradskillsMixin:OnCharacterBagsUpdated()
     if self.selectedRecipe then
         self:UpdateReagents(self.selectedRecipe)
+    end
+
+    if self.milling:IsVisible() then
+        self:UpdateMillingReagentsInbags()
     end
 end
 
@@ -280,12 +456,14 @@ function GuildbookTradskillsMixin:UpdateReagents(recipe)
     if Auctionator then
 
         self.details.auctionatorInfo.searchAH:SetScript("OnClick", function()
-            local t = {}
-            for k, item in ipairs(reagents) do
-                table.insert(t, item.auctionHouseSearchTerm)
+            if AuctionFrame:IsVisible() then
+                local t = {}
+                for k, item in ipairs(reagents) do
+                    table.insert(t, item.auctionHouseSearchTerm)
+                end
+        
+                Auctionator.API.v1.MultiSearch(addonName, t)
             end
-    
-            Auctionator.API.v1.MultiSearch(addonName, t)
         end)
 
         self:UpdateAuctionatorPanel(recipe)
@@ -366,7 +544,8 @@ function GuildbookTradskillsMixin:SetRecipe(recipe)
 
     self.selectedRecipe = recipe;
 
-    self.welcomePanel:Hide()
+    self:ClearPanels()
+
     self.details:Show()
 
     local rgb = ITEM_QUALITY_COLORS[recipe.quality]
