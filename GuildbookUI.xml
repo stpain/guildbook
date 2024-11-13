@@ -15,6 +15,8 @@
         </Anchors>
     </ScrollFrame>
 
+    
+
     <Frame name="GuildbookUpdatesUI" mixin="GuildbookUpdatesMixin" parent="UIParent" inherits="TooltipBorderedFrameTemplate" frameStrata="HIGH" hidden="true">
         <Size x="400" y="300"/>
         <Anchors>
@@ -71,7 +73,7 @@
     </Frame>
 
 
-    <Frame name="GuildbookUI" mixin="GuildbookMixin" hidden="true" parent="UIParent" inherits="PortraitFrameTemplate" frameStrata="HIGH" enableMouse="true" resizable="true" movable="true">
+    <Frame name="GuildbookUI" mixin="GuildbookMixin" parent="UIParent" inherits="PortraitFrameTemplate" hidden="true" frameStrata="HIGH" enableMouse="true" resizable="true" movable="true">
         <Size x="920" y="510"/>
         <Anchors>
             <Anchor point="CENTER" x="0" y="0"/>

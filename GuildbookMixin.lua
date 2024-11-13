@@ -504,6 +504,8 @@ function GuildbookMixin:Database_OnInitialised()
     self:CreateMinimapButtons()
     self:CreateSlashCommands()
 
+    self:Hide()
+
     Tradeskills.BuildEnchanterNameToSpellID()
 
     C_Timer.After(5, function()

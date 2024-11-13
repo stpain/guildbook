@@ -301,7 +301,7 @@ function GuildbookTradskillsMixin:OnShow()
     self:UpdatePlayerTradeskillButtons()
     self:UpdateLayout()
 
-    if IsPlayerSpell(51005) then
+    if IsPlayerSpell(51005) and MILLING_SPELL_NAME == "" then
 
         self.milling.playerReagentsGridview:InitFramePool("BUTTON", "MillingMacroButton")
         self.milling.playerReagentsGridview:SetMinMaxSize(40,50)
@@ -528,7 +528,7 @@ local function makeCoinAtlas(money, textonly)
 	local copper = mod(money, COPPER_PER_SILVER);
 
     if textonly then
-        return string.format("%d,%d,%d", gold, silver, copper)
+        return string.format("%dg,%ds,%dc", gold, silver, copper)
     end
 
     return string.format("%d%s%d%s%d%s",
@@ -563,23 +563,22 @@ function GuildbookTradskillsMixin:SetRecipe(recipe)
         if button == "LeftButton" then
             HandleModifiedItemClick(recipe.link)
         else
-            local channel = "SAY"
+            local channel = "GUILD"
             local totalCost = 0;
             SendChatMessage(string.format("[Guildbook] Reagents for %s", recipe.link), channel)
-            self.details.reagents.scrollView:ForEachFrame(function(frame)
-                --local icon = select(5, GetItemInfoInstant(frame:GetElementData().link))
-                --local t = CreateSimpleTextureMarkup(icon, 12, 12, 0, 0)
-
-                local itemID = GetItemInfoInstant(frame:GetElementData().link)
-                local cost = Auctionator.API.v1.GetAuctionPriceByItemID(addonName, itemID)
-                cost = cost * frame:GetElementData().count;
-                totalCost = totalCost + cost;
-                SendChatMessage(string.format("%s x%d", frame:GetElementData().link, frame:GetElementData().count), channel)
+            C_Timer.After(0.1, function()
+                self.details.reagents.scrollView:ForEachFrame(function(frame)
+                    --local icon = select(5, GetItemInfoInstant(frame:GetElementData().link))
+                    --local t = CreateSimpleTextureMarkup(icon, 12, 12, 0, 0)
+    
+                    local itemID = GetItemInfoInstant(frame:GetElementData().link)
+                    local cost = Auctionator.API.v1.GetAuctionPriceByItemID(addonName, itemID)
+                    cost = cost * frame:GetElementData().count;
+                    totalCost = totalCost + cost;
+                    SendChatMessage(string.format("%s x%d", frame:GetElementData().link, frame:GetElementData().count), channel)
+                end)
             end)
-
-
-
-            SendChatMessage(string.format("Estimated cost: %s", makeCoinAtlas(totalCost, true)), channel)
+            SendChatMessage(string.format("Estimated cost (based on last AH scan): %s", makeCoinAtlas(totalCost, true)), channel)
         end
     end)
     self.details.itemButton:SetScript("OnEnter", function(f)

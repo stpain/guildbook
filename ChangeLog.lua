@@ -21,6 +21,11 @@ local name, addon = ...;
 
 addon.changeLog = {
     {
+        version = "7.44",
+        notes = "Added a fix for EasyMenu being removed from the Blizzard API",
+        icon = "ClassHall-QuestIcon-Desaturated",
+    },
+    {
         version = "7.43",
         notes = "Milling\nAdding a milling option to the tradeskill view for all the scribes out there.",
         icon = "ClassHall-QuestIcon-Desaturated",

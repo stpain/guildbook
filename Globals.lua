@@ -107,6 +107,40 @@ addon.api = {
     cata = {},
 }
 
+function addon.api.easyMenu(parent, menu)
+    if MenuUtil then
+        MenuUtil.CreateContextMenu(parent, function(parent, rootDescription)
+
+            for _, element in ipairs(menu) do
+                if element.isTitle then
+                    rootDescription:CreateTitle(element.text)
+    
+                elseif element.isSeparater then
+                    rootDescription:CreateSpacer()
+    
+                elseif element.isDivider then
+                    rootDescription:CreateDivider()
+    
+                else
+                    rootDescription:CreateButton(element.text, element.func)
+                end
+            end
+        end)
+    end
+end
+
+--[[
+
+EasyMenu was used in many places, for now  just hack it back into the global space and pass through to the new Menu stuff
+
+old signature
+
+EasyMenu(menu, addon.contextMenu, "cursor", 0, 0, "MENU", 0.6)
+]]
+function EasyMenu(menuTable, menuFrame)
+    addon.api.easyMenu(menuFrame, menuTable)
+end
+
 local debugTypeIcons = {
     warning = "services-icon-warning",
     info = "glueannouncementpopup-icon-info",

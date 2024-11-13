@@ -1,4 +1,4 @@
-local name, addon = ...;
+local addonName, addon = ...;
 
 local json = LibStub('JsonLua-1.0');
 
@@ -49,7 +49,7 @@ local dbToRemove = {
 
 function Database:Init()
 
-    local version = tonumber(GetAddOnMetadata(name, "Version"));
+    local version = tonumber(GetAddOnMetadata(addonName, "Version"));
 
     if not GUILDBOOK_GLOBAL then
         GUILDBOOK_GLOBAL = {
@@ -467,6 +467,24 @@ function Database:AddGuildRecruitmentMessage(guild, msg)
     if self.db and self.db.guilds and self.db.guilds[guild] and self.db.guilds[guild].recruitment then
         table.insert(self.db.guilds[guild].recruitment, msg)
         addon:TriggerEvent("Database_OnGuildRecruitmentLogChanged")
+    end
+end
+
+function Database:RemovePlayerFromRecruitment(guild, name)
+    local keys = {}
+    if self.db and self.db.guilds and self.db.guilds[guild] and self.db.guilds[guild].recruitment then
+        for k, v in ipairs(self.db.guilds[guild].recruitment) do
+            local _name = strsplit(":", v)
+            if _name == name then
+                table.insert(keys, k)
+            end
+        end
+
+        if #keys > 0 then
+            for i = #keys, 1, -1 do
+                table.remove(self.db.guilds[guild].recruitment, keys[i])
+            end
+        end
     end
 end
 

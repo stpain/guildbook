@@ -757,7 +757,23 @@ function GuildbookGuildManagementMixin:LoadLog()
             if ( _type == "invite" ) then
                 msg = format(GUILDEVENT_TYPE_INVITE, player1, player2);
             elseif ( _type == "join" ) then
+
+
                 msg = format(GUILDEVENT_TYPE_JOIN, player1);
+
+                --this player joined the guild so set their join date
+                local realm = GetNormalizedRealmName()
+                local nameRealm;
+                if player1:find("-", nil, true) then
+                    nameRealm = player1
+                else
+                    nameRealm = string.format("%s-%s", player1, realm)
+                end
+                if addon.characters and addon.characters[nameRealm] then
+                    addon.characters[nameRealm]:SetDateJoined(past_time)
+                end
+
+
             elseif ( _type == "promote" ) then
                 msg = format(GUILDEVENT_TYPE_PROMOTE, player1, player2, rank);
             elseif ( _type == "demote" ) then
@@ -875,6 +891,16 @@ function GuildbookGuildManagementMixin:UpdateMacro(overrideMacro)
         for _, player in ipairs(self.tabContainer.absent.members) do
             local loginAge = ((player.loginAge - newestLogin) / difference) * 100
             local r, g, b = addon.api.getcolourGradientFromPercent(loginAge, true)
+
+            local main;
+            if addon.characters and addon.characters[player.name] then
+                main = addon.characters[player.name]:GetMainCharacter()
+                player.onMouseEnter = function(f)
+                    GameTooltip:SetOwner(f, "ANCHOR_TOPRIGHT")
+                    GameTooltip:AddLine(main)
+                    GameTooltip:Show()
+                end
+            end
 
             player.label = Ambiguate(player.name, "short")
             player.labelRight = SecondsToTime(player.loginAge, true, true)
@@ -1206,6 +1232,13 @@ function GuildbookGuildManagementMixin:OnGuildRecruitmentLogChanged()
                 atlas = "common-icon-forwardarrow",
                 backgroundAtlas = "OBJBonusBar-Top",
                 isParent = true,
+
+                onMouseDown = function(f, button)
+                    if button == "RightButton" then
+                        Database:RemovePlayerFromRecruitment(addon.thisGuild, name)
+                        self:OnGuildRecruitmentLogChanged()
+                    end
+                end
             })
         end
 
@@ -1218,5 +1251,5 @@ function GuildbookGuildManagementMixin:OnGuildRecruitmentLogChanged()
 
     end
 
-
+--0000611402a24z55y
 end
